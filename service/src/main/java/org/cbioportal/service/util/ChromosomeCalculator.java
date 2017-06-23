@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 @Component
 public class ChromosomeCalculator {
 
-    public String getChromosome(String cytoband) {
+    private String getChromosome(String cytoband) {
 
         if (cytoband == null) {
             return null;

@@ -179,6 +179,9 @@ def process_directory(jvm_args, study_directory):
     sample_attr_filepair = None
     regular_filepairs = []
     gene_panel_matrix_filepair = None
+    zscore_filepairs = []
+    gsva_score_filepair = None
+    gsva_pvalue_filepair = None
 
     # read all meta files (excluding case lists) to determine what to import
     for f in meta_filenames:
@@ -212,6 +215,15 @@ def process_directory(jvm_args, study_directory):
         elif meta_file_type == MetaFileTypes.GENE_PANEL_MATRIX:
             gene_panel_matrix_filepair = (
                 (f, os.path.join(study_directory, metadata['data_filename'])))
+        elif meta_file_type == MetaFileTypes.EXPRESSION and metadata['datatype'] == "Z-SCORE":
+            zscore_filepairs.append(
+                (f, os.path.join(study_directory, metadata['data_filename'])))
+        elif meta_file_type == MetaFileTypes.GSVA_SCORES:
+            gsva_score_filepair = (
+                (f, os.path.join(study_directory, metadata['data_filename'])))
+        elif meta_file_type == MetaFileTypes.GSVA_PVALUES:
+            gsva_pvalue_filepair = (
+                (f, os.path.join(study_directory, metadata['data_filename'])))
         else:
             regular_filepairs.append(
                 (f, os.path.join(study_directory, metadata['data_filename'])))
@@ -235,9 +247,26 @@ def process_directory(jvm_args, study_directory):
         meta_filename, data_filename = sample_attr_filepair
         import_study_data(jvm_args, meta_filename, data_filename)
 
-    # Now, import everything else
+    # Now, import everything else except gene panel, gsva & z-score expression
+    # These data types have to be imported last, because they both refer to expression by
+    # source_stable_id. If in the future more types refer to each other, (like
+    # in a tree structure) this could be programmed in a recursive fashion.
     for meta_filename, data_filename in regular_filepairs:
         import_study_data(jvm_args, meta_filename, data_filename)
+
+    # Now import expression z-score
+    for meta_filename, data_filename in zscore_filepairs:
+        import_study_data(jvm_args, meta_filename, data_filename)
+
+    # Now import gsva genetic profiles
+    if gsva_score_filepair is not None:
+        # First import the score data
+        meta_filename, data_filename = gsva_score_filepair
+        import_study_data(jvm_args, meta_filename, data_filename)
+        #Second import the pvalue data
+        meta_filename, data_filename = gsva_pvalue_filepair
+        import_study_data(jvm_args, gsva_pvalue_filepair[0], gsva_pvalue_filepair[1])
+
 
     if gene_panel_matrix_filepair is not None:
         import_study_data(jvm_args, gene_panel_matrix_filepair[0], gene_panel_matrix_filepair[1])

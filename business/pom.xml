@@ -4,7 +4,7 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.6.3</version>
+    <version>1.7.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>business</artifactId>
@@ -21,6 +21,18 @@
       <groupId>org.mskcc.cbio</groupId>
       <artifactId>model</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <!-- jackson -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>2.3.3</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.3.3</version>
     </dependency>
   </dependencies>
 

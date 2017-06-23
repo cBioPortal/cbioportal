@@ -5,10 +5,8 @@
     <cache size="50000"/>
 
     <sql id="select">
-        mutation.GENETIC_PROFILE_ID AS geneticProfileId,
-        genetic_profile.STABLE_ID AS geneticProfileStableId,
-        mutation.SAMPLE_ID AS sampleId,
-        sample.STABLE_ID AS sampleStableId,
+        genetic_profile.STABLE_ID AS geneticProfileId,
+        sample.STABLE_ID AS sampleId,
         mutation.ENTREZ_GENE_ID as entrezGeneId
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
@@ -69,16 +67,38 @@
             </if>
         </where>
     </sql>
-    
+
     <sql id="whereBySampleListId">
         <where>
             genetic_profile.STABLE_ID = #{geneticProfileId}
             AND mutation.SAMPLE_ID IN
             (
-                SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-                INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-                WHERE sample_list.STABLE_ID = #{sampleListId}
+            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+            WHERE sample_list.STABLE_ID = #{sampleListId}
             )
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND mutation.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+    
+    <sql id="whereInMultipleGeneticProfiles">
+        <where>
+            <if test="sampleIds != null">
+                <foreach index="i" collection="sampleIds" open="(" separator="OR" close=")">
+                    sample.STABLE_ID = #{sampleIds[${i}]} AND genetic_profile.STABLE_ID = #{geneticProfileIds[${i}]}
+                </foreach>
+            </if>
+            <if test="sampleIds == null">
+                genetic_profile.STABLE_ID IN
+                <foreach item="item" collection="geneticProfileIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND mutation.ENTREZ_GENE_ID IN
                 <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
@@ -117,6 +137,36 @@
         <include refid="from"/>
         <include refid="whereBySampleListId"/>
     </select>
+    
+    <select id="getMutationsInMultipleGeneticProfiles" resultType="org.cbioportal.model.Mutation">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        </if>
+        <if test="projection == 'DETAILED'">
+            INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        </if>
+        <include refid="whereInMultipleGeneticProfiles"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY genetic_profile.STABLE_ID ASC, sample.STABLE_ID ASC, mutation.ENTREZ_GENE_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaMutationsInMultipleGeneticProfiles" resultType="org.cbioportal.model.meta.MutationMeta">
+        SELECT
+        COUNT(*) AS totalCount,
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
+        <include refid="from"/>
+        <include refid="whereInMultipleGeneticProfiles"/>
+    </select>
 
     <select id="getMutationsBySampleIds" resultType="org.cbioportal.model.Mutation">
         SELECT
@@ -147,20 +197,25 @@
         <include refid="from"/>
         <include refid="where"/>
     </select>
-    
-    <select id="getSampleCountByEntrezGeneIds" resultType="org.cbioportal.model.MutationSampleCountByGene">
+
+    <select id="getSampleCountByEntrezGeneIdsAndSampleListId" resultType="org.cbioportal.model.MutationSampleCountByGene">
         SELECT
         mutation.ENTREZ_GENE_ID AS entrezGeneId,
         COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
         FROM mutation
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
-        <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
-            AND mutation.ENTREZ_GENE_ID IN
-            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
-        </if>
+        <include refid="whereBySampleListId"/>
+        GROUP BY mutation.ENTREZ_GENE_ID
+    </select>
+
+    <select id="getSampleCountByEntrezGeneIdsAndSampleIds" resultType="org.cbioportal.model.MutationSampleCountByGene">
+        SELECT
+        mutation.ENTREZ_GENE_ID AS entrezGeneId,
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
+        FROM mutation
+        INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
+        <include refid="where"/>
         GROUP BY mutation.ENTREZ_GENE_ID
     </select>
 
@@ -183,19 +238,19 @@
 
     <select id="getMutationCountsBySampleListId" resultType="org.cbioportal.model.MutationCount">
         SELECT
-        genetic_profile.STABLE_ID AS geneticProfileId,
-        sample.STABLE_ID AS sampleId,
-        mutation_count.MUTATION_COUNT AS mutationCount
+            genetic_profile.STABLE_ID AS geneticProfileId,
+            sample.STABLE_ID AS sampleId,
+            mutation_count.MUTATION_COUNT AS mutationCount
         FROM mutation_count
-        INNER JOIN genetic_profile ON mutation_count.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN sample ON mutation_count.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN genetic_profile ON mutation_count.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN sample ON mutation_count.SAMPLE_ID = sample.INTERNAL_ID
         WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
-        AND mutation_count.SAMPLE_ID IN
-        (
-            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-            WHERE sample_list.STABLE_ID = #{sampleListId}
-        )
+              AND mutation_count.SAMPLE_ID IN
+                  (
+                      SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+                          INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+                      WHERE sample_list.STABLE_ID = #{sampleListId}
+                  )
     </select>
 
     <select id="getMutationCountsBySampleIds" resultType="org.cbioportal.model.MutationCount">

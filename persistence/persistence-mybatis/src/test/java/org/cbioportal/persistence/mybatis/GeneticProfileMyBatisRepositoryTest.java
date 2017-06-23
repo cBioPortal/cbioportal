@@ -27,10 +27,10 @@ public class GeneticProfileMyBatisRepositoryTest {
         List<GeneticProfile> result = geneticProfileMyBatisRepository.getAllGeneticProfiles("ID", null, null, null,
                 null);
 
-        Assert.assertEquals(6, result.size());
+        Assert.assertEquals(8, result.size());
         GeneticProfile geneticProfile = result.get(0);
-        Assert.assertEquals((Integer) 2, geneticProfile.getGeneticProfileId());
-        Assert.assertEquals("study_tcga_pub_gistic", geneticProfile.getStableId());
+        Assert.assertEquals((Integer) 8, geneticProfile.getGeneticProfileId());
+        Assert.assertEquals("acc_tcga_mutations", geneticProfile.getStableId());
         Assert.assertNull(geneticProfile.getCancerStudy());
     }
 
@@ -40,7 +40,7 @@ public class GeneticProfileMyBatisRepositoryTest {
         List<GeneticProfile> result = geneticProfileMyBatisRepository.getAllGeneticProfiles("SUMMARY", null, null, null,
                 null);
 
-        Assert.assertEquals(6, result.size());
+        Assert.assertEquals(8, result.size());
         GeneticProfile geneticProfile = result.get(0);
         Assert.assertEquals((Integer) 2, geneticProfile.getGeneticProfileId());
         Assert.assertEquals("study_tcga_pub_gistic", geneticProfile.getStableId());
@@ -63,7 +63,7 @@ public class GeneticProfileMyBatisRepositoryTest {
         List<GeneticProfile> result = geneticProfileMyBatisRepository.getAllGeneticProfiles("DETAILED", null, null,
                 null, null);
 
-        Assert.assertEquals(6, result.size());
+        Assert.assertEquals(8, result.size());
         GeneticProfile geneticProfile = result.get(0);
         Assert.assertEquals((Integer) 2, geneticProfile.getGeneticProfileId());
         Assert.assertEquals("study_tcga_pub_gistic", geneticProfile.getStableId());
@@ -107,13 +107,15 @@ public class GeneticProfileMyBatisRepositoryTest {
         List<GeneticProfile> result = geneticProfileMyBatisRepository.getAllGeneticProfiles("SUMMARY", null, null,
                 "stableId", "ASC");
 
-        Assert.assertEquals(6, result.size());
-        Assert.assertEquals("study_tcga_pub_gistic", result.get(0).getStableId());
-        Assert.assertEquals("study_tcga_pub_log2CNA", result.get(1).getStableId());
-        Assert.assertEquals("study_tcga_pub_methylation_hm27", result.get(2).getStableId());
-        Assert.assertEquals("study_tcga_pub_mrna", result.get(3).getStableId());
-        Assert.assertEquals("study_tcga_pub_mutations", result.get(4).getStableId());
-        Assert.assertEquals("study_tcga_pub_sv", result.get(5).getStableId());
+        Assert.assertEquals(8, result.size());
+        Assert.assertEquals("acc_tcga_mutations", result.get(0).getStableId());
+        Assert.assertEquals("study_tcga_pub_gistic", result.get(1).getStableId());
+        Assert.assertEquals("study_tcga_pub_gsva_scores", result.get(2).getStableId());
+        Assert.assertEquals("study_tcga_pub_log2CNA", result.get(3).getStableId());
+        Assert.assertEquals("study_tcga_pub_methylation_hm27", result.get(4).getStableId());
+        Assert.assertEquals("study_tcga_pub_mrna", result.get(5).getStableId());
+        Assert.assertEquals("study_tcga_pub_mutations", result.get(6).getStableId());
+        Assert.assertEquals("study_tcga_pub_sv", result.get(7).getStableId());
     }
 
     @Test
@@ -121,7 +123,7 @@ public class GeneticProfileMyBatisRepositoryTest {
 
         BaseMeta result = geneticProfileMyBatisRepository.getMetaGeneticProfiles();
 
-        Assert.assertEquals((Integer) 6, result.getTotalCount());
+        Assert.assertEquals((Integer) 8, result.getTotalCount());
     }
 
     @Test
@@ -171,7 +173,7 @@ public class GeneticProfileMyBatisRepositoryTest {
         List<GeneticProfile> result = geneticProfileMyBatisRepository.getAllGeneticProfilesInStudy("study_tcga_pub",
                 "SUMMARY", null, null, null, null);
 
-        Assert.assertEquals(6, result.size());
+        Assert.assertEquals(7, result.size());
         GeneticProfile geneticProfile = result.get(0);
         Assert.assertEquals((Integer) 2, geneticProfile.getGeneticProfileId());
         Assert.assertEquals("study_tcga_pub_gistic", geneticProfile.getStableId());
@@ -193,6 +195,6 @@ public class GeneticProfileMyBatisRepositoryTest {
 
         BaseMeta result = geneticProfileMyBatisRepository.getMetaGeneticProfilesInStudy("study_tcga_pub");
 
-        Assert.assertEquals((Integer) 6, result.getTotalCount());
+        Assert.assertEquals((Integer) 7, result.getTotalCount());
     }
 }

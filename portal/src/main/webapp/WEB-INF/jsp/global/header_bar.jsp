@@ -51,7 +51,8 @@
 %>
 
 <header>
-    <a id="cbioportal-logo" href="index.do"><img src="<c:url value="/images/cbioportal_logo.png"/>" alt="cBioPortal Logo" /></a>    
+        <div id="leftHeaderContent">
+        <a id="cbioportal-logo" href="index.do"><img src="<c:url value="/images/cbioportal_logo.png"/>" alt="cBioPortal Logo" /></a>    
     
         <nav id="main-nav">
             <ul>
@@ -123,18 +124,23 @@
                 }%>
             </ul>
         </nav>
+        </div>
 
-        <div id="rightContent">
+        <div id="rightHeaderContent">
         <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
         <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
             <div class="userControls">
-            <span class="username"><i class="fa fa-user-o" aria-hidden="true"></i></span>&nbsp;
+            <span class="username"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>&nbsp;
+                
+                <div class="identity">Logged in as <sec:authentication property='<%=principal%>' />&nbsp;|&nbsp;
                 <% if (authenticationMethod.equals("saml")) { %>
-            <a href="<c:url value="/saml/logout?local=true"/>">Sign out</a>
+                    <a href="<c:url value="/saml/logout?local=true"/>">Sign out</a>
                 <%} else { %>
-            <a href="j_spring_security_logout">Sign out</a>
+                    <a href="j_spring_security_logout">Sign out</a>
                 <% } %>
-            <div class="identity">Logged in as <sec:authentication property='<%=principal%>' /></div>
+                &nbsp;&nbsp;
+                <i class="fa fa-user-circle-o" aria-hidden="true"></i>
+                </div>
             </div>
         </sec:authorize>
     

@@ -13,15 +13,16 @@
 <%@attribute name="noMargin" %>
 <%@attribute name="cssClass" %>
 
-    <%@attribute name="head_area" fragment="true" %>
+<%@attribute name="head_area" fragment="true" %>
 <%@attribute name="body_area" fragment="true" %>
-    <%@attribute name="right_column" fragment="true" %>
+<%@attribute name="right_column" fragment="true" %>
 
 <html class="cbioportal-frontend">
 <head>
     
 <title>${title}</title>
-
+    
+<link rel="icon" href="images/cbioportal_icon.png"/>
 <link rel="stylesheet" href="css/header.css?<%=GlobalProperties.getAppVersion()%>" />
     
 <script type="text/javascript">

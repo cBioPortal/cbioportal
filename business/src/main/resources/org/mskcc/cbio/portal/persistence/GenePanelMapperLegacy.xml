@@ -148,43 +148,6 @@
         from gene_panel
     </select>
 
-    <select id="getSampleByStableIdAndStudyId" resultMap="sampleResultMap">
-        select
-            sample.INTERNAL_ID,
-            sample.STABLE_ID,
-            sample.SAMPLE_TYPE,
-            sample.PATIENT_ID,
-            patient.INTERNAL_ID,
-            patient.STABLE_ID,
-            patient.CANCER_STUDY_ID,
-            sample.TYPE_OF_CANCER_ID,
-            type_of_cancer.TYPE_OF_CANCER_ID,
-            type_of_cancer.NAME,
-            type_of_cancer.CLINICAL_TRIAL_KEYWORDS,
-            type_of_cancer.DEDICATED_COLOR,
-            type_of_cancer.SHORT_NAME,
-            type_of_cancer.PARENT,
-            cancer_study.CANCER_STUDY_ID,
-            cancer_study.CANCER_STUDY_IDENTIFIER,
-            cancer_study.TYPE_OF_CANCER_ID,
-            cancer_study.NAME,
-            cancer_study.SHORT_NAME,
-            cancer_study.DESCRIPTION,
-            cancer_study.PUBLIC,
-            cancer_study.PMID,
-            cancer_study.CITATION,
-            cancer_study.GROUPS,
-            cancer_study.STATUS
-        from sample
-            inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
-            inner join type_of_cancer on sample.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
-            inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        where
-            sample.STABLE_ID = #{stableId}
-            and
-            cancer_study.CANCER_STUDY_IDENTIFIER=#{studyId}
-    </select>
-
 <select id="getGeneByHugoSymbol" resultMap="geneResultMap">
         select
             gene.ENTREZ_GENE_ID,
@@ -312,9 +275,5 @@
         <foreach item="gene" index="index" collection="genes" separator=",">
             (#{panelId}, (select ENTREZ_GENE_ID from gene where HUGO_GENE_SYMBOL = #{gene}))
         </foreach>
-    </insert>
-
-    <insert id="insertGenePanelSampleProfileMap" parameterType="map" useGeneratedKeys="false">
-        update sample_profile set PANEL_ID = #{panelId} where SAMPLE_ID = #{sampleId} and GENETIC_PROFILE_ID = #{profileId}
     </insert>
 </mapper>

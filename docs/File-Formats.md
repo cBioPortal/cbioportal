@@ -123,7 +123,48 @@ The first four rows of the clinical data file contain tab-delimited metadata abo
 - Row 1: **The attribute Display Names**: The display name for each clinical attribute
 - Row 2: **The attribute Descriptions**: Long(er) description of each clinical attribute
 - Row 3: **The attribute Datatype**: The datatype of each clinical attribute (must be one of:  STRING, NUMBER, BOOLEAN)
-- Row 4: **The attribute Priority**: A number which indicates the importance of each attribute.  In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages (such as the [Study View](http://www.cbioportal.org/study?id=brca_tcga)). A lower number indicates a higher priority.
+- Row 4: **The attribute Priority**: A number which indicates the importance of each attribute.  In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages (such as the [Study View](http://www.cbioportal.org/study?id=brca_tcga)). A lower number indicates a higher priority. Study view is using following priority system to rank different type of charts:
+    ```
+    The priority system is represented with a four elements array,
+    [tier 1 score, tier 2 score, tier 3 score, tier 4 score].
+    The lower the tier, the more it weights in priority.
+    The weight of each tier is a multiple of 10.
+    For example, a [2, 3, 4, 5] priority array can be calculated into
+    a score 2345 from 2 x 1000 + 3 x 100 + 4 x 10 + 5.
+    The higher the final (numeric) score, the higher priority assigned.
+    
+    The first tier: Clinical attributes predefined in front-end. Currently,
+    only CANCER_TYPE, CANCER_TYPE_DETAILED included
+    
+    The second tier: The chart with clinical attributes combination.
+    Priority will be calculated based on the average score. Currently,
+    only survival plots and scatter plot included.
+    
+    The third tier: Manually added chart, such as MutatedGene Table
+    
+    The fourth tier: clinical attribute tier, all charts are ranked based on
+    priority column in the database.
+    
+    Preselected regular expression will be used if the ranking is the same
+    after four tiers
+    
+    The default priority is [0, 0, 0, 1]
+    
+    To promote certain chart, please increase priority in the database to certain a number, 
+    if you want to hide chart, please set the priority to 0. For combination chart, as long as one of the clinical
+    attribute has been set to 0, it will be hidden.
+    
+    Currently, we preassigned priority to few charts, but as long as you assign a priority in the database except than 1,
+    these preassgiend priorities will be overwritten.
+    
+    First tier:     CANCER_TYPE: 3000, CANCER_TYPE_DETAILED: 2000, 
+    Second tier:    OS_SURVIVAL: 400 (This is combination of OS_MONTH and OS_STATUS)
+                    DFS_SURVIVAL: 300 (This is combination of DFS_MONTH and DFS_STATUS) MUT_CNT_VS_CNA(Scatter plot): 200,
+    Third tier:     mutated_genes: 90, cna_dails: 80, study_id: 70, sequences: 60, 
+                    has_cna_data: 50, mutation_countL 30, copy_number_alterations: 20,
+    Fourth tier:     GENDER: 9, SEX: 9, AGE: 8
+    
+    ```
 
 #### Example metadata rows
 Below is an example of the first 4 rows with the respective metadata for the attributes defined in the 5th row. 

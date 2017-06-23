@@ -558,10 +558,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           height: 134
         }
       }
-    },
-    numOfSurvivalCurveLimit: 20,
-    dc: {
-      transitionDuration: 400
     }
   };
 
@@ -583,7 +579,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
       _.each(data_.groups.patient.attr_meta, function(attrData) {
         attrData.group_type = 'patient';
-        if (chartsCount < 20 && patientChartsCount < 10) {
+        if (chartsCount < iViz.opts.numOfChartsLimit &&
+          patientChartsCount < iViz.opts.numOfChartsLimit / 2) {
           if (attrData.show) {
             attrData.group_id = vm_.groupCount;
             groupAttrs.push(attrData);
@@ -603,13 +600,14 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         id: vm_.groupCount,
         selectedcases: [],
         hasfilters: false,
-        attributes: groupAttrs});
+        attributes: groupAttrs
+      });
 
       groupAttrs = [];
       vm_.groupCount += 1;
       _.each(data_.groups.sample.attr_meta, function(attrData) {
         attrData.group_type = 'sample';
-        if (chartsCount < 20) {
+        if (chartsCount < iViz.opts.numOfChartsLimit) {
           if (attrData.show) {
             attrData.group_id = vm_.groupCount;
             groupAttrs.push(attrData);
@@ -626,7 +624,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         id: vm_.groupCount,
         selectedcases: [],
         hasfilters: false,
-        attributes: groupAttrs});
+        attributes: groupAttrs
+      });
       vm_.groupCount += 1;
       var _self = this;
       var requests = groups.map(function(group) {
@@ -771,8 +770,12 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         .then(function(clinicalData) {
           var idType = isPatientAttributes ? 'patient_id' : 'sample_id';
           var type = isPatientAttributes ? 'patient' : 'sample';
+          var attrsFromServer = {};
           _.each(clinicalData, function(_clinicalAttributeData, _attrId) {
             var selectedAttrMeta = charts[_attrId];
+
+            // If there is clinical data returned from server side.
+            attrsFromServer[_attrId] = 1;
 
             hasAttrDataMap[_attrId] = '';
             selectedAttrMeta.keys = {};
@@ -788,6 +791,39 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               ++selectedAttrMeta.keys[_dataObj.attr_val];
               ++selectedAttrMeta.numOfDatum;
             });
+
+            // Hide chart which only has no more than one category.
+            var numOfKeys = Object.keys(selectedAttrMeta.keys).length;
+            if (numOfKeys <= 1) {
+              selectedAttrMeta.show = false;
+            }
+
+            if (selectedAttrMeta.datatype === 'STRING' &&
+              numOfKeys > iViz.opts.pie2TableLimit) {
+              // Change pie chart to table if the number of categories
+              // more then the pie2TableLimit configuration
+              var uids = isPatientAttributes ?
+                Object.keys(data_.groups.group_mapping.patient_to_sample) :
+                Object.keys(data_.groups.group_mapping.sample_to_patient);
+
+              selectedAttrMeta.view_type = 'table';
+              selectedAttrMeta.type = 'pieLabel';
+              selectedAttrMeta.options = {
+                allCases: uids,
+                sequencedCases: uids
+              };
+            }
+          });
+
+          // Hide all attributes if no data available for selected cases.
+          // Basically all NAs
+          _.each(_.difference(attrIds, Object.keys(attrsFromServer)), function(_attrId) {
+            var selectedAttrMeta = charts[_attrId];
+
+            hasAttrDataMap[_attrId] = '';
+            selectedAttrMeta.keys = {};
+            selectedAttrMeta.numOfDatum = 0;
+            selectedAttrMeta.show = false;
           });
 
           def.resolve();
@@ -841,14 +877,14 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           var _geneSymbol = _cnaDataPerStudy.gene[_index];
           var _altType = '';
           switch (_cnaDataPerStudy.alter[_index]) {
-            case -2:
-              _altType = 'DEL';
-              break;
-            case 2:
-              _altType = 'AMP';
-              break;
-            default:
-              break;
+          case -2:
+            _altType = 'DEL';
+            break;
+          case 2:
+            _altType = 'AMP';
+            break;
+          default:
+            break;
           }
           var _uniqueId = _geneSymbol + '-' + _altType;
           _.each(_caseIdsPerGene, function(_caseId) {
@@ -1566,244 +1602,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 'use strict';
 (function(iViz, _, cbio) {
   iViz.util = (function() {
-    var content = {};
-
-    /**
-     * Convert number to specific precision end.
-     * @param {number} number The number you want to convert.
-     * @param {integer} precision Significant figures.
-     * @param {number} threshold The upper bound threshold.
-     * @return {number} Converted number.
-     */
-    content.toPrecision = function(number, precision, threshold) {
-      if (number >= 0.000001 && number < threshold) {
-        return number.toExponential(precision);
-      }
-      return number.toPrecision(precision);
-    };
-
-    /**
-     * iViz color schema.
-     * @return {string[]} Color array.
-     */
-    content.getColors = function() {
-      return [
-        '#2986e2', '#dc3912', '#f88508', '#109618',
-        '#990099', '#0099c6', '#dd4477', '#66aa00',
-        '#b82e2e', '#316395', '#994499', '#22aa99',
-        '#aaaa11', '#6633cc', '#e67300', '#8b0707',
-        '#651067', '#329262', '#5574a6', '#3b3eac',
-        '#b77322', '#16d620', '#b91383', '#f4359e',
-        '#9c5935', '#a9c413', '#2a778d', '#668d1c',
-        '#bea413', '#0c5922', '#743411', '#743440',
-        '#9986e2', '#6c3912', '#788508', '#609618',
-        '#790099', '#5099c6', '#2d4477', '#76aa00',
-        '#882e2e', '#916395', '#794499', '#92aa99',
-        '#2aaa11', '#5633cc', '#667300', '#100707',
-        '#751067', '#229262', '#4574a6', '#103eac',
-        '#177322', '#66d620', '#291383', '#94359e',
-        '#5c5935', '#29c413', '#6a778d', '#868d1c',
-        '#5ea413', '#6c5922', '#243411', '#103440',
-        '#2886e2', '#d93912', '#f28508', '#110618',
-        '#970099', '#0109c6', '#d10477', '#68aa00',
-        '#b12e2e', '#310395', '#944499', '#24aa99',
-        '#a4aa11', '#6333cc', '#e77300', '#820707',
-        '#610067', '#339262', '#5874a6', '#313eac',
-        '#b67322', '#13d620', '#b81383', '#f8359e',
-        '#935935', '#a10413', '#29778d', '#678d1c',
-        '#b2a413', '#075922', '#763411', '#773440',
-        '#2996e2', '#dc4912', '#f81508', '#104618',
-        '#991099', '#0049c6', '#dd2477', '#663a00',
-        '#b84e2e', '#312395', '#993499', '#223a99',
-        '#aa1a11', '#6673cc', '#e66300', '#8b5707',
-        '#656067', '#323262', '#5514a6', '#3b8eac',
-        '#b71322', '#165620', '#b99383', '#f4859e',
-        '#9c4935', '#a91413', '#2a978d', '#669d1c',
-        '#be1413', '#0c8922', '#742411', '#744440',
-        '#2983e2', '#dc3612', '#f88808', '#109518',
-        '#990599', '#0092c6', '#dd4977', '#66a900',
-        '#b8282e', '#316295', '#994199', '#22a499',
-        '#aaa101', '#66310c', '#e67200', '#8b0907',
-        '#651167', '#329962', '#5573a6', '#3b37ac',
-        '#b77822', '#16d120', '#b91783', '#f4339e',
-        '#9c5105', '#a9c713', '#2a710d', '#66841c',
-        '#bea913', '#0c5822', '#743911', '#743740',
-        '#298632', '#dc3922', '#f88588', '#109658',
-        '#990010', '#009916', '#dd4447', '#66aa60',
-        '#b82e9e', '#316365', '#994489', '#22aa69',
-        '#aaaa51', '#66332c', '#e67390', '#8b0777',
-        '#651037', '#329232', '#557486', '#3b3e4c',
-        '#b77372', '#16d690', '#b91310', '#f4358e',
-        '#9c5910', '#a9c493', '#2a773d', '#668d5c',
-        '#bea463', '#0c5952', '#743471', '#743450',
-        '#2986e3', '#dc3914', '#f88503', '#109614',
-        '#990092', '#0099c8', '#dd4476', '#66aa04',
-        '#b82e27', '#316397', '#994495', '#22aa93',
-        '#aaaa14', '#6633c1', '#e67303', '#8b0705',
-        '#651062', '#329267', '#5574a1', '#3b3ea5'
-      ];
-    };
-
-    content.idMapping = function(mappingObj, inputCases) {
-      var _selectedMappingCases = {};
-
-      _.each(inputCases, function(_case) {
-        _.each(mappingObj[_case], function(_case) {
-          _selectedMappingCases[_case] = '';
-        });
-      });
-
-      return Object.keys(_selectedMappingCases);
-    };
-
-    content.unique = function(arr_) {
-      var tempArr_ = {};
-      _.each(arr_, function(obj_) {
-        if (tempArr_[obj_] === undefined) {
-          tempArr_[obj_] = true;
-        }
-      });
-      return Object.keys(tempArr_);
-    };
-
-    content.isRangeFilter = function(filterObj) {
-      if (filterObj.filterType !== undefined) {
-        if (filterObj.filterType === 'RangedFilter') {
-          return true;
-        }
-      }
-      return false;
-    };
-
-    content.sortByAttribute = function(objs, attrName) {
-      function compare(a, b) {
-        if (a[attrName] < b[attrName]) {
-          return -1;
-        }
-        if (a[attrName] > b[attrName]) {
-          return 1;
-        }
-        return 0;
-      }
-
-      objs.sort(compare);
-      return objs;
-    };
-
-    content.download = function(chartType, fileType, content) {
-      switch (chartType) {
-        case 'pieChart':
-          pieChartDownload(fileType, content);
-          break;
-        case 'barChart':
-          barChartDownload(fileType, content);
-          break;
-        case 'survivalPlot':
-          survivalChartDownload(fileType, content);
-          break;
-        case 'scatterPlot':
-          survivalChartDownload(fileType, content);
-          break;
-        case 'table':
-          tableDownload(fileType, content);
-          break;
-        default:
-          break;
-      }
-    };
-
-    content.restrictNumDigits = function(str) {
-      if (!isNaN(str)) {
-        var num = Number(str);
-        if (num % 1 !== 0) {
-          num = num.toFixed(2);
-          str = num.toString();
-        }
-      }
-      return str;
-    };
-
-    /**
-     * Get a random color hex.
-     *
-     * @return {string} Color HEX
-     */
-    content.getRandomColor = function() {
-      var letters = '0123456789abcdef';
-      var color = '#';
-      for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    };
-
-    /**
-     * Get a random color hex out of Colors in getColors function;
-     *
-     * @return {string} Color HEX
-     */
-    content.getRandomColorOutOfLib = function() {
-      var color;
-      while (!color || content.getColors().indexOf(color) !== -1) {
-        color = content.getRandomColor();
-      }
-      return color;
-    };
-
-    content.calcFreq = function(fraction, numerator, toFixed) {
-      var freq = 0;
-      toFixed = isNaN(toFixed) ? 2 : Number(toFixed);
-      if (numerator > 0) {
-        freq = fraction / numerator * 100;
-        freq = freq % 1 === 0 ? freq : freq.toFixed(toFixed);
-      }
-      return freq + '%';
-    };
-
-    /**
-     * Remove illegal characters for DOM id
-     * @param {string} str Original DOM id string
-     * @return {string} trimmed id
-     */
-    content.trimDomId = function(str) {
-      if (str) {
-        str = str.replace(/>/g, '_greater_than_');
-        str = str.replace(/</g, '_less_than_');
-        str = str.replace(/\+/g, '_plus_');
-        str = str.replace(/-/g, '_minus_');
-        str = str.replace(/^[^a-z]+|[^\w:.-]+/gi, '');
-      }
-      return str;
-    };
-
-    /**
-     * Generate default DOM ids
-     * @param {string} type Available types are: chartDivId, resetBtnId, chartId, chartTableId
-     * @param {string} attrId
-     * @return {string} Default DOM id
-     */
-    content.getDefaultDomId = function(type, attrId) {
-      var domId = '';
-      if (type && attrId) {
-        var attrId = this.trimDomId(attrId);
-        switch (type) {
-        case 'chartDivId':
-          domId = 'chart-' + attrId + '-div';
-          break;
-        case 'resetBtnId':
-          domId = 'chart-' + attrId + '-reset';
-          break;
-        case 'chartId':
-          domId = 'chart-new-' + attrId;
-          break;
-        case 'chartTableId':
-          domId = 'table-' + attrId;
-          break;
-        }
-      }
-      // TODO: DOM id pool. Ideally id shouldn't be repeated
-      return domId;
-    };
     
     function tableDownload(fileType, content) {
       switch (fileType) {
@@ -2159,7 +1957,305 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         break;
       }
     }
+    /**
+     * @author Adam Abeshouse
+     * @param {number | string} a
+     * @param {number | string} b
+     * @param {boolean} asc
+     * @return {number} result
+     */
+    function compareValues(a, b, asc) {
+      var ret = 0;
+      if (a !== b) {
+        if (a === null) {
+          // a sorted to end
+          ret = 1;
+        } else if (b === null) {
+          // b sorted to end
+          ret = -1;
+        } else {
+          // neither are null
+          if (typeof a === "number") {
+            // sort numbers
+            if (a < b) {
+              ret = (asc ? -1 : 1);
+            } else {
+              // we know a !== b here so this case is a > b
+              ret = (asc ? 1 : -1);
+            }
+          } else if (typeof a === "string") {
+            // sort strings
+            ret = (asc ? 1 : -1) * (a.localeCompare(b));
+          }
+        }
+      }
+      return ret;
+    }
 
+    var content = {};
+
+    /**
+     * Convert number to specific precision end.
+     * @param {number} number The number you want to convert.
+     * @param {integer} precision Significant figures.
+     * @param {number} threshold The upper bound threshold.
+     * @return {number} Converted number.
+     */
+    content.toPrecision = function(number, precision, threshold) {
+      if (number >= 0.000001 && number < threshold) {
+        return number.toExponential(precision);
+      }
+      return number.toPrecision(precision);
+    };
+
+    /**
+     * iViz color schema.
+     * @return {string[]} Color array.
+     */
+    content.getColors = function() {
+      return [
+        '#2986e2', '#dc3912', '#f88508', '#109618',
+        '#990099', '#0099c6', '#dd4477', '#66aa00',
+        '#b82e2e', '#316395', '#994499', '#22aa99',
+        '#aaaa11', '#6633cc', '#e67300', '#8b0707',
+        '#651067', '#329262', '#5574a6', '#3b3eac',
+        '#b77322', '#16d620', '#b91383', '#f4359e',
+        '#9c5935', '#a9c413', '#2a778d', '#668d1c',
+        '#bea413', '#0c5922', '#743411', '#743440',
+        '#9986e2', '#6c3912', '#788508', '#609618',
+        '#790099', '#5099c6', '#2d4477', '#76aa00',
+        '#882e2e', '#916395', '#794499', '#92aa99',
+        '#2aaa11', '#5633cc', '#667300', '#100707',
+        '#751067', '#229262', '#4574a6', '#103eac',
+        '#177322', '#66d620', '#291383', '#94359e',
+        '#5c5935', '#29c413', '#6a778d', '#868d1c',
+        '#5ea413', '#6c5922', '#243411', '#103440',
+        '#2886e2', '#d93912', '#f28508', '#110618',
+        '#970099', '#0109c6', '#d10477', '#68aa00',
+        '#b12e2e', '#310395', '#944499', '#24aa99',
+        '#a4aa11', '#6333cc', '#e77300', '#820707',
+        '#610067', '#339262', '#5874a6', '#313eac',
+        '#b67322', '#13d620', '#b81383', '#f8359e',
+        '#935935', '#a10413', '#29778d', '#678d1c',
+        '#b2a413', '#075922', '#763411', '#773440',
+        '#2996e2', '#dc4912', '#f81508', '#104618',
+        '#991099', '#0049c6', '#dd2477', '#663a00',
+        '#b84e2e', '#312395', '#993499', '#223a99',
+        '#aa1a11', '#6673cc', '#e66300', '#8b5707',
+        '#656067', '#323262', '#5514a6', '#3b8eac',
+        '#b71322', '#165620', '#b99383', '#f4859e',
+        '#9c4935', '#a91413', '#2a978d', '#669d1c',
+        '#be1413', '#0c8922', '#742411', '#744440',
+        '#2983e2', '#dc3612', '#f88808', '#109518',
+        '#990599', '#0092c6', '#dd4977', '#66a900',
+        '#b8282e', '#316295', '#994199', '#22a499',
+        '#aaa101', '#66310c', '#e67200', '#8b0907',
+        '#651167', '#329962', '#5573a6', '#3b37ac',
+        '#b77822', '#16d120', '#b91783', '#f4339e',
+        '#9c5105', '#a9c713', '#2a710d', '#66841c',
+        '#bea913', '#0c5822', '#743911', '#743740',
+        '#298632', '#dc3922', '#f88588', '#109658',
+        '#990010', '#009916', '#dd4447', '#66aa60',
+        '#b82e9e', '#316365', '#994489', '#22aa69',
+        '#aaaa51', '#66332c', '#e67390', '#8b0777',
+        '#651037', '#329232', '#557486', '#3b3e4c',
+        '#b77372', '#16d690', '#b91310', '#f4358e',
+        '#9c5910', '#a9c493', '#2a773d', '#668d5c',
+        '#bea463', '#0c5952', '#743471', '#743450',
+        '#2986e3', '#dc3914', '#f88503', '#109614',
+        '#990092', '#0099c8', '#dd4476', '#66aa04',
+        '#b82e27', '#316397', '#994495', '#22aa93',
+        '#aaaa14', '#6633c1', '#e67303', '#8b0705',
+        '#651062', '#329267', '#5574a1', '#3b3ea5'
+      ];
+    };
+
+    content.idMapping = function(mappingObj, inputCases) {
+      var _selectedMappingCases = {};
+
+      _.each(inputCases, function(_case) {
+        _.each(mappingObj[_case], function(_case) {
+          _selectedMappingCases[_case] = '';
+        });
+      });
+
+      return Object.keys(_selectedMappingCases);
+    };
+
+    content.unique = function(arr_) {
+      var tempArr_ = {};
+      _.each(arr_, function(obj_) {
+        if (tempArr_[obj_] === undefined) {
+          tempArr_[obj_] = true;
+        }
+      });
+      return Object.keys(tempArr_);
+    };
+
+    content.isRangeFilter = function(filterObj) {
+      if (filterObj.filterType !== undefined) {
+        if (filterObj.filterType === 'RangedFilter') {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    content.sortByAttribute = function(objs, attrName) {
+      function compare(a, b) {
+        if (a[attrName] < b[attrName]) {
+          return -1;
+        }
+        if (a[attrName] > b[attrName]) {
+          return 1;
+        }
+        return 0;
+      }
+
+      objs.sort(compare);
+      return objs;
+    };
+
+    content.download = function(chartType, fileType, content) {
+      switch (chartType) {
+      case 'pieChart':
+        pieChartDownload(fileType, content);
+        break;
+      case 'barChart':
+        barChartDownload(fileType, content);
+        break;
+      case 'survivalPlot':
+        survivalChartDownload(fileType, content);
+        break;
+      case 'scatterPlot':
+        survivalChartDownload(fileType, content);
+        break;
+      case 'table':
+        tableDownload(fileType, content);
+        break;
+      default:
+        break;
+      }
+    };
+
+    content.restrictNumDigits = function(str) {
+      if (!isNaN(str)) {
+        var num = Number(str);
+        if (num % 1 !== 0) {
+          num = num.toFixed(2);
+          str = num.toString();
+        }
+      }
+      return str;
+    };
+
+    /**
+     * Get a random color hex.
+     *
+     * @return {string} Color HEX
+     */
+    content.getRandomColor = function() {
+      var letters = '0123456789abcdef';
+      var color = '#';
+      for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    };
+
+    /**
+     * Get a random color hex out of Colors in getColors function;
+     *
+     * @return {string} Color HEX
+     */
+    content.getRandomColorOutOfLib = function() {
+      var color;
+      while (!color || content.getColors().indexOf(color) !== -1) {
+        color = content.getRandomColor();
+      }
+      return color;
+    };
+
+    content.calcFreq = function(fraction, numerator, toFixed) {
+      var freq = 0;
+      toFixed = isNaN(toFixed) ? 2 : Number(toFixed);
+      if (numerator > 0) {
+        freq = fraction / numerator * 100;
+        freq = freq % 1 === 0 ? freq : freq.toFixed(toFixed);
+      }
+      return freq + '%';
+    };
+
+    /**
+     * Remove illegal characters for DOM id
+     * @param {string} str Original DOM id string
+     * @return {string} trimmed id
+     */
+    content.trimDomId = function(str) {
+      if (str) {
+        str = str.replace(/>/g, '_greater_than_');
+        str = str.replace(/</g, '_less_than_');
+        str = str.replace(/\+/g, '_plus_');
+        str = str.replace(/-/g, '_minus_');
+        str = str.replace(/^[^a-z]+|[^\w:.-]+/gi, '');
+      }
+      return str;
+    };
+
+    /**
+     * Generate default DOM ids
+     * @param {string} type Available types are: chartDivId, resetBtnId, chartId, chartTableId
+     * @param {string} attrId
+     * @return {string} Default DOM id
+     */
+    content.getDefaultDomId = function(type, attrId) {
+      var domId = '';
+      if (type && attrId) {
+        var attrId = this.trimDomId(attrId);
+        switch (type) {
+        case 'chartDivId':
+          domId = 'chart-' + attrId + '-div';
+          break;
+        case 'resetBtnId':
+          domId = 'chart-' + attrId + '-reset';
+          break;
+        case 'chartId':
+          domId = 'chart-new-' + attrId;
+          break;
+        case 'chartTableId':
+          domId = 'table-' + attrId;
+          break;
+        }
+      }
+      // TODO: DOM id pool. Ideally id shouldn't be repeated
+      return domId;
+    };
+    /**
+     * @author Adam Abeshouse
+     * @param {array} a
+     * @param {array} b
+     * @param {boolean} asc
+     * @returns {number} result
+     */
+    content.compareLists = function(a, b, asc) {
+      var ret = 0;
+      var loopLength = Math.min(a.length, b.length);
+      for (var i = 0; i < loopLength; i++) {
+        ret = compareValues(a[i], b[i], asc);
+        if (ret !== 0) {
+          break;
+        }
+      }
+      if (ret === 0) {
+        if (a.length < b.length) {
+          ret = (asc ? -1 : 1);
+        } else if (a.length > b.length) {
+          ret = (asc ? 1 : -1);
+        }
+      }
+      return ret;
+    };
+    
     /**
      * Finds the intersection elements between two arrays in a simple fashion.
      * Should have O(n) operations, where n is n = MIN(a.length, b.length)
@@ -2255,6 +2351,172 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 })(window.iViz,
   window._, window.cbio);
 /**
+ * @author Hongxin Zhang on 5/12/17.
+ */
+
+/**
+ * Priorities
+ *
+ * The priority system is represented with a four elements array,
+ * [tier 1 score, tier 2 score, tier 3 score, tier 4 score].
+ * The lower the tier, the more it weights in priority.
+ * The weight of each tier is a multiple of 10.
+ * For example, a [2, 3, 4, 5] priority array can be calculated into
+ * a score 2345 from 2 x 1000 + 3 x 100 + 4 x 10 + 5.
+ * The higher the final (numeric) score, the higher priority assigned.
+ *
+ * The first tier: Clinical attributes predefined in front-end. Currently,
+ * only CANCER_TYPE, CANCER_TYPE_DETAILED included
+ *
+ * The second tier: The chart with clinical attributes combination.
+ * Priority will be calculated based on the average score. Currently,
+ * only survival plots and scatter plot included.
+ *
+ * The third tier: Manually added chart, such as MutatedGene Table
+ *
+ * The fourth tier: clinical attribute tier, all charts are ranked based on
+ * priority column in the database.
+ *
+ * Preselected regular expression will be used if the ranking is the same
+ * after four tiers
+ *
+ * The default priority is [0, 0, 0, 1]
+ *
+ * To promote certain chart, please increase priority in the database to certain a number,
+ * if you want to hide chart, please set the priority to 0. For combination chart, as long as one of the clinical
+ * attribute has been set to 0, it will be hidden.
+ *
+ * Currently, we preassigned priority to few charts, but as long as you assign a priority in the database except than 1,
+ * these preassgiend priorities will be overwritten.
+ *
+ * First tier:     CANCER_TYPE: 3000, CANCER_TYPE_DETAILED: 2000,
+ * Second tier:    OS_SURVIVAL: 400 (This is combination of OS_MONTH and OS_STATUS)
+ *                 DFS_SURVIVAL: 300 (This is combination of DFS_MONTH and DFS_STATUS) MUT_CNT_VS_CNA(Scatter plot): 200,
+ * Third tier:     mutated_genes: 90, cna_dails: 80, study_id: 70, sequences: 60,
+ *                 has_cna_data: 50, mutation_countL 30, copy_number_alterations: 20,
+ * Fourth tier:     GENDER: 9, SEX: 9, AGE: 8
+ */
+
+
+'use strict';
+(function(iViz, _) {
+  iViz.priorityManager = (function() {
+    var content = {};
+    var clinicalAttrsPriority = {};
+    var defaultPriority = [0, 0, 0, 1];
+
+    /**
+     * Calculate second tier priority by clinical attribute.
+     * @param {string} id Clinical attribute ID.
+     * @return {number}
+     */
+    function getSecondTierPriority(id) {
+      var priority = 1;
+      if (id) {
+        switch (id) {
+        case 'DFS_SURVIVAL':
+          var _dfsStatus = getForthTierPriority('DFS_STATUS');
+          var _dfsMonths = getForthTierPriority('DFS_MONTHS');
+          if (_dfsStatus === 0 || _dfsMonths === 0) {
+            priority = 0;
+          } else {
+            priority = (_dfsMonths + _dfsStatus ) / 2;
+            priority = priority > 1 ? priority :
+              clinicalAttrsPriority['DFS_SURVIVAL'][1];
+          }
+          break;
+        case 'OS_SURVIVAL':
+          var _osStatus = getForthTierPriority('OS_STATUS');
+          var _osMonths = getForthTierPriority('OS_MONTHS');
+          if (_osStatus === 0 || _osMonths === 0) {
+            priority = 0;
+          } else {
+            priority = (_osStatus + _osMonths ) / 2;
+            priority = priority > 1 ? priority :
+              clinicalAttrsPriority['OS_SURVIVAL'][1];
+          }
+          break;
+        case 'MUT_CNT_VS_CNA':
+          priority = clinicalAttrsPriority['MUT_CNT_VS_CNA'][1];
+          break;
+        }
+      }
+      return priority;
+    }
+
+    /**
+     * Get forth tier priority by clinical attribute.
+     * @param{string} id Clinical attribute ID.
+     * @return {number}
+     */
+    function getForthTierPriority(id) {
+      return clinicalAttrsPriority.hasOwnProperty(id)
+        ? clinicalAttrsPriority[id][3] : 1;
+    }
+
+    /**
+     * Convert priority array to a number
+     * @param {array} priority
+     * @return {number}
+     */
+    content.calcPriorityNumber = function(priority) {
+      var number = 0;
+      if (_.isArray(priority)) {
+        number = parseInt(priority.join(''));
+      }
+      return number;
+    };
+
+    content.comparePriorities = function(aP, bP, asc) {
+      var _a = this.calcPriorityNumber(aP);
+      var _b = this.calcPriorityNumber(bP);
+      return asc ? (_a - _b) : (_b - _a);
+    };
+    
+    content.getDefaultPriority = function(tier, id) {
+      var priority = defaultPriority;
+
+      if (_.isNumber(tier) && id) {
+        switch (tier) {
+        case 1:
+        case 3:
+        case 4:
+          priority = clinicalAttrsPriority.hasOwnProperty(id) ?
+            clinicalAttrsPriority[id] : priority;
+          break;
+        case 2:
+          var _2priority = getSecondTierPriority(id);
+          if (_2priority > 0) {
+            priority = [0, _2priority, 0, 0];
+          } else {
+            priority = [0, 0, 0, 0];
+          }
+          break;
+        }
+      }
+      return priority;
+    };
+
+    content.setClinicalAttrPriority = function(attr, priority) {
+      if (attr) {
+        var _number = this.calcPriorityNumber(priority);
+        if (_number !== 1 || !clinicalAttrsPriority.hasOwnProperty(attr)) {
+          clinicalAttrsPriority[attr] = priority;
+        }
+      }
+    };
+
+    content.setDefaultClinicalAttrPriorities = function(priorities) {
+      if (_.isObject(priorities)) {
+        _.extend(clinicalAttrsPriority, priorities);
+      }
+    };
+
+    return content;
+  })();
+})(window.iViz,
+  window._);
+/**
  * Created by Karthik Kalletla on 4/13/16.
  */
 'use strict';
@@ -2319,9 +2581,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
     }, methods: {
       sortByNumber: function(a, b) {
-        var aName = Number(a.element.attributes['data-number'].nodeValue);
-        var bName = Number(b.element.attributes['data-number'].nodeValue);
-        return aName - bName;
+        var _a = a.element.attributes['data-number'].nodeValue
+            .split(',');
+        var _b = b.element.attributes['data-number'].nodeValue
+            .split(',');
+        return iViz.priorityManager.comparePriorities(_a, _b, false);
       },
       updateGrid: function(ChartsIds) {
         var self_ = this;

@@ -6,7 +6,7 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>Portal Master</name>
-  <version>1.6.2</version>
+  <version>1.6.3</version>
   <description>master maven module</description>
 
   <scm>

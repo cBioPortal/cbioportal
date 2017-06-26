@@ -35,6 +35,7 @@ package org.mskcc.cbio.portal.util;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import org.mskcc.cbio.portal.repository.GenePanelRepository;
 import org.mskcc.cbio.portal.model.GenePanel;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
@@ -89,7 +90,12 @@ public class GeneticProfileUtil {
     }
     
     public static int getGenePanelId(String panelId) {
-        GenePanelRepository genePanelRepository = (GenePanelRepository)SpringUtil.getApplicationContext().getBean("genePanelRepository");  
+        GenePanelRepository genePanelRepository = (GenePanelRepository)SpringUtil.getApplicationContext().getBean("genePanelRepository");
+        List<GenePanel> result = genePanelRepository.getGenePanelByStableId(panelId);
+        // Add error message when genePanel is not found
+        if (result == null || result.size() == 0) {
+            throw new IllegalArgumentException("Cannot find genePanel for panel id: " + panelId);
+        }
         GenePanel genePanel = genePanelRepository.getGenePanelByStableId(panelId).get(0);
         return genePanel.getInternalId();
     }

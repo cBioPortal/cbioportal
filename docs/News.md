@@ -1,3 +1,7 @@
+## June 26, 2017
+ *   Second phase of cBioPortal architectural upgrade complete: Query interface now has fresh look and faster performance. 		 +*   The second phase of the cBioPortal architectural upgrade is now complete: The query interface now has a fresh look and faster performance. 
+  ![image](https://user-images.githubusercontent.com/840895/27399281-3ba5357a-568a-11e7-9730-d230285d7805.png)
+
 ## May 12, 2017
 *   **Added data** of 12,211 samples from 11 published studies:
     *   [MSK-IMPACT Clinical Sequencing Cohort (MSK, Nat Med 2017)](http://www.cbioportal.org/study?id=msk_impact_2017)   *10,945 samples*

@@ -1004,6 +1004,39 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].levelno, logging.WARNING)
         self.assertIn("implies intergenic", record_list[2].getMessage().lower())
         self.assertEqual(record_list[2].levelno, logging.WARNING)
+        
+    def test_isValidGenePosition(self):
+        """Test if proper warnings/errors are given for wrong/blank gene positions 
+        (Start_Position and End_Position) change vals."""
+        # set level according to this test case:
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate(
+                'mutations/data_mutations_wrong_gene_position.maf',
+                validateData.MutationsExtendedValidator,
+                extra_meta_fields={'swissprot_identifier': 'name'})
+        # we expect 4 errors:
+        self.assertEqual(len(record_list), 4)
+        record_iterator = iter(record_list)
+        # first is an error about wrong value in Start_Position:
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('The start position of this gene is not '
+                    'an integer', record.getMessage())
+        # second is an error about wrong value in End_Position:
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('The end position of this gene is not '
+                    'an integer', record.getMessage())
+        # third is an error about no value in Start_Position:
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('The start position of this gene is not '
+                    'an integer', record.getMessage())
+        # forth is an error about no value in End_Position:
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('The end position of this gene is not '
+                    'an integer', record.getMessage())
 
 
 class SegFileValidationTestCase(PostClinicalDataFileTestCase):

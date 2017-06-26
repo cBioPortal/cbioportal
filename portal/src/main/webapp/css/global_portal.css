@@ -63,7 +63,7 @@ td, th {
 #page_wrapper {
   margin: 0 auto;
   min-width: 780px;
-  max-width: 1320px !important;
+  max-width: 1280px !important;
   text-align: left;
   padding: 0px;
 }
@@ -112,20 +112,20 @@ fieldset#patient-view-summary-fieldset > legend {
   border-spacing: 0px;
 }
 
-@media (max-width: 1299px) {
-    #content {
-        padding: 0 10px;
-    }
-}
-@media (min-width: 1300px) {
-    #content {
-        padding: 0 20px;
-    }
-}
+/*@media (max-width: 1299px) {*/
+    /*#content {*/
+        /*padding: 0 10px;*/
+    /*}*/
+/*}*/
+/*@media (min-width: 1300px) {*/
+    /*#content {*/
+        /*padding: 0 20px;*/
+    /*}*/
+/*}*/
 
-#content {
-    padding: 0 20px;
-}
+/*#content {*/
+    /*padding: 0 20px;*/
+/*}*/
 
 img {
   border: 0px;

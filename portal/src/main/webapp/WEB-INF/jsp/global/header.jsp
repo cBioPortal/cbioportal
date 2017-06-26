@@ -70,7 +70,7 @@
     </script>
     <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
 </head>
-    
+<body class="fixedWidth">
 <div class="pageTopContainer">      
     <div class="contentWidth"><jsp:include page="header_bar.jsp" flush="true" /></div>
 </div>
@@ -86,4 +86,4 @@
 
             <tr valign="top">
                 <td id="td-content">
-                    <div id="content">
+                    <div id="content" class="contentWidth">

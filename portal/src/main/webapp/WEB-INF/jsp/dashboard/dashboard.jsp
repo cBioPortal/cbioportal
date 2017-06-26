@@ -81,7 +81,7 @@
         out.print(cancerStudyViewError);
     } else {
 %>
-
+<span class="studyContainer">
 <jsp:include page="../global/header.jsp" flush="true" />
 
 <table width="100%" style="margin: 8px 2px 5px 2px">
@@ -455,6 +455,8 @@
         });
     });
 </script>
-
+    
+    
+    </span>
 </body>
 </html>

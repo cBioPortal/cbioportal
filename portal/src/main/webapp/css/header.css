@@ -188,15 +188,34 @@ header {
     padding-right:20px;
 }
 
+.legacy .fixedWidth .contentWidth {
+    width:1200px;
+    padding-left:20px;
+    padding-right:20px;
+    margin:0 auto;
+}
+
 .noMargin .pageTopContainer header {
     margin-right:20px;
 }
 
-.legacy body > center {
-    text-align:left;
-}
+/*.legacy body > center {*/
+    /*text-align:left;*/
+/*}*/
 
 .legacy #footer {
     background:#fff;
     border-top:none;
+}
+
+.legacy .ui-tabs .ui-tabs-nav li a {
+    padding:.5em .8em !important;
+}
+
+.legacy #cc-bookmark {
+    word-break:break-word;
+}
+
+.legacy .studyContainer .contentWidth {
+    width:1300px;
 }

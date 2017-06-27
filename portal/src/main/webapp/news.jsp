@@ -49,7 +49,7 @@
 
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<t:template title="<%= siteTitle %>" defaultRightColumn="true" fixedWidth="true" cssClass="newsPage">
+<t:template title="<%= siteTitle %>" defaultRightColumn="false" fixedWidth="true" cssClass="newsPage">
 
     <jsp:attribute name="head_area">
         <script>

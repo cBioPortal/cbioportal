@@ -82,7 +82,7 @@ var OncoprintLabelView = (function () {
 		    var previous_track_id = getLabelAboveMouseSpace(view, track_group, evt.offsetY, view.dragged_label_track_id);
 		    stopDragging(view, previous_track_id);
 		}
-		view.tooltip.hide();
+		view.tooltip.hideIfNotAlreadyGoingTo(150);
 	    });
 	})(this);
 	

@@ -1,15 +1,19 @@
 package org.cbioportal.web;
 
+import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Created by sathya on 6/21/17.
@@ -17,60 +21,54 @@ import java.net.URL;
 public class TrialsEndpointClient {
 
 
-    public static void main(String[] args) throws URISyntaxException {
+    public static void main(String[] args) throws URISyntaxException, ParseException {
+
+        String apiKey = "539188c9-0516-47c4-b3a6-98b4b5524dc8";
+        String fil = "[{\"facet\":\"MUTATION\",\"term\":\"BRAF V600E\"},{\"facet\":\"MUTATION\"," +
+            "\"term\":\"MSH3 L503Wfs*5\"}]";
+        
+        HashMap<String, Integer> trialCount = new HashMap<>(); 
+        JSONArray arr = (JSONArray) new JSONParser().parse(fil);
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("apiKey", apiKey);
+        payload.put("filters", new JSONParser().parse(fil));
 
         try {
-            URL url = new URL("http://localhost:8080/cbioportal-1.6.1/api/trials/molecularmatch");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            RestTemplate restTemplate = new RestTemplate();
+            URI uri = new URI("https://api.molecularmatch.com/v1/search/trials");
 
-            JSONArray filters = new JSONArray();
-            JSONObject jsonObject1 = new JSONObject();
-            jsonObject1.put("facet", "CONDITION");
-            jsonObject1.put("term", "Colorectal cancer");
-            filters.add(jsonObject1);
+            JSONObject resp = restTemplate.postForObject(uri, payload, JSONObject.class);
+            ArrayList<LinkedHashMap<String, ArrayList<String>>> trials = (ArrayList<LinkedHashMap<String,ArrayList<String>>>) resp.get("trials");
+            
+            for(Object obj : arr) {
+                String facet = (String) ((JSONObject) obj).get("facet");
+                if (StringUtils.equals(facet, "MUTATION")) {
+                    String searchMutation = (String) ((JSONObject) obj).get("term");
 
-            JSONObject jsonObject2 = new JSONObject();
-            jsonObject2.put("facet", "MUTATION");
-            jsonObject2.put("term", "BRAF V600E");
-            filters.add(jsonObject2);
-
-            JSONObject jsonObject3 = new JSONObject();
-            jsonObject2.put("facet", "STATUS");
-            jsonObject2.put("term", "Enrolling");
-            filters.add(jsonObject3);
-
-            JSONObject jsonObject4 = new JSONObject();
-            jsonObject2.put("facet", "TRIALTYPE");
-            jsonObject2.put("term", "Interventional");
-            filters.add(jsonObject4);
-
-            JSONObject jsonObject5 = new JSONObject();
-            jsonObject2.put("facet", "COUNTRY");
-            jsonObject2.put("term", "France");
-            filters.add(jsonObject5);
-
-            OutputStream os = conn.getOutputStream();
-            os.write(filters.toJSONString().getBytes());
-            os.flush();
-
-            if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
+                    for (LinkedHashMap<String, ArrayList<String>> trial : trials) {
+                        ArrayList<String> mutations = trial.get("molecularAlterations");
+                        if (mutations.contains(searchMutation)) {
+                            if (trialCount.containsKey(searchMutation)) {
+                                int count = trialCount.get(searchMutation);
+                                trialCount.put(searchMutation, count + 1);
+                            } else {
+                                trialCount.put(searchMutation, 1);
+                            }
+                        }
+                    }
+                }
             }
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                (conn.getInputStream())));
-            String output;
-            System.out.println("Output from Server .... \n");
-            while ((output = br.readLine()) != null) {
-                System.out.println(output);
+            Iterator<Map.Entry<String, Integer>> it = trialCount.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, Integer> entry = it.next();
+                System.out.println("Mutation: " + entry.getKey() + "    " + "Trial count: "+ entry.getValue());
             }
-            conn.disconnect();
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+        //return null;
+    }
     }
 
-}
+

@@ -130,7 +130,7 @@
         <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
         <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
             <div class="userControls">
-            <span class="username"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>&nbsp;
+            <span class="username"><i class="fa fa-cog" aria-hidden="true"></i></span>&nbsp;
                 
                 <div class="identity">Logged in as <sec:authentication property='<%=principal%>' />&nbsp;|&nbsp;
                 <% if (authenticationMethod.equals("saml")) { %>
@@ -139,7 +139,7 @@
                     <a href="j_spring_security_logout">Sign out</a>
                 <% } %>
                 &nbsp;&nbsp;
-                <i class="fa fa-user-circle-o" aria-hidden="true"></i>
+                <i class="fa fa-cog" aria-hidden="true"></i>
                 </div>
             </div>
         </sec:authorize>

@@ -171,6 +171,15 @@ public class ProxyController
       return respProxy(bitlyURL + request.getQueryString(), method, body, response);
   }
 
+    @RequestMapping(value = "/session-service/{type}/{key}", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    String getSessionService(@PathVariable String type, @PathVariable String key,
+                             @RequestBody String body,  HttpMethod method,HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
+        System.out.println(sessionServiceURL + type + "/" + key);
+        return respProxy(sessionServiceURL + type + "/" + key, method, body, response);
+    }
+    
   @RequestMapping(value="/session-service/{type}", method = RequestMethod.POST)
   public @ResponseBody Map addSessionService(@PathVariable String type, @RequestBody JSONObject body, HttpMethod method,
                                                 HttpServletRequest request, HttpServletResponse response) throws URISyntaxException

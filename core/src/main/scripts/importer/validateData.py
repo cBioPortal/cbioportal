@@ -1353,7 +1353,7 @@ class MutationsExtendedValidator(Validator):
         """Check that the Start_Position value is an integer."""
         if value.isdigit() == False or (value.isdigit() and '.' in value):
             self.logger.error(
-                'The start position of this gene is not '
+                'The start position of this variant is not '
                     'an integer',
                 extra={'line_number': self.line_number,
                        'column_number': self.cols.index('Start_Position'),
@@ -1365,7 +1365,7 @@ class MutationsExtendedValidator(Validator):
         """Check that the End_Position value is an integer."""
         if value.isdigit() == False or (value.isdigit() and '.' in value):
             self.logger.error(
-                'The end position of this gene is not '
+                'The end position of this variant is not '
                     'an integer',
                 extra={'line_number': self.line_number,
                        'column_number': self.cols.index('End_Position'),

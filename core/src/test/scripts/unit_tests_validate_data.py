@@ -1020,22 +1020,22 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         # first is an error about wrong value in Start_Position:
         record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
-        self.assertIn('The start position of this gene is not '
+        self.assertIn('The start position of this variant is not '
                     'an integer', record.getMessage())
         # second is an error about wrong value in End_Position:
         record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
-        self.assertIn('The end position of this gene is not '
+        self.assertIn('The end position of this variant is not '
                     'an integer', record.getMessage())
         # third is an error about no value in Start_Position:
         record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
-        self.assertIn('The start position of this gene is not '
+        self.assertIn('The start position of this variant is not '
                     'an integer', record.getMessage())
         # forth is an error about no value in End_Position:
         record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
-        self.assertIn('The end position of this gene is not '
+        self.assertIn('The end position of this variant is not '
                     'an integer', record.getMessage())
 
 

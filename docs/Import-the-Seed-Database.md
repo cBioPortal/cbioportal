@@ -4,7 +4,7 @@ The next step is to populate your cBioPortal instance with all the required back
 
 ## Download the cBioPortal Seed Database
 
-A cBioPortal seed database can be found on [the datahub page](https://github.com/cbioportal/datahub/blob/master/seedDB/README.md).
+A cBioPortal seed database for human can be found on [the datahub page](https://github.com/cBioPortal/datahub/blob/84fd66daf8325ad9721895d1cc503653686de15e/seedDB/README.md). If you are looking for mouse, check [this link](https://github.com/cBioPortal/datahub/blob/b02ac7037c8febeb86d6635602fc98327fb77c50/seedDB_mouse/README.md).
 
 After download, the files can be unzipped by entering the following command:
 
@@ -20,13 +20,17 @@ After download, the files can be unzipped by entering the following command:
     mysql --user=cbio_user --password=somepassword cbioportal < cgds.sql
     ```
 
-2. Import the main part of the seed database:
+For human, then you should execute these two commands (the last command takes a bit longer to import PDB data that will enable the visualization of PDB structures in the mutation tab):
 
-    ```
-    mysql --user=cbio_user --password=somepassword cbioportal < seed-cbioportal_hg19_vX.Y.Z.sql
-    ```
+    > mysql --user=cbio_user --password=somepassword cbioportal  < seed-cbioportal_hg19_vX.Y.Z.sql
+    
+    > mysql --user=cbio_user --password=somepassword cbioportal  < seed-cbioportal_only-pdb.sql
+    
+For mouse, you just need to execute one command (PDB tables are not supported in mouse):
 
-    *Important:* Replace `seed-cbioportal_hg19_vX.Y.Z.sql` with the downloaded version of the seed database, such as `seed-cbioportal_hg19_v2.1.0.sql`.
+    > mysql --user=cbio_user --password=somepassword cbioportal  < seed-cbioportal_mm10_vX.Y.Z.sql
+
+*Important:* Replace `seed-cbioportal_hg19_vX.Y.Z.sql` with the downloaded version of the seed database, such as `seed-cbioportal_hg19_v2.1.0.sql` (human) or `seed-cbioportal_mm10_v2.1.0.sql` (mouse).
 
 3. Import the protein database (PDB) part of the seed database. This will enable the visualization of PDB structures in the mutation tab. Loading this file takes more time than loading the previous files, and is optional for users that do not require PDB structures.
 

@@ -516,6 +516,8 @@ AGRN<TAB>0.142<TAB>0.091<TAB>...
 The mutation data file extends the [Mutation Annotation Format](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification) (MAF) created as part of the [Cancer Genome Atlas](https://wiki.nci.nih.gov/display/TCGA/TCGA+Home) project, by adding *extra annotations* to each mutation record.  If your mutation data is already in [VCF](http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41) format (which by default most variant callers produce) you can use this  [vcf2maf](https://github.com/ckandoth/vcf2maf) converter.
 **Please note that all data should be mapped to UniProt canonical isoforms.** This can be done by calling the vcf2maf or maf2maf with the ```--custom-enst``` flag and the mapping file available [here](https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot). This will ensure the SWISSPROT column, which contains the UniProt canonical isoform, can be used correctly by cBioPortal.
 
+In mouse, the "chromosome plot" displayed in the Patient View is not fully supported ([see issue](https://github.com/cBioPortal/cbioportal-frontend/issues/410)).
+
 #### Meta file
 The mutation metadata file should contain the following fields:
 

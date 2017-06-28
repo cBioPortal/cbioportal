@@ -401,7 +401,14 @@ ncbi.build=37
 ucsc.build=hg19
 ```
 
-If your `portal.properties` has different settings for these variables, you should introduce a new parameter `-P` in your command. This parameter should point to either `portal.properties` or a file which contains the new global variables. 
+cBioPortal is gradually introducing support for mouse. If you want to load mouse studies and you have [set up your database for mouse](Import-the-Seed-Database.md#download-the-cbioportal-database), you should set the previous parameters to:
+```
+species=mouse
+ncbi.build=38
+ucsc.build=mm10
+```
+
+If your `portal.properties` does not have the default (human) settings, you should introduce a new parameter `-P` in your command. This parameter should point to either `portal.properties` or a file which contains the new global variables. 
 
 As an example, the command for the "Example 1" listed above incorporating the `-P` parameter is given:
 ```

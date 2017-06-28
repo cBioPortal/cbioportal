@@ -2,7 +2,7 @@ This manual is intended for users that have knowledge about the structure of the
 
 When loading studies into cBioPortal it is possible for warnings to occur that are caused by an outdated seed database. Gene symbols can be deprecated or be assigned to a different Entrez Gene in a new release. Also Entrez Gene IDs can be added. This markdown explains how to update the seed database, in order to use the most recent Entrez Gene IDs. 
 
-The cBioPortal scripts package provides a method to update the `gene` and `gene_alias` tables. This requires the latest version of the NCBI Gene Info: ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz.
+The cBioPortal scripts package provides a method to update the `gene` and `gene_alias` tables. This requires the latest version of the NCBI Gene Info: [click here for human](ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz) and [here for mouse](ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Mus_musculus.gene_info.gz).
 
 ## Updating the gene names and aliases
 
@@ -36,7 +36,7 @@ TRUNCATE TABLE gene;
 
 4- Restart cBioPortal (restart webserver) to clean-up any cached gene lists.
 
-5- You probably also want to update the gene lengths. This is dependent on the reference genome you want to use. Download .annotation.gtf.gz from the latest GENCODE release from http://www.gencodegenes.org/releases/current.html for hg38 / GRCh38. For the hg19 / GRCh37, click on 'Go to GRCh37 version of this release'.
+5- You probably also want to update the gene lengths. To do so, download .annotation.gtf.gz of the [latest GENCODE release for hg19 / GRCh37](http://www.gencodegenes.org/releases/26lift37.html) for human and [mm10 / GRCm38](http://www.gencodegenes.org/mouse_releases/current.html) for mouse.
 
 After downloading, go to your downloads directory, decompress the file and add it as an argument (--gtf) in the next step.
 
@@ -44,12 +44,12 @@ After downloading, go to your downloads directory, decompress the file and add i
 
 ```
  export PORTAL_HOME=<your_cbioportal_dir>
-./importGenes.pl --genes <Homo_sapiens_gene_info.txt> --gtf <gencode.v25.annotation.gtf>
+./importGenes.pl --genes <ncbi_gene_info.txt> --gtf <gencode.v25.annotation.gtf>
 ```
 
 7- :warning: Check the `gene` and `gene_alias` tables to verify that they are filled correctly.
 
-8- Additionally, there are several other tables you may want to update now.
+8- Additionally, there are several other tables you may want to update now (only in human).
 
 1. Updating the pfam graphics if you want to see 3D structures, explained in [this document](https://github.com/oplantalech/cbioportal/blob/d74d7159ff6abba67739efa7f905e407b3961ed3/docs/Updating-pfam_graphics-table.md)
 

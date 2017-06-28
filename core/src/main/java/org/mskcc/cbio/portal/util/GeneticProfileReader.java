@@ -35,8 +35,12 @@ package org.mskcc.cbio.portal.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
+
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
@@ -286,4 +290,29 @@ public class GeneticProfileReader {
         properties.load(new FileInputStream(file));
         return properties.getProperty("gene_panel");
     }
+
+	/**
+	 * Gets the information of "variant_classification_filter" in the file, if it exists. Otherwise, it
+	 * returns null. "variant_classification_filter" can be used in the mutation meta file to specify
+	 * which types of mutations want to be filtered.
+	 * 
+	 * @param file
+	 * @return a string with the types of mutations that should be filtered, comma-separated.
+	 * @throws Exception
+	 */
+	public static Set<String> getVariantClassificationFilter(File file) throws Exception {
+	    Properties properties = new TrimmedProperties();
+	    properties.load(new FileInputStream(file));
+	    String variantClassificationFilter = properties.getProperty("variant_classification_filter");
+	    if (variantClassificationFilter != null) {
+		    Set<String> filteredMutations = new HashSet<String>();
+		    for (String mutation : (Arrays.asList(variantClassificationFilter.split(",")))) {
+		            mutation = mutation.trim();
+		            filteredMutations.add(mutation);
+		        }
+		    return filteredMutations;
+	    } else {
+		return null;
+	    }
+	}
 }

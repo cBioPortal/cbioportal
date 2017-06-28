@@ -142,9 +142,9 @@ public class TestMutationFilter {
                 mutationType            // mutationType
         );
         if (expectedResult) {
-            assertTrue(myMutationFilter.acceptMutation(anExtendedMutation));
+            assertTrue(myMutationFilter.acceptMutation(anExtendedMutation, null));
         } else {
-            assertFalse(myMutationFilter.acceptMutation(anExtendedMutation));
+            assertFalse(myMutationFilter.acceptMutation(anExtendedMutation, null));
         }
     }
    

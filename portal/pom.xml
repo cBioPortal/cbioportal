@@ -95,7 +95,7 @@
                 <artifactItem>
                     <groupId>com.github.adamabeshouse</groupId>
                     <artifactId>cbioportal-frontend</artifactId>
-                    <version>29722f5451</version>
+                    <version>22972bdb2f</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>

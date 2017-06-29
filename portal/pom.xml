@@ -93,9 +93,9 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>com.github.cbioportal</groupId>
-                  <artifactId>cbioportal-frontend</artifactId>
-                  <version>2ecc4d4</version>
+                    <groupId>com.github.adamabeshouse</groupId>
+                    <artifactId>cbioportal-frontend</artifactId>
+                    <version>29722f5451</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>

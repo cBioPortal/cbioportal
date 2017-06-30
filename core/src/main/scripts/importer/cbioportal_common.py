@@ -480,7 +480,7 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
 # ------------------------------------------------------------------------------
 # sub-routines
 
-def get_meta_file_type(metaDictionary, logger, filename):
+def get_meta_file_type(meta_dictionary, logger, filename):
     """
      Returns one of the metatypes found in MetaFileTypes
 
@@ -529,9 +529,9 @@ def get_meta_file_type(metaDictionary, logger, filename):
         ("GENESET_SCORE", "P-VALUE"): MetaFileTypes.GSVA_PVALUES
     }
     result = None
-    if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary:
-        genetic_alteration_type = metaDictionary['genetic_alteration_type']
-        data_type = metaDictionary['datatype']
+    if 'genetic_alteration_type' in meta_dictionary and 'datatype' in meta_dictionary:
+        genetic_alteration_type = meta_dictionary['genetic_alteration_type']
+        data_type = meta_dictionary['datatype']
         if (genetic_alteration_type, data_type) in alt_type_datatype_to_meta:
             result = alt_type_datatype_to_meta[(genetic_alteration_type, data_type)]
         else:
@@ -540,11 +540,11 @@ def get_meta_file_type(metaDictionary, logger, filename):
                 extra={'filename_': filename,
                        'cause': ('genetic_alteration_type: %s, '
                                  'datatype: %s' % (
-                                     metaDictionary['genetic_alteration_type'],
-                                     metaDictionary['datatype']))})
-    elif 'cancer_study_identifier' in metaDictionary and 'type_of_cancer' in metaDictionary:
+                                     meta_dictionary['genetic_alteration_type'],
+                                     meta_dictionary['datatype']))})
+    elif 'cancer_study_identifier' in meta_dictionary and 'type_of_cancer' in meta_dictionary:
         result = MetaFileTypes.STUDY
-    elif 'type_of_cancer' in metaDictionary:
+    elif 'type_of_cancer' in meta_dictionary:
         result = MetaFileTypes.CANCER_TYPE
     else:
         logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
@@ -552,13 +552,13 @@ def get_meta_file_type(metaDictionary, logger, filename):
     return result
 
 
-def validate_types_and_id(metaDictionary, logger, filename):
+def validate_types_and_id(meta_dictionary, logger, filename):
     """Validate a genetic_alteration_type, datatype (and stable_id in some cases) against the predefined
     allowed combinations found in ./allowed_data_types.txt
     """
     result = True
     # this validation only applies to items that have genetic_alteration_type and datatype and stable_id
-    if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary and 'stable_id' in metaDictionary:
+    if 'genetic_alteration_type' in meta_dictionary and 'datatype' in meta_dictionary and 'stable_id' in meta_dictionary:
         alt_type_datatype_and_stable_id = {}
         script_dir = os.path.dirname(__file__)
         allowed_data_types_file_name = os.path.join(script_dir, "allowed_data_types.txt")
@@ -579,9 +579,9 @@ def validate_types_and_id(metaDictionary, logger, filename):
                         alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)] = []
                     alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)].append(line_cols[2])
         # init:
-        stable_id = metaDictionary['stable_id']
-        genetic_alteration_type = metaDictionary['genetic_alteration_type']
-        data_type = metaDictionary['datatype']
+        stable_id = meta_dictionary['stable_id']
+        genetic_alteration_type = meta_dictionary['genetic_alteration_type']
+        data_type = meta_dictionary['datatype']
         # validate the genetic_alteration_type/data_type combination:
         if (genetic_alteration_type, data_type) not in alt_type_datatype_and_stable_id:
             # unexpected as this is already validated in get_meta_file_type
@@ -625,8 +625,9 @@ def parse_metadata_file(filename,
     """
     
     logger.debug('Starting validation of meta file', extra={'filename_': filename})
-    
-    metaDictionary = {}
+
+    # Read meta file
+    meta_dictionary = {}
     with open(filename, 'rU') as metafile:
         for line_index, line in enumerate(metafile):
             # skip empty lines:
@@ -638,24 +639,29 @@ def parse_metadata_file(filename,
                     {True: 'case list', False: 'meta'}[case_list],
                     extra={'filename_': filename,
                            'line_number': line_index + 1})
-                meta_file_type = None
-                return metaDictionary, meta_file_type
+                meta_dictionary['meta_file_type'] = None
+                return meta_dictionary
             key_value = line.split(':', 1)
             if len(key_value) == 2:
-                metaDictionary[key_value[0]] = key_value[1].strip()
+                meta_dictionary[key_value[0]] = key_value[1].strip()
 
+    # Determine meta file type
     if case_list:
         meta_file_type = MetaFileTypes.CASE_LIST
+        meta_dictionary['meta_file_type'] = meta_file_type
     else:
-        meta_file_type = get_meta_file_type(metaDictionary, logger, filename)
+        meta_file_type = get_meta_file_type(meta_dictionary, logger, filename)
+        meta_dictionary['meta_file_type'] = meta_file_type
         # if type could not be inferred, no further validations are possible
         if meta_file_type is None:
-            return metaDictionary, meta_file_type
+            return meta_dictionary
 
+
+    # Check for missing fields for this specific meta file type
     missing_fields = []
     for field in META_FIELD_MAP[meta_file_type]:
         mandatory = META_FIELD_MAP[meta_file_type][field]
-        if field not in metaDictionary and mandatory:
+        if field not in meta_dictionary and mandatory:
             logger.error("Missing field '%s' in %s file",
                          field,
                          {True: 'case list', False: 'meta'}[case_list],
@@ -663,65 +669,72 @@ def parse_metadata_file(filename,
             missing_fields.append(field)
 
     if missing_fields:
-        meta_file_type = None
         # all further checks would depend on these fields being present
-        return metaDictionary, meta_file_type
+        meta_dictionary['meta_file_type'] = None
+        return meta_dictionary
 
     # validate genetic_alteration_type, datatype, stable_id
     stable_id_mandatory = META_FIELD_MAP[meta_file_type].get('stable_id',
                                                              False)
     if stable_id_mandatory:
-        valid_types_and_id = validate_types_and_id(metaDictionary, logger, filename)
+        valid_types_and_id = validate_types_and_id(meta_dictionary, logger, filename)
         if not valid_types_and_id:
             # invalid meta file type
-            meta_file_type = None
-            return metaDictionary, meta_file_type
+            meta_dictionary['meta_file_type'] = None
+            return meta_dictionary
 
-    for field in metaDictionary:
+    # check for extra unrecognized fields
+    for field in meta_dictionary:
         if field not in META_FIELD_MAP[meta_file_type]:
-            logger.warning(
-                'Unrecognized field in %s file',
-                {True: 'case list', False: 'meta'}[case_list],
-                extra={'filename_': filename,
-                       'cause': field})
+
+            # Don't give warning for added 'meta_file_type'
+            if field == "meta_file_type":
+                pass
+            else:
+                logger.warning(
+                    'Unrecognized field in %s file',
+                    {True: 'case list', False: 'meta'}[case_list],
+                    extra={'filename_': filename,
+                           'cause': field})
 
     # check that cancer study identifiers across files so far are consistent.
     if (
             study_id is not None and
-            'cancer_study_identifier' in metaDictionary and
-            study_id != metaDictionary['cancer_study_identifier']):
+            'cancer_study_identifier' in meta_dictionary and
+            study_id != meta_dictionary['cancer_study_identifier']):
         logger.error(
             "Cancer study identifier is not consistent across "
             "files, expected '%s'",
             study_id,
             extra={'filename_': filename,
-                   'cause': metaDictionary['cancer_study_identifier']})
+                   'cause': meta_dictionary['cancer_study_identifier']})
         # not a valid meta file in this study
-        meta_file_type = None
-        return metaDictionary, meta_file_type
+        meta_dictionary['meta_file_type'] = None
+        return meta_dictionary
 
     # type-specific validations
     if meta_file_type in (MetaFileTypes.SEG, MetaFileTypes.GISTIC_GENES):
-        if genome_name is not None and metaDictionary['reference_genome_id'] != genome_name:
+        if genome_name is not None and meta_dictionary['reference_genome_id'] != genome_name:
             logger.error(
                 'Reference_genome_id is not %s',
                 genome_name,
                 extra={'filename_': filename,
-                       'cause': metaDictionary['reference_genome_id']})
-            meta_file_type = None
+                       'cause': meta_dictionary['reference_genome_id']})
+            #meta_file_type = None
+            meta_dictionary['meta_file_type'] = None
     if meta_file_type == MetaFileTypes.MUTATION:
-        if ('swissprot_identifier' in metaDictionary and
-                metaDictionary['swissprot_identifier'] not in ('name',
+        if ('swissprot_identifier' in meta_dictionary and
+                meta_dictionary['swissprot_identifier'] not in ('name',
                                                                'accession')):
             logger.error(
                 "Invalid swissprot_identifier specification, must be either "
                 "'name' or 'accession'",
                 extra={'filename_': filename,
-                       'cause': metaDictionary['swissprot_identifier']})
-            meta_file_type = None
+                       'cause': meta_dictionary['swissprot_identifier']})
+            meta_dictionary['meta_file_type'] = None
 
-    #Save information regarding `source_stable_id`, so that after all meta files are validated,
-    #we can validate fields between meta files in validate_dependencies() in validateData.py
+    # Save information regarding `source_stable_id`, so that after all meta files are validated,
+    # we can validate fields between meta files in validate_dependencies() in validateData.py
     global gsva_scores_stable_id
     global gsva_scores_source_stable_id
     global gsva_pvalues_source_stable_id
@@ -730,34 +743,35 @@ def parse_metadata_file(filename,
 
     # save all expression `stable_id` in list
     if meta_file_type is MetaFileTypes.EXPRESSION:
-        if 'stable_id' in metaDictionary:
-            expression_stable_ids.append(metaDictionary['stable_id'])
-            
+        if 'stable_id' in meta_dictionary:
+            expression_stable_ids.append(meta_dictionary['stable_id'])
+
             # Save all zscore expression `source_stable_id` in dictionary with their filenames.
             # Multiple zscore expression files are possible, and we want to validate all their
             # source_stable_ids with expression stable ids
-            if metaDictionary['datatype'] == "Z-SCORE":
-                if 'source_stable_id' in metaDictionary:
-                    expression_zscores_source_stable_ids[metaDictionary['source_stable_id']] = filename
-     
-    # save stable_id and source_stable_id of GSVA Scores 
+            if meta_dictionary['datatype'] == "Z-SCORE":
+                if 'source_stable_id' in meta_dictionary:
+                    expression_zscores_source_stable_ids[meta_dictionary['source_stable_id']] = filename
+
+    # save stable_id and source_stable_id of GSVA Scores
     if meta_file_type is MetaFileTypes.GSVA_SCORES:
         gsva_scores_filename = filename
-        if 'source_stable_id' in metaDictionary:
-            gsva_scores_source_stable_id = metaDictionary['source_stable_id']
+        if 'source_stable_id' in meta_dictionary:
+            gsva_scores_source_stable_id = meta_dictionary['source_stable_id']
 
         # save 'stable_id' to check the 'source_stable_id' in GSVA_PVALUES file
-        if 'stable_id' in metaDictionary:
-            gsva_scores_stable_id = metaDictionary['stable_id']
-         
-    # save stable_id and source_stable_id of GSVA Pvalues 
+        if 'stable_id' in meta_dictionary:
+            gsva_scores_stable_id = meta_dictionary['stable_id']
+
+    # save stable_id and source_stable_id of GSVA Pvalues
     if meta_file_type is MetaFileTypes.GSVA_PVALUES:
         gsva_pvalues_filename = filename
-        if 'source_stable_id' in metaDictionary:
-            gsva_pvalues_source_stable_id = metaDictionary['source_stable_id']
+        if 'source_stable_id' in meta_dictionary:
+            gsva_pvalues_source_stable_id = meta_dictionary['source_stable_id']
 
     logger.info('Validation of meta file complete', extra={'filename_': filename})
-    return metaDictionary, meta_file_type
+
+    return meta_dictionary
 
 
 def run_java(*args):

@@ -2799,13 +2799,14 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode):
 
     for filename in filenames:
 
-        meta, meta_file_type = cbioportal_common.parse_metadata_file(
+        meta_dictionary = cbioportal_common.parse_metadata_file(
             filename, logger, study_id, portal_instance.genome_build)
+        meta_file_type = meta_dictionary['meta_file_type']
         if meta_file_type is None:
             continue
         # validate stable_id to be unique (check can be removed once we deprecate this field):
-        if 'stable_id' in meta:
-            stable_id = meta['stable_id']
+        if 'stable_id' in meta_dictionary:
+            stable_id = meta_dictionary['stable_id']
             if stable_id in stable_ids:
                 # stable id already used in other meta file, give error:
                 logger.error(
@@ -2814,20 +2815,20 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode):
                            'cause': stable_id})
             else:
                 stable_ids.append(stable_id)
-        if study_id is None and 'cancer_study_identifier' in meta:
-            study_id = meta['cancer_study_identifier']
+        if study_id is None and 'cancer_study_identifier' in meta_dictionary:
+            study_id = meta_dictionary['cancer_study_identifier']
         if meta_file_type == cbioportal_common.MetaFileTypes.STUDY:
             if study_cancer_type is not None:
                 logger.error(
                     'Encountered a second meta_study file',
                     extra={'filename_': filename})
             else:
-                study_cancer_type = meta['type_of_cancer']
-                if ('add_global_case_list' in meta and
-                        meta['add_global_case_list'].lower() == 'true'):
+                study_cancer_type = meta_dictionary['type_of_cancer']
+                if ('add_global_case_list' in meta_dictionary and
+                        meta_dictionary['add_global_case_list'].lower() == 'true'):
                     case_list_suffix_fns['all'] = filename
-            # raise a warning if pmid is existing, but no citation is available. 
-            if 'pmid' in meta and not 'citation' in meta:
+            # raise a warning if pmid is existing, but no citation is available.
+            if 'pmid' in meta_dictionary and not 'citation' in meta_dictionary:
                 logger.warning(
                 'Citation is required when giving a pubmed id (pmid).')
 
@@ -2835,9 +2836,9 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode):
         if meta_file_type not in validators_by_type:
             validators_by_type[meta_file_type] = []
         # check if data_filename is set AND if data_filename is a supported field according to META_FIELD_MAP:
-        if 'data_filename' in meta and 'data_filename' in cbioportal_common.META_FIELD_MAP[meta_file_type]:
+        if 'data_filename' in meta_dictionary and 'data_filename' in cbioportal_common.META_FIELD_MAP[meta_file_type]:
             validator_class = globals()[VALIDATOR_IDS[meta_file_type]]
-            validator = validator_class(directory, meta,
+            validator = validator_class(directory, meta_dictionary,
                                         portal_instance, logger, relaxed_mode)
             validators_by_type[meta_file_type].append(validator)
         else:
@@ -2889,14 +2890,14 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
 
     for case in case_list_fns:
 
-        case_data, meta_file_type = cbioportal_common.parse_metadata_file(
+        meta_dictionary = cbioportal_common.parse_metadata_file(
             case, logger, cancerStudyId, case_list=True)
         # skip if invalid, errors have already been emitted
-        if meta_file_type is None:
+        if meta_dictionary['meta_file_type'] is None:
             continue
 
         # check for duplicated stable ids
-        stable_id = case_data['stable_id']
+        stable_id = meta_dictionary['stable_id']
         if not stable_id.startswith(cancerStudyId + '_'):
             logger.error('Stable_id of case list does not start with the '
                          'study id (%s) followed by an underscore',
@@ -2914,7 +2915,7 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
         else:
             stableid_files[stable_id] = case
 
-        sampleIds = case_data['case_list_ids']
+        sampleIds = meta_dictionary['case_list_ids']
         sampleIds = set([x.strip() for x in sampleIds.split('\t')])
         for value in sampleIds:
             if value not in DEFINED_SAMPLE_IDS:

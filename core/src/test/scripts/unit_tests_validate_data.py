@@ -991,7 +991,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
     def test_invalid_swissprot_identifier_type(self):
         """Test if the validator rejects files with nonsensical id types."""
         self.logger.setLevel(logging.ERROR)
-        mvals, mtype = validateData.cbioportal_common.parse_metadata_file(
+        meta_dictionary = validateData.cbioportal_common.parse_metadata_file(
                 'test_data/mutations/meta_mutations_invalid_swissprot_idspec.txt',
                 self.logger,
                 study_id='spam')
@@ -1000,7 +1000,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.cause, 'namelessly')
-        self.assertIsNone(mtype, 'metadata file was not rejected as invalid')
+        self.assertIsNone(meta_dictionary['meta_file_type'], 'metadata file was not rejected as invalid')
 
     def test_isValidAminoAcidChange(self):
         """Test if proper warnings are given for wrong/blank AA change vals."""

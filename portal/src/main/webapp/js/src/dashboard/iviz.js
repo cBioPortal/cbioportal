@@ -6941,8 +6941,11 @@ window.LogRankTest = (function(jStat) {
     },
     position: {
       my: 'center', // ...at the center of the viewport
-      at: 'center',
-      target: ''
+      at: 'top center',
+      target: $(window),
+      adjust: {
+        y: 400
+      }
     },
     show: {
       event: 'click', // Show it on click...

@@ -88,7 +88,7 @@
                           <div class="checkbox"><label><input type="checkbox" name="recurrence" value="recurrence" /> Driver/Passenger</label></div>
                        </div>
                        <div class="radio"><label><input type="radio" name="sortby" value="id" /> Sort by case id (alphabetical)</label></div>
-                       <div class="radio"><label><input type="radio" name="sortby" value="custom" /> Sort by user-defined order / default</label></div>
+                       <div class="radio"><label><input type="radio" name="sortby" value="custom" /> Sort by case list order</label></div>
                        <div class="radio"><label><input type="radio" name="sortby" value="clustering" disabled/> Sorted by heatmap clustering order</label></div>
                    </form>
                </div>

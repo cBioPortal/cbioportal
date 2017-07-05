@@ -1669,6 +1669,24 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, geneset_ids, 
 			fetch_promise.reject();
 		    });
 		}),
+	'getGenesetLinkMap': makeCachedPromiseFunction(
+		function (self, fetch_promise) {
+		    cbioportal_client.getGenesetMetadataByIds(
+			    {geneset_ids: self.getQueryGenesets()})
+		    .done(function (geneset_metadata) {
+			fetch_promise.resolve(
+				geneset_metadata.reduce(
+					function (link_map, metadatum) {
+					    var map_entry = {}
+					    map_entry[metadatum.genesetId] = metadatum.refLink;
+					    return $.extend(link_map, metadatum.refLink ? map_entry : {});
+					},
+					{}));
+		    })
+		    .fail(function () {
+			fetch_promise.reject();
+		    });
+		}),
 	'getGenesetGeneCorrelations': function(geneset_id) {
 	    var self = this;
 	    return this.getSelectedGsvaProfile()

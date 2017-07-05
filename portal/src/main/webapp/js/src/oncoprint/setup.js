@@ -1362,7 +1362,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    oncoprint.setTrackGroupSortPriority(ordered_group_ids);
 		});
 	    },
-	    'addGenesetTracks': function (genetic_profile_id, geneset_ids) {
+	    'addGenesetTracks': function (genetic_profile_id, geneset_ids, geneset_link_map) {
 		oncoprint.suppressRendering();
 		var track_ids = [];
 		var i, track_geneset_id, track_params, new_track_id;
@@ -1404,7 +1404,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			'track_padding': 0,
 			'label': track_geneset_id,
 			'target_group': this.GENESET_HEATMAP_TRACK_GROUP_INDEX,
-			'description': track_geneset_id + ' gene set scores from ' + genetic_profile_id,
+			'description': 'gene set scores from ' + genetic_profile_id,
+			'link_url': geneset_link_map[track_geneset_id],
 			'removeCallback': makeRemoveGenesetTrackHandler(track_geneset_id),
 			'expandCallback': makeGenesetExpandHandler(track_geneset_id),
 			'expandButtonTextGetter': function (is_expanded) {
@@ -1886,10 +1887,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	}).then(function () {
 	    var queried_gene_sets = QuerySession.getQueryGenesets();
 	    if (queried_gene_sets !== null && queried_gene_sets.length > 0) {
-		return QuerySession.getSelectedGsvaProfile()
-		.then(function (gsva_profile) {
+		return $.when(
+			QuerySession.getSelectedGsvaProfile(),
+			QuerySession.getGenesetLinkMap())
+		.then(function (gsva_profile, geneset_link_map) {
 		    console.log("in initOncoprint, adding gene set tracks");
-		    State.addGenesetTracks(gsva_profile.id, queried_gene_sets);
+		    State.addGenesetTracks(gsva_profile.id, queried_gene_sets, geneset_link_map);
 		});
 	    } else {
 		// nothing to do for gene set tracks; return a resolved promise

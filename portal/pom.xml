@@ -93,9 +93,9 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>com.github.cbioportal</groupId>
+                  <groupId>com.github.thehyve</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
-                  <version>a1064b8bcebef20268a2baa667a69cac03bda714</version>
+                  <version>031b2a78fdd9fc60c5e3563ac7dbbf4385abc005</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>

@@ -1159,6 +1159,158 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertIn('The end position of this variant is not '
                     'an integer', record.getMessage())
+        
+    def test_absence_custom_values_columns_when_custom_annotation_columns(self):
+        """Test that the validator raises an error when the 
+        cbp_driver_annotation and the cbp_driver_tiers_annotation
+        columns are present but the cbp_driver and the 
+        cbp_driver_tiers columns are not.
+        """
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('mutations/data_mutations_absence_custom_values_columns_when_custom_annotation_columns.maf',
+                                    validateData.MutationsExtendedValidator,
+                                    extra_meta_fields={
+                                            'swissprot_identifier': 'name'})
+        # we expect 5 ERRORs :
+        self.assertEqual(len(record_list), 5)
+        
+        # First 2 ERRORs should be something like: "Column X found without any X column"
+        self.assertIn("found without any", record_list[0].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+        self.assertIn("found without any", record_list[1].getMessage().lower())
+        self.assertEqual(record_list[1].levelno, logging.ERROR)
+        
+        # Last 3 ERRORs should be something like: "This line has no value for X and a value for Y. Please, fill the Z column."
+        self.assertIn("please, fill the", record_list[2].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+        self.assertIn("please, fill the", record_list[3].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+        self.assertIn("please, fill the", record_list[4].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+    
+    def test_absence_custom_annotation_columns_when_custom_values_columns(self):
+        """Test that the validator raises an error when the 
+        cbp_driver and the cbp_driver_tiers columns are present 
+        but the cbp_driver_annotation and the 
+        cbp_driver_tiers_annotation columns are not.
+        """
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('mutations/data_mutations_absence_custom_annotation_columns_when_custom_values_columns.maf',
+                                    validateData.MutationsExtendedValidator,
+                                    extra_meta_fields={
+                                            'swissprot_identifier': 'name'})
+        # we expect 5 ERRORs :
+        self.assertEqual(len(record_list), 5)
+        
+        # First 2 ERRORs should be something like: "Column X found without any Y column"
+        self.assertIn("found without any", record_list[0].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+        self.assertIn("found without any", record_list[1].getMessage().lower())
+        self.assertEqual(record_list[1].levelno, logging.ERROR)
+        
+        # Last 3 ERRORs should be something like: "This line has no value for X and a value for Y. Please, fill the annotation column."
+        self.assertIn("please, fill the annotation column", record_list[2].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+        self.assertIn("please, fill the annotation column", record_list[3].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+        self.assertIn("please, fill the annotation column", record_list[4].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+        
+    def test_empty_custom_annotation_fields(self):
+        """Test that the validator raises errors when one multiclass
+        column is empty and the other is full, and that the binary
+        annotation column is full when the binary label column contains
+        "Putative_Driver" or "Putative_Passenger".
+        """
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('mutations/data_mutations_empty_custom_annotation_fields.maf',
+                                    validateData.MutationsExtendedValidator,
+                                    extra_meta_fields={
+                                            'swissprot_identifier': 'name'})
+        # we expect 2 ERRORs :
+        self.assertEqual(len(record_list), 2)
+        
+        # 2 ERRORs should be something like: "This line has no value for X and a value for Y. Please, fill the Z column."
+        self.assertIn("please, fill the", record_list[0].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+        self.assertIn("please, fill the", record_list[1].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+    
+    def test_warning_more_than_10_types_in_driver_class(self):
+        """Test that the validator raises a warning when the column
+        cbp_driver_tiers contains more than 10 types.
+        """
+        # set level according to this test case:
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('mutations/data_mutations_more_than_10_types_in_driver_class.maf',
+                                    validateData.MutationsExtendedValidator,
+                                    extra_meta_fields={
+                                            'swissprot_identifier': 'name'})
+        # we expect 3 WARNINGs :
+        self.assertEqual(len(record_list), 3)
+        
+        # WARNINGs should be something like: "cbp_driver_tiers contains more than 10 different values"
+        self.assertIn("cbp_driver_tiers contains more than 10 different tiers.", record_list[0].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.WARNING)
+        self.assertIn("cbp_driver_tiers contains more than 10 different tiers.", record_list[1].getMessage().lower())
+        self.assertEqual(record_list[1].levelno, logging.WARNING)
+        self.assertIn("cbp_driver_tiers contains more than 10 different tiers.", record_list[2].getMessage().lower())
+        self.assertEqual(record_list[2].levelno, logging.WARNING)
+        
+    def test_annotation_more_than_80_characters_in_custom_annotation_columns(self):
+        """Test if the validator raises an error if any value of the annotation
+        columns has more than 80 characters.
+        """
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('mutations/data_mutations_more_than_80_characters_in_custom_annotation_columns.maf',
+                                    validateData.MutationsExtendedValidator,
+                                    extra_meta_fields={
+                                            'swissprot_identifier': 'name'})
+        # we expect 1 ERROR :
+        self.assertEqual(len(record_list), 1)
+        
+        # ERROR should be something like: "cbp_driver_annotation and cbp_driver_tiers_annotation columns do not support annotations longer than 80 characters"
+        self.assertIn("columns do not support annotations longer than 80 characters", record_list[0].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+        
+    def test_not_supported_custom_driver_annotation_values(self):
+        """Test if the validator raises an error if any value of the
+        cbp_driver is not Putative_Passenger or
+        Putative_Driver.
+        """
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('mutations/data_mutations_not_supported_custom_driver_annotation_values.maf',
+                                    validateData.MutationsExtendedValidator,
+                                    extra_meta_fields={
+                                            'swissprot_identifier': 'name'})
+        # we expect 1 ERROR :
+        self.assertEqual(len(record_list), 1)
+        
+        # ERROR should be something like: "Only "Putative_Passenger", "Putative_Driver", "NA", "Unknown" and "" (empty) are allowed."
+        self.assertIn('only "putative_passenger", "putative_driver", "na", "unknown" and "" (empty) are allowed.', record_list[0].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+        
+    def test_custom_driver_column_more_than_50_characters(self):
+        """Test if the validator raises an error if any value of the 
+        cbp_driver_tiers column has more than 50 characters.
+        """
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('mutations/data_mutations_custom_tiers_column_more_than_50_characters.maf',
+                                    validateData.MutationsExtendedValidator,
+                                    extra_meta_fields={
+                                            'swissprot_identifier': 'name'})
+        # we expect 1 ERROR :
+        self.assertEqual(len(record_list), 1)
+        
+        # ERROR should be something like: "cbp_driver_tiers column does not support values longer than 50 characters"
+        self.assertIn("does not support values longer than 50 characters", record_list[0].getMessage().lower())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
 
 class FusionValidationTestCase(PostClinicalDataFileTestCase):
 

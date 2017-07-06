@@ -385,6 +385,10 @@ public final class ExtendedMutation
     private int tumorRefCount;
     private int normalAltCount;
     private int normalRefCount;
+    private String driverFilter;
+    private String driverFilterAnn;
+    private String driverTiersFilter;
+    private String driverTiersFilterAnn;
 
     public ExtendedMutation() {
         this(new MutationEvent());
@@ -951,6 +955,38 @@ public final class ExtendedMutation
     public void setEvent(MutationEvent event) {
         this.event = event;
     }
+    
+    public void setDriverFilter(String driverFilter) {
+    		this.driverFilter = driverFilter;
+    }
+	
+	public String getDriverFilter() {
+		return driverFilter;
+	}
+	
+	public void setDriverFilterAnn(String driverFilterAnn) {
+		this.driverFilterAnn = driverFilterAnn;
+	}
+	
+	public String getDriverFilterAnn() {
+			return driverFilterAnn;
+	}
+	
+	public void setDriverTiersFilter(String driverTiersFilter) {
+		this.driverTiersFilter = driverTiersFilter;
+	}
+	
+	public String getDriverTiersFilter() {
+			return driverTiersFilter;
+	}
+	
+	public void setDriverTiersFilterAnn(String driverTiersFilterAnn) {
+		this.driverTiersFilterAnn = driverTiersFilterAnn;
+	}
+	
+	public String getDriverTiersFilterAnn() {
+			return driverTiersFilterAnn;
+	}
     
     @Override
     public String toString() {

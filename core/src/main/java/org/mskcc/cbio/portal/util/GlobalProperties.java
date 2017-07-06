@@ -251,6 +251,13 @@ public class GlobalProperties {
             }
         }
     }
+    
+    public static final String BINARY_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL = "oncoprint.custom_driver_annotation.binary.menu_label";
+    public static final String TIERS_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL = "oncoprint.custom_driver_annotation.tiers.menu_label";
+    public static final String ENABLE_DRIVER_ANNOTATIONS = "oncoprint.custom_driver_annotation.default";
+    public static final String ENABLE_TIERS = "oncoprint.custom_driver_tiers_annotation.default";
+    public static final String ENABLE_ONCOKB_AND_HOTSPOTS_ANNOTATIONS = "oncoprint.oncokb_hotspots.default";
+    public static final String HIDE_PASSENGER_MUTATIONS = "oncoprint.hide_passenger.default";
 
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -932,9 +939,64 @@ public class GlobalProperties {
         }
         return defaultOncoprintView.trim();
     }
-
+    
+    public static boolean enableDriverAnnotations() {
+        String enableDriverAnnotations = properties.getProperty(ENABLE_DRIVER_ANNOTATIONS, "true");
+        if (!showBinaryCustomDriverAnnotation()) {
+            return false;  // do not enable driver annotations by default
+        }
+        return Boolean.parseBoolean(enableDriverAnnotations);
+    }
+    
+    public static boolean enableTiers() {
+        String enableTiers = properties.getProperty(ENABLE_TIERS, "true");
+        if (!showTiersCustomDriverAnnotation()) {
+            return false;  // do not enable driver annotations by default
+        }
+        return Boolean.parseBoolean(enableTiers);
+    }
+    
+    public static String enableOncoKBandHotspots() {
+        String enableOncoKBandHotspots = properties.getProperty(ENABLE_ONCOKB_AND_HOTSPOTS_ANNOTATIONS, "true").trim();
+        if (enableOncoKBandHotspots.equalsIgnoreCase("custom")) {
+            return "custom";
+        } else if (enableOncoKBandHotspots.equalsIgnoreCase("false")) {
+            return "false";
+        }
+        return "true";
+    }
+    
+    public static String getBinaryCustomDriverAnnotationMenuLabel()
+    {
+        return properties.getProperty(BINARY_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL);
+    }
+    
+    public static String getTiersCustomDriverAnnotationMenuLabel()
+    {
+        return properties.getProperty(TIERS_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL);
+    }
+    
     public static void main(String[] args)
     {
         System.out.println(getAppVersion());
+    }
+    
+    public static boolean showBinaryCustomDriverAnnotation() {
+        if (getBinaryCustomDriverAnnotationMenuLabel()==null || getBinaryCustomDriverAnnotationMenuLabel().isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+    
+    public static boolean showTiersCustomDriverAnnotation() {
+	if (getTiersCustomDriverAnnotationMenuLabel()==null || getTiersCustomDriverAnnotationMenuLabel().isEmpty()) {
+	    return false;
+	}
+        return true;
+    }
+    
+    public static boolean hidePassengerMutations() {
+	String hidePassenger = properties.getProperty(HIDE_PASSENGER_MUTATIONS, "false");
+	return Boolean.parseBoolean(hidePassenger);
     }
 }

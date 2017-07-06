@@ -132,6 +132,12 @@ public class MafRecord
 	private int oncotatorProteinPosStartBestEffect;
 	private int oncotatorProteinPosEndBestEffect;
 	
+	// custom filtering of passenger and driver mutations cols
+	private String driverFilter;
+	private String driverFilterAnn;
+	private String driverTiersFilter;
+	private String driverTiersFilterAnn;
+	
 	public String getChr() {
         return chr;
     }
@@ -858,5 +864,37 @@ public class MafRecord
 
 	public void setMaProteinChange(String maProteinChange) {
 		this.maProteinChange = maProteinChange;
+	}
+	
+	public String getDriverFilter() {
+		return driverFilter;
+	}
+	
+	public void setDriverFilter(String driverFilter) {
+		this.driverFilter = driverFilter;
+	}
+	
+	public String getDriverFilterAnn() {
+		return driverFilterAnn;
+	}
+	
+	public void setDriverFilterAnn(String driverFilterAnn) {
+		this.driverFilterAnn = driverFilterAnn;
+	}
+	
+	public String getDriverTiersFilter() {
+		return driverTiersFilter;
+	}
+	
+	public void setDriverTiersFilter(String driverTiersFilter) {
+		this.driverTiersFilter = driverTiersFilter;
+	}
+	
+	public String getDriverTiersFilterAnn() {
+		return driverTiersFilterAnn;
+	}
+	
+	public void setDriverTiersFilterAnn(String driverTiersFilterAnn) {
+		this.driverTiersFilterAnn = driverTiersFilterAnn;
 	}
 }

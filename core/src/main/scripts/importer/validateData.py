@@ -948,7 +948,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
 class CNAValidator(GenewiseFileValidator):
 
     """Sub-class CNA validator."""
-    ALLOWED_VALUES = ['-2', '-1', '0', '1', '2'] + GenewiseFileValidator.NULL_VALUES
+    ALLOWED_VALUES = ['-2', '-1.5', '-1', '0', '1', '2'] + GenewiseFileValidator.NULL_VALUES
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""

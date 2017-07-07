@@ -657,7 +657,7 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('data_cna_invalid_values.txt',
                                     validateData.CNAValidator)
         # expecting various errors about data values, about one per line
-        self.assertEqual(len(record_list), 5)
+        self.assertEqual(len(record_list), 6)
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
         record_iterator = iter(record_list)
@@ -682,6 +682,11 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.line_number, 8)
         self.assertEqual(record.column_number, 5)
         self.assertEqual(record.cause, '[Not Available]')
+        # Only -2, -1.5, -1, 0, 1, 2 are supported, anything else should be an error:
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 9)
+        self.assertEqual(record.column_number, 6)
+        self.assertEqual(record.cause, '1.5')
 
     def test_valid_rppa(self):
         """Check a valid RPPA file that should yield no errors."""

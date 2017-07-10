@@ -1365,9 +1365,18 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    'addGenesetTracks': function (genetic_profile_id, geneset_ids, geneset_link_map) {
 		oncoprint.suppressRendering();
 		var track_ids = [];
-		var i, track_geneset_id, track_params, new_track_id;
+		var i, track_geneset_id, track_params, new_track_id, track_label_obj;
 		for (i = 0; i < geneset_ids.length; i++) {
 		    track_geneset_id = geneset_ids[i];
+		    track_label_obj = new String(track_geneset_id);
+		    track_label_obj.html_content = (
+			    // encode the string as the textual contents of an
+			    // HTML element
+			    $('<div>').text(track_label_obj).html()
+			    // Include zero-width spaces to allow line breaks
+			    // after punctuation in (typically long) gs names
+			    .replace(/_/g, '_&#8203;')
+			    .replace(/\./g, '.&#8203;'));
 		    track_params = {
 			'rule_set_params': {
 			    'type': 'gradient',
@@ -1402,7 +1411,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			'track_label_color': 'grey',
 			'has_column_spacing': false,
 			'track_padding': 0,
-			'label': track_geneset_id,
+			'label': track_label_obj,
 			'target_group': this.GENESET_HEATMAP_TRACK_GROUP_INDEX,
 			'description': 'gene set scores from ' + genetic_profile_id,
 			'link_url': geneset_link_map[track_geneset_id],

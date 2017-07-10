@@ -53,6 +53,7 @@ import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGistic;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.persistence.GeneticProfileMapperLegacy;
 import org.mskcc.cbio.portal.persistence.MutationMapperLegacy;
 import org.mskcc.cbio.portal.service.ApiService;
 import org.mskcc.cbio.portal.util.SpringUtil;
@@ -141,10 +142,21 @@ public class TestIntegrationTest {
             List<String> geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_mutations");
             List<Mutation> mutations = mutationMapperLegacy.getMutationsDetailed(geneticProfileStableIds,null,null,null);
-            //there are 13 records in the mutation file, but 3 are filtered, 
-            //so we expect 10 in DB:
-            assertEquals(10, mutations.size());
-            
+            //there are 13 records in the mutation file, of which 3 are filtered, and there are 3 extra records added from fusion
+            //so we expect 13 records in DB:
+            assertEquals(13, mutations.size());
+
+            //===== Check FUSION data ========
+            // Are there fusion entries in mutation profile? true
+            assertEquals(mutations.get(12).getMutationEvent().getMutationType(), "Fusion");
+
+            // Is there a seperate fusion profile? -> false
+            GeneticProfileMapperLegacy geneticProfileMapperLegacy = applicationContext.getBean(GeneticProfileMapperLegacy.class);
+            geneticProfileStableIds = new ArrayList<String>();
+            geneticProfileStableIds.add("study_es_0_fusion");
+            List<DBGeneticProfile> geneticProfiles = geneticProfileMapperLegacy.getGeneticProfiles(geneticProfileStableIds);
+            assertEquals(geneticProfiles.size(), 0);
+
             //===== Check CNA data ========
             geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_gistic");
@@ -209,10 +221,6 @@ public class TestIntegrationTest {
             List<DBCancerType> cancerTypes = apiService.getCancerTypes(Arrays.asList("brca-es0"));
             assertEquals(1, cancerTypes.size());
             assertEquals("Breast Invasive Carcinoma", cancerTypes.get(0).name);
-            
-            //===== check fusion data
-            //TODO - depends on fix for #1102 and #1314
-            
             
             //===== check gistic data
             //servlet uses this query:

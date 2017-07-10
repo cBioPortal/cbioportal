@@ -1054,9 +1054,9 @@ class MutationsExtendedValidator(Validator):
                 extra={'line_number': self.line_number})
         elif not 'swissprot_identifier' in self.meta_dict:
             self.logger.warning(
-                "A SWISSPROT column was found without an associated "
-                "'swissprot_identifier' annotation column; assuming "
-                "'swissprot_identifier' column contains Swiss-Prot name.",
+                "A SWISSPROT column was found in datafile without specifying "
+                "associated 'swissprot_identifier' in metafile, assuming "
+                "'swissprot_identifier: name'.",
                 extra={'column_number': self.cols.index('SWISSPROT') + 1})
 
         # one of these columns should be present:

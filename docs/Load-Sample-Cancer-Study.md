@@ -1,14 +1,24 @@
 # Loading a Sample Study
 
-Once you have initialized MySQL with the seed database, you are ready to import a sample cancer study.  This is recommended, so that you can verify everything is working.
+Once you have initialized MySQL with the seed database, you are ready to import a sample cancer study. This is recommended to verify that everything is working correctly.
 
-## Sample Study
+The cBioPortal distribution includes a [small dummy study, `study_es_0`](https://github.com/cBioPortal/cbioportal/tree/master/core/src/test/scripts/test_data/study_es_0), which contains all datatypes supported by cBioPortal. This document describes how to import the prerequisites for the sample study and how to import the study itself.
 
-The cBioPortal distribution includes a [small dummy study, study_es_0](https://github.com/cBioPortal/cbioportal/tree/master/core/src/test/scripts/test_data/study_es_0), which you can use to verify that everything is working properly.
+#### Import Gene Panels and Gene Sets for Sample Study
 
-## Validating the Sample Study
+Gene panels and gene sets have to be imported before respectively gene panel study data and gene set scoring data can be added to the database.
 
-First, validate `study_es_0`.
+```
+cd <your_cbioportal_dir>/core/src/main/scripts
+./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/gene_panel_example.txt
+./importGenesetData.pl --data ../../test/resources/genesets/study_es_0_genesets.gmt --new-version 1 --supp ../../test/resources/genesets/study_es_0_supp-genesets.txt
+```
+
+More details to load your own gene panel and gene set data can be found here: [Import Gene Panels](Import-Gene-Panels.md) and [Import Gene Sets](Import-Gene-Sets.md)
+
+#### Validating the Sample Study
+
+First it's useful to validate the study `study_es_0`, to check if the data is formatted correctly.
 
 To do so, go to the importer folder: 
 
@@ -28,7 +38,7 @@ If all goes well, you should see the final output message:
 Validation of study succeeded with warnings.
 ```
 
-## Importing the Sample Study
+#### Importing the Sample Study
 
 To import the sample study:
 

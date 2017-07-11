@@ -542,7 +542,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    new_datum['study_id'] = study;
 		    new_datum['uid'] = case_uid_map[study][id];
 
-		    if (typeof sequencing_data[id] === "undefined" ||
+		    if (typeof sequencing_data === "undefined") {
+			new_datum['coverage'] = undefined;
+		    } else if (typeof sequencing_data[id] === "undefined" ||
 			typeof sequencing_data[id][gene] === "undefined") {
 			new_datum['na'] = true;
 		    } else {
@@ -1212,13 +1214,22 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getSampleSequencingData': makeCachedPromiseFunction(
 		function(self, fetch_promise) {
 		    // returns sample -> gene -> set of (gene panel id | the number 1, indicating whole exome sequenced)
-		    self.getMutationProfileIds().then(function(ids) {
-			$.ajax({
-		       type: "GET",
-		       url: "api-legacy/genepanel/data",
-		       contentType: "application/json",
-		       data: ["profile_id="+ids[0], "genes="+self.getQueryGenes().join(",")].join("&")
-			}).then(function(response) {
+		    self.getGenePanelProfileIds().then(function(ids) {
+			// TODO: handling gene panel in other types of profiles besides mutation and cna
+			// TODO: handling gene panel data for more than one profile at once
+			var gene_panel_promise;
+			if (ids.length > 0) {
+			    gene_panel_promise = $.ajax({
+				type: "GET",
+				url: "api-legacy/genepanel/data",
+				contentType: "application/json",
+				data: ["profile_id="+ids[0], "genes="+self.getQueryGenes().join(",")].join("&")
+			    });
+			} else {
+			    gene_panel_promise = new $.Deferred();
+			    gene_panel_promise.resolve([]);
+			}
+			gene_panel_promise.then(function(response) {
 			    var sequenced_info = {};
 			    for (var i = 0; i < response.length; i++) {
 				var panel = response[i];
@@ -1666,9 +1677,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	}),
 	'getGeneAggregatedOncoprintSampleGenomicEventData': makeCachedPromiseFunctionWithSessionFilterOption(
 		function (self, fetch_promise, use_session_filters) {
-	    $.when((use_session_filters ? self.getSessionFilteredWebServiceGenomicEventData() : self.getWebServiceGenomicEventData()), self.getStudySampleMap(), self.getCaseUIDMap(), self.getSampleSequencingData()).then(function (ws_data, study_sample_map, case_uid_map, sample_sequencing_data) {
+	    $.when((use_session_filters ? self.getSessionFilteredWebServiceGenomicEventData() : self.getWebServiceGenomicEventData()), self.getStudySampleMap(), self.getCaseUIDMap(), self.getSampleSequencingData(),
+		    self.getGenePanelProfileIds()).then(function (ws_data, study_sample_map, case_uid_map, sample_sequencing_data, gene_panel_profile_ids) {
 		var filtered_ws_data = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, false, false);
-		fetch_promise.resolve(makeOncoprintSampleData(filtered_ws_data, self.getQueryGenes(), study_sample_map, case_uid_map, sample_sequencing_data, use_session_filters));
+		fetch_promise.resolve(makeOncoprintSampleData(filtered_ws_data, self.getQueryGenes(), study_sample_map, case_uid_map, gene_panel_profile_ids.length === 0 ? undefined : sample_sequencing_data, use_session_filters));
 	    }).fail(function () {
 		fetch_promise.reject();
 	    });
@@ -1679,11 +1691,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    self.getStudySampleMap(), 
 	    self.getCaseUIDMap(),
 	    self.getSampleUIDs(),
-	    self.getSampleSequencingData()).then(function (ws_data, study_sample_map, case_uid_map, sample_uids, sample_sequencing_data) {
+	    self.getSampleSequencingData(),
+	    self.getGenePanelProfileIds()).then(function (ws_data, study_sample_map, case_uid_map, sample_uids, sample_sequencing_data, gene_panel_profile_ids) {
 		var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true, true);
 		for (var i = 0; i < ws_data_by_oql_line.length; i++) {
 		    var line = ws_data_by_oql_line[i];
-		    var oncoprint_data = makeOncoprintSampleData(line.data, [line.gene], study_sample_map, case_uid_map, sample_sequencing_data, use_session_filters);
+		    var oncoprint_data = makeOncoprintSampleData(line.data, [line.gene], study_sample_map, case_uid_map, gene_panel_profile_ids.length === 0 ? undefined : sample_sequencing_data, use_session_filters);
 		    var sequenced_samples = {};
 		    var altered_samples = {};
 		    var altered_sample_uids = {};
@@ -1815,11 +1828,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    self.getStudyPatientMap(), 
 	    self.getPatientSampleIdMap(), 
 	    self.getCaseUIDMap(),
-	    self.getPatientSequencingData()).then(function (ws_data, study_patient_map, sample_to_patient_map, case_uid_map, patient_sequencing_data) {
+	    self.getPatientSequencingData(),
+	    self.getGenePanelProfileIds()).then(function (ws_data, study_patient_map, sample_to_patient_map, case_uid_map, patient_sequencing_data, gene_panel_profile_ids) {
 		var ws_data_by_oql_line = OQL.filterCBioPortalWebServiceData(self.getOQLQuery(), ws_data, default_oql, true, true);
 		for (var i = 0; i < ws_data_by_oql_line.length; i++) {
 		    var line = ws_data_by_oql_line[i];
-		    var oncoprint_data = makeOncoprintPatientData(ws_data_by_oql_line[i].data, [ws_data_by_oql_line[i].gene], study_patient_map, sample_to_patient_map, case_uid_map, patient_sequencing_data, use_session_filters);
+		    var oncoprint_data = makeOncoprintPatientData(ws_data_by_oql_line[i].data, [ws_data_by_oql_line[i].gene], study_patient_map, sample_to_patient_map, case_uid_map, gene_panel_profile_ids.length === 0 ? undefined : patient_sequencing_data, use_session_filters);
 		    var sequenced_patients = {};
 		    var altered_patients = {};
 		    var altered_patient_uids = {};
@@ -2065,6 +2079,20 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				    return p.id;
 				})
 				);
+		    }).fail(function () {
+			fetch_promise.reject();
+		    });
+		}),
+	'getGenePanelProfileIds': makeCachedPromiseFunction(
+		function (self, fetch_promise) {
+		    self.getGeneticProfiles().then(function (profiles) {
+			var gene_panel_profiles = profiles.filter(function(p) {
+			    return p.genetic_alteration_type === "MUTATION_EXTENDED" ||
+				    p.genetic_alteration_type === "COPY_NUMBER_ALTERATION";
+			});
+			var priority = {"MUTATION_EXTENDED":0, "COPY_NUMBER_ALTERATION":1};
+			gene_panel_profiles = _.sortBy(gene_panel_profiles, function(p) { return priority[p.genetic_alteration_type]; });
+			fetch_promise.resolve(gene_panel_profiles.map(function(p) { return p.id; }));
 		    }).fail(function () {
 			fetch_promise.reject();
 		    });

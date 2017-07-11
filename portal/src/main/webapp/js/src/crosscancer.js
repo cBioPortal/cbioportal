@@ -1606,20 +1606,15 @@
         /* Routers */
         AppRouter = Backbone.Router.extend({
             routes: {
-                "crosscancer/:tab/:priority/:genes/:study_list": "mainView",
-                "crosscancer/*actions": "emptyView"
+                "crosscancer/:tab": "mainView",
             },
 
-            emptyView: function(actions) {
-                (new EmptyView()).render();
-            },
-
-            mainView: function(tab, priority, genes, study_list) {
+            mainView: function(tab) {
                 mainViewInstance.model = {
                         tab: tab,
-                        priority: priority,
-                        genes: genes.replace(/_/g, "/"),
-			study_list: study_list
+                        priority: window.dataPriority,
+                        genes: window.geneList,
+			study_list: window.selectedStudyIds
                     };
                 mainViewInstance.render();
             }

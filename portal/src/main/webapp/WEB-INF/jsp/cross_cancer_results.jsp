@@ -65,6 +65,7 @@
     geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
     geneList = servletXssUtil.getCleanerInput(geneList);
 
+    String cancerStudyIdsJoined = (String)request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
 
     String oncokbUrl = (String) GlobalProperties.getOncoKBApiUrl();
     boolean showMyCancerGenomeUrl = (Boolean) GlobalProperties.showMyCancerGenomeUrl();
@@ -82,6 +83,12 @@
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <script type="text/javascript" src="js/src/modifyQuery.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
+<script>
+    window.dataPriority = <%=dataPriority%>;
+    window.geneList = '<%=geneList%>';
+    window.selectedStudyIds = '<%=cancerStudyIdsJoined%>';
+</script>
 
 <script>
 window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
@@ -155,13 +162,6 @@ window.onReactAppReady(function(){
     // Means that user landed on this page with the old way.
     if(geneList != null) {
 %>
-
-<%--
-<script type="text/javascript">
-    //var cancerStudyList = window.location.hash.split("/")[4];
-    //window.location.hash = window.location.hash || "crosscancer/overview/<%=dataPriority%>/<%=geneList%>/<%=cancerStudyList%>";
-</script>
---%>
 
 <%
     }

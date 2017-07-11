@@ -302,240 +302,21 @@ window.vcSession = window.vcSession ? window.vcSession : {};
   window.$ || window.jQuery);
 
 'use strict';
-(function(Vue) {
-  Vue.component('editableField', {
-    // template: '#editable-field',
-    props: ['name', 'edit', 'type'],
-    template: '<div v-if="edit"><div v-if="type==\'text\'"><input' +
-    ' type="text" v-model="name" placeholder="My Virtual' +
-    ' Study"/></div><div v-if="type==\'textarea\'"><textarea rows="4"' +
-    ' cols="80" v-model="name" class="field-size"></textarea></div></div><div class="field-white-space"' +
-    ' v-else="edit"><span>{{ name }}</span></div>'
-  });
-})(window.Vue);
-
-'use strict';
-(function(Vue, vcSession, $, Clipboard, _) {
-  var clipboard = null;
-  $(document).on('mouseleave', '.btn-share', function(e) {
-    $(e.currentTarget).removeClass('tooltipped tooltipped-s');
-    $(e.currentTarget).removeAttr('aria-label');
-  });
-  Vue.component('editableRow', {
-    template: '<tr><td class="text center" ><editable-field' +
-    ' :name.sync="data.studyName" :edit="edit" type="text"/></td><td' +
-    ' class="text center" ><editable-field :name.sync="data.description"' +
-    ' :edit="edit" type="textarea"/></td><td class="text center"' +
-    ' ><span>{{selectedSamplesNum}}</span></td><td class="text center"' +
-    ' ><span>{{selectedPatientsNum}}</span></td><td><div class="buttons"' +
-    ' :class="{view: !edit}"><button class="btn btn-info"' +
-    ' @click="clickSave(data)"><em class="fa' +
-    ' fa-save"></em></button><button class="btn btn-default"' +
-    ' @click="clickCancel()"><em class="fa' +
-    ' fa-times"></em></button></div><div class="buttons" :class="{view:' +
-    ' !share}"><div class="input-group"> <input type="text"' +
-    ' id="link-to-share" class="form-control"v-model="shortenedLink"' +
-    ' disabled><span class="input-group-btn"><button class="btn' +
-    ' btn-default btn-share custom-btn"  data-clipboard-action="copy"' +
-    ' data-clipboard-text={{shortenedLink}}><em class="fa fa-clipboard"' +
-    ' alt="Copy to clipboard"></em></button><button class="btn' +
-    ' btn-default custom-btn" @click="clickCancel()"><em class="fa' +
-    ' fa-times"></em></button></span></div></div><div class="buttons"' +
-    ' :class="{view: edit||share}"><button class="btn btn-info"' +
-    ' @click="clickEdit(data)"><em class="fa' +
-    ' fa-pencil"></em></button><button class="btn btn-danger"' +
-    ' @click="clickDelete(data)"><em class="fa' +
-    ' fa-trash"></em></button><button v-show="showShareButton" class="btn btn-success"' +
-    ' @click="clickShare(data)"><em class="fa' +
-    ' fa-share-alt"></em></button><button class="btn btn-default"' +
-    ' @click="clickImport(data)">Visualize</button></div></td></tr>',
-    props: [
-      'data', 'showmodal', 'showShareButton'
-    ], created: function() {
-      var _selectedSamplesNum = 0;
-      var _selectedPatientsNum = 0;
-      if (_.isObject(this.data.selectedCases)) {
-        _.each(this.data.selectedCases, function(studyCasesMap) {
-          _selectedSamplesNum += studyCasesMap.samples.length;
-          _selectedPatientsNum += studyCasesMap.patients.length;
-        });
-        this.selectedSamplesNum = _selectedSamplesNum;
-        this.selectedPatientsNum = _selectedPatientsNum;
-      }
-      this.edit = false;
-      this.share = false;
-      this.shortenedLink = '---';
-    },
-    data: function() {
-      return {
-        edit: false,
-        share: false,
-        shortenedLink: '---',
-        selectedSamplesNum: 0,
-        selectedPatientsNum: 0
-      };
-    },
-    methods: {
-      clickEdit: function(_virtualCohort) {
-        this.backupName = _virtualCohort.studyName;
-        this.backupDesc = _virtualCohort.description;
-        this.edit = true;
-      },
-      clickCancel: function() {
-        if (this.edit) {
-          this.data.studyName = this.backupName;
-          this.data.description = this.backupDesc;
-          this.edit = false;
-        } else if (this.share) {
-          this.share = false;
-        }
-      },
-      clickDelete: function(_virtualCohort) {
-        if (_.isObject(vcSession)) {
-          this.$dispatch('remove-cohort', _virtualCohort);
-          vcSession.events.removeVirtualCohort(_virtualCohort);
-        }
-      },
-      clickSave: function(_virtualCohort) {
-        this.edit = false;
-        if (_virtualCohort.studyName === '') {
-          _virtualCohort.studyName = 'My virtual cohort';
-        }
-        if (_.isObject(vcSession)) {
-          vcSession.events.editVirtualCohort(_virtualCohort);
-        }
-      },
-      clickImport: function(_virtualCohort) {
-        this.showmodal = false;
-        // TODO: from my test cases, I have some visual cohorts stored in my
-        // localstorage without virtualCohortID. Should we hide Visualize AND share
-        // buttons if the id is not available or virtual study will always have
-        // a virtualCohortID? What if the session service is not available?
-        // This back to my previous question, if the virtual cohort is not
-        // available in database and API returnS 404, should we insert to
-        // databAse, or delete from localstorage?
-        window.open(window.cbioURL + 'study?cohorts=' + _virtualCohort.virtualCohortID);
-      },
-      clickShare: function(_virtualCohort) {
-        // TODO: Create Bitly URL
-        this.shortenedLink = window.cbioURL + 'study?cohorts=' +
-          _virtualCohort.virtualCohortID;
-        this.share = true;
-        // Check if ClipBoard instance is present, If yes re-initialize the
-        // instance.
-        if (clipboard instanceof Clipboard) {
-          clipboard.destroy();
-        }
-        initializeClipBoard();
-      }
-    }
-  });
-  /**
-   * This method add tooltip when copy button is clicked
-   * @param {Object} elem trigger object
-   * @param {String} msg message to show
-   */
-  function showTooltip(elem, msg) {
-    $(elem).addClass('tooltipped tooltipped-s');
-    $(elem).attr('aria-label', msg);
-  }
-
-  /**
-   * Initialize Clipboard instance
-   */
-  function initializeClipBoard() {
-    var classname = document.getElementsByClassName('btn-share');
-    clipboard = new Clipboard(classname);
-    clipboard.on('success', function(e) {
-      showTooltip(e.trigger, 'Copied');
-    });
-    clipboard.on('error', function(e) {
-      showTooltip(e.trigger, 'Unable to copy');
-    });
-  }
-})(window.Vue, window.vcSession,
-  window.$ || window.jQuery, window.Clipboard, window._);
-'use strict';
-(function(Vue) {
-  Vue.component('modaltemplate', {
-    template: '<div class="modal-mask" v-show="show" transition="modal"' +
-    ' @click="show = false"><div class="modal-dialog"' +
-    ' v-bind:class="size" @click.stop><div class="modal-content"><div' +
-    ' class="modal-header"><button type="button" class="close"' +
-    ' @click="close"><span>x</span></button><slot' +
-    ' name="header"></slot></div><div class="modal-body"><slot' +
-    ' name="body"></slot></div><div slot="modal-footer"' +
-    ' class="modal-footer"><slot name="footer"></slot></div></div></div></div>',
-    props: [
-      'show', 'size'
-    ],
-    methods: {
-      close: function() {
-        this.show = false;
-      }
-    },
-    ready: function() {
-      var _this = this;
-      document.addEventListener('keydown', function(e) {
-        if (_this.show && e.keyCode === 27) {
-          _this.close();
-        }
-      });
-    }
-  });
-})(window.Vue);
-
-'use strict';
 (function(Vue, $, vcSession) {
   Vue.component('sessionComponent', {
-    template: '<div v-if="showManageButton || showSaveButton" ' +
-    'class="input-group"><span class="input-group-addon">Cohort</span>' +
-    '<div class="input-group-btn">' +
-    '<button v-if="showSaveButton" type="button" ' +
-    'class="btn btn-default save-cohort-btn">' +
-    '<i class="fa fa-bookmark" alt="Save Cohort"></i></button>' +
-    '<button v-if="showManageButton" type="button" @click="manageCohorts()" ' +
-    'class="btn btn-default manage-cohort-btn">' +
-    '<i class="fa fa-bars" alt="Manage Cohort"></i></button>' +
-    '</div></div>' +
-    ' <modaltemplate :show.sync="showVCList" size="modal-xlg"> <div' +
-    ' slot="header"> <h4 class="modal-title">Virtual Cohorts</h4> </div>' +
-    ' <div slot="body"> <table class="table table-bordered table-hover' +
-    ' table-condensed"> <thead> <tr style="font-weight: bold"> <td' +
-    ' style="width:20%">Name</td> <td style="width:40%">Description</td>' +
-    ' <td style="width:10%">Patients</td> <td' +
-    ' style="width:10%">Samples</td> <td' +
-    ' style="width:20%">Operations</td> </tr> </thead> <tr' +
-    ' is="editable-row" :data="virtualCohort"' +
-    ' :showmodal.sync="showVCList" :show-share-button="showShareButton" v-for="virtualCohort in' +
-    ' virtualCohorts"> </tr> </table> </div> <div slot="footer"> </div>' +
-    ' </modaltemplate>',
+    template: 
+    '<div v-if="showSaveButton" class="btn btn-default iviz-header-button"><span type="button" ' +
+    'class="save-cohort-btn ">' +
+    '<i class="fa fa-floppy-o" alt="Save Cohort"></i></span></div>',
     props: [
-      'loadUserSpecificCohorts', 'selectedPatientsNum', 'selectedSamplesNum', 'userid', 'showSaveButton',
-      'showManageButton', 'stats', 'updateStats', 'showShareButton'
+      'selectedPatientsNum', 'selectedSamplesNum',
+      'stats', 'updateStats', 'showSaveButton'
     ],
     data: function() {
       return {
-        showVCList: false,
-        virtualCohorts: [],
         savedVC: null
       };
-    }, events: {
-      'remove-cohort': function(cohort) {
-        this.virtualCohorts.$remove(cohort);
-      }
     }, methods: {
-      manageCohorts: function() {
-        var self = this;
-        self.showVCList = true;
-        if (self.loadUserSpecificCohorts) {
-          $.when(vcSession.model.loadUserVirtualCohorts()).then(function(_virtualCohorts) {
-            self.virtualCohorts = _virtualCohorts;
-          });
-        } else {
-          this.virtualCohorts = vcSession.utils.getVirtualCohorts();
-        }
-      },
       saveCohort: function() {
         var _self = this;
         _self.updateStats = true;
@@ -546,7 +327,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     }, ready: function() {
       var self_ = this;
       if (this.showSaveButton) {
-        $('.save-cohort-btn .fa-bookmark').qtip({
+        $('.iviz-header-button').qtip({
           style: {
             classes: 'qtip-light qtip-rounded qtip-shadow'
           },
@@ -558,19 +339,6 @@ window.vcSession = window.vcSession ? window.vcSession : {};
             viewport: $(window)
           },
           content: 'Save Cohort'
-        });
-        $('.manage-cohort-btn').qtip({
-          style: {
-            classes: 'qtip-light qtip-rounded qtip-shadow'
-          },
-          show: {event: 'mouseover', ready: false},
-          hide: {fixed: true, delay: 200, event: 'mouseleave'},
-          position: {
-            my: 'bottom center',
-            at: 'top center',
-            viewport: $(window)
-          },
-          content: 'Manage Cohort'
         });
         $('.save-cohort-btn').qtip({
           style: {

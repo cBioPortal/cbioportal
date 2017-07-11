@@ -67,21 +67,14 @@
         src="images/ajax-loader.gif" alt="loading"></div>
     <div id="main-header" style="display: none" :class="{show:!isloading}">
         <div id="iviz-header-left">
-            <div id="cohort-component" style="float: left">
-                <div style="float: left; margin-right: 10px; ">
-                    <session-component :show-save-button="showSaveButton" :show-manage-button="showManageButton"
-                                       :load-user-specific-cohorts="loadUserSpecificCohorts"
-                                       :stats="stats"
-                                       :update-stats.sync="updateStats"></session-component>
-                </div>
-            </div>
-
             <div class="iviz-header-left-case">
                 <span class="name" style="display: block;">Selected:</span>
                 <span class="content">
             <span>{{ selectedSamplesNum }} samples / {{ selectedPatientsNum }} patients</span>
           </span>
             </div>
+            <session-component :show-save-button="showSaveButton" :stats="stats"
+                               :update-stats.sync="updateStats"></session-component>
             <span id="iviz-header-left-patient-select" class="iviz-header-button"
                   @click="openCases" class="number"
                   role="button" tabindex="0" style="display: block;"><i class="fa fa-user-circle-o"

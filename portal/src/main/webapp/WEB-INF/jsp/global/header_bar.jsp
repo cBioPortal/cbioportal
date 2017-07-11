@@ -66,17 +66,16 @@
                 <li class="internal">
                     <a href="data_sets.jsp">Data Sets</a>
                 </li>
+                <li class="internal">
+                    <a href="web_api.jsp">Web API</a>
+                </li>
                 <% } %>
                 <%
                     //  Hide the Web API and R/MAT Tabs if the Portal Requires Authentication
                     if (!GlobalProperties.usersMustAuthenticate()) {
                 %>
                 <!-- Added call GlobalProperties to check whether to show the Web API tab -->
-                <% if (GlobalProperties.showWebApiTab()) { %>
-                <li class="internal">
-                    <a href="web_api.jsp">Web API</a>
-                </li>
-                <% } %>
+                
                 <!-- Added call GlobalProperties to check whether to show the R Matlab tab -->
                 <% if (GlobalProperties.showRMatlabTab()) { %>
                 <li class="internal">

@@ -114,4 +114,5 @@ public class MolecularProfile implements Serializable {
     public void setCancerStudy(CancerStudy cancerStudy) {
         this.cancerStudy = cancerStudy;
     }
+    
 }

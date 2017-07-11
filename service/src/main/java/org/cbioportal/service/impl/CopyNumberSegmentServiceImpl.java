@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.CopyNumberSeg;
+import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
 import org.cbioportal.service.CopyNumberSegmentService;
@@ -23,7 +24,7 @@ public class CopyNumberSegmentServiceImpl implements CopyNumberSegmentService {
 
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
-    public List<CopyNumberSeg> getCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId,
+    public List<CopyNumberSeg> getCopyNumberSegmentsInSampleInStudy(String studyId, String profileId, String sampleId,
                                                                     String projection, Integer pageSize,
                                                                     Integer pageNumber, String sortBy,
                                                                     String direction) throws SampleNotFoundException, 
@@ -31,39 +32,40 @@ public class CopyNumberSegmentServiceImpl implements CopyNumberSegmentService {
         
         sampleService.getSampleInStudy(studyId, sampleId);
 
-        return copyNumberSegmentRepository.getCopyNumberSegmentsInSampleInStudy(studyId, sampleId, projection, pageSize,
+        return copyNumberSegmentRepository.getCopyNumberSegmentsInSampleInStudy(profileId, sampleId, projection, pageSize,
             pageNumber, sortBy, direction);
     }
 
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
-    public BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId)
+    public BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String profileId, String sampleId)
         throws SampleNotFoundException, StudyNotFoundException {
-
         sampleService.getSampleInStudy(studyId, sampleId);
         
-        return copyNumberSegmentRepository.getMetaCopyNumberSegmentsInSampleInStudy(studyId, sampleId);
+        return copyNumberSegmentRepository.getMetaCopyNumberSegmentsInSampleInStudy(profileId, sampleId);
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
-    public List<CopyNumberSeg> fetchCopyNumberSegments(List<String> studyIds, List<String> sampleIds, 
+    @PreAuthorize("hasPermission(#geneticProfileIds, 'List<GeneticProfileId>', 'read')")
+    public List<CopyNumberSeg> fetchCopyNumberSegments(List<String> geneticProfileIds, List<String> sampleIds, 
                                                        String projection) {
         
-        return copyNumberSegmentRepository.fetchCopyNumberSegments(studyIds, sampleIds, projection);
+        List<CopyNumberSeg> copyNumberSeg = copyNumberSegmentRepository.fetchCopyNumberSegments(geneticProfileIds, sampleIds, projection);
+        return copyNumberSeg;
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
-    public BaseMeta fetchMetaCopyNumberSegments(List<String> studyIds, List<String> sampleIds) {
+    @PreAuthorize("hasPermission(#geneticProfileIds, 'List<GeneticProfileId>', 'read')")
+    public BaseMeta fetchMetaCopyNumberSegments(List<String> geneticProfileIds, List<String> sampleIds) {
         
-        return copyNumberSegmentRepository.fetchMetaCopyNumberSegments(studyIds, sampleIds);
+        return copyNumberSegmentRepository.fetchMetaCopyNumberSegments(geneticProfileIds, sampleIds);
     }
 
     @Override
-    public List<CopyNumberSeg> getCopyNumberSegmentsBySampleListId(String studyId, String sampleListId, 
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public List<CopyNumberSeg> getCopyNumberSegmentsBySampleListId(String geneticProfileId, String sampleListId, 
                                                                    String projection) {
         
-        return copyNumberSegmentRepository.getCopyNumberSegmentsBySampleListId(studyId, sampleListId, projection);
+        return copyNumberSegmentRepository.getCopyNumberSegmentsBySampleListId(geneticProfileId, sampleListId, projection);
     }
 }

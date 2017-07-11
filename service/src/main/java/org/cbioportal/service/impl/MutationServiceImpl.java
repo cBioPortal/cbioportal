@@ -3,9 +3,9 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.*;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.MutationRepository;
-import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.GeneticProfileService;
 import org.cbioportal.service.MutationService;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.cbioportal.service.util.ChromosomeCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,22 +20,22 @@ public class MutationServiceImpl implements MutationService {
     @Autowired
     private MutationRepository mutationRepository;
     @Autowired
-    private MolecularProfileService molecularProfileService;
+    private GeneticProfileService geneticProfileService;
     @Autowired
     private ChromosomeCalculator chromosomeCalculator;
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
-    public List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
-                                                                       List<Integer> entrezGeneIds, Boolean snpOnly,
-                                                                       String projection, Integer pageSize,
-                                                                       Integer pageNumber, String sortBy,
-                                                                       String direction)
-        throws MolecularProfileNotFoundException {
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public List<Mutation> getMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId,
+                                                                     List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                                     String projection, Integer pageSize, 
+                                                                     Integer pageNumber, String sortBy, 
+                                                                     String direction)
+        throws GeneticProfileNotFoundException {
 
-        validateMolecularProfile(molecularProfileId);
+        validateGeneticProfile(geneticProfileId);
 
-        List<Mutation> mutationList = mutationRepository.getMutationsInMolecularProfileBySampleListId(molecularProfileId,
+        List<Mutation> mutationList = mutationRepository.getMutationsInGeneticProfileBySampleListId(geneticProfileId,
             sampleListId, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction);
 
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
@@ -43,25 +43,25 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
-    public MutationMeta getMetaMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
-                                                                         List<Integer> entrezGeneIds)
-        throws MolecularProfileNotFoundException {
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public MutationMeta getMetaMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId,
+                                                                       List<Integer> entrezGeneIds)
+        throws GeneticProfileNotFoundException {
 
-        validateMolecularProfile(molecularProfileId);
+        validateGeneticProfile(geneticProfileId);
 
-        return mutationRepository.getMetaMutationsInMolecularProfileBySampleListId(molecularProfileId, sampleListId,
+        return mutationRepository.getMetaMutationsInGeneticProfileBySampleListId(geneticProfileId, sampleListId,
             entrezGeneIds);
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
-    public List<Mutation> getMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
-                                                                  List<String> sampleIds, List<Integer> entrezGeneIds, 
-                                                                  String projection, Integer pageSize, 
-                                                                  Integer pageNumber, String sortBy, String direction) {
+    @PreAuthorize("hasPermission(#geneticProfileIds, 'List<GeneticProfileId>', 'read')")
+    public List<Mutation> getMutationsInMultipleGeneticProfiles(List<String> geneticProfileIds, List<String> sampleIds, 
+                                                                List<Integer> entrezGeneIds, String projection, 
+                                                                Integer pageSize, Integer pageNumber, String sortBy, 
+                                                                String direction) {
 
-        List<Mutation> mutationList = mutationRepository.getMutationsInMultipleMolecularProfiles(molecularProfileIds,
+        List<Mutation> mutationList = mutationRepository.getMutationsInMultipleGeneticProfiles(geneticProfileIds, 
             sampleIds, entrezGeneIds, projection, pageSize, pageNumber, sortBy, direction);
 
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
@@ -69,114 +69,121 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
-    public MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
-                                                                    List<String> sampleIds, 
-                                                                    List<Integer> entrezGeneIds) {
-
-        return mutationRepository.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds,
+    @PreAuthorize("hasPermission(#geneticProfileIds, 'List<GeneticProfileId>', 'read')")
+    public MutationMeta getMetaMutationsInMultipleGeneticProfiles(List<String> geneticProfileIds, 
+                                                                  List<String> sampleIds, List<Integer> entrezGeneIds) {
+        
+        return mutationRepository.getMetaMutationsInMultipleGeneticProfiles(geneticProfileIds, sampleIds, 
             entrezGeneIds);
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
-    public List<Mutation> fetchMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
-                                                           List<Integer> entrezGeneIds, Boolean snpOnly,
-                                                           String projection, Integer pageSize, Integer pageNumber,
-                                                           String sortBy, String direction)
-        throws MolecularProfileNotFoundException {
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds,
+                                                         List<Integer> entrezGeneIds, Boolean snpOnly, 
+                                                         String projection, Integer pageSize, Integer pageNumber, 
+                                                         String sortBy, String direction)
+        throws GeneticProfileNotFoundException {
 
-        validateMolecularProfile(molecularProfileId);
+        validateGeneticProfile(geneticProfileId);
 
-        List<Mutation> mutationList = mutationRepository.fetchMutationsInMolecularProfile(molecularProfileId, sampleIds,
-            entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction);
+        List<Mutation> mutationList = mutationRepository.fetchMutationsInGeneticProfile(geneticProfileId, sampleIds, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction);
 
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
         return mutationList;
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
-    public MutationMeta fetchMetaMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
-                                                             List<Integer> entrezGeneIds)
-        throws MolecularProfileNotFoundException {
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds,
+                                                           List<Integer> entrezGeneIds)
+        throws GeneticProfileNotFoundException {
 
-        validateMolecularProfile(molecularProfileId);
+        validateGeneticProfile(geneticProfileId);
 
-        return mutationRepository.fetchMetaMutationsInMolecularProfile(molecularProfileId, sampleIds, entrezGeneIds);
+        return mutationRepository.fetchMetaMutationsInGeneticProfile(geneticProfileId, sampleIds, entrezGeneIds);
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
-    public List<MutationCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
-                                                                               List<String> sampleIds,
-                                                                               List<Integer> entrezGeneIds)
-        throws MolecularProfileNotFoundException {
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public List<MutationSampleCountByGene> getSampleCountByEntrezGeneIdsAndSampleListId(String geneticProfileId,
+                                                                                        String sampleListId,
+                                                                                        List<Integer> entrezGeneIds)
+        throws GeneticProfileNotFoundException {
 
-        validateMolecularProfile(molecularProfileId);
+        validateGeneticProfile(geneticProfileId);
 
-        return mutationRepository.getSampleCountByEntrezGeneIdsAndSampleIds(molecularProfileId, sampleIds, 
+        return mutationRepository.getSampleCountByEntrezGeneIdsAndSampleListId(geneticProfileId, sampleListId,
             entrezGeneIds);
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
-    public List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
-                                                                                List<String> patientIds,
-                                                                                List<Integer> entrezGeneIds)
-        throws MolecularProfileNotFoundException {
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public List<MutationSampleCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
+                                                                                     List<String> sampleIds,
+                                                                                     List<Integer> entrezGeneIds)
+        throws GeneticProfileNotFoundException {
 
-        validateMolecularProfile(molecularProfileId);
+        validateGeneticProfile(geneticProfileId);
 
-        return mutationRepository.getPatientCountByEntrezGeneIdsAndSampleIds(molecularProfileId, patientIds, 
-            entrezGeneIds);
+        return mutationRepository.getSampleCountByEntrezGeneIdsAndSampleIds(geneticProfileId, sampleIds, entrezGeneIds);
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
-    public List<MutationCount> getMutationCountsInMolecularProfileBySampleListId(String molecularProfileId,
-                                                                                 String sampleListId)
-        throws MolecularProfileNotFoundException {
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords)
+        throws GeneticProfileNotFoundException {
 
-        validateMolecularProfile(molecularProfileId);
+        validateGeneticProfile(geneticProfileId);
 
-        return mutationRepository.getMutationCountsInMolecularProfileBySampleListId(molecularProfileId, sampleListId);
+        return mutationRepository.getSampleCountByKeywords(geneticProfileId, keywords);
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
-    public List<MutationCount> fetchMutationCountsInMolecularProfile(String molecularProfileId, List<String> sampleIds)
-        throws MolecularProfileNotFoundException {
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public List<MutationCount> getMutationCountsInGeneticProfileBySampleListId(String geneticProfileId,
+                                                                               String sampleListId)
+        throws GeneticProfileNotFoundException {
 
-        validateMolecularProfile(molecularProfileId);
+        validateGeneticProfile(geneticProfileId);
 
-        return mutationRepository.fetchMutationCountsInMolecularProfile(molecularProfileId, sampleIds);
+        return mutationRepository.getMutationCountsInGeneticProfileBySampleListId(geneticProfileId, sampleListId);
     }
 
     @Override
-    public List<MutationCountByPosition> fetchMutationCountsByPosition(List<Integer> entrezGeneIds,
-                                                                       List<Integer> proteinPosStarts,
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public List<MutationCount> fetchMutationCountsInGeneticProfile(String geneticProfileId, List<String> sampleIds)
+        throws GeneticProfileNotFoundException {
+
+        validateGeneticProfile(geneticProfileId);
+
+        return mutationRepository.fetchMutationCountsInGeneticProfile(geneticProfileId, sampleIds);
+    }
+
+    @Override
+    public List<MutationCountByPosition> fetchMutationCountsByPosition(List<Integer> entrezGeneIds, 
+                                                                       List<Integer> proteinPosStarts, 
                                                                        List<Integer> proteinPosEnds) {
 
         List<MutationCountByPosition> mutationCountByPositionList = new ArrayList<>();
         for (int i = 0; i < entrezGeneIds.size(); i++) {
-
+            
             MutationCountByPosition mutationCountByPosition = mutationRepository.getMutationCountByPosition(
                 entrezGeneIds.get(i), proteinPosStarts.get(i), proteinPosEnds.get(i));
             mutationCountByPositionList.add(mutationCountByPosition);
         }
-
+        
         return mutationCountByPositionList;
     }
 
-    private void validateMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException {
+    private void validateGeneticProfile(String geneticProfileId) throws GeneticProfileNotFoundException {
 
-        MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
+        GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
 
-        if (!molecularProfile.getMolecularAlterationType()
-            .equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED)) {
+        if (!geneticProfile.getGeneticAlterationType()
+            .equals(GeneticProfile.GeneticAlterationType.MUTATION_EXTENDED)) {
 
-            throw new MolecularProfileNotFoundException(molecularProfileId);
+            throw new GeneticProfileNotFoundException(geneticProfileId);
         }
     }
 }

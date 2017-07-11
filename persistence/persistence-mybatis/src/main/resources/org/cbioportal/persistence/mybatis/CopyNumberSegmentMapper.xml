@@ -6,10 +6,10 @@
     
     <sql id="select">
         copy_number_seg.SEG_ID AS segId,
-        copy_number_seg.CANCER_STUDY_ID AS cancerStudyId,
-        cancer_study.CANCER_STUDY_IDENTIFIER AS cancerStudyIdentifier,
+        cancer_study.CANCER_STUDY_ID AS cancerStudyId,
+        cancer_study.CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
+        genetic_profile.STABLE_ID as geneticProfileId,
         copy_number_seg.SAMPLE_ID AS sampleId,
-        patient.STABLE_ID AS patientId,
         sample.STABLE_ID AS sampleStableId,
         copy_number_seg.CHR AS chr,
         copy_number_seg.START AS start,
@@ -23,19 +23,25 @@
 
     <sql id="from">
         FROM copy_number_seg
-        INNER JOIN cancer_study ON copy_number_seg.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN genetic_profile ON copy_number_seg.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON copy_number_seg.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study on cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
     </sql>
     
     <sql id="where">
         <where>
-            <if test="sampleIds != null and !sampleIds.isEmpty()">
-                (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
-                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                    (#{studyIds[${i}]}, #{sampleIds[${i}]})
+            <if test="profileIds != null and !profileIds.isEmpty()">
+                <foreach index="i" collection="profileIds" open="(" separator="OR" close=")">
+                    genetic_profile.STABLE_ID = #{profileIds[0]}
                 </foreach>
             </if>
+            <if test="sampleIds != null and !sampleIds.isEmpty()">
+                AND
+                <foreach index="i" collection="sampleIds" open="(" separator="OR" close=")">
+                    sample.STABLE_ID = #{sampleIds[${i}]}
+                </foreach>
+            </if>
+
         </where>
     </sql>
     

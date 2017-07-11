@@ -275,9 +275,11 @@ CREATE TABLE `genetic_profile` (
   `NAME` varchar(255) NOT NULL,
   `DESCRIPTION` mediumtext,
   `SHOW_PROFILE_IN_ANALYSIS_TAB` BOOLEAN NOT NULL,
+  `REFERENCE_GENOME_ID` int(11) NOT NULL,
   PRIMARY KEY (`GENETIC_PROFILE_ID`),
   UNIQUE (`STABLE_ID`),
-  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`reference_genome_id`) ON DELETE RESTRICT 
 );
 
 -- --------------------------------------------------------
@@ -379,6 +381,7 @@ CREATE TABLE `structural_variant` (
 CREATE TABLE `mutation_event` (
   `MUTATION_EVENT_ID` int(255) NOT NULL auto_increment,
   `ENTREZ_GENE_ID` int(11) NOT NULL,
+  `REFERENCE_GENOME_ID` int(11) NOT NULL ,
   `CHR` varchar(5),
   `START_POSITION` bigint(20),
   `END_POSITION` bigint(20),
@@ -391,7 +394,6 @@ CREATE TABLE `mutation_event` (
   `LINK_XVAR` varchar(500) COMMENT 'Link to OMA/XVAR Landing Page for the specific mutation.',
   `LINK_PDB` varchar(500),
   `LINK_MSA` varchar(500),
-  `NCBI_BUILD` varchar(10),
   `STRAND` varchar(2),
   `VARIANT_TYPE` varchar(15),
   `DB_SNP_RS` varchar(25),
@@ -408,7 +410,8 @@ CREATE TABLE `mutation_event` (
   KEY (`KEYWORD`),
   PRIMARY KEY (`MUTATION_EVENT_ID`),
   UNIQUE (`CHR`, `START_POSITION`, `END_POSITION`, `TUMOR_SEQ_ALLELE`, `ENTREZ_GENE_ID`, `PROTEIN_CHANGE`, `MUTATION_TYPE`),
-  FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
+  FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`),
+  FOREIGN KEY ('REFERENCE_GENOME_ID') REFERENCES `reference_genome` (`reference_genome_id`) ON DELETE RESTRICT 
 ) COMMENT='Mutation Data';
 
 -- --------------------------------------------------------
@@ -680,7 +683,7 @@ CREATE TABLE `sample_cna_event` (
 -- --------------------------------------------------------
 CREATE TABLE `copy_number_seg` (
   `SEG_ID` int(255) NOT NULL auto_increment,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `GENETIC_PROFILE_ID` int(11) NOT NULL,
   `SAMPLE_ID` int(11) NOT NULL,
   `CHR` varchar(5) NOT NULL,
   `START` int(11) NOT NULL,
@@ -772,6 +775,35 @@ CREATE TABLE `clinical_event_data` (
   `KEY` varchar(255) NOT NULL,
   `VALUE` varchar(5000) NOT NULL,
   FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `reference_genome`;
+CREATE TABLE `reference_genome` (
+    `reference_genome_id` int(11) NOT NULL AUTO_INCREMENT,
+    `species` varchar(64) DEFAULT NULL,
+    `name` varchar(64) DEFAULT NULL,
+    `build_name` varchar(64) DEFAULT NULL,
+    `genome_size` bigint(20) DEFAULT NULL,
+    `URL` varchar(256) DEFAULT NULL,
+    `release_date` datetime DEFAULT NULL,
+    PRIMARY KEY (`reference_genome_id`)
+);
+
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `reference_genome_gene`;
+CREATE TABLE `reference_genome_gene` (
+    `entrez_gene_id` int(11) NOT NULL,
+    `cytoband` varchar(64) NOT NULL,
+    `exonic_length` int(11) DEFAULT NULL,
+    `gene_start` bigint(20) DEFAULT NULL,
+    `gene_end` bigint(20) DEFAULT NULL,
+    `gene_stable_ID` varchar(64) DEFAULT NULL,
+    `chr` varchar(64) DEFAULT NULL,
+    `reference_genome_id` int(11) NOT NULL,
+    PRIMARY KEY (`entrez_gene_id`,`reference_genome_id`),
+    FOREIGN KEY (`reference_genome_id`) REFERENCES `reference_genome` (`reference_genome_id`) ON DELETE CASCADE,
+    FOREIGN KEY (`entrez_gene_id`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------

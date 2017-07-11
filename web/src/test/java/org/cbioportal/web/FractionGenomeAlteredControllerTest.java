@@ -39,6 +39,7 @@ public class FractionGenomeAlteredControllerTest {
     private static final BigDecimal TEST_VALUE_1 = new BigDecimal(2.1);
     private static final BigDecimal TEST_VALUE_2 = new BigDecimal(3.1);
     private static final double CUTOFF = 0.2;
+    private static final String PROFILE_ID = "1";
 
     @Autowired
     private WebApplicationContext wac;
@@ -66,17 +67,17 @@ public class FractionGenomeAlteredControllerTest {
 
         List<FractionGenomeAltered> fractionGenomeAlteredList = new ArrayList<>();
         FractionGenomeAltered fractionGenomeAltered1 = new FractionGenomeAltered();
-        fractionGenomeAltered1.setStudyId(TEST_STUDY_ID);
+        fractionGenomeAltered1.setProfileId(PROFILE_ID);
         fractionGenomeAltered1.setSampleId(TEST_SAMPLE_ID_1);
         fractionGenomeAltered1.setValue(TEST_VALUE_1);
         fractionGenomeAlteredList.add(fractionGenomeAltered1);
         FractionGenomeAltered fractionGenomeAltered2 = new FractionGenomeAltered();
-        fractionGenomeAltered2.setStudyId(TEST_STUDY_ID);
+        fractionGenomeAltered2.setProfileId(PROFILE_ID);
         fractionGenomeAltered2.setSampleId(TEST_SAMPLE_ID_2);
         fractionGenomeAltered2.setValue(TEST_VALUE_2);
         fractionGenomeAlteredList.add(fractionGenomeAltered2);
         
-        Mockito.when(fractionGenomeAlteredService.fetchFractionGenomeAltered(TEST_STUDY_ID, 
+        Mockito.when(fractionGenomeAlteredService.fetchFractionGenomeAltered(PROFILE_ID,
             Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2), CUTOFF)).thenReturn(fractionGenomeAlteredList);
 
         FractionGenomeAlteredFilter fractionGenomeAlteredFilter = new FractionGenomeAlteredFilter();

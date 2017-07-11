@@ -1,10 +1,10 @@
 package org.cbioportal.web.parameter;
 
 public class SampleIdentifier {
-
+    
     private String sampleId;
     private String studyId;
-
+    
     public String getSampleId() {
         return sampleId;
     }

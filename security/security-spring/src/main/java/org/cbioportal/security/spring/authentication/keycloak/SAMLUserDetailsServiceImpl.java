@@ -117,8 +117,8 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
             
             if (userId == null) {
 
-                String errorMsg = "loadUserBySAML(), can not instantiate PortalUserDetails from SAML assertion." 
-                    + "Expected 'email' attribute was not found or has no values. ";
+                String errorMsg = "loadUserBySAML(), can not instantiate PortalUserDetails from SAML assertion."
+                    + " Expected 'email' attribute was not found or has no values. ";
                 log.error(errorMsg);
                 throw new Exception(errorMsg);
             }

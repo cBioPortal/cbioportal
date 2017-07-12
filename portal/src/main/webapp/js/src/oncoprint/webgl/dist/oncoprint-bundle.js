@@ -1663,11 +1663,11 @@ var OncoprintLabelView = (function () {
 			var $tooltip_div = $('<div>');
 			var offset = view.$canvas.offset();   
 			if (isNecessaryToShortenLabel(view, view.labels[hovered_track])) {
-			    $tooltip_div.append($('<b>'+view.labels[hovered_track]+'</b>'));
+			    $tooltip_div.append($('<b>').text(view.labels[hovered_track]));
 			}
-			var track_description = view.track_descriptions[hovered_track].replace("<", "&lt;").replace(">", "&gt;");
+			var track_description = view.track_descriptions[hovered_track];
 			if (track_description.length > 0) {
-			    $tooltip_div.append(track_description + "<br>");
+			    $tooltip_div.append($('<div>').text(track_description));
 			}
 			if (model.getContainingTrackGroup(hovered_track).length > 1) {
 			    view.$canvas.css('cursor', 'move');

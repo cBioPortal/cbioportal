@@ -20,20 +20,32 @@ Before loading a study with gene set data, gene set definitions have to be added
 ## Quick example
 This example shows how the process of importing gene set data using test data.
 
-1- Navigate to scripts folder:
+1. Navigate to scripts folder:
 
-`cd $PORTAL_HOME/core/src/main/scripts`
+```
+cd $PORTAL_HOME/core/src/main/scripts
+```
 
-2- Import gene sets and supplementary data:  
+2. Import gene sets and supplementary data:
 Note: This removes existing gene set, gene set hierarchy and gene set genetic profile data.
 
-`./importGenesetData.pl --data ../../test/resources/genesets/study_es_0_genesets.gmt --new-version 1 --supp ../../test/resources/genesets/study_es_0_supp-genesets.txt`
+```
+./importGenesetData.pl
+	--data ../../test/resources/genesets/study_es_0_genesets.gmt
+	--new-version 1
+	--supp ../../test/resources/genesets/study_es_0_supp-genesets.txt
+```
 
-3- Import gene set hierarchy data:
+3. Import gene set hierarchy data:
 
-`./importGenesetHierarchy.pl --data ../../test/resources/genesets/study_es_0_tree.yaml`
+```
+./importGenesetHierarchy.pl
+	--data ../../test/resources/genesets/study_es_0_tree.yaml
+```
 
-4- Import study (replace argument after `-u` with local cBioPortal and `-html` with preferred location for html report):
+4. Restart Tomcat if you have it running.
+
+5. Import study (replace argument after `-u` with local cBioPortal and `-html` with preferred location for html report):
 
 ```
 ./importer/metaImport.py \

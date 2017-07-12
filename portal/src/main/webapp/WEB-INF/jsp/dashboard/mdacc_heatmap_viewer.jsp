@@ -44,10 +44,12 @@
 
         var tabLI = $('#study-tab-heatmap-li'),             // the <li> for the tab
             heatmapDiv = $('div#heatmap'),
+            loader = $('div#chm-viewer-div'),
             enabled = false;
 
         // start with tab hidden.  Div is already display:none
         tabLI.attr('style', 'display:none');
+        loader.attr('style', 'display:none');
 
         var metaUrl = '<%=GlobalProperties.getStudyHeatmapMetaUrl()%>';
         if (metaUrl === 'null') return;                 // not configured in properties
@@ -83,9 +85,11 @@
 
                 // And give it a click handler to insert the iframe
                 $("#study-tab-heatmap-a").click(function() {
+                    loader.attr('style', 'display:block');
                     if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
 
                         $(this).addClass("tab-clicked");
+                        loader.attr('style', 'display:none');
 
                         heatmapDiv.html('<iframe id="frame" src="'+viewerUrl+'" width="100%" height="700px"></iframe>');
                     }

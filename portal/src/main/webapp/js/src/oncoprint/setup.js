@@ -1293,16 +1293,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    if (state.patient_order_loaded.state() === "resolved") {
 		return;
 	    } else {
-		QuerySession.getPatientSampleIdMap().then(function(sample_to_patient) {
-		    var patients = QuerySession.getSampleIds().map(function(s) { return sample_to_patient[s];});
-		    var patient_added_to_order = {};
-		    var patient_order = [];
-		    for (var i=0; i<patients.length; i++) {
-			if (!patient_added_to_order[patients[i]]) {
-			    patient_added_to_order[patients[i]] = true;
-			    patient_order.push(patients[i]);
-			}
-		    }
+		QuerySession.getPatientIds().then(function(patient_order) {
 		    state.patient_order = patient_order;
 		    state.patient_order_loaded.resolve();
 		});
@@ -1605,22 +1596,15 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    // zoom out if many columns are selected
 	    console.log("in initOncoprint, fetching altered cases while waiting for data to be populated");
 	    return $.when(QuerySession.getPatientIds(),
-		    QuerySession.getAlteredSamples(),
-		    QuerySession.getAlteredPatients(),
-		    QuerySession.getCaseUIDMap(),
+		    QuerySession.getAlteredSampleUIDs(),
+		    QuerySession.getAlteredPatientUIDs(),
 		    dataPopulatedPromise)
 	    .then(function (patient_ids,
-		    altered_samples,
-		    altered_patients,
-		    case_uid_map) {
+		    altered_sample_uids,
+		    altered_patient_uids) {
 		console.log("in initOncoprint, altered cases fetched, setting zoom level");
 		if ((State.using_sample_data ? QuerySession.getSampleIds() : patient_ids).length > 200) {
-		    // TODO: assume multiple studies
-		    var study_id = QuerySession.getCancerStudyIds()[0];
-		    var getUID = function(id) {
-			return case_uid_map[study_id][id];
-		    };
-		    oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_samples.map(getUID) : altered_patients.map(getUID));
+		    oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_sample_uids : altered_patient_uids);
 		}
 		oncoprint.scrollTo(0);
 	    });

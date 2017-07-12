@@ -776,7 +776,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 
 	    fetch_promises = fetch_promises.concat(self.getCancerStudyIds().map(function (cancer_study_id) {
 		var _def = new $.Deferred();
-		window.cbioportal_client.getSampleClinicalData({study_id: [cancer_study_id], attribute_ids: Object.keys(sorted_attrs.sample), sample_ids: study_sample_map[cancer_study_id]})
+		var attribute_ids = Object.keys(sorted_attrs.sample);
+		window.cbioportal_client.getSampleClinicalData({study_id: [cancer_study_id], attribute_ids: attribute_ids, sample_ids: study_sample_map[cancer_study_id]})
 			.then(function (data) {
 			    var sample_data_by_attr_id = {};
 			    for (var i = 0; i < data.length; i++) {
@@ -784,10 +785,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				sample_data_by_attr_id[attr_id] = sample_data_by_attr_id[attr_id] || [];
 				sample_data_by_attr_id[attr_id].push(data[i]);
 			    }
-			    var sample_attr_ids = Object.keys(sample_data_by_attr_id);
-			    for (var i = 0; i < sample_attr_ids.length; i++) {
-				var attr_id = sample_attr_ids[i];
-				clinical_data = clinical_data.concat(makeOncoprintClinicalData(sample_data_by_attr_id[attr_id], attr_id, cancer_study_id,
+			    for (var i = 0; i < attribute_ids.length; i++) {
+				var attr_id = attribute_ids[i];
+				clinical_data = clinical_data.concat(makeOncoprintClinicalData(sample_data_by_attr_id[attr_id] || [], attr_id, cancer_study_id,
 					"sample", target_sample_or_patient, study_target_ids_map[cancer_study_id], sample_to_patient_map, case_uid_map, sorted_attrs.sample[attr_id].datatype.toLowerCase(), "na"));
 			    }
 			    _def.resolve();
@@ -797,7 +797,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		return _def.promise();
 	    })).concat(self.getCancerStudyIds().map(function (cancer_study_id) {
 		var _def = new $.Deferred();
-		window.cbioportal_client.getPatientClinicalData({study_id: [cancer_study_id], attribute_ids: Object.keys(sorted_attrs.patient), patient_ids: study_patient_map[cancer_study_id]})
+		var attribute_ids = Object.keys(sorted_attrs.patient);
+		window.cbioportal_client.getPatientClinicalData({study_id: [cancer_study_id], attribute_ids: attribute_ids, patient_ids: study_patient_map[cancer_study_id]})
 			.then(function (data) {
 			    var patient_data_by_attr_id = {};
 			    for (var i = 0; i < data.length; i++) {
@@ -805,10 +806,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				patient_data_by_attr_id[attr_id] = patient_data_by_attr_id[attr_id] || [];
 				patient_data_by_attr_id[attr_id].push(data[i]);
 			    }
-			    var patient_attr_ids = Object.keys(patient_data_by_attr_id);
-			    for (var i = 0; i < patient_attr_ids.length; i++) {
-				var attr_id = patient_attr_ids[i];
-				clinical_data = clinical_data.concat(makeOncoprintClinicalData(patient_data_by_attr_id[attr_id], attr_id, cancer_study_id,
+			    for (var i = 0; i < attribute_ids.length; i++) {
+				var attr_id = attribute_ids[i];
+				clinical_data = clinical_data.concat(makeOncoprintClinicalData(patient_data_by_attr_id[attr_id] || [], attr_id, cancer_study_id,
 					"patient", target_sample_or_patient, study_target_ids_map[cancer_study_id], sample_to_patient_map, case_uid_map, sorted_attrs.patient[attr_id].datatype.toLowerCase(), "na"));
 			    }
 			    _def.resolve();

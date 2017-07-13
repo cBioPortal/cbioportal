@@ -88,18 +88,16 @@ public class GeneticDataController {
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, baseMeta.getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            List<GeneGeneticData> discreteCopyNumberDataList;
+            List<GeneGeneticData> geneGeneticDataList;
             if (geneticDataFilter.getSampleListId() != null) {
-                discreteCopyNumberDataList = geneticDataService.getGeneticData(geneticProfileId,
-                    geneticDataFilter.getSampleListId(), geneticDataFilter.getEntrezGeneIds(), 
-                    projection.name());
+                geneGeneticDataList = geneticDataService.getGeneticData(geneticProfileId, 
+                    geneticDataFilter.getSampleListId(), geneticDataFilter.getEntrezGeneIds(), projection.name());
             } else {
-                discreteCopyNumberDataList = geneticDataService.fetchGeneticData(geneticProfileId,
-                    geneticDataFilter.getSampleIds(), geneticDataFilter.getEntrezGeneIds(), 
-                    projection.name());
+                geneGeneticDataList = geneticDataService.fetchGeneticData(geneticProfileId, 
+                    geneticDataFilter.getSampleIds(), geneticDataFilter.getEntrezGeneIds(), projection.name());
             }
 
-            return new ResponseEntity<>(discreteCopyNumberDataList, HttpStatus.OK);
+            return new ResponseEntity<>(geneGeneticDataList, HttpStatus.OK);
         }
     }
 }

@@ -32,7 +32,7 @@
 package org.cbioportal.weblegacy;
 
 import java.util.List;
-import org.cbioportal.service.MutationalSignatureService;
+import org.mskcc.cbio.portal.service.MutationalSignatureService;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;

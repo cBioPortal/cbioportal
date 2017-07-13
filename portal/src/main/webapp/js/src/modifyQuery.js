@@ -8,7 +8,7 @@ window.initModifyQueryComponent = function(modifyQueryButtonId, querySelectorId)
 
     $("#" + modifyQueryButtonId).click(function() {
         if (!selectorInitialized) {
-            window.renderQuerySelector(document.getElementById(querySelectorId));
+            window.renderQuerySelector(document.getElementById(querySelectorId), {showDownloadTab:false});
             selectorInitialized = true;
         }
 

@@ -34,7 +34,7 @@ package org.mskcc.cbio.portal.scripts;
 
 import java.io.*;
 import java.util.*;
-import org.mskcc.cbio.portal.repository.GenePanelRepository;
+import org.mskcc.cbio.portal.repository.GenePanelRepositoryLegacy;
 import org.mskcc.cbio.portal.model.GenePanel;
 import org.cbioportal.model.Gene;
 import joptsimple.*;
@@ -92,23 +92,23 @@ public class ImportGenePanel extends ConsoleRunnable {
         Properties properties = new Properties();
         properties.load(new FileInputStream(genePanelFile));
 
-        GenePanelRepository genePanelRepository = (GenePanelRepository)SpringUtil.getApplicationContext().getBean("genePanelRepository");
+        GenePanelRepositoryLegacy genePanelRepositoryLegacy = (GenePanelRepositoryLegacy)SpringUtil.getApplicationContext().getBean("genePanelRepositoryLegacy");
 
         String stableId = getPropertyValue("stable_id", properties, true);
         String description = getPropertyValue("description", properties, false);
-        Set<Integer> genes = getGenes("gene_list", properties, genePanelRepository);
+        Set<Integer> genes = getGenes("gene_list", properties, genePanelRepositoryLegacy);
 
         GenePanel genePanel = new GenePanel();
-        List<GenePanel> genePanelResult = genePanelRepository.getGenePanelByStableId(stableId);
+        List<GenePanel> genePanelResult = genePanelRepositoryLegacy.getGenePanelByStableId(stableId);
         boolean panelUsed = false;
         if (genePanelResult != null && genePanelResult.size() > 0) {
             genePanel = genePanelResult.get(0);
-            if (genePanelRepository.sampleProfileMappingExistsByPanel(genePanel.getInternalId())) {
+            if (genePanelRepositoryLegacy.sampleProfileMappingExistsByPanel(genePanel.getInternalId())) {
                 ProgressMonitor.logWarning("Gene panel " + stableId + " already exists in databasel and is being used! Cannot import the gene panel!");
                 panelUsed = true;
             }
             else {
-                genePanelRepository.deleteGenePanel(genePanel.getInternalId());
+                genePanelRepositoryLegacy.deleteGenePanel(genePanel.getInternalId());
                 ProgressMonitor.logWarning("Gene panel " + stableId + " already exists in the database but is not being used. Overwriting old gene panel data.");
             }
         }
@@ -117,14 +117,14 @@ public class ImportGenePanel extends ConsoleRunnable {
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("stableId", stableId);
             map.put("description", description);
-            genePanelRepository.insertGenePanel(map);
-            genePanel = genePanelRepository.getGenePanelByStableId(stableId).get(0);
+            genePanelRepositoryLegacy.insertGenePanel(map);
+            genePanel = genePanelRepositoryLegacy.getGenePanelByStableId(stableId).get(0);
 
             if (genes.size() > 0) {
                 map = new HashMap<String, Object>();
                 map.put("panelId", genePanel.getInternalId());
                 map.put("genes", genes);
-                genePanelRepository.insertGenePanelList(map);
+                genePanelRepositoryLegacy.insertGenePanelList(map);
             }
         }
     }
@@ -143,7 +143,7 @@ public class ImportGenePanel extends ConsoleRunnable {
         return propertyValue;
     }
 
-    private static Set<Integer> getGenes(String propertyName, Properties properties, GenePanelRepository genePanelRepository) {
+    private static Set<Integer> getGenes(String propertyName, Properties properties, GenePanelRepositoryLegacy genePanelRepositoryLegacy) {
         String propertyValue = properties.getProperty(propertyName).trim();
         if (propertyValue == null || propertyValue.length() == 0) {
             throw new IllegalArgumentException(propertyName + " is not specified.");
@@ -155,7 +155,7 @@ public class ImportGenePanel extends ConsoleRunnable {
             Gene gene = null;
             try {
                 Integer geneId = Integer.parseInt(panelGene);
-                gene = genePanelRepository.getGeneByEntrezGeneId(geneId);
+                gene = genePanelRepositoryLegacy.getGeneByEntrezGeneId(geneId);
                 if (gene != null) {
                     geneIds.add(geneId);
                 }
@@ -164,9 +164,9 @@ public class ImportGenePanel extends ConsoleRunnable {
                 }
             }
             catch (NumberFormatException e) {
-                gene = genePanelRepository.getGeneByHugoSymbol(panelGene);
+                gene = genePanelRepositoryLegacy.getGeneByHugoSymbol(panelGene);
                 if (gene == null) {
-                    gene = genePanelRepository.getGeneByAlias(panelGene);
+                    gene = genePanelRepositoryLegacy.getGeneByAlias(panelGene);
                 }
 
                 if (gene != null) {

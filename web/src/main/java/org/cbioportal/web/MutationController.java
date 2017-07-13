@@ -9,6 +9,7 @@ import java.util.List;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCount;
+import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
@@ -17,6 +18,7 @@ import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.MutationFilter;
 import org.cbioportal.web.parameter.MutationMultipleStudyFilter;
+import org.cbioportal.web.parameter.MutationPositionIdentifier;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.SampleGeneticIdentifier;
@@ -81,7 +83,7 @@ public class MutationController {
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                mutationService.getMutationsInGeneticProfileBySampleListId(geneticProfileId, sampleListId, null,
+                mutationService.getMutationsInGeneticProfileBySampleListId(geneticProfileId, sampleListId, null, null,
                     projection.name(), pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(),
                     direction.name()), HttpStatus.OK);
         }
@@ -126,11 +128,11 @@ public class MutationController {
             List<Mutation> mutations;
             if (mutationFilter.getSampleListId() != null) {
                 mutations = mutationService.getMutationsInGeneticProfileBySampleListId(geneticProfileId,
-                    mutationFilter.getSampleListId(), mutationFilter.getEntrezGeneIds(), projection.name(), pageSize,
+                    mutationFilter.getSampleListId(), mutationFilter.getEntrezGeneIds(), null, projection.name(), pageSize,
                     pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
             } else {
                 mutations = mutationService.fetchMutationsInGeneticProfile(geneticProfileId,
-                    mutationFilter.getSampleIds(), mutationFilter.getEntrezGeneIds(), projection.name(), pageSize,
+                    mutationFilter.getSampleIds(), mutationFilter.getEntrezGeneIds(), null, projection.name(), pageSize,
                     pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
             }
 
@@ -217,11 +219,33 @@ public class MutationController {
         @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
         @PathVariable String geneticProfileId,
         @ApiParam(required = true, value = "List of Sample IDs")
-        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+        @Size(min = 1, max = MUTATION_MAX_PAGE_SIZE)
         @RequestBody List<String> sampleIds) throws GeneticProfileNotFoundException {
 
         return new ResponseEntity<>(mutationService.fetchMutationCountsInGeneticProfile(geneticProfileId,
             sampleIds), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/mutation-counts-by-position/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch mutation counts in all studies by gene and position")
+    public ResponseEntity<List<MutationCountByPosition>> fetchMutationCountsByPosition(
+        @ApiParam(required = true, value = "List of gene and positions")
+        @Size(min = 1, max = MUTATION_MAX_PAGE_SIZE)
+        @RequestBody List<MutationPositionIdentifier> mutationPositionIdentifiers) {
+
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        List<Integer> proteinPosStarts = new ArrayList<>();
+        List<Integer> proteinPosEnds = new ArrayList<>();
+        for (MutationPositionIdentifier mutationPositionIdentifier : mutationPositionIdentifiers) {
+            
+            entrezGeneIds.add(mutationPositionIdentifier.getEntrezGeneId());
+            proteinPosStarts.add(mutationPositionIdentifier.getProteinPosStart());
+            proteinPosEnds.add(mutationPositionIdentifier.getProteinPosEnd());
+        }
+        
+        return new ResponseEntity<>(mutationService.fetchMutationCountsByPosition(entrezGeneIds, proteinPosStarts, 
+            proteinPosEnds), HttpStatus.OK);
     }
 
     private void extractGeneticProfileAndSampleIds(MutationMultipleStudyFilter mutationMultipleStudyFilter, 

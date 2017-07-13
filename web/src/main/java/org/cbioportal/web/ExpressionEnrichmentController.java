@@ -36,7 +36,7 @@ public class ExpressionEnrichmentController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch expression enrichments in a genetic profile")
     public ResponseEntity<List<ExpressionEnrichment>> fetchExpressionEnrichments(
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
+        @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
         @PathVariable String geneticProfileId,
         @ApiParam(required = true, value = "List of altered and unaltered Sample IDs and Entrez Gene IDs")
         @Valid @RequestBody EnrichmentFilter enrichmentFilter) throws GeneticProfileNotFoundException {

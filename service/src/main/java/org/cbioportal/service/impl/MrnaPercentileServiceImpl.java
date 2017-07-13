@@ -27,6 +27,8 @@ public class MrnaPercentileServiceImpl implements MrnaPercentileService {
     private GeneticDataService geneticDataService;
     @Autowired
     private GeneticProfileService geneticProfileService;
+    
+    private NaturalRanking naturalRanking = new NaturalRanking(NaNStrategy.REMOVED, TiesStrategy.MAXIMUM);
 
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
@@ -57,8 +59,6 @@ public class MrnaPercentileServiceImpl implements MrnaPercentileService {
 
                 double[] values = geneticDataListOfGene.stream().mapToDouble(g -> Double.parseDouble(g.getValue()))
                     .toArray();
-                
-                NaturalRanking naturalRanking = new NaturalRanking(NaNStrategy.REMOVED, TiesStrategy.MAXIMUM);
                 double[] ranks = naturalRanking.rank(values);
                 double rank = ranks[geneticDataListOfGene.indexOf(geneticData)];
                 double percentile = (rank / ranks.length) * 100;

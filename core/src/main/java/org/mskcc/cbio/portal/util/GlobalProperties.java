@@ -236,8 +236,21 @@ public class GlobalProperties {
 
     public static final String ONCOPRINT_DEFAULTVIEW = "oncoprint.defaultview";
 
-    public static final String SHOW_CIVIC = "show.civic";
-    public static final String CIVIC_URL = "civic.url";
+    private static boolean showCivic;
+    @Value("${show.civic:false}") // default is false
+    public void setShowCivic(String property) { showCivic = Boolean.parseBoolean(property); }
+
+    private static String civicUrl;
+    @Value("${civic.url:https://civic.genome.wustl.edu/api/}") // default
+    public void setCivicUrl(String property) {
+        if (!property.isEmpty()) {
+            civicUrl = property.trim();
+
+            if (!civicUrl.endsWith("/")) {
+                civicUrl += "/";
+            }
+        }
+    }
 
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -771,12 +784,6 @@ public class GlobalProperties {
     }
 
     public static String getCivicUrl() {
-        String civicUrl = properties.getProperty(CIVIC_URL);
-        if (civicUrl == null || civicUrl.isEmpty())
-            return "https://civic.genome.wustl.edu/api/";
-        civicUrl = civicUrl.trim();
-        if (!civicUrl.endsWith("/"))
-            civicUrl += "/";
         return civicUrl;
     }
 
@@ -803,10 +810,7 @@ public class GlobalProperties {
     }
 
     public static boolean showCivic() {
-        String showCivic = properties.getProperty(SHOW_CIVIC);
-        if (showCivic == null || showCivic.isEmpty())
-            return false;  // hide CIVIC by default
-        return Boolean.parseBoolean(showCivic);
+        return showCivic;
     }
 
     public static boolean showMyCancerGenomeUrl()

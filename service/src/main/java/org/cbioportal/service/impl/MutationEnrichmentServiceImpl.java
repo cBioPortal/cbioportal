@@ -34,7 +34,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
             .getSampleCountByEntrezGeneIdsAndSampleIds(geneticProfileId, allSampleIds, null);
 
         List<Mutation> mutations = mutationService.fetchMutationsInGeneticProfile(geneticProfileId,
-            alteredSampleIds, null, "ID", null, null, null, null);
+            alteredSampleIds, null, null, "ID", null, null, null, null);
 
         return alterationEnrichmentUtil.createAlterationEnrichments(alteredSampleIds.size(), unalteredSampleIds.size(),
             mutationSampleCountByGeneList, mutations);

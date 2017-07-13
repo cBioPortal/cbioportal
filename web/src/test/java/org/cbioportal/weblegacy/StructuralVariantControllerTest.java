@@ -34,9 +34,14 @@ package org.cbioportal.weblegacy;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.cbioportal.model.*;
-import org.cbioportal.model.StructuralVariant;
-import org.cbioportal.service.StructuralVariantService;
+
+import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.Patient;
+import org.cbioportal.model.Sample;
+import org.mskcc.cbio.portal.model.StructuralVariant;
+import org.mskcc.cbio.portal.service.StructuralVariantService;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Before;

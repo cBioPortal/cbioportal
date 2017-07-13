@@ -1039,7 +1039,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    }
 		    var id_order = (self.using_sample_data ? samples : patients);
 		    if (self.sorting_alphabetically) {
-			id_order = _.sortBy(id_order, (self.using_sample_data ? function(x) { return x.sample; } : function(x) { return x.patient; }));
+			id_order = _.sortBy(id_order, function(x) { return x.id; });
 		    }
 		    if (self.sorting_alphabetically || self.sorting_by_given_order) {
 			setSortOrder(id_order.map(function(x) { return x.uid;}));
@@ -1808,11 +1808,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 					State.trackIdsInOriginalOrder[heatmap_track_group_id] = trackIdsInOriginalOrder;
 					//get heatmap data:
 					var heatmap_data_deferred = State.using_sample_data ? QuerySession.getSampleHeatmapData(grp.genetic_profile_id, Object.keys(grp.gene_to_track_id)) : QuerySession.getPatientHeatmapData(grp.genetic_profile_id, Object.keys(grp.gene_to_track_id));
-					var case_ids_deferred =  State.using_sample_data ? QuerySession.getSampleIds() : QuerySession.getPatientIds();
+					var cases_deferred =  State.using_sample_data ? QuerySession.getSamples() : QuerySession.getPatients();
 					//process data, call clustering:
-					$.when(grp.gene_to_track_id, heatmap_data_deferred, case_ids_deferred).then(
-							function (track_uid_map, heatmap_data, case_ids) {
-								$.when(QuerySession.getClusteringOrder(track_uid_map, heatmap_data, case_ids)).then(
+					$.when(grp.gene_to_track_id, heatmap_data_deferred, cases_deferred).then(
+							function (track_uid_map, heatmap_data, cases) {
+								$.when(QuerySession.getClusteringOrder(track_uid_map, heatmap_data, cases)).then(
 										function (clusteringResult) {
 											LoadingBar.update(0.9, "green");
 											oncoprint.setSortConfig({'type': 'order', order: clusteringResult.sampleUidsInClusteringOrder});
@@ -2090,7 +2090,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			State.sorting_by_given_order = false;
 			State.sorting_alphabetically = true;
 			$.when(QuerySession.getSamples(), QuerySession.getPatients()).then(function (samples, patients) {
-			    oncoprint.setSortConfig({'type': 'order', order: (State.using_sample_data ? _.sortBy(samples, function(x) { return x.sample; }) : _.sortBy(patients, function(x) { return x.patient; })).map(function(x) { return x.uid; })});
+			    oncoprint.setSortConfig({'type': 'order', order: _.sortBy((State.using_sample_data ? samples : patients), function(x) { return x.id; }).map(function(x) { return x.uid; })});
 			});
 		    } else if (State.sortby === "custom") {
 			State.sorting_by_given_order = true;

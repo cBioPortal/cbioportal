@@ -191,8 +191,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		'sample_list_id': [case_set_id]
 	    });
 	} else {
-	    self.getGeneticProfileIdToSamplesMap().then(function(map) {
-		var samples = map[genetic_profile_id];
+	    $.when(window.cbioportal_client.getGeneticProfiles({genetic_profile_ids:[genetic_profile_id]}), self.getStudySampleMap()).then(function(gp, study_sample_map) {
+		var study = gp[0].study_id;
+		var samples = study_sample_map[study];
 		if (!samples) {
 		    def.reject();
 		} else {
@@ -919,44 +920,40 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
    
     var getHeatmapData = function (self, genetic_profile_id, genes, sample_or_patient) {
 	var def = new $.Deferred();
-	// TODO: handle  more than one study
-	var study_id = self.getCancerStudyIds()[0];
-	var sample_ids = self.getSampleIds();
-	var deferred_case_ids = sample_or_patient === "sample" ? sample_ids : self.getPatientIds();
+	var deferred_cases = sample_or_patient === "sample" ? self.getSamples() : self.getPatients();
 	genes = genes || [];
 	sample_or_patient = sample_or_patient || "sample";
 	$.when(getGeneticProfileDataForQueryCases(self, genetic_profile_id, genes.map(function(x) { return x.toUpperCase(); }).filter(function(x) { return x.length > 0;})),
 	    self.getPatientSampleIdMap(),
-	    deferred_case_ids,
-	    self.getCaseUIDMap(),
+	    deferred_cases,
 	    window.cbioportal_client.getGeneticProfiles({genetic_profile_ids:[genetic_profile_id]})
 	).then(function (client_sample_data,
 		sample_to_patient_map,
-		case_ids,
-		case_uid_map,
+		cases,
 		genetic_profile) {
 	    // create an object for each sample or patient in each gene
 	    var interim_data = {};
 	    for (var i = 0; i < genes.length; i++) {
 		var gene = genes[i].toUpperCase();
 		interim_data[gene] = {};
-		for (var j = 0; j < case_ids.length; j++) {
-		    var case_id = case_ids[j];
+		for (var j = 0; j < cases.length; j++) {
+		    var case_id = cases[j].id;
 		    interim_data[gene][case_id] = {};
 		    interim_data[gene][case_id].hugo_gene_symbol = gene;
 		    interim_data[gene][case_id].study = study_id;
 		    interim_data[gene][case_id][sample_or_patient] = case_id;
 		    // index the UID map by sample or patient as appropriate
-		    interim_data[gene][case_id].uid = case_uid_map[study_id][case_id];
+		    interim_data[gene][case_id].uid = cases[j].uid;
 		    interim_data[gene][case_id].profile_data = null;
 		}
 	    }
 	    // fill profile_data properties with scores
+	    var study_id = genetic_profile[0].study_id;
 	    for (var i = 0; i < client_sample_data.length; i++) {
 		var receive_datum = client_sample_data[i];
 		var gene = receive_datum.hugo_gene_symbol.toUpperCase();
 		var sample_id = receive_datum.sample_id;
-		var case_id = (sample_or_patient === "sample" ? sample_id : sample_to_patient_map[sample_id]);
+		var case_id = (sample_or_patient === "sample" ? sample_id : sample_to_patient_map[study_id][sample_id]);
 		var interim_datum = interim_data[gene][case_id];
 		if (interim_datum.profile_data === null) {
 		    // set the initial value for this sample or patient
@@ -983,9 +980,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		var gene = genes[i].toUpperCase();
 		track_data.gene = gene;
 		var oncoprint_data = [];
-		for (var j = 0; j < case_ids.length; j++) {
-		    var case_id = case_ids[j];
+		for (var j = 0; j < cases.length; j++) {
+		    var case_id = cases[j].id;
 		    var datum = interim_data[gene][case_id];
+		    if (datum.profile_data === null) {
+			datum.na = true;
+		    }
 		    oncoprint_data.push(datum);
 		}
 		track_data.oncoprint_data = oncoprint_data;
@@ -1096,16 +1096,26 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	},
 	'getHeatmapProfiles': makeCachedPromiseFunction(
 		function(self, fetch_promise) {
-		    window.cbioportal_client.getGeneticProfiles({'study_id':[self.getCancerStudyIds()[0]]})
+		    var all_profiles = [];
+		    $.when.apply($, self.getCancerStudyIds().map(function(study_id) {
+			var def = new $.Deferred();
+			window.cbioportal_client.getGeneticProfiles({'study_id':[study_id]})
 			    .then(function (profiles) {
-				fetch_promise.resolve(profiles.filter(function(profile) {
+				all_profiles = all_profiles.concat(profiles);
+				def.resolve();
+			}).fail(function() {
+			    def.reject();
+			});
+			return def.promise();
+		    })).then(function() {
+			fetch_promise.resolve(all_profiles.filter(function(profile) {
 				    return (profile.genetic_alteration_type === "MRNA_EXPRESSION" ||
 					    profile.genetic_alteration_type === "PROTEIN_LEVEL") &&
 					    profile.show_profile_in_analysis_tab === "1";
 				}));
-		}).fail(function() {
-		    fetch_promise.reject();
-		});
+		    }).fail(function() {
+			fetch_promise.reject();
+		    });
 	    }),
 	'getSampleUIDs': function (opt_study_id) {
 	    var def = new $.Deferred();
@@ -1144,7 +1154,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			    ret = ret.concat(study_sample_map[study].map(function(sample_id) { 
 				return {
 				    'study': study,
-				    'sample': sample_id,
+				    'type':'sample',
+				    'id': sample_id,
 				    'uid': case_uid_map[study][sample_id]
 				}
 			    }));
@@ -1164,7 +1175,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			    ret = ret.concat(study_patient_map[study].map(function(patient_id) { 
 				return {
 				    'study': study,
-				    'patient': patient_id,
+				    'type': 'patient',
+				    'id': patient_id,
 				    'uid': case_uid_map[study][patient_id]
 				}
 			    }));
@@ -1468,16 +1480,16 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			fetch_promise.resolve(deepCopyObject(self.external_data_status));
 		    });
 		}),
-	'getClusteringOrder': function (track_uid_map, heatmapData, case_ids) {
-			var study_id = QuerySession.getCancerStudyIds()[0];
+	'getClusteringOrder': function (track_uid_map, heatmapData, cases) {
+			//cases is output of either getSamples() or getPatients()
 			var def = new $.Deferred();
 			//prepare input:
 			var cluster_input = {};
-			for (var i = 0; i < case_ids.length; i++) {
+			for (var i = 0; i < cases.length; i++) {
 				//iterate over genetic entities and get the sample data (heatmap data has genetic entityId as key):
 				for (var j = 0; j < heatmapData.length; j++) {
 					var entityId = heatmapData[j].gene;
-					var caseId = heatmapData[j].oncoprint_data[i].sample || heatmapData[j].oncoprint_data[i].patient;
+					var caseId = heatmapData[j].oncoprint_data[i].uid;
 					//small validation/defensive programming:
 					if (!entityId) {
 						throw new Error("Unexpected error during getClusteringOrder: attribute 'gene' not found");
@@ -1494,11 +1506,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			$.when(this.getCaseUIDMap(), cbio.stat.hclusterCases(cluster_input), cbio.stat.hclusterGeneticEntities(cluster_input)).then(
 					function (case_uid_map, sampleClusterOrder, entityClusterOrder) {
 						//get result in "uid format":
-						var uids = [];
-						for (var i = 0; i < sampleClusterOrder.length; i++) {
+						var uids = sampleClusterOrder.map(function(x) { return x.caseId; });
+						/*for (var i = 0; i < sampleClusterOrder.length; i++) {
 							var uid_case = case_uid_map[study_id][sampleClusterOrder[i].caseId];
 							uids.push(uid_case);
-						}
+						}*/
 						//get entityUids in order:
 						var entityUids = [];
 						for (var i = 0; i < entityClusterOrder.length; i++) {

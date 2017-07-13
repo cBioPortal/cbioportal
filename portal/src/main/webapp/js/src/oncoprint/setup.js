@@ -945,9 +945,6 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    
 	    'trackIdsInOriginalOrder': {},
 	    
-	    'patient_order_loaded': new $.Deferred(),
-	    'patient_order': [],
-	    
 	    'sortby': 'data',
 	    'sortby_type': true,
 	    'sortby_recurrence': true,
@@ -1024,12 +1021,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		console.log("in setDataType");
 		var def = new $.Deferred();
 		var self = this;
-		QuerySession.getCaseUIDMap().then(function (case_uid_map) {
+		$.when(QuerySession.getSamples(), QuerySession.getPatients()).then(function (samples, patients) {
 		    // TODO: assume multiple studies
-		    var study_id = QuerySession.getCancerStudyIds()[0];
-		    var getUID = function (id) {
-			return case_uid_map[study_id][id];
-		    };
 		    var proxy_promise;
 		    if (sample_or_patient === 'sample') {
 			self.using_sample_data = true;
@@ -1044,19 +1037,17 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			console.log("in setDataType, calling populatePatientData()");
 			proxy_promise = populatePatientData();
 		    }
-		    self.patient_order_loaded.then(function () {
-			var id_order = (self.using_sample_data ? QuerySession.getSampleIds() : self.patient_order).slice();
-			if (self.sorting_alphabetically) {
-			    id_order = id_order.sort();
-			}
-			if (self.sorting_alphabetically || self.sorting_by_given_order) {
-			    setSortOrder(id_order.map(getUID));
-			}
-			proxy_promise.then(function () {
-			    def.resolve();
-			}).fail(function () {
-			    def.fail();
-			});
+		    var id_order = (self.using_sample_data ? samples : patients);
+		    if (self.sorting_alphabetically) {
+			id_order = _.sortBy(id_order, (self.using_sample_data ? function(x) { return x.sample; } : function(x) { return x.patient; }));
+		    }
+		    if (self.sorting_alphabetically || self.sorting_by_given_order) {
+			setSortOrder(id_order.map(function(x) { return x.uid;}));
+		    }
+		    proxy_promise.then(function () {
+			def.resolve();
+		    }).fail(function () {
+			def.fail();
 		    });
 		});
 		return def.promise();
@@ -1288,17 +1279,6 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	};
 	
 	loadFromLocalStorage(State);
-	
-	(function loadPatientOrder(state) {
-	    if (state.patient_order_loaded.state() === "resolved") {
-		return;
-	    } else {
-		QuerySession.getPatientIds().then(function(patient_order) {
-		    state.patient_order = patient_order;
-		    state.patient_order_loaded.resolve();
-		});
-	    }
-	})(State);
 	
 	return State;
     })();
@@ -2109,24 +2089,14 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    } else if (State.sortby === "id") {
 			State.sorting_by_given_order = false;
 			State.sorting_alphabetically = true;
-			// TODO: assume multiple studies
-			$.when(QuerySession.getCaseUIDMap(), State.patient_order_loaded).then(function (case_uid_map) {
-			    var study_id = QuerySession.getCancerStudyIds()[0];
-			    var getUID = function (id) {
-				return case_uid_map[study_id][id];
-			    };
-			    oncoprint.setSortConfig({'type': 'order', order: (State.using_sample_data ? QuerySession.getSampleIds().slice().sort().map(getUID) : State.patient_order.slice().sort().map(getUID))});
+			$.when(QuerySession.getSamples(), QuerySession.getPatients()).then(function (samples, patients) {
+			    oncoprint.setSortConfig({'type': 'order', order: (State.using_sample_data ? _.sortBy(samples, function(x) { return x.sample; }) : _.sortBy(patients, function(x) { return x.patient; })).map(function(x) { return x.uid; })});
 			});
 		    } else if (State.sortby === "custom") {
 			State.sorting_by_given_order = true;
 			State.sorting_alphabetically = false;
-			// TODO: assume multiple studies
-			$.when(QuerySession.getCaseUIDMap(), State.patient_order_loaded).then(function (case_uid_map) {
-			    var study_id = QuerySession.getCancerStudyIds()[0];
-			    var getUID = function (id) {
-				return case_uid_map[study_id][id];
-			    };
-			    oncoprint.setSortConfig({'type': 'order', order: (State.using_sample_data ? QuerySession.getSampleIds().map(getUID) : State.patient_order.map(getUID))});
+			$.when(QuerySession.getSamples(), QuerySession.getPatients()).then(function (samples, patients) {
+			    oncoprint.setSortConfig({'type': 'order', order: (State.using_sample_data ? samples : patients).map(function(x) { return x.uid; })});
 			});
 		    }
 		};

@@ -2250,6 +2250,27 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       return str;
     };
 
+    /**
+     * If input is na, NA, NaN, n/a, null or undefined, return true
+     * Else, return false.
+     * @param str
+     * @param includeEmptyStr Whether empty string should be treated as NA
+     * @returns {boolean}
+     */
+    content.strIsNa = function(str, includeEmptyStr) {
+      var status = false;
+      includeEmptyStr = _.isBoolean(includeEmptyStr) ? includeEmptyStr : false;
+      if (_.isString(str)) {
+        if (['na', 'nan', 'n/a'].indexOf(str.toLowerCase()) > -1 ||
+          (includeEmptyStr && !str)) {
+          status = true;
+        }
+      } else if (typeof str === 'undefined' || str === null) {
+        status = true;
+      }
+      return status;
+    };
+
     return content;
   })();
 })(window.iViz,
@@ -2792,7 +2813,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     '<span class="chart-title-span" id="{{chartId}}-title">{{displayName}}' +
     '</span></div>' +
     '<div :class="[showOperations?chartOperationsActive:chartOperations]">' +
-    '<div class="checkbox-div" v-if="showLogScale">' +
+    '<div class="checkbox-div" v-if="showLogScale && chartInitialed"">' +
     '<input type="checkbox" value="" id="" ' +
     'class="checkbox" v-model="logChecked">' +
     '<span id="scale-span-{{chartId}}">' +
@@ -2803,13 +2824,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     'class="fa fa-info-circle icon hover" ' +
     'id="{{chartId}}-description-icon"' +
     'aria-hidden="true"></i>' +
-    '<i v-if="showTableIcon" class="fa fa-table icon hover" ' +
+    '<i v-if="showTableIcon && chartInitialed" class="fa fa-table icon hover" ' +
     'aria-hidden="true" @click="changeView()"></i>' +
-    '<i v-if="showPieIcon" class="fa fa-pie-chart icon hover" ' +
+    '<i v-if="showPieIcon && chartInitialed"" class="fa fa-pie-chart icon hover" ' +
     'aria-hidden="true" @click="changeView()"></i>' +
-    '<img v-if="showSurvivalIcon" src="images/survival_icon.svg" ' +
+    '<img v-if="showSurvivalIcon && chartInitialed"" src="images/survival_icon.svg" ' +
     'class="icon hover" @click="getRainbowSurvival" alt="Survival Analysis"/>' +
-    '<div v-if="showDownloadIcon" id="{{chartId}}-download-icon-wrapper" class="download">' +
+    '<div v-if="showDownloadIcon && chartInitialed"" id="{{chartId}}-download-icon-wrapper" class="download">' +
     '<i class="fa fa-download icon hover" alt="download" ' +
     'id="{{chartId}}-download"></i>' +
     '</div>' +
@@ -2852,6 +2873,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }, attributes: {
         type: Object
       }, showDownloadIcon: {
+        type: Boolean,
+        default: true
+      }, chartInitialed: {
         type: Boolean,
         default: true
       }
@@ -3904,8 +3928,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         var val = d[data_.attrId];
         var _min;
         var _max;
-        if (typeof val === 'undefined' || val === 'NA' || val === '' ||
-          val === 'NaN') {
+        if (iViz.util.strIsNa(val, true)) {
           val = opts_.xDomain[opts_.xDomain.length - 1];
         } else if (logScale) {
           for (i = 1; i < opts_.xDomain.length; i++) {
@@ -4361,7 +4384,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     ':data-number="attributes.priority" @mouseenter="mouseEnter" ' +
     '@mouseleave="mouseLeave">' +
     '<chart-operations :show-log-scale="settings.showLogScale"' +
-    ':show-operations="showOperations && !failedToInit" :groupid="attributes.group_id" ' +
+    ':show-operations="showOperations" :groupid="attributes.group_id" ' +
+    ':chart-initialed = "!failedToInit"' +
     ':show-survival-icon.sync="showSurvivalIcon"' +
     ':reset-btn-id="resetBtnId" :chart-ctrl="barChart" ' +
     ':chart-id="chartId" :show-log-scale="showLogScale" ' +
@@ -4421,8 +4445,10 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
     }, events: {
       closeChart: function() {
-        dc.deregisterChart(this.chartInst, this.attributes.group_id);
-        this.chartInst.dimension().dispose();
+        if (!this.failedToInit) {
+          dc.deregisterChart(this.chartInst, this.attributes.group_id);
+          this.chartInst.dimension().dispose();
+        }
         this.$dispatch('close');
       },
       changeLogScale: function(logScaleChecked) {
@@ -4541,8 +4567,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
       this.data.meta = _.map(_.filter(_.pluck(
         iViz.getGroupNdx(this.opts.groupid), this.opts.attrId), function(d) {
-        if (typeof d === 'undefined' || d === 'na' || d === '' ||
-          d === 'NaN' || d == null) {
+        if (iViz.util.strIsNa(d, true)) {
           d = 'NA';
         }
         return d !== 'NA';
@@ -5231,7 +5256,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
         if (this.hasFilters) {
           var filteredClinicalAttrs = {};
-          _.map(this.$root.groups, function(group) {
+          _.each(this.$root.groups, function(group) {
             var _attrId = group.type === 'patient' ? 'patient_uid' : 'sample_uid';
             if (!filteredClinicalAttrs.hasOwnProperty(group.id)) {
               filteredClinicalAttrs[group.id] = {
@@ -5252,14 +5277,16 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               var nonNaCases = [];
 
               _.each(data_, function(data) {
-                var _intersection = _.intersection(Object.keys(data), group.attrs);
                 var hasNaWithinAttrs = false;
-                _.some(_intersection, function(attr) {
-                  if (data[attr].toString().toLowerCase() === 'na') {
+
+                //Check whether case contains NA value on filtered attrs
+                _.some(group.attrs, function(attr) {
+                  if (iViz.util.strIsNa(data[attr], false)) {
                     hasNaWithinAttrs = true;
                     return true;
                   }
                 });
+
                 if (!hasNaWithinAttrs) {
                   var _caseId = data[group.attrId];
                   if (groupId !== _groupId) {
@@ -5340,11 +5367,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             (this.excludeNa ? 'checked' : '') + '><span>' +
             'Exclude patients with NA for any of the selected attribute(s)</span></div>');
           api.set('content.text', qtipContent.join(''));
-          
+
           // Tender tooltip after updating content
           // Otherwise, api.elements.tooltip will return null.
           api.render();
-          
+
           var tooltip = api.elements.tooltip;
           tooltip.find('.category-item').click(function() {
             var curveId = $(this).attr('curve-id');
@@ -6065,7 +6092,7 @@ window.LogRankTest = (function(jStat) {
     content.clearSelectedRowData = function() {
       selectedRowData = [];
     };
-
+    
     content.init =
       function(_attributes, _opts, _selectedSamples, _selectedGenes,
                _data, _callbacks, _geneData, _dimension, _genePanelMap) {
@@ -6273,6 +6300,7 @@ window.LogRankTest = (function(jStat) {
     function updateCategories() {
       var _labels = {};
       var _currentSampleSize = 0;
+      
       _.each(group.top(Infinity), function(label) {
         var _labelDatum = {};
         var _labelValue = Number(label.value);
@@ -6684,7 +6712,8 @@ window.LogRankTest = (function(jStat) {
         madeSelection: false,
         showSurvivalIcon: false,
         genePanelMap: {},
-        numOfSurvivalCurveLimit: iViz.opts.numOfSurvivalCurveLimit || 20
+        numOfSurvivalCurveLimit: iViz.opts.numOfSurvivalCurveLimit || 20,
+        dataLoaded: false
       };
     },
     watch: {
@@ -6711,10 +6740,10 @@ window.LogRankTest = (function(jStat) {
       },
       'update-special-charts': function() {
         // Do not update chart if the selection is made on itself
-        if(!this.failedToInit) {
+        if (!this.failedToInit) {
           if (this.madeSelection && !this.isMutatedGeneCna) {
             this.madeSelection = false;
-          } else {
+          } else if (this.dataLoaded) {
             var attrId =
               this.attributes.group_type === 'patient' ?
                 'patient_uid' : 'sample_uid';
@@ -6770,7 +6799,7 @@ window.LogRankTest = (function(jStat) {
         this.$dispatch('create-rainbow-survival', {
           attrId: this.attributes.attr_id,
           subtitle: ' (' + this.attributes.display_name + ')',
-          groups: groups,
+          groups: groups,  
           groupType: this.attributes.group_type
         });
       }
@@ -6810,6 +6839,7 @@ window.LogRankTest = (function(jStat) {
             filtersMap[filter] = true;
           }
         });
+        
         this.invisibleDimension.filterFunction(function(d) {
           return (filtersMap[d] !== undefined);
         });
@@ -6838,11 +6868,25 @@ window.LogRankTest = (function(jStat) {
           height: window.iViz.styles.vars.specialTables.height,
           chartId: this.chartId
         };
+        
+        this.dataLoaded = true;
+        
         this.chartInst.init(this.attributes, opts, this.$root.selectedsampleUIDs,
           this.$root.selectedgenes, data, {
             addGeneClick: this.addGeneClick,
             submitClick: this.submitClick
           }, this.isMutatedGeneCna ? _data.geneMeta : null, this.invisibleDimension, this.genePanelMap);
+
+        var attrId =
+          this.attributes.group_type === 'patient' ?
+            'patient_uid' : 'sample_uid';
+        var _selectedCases =
+          _.pluck(this.invisibleDimension.top(Infinity), attrId);
+        if (_selectedCases.length > 0) {
+          this.chartInst.update(_selectedCases, this.selectedRows);
+          this.showRainbowSurvival();
+        } 
+        
         this.setDisplayTitle(this.chartInst.getCases().length);
         if (!this.isMutatedGeneCna &&
           Object.keys(this.attributes.keys).length <= 3) {
@@ -6866,7 +6910,7 @@ window.LogRankTest = (function(jStat) {
       _self.showLoad = true;
       var callbacks = {};
       var attrId = this.attributes.attr_id;
-
+      
       this.isMutatedGeneCna =
         ['mutated_genes', 'cna_details']
           .indexOf(_self.attributes.attr_id) !== -1;
@@ -6877,12 +6921,12 @@ window.LogRankTest = (function(jStat) {
       }
 
       this.invisibleDimension = this.ndx.dimension(function(d) {
-        if (typeof d[attrId] === 'undefined' ||
-          ['na', 'n/a', 'N/A'].indexOf(d[attrId]) !== -1) {
+        if (iViz.util.strIsNa(d[attrId], false)) {
           d[attrId] = 'NA';
         }
         return d[attrId];
       });
+      
       callbacks.addGeneClick = this.addGeneClick;
       callbacks.submitClick = this.submitClick;
       _self.chartInst = new iViz.view.component.TableView();
@@ -6893,6 +6937,7 @@ window.LogRankTest = (function(jStat) {
             $.when(window.iviz.datamanager.getGenePanelMap())
               .then(function(_genePanelMap) {
                 // create gene panel map
+                this.dataLoaded = true;
                 _self.genePanelMap = _genePanelMap;
                 _self.processTableData(_tableData);
               }, function() {
@@ -6911,6 +6956,7 @@ window.LogRankTest = (function(jStat) {
       } else {
         _self.processTableData();
       }
+      
       this.showRainbowSurvival();
       this.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
     }

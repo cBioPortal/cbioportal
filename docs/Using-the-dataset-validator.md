@@ -102,9 +102,9 @@ DEBUG: data_methylation_hm27.txt: Starting validation of file
 INFO: data_methylation_hm27.txt: Validation of file complete
 INFO: data_methylation_hm27.txt: Read 9 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: data_fusions.txt: Starting validation of file
-INFO: data_fusions.txt: Validation of file complete
-INFO: data_fusions.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_fusion.txt: Starting validation of file
+INFO: data_fusion.txt: Validation of file complete
+INFO: data_fusion.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
 
 DEBUG: data_expression_median.txt: Starting validation of file
 INFO: data_expression_median.txt: Validation of file complete
@@ -249,9 +249,9 @@ DEBUG: data_methylation_hm27.txt: Starting validation of file
 INFO: data_methylation_hm27.txt: Validation of file complete
 INFO: data_methylation_hm27.txt: Read 9 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: data_fusions.txt: Starting validation of file
-INFO: data_fusions.txt: Validation of file complete
-INFO: data_fusions.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_fusion.txt: Starting validation of file
+INFO: data_fusion.txt: Validation of file complete
+INFO: data_fusion.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
 
 DEBUG: data_expression_median.txt: Starting validation of file
 INFO: data_expression_median.txt: Validation of file complete
@@ -354,9 +354,9 @@ DEBUG: data_methylation_hm27.txt: Starting validation of file
 INFO: data_methylation_hm27.txt: Validation of file complete
 INFO: data_methylation_hm27.txt: Read 9 lines. Lines with warning: 0. Lines with error: 0
 
-DEBUG: data_fusions.txt: Starting validation of file
-INFO: data_fusions.txt: Validation of file complete
-INFO: data_fusions.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
+DEBUG: data_fusion.txt: Starting validation of file
+INFO: data_fusion.txt: Validation of file complete
+INFO: data_fusion.txt: Read 4 lines. Lines with warning: 0. Lines with error: 0
 
 DEBUG: data_expression_median.txt: Starting validation of file
 INFO: data_expression_median.txt: Validation of file complete

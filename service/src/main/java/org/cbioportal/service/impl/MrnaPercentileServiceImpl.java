@@ -4,7 +4,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.math3.stat.ranking.NaNStrategy;
 import org.apache.commons.math3.stat.ranking.NaturalRanking;
 import org.apache.commons.math3.stat.ranking.TiesStrategy;
-import org.cbioportal.model.GeneticData;
+import org.cbioportal.model.GeneGeneticData;
 import org.cbioportal.model.GeneticProfile;
 import org.cbioportal.model.MrnaPercentile;
 import org.cbioportal.service.GeneticDataService;
@@ -36,14 +36,14 @@ public class MrnaPercentileServiceImpl implements MrnaPercentileService {
 
         validateGeneticProfile(geneticProfileId);
 
-        List<GeneticData> allGeneticDataList = geneticDataService.fetchGeneticData(
-            geneticProfileId, null, entrezGeneIds, "SUMMARY");
+        List<GeneGeneticData> allGeneticDataList = geneticDataService.fetchGeneticData(geneticProfileId, null, 
+            entrezGeneIds, "SUMMARY");
 
-        List<GeneticData> geneticDataList = allGeneticDataList.stream().filter(g -> g.getSampleId().equals(sampleId))
+        List<GeneGeneticData> geneticDataList = allGeneticDataList.stream().filter(g -> g.getSampleId().equals(sampleId))
             .collect(Collectors.toList());
 
         List<MrnaPercentile> mrnaPercentileList = new ArrayList<>();
-        for (GeneticData geneticData : geneticDataList) {
+        for (GeneGeneticData geneticData : geneticDataList) {
             if (NumberUtils.isNumber(geneticData.getValue())) {
                 MrnaPercentile mrnaPercentile = new MrnaPercentile();
                 mrnaPercentile.setEntrezGeneId(geneticData.getEntrezGeneId());
@@ -51,7 +51,7 @@ public class MrnaPercentileServiceImpl implements MrnaPercentileService {
                 mrnaPercentile.setGeneticProfileId(geneticProfileId);
                 mrnaPercentile.setzScore(new BigDecimal(geneticData.getValue()));
 
-                List<GeneticData> geneticDataListOfGene = allGeneticDataList.stream().filter(g ->
+                List<GeneGeneticData> geneticDataListOfGene = allGeneticDataList.stream().filter(g ->
                     g.getEntrezGeneId().equals(geneticData.getEntrezGeneId()) && NumberUtils.isNumber(g.getValue()))
                     .collect(Collectors.toList());
 

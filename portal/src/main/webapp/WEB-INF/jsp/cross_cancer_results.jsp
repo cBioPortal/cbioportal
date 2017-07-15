@@ -29,13 +29,14 @@
  - You should have received a copy of the GNU Affero General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
-
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.SessionServiceRequestWrapper" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
+<%@ page import="org.apache.commons.lang.*" %>
+<%@ page import="java.util.List" %>
 
 <%
     String siteTitle = GlobalProperties.getTitle();
@@ -80,6 +81,54 @@
 
 <jsp:include page="global/header.jsp" flush="true"/>
 
+<script type="text/javascript" src="js/src/modifyQuery.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
+<script>
+window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
+    
+window.historyType = 'memory';
+
+window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
+window.skinExampleStudyQueries = '<%=GlobalProperties.getExampleStudyQueries().replace("\n","\\n")%>'.split("\n");
+
+window.priorityStudies = {};
+<%
+List<String[]> priorityStudies = GlobalProperties.getPriorityStudies();
+for (String[] group : priorityStudies) {
+    if (group.length > 1) {
+        out.println("window.priorityStudies['"+group[0]+"'] = ");
+        out.println("[");
+        int i = 1;
+        while (i < group.length) {
+            if (i >= 2) {
+                out.println(",");
+            }
+            out.println("'"+group[i]+"'");
+            i++;
+        }
+        out.println("];");
+    }
+}
+%>
+    
+    
+
+// Set API root variable for cbioportal-frontend repo
+    <%
+String url = request.getRequestURL().toString();
+String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
+baseURL = baseURL.replace("https://", "").replace("http://", "");
+%>
+__API_ROOT__ = '<%=baseURL%>';
+
+window.loadReactApp({ defaultRoute: 'blank' });
+    
+window.onReactAppReady(function(){
+    window.initModifyQueryComponent("modifyQueryButton", "querySelector");
+});
+    
+</script>
+    
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
 <%@ include file="oncokb/oncokb-card-template.html" %>
 <%@ include file="civic/civic-qtip-template.html" %>
@@ -126,17 +175,18 @@ if (sessionError != null) {  %>
 </p>
 <% } %>
 
-<table>
+    <table>
     <tr>
         <td>
 
             <div id="results_container">
-                <div id='modify_query' style='margin:20px;'>
-                    <button type='button' class='btn btn-primary' data-toggle='button' id='modify_query_btn'>
-                        Modify Query
-                    </button>
+                
+                <div id='modify_query'>
+                    <button id="modifyQueryButton" class="btn btn-primary" style="display: none;">Modify Query</button>
+                    <div id="querySelector" class="cbioportal-frontend"></div>
+                    <div id="reactRoot" class="hidden"></div>
                     <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
-                        <%@ include file="query_form.jsp" %>
+                     
                     </div>
                 </div>
                 <div id="crosscancer-container">
@@ -147,7 +197,7 @@ if (sessionError != null) {  %>
         </td>
     </tr>
 </table>
-
+  
 <script>
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
     var showHotspot = <%=showHotspot%>;

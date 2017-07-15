@@ -39,7 +39,7 @@ public class GeneticProfileControllerTest {
     private static final String TEST_STUDY_IDENTIFIER_1 = "test_study_identifier_1";
     private static final GeneticProfile.GeneticAlterationType TEST_GENETIC_ALTERATION_TYPE_1 =
             GeneticProfile.GeneticAlterationType.MUTATION_EXTENDED;
-    private static final String TEST_DATATYPE_1 = "test_datatype_1";
+    private static final String TEST_DATATYPE_1 = "MAF";
     private static final String TEST_NAME_1 = "test_name_1";
     private static final String TEST_DESCRIPTION_1 = "test_description_1";
     private static final boolean TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_1 = true;
@@ -54,7 +54,7 @@ public class GeneticProfileControllerTest {
     private static final String TEST_STUDY_IDENTIFIER_2 = "test_study_identifier_2";
     private static final GeneticProfile.GeneticAlterationType TEST_GENETIC_ALTERATION_TYPE_2 =
             GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION;
-    private static final String TEST_DATATYPE_2 = "test_datatype_2";
+    private static final String TEST_DATATYPE_2 = "CONTINUOUS";
     private static final String TEST_NAME_2 = "test_name_2";
     private static final String TEST_DESCRIPTION_2 = "test_description_2";
     private static final boolean TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_2 = false;

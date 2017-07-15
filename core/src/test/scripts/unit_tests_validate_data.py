@@ -18,7 +18,8 @@ DEFINED_SAMPLE_IDS = None
 DEFINED_SAMPLE_ATTRIBUTES = None
 PATIENTS_WITH_SAMPLES = None
 PORTAL_INSTANCE = None
-
+GSVA_SAMPLE_IDS = None
+GSVA_GENESET_IDS = None
 
 def setUpModule():
     """Initialise mock data used throughout the module."""
@@ -113,11 +114,19 @@ class PostClinicalDataFileTestCase(DataFileTestCase):
         self.orig_patients_with_samples = validateData.PATIENTS_WITH_SAMPLES
         validateData.PATIENTS_WITH_SAMPLES = PATIENTS_WITH_SAMPLES
 
+        # reset all GSVA global variables when starting a test
+        self.orig_gsva_sample_ids = validateData.GSVA_SAMPLE_IDS
+        validateData.GSVA_SAMPLE_IDS = GSVA_SAMPLE_IDS
+        self.orig_gsva_geneset_ids = validateData.GSVA_GENESET_IDS
+        validateData.GSVA_GENESET_IDS = GSVA_GENESET_IDS
+
     def tearDown(self):
         """Restore the environment to before setUp() was called."""
         validateData.DEFINED_SAMPLE_IDS = self.orig_defined_sample_ids
         validateData.DEFINED_SAMPLE_ATTRIBUTES = self.orig_defined_sample_attributes
         validateData.PATIENTS_WITH_SAMPLES = self.orig_patients_with_samples
+        validateData.GSVA_SAMPLE_IDS = self.orig_gsva_sample_ids
+        validateData.GSVA_GENESET_IDS = self.orig_gsva_geneset_ids
         super(PostClinicalDataFileTestCase, self).tearDown()
 
 
@@ -648,7 +657,7 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('data_cna_invalid_values.txt',
                                     validateData.CNAValidator)
         # expecting various errors about data values, about one per line
-        self.assertEqual(len(record_list), 5)
+        self.assertEqual(len(record_list), 6)
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
         record_iterator = iter(record_list)
@@ -673,6 +682,11 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.line_number, 8)
         self.assertEqual(record.column_number, 5)
         self.assertEqual(record.cause, '[Not Available]')
+        # Only -2, -1.5, -1, 0, 1, 2 are supported, anything else should be an error:
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 9)
+        self.assertEqual(record.column_number, 6)
+        self.assertEqual(record.cause, '1.5')
 
     def test_valid_rppa(self):
         """Check a valid RPPA file that should yield no errors."""
@@ -733,6 +747,99 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
             self.assertEqual(record.column_number, 1)
             self.assertIn('NA', record.getMessage())
 
+    def test_gsva_range_gsva_scores(self):
+        """Test if an error is issued if the score is outside GSVA scoring range"""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_gsva_scores_outrange.txt',
+                                    validateData.GsvaScoreValidator)
+        # expecting an error for each line that contains value not within -1 and 1
+        self.assertEqual(len(record_list), 3)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 5)
+        self.assertEqual(record.column_number, 2)
+        self.assertEqual(record.cause, '2.371393691351566')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 8)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, '-12')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 9)
+        self.assertEqual(record.column_number, 2)
+        self.assertEqual(record.cause, '1.5')
+        return
+
+    def test_range_gsva_pvalues(self):
+        """Test if an error is issued if the score is outside pvalue range"""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_gsva_pvalues_outrange.txt',
+                                    validateData.GsvaPvalueValidator)
+        # expecting an error for each line that contains value not within 0 and 1
+        self.assertEqual(len(record_list), 3)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 4)
+        self.assertEqual(record.column_number, 2)
+        self.assertEqual(record.cause, '1.5')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 6)
+        self.assertEqual(record.column_number, 4)
+        self.assertEqual(record.cause, '1e3')
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 10)
+        self.assertEqual(record.column_number, 3)
+        self.assertEqual(record.cause, '-0.00000000000000005')
+        return
+
+    def test_missing_column_gsva(self):
+        #Test if an error is issued if the score and pvalue tables do not have same header
+        self.logger.setLevel(logging.ERROR)
+
+        ### Error should appear when the second file is validated
+        record_list1 = self.validate('data_gsva_pvalues_missing_column.txt',
+                                    validateData.GsvaPvalueValidator)
+
+        record_list2 = self.validate('data_gsva_scores_missing_column.txt',
+                                    validateData.GsvaScoreValidator)
+        self.assertEqual(len(record_list1), 0)
+        self.assertEqual(len(record_list2), 2)
+        for record in record_list2:
+            self.assertEqual(record.levelno, logging.ERROR)
+        record_iterator = iter(record_list2)
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 1)
+        self.assertIn('headers', record.getMessage().lower())
+        self.assertIn('different', record.getMessage().lower())
+        record = record_iterator.next()
+        self.assertIn('invalid', record.getMessage().lower())
+        self.assertIn('column', record.getMessage().lower())
+        return
+
+
+    def test_missing_row_gsva(self):
+        #Test if an error is issued if the score and pvalue table does not have same rownames
+        self.logger.setLevel(logging.ERROR)
+
+        ### Error should appear when the second file is validated
+        record_list1 = self.validate('data_gsva_pvalues_missing_row.txt',
+                                    validateData.GsvaPvalueValidator)
+
+        record_list2 = self.validate('data_gsva_scores_missing_row.txt',
+                                    validateData.GsvaScoreValidator)
+        self.assertEqual(len(record_list1), 0)
+        self.assertEqual(len(record_list2), 1)
+        for record in record_list2:
+            self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('first column', record.getMessage().lower())
+        self.assertIn('not equal', record.getMessage().lower())
+        return
+#
+#
+
     # TODO: test other subclasses of FeatureWiseValidator
 
 class ContinuousValuesTestCase(PostClinicalDataFileTestCase):
@@ -755,7 +862,7 @@ class ContinuousValuesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.cause, '')
         record = record_iterator.next()
         self.assertEqual(record.cause, 'Na')
-        
+
 
 class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
 
@@ -884,7 +991,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
     def test_invalid_swissprot_identifier_type(self):
         """Test if the validator rejects files with nonsensical id types."""
         self.logger.setLevel(logging.ERROR)
-        mvals, mtype = validateData.cbioportal_common.parse_metadata_file(
+        meta_dictionary = validateData.cbioportal_common.parse_metadata_file(
                 'test_data/mutations/meta_mutations_invalid_swissprot_idspec.txt',
                 self.logger,
                 study_id='spam')
@@ -893,7 +1000,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.cause, 'namelessly')
-        self.assertIsNone(mtype, 'metadata file was not rejected as invalid')
+        self.assertIsNone(meta_dictionary['meta_file_type'], 'metadata file was not rejected as invalid')
 
     def test_isValidAminoAcidChange(self):
         """Test if proper warnings are given for wrong/blank AA change vals."""
@@ -973,9 +1080,9 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         # we expect 5 infos: 3 about silent mutations, 2 general info messages:
         self.assertEqual(len(record_list), 5)
         # First 3 INFO messages should be something like: "Validation of line skipped due to cBioPortal's filtering. Filtered types:"
-        for record in record_list[:3]: 
+        for record in record_list[:3]:
             self.assertIn("filtered types", record.getMessage().lower())
-        
+
 
     def test_alternative_notation_for_intergenic_mutation(self):
         """Test alternative 'notation' for intergenic mutations.
@@ -984,7 +1091,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         intergenic mutations, and since the Variant_Classification column is
         often invalid, cBioPortal assumes it to mean that and skips it.
         (even if the Entrez column is absent).
-        Here we test whether the 'gene' Unknown / 0 records are skipped 
+        Here we test whether the 'gene' Unknown / 0 records are skipped
         with a warning when Variant_Classification!='IGR'
         """
         # set level according to this test case:
@@ -995,7 +1102,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                                             'swissprot_identifier': 'name'})
         # we expect 1 ERROR and 2 WARNINGs :
         self.assertEqual(len(record_list), 3)
-        
+
         # ERROR should be something like: "No Entrez id or gene symbol provided for gene"
         self.assertIn("no entrez gene id or gene symbol provided", record_list[0].getMessage().lower())
         self.assertEqual(record_list[0].levelno, logging.ERROR)
@@ -1005,6 +1112,19 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertIn("implies intergenic", record_list[2].getMessage().lower())
         self.assertEqual(record_list[2].levelno, logging.WARNING)
 
+class FusionValidationTestCase(PostClinicalDataFileTestCase):
+
+    """Tests for the various validations of data in Fusion data files."""
+
+    def test_duplicate_line(self):
+        """Test if duplicate lines are detected"""
+        # set level according to this test case:
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_fusion_duplicate_entry.txt',
+                                    validateData.FusionValidator)
+
+        self.assertEqual(len(record_list), 1)
+        self.assertIn("duplicate entry in fusion data", record_list[0].getMessage().lower())
 
 class SegFileValidationTestCase(PostClinicalDataFileTestCase):
 

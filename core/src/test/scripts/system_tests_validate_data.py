@@ -70,7 +70,7 @@ class ValidateDataSystemTester(unittest.TestCase):
     def test_exit_status_success(self):
         '''study 0 : no errors, expected exit_status = 0.
 
-        If there are errors, the script should return 
+        If there are errors, the script should return
                 0: 'succeeded',
                 1: 'failed',
                 2: 'not performed as problems occurred',
@@ -79,7 +79,7 @@ class ValidateDataSystemTester(unittest.TestCase):
 
         # build up the argument list
         print "===study 0"
-        args = ['--study_directory','test_data/study_es_0/', 
+        args = ['--study_directory','test_data/study_es_0/',
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v']
         # execute main function with arguments provided as if from sys.argv
         args = validateData.interface(args)
@@ -90,7 +90,7 @@ class ValidateDataSystemTester(unittest.TestCase):
         '''study 1 : errors, expected exit_status = 1.'''
         #Build up arguments and run
         print "===study 1"
-        args = ['--study_directory','test_data/study_es_1/', 
+        args = ['--study_directory','test_data/study_es_1/',
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v']
         args = validateData.interface(args)
         # Execute main function with arguments provided through sys.argv
@@ -101,7 +101,7 @@ class ValidateDataSystemTester(unittest.TestCase):
         '''test to fail: give wrong hugo file, or let a meta file point to a non-existing data file, expected exit_status = 2.'''
         #Build up arguments and run
         print "===study invalid"
-        args = ['--study_directory','test_data/study_es_invalid/', 
+        args = ['--study_directory','test_data/study_es_invalid/',
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v']
         args = validateData.interface(args)
         # Execute main function with arguments provided through sys.argv
@@ -113,7 +113,7 @@ class ValidateDataSystemTester(unittest.TestCase):
         # data_filename: test
         #Build up arguments and run
         print "===study 3"
-        args = ['--study_directory','test_data/study_es_3/', 
+        args = ['--study_directory','test_data/study_es_3/',
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v']
         args = validateData.interface(args)
         # Execute main function with arguments provided through sys.argv
@@ -126,7 +126,7 @@ class ValidateDataSystemTester(unittest.TestCase):
         '''
         #Build up arguments and run
         out_file_name = 'test_data/study_es_0/result_report.html~'
-        args = ['--study_directory','test_data/study_es_0/', 
+        args = ['--study_directory','test_data/study_es_0/',
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
                 '--html_table', out_file_name]
         args = validateData.interface(args)
@@ -174,7 +174,7 @@ class ValidateDataSystemTester(unittest.TestCase):
         # build the argument list
         out_file_name = 'test_data/study_wr_clin/result_report.html~'
         print '==test_problem_in_clinical=='
-        args = ['--study_directory','test_data/study_wr_clin/', 
+        args = ['--study_directory','test_data/study_wr_clin/',
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
                 '--html_table', out_file_name]
         # execute main function with arguments provided as if from sys.argv
@@ -224,7 +224,7 @@ class ValidateDataSystemTester(unittest.TestCase):
         #Build up arguments and run
         out_file_name = 'test_data/study_quotes/result_report.html~'
         print '==test_files_with_quotes=='
-        args = ['--study_directory','test_data/study_quotes/', 
+        args = ['--study_directory','test_data/study_quotes/',
                 '--portal_info_dir', PORTAL_INFO_DIR, '-v',
                 '--html_table', out_file_name]
         args = validateData.interface(args)

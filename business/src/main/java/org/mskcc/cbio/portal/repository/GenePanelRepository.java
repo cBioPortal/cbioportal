@@ -50,7 +50,6 @@ public interface GenePanelRepository {
         // removed once a proper import solution is put in place.
         List<GenePanel> getGenePanelByStableId(String stableId);
         List<GenePanel> getGenePanels();
-        Sample getSampleByStableIdAndStudyId(String stableId, String studyId);
         GeneticProfile getGeneticProfileByStableId(String stableId);
         Gene getGeneByEntrezGeneId(Integer geneId);
         Gene getGeneByHugoSymbol(String symbol);
@@ -64,5 +63,4 @@ public interface GenePanelRepository {
         void deleteSampleProfileMappingByPanel(Integer panelId);
         void insertGenePanelList(Map<String, Object> map);
         void insertGenePanelListByHugo(Map<String, Object> map);
-        void insertGenePanelSampleProfileMap(Map<String, Object> map);
 }

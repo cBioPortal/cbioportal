@@ -278,7 +278,7 @@ public class StructuralVariantControllerTest {
         geneticProfile1.setStableId("study_tcga_pub_sv");
         geneticProfile1.setCancerStudy(cancerStudy1);
         geneticProfile1.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.STRUCTURAL_VARIANT);
-        geneticProfile1.setDatatype("StructuralVariant");
+        geneticProfile1.setDatatype("SV");
         geneticProfile1.setName("Structural Variants");
         geneticProfile1.setDescription("Structural Variants detected by Illumina HiSeq sequencing.");
         geneticProfile1.setShowProfileInAnalysisTab(true);

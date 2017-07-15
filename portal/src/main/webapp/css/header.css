@@ -6,30 +6,27 @@
 }
 
 header {
-    background: linear-gradient(to bottom,  rgba(252,252,252,1) 90%, rgba(249,249,249,1) 100%);
-    border-bottom: 1px solid #f5f5f5;
     position: relative;
-    display: flex !important;
+    padding:10px 0;
+    width:100%;
+    display:flex !important;
+    align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    min-width:780px;
 }
 
 .legacy header {
-    max-width:1270px;
-    margin:0 auto;
+    margin:0;
     box-sizing:border-box !important;
+    text-align:left;
 }
 
 .pageTopContainer {
     background:#f5f5f5;
-    padding-left:20px;
-    padding-right:20px;
+    border-bottom: 1px solid #ddd;
 }
 
 .pageTopContainer, #reactRoot {
- 
+
 }
 
 #reactRoot {
@@ -39,7 +36,7 @@ header {
 /* override for new layout */
 .pageTopContainer header {
     background:none;
-   
+
 }
 
 .pageTopContainer header #authentication p {
@@ -47,59 +44,77 @@ header {
 }
 
 
-#cbioportal-logo {
-    padding: 15px 0;
+#cbioportal-logo img {
+    height:40px;
 }
 
 #institute-logo {
     max-height: 35px;
-    float: right;
-    margin-right:5px;
-    margin-top:3px;
+    max-width:200px;
+    margin-left:10px;
     opacity:0.5;
 }
 
-#authentication {
-    position: absolute;
-    top: 0;
-    right: 0;
+#rightHeaderContent {
+    display:flex;
+    align-items:center;
+    color:#777;
 }
 
-#authentication p {
-    font: normal normal 400 11px/35px 'Helvetica Neue', Helvetica, Verdana, Arial, sans-serif;
-    display: inline-block;
-    padding: 0px 10px;
-    float: right;
-    margin: -1px 20px 0px 0;
-    background: #fff;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    box-shadow: 0px 1px 1px rgba(93, 130, 158, 0.5);
+#rightHeaderContent .username {
+    max-width:150px;
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
 }
 
-#authentication span {
-    padding: 4px 10px;
-    display: inline-block;
+#rightHeaderContent .userControls a {
+    color:#3786C2 !important;
 }
 
-#authentication span.username {
-    padding: 0px;
-    font-weight: 600;
+#leftHeaderContent {
+    display:flex;
+    align-items:center;
 }
 
-#authentication a:link, #authentication a:visited {
-    color: #428bca;
+.userControls {
+    position:relative;
 }
 
-header > div {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+.userControls i.fa {
+    font-size:20px;
+    color:#999;
+    vertical-align:middle;
+}
+
+.userControls .identity {
+    position:absolute; 
+    display:none;
+    white-space:nowrap; 
+    display:none;
+    align-items:center;
+    top:-6px;
+    right:-7px;
+    z-index:2;
+    border:1px solid #ddd;
+    padding:5px 10px; 
+    background:#fff; 
+    font-size:12px; border-radius:4px
+}
+
+.userControls:hover .identity {
+    display:block;
 }
 
 #main-nav {
-    position:relative;
-    top:-1px;
+    padding-bottom:0;
+    margin-left:40px;
+    white-space:nowrap;
+}
+
+#main-nav ul {
+    padding:0;
+    margin:0;
 }
 
 #main-nav:first-child {
@@ -119,28 +134,88 @@ header > div {
 
 #main-nav li a:hover {
     color: #000;
+    text-decoration:none;
 }
 
 #main-nav li.selected a:link, #main-nav li.selected a:visited {
-    color: #000;
-    border-bottom: 1px solid #ddd;
+    color: #3786C2;
+    border-bottom: 2px solid #3786C2;
+    padding-bottom:4px;
 }
 
-.contentWidth {
-  
-}
 
 #footer {
     text-align:center;
     padding:30px;
-    opacity:.5
+    opacity:.5;
+    border-top:1px solid #ddd;
 }
 
 .legacy #page_wrapper {
-    max-width:1320px;
+    margin:0;
+}
+
+.legacy body {
+    background-color:#fff;
+}
+
+.legacy #td-content {
+    background-color:#fff;
+}
+
+.legacy #content > table {
+    width:100%;
+}
+
+.legacy .modal-header .close span {
+    display:none;
+}
+
+.legacy .modal-header .close:before {
+    content: "✖";
+}
+
+.legacy #querySelector {
+    font-size:14px;
+}
+
+.contentWidth {
+    min-width:1200px;
+}
+
+.legacy .contentWidth {
+    padding-left:20px;
+    padding-right:20px;
+}
+
+.legacy .fixedWidth .contentWidth {
+    width:1200px;
+    padding-left:20px;
+    padding-right:20px;
     margin:0 auto;
 }
 
+.noMargin .pageTopContainer header {
+    margin-right:20px;
+}
 
+/*.legacy body > center {*/
+    /*text-align:left;*/
+/*}*/
 
+.legacy #footer {
+    background:#fff;
+    border-top:none;
+}
 
+.legacy .ui-tabs .ui-tabs-nav li a {
+    padding:.5em .8em !important;
+}
+
+.legacy #cc-bookmark {
+    word-break:break-word;
+}
+
+.legacy .studyContainer .contentWidth {
+    width:1300px;
+}

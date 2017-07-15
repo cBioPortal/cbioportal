@@ -4,7 +4,7 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.6.2</version>
+    <version>1.7.3</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>core</artifactId>
@@ -26,6 +26,12 @@
     <dependency>
         <groupId>org.mskcc.cbio</groupId>
         <artifactId>db-scripts</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+    </dependency>
+   <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>service</artifactId>
         <version>${project.version}</version>
         <scope>test</scope>
     </dependency>
@@ -157,6 +163,13 @@
       <groupId>net.sf.opencsv</groupId>
       <artifactId>opencsv</artifactId>
       <version>2.3</version>
+    </dependency>
+    
+    <!--yaml parser-->
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>1.17</version>
     </dependency>
 
     <!-- BioJava 4.x -->
@@ -440,22 +453,6 @@
           </execution>
         </executions>
       </plugin>
-        <!-- JaCoCo Test coverage plugin -->
-        <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <version>${jacoco-maven-plugin.version}</version>
-            <executions>
-                <execution>
-                    <goals><goal>prepare-agent</goal></goals>
-                </execution>
-                <execution>
-                    <id>report</id>
-                    <phase>prepare-package</phase>
-                    <goals><goal>report</goal></goals>
-                </execution>
-            </executions>
-        </plugin>
     </plugins>
 
     <!-- prevent some resources from getting into jar -->

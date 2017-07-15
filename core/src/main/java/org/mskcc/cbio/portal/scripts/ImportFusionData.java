@@ -52,6 +52,7 @@ public class ImportFusionData {
     private File fusionFile;
     private int geneticProfileId;
     private String genePanel;
+    private Set<String> sampleSet  = new HashSet<>();
 
     public ImportFusionData(File fusionFile, int geneticProfileId, String genePanel) {
         this.fusionFile = fusionFile;
@@ -62,7 +63,13 @@ public class ImportFusionData {
     public void importData() throws IOException, DaoException {
         Map<MutationEvent, MutationEvent> existingEvents =
                 new HashMap<MutationEvent, MutationEvent>();
+        Map<ExtendedMutation,ExtendedMutation> mutations = new HashMap<ExtendedMutation,ExtendedMutation>();
         long mutationEventId = DaoMutation.getLargestMutationEventId();
+
+        // Initialize, this makes sure that mutation_events are always loaded before mutations:
+        MySQLbulkLoader.getMySQLbulkLoader("mutation_event");
+        MySQLbulkLoader.getMySQLbulkLoader("mutation");
+
         FileReader reader = new FileReader(this.fusionFile);
         BufferedReader buf = new BufferedReader(reader);
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
@@ -97,13 +104,6 @@ public class ImportFusionData {
                     assert StableIdUtil.isNormal(barCode);
                     line = buf.readLine();
                     continue;
-                }
-                if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
-                    if (genePanel != null) {
-                        DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, GeneticProfileUtil.getGenePanelId(genePanel));
-                    } else {
-                        DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
-                    }
                 }
                 //  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
                 String geneSymbol = record.getHugoGeneSymbol();
@@ -144,7 +144,23 @@ public class ImportFusionData {
                         addEvent = true;
                     }
                     // add fusion (as a mutation)
-                    DaoMutation.addMutation(mutation, addEvent);
+                    ExtendedMutation existingMutation = mutations.get(mutation);
+                    if (existingMutation != null) {
+                        ProgressMonitor.logWarning("Duplicate fusion entry found: " + mutation.getGeneSymbol() + " for " + mutation.getProteinChange() + ". Skipping.");
+                        continue;
+                    } else {
+                        // add fusion (as a mutation)
+                        DaoMutation.addMutation(mutation, addEvent);
+                        mutations.put(mutation, mutation);
+                    }
+                    if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId) && !sampleSet.contains(sample.getStableId())) {
+                        if (genePanel != null) {
+                            DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, GeneticProfileUtil.getGenePanelId(genePanel));
+                        } else {
+                            DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
+                        }
+                    }                    
+                    sampleSet.add(sample.getStableId());
                 }
             }
         }

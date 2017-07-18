@@ -165,9 +165,10 @@ public class GeneticProfileReader {
     	// TODO Auto-generated method stub
     	
     	// Check if version is present in database
-    	if (genesetVersion == null) {
-    		throw new RuntimeException("Attempted to import GENESET_SCORE data, but all gene set tables are empty. "
-    				+ "Please load gene sets with ImportGenesetData.pl first.");
+      if (genesetVersion == null) {
+         throw new RuntimeException("Attempted to import GENESET_SCORE data, but all gene set tables are empty.\n"
+            + "Please load gene sets with ImportGenesetData.pl first. See:\n"
+            + "https://github.com/cBioPortal/cbioportal/blob/master/docs/Import-Gene-Sets.md\n");
 
     		// Check if version is present in meta file
     	} else if (geneticProfile.getOtherMetaDataField("geneset_def_version") == null) {
@@ -237,7 +238,7 @@ public class GeneticProfileReader {
         if (showProfileInAnalysisTabStr != null && showProfileInAnalysisTabStr.equalsIgnoreCase("FALSE")) {
             showProfileInAnalysisTab = false;
         }
-        
+
         profileDescription = profileDescription.replaceAll("\t", " ");
         GeneticAlterationType alterationType = GeneticAlterationType.valueOf(geneticAlterationTypeString);
         GeneticProfile geneticProfile = new GeneticProfile();
@@ -254,18 +255,28 @@ public class GeneticProfileReader {
     }
 
     private static String parseStableId(Properties properties, String stableIdPropName) {
-    	String stableId = properties.getProperty(stableIdPropName);
-    	if (stableId == null) {
+        String stableId = properties.getProperty(stableIdPropName);
+        if (stableId == null) {
             throw new IllegalArgumentException("stable_id is not specified.");
         }
-        
         String cancerStudyIdentifier = properties.getProperty("cancer_study_identifier");
-
         //automatically add the cancerStudyIdentifier in front of stableId (since the rest of the
         //code still relies on this - TODO: this can be removed once the rest of the backend and frontend code
         //stop assuming cancerStudyIdentifier to be part of stableId):
         if (!stableId.startsWith(cancerStudyIdentifier + "_")) {
             stableId = cancerStudyIdentifier + "_" + stableId;
+        }
+        // Workaround to import fusion data as mutation genetic profile. This way fusion meta file can contain 'stable_id: fusion'.
+        // The validator will check for 'stable_id: fusion', and this section in the importer
+        // will convert it to 'stable_id: mutations'. See https://github.com/cBioPortal/cbioportal/pull/2506
+        // TODO: This should be removed when other parts of cBioPortal have implemented support for a separate fusion profile".
+        if (stableId.equals(cancerStudyIdentifier + "_fusion")) {
+            String newStableId = cancerStudyIdentifier + "_mutations";
+            GeneticProfile existingGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(newStableId);
+            if (existingGeneticProfile == null) {
+                throw new IllegalArgumentException("Wrong order: FUSION data should be loaded after MUTATION data");
+            }
+            stableId = newStableId;
         }
         return stableId;
 	}

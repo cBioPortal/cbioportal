@@ -237,6 +237,12 @@ public final class DaoSampleProfile {
         ResultSet rs = null;
 
         List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+        
+        // fixes issue #2576: prevent the query below from failing due to an empty join
+        if(id2MutationProfile.size()==0){
+            return data;
+        }
+        
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
 

@@ -35,8 +35,8 @@ public class GeneticDataServiceImpl implements GeneticDataService {
 
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<GeneGeneticData> getGeneticData(String geneticProfileId, String sampleListId, List<Integer> entrezGeneIds,
-                                                String projection)
+    public List<GeneGeneticData> getGeneticData(String geneticProfileId, String sampleListId, 
+                                                List<Integer> entrezGeneIds, String projection)
         throws GeneticProfileNotFoundException {
         
         validateGeneticProfile(geneticProfileId);
@@ -80,8 +80,8 @@ public class GeneticDataServiceImpl implements GeneticDataService {
             samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
         }
 
-        List<GeneGeneticAlteration> geneticAlterations = geneticDataRepository.getGeneGeneticAlterations(geneticProfileId,
-            entrezGeneIds, projection);
+        List<GeneGeneticAlteration> geneticAlterations = geneticDataRepository.getGeneGeneticAlterations(
+            geneticProfileId, entrezGeneIds, projection);
         
         for (Sample sample : samples) {
             int indexOfSampleId = internalSampleIds.indexOf(sample.getInternalId());

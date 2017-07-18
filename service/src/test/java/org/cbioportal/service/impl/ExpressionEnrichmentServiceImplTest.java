@@ -43,42 +43,42 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         unalteredSampleIds.add("sample_id_4");
         
         List<GeneGeneticData> alteredGeneGeneticDataList = new ArrayList<>();
-        GeneGeneticData GeneGeneticData1 = new GeneGeneticData();
-        GeneGeneticData1.setEntrezGeneId(2);
-        GeneGeneticData1.setValue("2");
-        alteredGeneGeneticDataList.add(GeneGeneticData1);
-        GeneGeneticData GeneGeneticData2 = new GeneGeneticData();
-        GeneGeneticData2.setEntrezGeneId(2);
-        GeneGeneticData2.setValue("3");
-        alteredGeneGeneticDataList.add(GeneGeneticData2);
-        GeneGeneticData GeneGeneticData3 = new GeneGeneticData();
-        GeneGeneticData3.setEntrezGeneId(3);
-        GeneGeneticData3.setValue("1.1");
-        alteredGeneGeneticDataList.add(GeneGeneticData3);
-        GeneGeneticData GeneGeneticData4 = new GeneGeneticData();
-        GeneGeneticData4.setEntrezGeneId(3);
-        GeneGeneticData4.setValue("5");
-        alteredGeneGeneticDataList.add(GeneGeneticData4);
+        GeneGeneticData geneGeneticData1 = new GeneGeneticData();
+        geneGeneticData1.setEntrezGeneId(2);
+        geneGeneticData1.setValue("2");
+        alteredGeneGeneticDataList.add(geneGeneticData1);
+        GeneGeneticData geneGeneticData2 = new GeneGeneticData();
+        geneGeneticData2.setEntrezGeneId(2);
+        geneGeneticData2.setValue("3");
+        alteredGeneGeneticDataList.add(geneGeneticData2);
+        GeneGeneticData geneGeneticData3 = new GeneGeneticData();
+        geneGeneticData3.setEntrezGeneId(3);
+        geneGeneticData3.setValue("1.1");
+        alteredGeneGeneticDataList.add(geneGeneticData3);
+        GeneGeneticData geneGeneticData4 = new GeneGeneticData();
+        geneGeneticData4.setEntrezGeneId(3);
+        geneGeneticData4.setValue("5");
+        alteredGeneGeneticDataList.add(geneGeneticData4);
         Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, alteredSampleIds, null, "SUMMARY"))
             .thenReturn(alteredGeneGeneticDataList);
 
         List<GeneGeneticData> unalteredGeneGeneticDataList = new ArrayList<>();
-        GeneGeneticData GeneGeneticData5 = new GeneGeneticData();
-        GeneGeneticData5.setEntrezGeneId(2);
-        GeneGeneticData5.setValue("2.1");
-        unalteredGeneGeneticDataList.add(GeneGeneticData5);
-        GeneGeneticData GeneGeneticData6 = new GeneGeneticData();
-        GeneGeneticData6.setEntrezGeneId(2);
-        GeneGeneticData6.setValue("3");
-        unalteredGeneGeneticDataList.add(GeneGeneticData6);
-        GeneGeneticData GeneGeneticData7 = new GeneGeneticData();
-        GeneGeneticData7.setEntrezGeneId(3);
-        GeneGeneticData7.setValue("2.3");
-        unalteredGeneGeneticDataList.add(GeneGeneticData7);
-        GeneGeneticData GeneGeneticData8 = new GeneGeneticData();
-        GeneGeneticData8.setEntrezGeneId(3);
-        GeneGeneticData8.setValue("3");
-        unalteredGeneGeneticDataList.add(GeneGeneticData8);
+        GeneGeneticData geneGeneticData5 = new GeneGeneticData();
+        geneGeneticData5.setEntrezGeneId(2);
+        geneGeneticData5.setValue("2.1");
+        unalteredGeneGeneticDataList.add(geneGeneticData5);
+        GeneGeneticData geneGeneticData6 = new GeneGeneticData();
+        geneGeneticData6.setEntrezGeneId(2);
+        geneGeneticData6.setValue("3");
+        unalteredGeneGeneticDataList.add(geneGeneticData6);
+        GeneGeneticData geneGeneticData7 = new GeneGeneticData();
+        geneGeneticData7.setEntrezGeneId(3);
+        geneGeneticData7.setValue("2.3");
+        unalteredGeneGeneticDataList.add(geneGeneticData7);
+        GeneGeneticData geneGeneticData8 = new GeneGeneticData();
+        geneGeneticData8.setEntrezGeneId(3);
+        geneGeneticData8.setValue("3");
+        unalteredGeneGeneticDataList.add(geneGeneticData8);
         Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, unalteredSampleIds, null, "SUMMARY"))
             .thenReturn(unalteredGeneGeneticDataList);
 
@@ -109,8 +109,10 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals("CYTOBAND3", expressionEnrichment1.getCytoband());
         Assert.assertEquals(new BigDecimal("3.05"), expressionEnrichment1.getMeanExpressionInAlteredGroup());
         Assert.assertEquals(new BigDecimal("2.65"), expressionEnrichment1.getMeanExpressionInUnalteredGroup());
-        Assert.assertEquals(new BigDecimal("2.7577164466275352"), expressionEnrichment1.getStandardDeviationInAlteredGroup());
-        Assert.assertEquals(new BigDecimal("0.4949747468305834"), expressionEnrichment1.getStandardDeviationInUnalteredGroup());
+        Assert.assertEquals(new BigDecimal("2.7577164466275352"), 
+            expressionEnrichment1.getStandardDeviationInAlteredGroup());
+        Assert.assertEquals(new BigDecimal("0.4949747468305834"), 
+            expressionEnrichment1.getStandardDeviationInUnalteredGroup());
         Assert.assertEquals(new BigDecimal("0.8716148250471419"), expressionEnrichment1.getpValue());
         Assert.assertEquals(new BigDecimal("0.6"), expressionEnrichment1.getqValue());
         ExpressionEnrichment expressionEnrichment2 = result.get(1);
@@ -119,8 +121,10 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals("CYTOBAND2", expressionEnrichment2.getCytoband());
         Assert.assertEquals(new BigDecimal("2.5"), expressionEnrichment2.getMeanExpressionInAlteredGroup());
         Assert.assertEquals(new BigDecimal("2.55"), expressionEnrichment2.getMeanExpressionInUnalteredGroup());
-        Assert.assertEquals(new BigDecimal("0.7071067811865476"), expressionEnrichment2.getStandardDeviationInAlteredGroup());
-        Assert.assertEquals(new BigDecimal("0.6363961030678927"), expressionEnrichment2.getStandardDeviationInUnalteredGroup());
+        Assert.assertEquals(new BigDecimal("0.7071067811865476"), 
+            expressionEnrichment2.getStandardDeviationInAlteredGroup());
+        Assert.assertEquals(new BigDecimal("0.6363961030678927"), 
+            expressionEnrichment2.getStandardDeviationInUnalteredGroup());
         Assert.assertEquals(new BigDecimal("0.9475795430163914"), expressionEnrichment2.getpValue());
         Assert.assertEquals(new BigDecimal("1.0"), expressionEnrichment2.getqValue());
     }

@@ -45,6 +45,14 @@ window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
 window.skinExampleStudyQueries = '<%=GlobalProperties.getExampleStudyQueries().replace("\n","\\n")%>'.split("\n");
 
 window.priorityStudies = {};
+
+// global variables required for MutationMapper annotation column
+window.showCivic = <%=GlobalProperties.showCivic()%>;
+window.showHotspot = <%=GlobalProperties.showHotspot()%>;
+window.showMyCancerGenome = <%=GlobalProperties.showMyCancerGenomeUrl()%>;
+window.oncoKBApiUrl = '<%=GlobalProperties.getOncoKBPublicApiUrl()%>';
+window.showOncoKB = window.oncoKBApiUrl ? true : false;
+
 <%
 List<String[]> priorityStudies = GlobalProperties.getPriorityStudies();
 for (String[] group : priorityStudies) {
@@ -77,6 +85,15 @@ window.loadReactApp({ defaultRoute: 'blank' });
 
 window.onReactAppReady(function() {
     window.initModifyQueryComponent("modifyQueryButton", "querySelector");
+    var mutationsTab = $('#mutation_details');
+    if (mutationsTab.hasClass('cbioportal-frontend')) {
+        // backwards compatible with the case when mutationDetailLimitReached
+        window.renderMutationsTab(mutationsTab[0], {
+            genes: QuerySession.getQueryGenes(),
+            studyId: QuerySession.getCancerStudyIds()[0],
+            samples: (QuerySession.getCaseSetId() === "-1" ? QuerySession.getSampleIds() : QuerySession.getCaseSetId())
+        });
+    }
 });
 
 
@@ -323,10 +340,11 @@ window.onReactAppReady(function() {
             out.println("<P>To retrieve mutation details, please specify "
             + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
             out.println("</div>");
-        } else if (showMutTab) { %>
-            <%@ include file="mutation_views.jsp" %>
-            <%@ include file="mutation_details.jsp" %>
-        <%  } %>
+        } else if (showMutTab) {
+            //<%@ include file="mutation_views.jsp"
+            //<%@ include file="mutation_details.jsp"
+            out.println("<div class=\"section cbioportal-frontend\" id=\"mutation_details\">");
+        } %>
 
         <% if (includeNetworks) { %>
             <%@ include file="networks.jsp" %>
@@ -549,6 +567,32 @@ window.onReactAppReady(function() {
         font-size: 13px;
         line-height: 110%;
     }
+    /* HACK: Use specific id for cbioportal-frontend overrides */
+    #mutation_details {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 14px
+    }
+    #mutation_details .table {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 14px
+    }
+   #mutation_details th,
+   #mutation_details td {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 14px
+   }
+   #mutation_details .btn-default {
+        background-image: linear-gradient(to bottom, #fff 0, #eee 100%);
+   }
+   #mutation_details .fa-cloud-download,
+   #mutation_details .fa-clipboard {
+        padding-top: 3px;
+        padding-bottom: 3px;
+   }
+   .rc-tooltip {
+        opacity:1 !important;
+   }
+   /* END HACK */
 </style>
 
 </body>

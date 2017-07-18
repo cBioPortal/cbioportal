@@ -85,10 +85,10 @@ window.loadReactApp({ defaultRoute: 'blank' });
 
 window.onReactAppReady(function() {
     window.initModifyQueryComponent("modifyQueryButton", "querySelector");
-    var $mutationsTab = $('#mutation_details');
-    if ($mutationsTab.hasClass('cbioportal-frontend')) {
+    var mutationsTab = $('#mutation_details');
+    if (mutationsTab.hasClass('cbioportal-frontend')) {
         // backwards compatible with the case when mutationDetailLimitReached
-        window.renderMutationsTab($mutationsTab[0], {
+        window.renderMutationsTab(mutationsTab[0], {
             genes: QuerySession.getQueryGenes(),
             studyId: QuerySession.getCancerStudyIds()[0],
             samples: (QuerySession.getCaseSetId() === "-1" ? QuerySession.getSampleIds() : QuerySession.getCaseSetId())
@@ -567,6 +567,32 @@ window.onReactAppReady(function() {
         font-size: 13px;
         line-height: 110%;
     }
+    /* HACK: Use specific id for cbioportal-frontend overrides */
+    #mutation_details {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 14px
+    }
+    #mutation_details .table {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 14px
+    }
+   #mutation_details th,
+   #mutation_details td {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 14px
+   }
+   #mutation_details .btn-default {
+        background-image: linear-gradient(to bottom, #fff 0, #eee 100%);
+   }
+   #mutation_details .fa-cloud-download,
+   #mutation_details .fa-clipboard {
+        padding-top: 3px;
+        padding-bottom: 3px;
+   }
+   .rc-tooltip {
+        opacity:1 !important;
+   }
+   /* END HACK */
 </style>
 
 </body>

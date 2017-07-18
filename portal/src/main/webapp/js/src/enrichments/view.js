@@ -556,36 +556,11 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div, profile_
         });
 
         $("#" + btn_id).click(function() {
-
-            if (window.QuerySession.getCaseSetId() !== "-1") {
-                var _start_pos_gene_list = document.URL.indexOf("gene_list=") + "gene_list=".length;
-                var _end_pos_gene_list = document.URL.indexOf("&", _start_pos_gene_list);
-                var pre_gene_list = document.URL.substring(0, _start_pos_gene_list);
-                var post_gene_list = document.URL.substring(_end_pos_gene_list);
-                var new_gene_list = encodeURIComponent(window.QuerySession.getOQLQuery() + "\n" + selected_genes.join("\n"));
-                var _new_url = pre_gene_list + new_gene_list + post_gene_list;
-                window.location.replace(_new_url);
-            } else {
-                var _original_url = document.URL.substring(0, document.URL.indexOf("index.do") + ("index.do").length);
-
-                //genetic profiles separate
-                var _tmp_profile_id_list = "";
-                $.each(window.QuerySession.getGeneticProfileIds(), function(index, _profile_id) {
-                    _tmp_profile_id_list += "genetic_profile_ids=" + _profile_id + "&";
-                });
-                var _new_url = _original_url.concat(
-                    "?" + "tab_index=tab_visualize" + "&" +
-                    "cancer_study_id=" + window.QuerySession.getCancerStudyIds()[0] + "&" +
-                    _tmp_profile_id_list +
-                    "gene_list=" + window.QuerySession.getOQLQuery() + encodeURIComponent("\n") + selected_genes.join(encodeURIComponent("\n")) + "&" +
-                    "case_set_id=" + window.QuerySession.getCaseSetId() + "&" +
-                    "case_ids_key=" + window.QuerySession.getCaseIdsKey() + "&" +
-                    "Action=Submit"
-                );
-                if (selected_genes.length !== 0) {
-                    window.location.replace(_new_url);
-                }
-            }
+	    if (window.addGenesAndSubmitQuery) {
+		window.addGenesAndSubmitQuery(selected_genes);
+	    } else {
+		alert("Sorry, can't do that at this time.");
+	    }
         });
     }
 

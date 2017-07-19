@@ -65,20 +65,28 @@ Edit the email attribute to use the word _email_ as the **SAML Attribute Name**.
 4. Move the downloaded XML file to `portal/src/main/resources/`
 ![](images/previews/download-IDPSSODescriptor-file.png)
 
-## Export SAML Keys
+## Create a signing key for cBioPortal
 
-### From within Keycloak
-Click on **SAML Keys** tab next to **Settings**, and click on the **Export** button. This will bring up the page **Export SAML Key Cbioportal**.
-Accept the default format and type a password (e.g. apollo1) in the Store Password textbox. Key Password could be apollo2 (or use the same password if you want to later also configure https directly on your cBioPortal tomcat, [see this link](Authenticating-Users-via-SAML.md#https-and-tomcat)). In the field "Key Alias" type an alias, e.g. "secure-key".
- 
-![](images/previews/export-SAML-keys.png)
-When done, click on the **Download** button. Move the downloaded JKS file to `portal/src/main/resources/`.
+Use the Java '`keytool`' command to generate keystore, as described
+[here](Authenticating-Users-via-SAML.md#creating-a-keystore)
+on the page about SAML in cBioPortal:
 
-### From the command line
-Alternatively, you can use the Java '`keytool`' command to generate keystore, and import to the Keycloak to customize your keystore attributes.
 ```
 keytool -genkey -alias secure-key -keyalg RSA -keystore samlKeystore.jks
 ```
+
+Install the generated JKS file to `portal/src/main/resources/`
+
+In order to let Keycloak know that it can trust the holder of this
+key, you'll need to import the key's certificate into Keycloak. In the
+Keycloak admin screen about the `cbioportal` client, head to the
+**SAML Keys** tab and click the **Import** button. Select the _JKS_
+archive format, specify the key alias _secure-key_ and type the store
+password _apollo1_ (not the private key password, as Keycloak only
+needs to know the certificate), and select the file you just
+installed. Keycloak may not give an indication of successful
+completion, but when navigating to the **SAML Keys** tab again you
+should now see the certificate and no private key.
 
 ## Modifying portal.properties
 

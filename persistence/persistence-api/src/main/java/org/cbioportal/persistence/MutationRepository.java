@@ -3,8 +3,7 @@ package org.cbioportal.persistence;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationCountByPosition;
-import org.cbioportal.model.MutationSampleCountByGene;
-import org.cbioportal.model.MutationSampleCountByKeyword;
+import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.meta.MutationMeta;
 
 import java.util.List;
@@ -35,16 +34,14 @@ public interface MutationRepository {
 
     MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
                                                     List<Integer> entrezGeneIds);
+    
+    List<MutationCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
+                                                                        List<String> sampleIds,
+                                                                        List<Integer> entrezGeneIds);
 
-    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIdsAndSampleListId(String geneticProfileId,
-                                                                                 String sampleListId,
-                                                                                 List<Integer> entrezGeneIds);
-
-    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
-                                                                              List<String> sampleIds,
-                                                                              List<Integer> entrezGeneIds);
-
-    List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords);
+    List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
+                                                                         List<String> patientIds,
+                                                                         List<Integer> entrezGeneIds);
 
     List<MutationCount> getMutationCountsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId);
 

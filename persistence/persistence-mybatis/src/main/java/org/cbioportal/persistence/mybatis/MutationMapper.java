@@ -3,8 +3,7 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationCountByPosition;
-import org.cbioportal.model.MutationSampleCountByGene;
-import org.cbioportal.model.MutationSampleCountByKeyword;
+import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.meta.MutationMeta;
 
 import java.util.List;
@@ -33,17 +32,15 @@ public interface MutationMapper {
     MutationMeta getMetaMutationsBySampleIds(String geneticProfileId, List<String> sampleIds, 
                                              List<Integer> entrezGeneIds, Boolean snpOnly);
     
-    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIdsAndSampleListId(String geneticProfileId,
-                                                                                 String sampleListId,
-                                                                                 List<Integer> entrezGeneIds,
-                                                                                 Boolean snpOnly);
+    List<MutationCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
+                                                                        List<String> sampleIds,
+                                                                        List<Integer> entrezGeneIds,
+                                                                        Boolean snpOnly);
 
-    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
-                                                                              List<String> sampleIds,
-                                                                              List<Integer> entrezGeneIds,
-                                                                              Boolean snpOnly);
-    
-    List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords);
+    List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
+                                                                         List<String> patientIds,
+                                                                         List<Integer> entrezGeneIds,
+                                                                         Boolean snpOnly);
 
     List<MutationCount> getMutationCountsBySampleListId(String geneticProfileId, String sampleListId);
     

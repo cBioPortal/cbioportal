@@ -1,6 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
-import org.cbioportal.model.CopyNumberSampleCountByGene;
+import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.meta.BaseMeta;
 
@@ -22,14 +22,13 @@ public interface DiscreteCopyNumberMapper {
     BaseMeta getMetaDiscreteCopyNumbersBySampleIds(String geneticProfileId, List<String> sampleIds,
                                                    List<Integer> entrezGeneIds, List<Integer> alterationTypes);
 
-    List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlterationAndSampleListId(
-        String geneticProfileId,
-        String sampleListId,
-        List<Integer> entrezGeneIds,
-        List<Integer> alterations);
+    List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String geneticProfileId,
+                                                                              List<String> sampleIds,
+                                                                              List<Integer> entrezGeneIds,
+                                                                              List<Integer> alterations);
 
-    List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String geneticProfileId,
-                                                                                    List<String> sampleIds,
-                                                                                    List<Integer> entrezGeneIds,
-                                                                                    List<Integer> alterations);
+    List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String geneticProfileId,
+                                                                                List<String> patientIds,
+                                                                                List<Integer> entrezGeneIds,
+                                                                                List<Integer> alterations);
 }

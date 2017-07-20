@@ -1,6 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
-import org.cbioportal.model.CopyNumberSampleCountByGene;
+import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
@@ -58,24 +58,22 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
     }
 
     @Override
-    public List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlterationAndSampleListId(
-        String geneticProfileId,
-        String sampleListId,
-        List<Integer> entrezGeneIds,
-        List<Integer> alterations) {
-
-        return discreteCopyNumberMapper.getSampleCountByGeneAndAlterationAndSampleListId(geneticProfileId, sampleListId,
+    public List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String geneticProfileId, 
+                                                                                     List<String> sampleIds, 
+                                                                                     List<Integer> entrezGeneIds, 
+                                                                                     List<Integer> alterations) {
+        
+        return discreteCopyNumberMapper.getSampleCountByGeneAndAlterationAndSampleIds(geneticProfileId, sampleIds, 
             entrezGeneIds, alterations);
     }
 
     @Override
-    public List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(
-        String geneticProfileId,
-        List<String> sampleIds,
-        List<Integer> entrezGeneIds,
-        List<Integer> alterations) {
-
-        return discreteCopyNumberMapper.getSampleCountByGeneAndAlterationAndSampleIds(geneticProfileId, sampleIds,
+    public List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String geneticProfileId, 
+                                                                                       List<String> patientIds, 
+                                                                                       List<Integer> entrezGeneIds, 
+                                                                                       List<Integer> alterations) {
+        
+        return discreteCopyNumberMapper.getPatientCountByGeneAndAlterationAndPatientIds(geneticProfileId, patientIds, 
             entrezGeneIds, alterations);
     }
 }

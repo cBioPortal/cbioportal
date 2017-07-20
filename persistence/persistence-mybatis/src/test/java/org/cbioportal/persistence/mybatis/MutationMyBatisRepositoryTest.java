@@ -278,24 +278,11 @@ public class MutationMyBatisRepositoryTest {
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(672);
         
-        List<MutationSampleCountByGene> result = mutationMyBatisRepository.getSampleCountByEntrezGeneIdsAndSampleIds(
+        List<MutationCountByGene> result = mutationMyBatisRepository.getSampleCountByEntrezGeneIdsAndSampleIds(
             "study_tcga_pub_mutations", null, entrezGeneIds);
         
         Assert.assertEquals(1, result.size());
-        Assert.assertEquals((Integer) 4, result.get(0).getSampleCount());
-    }
-
-    @Test
-    public void getSampleCountByKeywords() throws Exception {
-
-        List<String> keywords = new ArrayList<>();
-        keywords.add("BRCA1 C61 missense");
-
-        List<MutationSampleCountByKeyword> result = mutationMyBatisRepository.getSampleCountByKeywords(
-            "study_tcga_pub_mutations", keywords);
-
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals((Integer) 2, result.get(0).getSampleCount());
+        Assert.assertEquals((Integer) 4, result.get(0).getCount());
     }
     
     @Test

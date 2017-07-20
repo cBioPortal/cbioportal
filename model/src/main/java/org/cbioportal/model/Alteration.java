@@ -6,6 +6,7 @@ public class Alteration implements Serializable {
 
     private String geneticProfileId;
     private String sampleId;
+    private String patientId;
     private Integer entrezGeneId;
     private Gene gene;
 
@@ -23,6 +24,14 @@ public class Alteration implements Serializable {
 
     public void setSampleId(String sampleId) {
         this.sampleId = sampleId;
+    }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
     }
 
     public Integer getEntrezGeneId() {

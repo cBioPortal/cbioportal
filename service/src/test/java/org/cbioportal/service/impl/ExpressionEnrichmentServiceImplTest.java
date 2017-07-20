@@ -100,7 +100,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
             .thenReturn(new double[]{0.6, 1});
 
         List<ExpressionEnrichment> result = expressionEnrichmentService.getExpressionEnrichments(GENETIC_PROFILE_ID, 
-            alteredSampleIds, unalteredSampleIds);
+            alteredSampleIds, unalteredSampleIds, "SAMPLE");
 
         Assert.assertEquals(2, result.size());
         ExpressionEnrichment expressionEnrichment1 = result.get(0);

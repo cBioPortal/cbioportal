@@ -2,7 +2,7 @@ package org.cbioportal.service.util;
 
 import org.cbioportal.model.Alteration;
 import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.model.AlterationSampleCountByGene;
+import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.Gene;
 import org.cbioportal.service.GeneService;
 import org.junit.Assert;
@@ -37,14 +37,14 @@ public class AlterationEnrichmentUtilTest {
     @Test
     public void createAlterationEnrichments() throws Exception {
         
-        List<AlterationSampleCountByGene> alterationSampleCountByGenes = new ArrayList<>();
-        AlterationSampleCountByGene alterationSampleCountByGene1 = new AlterationSampleCountByGene();
+        List<AlterationCountByGene> alterationSampleCountByGenes = new ArrayList<>();
+        AlterationCountByGene alterationSampleCountByGene1 = new AlterationCountByGene();
         alterationSampleCountByGene1.setEntrezGeneId(2);
-        alterationSampleCountByGene1.setSampleCount(3);
+        alterationSampleCountByGene1.setCount(3);
         alterationSampleCountByGenes.add(alterationSampleCountByGene1);
-        AlterationSampleCountByGene alterationSampleCountByGene2 = new AlterationSampleCountByGene();
+        AlterationCountByGene alterationSampleCountByGene2 = new AlterationCountByGene();
         alterationSampleCountByGene2.setEntrezGeneId(3);
-        alterationSampleCountByGene2.setSampleCount(2);
+        alterationSampleCountByGene2.setCount(2);
         alterationSampleCountByGenes.add(alterationSampleCountByGene2);
 
         List<Gene> genes = new ArrayList<>();
@@ -86,15 +86,15 @@ public class AlterationEnrichmentUtilTest {
         Mockito.when(benjaminiHochbergFDRCalculator.calculate(new double[]{0.3, 1})).thenReturn(new double[]{0.6, 1});
 
         List<AlterationEnrichment> result = alterationEnrichmentUtil.createAlterationEnrichments(2, 2, 
-            alterationSampleCountByGenes, alterations);
+            alterationSampleCountByGenes, alterations, "SAMPLE");
 
         Assert.assertEquals(2, result.size());
         AlterationEnrichment alterationEnrichment1 = result.get(0);
         Assert.assertEquals((Integer) 3, alterationEnrichment1.getEntrezGeneId());
         Assert.assertEquals("HUGO3", alterationEnrichment1.getHugoGeneSymbol());
         Assert.assertEquals("CYTOBAND3", alterationEnrichment1.getCytoband());
-        Assert.assertEquals((Integer) 2, alterationEnrichment1.getNumberOfSamplesInAlteredGroup());
-        Assert.assertEquals((Integer) 0, alterationEnrichment1.getNumberOfSamplesInUnalteredGroup());
+        Assert.assertEquals((Integer) 2, alterationEnrichment1.getAlteredCount());
+        Assert.assertEquals((Integer) 0, alterationEnrichment1.getUnalteredCount());
         Assert.assertEquals("Infinity", alterationEnrichment1.getLogRatio());
         Assert.assertEquals(new BigDecimal("0.3"), alterationEnrichment1.getpValue());
         Assert.assertEquals(new BigDecimal("0.6"), alterationEnrichment1.getqValue());
@@ -102,8 +102,8 @@ public class AlterationEnrichmentUtilTest {
         Assert.assertEquals((Integer) 2, alterationEnrichment2.getEntrezGeneId());
         Assert.assertEquals("HUGO2", alterationEnrichment2.getHugoGeneSymbol());
         Assert.assertEquals("CYTOBAND2", alterationEnrichment2.getCytoband());
-        Assert.assertEquals((Integer) 1, alterationEnrichment2.getNumberOfSamplesInAlteredGroup());
-        Assert.assertEquals((Integer) 2, alterationEnrichment2.getNumberOfSamplesInUnalteredGroup());
+        Assert.assertEquals((Integer) 1, alterationEnrichment2.getAlteredCount());
+        Assert.assertEquals((Integer) 2, alterationEnrichment2.getUnalteredCount());
         Assert.assertEquals("-1.0", alterationEnrichment2.getLogRatio());
         Assert.assertEquals(new BigDecimal("1.0"), alterationEnrichment2.getpValue());
         Assert.assertEquals(new BigDecimal("1.0"), alterationEnrichment2.getqValue());

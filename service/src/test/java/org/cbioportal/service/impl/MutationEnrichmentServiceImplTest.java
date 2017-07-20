@@ -2,7 +2,7 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationSampleCountByGene;
+import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.junit.Assert;
@@ -39,7 +39,7 @@ public class MutationEnrichmentServiceImplTest extends BaseServiceImplTest {
         List<String> allSampleIds = new ArrayList<>(alteredSampleIds);
         allSampleIds.addAll(unalteredSampleIds);
 
-        List<MutationSampleCountByGene> mutationSampleCountByGeneList = new ArrayList<>();
+        List<MutationCountByGene> mutationSampleCountByGeneList = new ArrayList<>();
         Mockito.when(mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(GENETIC_PROFILE_ID, allSampleIds, null))
             .thenReturn(mutationSampleCountByGeneList);
         
@@ -49,10 +49,10 @@ public class MutationEnrichmentServiceImplTest extends BaseServiceImplTest {
         
         List<AlterationEnrichment> expectedAlterationEnrichments = new ArrayList<>(); 
         Mockito.when(alterationEnrichmentUtil.createAlterationEnrichments(2, 2, mutationSampleCountByGeneList, 
-            mutations)).thenReturn(expectedAlterationEnrichments);
+            mutations, "SAMPLE")).thenReturn(expectedAlterationEnrichments);
         
         List<AlterationEnrichment> result = mutationEnrichmentService.getMutationEnrichments(GENETIC_PROFILE_ID, 
-            alteredSampleIds, unalteredSampleIds);
+            alteredSampleIds, unalteredSampleIds, "SAMPLE");
 
         Assert.assertEquals(result, expectedAlterationEnrichments);
     }

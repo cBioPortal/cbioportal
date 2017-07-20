@@ -41,6 +41,9 @@ import java.util.List;
 @Api(tags = "Clinical Data", description = " ")
 public class ClinicalDataController {
 
+    private static final int CLINICAL_DATA_MAX_PAGE_SIZE = 100000;
+    private static final String CLINICAL_DATA_DEFAULT_PAGE_SIZE = "100000";
+
     @Autowired
     private ClinicalDataService clinicalDataService;
 
@@ -57,9 +60,9 @@ public class ClinicalDataController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
-        @Max(PagingConstants.MAX_PAGE_SIZE)
+        @Max(CLINICAL_DATA_MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
-        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
+        @RequestParam(defaultValue = CLINICAL_DATA_DEFAULT_PAGE_SIZE) Integer pageSize,
         @ApiParam("Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
@@ -95,9 +98,9 @@ public class ClinicalDataController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
-        @Max(PagingConstants.MAX_PAGE_SIZE)
+        @Max(CLINICAL_DATA_MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
-        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
+        @RequestParam(defaultValue = CLINICAL_DATA_DEFAULT_PAGE_SIZE) Integer pageSize,
         @ApiParam("Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
@@ -133,9 +136,9 @@ public class ClinicalDataController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
-        @Max(PagingConstants.MAX_PAGE_SIZE)
+        @Max(CLINICAL_DATA_MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
-        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
+        @RequestParam(defaultValue = CLINICAL_DATA_DEFAULT_PAGE_SIZE) Integer pageSize,
         @ApiParam("Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
@@ -166,7 +169,7 @@ public class ClinicalDataController {
         @ApiParam("Type of the clinical data")
         @RequestParam(defaultValue = "SAMPLE") ClinicalDataType clinicalDataType,
         @ApiParam(required = true, value = "List of patient or sample identifiers")
-        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+        @Size(min = 1, max = CLINICAL_DATA_MAX_PAGE_SIZE)
         @RequestBody List<ClinicalDataIdentifier> identifiers,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {

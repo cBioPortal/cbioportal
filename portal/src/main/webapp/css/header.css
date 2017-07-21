@@ -172,7 +172,7 @@ header {
 }
 
 .legacy .modal-header .close:before {
-    content: "✖";
+    content: "x";
 }
 
 .legacy #querySelector {

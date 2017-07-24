@@ -36,7 +36,7 @@ import java.util.List;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Genes Panels", description = " ")
+@Api(tags = "Gene Panels", description = " ")
 public class GenePanelController {
 
     @Autowired

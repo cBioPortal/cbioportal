@@ -386,6 +386,8 @@ public final class ExtendedMutation
     private int normalAltCount;
     private int normalRefCount;
 
+    private String clonalStatus;
+
     public ExtendedMutation() {
         this(new MutationEvent());
     }
@@ -843,6 +845,14 @@ public final class ExtendedMutation
     public String getOncotatorUniprotName()
     {
         return event.getOncotatorUniprotName();
+    }
+
+    public String getClonalStatus() {
+        return clonalStatus;
+    }
+
+    public void setClonalStatus(String clonalStatus) {
+        this.clonalStatus = clonalStatus;
     }
 
     /**

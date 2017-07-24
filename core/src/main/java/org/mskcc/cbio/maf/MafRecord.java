@@ -88,6 +88,9 @@ public class MafRecord
     private int normalDepth;
     private float normalVaf;
 
+    // clonal columns
+    private String clonalStatus;
+
 	// custom annotator columns
 	private String proteinChange;
 	private String codons;
@@ -490,6 +493,14 @@ public class MafRecord
 
     public void setNormalVaf(float normalVaf) {
         this.normalVaf = normalVaf;
+    }
+
+    public String getClonalStatus() {
+        return clonalStatus;
+    }
+
+    public void setClonalStatus(String clonalStatus) {
+        this.clonalStatus = clonalStatus;
     }
 
 	public String getProteinChange()

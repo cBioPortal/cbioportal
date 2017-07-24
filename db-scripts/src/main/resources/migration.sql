@@ -373,3 +373,11 @@ INSERT INTO mutation_count_by_keyword
     GROUP BY g2.`GENETIC_PROFILE_ID` , mutation_event.`KEYWORD` , m2.`ENTREZ_GENE_ID`;
 
 UPDATE info SET DB_SCHEMA_VERSION="2.3.1";
+
+-- ========================== add clonal status  =============================================
+
+##version: 2.3.2
+#ALTER TABLE `mutation` DROP `CLONAL_STATUS`;
+ALTER TABLE `mutation` ADD COLUMN `CLONAL_STATUS` VARCHAR(10) NULL AFTER `NORMAL_REF_COUNT`;
+
+UPDATE info SET DB_SCHEMA_VERSION="2.3.1";

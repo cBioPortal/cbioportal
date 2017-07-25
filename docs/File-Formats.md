@@ -124,7 +124,7 @@ The first four rows of the clinical data file contain tab-delimited metadata abo
 - Row 1: **The attribute Display Names**: The display name for each clinical attribute
 - Row 2: **The attribute Descriptions**: Long(er) description of each clinical attribute
 - Row 3: **The attribute Datatype**: The datatype of each clinical attribute (must be one of:  STRING, NUMBER, BOOLEAN)
-- Row 4: **The attribute Priority**: A number which indicates the importance of each attribute.  In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages (such as the [Study View](http://www.cbioportal.org/study?id=brca_tcga)). A lower number indicates a higher priority.
+- Row 4: **The attribute Priority**: A number which indicates the importance of each attribute.  In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages (such as the [Study View](http://www.cbioportal.org/study?id=brca_tcga)). A higher number indicates a higher priority.
     ```
     To promote certain chart in study view, please increase priority to a certain number. The higher the score, the higher priority it will be displayed in the study view.
     If you want to hide chart, please set the priority to 0. For combination chart, as long as one of the clinical attribute has been set to 0, it will be hidden.
@@ -149,7 +149,7 @@ The first four rows of the clinical data file contain tab-delimited metadata abo
     And the second matrix will have lower priority than the first one. 
     If later chart can fit into the first matrix, then its priority will be promoted.
     
-    Please see [here](https://github.com/cBioPortal/cbioportal/pull/2689) for an example.
+    Please see [here](Study-View.md) for more detailed information about how study view utilize priority and how the layout is calculated based on priority.
  
     
 

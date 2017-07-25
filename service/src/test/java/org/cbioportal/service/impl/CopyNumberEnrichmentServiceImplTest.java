@@ -1,7 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.model.CopyNumberSampleCountByGene;
+import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
@@ -42,7 +42,7 @@ public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
         List<Integer> alterationTypes = new ArrayList<>();
         alterationTypes.add(-2);
 
-        List<CopyNumberSampleCountByGene> copyNumberSampleCountByGenes = new ArrayList<>();
+        List<CopyNumberCountByGene> copyNumberSampleCountByGenes = new ArrayList<>();
         Mockito.when(discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(GENETIC_PROFILE_ID, 
             allSampleIds, null, null)).thenReturn(copyNumberSampleCountByGenes);
 
@@ -52,10 +52,10 @@ public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
 
         List<AlterationEnrichment> expectedAlterationEnrichments = new ArrayList<>();
         Mockito.when(alterationEnrichmentUtil.createAlterationEnrichments(2, 2, copyNumberSampleCountByGenes,
-            discreteCopyNumberDataList)).thenReturn(expectedAlterationEnrichments);
+            discreteCopyNumberDataList, "SAMPLE")).thenReturn(expectedAlterationEnrichments);
 
         List<AlterationEnrichment> result = copyNumberEnrichmentService.getCopyNumberEnrichments(GENETIC_PROFILE_ID,
-            alteredSampleIds, unalteredSampleIds, alterationTypes);
+            alteredSampleIds, unalteredSampleIds, alterationTypes, "SAMPLE");
 
         Assert.assertEquals(result, expectedAlterationEnrichments);
     }

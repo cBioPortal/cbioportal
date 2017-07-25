@@ -2,8 +2,6 @@ package org.cbioportal.service.impl;
 
 import junit.framework.Assert;
 import org.cbioportal.model.GeneticProfile;
-import org.cbioportal.model.MutationSampleCountByGene;
-import org.cbioportal.model.MutationSampleCountByKeyword;
 import org.cbioportal.model.VariantCount;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.VariantCountRepository;

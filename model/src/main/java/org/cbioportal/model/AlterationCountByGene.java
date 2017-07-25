@@ -2,10 +2,10 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 
-public class AlterationSampleCountByGene implements Serializable {
+public class AlterationCountByGene implements Serializable {
 
     private Integer entrezGeneId;
-    private Integer sampleCount;
+    private Integer count;
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -15,11 +15,11 @@ public class AlterationSampleCountByGene implements Serializable {
         this.entrezGeneId = entrezGeneId;
     }
 
-    public Integer getSampleCount() {
-        return sampleCount;
+    public Integer getCount() {
+        return count;
     }
 
-    public void setSampleCount(Integer sampleCount) {
-        this.sampleCount = sampleCount;
+    public void setCount(Integer count) {
+        this.count = count;
     }
 }

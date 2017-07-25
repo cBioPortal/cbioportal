@@ -200,14 +200,14 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
         geneticProfile.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.MUTATION_EXTENDED);
         Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(geneticProfile);
 
-        List<MutationSampleCountByGene> expectedMutationSampleCountByGeneList = new ArrayList<>();
-        MutationSampleCountByGene mutationSampleCountByGene = new MutationSampleCountByGene();
+        List<MutationCountByGene> expectedMutationSampleCountByGeneList = new ArrayList<>();
+        MutationCountByGene mutationSampleCountByGene = new MutationCountByGene();
         expectedMutationSampleCountByGeneList.add(mutationSampleCountByGene);
         
         Mockito.when(mutationRepository.getSampleCountByEntrezGeneIdsAndSampleIds(GENETIC_PROFILE_ID, null,
             Arrays.asList(ENTREZ_GENE_ID))).thenReturn(expectedMutationSampleCountByGeneList);
         
-        List<MutationSampleCountByGene> result = mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(
+        List<MutationCountByGene> result = mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(
             GENETIC_PROFILE_ID, null, Arrays.asList(ENTREZ_GENE_ID));
         
         Assert.assertEquals(expectedMutationSampleCountByGeneList, result);
@@ -221,35 +221,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
         mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(GENETIC_PROFILE_ID, null,
             Arrays.asList(ENTREZ_GENE_ID));
     }
-
-    @Test
-    public void getSampleCountByKeywords() throws Exception {
-
-        GeneticProfile geneticProfile = new GeneticProfile();
-        geneticProfile.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.MUTATION_EXTENDED);
-        Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(geneticProfile);
-
-        List<MutationSampleCountByKeyword> expectedmutationSampleCountByKeywordList = new ArrayList<>();
-        MutationSampleCountByKeyword mutationSampleCountByKeyword = new MutationSampleCountByKeyword();
-        expectedmutationSampleCountByKeywordList.add(mutationSampleCountByKeyword);
-
-        Mockito.when(mutationRepository.getSampleCountByKeywords(GENETIC_PROFILE_ID,
-            Arrays.asList(KEYWORD))).thenReturn(expectedmutationSampleCountByKeywordList);
-
-        List<MutationSampleCountByKeyword> result = mutationService.getSampleCountByKeywords(GENETIC_PROFILE_ID,
-            Arrays.asList(KEYWORD));
-
-        Assert.assertEquals(expectedmutationSampleCountByKeywordList, result);
-    }
-
-    @Test(expected = GeneticProfileNotFoundException.class)
-    public void getSampleCountByKeywordsGeneticProfileNotFound() throws Exception {
-        
-        Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenThrow(
-            new GeneticProfileNotFoundException(GENETIC_PROFILE_ID));
-        mutationService.getSampleCountByKeywords(GENETIC_PROFILE_ID, Arrays.asList(KEYWORD));
-    }
-
+    
     @Test
     public void getMutationCountsInGeneticProfileBySampleListId() throws Exception {
 

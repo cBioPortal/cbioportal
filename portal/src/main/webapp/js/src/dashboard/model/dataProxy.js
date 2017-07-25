@@ -711,7 +711,7 @@ window.DataManagerForIviz = (function($, _) {
                     _mutCntAttrMeta.keys = {};
                     _mutCntAttrMeta.numOfDatum = 0;
                     _mutCntAttrMeta.priority = 2;
-                    _mutCntAttrMeta.attrList = ['cna_fraction'];
+                    _mutCntAttrMeta.attrList = ['mutation_count', 'cna_fraction'];
                     _sampleAttributes[_mutCntAttrMeta.attr_id] = _mutCntAttrMeta;
                   }
 

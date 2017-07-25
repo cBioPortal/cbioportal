@@ -3276,10 +3276,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
     };
 
-    content.filtered = function() {
+    content.filtered = function(filters) {
       updateTables();
-      isFiltered = true;
-      updateQtip = false;
+      isFiltered = _.isArray(filters) && filters.length > 0;
     };
 
     content.getCurrentCategories = function(sortBy) {
@@ -3893,7 +3892,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             _self.$dispatch('update-filters');
           }
           // Trigger pie chart filtered event.
-          _self.piechart.filtered();
+          _self.piechart.filtered(_self.attributes.filter);
         }
       });
 
@@ -5265,10 +5264,16 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 nonNaCases: []
               };
             }
-            filteredClinicalAttrs[group.id].attrs =
-              _.pluck(_.filter(group.attributes, function(attr) {
-                return attr.filter.length > 0;
-              }), 'attr_id');
+            filteredClinicalAttrs[group.id].attrs = [];
+            
+            // Loop through attrList instead of only using attr_id
+            // Combination chart has its own attr_id, but the clinical data
+            // it's using are listed under attrList
+            _.each(_.filter(group.attributes, function(attr) {
+              return attr.filter.length > 0;
+            }), function(item) {
+              filteredClinicalAttrs[group.id].attrs.push(_.pick(item, 'attr_id', 'attrList'));
+            });
           });
           if (this.excludeNa) {
             // Find qualified cases in each group.
@@ -5280,7 +5285,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 var hasNaWithinAttrs = false;
 
                 //Check whether case contains NA value on filtered attrs
-                _.some(group.attrs, function(attr) {
+                _.some(_.flatten(_.pluck(group.attrs, 'attrList')), function(attr) {
                   if (iViz.util.strIsNa(data[attr], false)) {
                     hasNaWithinAttrs = true;
                     return true;
@@ -5726,19 +5731,20 @@ window.LogRankTest = (function(jStat) {
     _self.elem_.curves = {};
   };
 
-  iViz.view.component.SurvivalCurve.prototype.addCurve = function(_data,
+  iViz.view.component.SurvivalCurve.prototype.addCurve = function(data,
     _curveIndex,
     _lineColor) {
     var _self = this;
+    var _data = data;
 
     // add an empty/zero point so the curve starts from zero time point
     if (_data !== null && _data.length !== 0) {
       if (_data[0].time !== 0) {
-        _data.unshift({
+        _data = [{
           status: 0,
           survival_rate: 1,
           time: 0
-        });
+        }].concat(_data);
       }
     }
 
@@ -5889,8 +5895,6 @@ window.LogRankTest = (function(jStat) {
     function(_selectedData, _unselectedData) {
       var _self = this;
       _self.elem_.svg.selectAll('.pval').remove();
-      _selectedData.splice(0, 1);
-      _unselectedData.splice(0, 1);
       var _pVal = LogRankTest.calc(_selectedData, _unselectedData);
       _self.elem_.svg.append('text')
         .attr('class', 'pval')
@@ -5937,8 +5941,10 @@ window.LogRankTest = (function(jStat) {
         } else {
           _self.opts_.curves[curveIndex].highlighted = true;
         }
+        // Don't highlight the time equal to 0. This is a fake node added
+        // in addCurve function
         _self.elem_.curves[curveIndex].invisibleDots
-          .selectAll('path')
+          .selectAll('path:not([time="0"])')
           .style('opacity', opacity);
       }
     };

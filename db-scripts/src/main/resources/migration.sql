@@ -377,7 +377,8 @@ UPDATE info SET DB_SCHEMA_VERSION="2.3.1";
 -- ========================== add clonal status  =============================================
 
 ##version: 2.3.2
-#ALTER TABLE `mutation` DROP `CLONAL_STATUS`;
 ALTER TABLE `mutation` ADD COLUMN `CLONAL_STATUS` VARCHAR(10) NULL AFTER `NORMAL_REF_COUNT`;
+ALTER TABLE `mutation` ADD COLUMN `CCF` VARCHAR(10) NULL AFTER `CLONAL_STATUS`;
+ALTER TABLE `mutation` ADD COLUMN `CLUSTER` VARCHAR(10) NULL AFTER `CCF`;
 
 UPDATE info SET DB_SCHEMA_VERSION="2.3.1";

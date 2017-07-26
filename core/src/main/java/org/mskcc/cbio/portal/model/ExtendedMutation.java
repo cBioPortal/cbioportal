@@ -387,6 +387,9 @@ public final class ExtendedMutation
     private int normalRefCount;
 
     private String clonalStatus;
+    private float mutCCF;
+    private String ccfCluster;
+
 
     public ExtendedMutation() {
         this(new MutationEvent());
@@ -853,6 +856,22 @@ public final class ExtendedMutation
 
     public void setClonalStatus(String clonalStatus) {
         this.clonalStatus = clonalStatus;
+    }
+
+    public float getMutCCF() {
+        return mutCCF;
+    }
+
+    public void setMutCCF(float mutCCF) {
+        this.mutCCF = mutCCF;
+    }
+
+    public String getCCFCluster() {
+        return ccfCluster;
+    }
+
+    public void setCCFCluster(String ccfCluster) {
+        this.ccfCluster = ccfCluster;
     }
 
     /**

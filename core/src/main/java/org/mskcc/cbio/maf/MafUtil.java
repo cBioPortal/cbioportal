@@ -147,7 +147,8 @@ public class MafUtil
 
 	// clonality information
 	public static final String CLONAL_STATUS = "clonal_status";
-
+	public static final String CCF = "ccf";
+	public static final String CCF_CLUSTER = "cluster";
 
 
     // standard MAF column indices
@@ -237,7 +238,9 @@ public class MafUtil
 	private int maProteinChangeIndex = -1; // MA:protein.change
 
 	// clonality information
-	private int clonalStatusIndex = -1; // 
+	private int clonalStatusIndex = -1;  
+	private int mutCCFIndex = -1;  
+	private int ccfClusterIndex = -1; 
 
 	// number of headers in the header line
     private int headerCount;
@@ -435,6 +438,10 @@ public class MafUtil
                 normalVafIndex = i;
             } else if(header.equalsIgnoreCase(CLONAL_STATUS)) {
                 clonalStatusIndex = i;
+        	} else if(header.equalsIgnoreCase(CCF)) {
+                mutCCFIndex = i;
+        	} else if(header.equalsIgnoreCase(CCF_CLUSTER)) {
+                ccfClusterIndex = i;
         	}
         }
     }
@@ -544,6 +551,8 @@ public class MafUtil
 	    record.setOncotatorProteinPosEndBestEffect(TabDelimitedFileUtil.getPartInt(oncoProteinPosEndBeIndex, parts));
         
 	    record.setClonalStatus(TabDelimitedFileUtil.getPartString(clonalStatusIndex, parts));
+	    record.setMutCCF(TabDelimitedFileUtil.getPartFloat(mutCCFIndex, parts));
+	    record.setCCFCluster(TabDelimitedFileUtil.getPartString(ccfClusterIndex, parts));
 
             fixEndPointForInsertion(record);
             
@@ -874,6 +883,16 @@ public class MafUtil
 	public int getClonalStatusIndex()
 	{
 		return clonalStatusIndex;
+	}
+
+	public int getMutCCF()
+	{
+		return mutCCFIndex;
+	}
+
+	public int getCCFCluster()
+	{
+		return ccfClusterIndex;
 	}
 
 	public int getColumnIndex(String colName)

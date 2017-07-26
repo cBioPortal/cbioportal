@@ -90,6 +90,8 @@ public class MafRecord
 
     // clonal columns
     private String clonalStatus;
+    private float ccf;
+    private String ccfCluster;
 
 	// custom annotator columns
 	private String proteinChange;
@@ -501,6 +503,22 @@ public class MafRecord
 
     public void setClonalStatus(String clonalStatus) {
         this.clonalStatus = clonalStatus;
+    }
+
+    public float getCcf() {
+        return ccf;
+    }
+
+    public void setCcf(float ccf) {
+        this.ccf = ccf;
+    }
+
+    public String getCcfCluster() {
+        return ccfCluster;
+    }
+
+    public void setCcfCluster(String ccfCluster) {
+        this.ccfCluster = ccfCluster;
     }
 
 	public String getProteinChange()

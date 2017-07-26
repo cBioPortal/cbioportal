@@ -19,6 +19,9 @@ public class Mutation extends Alteration implements Serializable {
     private String tumorSeqAllele;
     private String proteinChange;
     private String mutationType;
+    private String clonalStatus;
+    private Float ccf;
+    private String ccfCluster;
     private String functionalImpactScore;
     private BigDecimal fisValue;
     private String linkXvar;
@@ -141,6 +144,30 @@ public class Mutation extends Alteration implements Serializable {
 
     public void setMutationType(String mutationType) {
         this.mutationType = mutationType;
+    }
+
+    public String getClonalStatus() {
+        return clonalStatus;
+    }
+
+    public void setClonalStatus(String clonalStatus) {
+        this.clonalStatus = clonalStatus;
+    }
+
+    public Float getCcf() {
+        return ccf;
+    }
+
+    public void setCcf(Float ccf) {
+        this.ccf = ccf;
+    }
+
+    public String getCcfCluster() {
+        return ccfCluster;
+    }
+
+    public void setCcfCluster(String ccfCluster) {
+        this.ccfCluster = ccfCluster;
     }
 
     public String getFunctionalImpactScore() {

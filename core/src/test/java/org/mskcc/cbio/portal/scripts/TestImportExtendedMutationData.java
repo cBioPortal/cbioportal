@@ -47,6 +47,9 @@ import static org.junit.Assert.*;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
@@ -200,6 +203,45 @@ public class TestImportExtendedMutationData {
 //		assertEquals("p.E366_Q409del(13)|p.Q367R(1)|p.E366_K477del(1)",
 //		             mutationList.get(15).getOncotatorCosmicOverlapping());
 }
+	       /**
+	        * Tests custom filtering mutation types option (filtering for missense and nonsensemutations).
+	        * @throws IOException
+	        * @throws DaoException
+	        */
+	       @Test
+	       public void testImportExtendedMutationDataExtendedCustomFiltering() throws IOException, DaoException {
+	                   
+	           MySQLbulkLoader.bulkLoadOn();
+	           
+	           File file = new File("src/test/resources/data_mutations_extended.txt");
+	           Set<String> customFiltering = new HashSet<String>(Arrays.asList("Missense_Mutation", "Nonsense_Mutation"));
+	           ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null, customFiltering);
+	           parser.importData();
+	           MySQLbulkLoader.flushAll();
+	           ConsoleUtil.showMessages();
+	           
+	           rejectMissenseAndNonsenseMutations();
+	       }
+	       
+	       /**
+                * Tests custom filtering mutation types option (no filtering at all).
+                * @throws IOException
+                * @throws DaoException
+                */
+               @Test
+               public void testImportExtendedMutationDataExtendedNoFiltering() throws IOException, DaoException {
+                           
+                   MySQLbulkLoader.bulkLoadOn();
+                   
+                   File file = new File("src/test/resources/data_mutations_extended.txt");
+                   Set<String> customFiltering = new HashSet<String>(Arrays.asList(""));
+                   ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null, customFiltering);
+                   parser.importData();
+                   MySQLbulkLoader.flushAll();
+                   ConsoleUtil.showMessages();
+                   
+                   acceptAllMutationTypes();
+               }
 
     private void checkBasicFilteringRules() throws DaoException {
         rejectSilentLOHIntronWildtype();
@@ -341,5 +383,25 @@ public class TestImportExtendedMutationData {
         DaoSample.addSample(new Sample("TCGA-A2-A25D-01", pId, "brca"));
         pId = DaoPatient.addPatient(new Patient(study, "TCGA-A2-A4RW"));
         DaoSample.addSample(new Sample("TCGA-A2-A4RW-01", pId, "brca"));
+    }
+    
+    private void rejectMissenseAndNonsenseMutations() throws DaoException {
+        int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
+
+        assertEquals(0, DaoMutation.getMutations(geneticProfileId, sampleId, 63967).size()); // Missense
+        assertEquals(0, DaoMutation.getMutations(geneticProfileId, sampleId, 79699).size()); // Missense
+        assertEquals(0, DaoMutation.getMutations(geneticProfileId, sampleId, 204219).size()); // Missense
+        assertEquals(0, DaoMutation.getMutations(geneticProfileId, sampleId, 51259).size()); // Nonsense
+        assertEquals(0, DaoMutation.getMutations(geneticProfileId, sampleId, 84902).size()); // Nonsense
+    }
+    
+    private void acceptAllMutationTypes() throws DaoException {
+        int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
+
+        // valid Nonsense
+        validateMutationAminoAcid (geneticProfileId, sampleId, 2842, "L113P");
+        
+        // valid Silent
+        validateMutationAminoAcid (geneticProfileId, sampleId, 114548, "G982G");
     }
 }

@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,9 +43,9 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
         ClinicalData sampleClinicalData = new ClinicalData();
         expectedSampleClinicalDataList.add(sampleClinicalData);
 
-        Mockito.when(clinicalDataRepository.getAllClinicalDataOfSampleInStudy(STUDY_ID, SAMPLE_ID1, CLINICAL_ATTRIBUTE_ID,
-                PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
-                .thenReturn(expectedSampleClinicalDataList);
+        Mockito.when(clinicalDataRepository.getAllClinicalDataOfSampleInStudy(STUDY_ID, SAMPLE_ID1, 
+            CLINICAL_ATTRIBUTE_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+            .thenReturn(expectedSampleClinicalDataList);
 
         List<ClinicalData> result = clinicalDataService.getAllClinicalDataOfSampleInStudy(STUDY_ID, SAMPLE_ID1,
             CLINICAL_ATTRIBUTE_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
@@ -89,9 +90,9 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
         ClinicalData patientClinicalData = new ClinicalData();
         expectedPatientClinicalDataList.add(patientClinicalData);
 
-        Mockito.when(clinicalDataRepository.getAllClinicalDataOfPatientInStudy(STUDY_ID, PATIENT_ID, CLINICAL_ATTRIBUTE_ID,
-                PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
-                .thenReturn(expectedPatientClinicalDataList);
+        Mockito.when(clinicalDataRepository.getAllClinicalDataOfPatientInStudy(STUDY_ID, PATIENT_ID, 
+            CLINICAL_ATTRIBUTE_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+            .thenReturn(expectedPatientClinicalDataList);
 
         List<ClinicalData> result = clinicalDataService.getAllClinicalDataOfPatientInStudy(STUDY_ID, PATIENT_ID,
             CLINICAL_ATTRIBUTE_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
@@ -164,7 +165,8 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
         Mockito.when(clinicalDataRepository.getMetaAllClinicalData(STUDY_ID, CLINICAL_ATTRIBUTE_ID, CLINICAL_DATA_TYPE))
                 .thenReturn(expectedBaseMeta);
 
-        BaseMeta result = clinicalDataService.getMetaAllClinicalData(STUDY_ID, CLINICAL_ATTRIBUTE_ID, CLINICAL_DATA_TYPE);
+        BaseMeta result = clinicalDataService.getMetaAllClinicalData(STUDY_ID, CLINICAL_ATTRIBUTE_ID, 
+            CLINICAL_DATA_TYPE);
 
         Assert.assertEquals((Integer) 5, result.getTotalCount());
     }
@@ -188,11 +190,12 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
         ClinicalData patientClinicalData = new ClinicalData();
         expectedPatientClinicalDataList.add(patientClinicalData);
 
-        Mockito.when(clinicalDataRepository.fetchClinicalData(studyIds, patientIds, CLINICAL_ATTRIBUTE_ID, CLINICAL_DATA_TYPE,
-                PROJECTION)).thenReturn(expectedPatientClinicalDataList);
+        Mockito.when(clinicalDataRepository.fetchClinicalData(studyIds, patientIds, 
+            Arrays.asList(CLINICAL_ATTRIBUTE_ID), CLINICAL_DATA_TYPE, PROJECTION))
+            .thenReturn(expectedPatientClinicalDataList);
 
         List<ClinicalData> result = clinicalDataService.fetchClinicalData(studyIds, patientIds,
-            CLINICAL_ATTRIBUTE_ID, CLINICAL_DATA_TYPE, PROJECTION);
+            Arrays.asList(CLINICAL_ATTRIBUTE_ID), CLINICAL_DATA_TYPE, PROJECTION);
 
         Assert.assertEquals(expectedPatientClinicalDataList, result);
     }
@@ -208,11 +211,11 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
         BaseMeta expectedBaseMeta = new BaseMeta();
         expectedBaseMeta.setTotalCount(5);
 
-        Mockito.when(clinicalDataRepository.fetchMetaClinicalData(studyIds, patientIds, CLINICAL_ATTRIBUTE_ID,
-                CLINICAL_DATA_TYPE)).thenReturn(expectedBaseMeta);
+        Mockito.when(clinicalDataRepository.fetchMetaClinicalData(studyIds, patientIds, 
+            Arrays.asList(CLINICAL_ATTRIBUTE_ID), CLINICAL_DATA_TYPE)).thenReturn(expectedBaseMeta);
 
-        BaseMeta result = clinicalDataService.fetchMetaClinicalData(studyIds, patientIds, CLINICAL_ATTRIBUTE_ID,
-                CLINICAL_DATA_TYPE);
+        BaseMeta result = clinicalDataService.fetchMetaClinicalData(studyIds, patientIds, 
+            Arrays.asList(CLINICAL_ATTRIBUTE_ID), CLINICAL_DATA_TYPE);
 
         Assert.assertEquals((Integer) 5, result.getTotalCount());
     }

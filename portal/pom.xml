@@ -93,9 +93,9 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>com.github.ersinciftci</groupId>
+                  <groupId>com.github.cbioportal</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
-                  <version>9415a1d1684ba09c30420e1945cbcbbe65b4d881</version>
+                  <version>125b3bf3a0b2a6578e3d0498ca04c3985c050c79</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>

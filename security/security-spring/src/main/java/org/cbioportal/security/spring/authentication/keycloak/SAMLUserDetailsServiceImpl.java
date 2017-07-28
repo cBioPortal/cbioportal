@@ -107,8 +107,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService
             if (attrName.equals(SAML_IDP_METADATA_ROLE_ATTR_NAME)) {
                 List<XMLObject> attributeValues = cAttribute.getAttributeValues();
                 if (!attributeValues.isEmpty()) {
-                    userRoles.add(new StringBuilder(APP_NAME).append(":").append(
-                        getAttributeValue(attributeValues.get(0))).toString());
+                    userRoles.add(getAttributeValue(attributeValues.get(0)));
                 }    
             }
         }

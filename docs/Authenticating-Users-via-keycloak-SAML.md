@@ -95,12 +95,13 @@ should now see the certificate and no private key.
     app.name=cbioportal
 ```
 
-2. Then, modify the section labeled `authentication`. See SAML parameters shown in example below:
+2. Then, modify the properties under the comment `# authentication`. In particular, see the options listed in the example below:
 
 ```properties
     # authentication
-    authenticate=saml
     authorization=true
+    authenticate=saml
+    filter_groups_by_appname=false
     saml.sp.metadata.entityid=cbioportal
     saml.idp.metadata.location=classpath:/client-tailored-saml-idp-metadata.xml
     saml.idp.metadata.entityid=http://localhost:8080/auth/realms/demo

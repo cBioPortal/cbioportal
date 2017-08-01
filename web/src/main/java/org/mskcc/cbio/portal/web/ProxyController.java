@@ -67,10 +67,6 @@ public class ProxyController
   @Value("${session.service.url:''}") // default is empty string
   public void setSessionServiceURL(String property) { this.sessionServiceURL = property; }
 
-  private String pdbDatabaseURL;
-  @Value("${pdb.database.url}")
-  public void setPDBDatabaseURL(String property) { this.pdbDatabaseURL = property; }
-
   private String oncokbApiURL;
   @Value("${oncokb.api.url:http://oncokb.org/legacy-api/}")
   public void setOncoKBURL(String property) {

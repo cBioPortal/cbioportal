@@ -68,4 +68,20 @@ public class GeneticProfileServiceImpl implements GeneticProfileService {
         
         return geneticProfileRepository.getMetaGeneticProfilesInStudy(studyId);
     }
+
+	@Override
+	public List<GeneticProfile> getGeneticProfilesReferredBy(String referringGeneticProfileId) throws GeneticProfileNotFoundException {
+
+        //validate (throws exception if profile not found):
+        this.getGeneticProfile(referringGeneticProfileId);
+        return geneticProfileRepository.getGeneticProfilesReferredBy(referringGeneticProfileId);
+	}
+
+	@Override
+	public List<GeneticProfile> getGeneticProfilesReferringTo(String referredGeneticProfileId) throws GeneticProfileNotFoundException {
+
+        //validate (throws exception if profile not found):
+        this.getGeneticProfile(referredGeneticProfileId);
+        return geneticProfileRepository.getGeneticProfilesReferringTo(referredGeneticProfileId);
+	}
 }

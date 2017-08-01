@@ -70,12 +70,12 @@
     </script>
     <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
 </head>
-    
+<body class="fixedWidth">
 <div class="pageTopContainer">      
     <div class="contentWidth"><jsp:include page="header_bar.jsp" flush="true" /></div>
 </div>
     
-    <center style="background:#fff; padding-top:15px">
+    <center style="padding-top:15px">
     <div id="page_wrapper">
         <table id="page_wrapper_table" width=100% cellpadding="0px" cellspacing="5px" border="0px">
             <tr valign="top">
@@ -86,4 +86,4 @@
 
             <tr valign="top">
                 <td id="td-content">
-                    <div id="content">
+                    <div id="content" class="contentWidth">

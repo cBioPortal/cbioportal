@@ -149,12 +149,11 @@ public class GlobalProperties {
     public static final String SKIN_SHOW_FAQS_TAB = "skin.show_faqs_tab";
     public static final String SKIN_SHOW_TOOLS_TAB = "skin.show_tools_tab";
     public static final String SKIN_SHOW_ABOUT_TAB = "skin.show_about_tab";
-    public static final String SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB = "skin.show_visualize_your_data_tab";
 
     // property for setting the news blurb in the right column
     public static final String SKIN_RIGHT_NAV_WHATS_NEW_BLURB = "skin.right_nav.whats_new_blurb";
     public static final String DEFAULT_SKIN_WHATS_NEW_BLURB = 
-            "<form action=\"http://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
+            "<form action=\"https://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
             "<b>Sign up for low-volume email news alerts:</b></br> &nbsp;&nbsp;&nbsp;&nbsp;<input type=\"text\" " +
             "name=\"email\" title=\"Subscribe to mailing list\"> <input type=\"submit\" name=\"sub\" value=\"Subscribe\"> " +
             "</form> &nbsp;&nbsp;&nbsp;&nbsp;<b>Or follow us <a href=\"http://www.twitter.com/cbioportal\">" +
@@ -170,9 +169,6 @@ public class GlobalProperties {
     public static final String DEFAULT_SKIN_LOGIN_CONTACT_HTML = "If you think you have received this message in " +
             "error, please contact us at <a style=\"color:#FF0000\" href=\"mailto:cbioportal-access@cbio.mskcc.org\">" +
             "cbioportal-access@cbio.mskcc.org</a>";
-
-    // properties for hiding/showing tabs in the patient view
-    public static final String SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB="skin.patient_view.show_drugs_tab";
 
     // property for setting the saml registration html
     public static final String SKIN_LOGIN_SAML_REGISTRATION_HTML = "skin.login.saml.registration_html";
@@ -198,11 +194,14 @@ public class GlobalProperties {
     public static final String SKIN_NEWS="skin.documentation.news";
     public static final String DEFAULT_SKIN_NEWS="News.md";
 
-    public static final String SKIN_EXAMPLES_RIGHT_COLUMN="skin.examples_right_column";
-    public static final String DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN="../../../content/examples.html";
+    public static final String SKIN_EXAMPLES_RIGHT_COLUMN_HTML="skin.examples_right_column_html";
     
     public static final String ALWAYS_SHOW_STUDY_GROUP="always_show_study_group";
 
+    // property for query component
+    public static final String SKIN_QUERY_MAX_TREE_DEPTH="skin.query.max_tree_depth";
+    public static final Number DEFAULT_QUERY_MAX_TREE_DEPTH=3;
+    
     // property for text shown at the right side of the Select Patient/Case set, which
     // links to the study view
     public static final String SKIN_STUDY_VIEW_LINK_TEXT="skin.study_view.link_text";
@@ -216,6 +215,9 @@ public class GlobalProperties {
     public static final String RECACHE_STUDY_AFTER_UPDATE = "recache_study_after_update";
     
     public static final String DB_VERSION = "db.version";
+    private static boolean suppressSchemaVersionMismatchErrors;
+    @Value("${db.suppress_schema_version_mismatch_errors:false}") // default is false
+    public void setSuppressSchemaVersionMismatchErrors(String property) { suppressSchemaVersionMismatchErrors = Boolean.parseBoolean(property); }
     
     public static final String DARWIN_AUTH_URL = "darwin.auth_url";
     public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
@@ -417,11 +419,18 @@ public class GlobalProperties {
         return markdownFlag == null || Boolean.parseBoolean(markdownFlag);
     }
 
+    //get max tree depth
+    public static Number getMaxTreeDepth()
+    {
+        String maxTreeDepth = properties.getProperty(SKIN_QUERY_MAX_TREE_DEPTH);
+        return (maxTreeDepth == null) ? DEFAULT_QUERY_MAX_TREE_DEPTH : Integer.parseInt(maxTreeDepth);
+    }
+
     // get custom Example Queries for the right column html or the default
     public static String getExamplesRightColumnHtml()
     {
-        String examplesRightColumnHtml = properties.getProperty(SKIN_EXAMPLES_RIGHT_COLUMN);
-        return (examplesRightColumnHtml == null) ? DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN : "../../../content/"+examplesRightColumnHtml;
+        String examplesRightColumnHtml = properties.getProperty(SKIN_EXAMPLES_RIGHT_COLUMN_HTML);
+        return examplesRightColumnHtml == null? "": examplesRightColumnHtml;
     }
 
     private static String getContentString(String contentString){
@@ -561,18 +570,6 @@ public class GlobalProperties {
     {
         String showFlag = properties.getProperty(SKIN_SHOW_ABOUT_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
-    }
-    // show or hide the visualize your data tab in header navigation bar
-    public static boolean showVisualizeYourDataTab()
-    {
-        String showFlag = properties.getProperty(SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB);
-        return showFlag == null || Boolean.parseBoolean(showFlag);
-    }
-    // show the drugs tab in the patient view
-    public static boolean showDrugsTab()
-    {
-        String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB);
-        return showFlag != null && Boolean.parseBoolean(showFlag);
     }
     // get the text for the What's New in the right navigation bar
     public static String getRightNavWhatsNewBlurb(){
@@ -718,7 +715,7 @@ public class GlobalProperties {
     {
         return sessionServiceURL;
     }
-    
+
     public static String getOncoKBPublicApiUrl()
     {
         String oncokbApiUrl = properties.getProperty(ONCOKB_PUBLIC_API_URL);
@@ -783,6 +780,15 @@ public class GlobalProperties {
         return civicUrl;
     }
 
+    public static boolean showOncoKB() {
+        String showOncokb = properties.getProperty(SHOW_ONCOKB);
+        if (showOncokb==null || showOncokb.isEmpty()) {
+            return true; // show oncoKB by default
+        } else {
+            return Boolean.parseBoolean(showOncokb);
+        }
+    }
+
     public static boolean showHotspot() {
         String hotspot = properties.getProperty(SHOW_HOTSPOT);
         if (hotspot==null) {
@@ -840,6 +846,10 @@ public class GlobalProperties {
         return version;
     }
     
+    public static boolean isSuppressSchemaVersionMismatchErrors() {
+        return suppressSchemaVersionMismatchErrors;
+    }
+
     public static String getDarwinAuthCheckUrl() {
         String darwinAuthUrl = "";
         if (properties.containsKey(DARWIN_AUTH_URL)) {

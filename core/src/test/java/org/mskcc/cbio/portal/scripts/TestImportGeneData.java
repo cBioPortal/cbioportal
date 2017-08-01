@@ -32,14 +32,12 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.net.URL;
 
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
@@ -58,24 +56,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class TestImportGeneData {
 
-    //private String geneDataFilename = null;
-    //private String suppGeneDataFilename = null;
-    private URL geneDataFilePath;
-    private URL suppGeneDataFilePath;
-    private String geneLengthDataFilePath;
-    
-    @Before
-    public void setUp() {
-
-        //Old implementation, hardcoding file path into a string
-        //geneDataFilename = home + File.separator + "core/target/test-classes/genes_test.txt";
-        //suppGeneDataFilename = home + File.separator + "core/target/test-classes/supp-genes.txt";
-        geneDataFilePath = this.getClass().getResource("/genes_test.txt");
-        suppGeneDataFilePath = this.getClass().getResource("/supp-genes.txt");
-        geneLengthDataFilePath = "src/test/resources/gene-length_test.txt";
-
-    }
-
     @Test
     /*
      * Checks that ImportGeneData works by calculating the length from three genes 
@@ -84,28 +64,21 @@ public class TestImportGeneData {
     public void testImportGeneData() throws Exception {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         ProgressMonitor.setConsoleMode(false);
-		// TBD: change this to use getResourceAsStream()
-        if (suppGeneDataFilePath!=null) {
-            File file = new File(suppGeneDataFilePath.getFile());
-            ImportGeneData.importSuppGeneData(file);
-        }
-        
-        if (geneDataFilePath != null) {
-            File file = new File(geneDataFilePath.getFile());
-            ImportGeneData.importData(file);
+	
+        File file = new File("src/test/resources/supp-genes.txt");
 
-            CanonicalGene gene = daoGene.getGene(10);
-            assertEquals("NAT2", gene.getHugoGeneSymbolAllCaps());
-            gene = daoGene.getGene(15);
-            assertEquals("AANAT", gene.getHugoGeneSymbolAllCaps());
-
-            gene = daoGene.getGene("ABCA3");
-            assertEquals(21, gene.getEntrezGeneId());
-        }
+        ImportGeneData.importSuppGeneData(file);
         
-        else {
-            throw new IllegalArgumentException("Cannot find test gene file, is PORTAL_HOME set?");
-        }
+        file = new File("src/test/resources/genes_test.txt");
+        ImportGeneData.importData(file);
+
+        CanonicalGene gene = daoGene.getGene(10);
+        assertEquals("NAT2", gene.getHugoGeneSymbolAllCaps());
+        gene = daoGene.getGene(15);
+        assertEquals("AANAT", gene.getHugoGeneSymbolAllCaps());
+
+        gene = daoGene.getGene("ABCA3");
+        assertEquals(21, gene.getEntrezGeneId());
     }
     
     @Test
@@ -123,28 +96,25 @@ public class TestImportGeneData {
      */
     public void testImportGeneLength() throws Exception {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        
         //run import gene data (this test depends on it):
         testImportGeneData();
-        if (geneLengthDataFilePath != null) {
-            File file = new File(geneLengthDataFilePath);
-            ImportGeneData.importGeneLength(file);
-            CanonicalGene gene = daoGene.getNonAmbiguousGene("ABCA4", "chr1", false);
-            assertEquals(372,gene.getLength());
+        
+        File file = new File("src/test/resources/gene-length_test.txt");
+        ImportGeneData.importGeneLength(file);
+        CanonicalGene gene = daoGene.getNonAmbiguousGene("ABCA4", "chr1", false);
+        assertEquals(372,gene.getLength());
 
-            gene = daoGene.getNonAmbiguousGene("AACP", "chr8", false);
-            assertEquals(16267,gene.getLength());
-            
-            gene = daoGene.getNonAmbiguousGene("AARS", "chr16", false);
-            assertEquals(1163,gene.getLength());
-            
-            gene = daoGene.getNonAmbiguousGene("AGER", "chr6", false);
-            assertEquals(1001,gene.getLength());
-            
-            gene = daoGene.getNonAmbiguousGene("MED28P8", "chr4", false);
-            assertEquals(201,gene.getLength());
-        }
-        else {
-            throw new IllegalArgumentException("Cannot find test gene length file, is PORTAL_HOME set?");
-        }
+        gene = daoGene.getNonAmbiguousGene("AACP", "chr8", false);
+        assertEquals(16267,gene.getLength());
+        
+        gene = daoGene.getNonAmbiguousGene("AARS", "chr16", false);
+        assertEquals(1163,gene.getLength());
+        
+        gene = daoGene.getNonAmbiguousGene("AGER", "chr6", false);
+        assertEquals(1001,gene.getLength());
+        
+        gene = daoGene.getNonAmbiguousGene("MED28P8", "chr4", false);
+        assertEquals(201,gene.getLength());
     }
 }

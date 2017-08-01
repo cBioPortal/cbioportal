@@ -4,7 +4,6 @@ import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationSampleCountByGene;
 import org.cbioportal.model.MutationSampleCountByKeyword;
-import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.model.meta.MutationMeta;
 
 import java.util.List;
@@ -18,6 +17,14 @@ public interface MutationMapper {
     MutationMeta getMetaMutationsBySampleListId(String geneticProfileId, String sampleListId, 
                                                 List<Integer> entrezGeneIds);
 
+    List<Mutation> getMutationsInMultipleGeneticProfiles(List<String> geneticProfileIds, List<String> sampleIds,
+                                                         List<Integer> entrezGeneIds, String projection,
+                                                         Integer limit, Integer offset,
+                                                         String sortBy, String direction);
+
+    MutationMeta getMetaMutationsInMultipleGeneticProfiles(List<String> geneticProfileIds, List<String> sampleIds,
+                                                           List<Integer> entrezGeneIds);
+
     List<Mutation> getMutationsBySampleIds(String geneticProfileId, List<String> sampleIds, List<Integer> entrezGeneIds,
                                            String projection, Integer limit, Integer offset, String sortBy, 
                                            String direction);
@@ -25,7 +32,13 @@ public interface MutationMapper {
     MutationMeta getMetaMutationsBySampleIds(String geneticProfileId, List<String> sampleIds, 
                                              List<Integer> entrezGeneIds);
     
-    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIds(String geneticProfileId, List<Integer> entrezGeneIds);
+    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIdsAndSampleListId(String geneticProfileId,
+                                                                                 String sampleListId,
+                                                                                 List<Integer> entrezGeneIds);
+
+    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
+                                                                              List<String> sampleIds,
+                                                                              List<Integer> entrezGeneIds);
     
     List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords);
 

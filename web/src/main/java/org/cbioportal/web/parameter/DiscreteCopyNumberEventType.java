@@ -13,14 +13,14 @@ public enum DiscreteCopyNumberEventType {
     DIPLOID(0),
     ALL(-2, -1, 0, 1, 2);
     
-    private List<Integer> alterations;
+    private List<Integer> alterationTypes;
 
-    DiscreteCopyNumberEventType(Integer... alterations) {
+    DiscreteCopyNumberEventType(Integer... alterationTypes) {
         
-        this.alterations = Arrays.asList(alterations);
+        this.alterationTypes = Arrays.asList(alterationTypes);
     }
 
-    public List<Integer> getAlterations() {
-        return alterations;
+    public List<Integer> getAlterationTypes() {
+        return alterationTypes;
     }
 }

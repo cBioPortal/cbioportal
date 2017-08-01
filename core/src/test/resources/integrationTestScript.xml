@@ -22,12 +22,20 @@
                    NB the order up to step #5 is important. And the last step should be "Update study status" 
                  ############################################################################################### -->
 
-                <!-- #1 First, import cancer types -->
+                <!-- #1 First, import cancer types and other metadata like gene sets -->
                 <list>
                     <value>org.mskcc.cbio.portal.scripts.ImportTypesOfCancers</value>
                     <value>src/test/scripts/test_data/study_es_0/cancer_type.txt</value>
                     <value>false</value>
                     <value>--noprogress</value>
+                </list>
+                
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportGenesetData</value>
+                    <value>--data</value>
+                    <value>src/test/resources/genesets/study_es_0_genesets.gmt</value>
+                    <value>--new-version</value>
+                    <value>1</value>
                 </list>
              
                 <!-- #2 Remove study if exists -->
@@ -114,7 +122,7 @@
                 <list>
                     <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
                     <value>--data</value>
-                    <value>src/test/scripts/test_data/study_es_0/data_fusions.txt</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_fusion.txt</value>
                     <value>--meta</value>
                     <value>src/test/scripts/test_data/study_es_0/meta_fusion.txt</value>
                     <value>--loadMode</value>
@@ -156,6 +164,28 @@
                     <value>--noprogress</value>
                 </list>
                             
+                <!-- gene sets gsva scores data -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_gsva_scores.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_gsva_scores.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_gsva_pvalues.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_gsva_pvalues.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+
                 <!-- case lists -->
                 <list>
                     <value>org.mskcc.cbio.portal.scripts.ImportSampleList</value>

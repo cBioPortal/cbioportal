@@ -65,4 +65,39 @@
         INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
     </select>
+    
+    <select id="getGeneticProfilesReferredBy" resultType="org.cbioportal.model.GeneticProfile">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM genetic_profile
+        INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        WHERE 
+        genetic_profile.GENETIC_PROFILE_ID in
+                      (SELECT REFERRED_GENETIC_PROFILE_ID 
+                       FROM genetic_profile_link 
+                       join genetic_profile on genetic_profile_link.REFERRING_GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+                       WHERE
+                         genetic_profile.STABLE_ID = #{referringGeneticProfileId}
+                       )
+    </select>
+    
+    <select id="getGeneticProfilesReferringTo" resultType="org.cbioportal.model.GeneticProfile">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM genetic_profile
+        INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        WHERE 
+        genetic_profile.GENETIC_PROFILE_ID in
+                      (SELECT REFERRING_GENETIC_PROFILE_ID 
+                       FROM genetic_profile_link 
+                       join genetic_profile on genetic_profile_link.REFERRED_GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+                       WHERE
+                         genetic_profile.STABLE_ID = #{referredGeneticProfileId}
+                       )
+    </select>
+    
 </mapper>

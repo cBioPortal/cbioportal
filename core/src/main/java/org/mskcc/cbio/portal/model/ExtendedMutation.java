@@ -307,17 +307,19 @@ public final class ExtendedMutation
             this.canonicalTranscript = canonicalTranscript;
         }
 
-        // the fields used here have to be the same as in sql file.
+        // The fields used here have to be the same as in sql file.
+        // The comparison has to be case insensitive, since this is how MYSQL will
+        // look at the values for the UQ constraint in DB.
         @Override
         public int hashCode() {
             int hash = 3;
             hash = 37 * hash + (this.gene != null ? this.gene.hashCode() : 0);
-            hash = 37 * hash + (this.chr != null ? this.chr.hashCode() : 0);
+            hash = 37 * hash + (this.chr != null ? this.chr.toUpperCase().hashCode() : 0);
             hash = 37 * hash + (int) (this.startPosition ^ (this.startPosition >>> 32));
             hash = 37 * hash + (int) (this.endPosition ^ (this.endPosition >>> 32));
-            hash = 37 * hash + (this.proteinChange != null ? this.proteinChange.hashCode() : 0);
-            hash = 37 * hash + (this.tumorSeqAllele != null ? this.tumorSeqAllele.hashCode() : 0);
-            hash = 37 * hash + (this.mutationType != null ? this.mutationType.hashCode() : 0);
+            hash = 37 * hash + (this.proteinChange != null ? this.proteinChange.toUpperCase().hashCode() : 0);
+            hash = 37 * hash + (this.tumorSeqAllele != null ? this.tumorSeqAllele.toUpperCase().hashCode() : 0);
+            hash = 37 * hash + (this.mutationType != null ? this.mutationType.toUpperCase().hashCode() : 0);
             return hash;
         }
 
@@ -333,7 +335,7 @@ public final class ExtendedMutation
             if (this.gene != other.gene && (this.gene == null || !this.gene.equals(other.gene))) {
                 return false;
             }
-            if ((this.chr == null) ? (other.chr != null) : !this.chr.equals(other.chr)) {
+            if ((this.chr == null) ? (other.chr != null) : !this.chr.equalsIgnoreCase(other.chr)) {
                 return false;
             }
             if (this.startPosition != other.startPosition) {
@@ -342,13 +344,13 @@ public final class ExtendedMutation
             if (this.endPosition != other.endPosition) {
                 return false;
             }
-            if ((this.proteinChange == null) ? (other.proteinChange != null) : !this.proteinChange.equals(other.proteinChange)) {
+            if ((this.proteinChange == null) ? (other.proteinChange != null) : !this.proteinChange.equalsIgnoreCase(other.proteinChange)) {
                 return false;
             }
-            if ((this.tumorSeqAllele == null) ? (other.tumorSeqAllele != null) : !this.tumorSeqAllele.equals(other.tumorSeqAllele)) {
+            if ((this.tumorSeqAllele == null) ? (other.tumorSeqAllele != null) : !this.tumorSeqAllele.equalsIgnoreCase(other.tumorSeqAllele)) {
                 return false;
             }
-            if ((this.mutationType == null) ? (other.mutationType != null) : !this.mutationType.equals(other.mutationType)) {
+            if ((this.mutationType == null) ? (other.mutationType != null) : !this.mutationType.equalsIgnoreCase(other.mutationType)) {
                 return false;
             }
             return true;

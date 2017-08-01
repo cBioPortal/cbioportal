@@ -91,8 +91,9 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 7, cancerStudy.getCnaSampleCount());
         Assert.assertEquals((Integer) 7, cancerStudy.getCompleteSampleCount());
         Assert.assertEquals((Integer) 1, cancerStudy.getMethylationHm27SampleCount());
-        Assert.assertEquals((Integer) 8, cancerStudy.getMiRnaSampleCount());
-        Assert.assertEquals((Integer) 0, cancerStudy.getMrnaMicroarraySampleCount());
+        Assert.assertEquals((Integer) 0, cancerStudy.getMiRnaSampleCount());
+        Assert.assertEquals((Integer) 8, cancerStudy.getMrnaMicroarraySampleCount());
+        Assert.assertEquals((Integer) 0, cancerStudy.getMrnaRnaSeqSampleCount());
         Assert.assertEquals((Integer) 7, cancerStudy.getMrnaRnaSeqV2SampleCount());
         Assert.assertEquals((Integer) 0, cancerStudy.getRppaSampleCount());
         Assert.assertEquals((Integer) 7, cancerStudy.getSequencedSampleCount());
@@ -166,8 +167,9 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 7, result.getCnaSampleCount());
         Assert.assertEquals((Integer) 7, result.getCompleteSampleCount());
         Assert.assertEquals((Integer) 1, result.getMethylationHm27SampleCount());
-        Assert.assertEquals((Integer) 8, result.getMiRnaSampleCount());
-        Assert.assertEquals((Integer) 0, result.getMrnaMicroarraySampleCount());
+        Assert.assertEquals((Integer) 0, result.getMiRnaSampleCount());
+        Assert.assertEquals((Integer) 8, result.getMrnaMicroarraySampleCount());
+        Assert.assertEquals((Integer) 0, result.getMrnaRnaSeqSampleCount());
         Assert.assertEquals((Integer) 7, result.getMrnaRnaSeqV2SampleCount());
         Assert.assertEquals((Integer) 0, result.getRppaSampleCount());
         Assert.assertEquals((Integer) 7, result.getSequencedSampleCount());

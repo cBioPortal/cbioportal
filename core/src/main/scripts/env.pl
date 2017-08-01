@@ -35,11 +35,11 @@ if ($portalDataHome eq "") {
 	die "PORTAL_DATA_HOME Environment Variable is not set.  Please set, and try again.\n";
 }
 
-# Set up Classpath to use all JAR files in lib dir.
-$cp="$portalHome/portal/target/portal/WEB-INF/classes";
-@jar_files = glob ("$portalHome/portal/target/portal/WEB-INF/lib/*.jar");
-foreach my $jar (@jar_files) {
-  $cp="$cp$pathDelim$jar"
+# Set up Classpath to use the scripts jar
+@jar_files = glob("$portalHome/scripts/target/scripts-*.jar");
+if (scalar @jar_files != 1) {
+	die "Expected to find 1 scripts-*.jar, but found: " . scalar @jar_files;
 }
+$cp = pop @jar_files;
 
 return 1;

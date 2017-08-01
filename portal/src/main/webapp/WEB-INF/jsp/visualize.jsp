@@ -33,6 +33,57 @@
 
 <%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
+
+<script type="text/javascript" src="js/src/modifyQuery.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
+<script>
+window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
+    
+window.historyType = 'memory';
+
+window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
+window.skinExampleStudyQueries = '<%=GlobalProperties.getExampleStudyQueries().replace("\n","\\n")%>'.split("\n");
+
+window.priorityStudies = {};
+<%
+List<String[]> priorityStudies = GlobalProperties.getPriorityStudies();
+for (String[] group : priorityStudies) {
+    if (group.length > 1) {
+        out.println("window.priorityStudies['"+group[0]+"'] = ");
+        out.println("[");
+        int i = 1;
+        while (i < group.length) {
+            if (i >= 2) {
+                out.println(",");
+            }
+            out.println("'"+group[i]+"'");
+            i++;
+        }
+        out.println("];");
+    }
+}
+%>
+
+
+    // Set API root variable for cbioportal-frontend repo
+    <%
+String url = request.getRequestURL().toString();
+String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
+baseURL = baseURL.replace("https://", "").replace("http://", "");
+%>
+__API_ROOT__ = '<%=baseURL%>';
+
+window.loadReactApp({ defaultRoute: 'blank' });
+
+window.onReactAppReady(function() {
+    window.initModifyQueryComponent("modifyQueryButton", "querySelector");
+});
+
+
+</script>
+
+<div id="reactRoot" class="hidden"></div>
+    
 <%@ page import="java.util.Map" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 
@@ -51,16 +102,16 @@
 <div class='main_smry'>
     <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>
     <div id='main_smry_info_div'>
-        <table style='margin-left:0px;width:40%;margin-top:-10px;margin-bottom:-5px;' >
+        <table style='margin-left:0px;margin-top:-10px;margin-bottom:-5px;' >
             <tr>
-                <td><div id='main_smry_modify_query_btn'><div></td>
+                <td>
+                    <button id="modifyQueryButton" class="btn btn-primary" style="display: none;">Modify Query</button>
+                </td>
                 <td><div id='main_smry_query_div' style='padding-left: 5px;'></div></td>
             </tr>
         </table>
     </div>
-    <div style="margin-left:5px;display:none;margin-top:-5px;" id="query_form_on_results_page">
-        <%@ include file="query_form.jsp" %>
-    </div>
+    <div id="querySelector" class="cbioportal-frontend" style="margin-top: 10px"></div>
 </div>
 
 <div id="tabs">

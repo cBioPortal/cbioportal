@@ -39,7 +39,7 @@
     <br/>
     Questions and feedback: <%= GlobalProperties.getEmailContact() %>
     <% if (GlobalProperties.getAppName().equalsIgnoreCase("public-portal")) { %>
-         | <a href="http://groups.google.com/group/cbioportal">User discussion group</a>
-         | <a href="https://www.biostars.org/t/cbioportal/">BioStars</a>
+         | <a target="_blank" href="http://groups.google.com/group/cbioportal">User discussion group</a>
+         | <a target="_blank" href="https://github.com/cBioPortal/"><i class="fa fa-github" aria-hidden="true"></i> GitHub</a>
     <% } %>
 </div> <!--end of page_wrapper-->

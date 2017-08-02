@@ -124,7 +124,34 @@ The first four rows of the clinical data file contain tab-delimited metadata abo
 - Row 1: **The attribute Display Names**: The display name for each clinical attribute
 - Row 2: **The attribute Descriptions**: Long(er) description of each clinical attribute
 - Row 3: **The attribute Datatype**: The datatype of each clinical attribute (must be one of:  STRING, NUMBER, BOOLEAN)
-- Row 4: **The attribute Priority**: A number which indicates the importance of each attribute.  In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages (such as the [Study View](http://www.cbioportal.org/study?id=brca_tcga)). A lower number indicates a higher priority.
+- Row 4: **The attribute Priority**: A number which indicates the importance of each attribute.  In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages (such as the [Study View](http://www.cbioportal.org/study?id=brca_tcga)). A higher number indicates a higher priority.
+    ```
+    To promote certain chart in study view, please increase priority to a certain number. The higher the score, the higher priority it will be displayed in the study view.
+    If you want to hide chart, please set the priority to 0. For combination chart, as long as one of the clinical attribute has been set to 0, it will be hidden.
+    
+    Currently, we preassigned priority to few charts, but as long as you assign a priority except than 1, these preassigned priorities will be overwritten.
+    
+    CANCER_TYPE: 3000, CANCER_TYPE_DETAILED: 2000,
+    Overall survival plot: 400 (This is combination of OS_MONTH and OS_STATUS) 
+    Disease Free Survival Plot: 300 (This is combination of DFS_MONTH and DFS_STATUS) 
+    Mutation Count vs. CNA Scatter Plot: 200,
+    Mutated Genes Table: 90, CNA Genes Table: 80, study_id: 70, # of Samples Per Patient: 40,
+    With Mutation Data Pie Chart: 60, With CNA Data Pie Chart: 50, 
+    Mutation Count Bar Chart: 30, CNA Bar Chart: 20,
+    GENDER: 9, SEX: 9, AGE: 8
+    ```
+    
+    Please note: 
+    Priority is not the sole factor determining which chart will be displayed first.
+    A layout algorithm in study view also makes a minor adjustment on the layout.
+    The algorithm tries to fit all charts into a 2 by 2 matrix (Mutated Genes Table occupies 2 by 2 space).
+    When a chart can not be fitted in the first matrix, the second matrixed will be generated. 
+    And the second matrix will have lower priority than the first one. 
+    If later chart can fit into the first matrix, then its priority will be promoted.
+    
+    Please see [here](Study-View.md) for more detailed information about how study view utilize priority and how the layout is calculated based on priority.
+ 
+    
 
 #### Example metadata rows
 Below is an example of the first 4 rows with the respective metadata for the attributes defined in the 5th row. 

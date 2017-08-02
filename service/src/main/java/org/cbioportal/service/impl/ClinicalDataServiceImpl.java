@@ -98,18 +98,38 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
-    public List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, String attributeId, 
-                                                String clinicalDataType, String projection) {
+    public List<ClinicalData> fetchAllClinicalDataInStudy(String studyId, List<String> ids, List<String> attributeIds,
+                                                          String clinicalDataType, String projection) 
+        throws StudyNotFoundException {
 
-        return clinicalDataRepository.fetchClinicalData(studyIds, ids, attributeId, clinicalDataType, projection);
+        studyService.getStudy(studyId);
+        
+        return clinicalDataRepository.fetchAllClinicalDataInStudy(studyId, ids, attributeIds, clinicalDataType, 
+            projection);
+    }
+
+    @Override
+    public BaseMeta fetchMetaClinicalDataInStudy(String studyId, List<String> ids, List<String> attributeIds,
+                                                 String clinicalDataType) throws StudyNotFoundException {
+
+        studyService.getStudy(studyId);
+        
+        return clinicalDataRepository.fetchMetaClinicalDataInStudy(studyId, ids, attributeIds, clinicalDataType);
     }
 
     @Override
     @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
-    public BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, String attributeId, 
+    public List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds, 
+                                                String clinicalDataType, String projection) {
+
+        return clinicalDataRepository.fetchClinicalData(studyIds, ids, attributeIds, clinicalDataType, projection);
+    }
+
+    @Override
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
+    public BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds, 
                                           String clinicalDataType) {
 
-        return clinicalDataRepository.fetchMetaClinicalData(studyIds, ids, attributeId, clinicalDataType);
+        return clinicalDataRepository.fetchMetaClinicalData(studyIds, ids, attributeIds, clinicalDataType);
     }
 }

@@ -47,8 +47,8 @@ import javax.validation.constraints.Size;
 @Api(tags = "Mutations", description = " ")
 public class MutationController {
 
-    private static final int MUTATION_MAX_PAGE_SIZE = 50000;
-    private static final String MUTATION_DEFAULT_PAGE_SIZE = "50000";
+    public static final int MUTATION_MAX_PAGE_SIZE = 100000;
+    private static final String MUTATION_DEFAULT_PAGE_SIZE = "100000";
 
     @Autowired
     private MutationService mutationService;

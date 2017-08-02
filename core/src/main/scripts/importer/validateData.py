@@ -1022,7 +1022,9 @@ class MutationsExtendedValidator(Validator):
         'HGVSp_Short': 'checkAminoAcidChange',
         'Amino_Acid_Change': 'checkAminoAcidChange',
         'Variant_Classification': 'checkVariantClassification',
-        'SWISSPROT': 'checkSwissProt'
+        'SWISSPROT': 'checkSwissProt',
+        'Start_Position': 'checkStartPosition',
+        'End_Position': 'checkEndPosition'
     }
 
     def __init__(self, *args, **kwargs):
@@ -1354,6 +1356,30 @@ class MutationsExtendedValidator(Validator):
                                         'gene symbol.',
                                         extra={'line_number': self.line_number, 'cause': value})
                 return True
+        # if no reasons to return with a message were found, return valid
+        return True
+    
+    def checkStartPosition(self, value):
+        """Check that the Start_Position value is an integer."""
+        if value.isdigit() == False or (value.isdigit() and '.' in value):
+            self.logger.error(
+                'The start position of this variant is not '
+                    'an integer',
+                extra={'line_number': self.line_number,
+                       'column_number': self.cols.index('Start_Position'),
+                       'cause': value})
+        # if no reasons to return with a message were found, return valid
+        return True
+    
+    def checkEndPosition(self, value):
+        """Check that the End_Position value is an integer."""
+        if value.isdigit() == False or (value.isdigit() and '.' in value):
+            self.logger.error(
+                'The end position of this variant is not '
+                    'an integer',
+                extra={'line_number': self.line_number,
+                       'column_number': self.cols.index('End_Position'),
+                       'cause': value})
         # if no reasons to return with a message were found, return valid
         return True
 

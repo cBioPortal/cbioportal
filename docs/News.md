@@ -1,11 +1,15 @@
 ## August 3, 2017
- *   The third phase of the cBioPortal architectural upgrade is now complete: The _Mutations_ tab now has a fresh look and faster performance -- see [example](http://www.cbioportal.org/beta/index.do?session_id=59834e72498e5df2e2937386&show_samples=false&#mutation_details)
- *   CIViC Annotation on the Mutations tab and the patient view pages
- *   Overview (bar chart) of cancer studies and samples in the front page
+ *   The third phase of the cBioPortal architectural upgrade is now complete: The _Mutations_ tab now has a fresh look and faster performance -- see [example](http://www.cbioportal.org/beta/index.do?session_id=598386e5498e5df2e29376ab&show_samples=false&#mutation_details&)
+ 
+ ![image](https://user-images.githubusercontent.com/840895/28942244-9ea43bee-7868-11e7-9b24-0aaf0f9c010d.png)
+ 
+ *   Variant interpretations from the [CIViC database](https://civic.genome.wustl.edu) are now integrated into the annotation columns on the Mutations tab and in the patient view pages
+ *   New summary graph for all cancer studies and samples on the front page
  
 
 ## June 26, 2017
  *   The second phase of the cBioPortal architectural upgrade is now complete: The query interface now has a fresh look and faster performance. 
+ 
   ![image](https://user-images.githubusercontent.com/840895/27399281-3ba5357a-568a-11e7-9730-d230285d7805.png)
 
 ## May 12, 2017

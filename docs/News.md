@@ -1,5 +1,5 @@
 ## August 3, 2017
- *   The third phase of the cBioPortal architectural upgrade is now complete: The _Mutations_ tab now has a fresh look and faster performance -- see [example](http://www.cbioportal.org/beta/index.do?session_id=598386e5498e5df2e29376ab&show_samples=false&#mutation_details&)
+ *   The third phase of the cBioPortal architectural upgrade is now complete: The _Mutations_ tab now has a fresh look and faster performance -- see [example](http://www.cbioportal.org/index.do?session_id=598386e5498e5df2e29376ab&show_samples=false&#mutation_details&)
  
  ![image](https://user-images.githubusercontent.com/840895/28942244-9ea43bee-7868-11e7-9b24-0aaf0f9c010d.png)
  

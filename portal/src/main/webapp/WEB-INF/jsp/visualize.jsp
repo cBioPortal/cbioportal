@@ -80,14 +80,13 @@ String baseURL = url.substring(0, url.length() - request.getRequestURI().length(
 baseURL = baseURL.replace("https://", "").replace("http://", "");
 %>
 __API_ROOT__ = '<%=baseURL%>';
-
-window.loadReactApp({ defaultRoute: 'blank' });
+    
+window.loadReactApp({ defaultRoute: 'results' });
 
 window.onReactAppReady(function() {
     window.initModifyQueryComponent("modifyQueryButton", "querySelector");
 });
-
-
+    
 </script>
 
 <div id="reactRoot" class="hidden"></div>

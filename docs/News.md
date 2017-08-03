@@ -1,3 +1,9 @@
+## August 3, 2017
+ *   The third phase of the cBioPortal architectural upgrade is now complete: The _Mutations_ tab now has a fresh look and faster performance -- see [example](http://www.cbioportal.org/beta/index.do?session_id=59834e72498e5df2e2937386&show_samples=false&#mutation_details)
+ *   CIViC Annotation on the Mutations tab and the patient view pages
+ *   Overview (bar chart) of cancer studies and samples in the front page
+ 
+
 ## June 26, 2017
  *   The second phase of the cBioPortal architectural upgrade is now complete: The query interface now has a fresh look and faster performance. 
   ![image](https://user-images.githubusercontent.com/840895/27399281-3ba5357a-568a-11e7-9730-d230285d7805.png)
@@ -32,7 +38,7 @@ ARC-Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *9
 
 ## Feburary 2, 2017
 *   **New features**:
-    * 3D hotspot mutation annotations are now available from 3dhotspots.org.
+    * 3D hotspot mutation annotations are now available from 3dhotspots.org
 *   **New data**:
     * CPTAC proteomics data have been integrated for TCGA breast, ovarian, and colorectal provisional studies
     

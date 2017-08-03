@@ -45,8 +45,8 @@ import java.util.HashMap;
 public class FusionFileUtil
 {
 	public static final String FUSION = "Fusion";
-	public static final String DNA_SUPPORT = "DNA support";
-	public static final String RNA_SUPPORT = "RNA support";
+	public static final String DNA_SUPPORT = "DNA_support";
+	public static final String RNA_SUPPORT = "RNA_support";
 	public static final String METHOD = "Method";
 	public static final String FRAME = "Frame";
 

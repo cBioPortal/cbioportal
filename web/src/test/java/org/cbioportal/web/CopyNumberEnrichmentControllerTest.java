@@ -79,8 +79,8 @@ public class CopyNumberEnrichmentControllerTest {
         alterationEnrichment1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
         alterationEnrichment1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
         alterationEnrichment1.setCytoband(TEST_CYTOBAND_1);
-        alterationEnrichment1.setNumberOfSamplesInAlteredGroup(TEST_NUMBER_OF_SAMPLES_IN_ALTERED_GROUP_1);
-        alterationEnrichment1.setNumberOfSamplesInUnalteredGroup(TEST_NUMBER_OF_SAMPLES_IN_UNALTERED_GROUP_1);
+        alterationEnrichment1.setAlteredCount(TEST_NUMBER_OF_SAMPLES_IN_ALTERED_GROUP_1);
+        alterationEnrichment1.setUnalteredCount(TEST_NUMBER_OF_SAMPLES_IN_UNALTERED_GROUP_1);
         alterationEnrichment1.setLogRatio(TEST_LOG_RATIO_1);
         alterationEnrichment1.setpValue(TEST_P_VALUE_1);
         alterationEnrichment1.setqValue(TEST_Q_VALUE_1);
@@ -89,20 +89,21 @@ public class CopyNumberEnrichmentControllerTest {
         alterationEnrichment2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         alterationEnrichment2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
         alterationEnrichment2.setCytoband(TEST_CYTOBAND_2);
-        alterationEnrichment2.setNumberOfSamplesInAlteredGroup(TEST_NUMBER_OF_SAMPLES_IN_ALTERED_GROUP_2);
-        alterationEnrichment2.setNumberOfSamplesInUnalteredGroup(TEST_NUMBER_OF_SAMPLES_IN_UNALTERED_GROUP_2);
+        alterationEnrichment2.setAlteredCount(TEST_NUMBER_OF_SAMPLES_IN_ALTERED_GROUP_2);
+        alterationEnrichment2.setUnalteredCount(TEST_NUMBER_OF_SAMPLES_IN_UNALTERED_GROUP_2);
         alterationEnrichment2.setLogRatio(TEST_LOG_RATIO_2);
         alterationEnrichment2.setpValue(TEST_P_VALUE_2);
         alterationEnrichment2.setqValue(TEST_Q_VALUE_2);
         alterationEnrichments.add(alterationEnrichment2);
 
         Mockito.when(copyNumberEnrichmentService.getCopyNumberEnrichments(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class)))
+            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class),
+            Mockito.anyString()))
             .thenReturn(alterationEnrichments);
 
         EnrichmentFilter enrichmentFilter = new EnrichmentFilter();
-        enrichmentFilter.setAlteredSampleIds(Arrays.asList("test_sample_id_1"));
-        enrichmentFilter.setUnalteredSampleIds(Arrays.asList("test_sample_id_2"));
+        enrichmentFilter.setAlteredIds(Arrays.asList("test_sample_id_1"));
+        enrichmentFilter.setUnalteredIds(Arrays.asList("test_sample_id_2"));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/genetic-profiles/test_genetic_profile_id/copy-number-enrichments/fetch")
@@ -115,9 +116,9 @@ public class CopyNumberEnrichmentControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(TEST_CYTOBAND_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].numberOfSamplesInAlteredGroup").value(
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].alteredCount").value(
                 TEST_NUMBER_OF_SAMPLES_IN_ALTERED_GROUP_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].numberOfSamplesInUnalteredGroup").value(
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].unalteredCount").value(
                 TEST_NUMBER_OF_SAMPLES_IN_UNALTERED_GROUP_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].logRatio").value(TEST_LOG_RATIO_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
@@ -125,9 +126,9 @@ public class CopyNumberEnrichmentControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value(TEST_CYTOBAND_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].numberOfSamplesInAlteredGroup").value(
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].alteredCount").value(
                 TEST_NUMBER_OF_SAMPLES_IN_ALTERED_GROUP_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].numberOfSamplesInUnalteredGroup").value(
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].unalteredCount").value(
                 TEST_NUMBER_OF_SAMPLES_IN_UNALTERED_GROUP_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].logRatio").value(TEST_LOG_RATIO_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2))

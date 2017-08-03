@@ -58,4 +58,17 @@
         <include refid="from"/>
         <include refid="where"/>
     </select>
+    
+    <select id="getCopyNumberSegmentsBySampleListId" resultType="org.cbioportal.model.CopyNumberSeg">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        AND copy_number_seg.SAMPLE_ID IN
+        (
+            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+            WHERE sample_list.STABLE_ID = #{sampleListId}
+        )
+    </select>
 </mapper>

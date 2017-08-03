@@ -1,7 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.CopyNumberCount;
-import org.cbioportal.model.CopyNumberSampleCountByGene;
+import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.GeneGeneticData;
 import org.cbioportal.model.GeneticProfile;
@@ -118,27 +118,23 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
 
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlterationAndSampleListId(
-        String geneticProfileId,
-        String sampleListId,
-        List<Integer> entrezGeneIds,
-        List<Integer> alterations) {
-
-        return discreteCopyNumberRepository.getSampleCountByGeneAndAlterationAndSampleListId(geneticProfileId,
-            sampleListId, entrezGeneIds, alterations);
-    }
-
-    @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(
+    public List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(
         String geneticProfileId,
         List<String> sampleIds,
         List<Integer> entrezGeneIds,
         List<Integer> alterations) {
 
-        return discreteCopyNumberRepository.getSampleCountByGeneAndAlterationAndSampleIds(geneticProfileId, sampleIds,
+        return discreteCopyNumberRepository.getSampleCountByGeneAndAlterationAndSampleIds(geneticProfileId, sampleIds, 
             entrezGeneIds, alterations);
     }
+
+    @Override
+    public List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String geneticProfileId, List<String> patientIds, List<Integer> entrezGeneIds, List<Integer> alterations) {
+
+        return discreteCopyNumberRepository.getPatientCountByGeneAndAlterationAndPatientIds(geneticProfileId, 
+            patientIds, entrezGeneIds, alterations);
+    }
+
 
     @Override
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
@@ -150,7 +146,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
 
         Integer numberOfSamplesInGeneticProfile = geneticDataService.getNumberOfSamplesInGeneticProfile(
             geneticProfileId);
-        List<CopyNumberSampleCountByGene> copyNumberSampleCountByGeneList = 
+        List<CopyNumberCountByGene> copyNumberSampleCountByGeneList =
             getSampleCountByGeneAndAlterationAndSampleIds(geneticProfileId, null, entrezGeneIds, alterations);
 
         List<CopyNumberCount> copyNumberCounts = new ArrayList<>();
@@ -164,11 +160,11 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
             copyNumberCount.setAlteration(alteration);
             copyNumberCount.setNumberOfSamples(numberOfSamplesInGeneticProfile);
 
-            Optional<CopyNumberSampleCountByGene> copyNumberSampleCountByGene = copyNumberSampleCountByGeneList.stream()
+            Optional<CopyNumberCountByGene> copyNumberSampleCountByGene = copyNumberSampleCountByGeneList.stream()
                 .filter(p -> p.getEntrezGeneId().equals(entrezGeneId) && p.getAlteration().equals(alteration))
                 .findFirst();
             copyNumberSampleCountByGene.ifPresent(m -> copyNumberCount.setNumberOfSamplesWithAlterationInGene(m
-                .getSampleCount()));
+                .getCount()));
 
             copyNumberCounts.add(copyNumberCount);
         }

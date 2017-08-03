@@ -33,14 +33,15 @@ package org.cbioportal.weblegacy;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.cbioportal.model.*;
-import org.cbioportal.service.MutationalSignatureService;
+
+import org.mskcc.cbio.portal.service.MutationalSignatureService;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mskcc.cbio.portal.model.MutationalSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;

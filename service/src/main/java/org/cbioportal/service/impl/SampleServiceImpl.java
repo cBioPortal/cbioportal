@@ -84,6 +84,13 @@ public class SampleServiceImpl implements SampleService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
+    public List<Sample> getAllSamplesOfPatientsInStudy(String studyId, List<String> patientIds, String projection) {
+
+        return sampleRepository.getAllSamplesOfPatientsInStudy(studyId, patientIds, projection);
+    }
+
+    @Override
     @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {
 

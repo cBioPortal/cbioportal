@@ -18,10 +18,14 @@ public interface SampleService {
     Sample getSampleInStudy(String studyId, String sampleId) throws SampleNotFoundException, StudyNotFoundException;
 
     List<Sample> getAllSamplesOfPatientInStudy(String studyId, String patientId, String projection, Integer pageSize,
-                                               Integer pageNumber, String sortBy, String direction) throws StudyNotFoundException, PatientNotFoundException;
+                                               Integer pageNumber, String sortBy, String direction) 
+        throws StudyNotFoundException, PatientNotFoundException;
 
-    BaseMeta getMetaSamplesOfPatientInStudy(String studyId, String patientId) throws StudyNotFoundException, PatientNotFoundException;
+    BaseMeta getMetaSamplesOfPatientInStudy(String studyId, String patientId) 
+        throws StudyNotFoundException, PatientNotFoundException;
 
+    List<Sample> getAllSamplesOfPatientsInStudy(String studyId, List<String> patientIds, String projection);
+    
     List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection);
 
     BaseMeta fetchMetaSamples(List<String> studyIds, List<String> sampleIds);

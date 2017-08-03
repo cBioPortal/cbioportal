@@ -26,9 +26,15 @@ public interface ClinicalDataRepository {
 
     BaseMeta getMetaAllClinicalData(String studyId, String attributeId, String clinicalDataType);
 
-    List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, String attributeId,
+    List<ClinicalData> fetchAllClinicalDataInStudy(String studyId, List<String> ids, List<String> attributeIds, 
+                                                   String clinicalDataType, String projection);
+
+    BaseMeta fetchMetaClinicalDataInStudy(String studyId, List<String> ids, List<String> attributeIds, 
+                                          String clinicalDataType);
+    
+    List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                          String clinicalDataType, String projection);
 
-    BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, String attributeId,
+    BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                    String clinicalDataType);
 }

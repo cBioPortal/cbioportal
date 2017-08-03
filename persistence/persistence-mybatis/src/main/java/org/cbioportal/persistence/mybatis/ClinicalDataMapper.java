@@ -7,15 +7,15 @@ import java.util.List;
 
 public interface ClinicalDataMapper {
 
-    List<ClinicalData> getSampleClinicalData(List<String> studyIds, List<String> sampleIds, String attributeId, 
+    List<ClinicalData> getSampleClinicalData(List<String> studyIds, List<String> sampleIds, List<String> attributeIds, 
                                              String projection, Integer limit, Integer offset, String sortBy, 
                                              String direction);
 
-    BaseMeta getMetaSampleClinicalData(List<String> studyIds, List<String> sampleIds, String attributeId);
+    BaseMeta getMetaSampleClinicalData(List<String> studyIds, List<String> sampleIds, List<String> attributeIds);
 
-    List<ClinicalData> getPatientClinicalData(List<String> studyIds, List<String> patientIds, String attributeId, 
+    List<ClinicalData> getPatientClinicalData(List<String> studyIds, List<String> patientIds, List<String> attributeIds, 
                                               String projection, Integer limit, Integer offset, String sortBy, 
                                               String direction);
 
-    BaseMeta getMetaPatientClinicalData(List<String> studyIds, List<String> patientIds, String attributeId);
+    BaseMeta getMetaPatientClinicalData(List<String> studyIds, List<String> patientIds, List<String> attributeIds);
 }

@@ -37,6 +37,8 @@ import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,7 +47,10 @@ import java.util.regex.Pattern;
  */
 public class ExtendedMutationUtil
 {
-	public static final String NOT_AVAILABLE = "NA";
+	// originally NA (case ignored) was the only value for empty values in this column,
+	// but [Not Available] occurs in many TCGA studies.
+	// TODO if this list grows, create NotAvailableValues enum like in ImportClinicalData.java
+	public static final List <String> NOT_AVAILABLE = Arrays.asList("NA", "[Not Available]");
 
 	public static String getCaseId(String barCode)
 	{
@@ -175,8 +180,7 @@ public class ExtendedMutationUtil
 		boolean invalid = proteinChange == null ||
 		                  proteinChange.length() == 0 ||
 		                  proteinChange.equalsIgnoreCase("NULL") ||
-		                  proteinChange.equalsIgnoreCase(NOT_AVAILABLE);
-
+		                  NOT_AVAILABLE.stream().anyMatch(s -> s.equalsIgnoreCase(proteinChange));
 		return !invalid;
 	}
 

@@ -526,7 +526,7 @@ public class ImportExtendedMutationData{
         } else if( omaScore.equalsIgnoreCase("N") || omaScore.equalsIgnoreCase("neutral")) {
             return "N";
         } else if( omaScore.equalsIgnoreCase("[sent]")) {
-            return ExtendedMutationUtil.NOT_AVAILABLE; // TODO temp workaround for invalid sent values
+            return MutationDataUtils.OMA_LINK_NOT_AVAILABLE_VALUE;
         } else {
             return omaScore;
         }

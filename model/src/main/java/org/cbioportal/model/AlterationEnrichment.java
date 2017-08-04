@@ -8,8 +8,8 @@ public class AlterationEnrichment implements Serializable {
     private Integer entrezGeneId;
     private String hugoGeneSymbol;
     private String cytoband;
-    private Integer numberOfSamplesInAlteredGroup;
-    private Integer numberOfSamplesInUnalteredGroup;
+    private Integer alteredCount;
+    private Integer unalteredCount;
     private String logRatio;
     private BigDecimal pValue;
     private BigDecimal qValue;
@@ -38,20 +38,20 @@ public class AlterationEnrichment implements Serializable {
         this.cytoband = cytoband;
     }
 
-    public Integer getNumberOfSamplesInAlteredGroup() {
-        return numberOfSamplesInAlteredGroup;
+    public Integer getAlteredCount() {
+        return alteredCount;
     }
 
-    public void setNumberOfSamplesInAlteredGroup(Integer numberOfSamplesInAlteredGroup) {
-        this.numberOfSamplesInAlteredGroup = numberOfSamplesInAlteredGroup;
+    public void setAlteredCount(Integer alteredCount) {
+        this.alteredCount = alteredCount;
     }
 
-    public Integer getNumberOfSamplesInUnalteredGroup() {
-        return numberOfSamplesInUnalteredGroup;
+    public Integer getUnalteredCount() {
+        return unalteredCount;
     }
 
-    public void setNumberOfSamplesInUnalteredGroup(Integer numberOfSamplesInUnalteredGroup) {
-        this.numberOfSamplesInUnalteredGroup = numberOfSamplesInUnalteredGroup;
+    public void setUnalteredCount(Integer unalteredCount) {
+        this.unalteredCount = unalteredCount;
     }
 
     public String getLogRatio() {

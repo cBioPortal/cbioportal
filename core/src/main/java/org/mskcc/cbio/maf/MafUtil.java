@@ -472,7 +472,7 @@ public class MafUtil
         record.setScore(TabDelimitedFileUtil.getPartString(scoreIndex, parts));
         record.setBamFile(TabDelimitedFileUtil.getPartString(bamFileIndex, parts));
         
-        record.setAminoAcidChange(TabDelimitedFileUtil.getPartString(aminoAcidChangeIndex, parts));
+        record.setAminoAcidChange(TabDelimitedFileUtil.getPartString(aminoAcidChangeIndex, parts).trim());
 
 	    // allele frequency (count) columns
 	    record.setTumorAltCount(TabDelimitedFileUtil.getPartInt(tumorAltCountIndex, parts));
@@ -489,7 +489,7 @@ public class MafUtil
         record.setNormalVaf(TabDelimitedFileUtil.getPartPercentage(normalVafIndex, parts));
 
 	    // custom annotator columns
-	    record.setProteinChange(TabDelimitedFileUtil.getPartString(getColumnIndex(PROTEIN_CHANGE), parts));
+	    record.setProteinChange(TabDelimitedFileUtil.getPartString(getColumnIndex(PROTEIN_CHANGE), parts).trim());
 	    record.setProteinPosition(TabDelimitedFileUtil.getPartString(getColumnIndex(PROTEIN_POSITION), parts));
 	    record.setCodons(TabDelimitedFileUtil.getPartString(getColumnIndex(CODONS), parts));
 	    record.setSwissprot(TabDelimitedFileUtil.getPartString(getColumnIndex(SWISSPROT), parts));

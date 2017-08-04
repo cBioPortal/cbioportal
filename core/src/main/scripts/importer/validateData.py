@@ -990,7 +990,7 @@ class MutationsExtendedValidator(Validator):
     NULL_AA_CHANGE_VALUES = ('', 'NULL', 'NA')
 
     # extra unofficial Variant classification values from https://github.com/mskcc/vcf2maf/issues/88:
-    EXTRA_VARIANT_CLASSIFICATION_VALUES = ['Splice_Region']
+    EXTRA_VARIANT_CLASSIFICATION_VALUES = ['Splice_Region', 'Fusion']
     # MAF values for Variant_Classification column
     # from https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification + EXTRA values + Unknown:
     VARIANT_CLASSIFICATION_VALUES = [
@@ -1223,14 +1223,6 @@ class MutationsExtendedValidator(Validator):
         # may require bundling the hgvs package:
         # https://pypi.python.org/pypi/hgvs/
         if value not in self.NULL_AA_CHANGE_VALUES:
-            # give error if a white space is found in value (this leads to errors in
-            # other layers, e.g. COSMIC keywords will not be matched)
-            if ' ' in value:
-                # return with an error message
-                self.extra = 'White space found in amino acid change column'
-                self.extra_exists = True
-                return False
-
             value = value.strip()
             # there should only be a 'p.' prefix at the very start
             if len(value) > 1 and 'p.' in value[1:]:

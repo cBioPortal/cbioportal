@@ -101,12 +101,12 @@ public class ExpressionEnrichmentControllerTest {
         expressionEnrichments.add(expressionEnrichment2);
 
         Mockito.when(expressionEnrichmentService.getExpressionEnrichments(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class)))
+            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString()))
             .thenReturn(expressionEnrichments);
 
         EnrichmentFilter enrichmentFilter = new EnrichmentFilter();
-        enrichmentFilter.setAlteredSampleIds(Arrays.asList("test_sample_id_1"));
-        enrichmentFilter.setUnalteredSampleIds(Arrays.asList("test_sample_id_2"));
+        enrichmentFilter.setAlteredIds(Arrays.asList("test_sample_id_1"));
+        enrichmentFilter.setUnalteredIds(Arrays.asList("test_sample_id_2"));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/genetic-profiles/test_genetic_profile_id/expression-enrichments/fetch")

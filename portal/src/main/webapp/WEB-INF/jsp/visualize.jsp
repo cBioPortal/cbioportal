@@ -45,6 +45,14 @@ window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
 window.skinExampleStudyQueries = '<%=GlobalProperties.getExampleStudyQueries().replace("\n","\\n")%>'.split("\n");
 
 window.priorityStudies = {};
+
+// global variables required for MutationMapper annotation column
+window.showCivic = <%=GlobalProperties.showCivic()%>;
+window.showHotspot = <%=GlobalProperties.showHotspot()%>;
+window.showMyCancerGenome = <%=GlobalProperties.showMyCancerGenomeUrl()%>;
+window.oncoKBApiUrl = '<%=GlobalProperties.getOncoKBPublicApiUrl()%>';
+window.showOncoKB = window.oncoKBApiUrl ? true : false;
+
 <%
 List<String[]> priorityStudies = GlobalProperties.getPriorityStudies();
 for (String[] group : priorityStudies) {
@@ -72,14 +80,13 @@ String baseURL = url.substring(0, url.length() - request.getRequestURI().length(
 baseURL = baseURL.replace("https://", "").replace("http://", "");
 %>
 __API_ROOT__ = '<%=baseURL%>';
-
-window.loadReactApp({ defaultRoute: 'blank' });
+    
+window.loadReactApp({ defaultRoute: 'results' });
 
 window.onReactAppReady(function() {
     window.initModifyQueryComponent("modifyQueryButton", "querySelector");
 });
-
-
+    
 </script>
 
 <div id="reactRoot" class="hidden"></div>
@@ -324,9 +331,8 @@ window.onReactAppReady(function() {
             + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
             out.println("</div>");
         } else if (showMutTab) { %>
-            <%@ include file="mutation_views.jsp" %>
             <%@ include file="mutation_details.jsp" %>
-        <%  } %>
+        <% } %>
 
         <% if (includeNetworks) { %>
             <%@ include file="networks.jsp" %>

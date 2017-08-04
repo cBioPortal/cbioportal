@@ -40,7 +40,12 @@
     <mvc:resources mapping="/swf/**" location="/swf/"/>
     <mvc:view-controller path="/api" view-name="redirect:/api/swagger-ui.html"/>
 
-    <mvc:annotation-driven>
+    <bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+        <property name="favorPathExtension" value="false" />
+    </bean>
+
+    <mvc:annotation-driven content-negotiation-manager="contentNegotiationManager">
+        <mvc:path-matching suffix-pattern="false" />
         <mvc:message-converters>
             <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
                 <property name="objectMapper">

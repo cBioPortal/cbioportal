@@ -144,4 +144,24 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
 
         Assert.assertEquals((Integer) 3, result.getTotalCount());
     }
+
+    @Test
+    public void getCopyNumberSegmentsBySampleListId() throws Exception {
+        
+        List<CopyNumberSeg> result = copyNumberSegmentMyBatisRepository.getCopyNumberSegmentsBySampleListId(
+            "study_tcga_pub", "study_tcga_pub_methylation_hm27", "SUMMARY");
+
+        Assert.assertEquals(1, result.size());
+        CopyNumberSeg copyNumberSeg = result.get(0);
+        Assert.assertEquals((Integer) 50236593, copyNumberSeg.getSegId());
+        Assert.assertEquals((Integer) 1, copyNumberSeg.getCancerStudyId());
+        Assert.assertEquals("study_tcga_pub", copyNumberSeg.getCancerStudyIdentifier());
+        Assert.assertEquals((Integer) 2, copyNumberSeg.getSampleId());
+        Assert.assertEquals("TCGA-A1-A0SD-01", copyNumberSeg.getSampleStableId());
+        Assert.assertEquals("2", copyNumberSeg.getChr());
+        Assert.assertEquals((Integer) 1402650, copyNumberSeg.getStart());
+        Assert.assertEquals((Integer) 190262486, copyNumberSeg.getEnd());
+        Assert.assertEquals((Integer) 207, copyNumberSeg.getNumProbes());
+        Assert.assertEquals(new BigDecimal("0.0265"), copyNumberSeg.getSegmentMean());
+    }
 }

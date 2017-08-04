@@ -2,8 +2,8 @@ package org.cbioportal.service;
 
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCount;
-import org.cbioportal.model.MutationSampleCountByGene;
-import org.cbioportal.model.MutationSampleCountByKeyword;
+import org.cbioportal.model.MutationCountByPosition;
+import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 
@@ -12,8 +12,8 @@ import java.util.List;
 public interface MutationService {
     
     List<Mutation> getMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId, 
-                                                              List<Integer> entrezGeneIds, String projection, 
-                                                              Integer pageSize, Integer pageNumber,
+                                                              List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                              String projection, Integer pageSize, Integer pageNumber,
                                                               String sortBy, String direction) 
         throws GeneticProfileNotFoundException;
 
@@ -30,24 +30,21 @@ public interface MutationService {
                                                            List<Integer> entrezGeneIds);
 
     List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
-                                                  List<Integer> entrezGeneIds, String projection, Integer pageSize, 
-                                                  Integer pageNumber, String sortBy, String direction) 
+                                                  List<Integer> entrezGeneIds, Boolean snpOnly, String projection, 
+                                                  Integer pageSize, Integer pageNumber, String sortBy, String direction) 
         throws GeneticProfileNotFoundException;
 
     MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds, 
                                                     List<Integer> entrezGeneIds) throws GeneticProfileNotFoundException;
 
-    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIdsAndSampleListId(String geneticProfileId,
-                                                                                 String sampleListId,
-                                                                                 List<Integer> entrezGeneIds) 
+    List<MutationCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
+                                                                        List<String> sampleIds,
+                                                                        List<Integer> entrezGeneIds)
         throws GeneticProfileNotFoundException;
 
-    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
-                                                                              List<String> sampleIds,
-                                                                              List<Integer> entrezGeneIds)
-        throws GeneticProfileNotFoundException;
-
-    List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords) 
+    List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
+                                                                        List<String> patientIds,
+                                                                        List<Integer> entrezGeneIds)
         throws GeneticProfileNotFoundException;
 
     List<MutationCount> getMutationCountsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId) 
@@ -55,4 +52,8 @@ public interface MutationService {
 
     List<MutationCount> fetchMutationCountsInGeneticProfile(String geneticProfileId, List<String> sampleIds) 
         throws GeneticProfileNotFoundException;
+
+    List<MutationCountByPosition> fetchMutationCountsByPosition(List<Integer> entrezGeneIds, 
+                                                                List<Integer> proteinPosStarts, 
+                                                                List<Integer> proteinPosEnds);
 }

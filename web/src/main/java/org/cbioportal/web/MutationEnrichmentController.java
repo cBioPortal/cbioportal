@@ -8,6 +8,7 @@ import org.cbioportal.service.MutationEnrichmentService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.EnrichmentFilter;
+import org.cbioportal.web.parameter.EnrichmentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -38,10 +40,13 @@ public class MutationEnrichmentController {
     public ResponseEntity<List<AlterationEnrichment>> fetchMutationEnrichments(
         @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
         @PathVariable String geneticProfileId,
-        @ApiParam(required = true, value = "List of altered and unaltered Sample IDs and Entrez Gene IDs")
+        @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
+        @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
+        @ApiParam(required = true, value = "List of altered and unaltered Sample/Patient IDs")
         @Valid @RequestBody EnrichmentFilter enrichmentFilter) throws GeneticProfileNotFoundException {
 
         return new ResponseEntity<>(mutationEnrichmentService.getMutationEnrichments(geneticProfileId,
-            enrichmentFilter.getAlteredSampleIds(), enrichmentFilter.getUnalteredSampleIds()), HttpStatus.OK);
+            enrichmentFilter.getAlteredIds(), enrichmentFilter.getUnalteredIds(), enrichmentType.name()), 
+            HttpStatus.OK);
     }
 }

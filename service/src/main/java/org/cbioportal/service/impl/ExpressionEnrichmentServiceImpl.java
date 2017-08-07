@@ -7,12 +7,17 @@ import org.apache.commons.math3.stat.inference.TestUtils;
 import org.cbioportal.model.ExpressionEnrichment;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneGeneticData;
+import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.Sample;
 import org.cbioportal.service.ExpressionEnrichmentService;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.GeneticDataService;
+import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.cbioportal.service.util.BenjaminiHochbergFDRCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -29,6 +34,10 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     private static final String RNA_SEQ = "rna_seq";
 
     @Autowired
+    private SampleService sampleService;
+    @Autowired
+    private GeneticProfileService geneticProfileService;
+    @Autowired
     private GeneticDataService geneticDataService;
     @Autowired
     private GeneService geneService;
@@ -36,15 +45,26 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     private BenjaminiHochbergFDRCalculator benjaminiHochbergFDRCalculator;
 
     @Override
-    public List<ExpressionEnrichment> getExpressionEnrichments(String geneticProfileId, List<String> alteredSampleIds, 
-                                                               List<String> unalteredSampleIds) 
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    public List<ExpressionEnrichment> getExpressionEnrichments(String geneticProfileId, List<String> alteredIds, 
+                                                               List<String> unalteredIds, String enrichmentType) 
         throws GeneticProfileNotFoundException {
         
-        Map<Integer, List<GeneGeneticData>> alteredGeneticDataMap = geneticDataService.fetchGeneticData(geneticProfileId, 
-            alteredSampleIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(GeneGeneticData::getEntrezGeneId));
+        if (enrichmentType.equals("PATIENT")) {
+            GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
+            alteredIds = sampleService.getAllSamplesOfPatientsInStudy(geneticProfile.getCancerStudyIdentifier(), 
+                alteredIds, "ID").stream().map(Sample::getStableId).collect(Collectors.toList());
+            unalteredIds = sampleService.getAllSamplesOfPatientsInStudy(geneticProfile.getCancerStudyIdentifier(),
+                unalteredIds, "ID").stream().map(Sample::getStableId).collect(Collectors.toList());
+        }
         
-        Map<Integer, List<GeneGeneticData>> unalteredGeneticDataMap = geneticDataService.fetchGeneticData(geneticProfileId, 
-            unalteredSampleIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(GeneGeneticData::getEntrezGeneId));
+        Map<Integer, List<GeneGeneticData>> alteredGeneticDataMap = geneticDataService.fetchGeneticData(
+            geneticProfileId, alteredIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(
+                GeneGeneticData::getEntrezGeneId));
+        
+        Map<Integer, List<GeneGeneticData>> unalteredGeneticDataMap = geneticDataService.fetchGeneticData(
+            geneticProfileId, unalteredIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(
+                GeneGeneticData::getEntrezGeneId));
 
         Map<Integer, List<Gene>> genes = geneService.fetchGenes(alteredGeneticDataMap.keySet().stream()
             .map(String::valueOf).collect(Collectors.toList()), "ENTREZ_GENE_ID", "SUMMARY").stream()

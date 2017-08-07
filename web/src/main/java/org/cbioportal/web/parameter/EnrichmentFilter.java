@@ -8,24 +8,24 @@ public class EnrichmentFilter {
     
     @NotNull
     @Size(min = 1)
-    private List<String> alteredSampleIds;
+    private List<String> alteredIds;
     @NotNull
     @Size(min = 1)
-    private List<String> unalteredSampleIds;;
+    private List<String> unalteredIds;
 
-    public List<String> getAlteredSampleIds() {
-        return alteredSampleIds;
+    public List<String> getAlteredIds() {
+        return alteredIds;
     }
 
-    public void setAlteredSampleIds(List<String> alteredSampleIds) {
-        this.alteredSampleIds = alteredSampleIds;
+    public void setAlteredIds(List<String> alteredIds) {
+        this.alteredIds = alteredIds;
     }
 
-    public List<String> getUnalteredSampleIds() {
-        return unalteredSampleIds;
+    public List<String> getUnalteredIds() {
+        return unalteredIds;
     }
 
-    public void setUnalteredSampleIds(List<String> unalteredSampleIds) {
-        this.unalteredSampleIds = unalteredSampleIds;
+    public void setUnalteredIds(List<String> unalteredIds) {
+        this.unalteredIds = unalteredIds;
     }
 }

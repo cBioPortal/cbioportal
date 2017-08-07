@@ -101,4 +101,20 @@ public class CopyNumberSegmentServiceImplTest extends BaseServiceImplTest {
 
         Assert.assertEquals(expectedBaseMeta, result);
     }
+
+    @Test
+    public void getCopyNumberSegmentsBySampleListId() throws Exception {
+
+        List<CopyNumberSeg> expectedCopyNumberSegList = new ArrayList<>();
+        CopyNumberSeg copyNumberSeg = new CopyNumberSeg();
+        expectedCopyNumberSegList.add(copyNumberSeg);
+
+        Mockito.when(copyNumberSegmentRepository.getCopyNumberSegmentsBySampleListId(STUDY_ID, SAMPLE_LIST_ID, 
+            PROJECTION)).thenReturn(expectedCopyNumberSegList);
+
+        List<CopyNumberSeg> result = copyNumberSegmentService.getCopyNumberSegmentsBySampleListId(STUDY_ID, 
+            SAMPLE_LIST_ID, PROJECTION);
+
+        Assert.assertEquals(expectedCopyNumberSegList, result);
+    }
 }

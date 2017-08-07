@@ -104,4 +104,20 @@
             </if>
         </where>
     </select>
+    
+    <select id="getSamplesOfPatients" resultType="org.cbioportal.model.Sample">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        <include refid="from"/>
+        WHERE
+        cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        <if test="patientIds != null and !patientIds.isEmpty()">
+            AND patient.STABLE_ID IN
+            <foreach item="item" collection="patientIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
 </mapper>

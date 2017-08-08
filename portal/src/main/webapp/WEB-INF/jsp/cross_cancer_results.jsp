@@ -84,49 +84,13 @@
 <script type="text/javascript" src="js/src/modifyQuery.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script>
-window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
-    
 window.historyType = 'memory';
-
-window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
-window.skinExampleStudyQueries = '<%=GlobalProperties.getExampleStudyQueries().replace("\n","\\n")%>'.split("\n");
-
-window.priorityStudies = {};
-<%
-List<String[]> priorityStudies = GlobalProperties.getPriorityStudies();
-for (String[] group : priorityStudies) {
-    if (group.length > 1) {
-        out.println("window.priorityStudies['"+group[0]+"'] = ");
-        out.println("[");
-        int i = 1;
-        while (i < group.length) {
-            if (i >= 2) {
-                out.println(",");
-            }
-            out.println("'"+group[i]+"'");
-            i++;
-        }
-        out.println("];");
-    }
-}
-%>
-    
-    
-
-// Set API root variable for cbioportal-frontend repo
-    <%
-String url = request.getRequestURL().toString();
-String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
-baseURL = baseURL.replace("https://", "").replace("http://", "");
-%>
-__API_ROOT__ = '<%=baseURL%>';
 
 window.loadReactApp({ defaultRoute: 'blank' });
     
 window.onReactAppReady(function(){
     window.initModifyQueryComponent("modifyQueryButton", "querySelector");
 });
-    
 </script>
     
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->

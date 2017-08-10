@@ -574,7 +574,7 @@ The MAF format recognized by the portal (excluding the annotation columns alread
 1. **Hugo_Symbol (Required)**: A [HUGO](http://www.genenames.org/) gene symbol.
 2. **Entrez_Gene_Id (Optional, but desired)**: A [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
 3. **Center (Optional)**: The sequencing center.
-4. **NCBI_Build (Optional)**: Must be "37".
+4. **NCBI_Build (Optional)**: Must be "GRCh37" for human, and "GRCm38" for mouse.
 5. **Chromosome (Optional)**: A chromosome number, e.g., "7".
 6. **Start_Position (Optional)**: Start position of event.
 7. **End_Position (Optional)**: End position of event.

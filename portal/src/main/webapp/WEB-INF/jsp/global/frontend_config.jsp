@@ -4,6 +4,7 @@
 
 <script type="text/javascript">
 
+window.frontendUrl = '<%=GlobalProperties.getFrontendUrl()%>';
 window.enableDarwin = <%=CheckDarwinAccessServlet.CheckDarwinAccess.existsDarwinProperties()%>;
 window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
 window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';

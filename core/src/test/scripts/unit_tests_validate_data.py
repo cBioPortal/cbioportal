@@ -1010,7 +1010,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                 'mutations/data_mutations_wrong_aa_change.maf',
                 validateData.MutationsExtendedValidator,
                 extra_meta_fields={'swissprot_identifier': 'accession'})
-        self.assertEqual(len(record_list), 6)
+        self.assertEqual(len(record_list), 5)
         record_iterator = iter(record_list)
         # empty field (and no HGVSp_Short column)
         record = record_iterator.next()
@@ -1039,11 +1039,6 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertIn('Amino_Acid_Change', record.getMessage())
         self.assertIn('HGVSp_Short', record.getMessage())
         self.assertEqual(record.line_number, 8)
-        # white space in column amino acid change column is not allowed:
-        record = record_iterator.next()
-        self.assertEqual(record.levelno, logging.ERROR)
-        self.assertIn('White space', record.getMessage())
-        self.assertEqual(record.line_number, 9)
 
     def test_isValidVariantClassification(self):
         """Test if proper warnings/errors are given for wrong/blank Variant_Classification change vals."""

@@ -58,23 +58,16 @@ String siteTitle = GlobalProperties.getTitle() + "::Tutorials";
 
         <hr/>
         
-        <h2>Tutorial:  Getting Started</h2>
-       
-        <p>
-            <a href="http://www.slideshare.net/EthanCerami/cbio-cancer-genomics-portal-getting-started" title="cBioPortal for Cancer Genomics: Getting started" target="_blank">cBioPortal for Cancer Genomics: Getting started</a>
-        </p>
-        <iframe style="border:1px solid #999" src="https://www.slideshare.net/slideshow/embed_code/10438088" width="595" height="497" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe> 
-        
-        <p>View more <a href="http://www.slideshare.net/" target="_blank">presentations</a> from <a href="http://www.slideshare.net/EthanCerami" target="_blank">Ethan Cerami</a> </p>
-
+        <h2>Tutorial #1: Single Study Exploration</h2>
+        <iframe src="https://docs.google.com/presentation/d/1_OGK69lO4Z62WaxHHkNYmWvY0LQN2v0slfaLyY1_IQ0/embed?start=false&loop=false&delayms=60000" frameborder="0" width="720" height="434" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
         <hr/>
-        
-        <h2>Tutorial:  Network View</h2>
-        <p><a href="http://www.slideshare.net/EthanCerami/network-view" title="cBioPortal for Cancer Genomics: Network View" target="_blank">cBioPortal for Cancer Genomics: Network View</a>
-        </p>
-        <iframe style="border:1px solid #999" src="https://www.slideshare.net/slideshow/embed_code/10579031" width="595" height="497" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe> 
-        <p>View more <a href="http://www.slideshare.net/" target="_blank">presentations</a> from <a href="http://www.slideshare.net/EthanCerami" target="_blank">Ethan Cerami</a> </p>
-
+        <p></p>
+        <h2>Tutorial #2: Single Study Query</h2>
+        <iframe src="https://docs.google.com/presentation/d/1y9UTIr5vHmsNVWqtGTVGgiuYX9wkK_a_RPNYiR8kYD8/embed?start=false&loop=false&delayms=60000" frameborder="0" width="720" height="434" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+        <hr/>
+        <p></p>
+        <h2>Tutorial #3: Patient View</h2>
+        <iframe src="https://docs.google.com/presentation/d/1Jr_2yEfgjKBn4DBiXRk4kmhIbtsRp6gd0iD3k1fIUUk/embed?start=false&loop=false&delayms=60000" frameborder="0" width="720" height="434" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
 
         <div id="reactRoot" class="hidden"></div>
 

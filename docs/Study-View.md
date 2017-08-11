@@ -1,4 +1,4 @@
-#Study View
+# Study View
 Example of study view in public portal: http://www.cbioportal.org/study.do?cancer_study_id=lgg_tcga#summary
 
 ## Priorities

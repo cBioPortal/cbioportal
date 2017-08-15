@@ -271,9 +271,9 @@
                         $("#study_name").html(_cancerStudy.name);
                         $("#cancer_study_id").val(_cancerStudy.id);
                         $("#cancer_study_list").val(_cancerStudy.id);
-                        var _desc = _cancerStudy.description
+                        var _desc = _cancerStudy.description;
                         if(_cancerStudy.pmid !== null){
-                            _desc += '<a href="http://www.ncbi.nlm.nih.gov/pubmed/'+_cancerStudy.pmid+'">PubMed</a>';
+                            _desc += '&nbsp;<a href="http://www.ncbi.nlm.nih.gov/pubmed/'+_cancerStudy.pmid+'">PubMed</a>';
                         }
                         $("#study_desc").html(_desc);
 

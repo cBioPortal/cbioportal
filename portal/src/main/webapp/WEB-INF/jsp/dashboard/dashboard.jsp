@@ -48,7 +48,7 @@
         showPlaceHoder = GlobalProperties.showPlaceholderInPatientView();
     }
 
-    String reqCohortIds = StringUtils.join((Set<String>)request.getAttribute("cohorts"),",");
+    String reqCohortIds = StringUtils.join((Set<String>)request.getAttribute(CancerStudyView.ID),",");
     String studySampleMap = (String)request.getAttribute(CancerStudyView.STUDY_SAMPLE_MAP);
     String cancerStudyViewError = (String)request.getAttribute(CancerStudyView.ERROR);
 

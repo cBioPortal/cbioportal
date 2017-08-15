@@ -234,7 +234,7 @@ public class CancerStudyView extends HttpServlet {
         ObjectMapper mapper = new ObjectMapper();
         String studySampleMapString = mapper.writeValueAsString(studySampleMap);
         request.setAttribute(STUDY_SAMPLE_MAP, studySampleMapString);
-        request.setAttribute(COHORTS, inputCohortMap.keySet());
+        request.setAttribute(ID, inputCohortMap.keySet());
         return true;
     }
     /**
@@ -288,7 +288,7 @@ public class CancerStudyView extends HttpServlet {
      */
     private Map<String, HashSet<String>> getCohortIds(HttpServletRequest request)
         throws JsonParseException, JsonMappingException, IOException {
-        String cohortIds = request.getParameter(COHORTS);
+        String cohortIds = request.getParameter(ID);
 
         // TODO: this block is temporarily to support cancer_study_id. Once
         // everything changes we could get rid of this

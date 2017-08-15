@@ -2158,8 +2158,8 @@ class FusionValidator(Validator):
         'Center',
         'Tumor_Sample_Barcode',
         'Fusion',
-        'DNA support',
-        'RNA support',
+        'DNA_support',
+        'RNA_support',
         'Method',
         'Frame']
     REQUIRE_COLUMN_ORDER = True

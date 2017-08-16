@@ -95,7 +95,7 @@
                 <artifactItem>
                   <groupId>com.github.adamabeshouse</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
-                  <version>virtual-cohort-SNAPSHOT</version>
+                  <version>iviz-SNAPSHOT</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>

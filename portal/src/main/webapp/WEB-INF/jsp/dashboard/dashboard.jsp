@@ -310,6 +310,9 @@
                                 method: 'GET',
                                 url: vcSession.URL + '/' + cohortIdsList[0]
                             }).done(function(response){
+                                if (typeof response === 'string') {
+                                    response = JSON.parse(response); 
+                                }
                                 $("#show_study_details").css('display','block');
                                 $("#study_name").html(response['data']['studyName']);
                                 $("#study_desc").html(response['data']['description']);

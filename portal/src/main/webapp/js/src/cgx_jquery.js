@@ -238,7 +238,7 @@ to be saved as a JSON string
 */
 function changeURLToSessionServiceURL(fullURL, pageTitle, sessionJSON) {
     getSessionServiceBookmark(fullURL, sessionJSON, function(bookmark) {
-        window.history.pushState({ "html": fullURL, "pageTitle": pageTitle }, "", bookmark);
+        window.history.replaceState({ "html": fullURL, "pageTitle": pageTitle }, "", bookmark);
     });
 }
 

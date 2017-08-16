@@ -4,7 +4,7 @@
   "grid-h-1": "170px",
   "grid-h-2": "350px",
   "numOfSurvivalCurveLimit": 20,
-  "numOfChartsLimit": 30,
+  "numOfChartsLimit": 20,
   "pie2TableLimit": 20,
   "dc": {
     "transitionDuration": 400

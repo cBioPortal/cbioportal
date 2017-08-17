@@ -8062,7 +8062,6 @@ window.LogRankTest = (function(jStat) {
               var tooltip = $('.iviz-save-cohort-btn-qtip .qtip-content');
               tooltip.find('.save-cohort').click(function() {
                 tooltip.find('.saving').css('display', 'block');
-                tooltip.find('.close-dialog').css('display', 'none');
                 tooltip.find('.saved').css('display', 'none');
                 tooltip.find('.dialog').css('display', 'none');
                 api.reposition();
@@ -8088,18 +8087,21 @@ window.LogRankTest = (function(jStat) {
                       cohortName, cohortDescription || '')
                       .done(function(response) {
                         self_.savedVC = response;
-                        tooltip.find('.savedMessage').text(
-                          'Added virtual study ' + cohortName);
+                        tooltip.find('.savedMessage').html(
+                          '<span>Virtual study <i>' + cohortName +
+                          '</i> is saved.</span>' +
+                          '<a class="left-space" href="' + 
+                          window.cbioURL + 'study?id=' +
+                          self_.savedVC.id + '">view</a>');
                       })
                       .fail(function() {
                         tooltip.find('.savedMessage').html(
                           '<i class="fa fa-exclamation-triangle"></i>' +
+                          '<span class="left-space">' +
                           'Failed to save virtual study, ' +
-                          'please try again later.');
+                          'please try again later.</span>');
                       })
                       .always(function() {
-                        tooltip.find('.close-dialog')
-                          .css('display', 'inline-block');
                         tooltip.find('.saved').css('display', 'block');
                         tooltip.find('.saving').css('display', 'none');
                         tooltip.find('.dialog').css('display', 'none');
@@ -8111,14 +8113,6 @@ window.LogRankTest = (function(jStat) {
                       });
                   });
                 }
-              });
-              tooltip.find('.query').click(function() {
-                if(_.isObject(self_.savedVC) && self_.savedVC.id) {
-                  window.open(window.cbioURL + 'study?cohorts=' + self_.savedVC.id);
-                }
-              });
-              tooltip.find('.close-dialog i').click(function() {
-                api.hide();
               });
               tooltip.find('.cohort-name')
                 .keyup(function() {
@@ -8146,15 +8140,19 @@ window.LogRankTest = (function(jStat) {
                     });
                 }
               });
-              tooltip.find('.close-dialog').css('display', 'inline-block');
               tooltip.find('.dialog').css('display', 'block');
               tooltip.find('.saving').css('display', 'none');
               tooltip.find('.saved').css('display', 'none');
+
+              // Tell the tip itself to not bubble up clicks on it
+              $($(this).qtip('api').elements.tooltip).click(function() { return false; });
+
+              // Tell the document itself when clicked to hide the tip and then unbind
+              // the click event (the .one() method does the auto-unbinding after one time)
+              $(document).one("click", function() { $(".save-cohort-btn").qtip('hide'); });
             }
           },
-          content: '<div><div class="close-dialog">' +
-          '<i class="fa fa-times-circle-o"></i></div>' +
-          '<div class="dialog"><div class="input-group">' +
+          content: '<div><div class="dialog"><div class="input-group">' +
           '<input type="text" class="form-control cohort-name" ' +
           'placeholder="Virtual study Name"> <span class="input-group-btn">' +
           '<button class="btn btn-default save-cohort" ' +
@@ -8167,9 +8165,7 @@ window.LogRankTest = (function(jStat) {
           '<i class="fa fa-spinner fa-spin"></i> Saving virtual study</div>' +
           '<div class="saved" style="display: none;">' +
           '<span class="savedMessage"></span>' +
-          '<button class="btn btn-default btn-sm query"' +
-          '>View this virtual study</button></div>' +
-          '</div>'
+          '</div></div>'
         });
       }
     }

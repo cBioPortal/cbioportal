@@ -18,7 +18,7 @@ public class DBStudy implements Serializable {
     public String name;
     public String short_name;
     public String description;
-    public Long pmid;
+    public String pmid;
     public String citation;
     public String groups;
     public Integer internal_id;

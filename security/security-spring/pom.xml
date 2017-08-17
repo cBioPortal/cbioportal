@@ -5,7 +5,7 @@
     <parent>
         <artifactId>security</artifactId>
         <groupId>org.mskcc.cbio</groupId>
-        <version>1.8.2</version>
+        <version>v1.8.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

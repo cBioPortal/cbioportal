@@ -24,6 +24,8 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Catherine Del Vecchio
 * Andy Dufilie
 * Chris Sander
+* Tali Mazor
+* Tamba Monrose
 
 ## Princess Margaret Cancer Centre, Toronto
 * Stuart Watt

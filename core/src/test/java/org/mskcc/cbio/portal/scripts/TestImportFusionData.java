@@ -82,7 +82,7 @@ public class TestImportFusionData
             ProgressMonitor.setConsoleMode(false);
 
             // TODO change this to use getResourceAsStream()
-            File file = new File("target/test-classes/data_fusion.txt");
+            File file = new File("target/test-classes/data_fusions.txt");
             ImportFusionData parser = new ImportFusionData(file, geneticProfileId, null);
 
 			loadGenes();
@@ -135,7 +135,7 @@ public class TestImportFusionData
 	{
 		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
-		// genes for "data_fusion.txt"
+		// genes for "data_fusions.txt"
 		daoGene.addGene(new CanonicalGene(2261L, "FGFR3"));
 		daoGene.addGene(new CanonicalGene(2064L, "ERBB2"));
 

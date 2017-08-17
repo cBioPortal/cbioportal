@@ -122,9 +122,9 @@
                 <list>
                     <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
                     <value>--data</value>
-                    <value>src/test/scripts/test_data/study_es_0/data_fusion.txt</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_fusions.txt</value>
                     <value>--meta</value>
-                    <value>src/test/scripts/test_data/study_es_0/meta_fusion.txt</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_fusions.txt</value>
                     <value>--loadMode</value>
                     <value>bulkload</value>
                     <value>--noprogress</value>

@@ -2,7 +2,7 @@ package org.cbioportal.service.impl;
 
 import junit.framework.Assert;
 import org.cbioportal.model.CopyNumberCount;
-import org.cbioportal.model.CopyNumberSampleCountByGene;
+import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneGeneticData;
@@ -232,14 +232,14 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     @Test
     public void getSampleCountByGeneAndAlteration() throws Exception {
         
-        List<CopyNumberSampleCountByGene> expectedCopyNumberSampleCountByGeneList = new ArrayList<>();
-        expectedCopyNumberSampleCountByGeneList.add(new CopyNumberSampleCountByGene());
+        List<CopyNumberCountByGene> expectedCopyNumberSampleCountByGeneList = new ArrayList<>();
+        expectedCopyNumberSampleCountByGeneList.add(new CopyNumberCountByGene());
 
         Mockito.when(discreteCopyNumberRepository.getSampleCountByGeneAndAlterationAndSampleIds(GENETIC_PROFILE_ID, 
             null, Arrays.asList(ENTREZ_GENE_ID), Arrays.asList(-2)))
             .thenReturn(expectedCopyNumberSampleCountByGeneList);
         
-        List<CopyNumberSampleCountByGene> result = discreteCopyNumberService
+        List<CopyNumberCountByGene> result = discreteCopyNumberService
             .getSampleCountByGeneAndAlterationAndSampleIds(GENETIC_PROFILE_ID, null, Arrays.asList(ENTREZ_GENE_ID), 
                 Arrays.asList(-2));
         
@@ -257,11 +257,11 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     @Test
     public void fetchCopyNumberCounts() throws Exception {
 
-        List<CopyNumberSampleCountByGene> copyNumberSampleCountByGeneList = new ArrayList<>();
-        CopyNumberSampleCountByGene copyNumberSampleCountByGene = new CopyNumberSampleCountByGene();
+        List<CopyNumberCountByGene> copyNumberSampleCountByGeneList = new ArrayList<>();
+        CopyNumberCountByGene copyNumberSampleCountByGene = new CopyNumberCountByGene();
         copyNumberSampleCountByGene.setEntrezGeneId(ENTREZ_GENE_ID);
         copyNumberSampleCountByGene.setAlteration(-2);
-        copyNumberSampleCountByGene.setSampleCount(1);
+        copyNumberSampleCountByGene.setCount(1);
         copyNumberSampleCountByGeneList.add(copyNumberSampleCountByGene);
 
         GeneticProfile geneticProfile = new GeneticProfile();

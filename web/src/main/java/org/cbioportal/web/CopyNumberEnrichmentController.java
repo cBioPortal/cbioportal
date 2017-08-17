@@ -8,8 +8,8 @@ import org.cbioportal.service.CopyNumberEnrichmentService;
 import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.CopyNumberEnrichmentEventType;
-import org.cbioportal.web.parameter.DiscreteCopyNumberEventType;
 import org.cbioportal.web.parameter.EnrichmentFilter;
+import org.cbioportal.web.parameter.EnrichmentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,12 +42,14 @@ public class CopyNumberEnrichmentController {
         @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
         @PathVariable String geneticProfileId,
         @ApiParam("Type of the copy number event")
-        @RequestParam(defaultValue = "HOMDEL") CopyNumberEnrichmentEventType copyNumberEnrichmentEventType,
-        @ApiParam(required = true, value = "List of altered and unaltered Sample IDs and Entrez Gene IDs")
+        @RequestParam(defaultValue = "HOMDEL") CopyNumberEnrichmentEventType copyNumberEventType,
+        @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
+        @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
+        @ApiParam(required = true, value = "List of altered and unaltered Sample/Patient IDs")
         @Valid @RequestBody EnrichmentFilter enrichmentFilter) throws GeneticProfileNotFoundException {
 
         return new ResponseEntity<>(copyNumberEnrichmentService.getCopyNumberEnrichments(geneticProfileId,
-            enrichmentFilter.getAlteredSampleIds(), enrichmentFilter.getUnalteredSampleIds(), 
-            copyNumberEnrichmentEventType.getAlterationTypes()), HttpStatus.OK);
+            enrichmentFilter.getAlteredIds(), enrichmentFilter.getUnalteredIds(),
+            copyNumberEventType.getAlterationTypes(), enrichmentType.name()), HttpStatus.OK);
     }
 }

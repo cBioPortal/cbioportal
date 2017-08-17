@@ -1,9 +1,0 @@
-cancer_study_identifier: study_es_0
-genetic_alteration_type: FUSION
-datatype: FUSION
-stable_id: fusion
-profile_description: Fusions.
-show_profile_in_analysis_tab: true
-profile_name: Fusions
-data_filename: data_fusion.txt
-gene_panel: example_gene_panel_stable_id

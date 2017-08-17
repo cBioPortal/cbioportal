@@ -2,7 +2,7 @@ package org.cbioportal.service.util;
 
 import org.cbioportal.model.Alteration;
 import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.model.AlterationSampleCountByGene;
+import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.Gene;
 import org.cbioportal.service.GeneService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,24 +28,24 @@ public class AlterationEnrichmentUtil {
     private GeneService geneService;
 
     public List<AlterationEnrichment> createAlterationEnrichments(
-        int alteredSampleCount, int unalteredSampleCount,
-        List<? extends AlterationSampleCountByGene> alterationSampleCountByGenes,
-        List<? extends Alteration> alterations) {
+        int alteredCount, int unalteredCount,
+        List<? extends AlterationCountByGene> alterationCountByGenes,
+        List<? extends Alteration> alterations, String enrichmentType) {
 
         Map<Integer, List<Alteration>> discreteCopyNumberDataMap = alterations.stream().collect(Collectors.groupingBy(
             Alteration::getEntrezGeneId));
 
-        List<Gene> genes = geneService.fetchGenes(alterationSampleCountByGenes.stream().map(m ->
+        List<Gene> genes = geneService.fetchGenes(alterationCountByGenes.stream().map(m ->
             String.valueOf(m.getEntrezGeneId())).collect(Collectors.toList()), "ENTREZ_GENE_ID", "SUMMARY");
 
-        alterationSampleCountByGenes.sort(Comparator.comparing(AlterationSampleCountByGene::getEntrezGeneId));
+        alterationCountByGenes.sort(Comparator.comparing(AlterationCountByGene::getEntrezGeneId));
         genes.sort(Comparator.comparing(Gene::getEntrezGeneId));
         List<AlterationEnrichment> alterationEnrichments = new ArrayList<>();
-        for (int i = 0; i < alterationSampleCountByGenes.size(); i++) {
-            AlterationSampleCountByGene copyNumberSampleCountByGene = alterationSampleCountByGenes.get(i);
+        for (int i = 0; i < alterationCountByGenes.size(); i++) {
+            AlterationCountByGene copyNumberCountByGene = alterationCountByGenes.get(i);
             alterationEnrichments.add(createAlterationEnrichment(discreteCopyNumberDataMap.get(
-                copyNumberSampleCountByGene.getEntrezGeneId()), copyNumberSampleCountByGene, genes.get(i),
-                alteredSampleCount, unalteredSampleCount));
+                copyNumberCountByGene.getEntrezGeneId()), copyNumberCountByGene, genes.get(i), alteredCount, 
+                unalteredCount, enrichmentType));
         }
 
         assignQValue(alterationEnrichments);
@@ -53,25 +53,30 @@ public class AlterationEnrichmentUtil {
     }
 
     private AlterationEnrichment createAlterationEnrichment(List<? extends Alteration> alterations,
-                                                           AlterationSampleCountByGene alterationSampleCountByGene,
-                                                           Gene gene, int alteredSampleCount,
-                                                           int unalteredSampleCount) {
+                                                           AlterationCountByGene alterationCountByGene,
+                                                           Gene gene, int alteredCount,
+                                                           int unalteredCount, String enrichmentType) {
 
         AlterationEnrichment alterationEnrichment = new AlterationEnrichment();
 
         if (alterations == null) {
-            alterationEnrichment.setNumberOfSamplesInAlteredGroup(0);
+            alterationEnrichment.setAlteredCount(0);
         } else {
-            alterationEnrichment.setNumberOfSamplesInAlteredGroup(alterations.stream().collect(
-                Collectors.groupingBy(Alteration::getSampleId)).size());
+            if (enrichmentType.equals("SAMPLE")) {
+                alterationEnrichment.setAlteredCount(alterations.stream().collect(
+                    Collectors.groupingBy(Alteration::getSampleId)).size());
+            } else {
+                alterationEnrichment.setAlteredCount(alterations.stream().collect(
+                    Collectors.groupingBy(Alteration::getPatientId)).size());
+            }
         }
-        alterationEnrichment.setNumberOfSamplesInUnalteredGroup(alterationSampleCountByGene.getSampleCount() -
-            alterationEnrichment.getNumberOfSamplesInAlteredGroup());
-        alterationEnrichment.setEntrezGeneId(alterationSampleCountByGene.getEntrezGeneId());
+        alterationEnrichment.setUnalteredCount(alterationCountByGene.getCount() -
+            alterationEnrichment.getAlteredCount());
+        alterationEnrichment.setEntrezGeneId(alterationCountByGene.getEntrezGeneId());
         alterationEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
         alterationEnrichment.setCytoband(gene.getCytoband());
-        assignLogRatio(alterationEnrichment, alteredSampleCount, unalteredSampleCount);
-        assignPValue(alterationEnrichment, alteredSampleCount, unalteredSampleCount);
+        assignLogRatio(alterationEnrichment, alteredCount, unalteredCount);
+        assignPValue(alterationEnrichment, alteredCount, unalteredCount);
         return alterationEnrichment;
     }
 
@@ -86,27 +91,25 @@ public class AlterationEnrichmentUtil {
         }
     }
 
-    private void assignLogRatio(AlterationEnrichment alterationEnrichment, int alteredSampleCount,
-                                int unalteredSampleCount) {
+    private void assignLogRatio(AlterationEnrichment alterationEnrichment, int alteredCount,
+                                int unalteredCount) {
 
-        double alteredRatio = (double) alterationEnrichment.getNumberOfSamplesInAlteredGroup() /
-            alteredSampleCount;
-        double unalteredRatio = (double) alterationEnrichment.getNumberOfSamplesInUnalteredGroup() /
-            unalteredSampleCount;
+        double alteredRatio = (double) alterationEnrichment.getAlteredCount() / alteredCount;
+        double unalteredRatio = (double) alterationEnrichment.getUnalteredCount() / unalteredCount;
 
         double logRatio = logRatioCalculator.getLogRatio(alteredRatio, unalteredRatio);
         alterationEnrichment.setLogRatio(String.valueOf(logRatio));
     }
 
-    private void assignPValue(AlterationEnrichment alterationEnrichment, int alteredSampleCount,
-                              int unalteredSampleCount) {
+    private void assignPValue(AlterationEnrichment alterationEnrichment, int alteredCount,
+                              int unalteredCount) {
 
-        int alteredInNoneCount = unalteredSampleCount - alterationEnrichment.getNumberOfSamplesInUnalteredGroup();
-        int alteredOnlyInQueryGenesCount = alteredSampleCount - alterationEnrichment.getNumberOfSamplesInAlteredGroup();
+        int alteredInNoneCount = unalteredCount - alterationEnrichment.getUnalteredCount();
+        int alteredOnlyInQueryGenesCount = alteredCount - alterationEnrichment.getAlteredCount();
 
         double pValue = fisherExactTestCalculator.getCumlativePValue(alteredInNoneCount,
-            alterationEnrichment.getNumberOfSamplesInUnalteredGroup(), alteredOnlyInQueryGenesCount,
-            alterationEnrichment.getNumberOfSamplesInAlteredGroup());
+            alterationEnrichment.getUnalteredCount(), alteredOnlyInQueryGenesCount,
+            alterationEnrichment.getAlteredCount());
 
         alterationEnrichment.setpValue(BigDecimal.valueOf(pValue));
     }

@@ -71,9 +71,9 @@
         
         <h2>2. We host data for you (academic use)</h2>
         <ul>
-        <li>MSKCC users can send us their data. Please <a href="mailto:cbioportal@cbio.mskcc.org?subject=Uploading public data">contact us</a> for details.</li>
-        <li>Public data will be available to everyone. Suggestions on data sets are welcome.</li>
-        <li>Private data will be accessible by you and your collaborators</li>
+            <li>Public data will be available to everyone. Suggestions on data sets are welcome.</li>
+            <li>Private data will be accessible by you and your collaborators.</li>
+            <li>Please <a href="mailto:cbioportal@cbio.mskcc.org?subject=Uploading public data">contact us</a> for details.</li>
         </ul>
         
         <hr>
@@ -83,7 +83,7 @@
         <div class="alert alert-info" role="alert">
         When using these tools in your publication,
         <b>please cite</b> <a href="http://www.ncbi.nlm.nih.gov/pubmed/23550210">Gao et al. <i>Sci. Signal.</i> 2013</a>
-        &amp;amp;  <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a>.
+        &amp;  <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a>.
         </div>
         
         <div style="display:flex;" class="toolArray">

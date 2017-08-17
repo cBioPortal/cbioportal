@@ -1,3 +1,10 @@
+
+function clearDevState(e){
+    localStorage.removeItem('localdev');
+    localStorage.removeItem('heroku');
+    window.location.reload();
+}
+
 window.loadReactApp = function(config) {
 
     // Set frontend route to /patient
@@ -18,6 +25,7 @@ window.loadReactApp = function(config) {
                 '<div class="alert alert-warning">' +
                 '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
                 'cbioportal-frontend dev mode, using localhost:3000' +
+                '&nbsp;<a href="#" onclick="clearDevState()">clear</a>' +
                 '</div>' +
                 '</div>';
             newDiv.onclick=function(){

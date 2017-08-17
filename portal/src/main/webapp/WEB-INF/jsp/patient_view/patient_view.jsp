@@ -49,8 +49,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
-<% request.setAttribute("oncoKBApiUrl", GlobalProperties.getOncoKBPublicApiUrl()); %>
-    
 <jsp:include page="../global/xdebug.jsp" flush="true" />
 
     <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
@@ -60,7 +58,6 @@
         <jsp:attribute name="head_area">
             <script>
                 window.historyType = "hash";
-                window.oncoKBApiUrl = '${oncoKBApiUrl}';
                 window.loadReactApp({ defaultRoute: 'patient' });
             </script>
         </jsp:attribute>

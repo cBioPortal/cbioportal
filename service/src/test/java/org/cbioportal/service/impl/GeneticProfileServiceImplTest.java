@@ -55,7 +55,6 @@ public class GeneticProfileServiceImplTest extends BaseServiceImplTest {
         BaseMeta result = geneticProfileService.getMetaGeneticProfiles();
 
         Assert.assertEquals(expectedBaseMeta, result);
-
     }
 
     @Test(expected = GeneticProfileNotFoundException.class)

@@ -990,7 +990,7 @@ class MutationsExtendedValidator(Validator):
     NULL_AA_CHANGE_VALUES = ('', 'NULL', 'NA')
 
     # extra unofficial Variant classification values from https://github.com/mskcc/vcf2maf/issues/88:
-    EXTRA_VARIANT_CLASSIFICATION_VALUES = ['Splice_Region']
+    EXTRA_VARIANT_CLASSIFICATION_VALUES = ['Splice_Region', 'Fusion']
     # MAF values for Variant_Classification column
     # from https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification + EXTRA values + Unknown:
     VARIANT_CLASSIFICATION_VALUES = [
@@ -1022,7 +1022,9 @@ class MutationsExtendedValidator(Validator):
         'HGVSp_Short': 'checkAminoAcidChange',
         'Amino_Acid_Change': 'checkAminoAcidChange',
         'Variant_Classification': 'checkVariantClassification',
-        'SWISSPROT': 'checkSwissProt'
+        'SWISSPROT': 'checkSwissProt',
+        'Start_Position': 'checkStartPosition',
+        'End_Position': 'checkEndPosition'
     }
 
     def __init__(self, *args, **kwargs):
@@ -1221,14 +1223,6 @@ class MutationsExtendedValidator(Validator):
         # may require bundling the hgvs package:
         # https://pypi.python.org/pypi/hgvs/
         if value not in self.NULL_AA_CHANGE_VALUES:
-            # give error if a white space is found in value (this leads to errors in
-            # other layers, e.g. COSMIC keywords will not be matched)
-            if ' ' in value:
-                # return with an error message
-                self.extra = 'White space found in amino acid change column'
-                self.extra_exists = True
-                return False
-
             value = value.strip()
             # there should only be a 'p.' prefix at the very start
             if len(value) > 1 and 'p.' in value[1:]:
@@ -1350,6 +1344,30 @@ class MutationsExtendedValidator(Validator):
                                         'gene symbol.',
                                         extra={'line_number': self.line_number, 'cause': value})
                 return True
+        # if no reasons to return with a message were found, return valid
+        return True
+    
+    def checkStartPosition(self, value):
+        """Check that the Start_Position value is an integer."""
+        if value.isdigit() == False or (value.isdigit() and '.' in value):
+            self.logger.error(
+                'The start position of this variant is not '
+                    'an integer',
+                extra={'line_number': self.line_number,
+                       'column_number': self.cols.index('Start_Position'),
+                       'cause': value})
+        # if no reasons to return with a message were found, return valid
+        return True
+    
+    def checkEndPosition(self, value):
+        """Check that the End_Position value is an integer."""
+        if value.isdigit() == False or (value.isdigit() and '.' in value):
+            self.logger.error(
+                'The end position of this variant is not '
+                    'an integer',
+                extra={'line_number': self.line_number,
+                       'column_number': self.cols.index('End_Position'),
+                       'cause': value})
         # if no reasons to return with a message were found, return valid
         return True
 
@@ -2140,8 +2158,8 @@ class FusionValidator(Validator):
         'Center',
         'Tumor_Sample_Barcode',
         'Fusion',
-        'DNA support',
-        'RNA support',
+        'DNA_support',
+        'RNA_support',
         'Method',
         'Frame']
     REQUIRE_COLUMN_ORDER = True

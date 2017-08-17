@@ -2,11 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.MutationMapper">
-    <cache size="50000"/>
+    <cache size="100000"/>
 
     <sql id="select">
         genetic_profile.STABLE_ID AS geneticProfileId,
         sample.STABLE_ID AS sampleId,
+        patient.STABLE_ID AS patientId,
         mutation.ENTREZ_GENE_ID as entrezGeneId
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
@@ -48,6 +49,7 @@
         FROM mutation
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
     </sql>
 
     <sql id="where">
@@ -65,6 +67,10 @@
                     #{item}
                 </foreach>
             </if>
+            <if test="snpOnly != null and snpOnly == true">
+                AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G') 
+                AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
+            </if>
         </where>
     </sql>
 
@@ -73,15 +79,19 @@
             genetic_profile.STABLE_ID = #{geneticProfileId}
             AND mutation.SAMPLE_ID IN
             (
-            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-            WHERE sample_list.STABLE_ID = #{sampleListId}
+                SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+                INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+                WHERE sample_list.STABLE_ID = #{sampleListId}
             )
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND mutation.ENTREZ_GENE_ID IN
                 <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
+            </if>
+            <if test="snpOnly != null and snpOnly == true">
+                AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
+                AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
             </if>
         </where>
     </sql>
@@ -104,6 +114,10 @@
                 <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
+            </if>
+            <if test="snpOnly != null and snpOnly == true">
+                AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
+                AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
             </if>
         </where>
     </sql>
@@ -198,20 +212,10 @@
         <include refid="where"/>
     </select>
 
-    <select id="getSampleCountByEntrezGeneIdsAndSampleListId" resultType="org.cbioportal.model.MutationSampleCountByGene">
+    <select id="getSampleCountByEntrezGeneIdsAndSampleIds" resultType="org.cbioportal.model.MutationCountByGene">
         SELECT
         mutation.ENTREZ_GENE_ID AS entrezGeneId,
-        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
-        FROM mutation
-        INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        <include refid="whereBySampleListId"/>
-        GROUP BY mutation.ENTREZ_GENE_ID
-    </select>
-
-    <select id="getSampleCountByEntrezGeneIdsAndSampleIds" resultType="org.cbioportal.model.MutationSampleCountByGene">
-        SELECT
-        mutation.ENTREZ_GENE_ID AS entrezGeneId,
-        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS count
         FROM mutation
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
@@ -219,21 +223,33 @@
         GROUP BY mutation.ENTREZ_GENE_ID
     </select>
 
-    <select id="getSampleCountByKeywords" resultType="org.cbioportal.model.MutationSampleCountByKeyword">
+    <select id="getPatientCountByEntrezGeneIdsAndSampleIds" resultType="org.cbioportal.model.MutationCountByGene">
         SELECT
-        mutation_event.KEYWORD AS keyword,
-        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS sampleCount
+        mutation.ENTREZ_GENE_ID AS entrezGeneId,
+        COUNT(DISTINCT(patient.INTERNAL_ID)) AS count
         FROM mutation
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
-        WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
-        <if test="keywords != null and !keywords.isEmpty()">
-            AND mutation_event.KEYWORD IN
-            <foreach item="item" collection="keywords" open="(" separator="," close=")">
+        INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        WHERE
+        genetic_profile.STABLE_ID = #{geneticProfileId}
+        <if test="patientIds != null and !patientIds.isEmpty()">
+            AND patient.STABLE_ID IN
+            <foreach item="item" collection="patientIds" open="(" separator="," close=")">
                 #{item}
             </foreach>
         </if>
-        GROUP BY mutation_event.KEYWORD
+        <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+            AND mutation.ENTREZ_GENE_ID IN
+            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="snpOnly != null and snpOnly == true">
+            AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
+            AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
+        </if>
+        GROUP BY mutation.ENTREZ_GENE_ID
     </select>
 
     <select id="getMutationCountsBySampleListId" resultType="org.cbioportal.model.MutationCount">
@@ -268,5 +284,18 @@
                 #{item}
             </foreach>
         </if>
+    </select>
+    
+    <select id="getMutationCountByPosition" resultType="org.cbioportal.model.MutationCountByPosition">
+        SELECT
+        #{entrezGeneId} AS entrezGeneId,
+        #{proteinPosStart} AS proteinPosStart,
+        #{proteinPosEnd} AS proteinPosEnd,
+        COUNT(*) AS count
+        FROM mutation
+        INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        WHERE mutation_event.ENTREZ_GENE_ID = #{entrezGeneId}
+        AND mutation_event.ONCOTATOR_PROTEIN_POS_START >= #{proteinPosStart}
+        AND mutation_event.ONCOTATOR_PROTEIN_POS_END <![CDATA[ <= ]]> #{proteinPosEnd}
     </select>
 </mapper>

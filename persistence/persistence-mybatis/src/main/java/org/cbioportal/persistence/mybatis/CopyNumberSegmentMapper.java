@@ -11,4 +11,6 @@ public interface CopyNumberSegmentMapper {
                                               Integer limit, Integer offset, String sortBy, String direction);
 
     BaseMeta getMetaCopyNumberSegments(List<String> studyIds, List<String> sampleIds);
+    
+    List<CopyNumberSeg> getCopyNumberSegmentsBySampleListId(String studyId, String sampleListId, String projection);
 }

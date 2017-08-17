@@ -101,6 +101,18 @@ var DataDownloadTab = (function() {
 			    if (typeof datum.disp_prot !== "undefined") {
 				alt_type += "RPPA-" + datum.disp_prot.toUpperCase() + ";";
 			    }
+			    if (typeof datum.disp_fusion !== "undefined") {
+				alt_type += "FUSION: ";
+				var fusions = [];
+				for (var k = 0; k < datum.data.length; k++) {
+				    if (datum.data[k].genetic_alteration_type === "MUTATION_EXTENDED" &&
+					    datum.data[k].oncoprint_mutation_type === "fusion") {
+					fusions.push(datum.data[k].amino_acid_change);
+				    }
+				}
+				alt_type += fusions.join(",");
+				alt_type += ";";
+			    }
 			}
 		    sample_to_line_to_alt_type[sample].push(alt_type);
 		}

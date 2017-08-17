@@ -59,4 +59,11 @@ public class CopyNumberSegmentServiceImpl implements CopyNumberSegmentService {
         
         return copyNumberSegmentRepository.fetchMetaCopyNumberSegments(studyIds, sampleIds);
     }
+
+    @Override
+    public List<CopyNumberSeg> getCopyNumberSegmentsBySampleListId(String studyId, String sampleListId, 
+                                                                   String projection) {
+        
+        return copyNumberSegmentRepository.getCopyNumberSegmentsBySampleListId(studyId, sampleListId, projection);
+    }
 }

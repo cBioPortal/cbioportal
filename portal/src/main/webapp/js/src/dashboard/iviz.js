@@ -558,10 +558,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           height: 134
         }
       }
-    },
-    numOfSurvivalCurveLimit: 20,
-    dc: {
-      transitionDuration: 400
     }
   };
 
@@ -583,7 +579,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
       _.each(data_.groups.patient.attr_meta, function(attrData) {
         attrData.group_type = 'patient';
-        if (chartsCount < 20 && patientChartsCount < 10) {
+        if (chartsCount < iViz.opts.numOfChartsLimit &&
+          patientChartsCount < iViz.opts.numOfChartsLimit / 2) {
           if (attrData.show) {
             attrData.group_id = vm_.groupCount.toString();
             groupAttrs.push(attrData);
@@ -603,13 +600,14 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         id: vm_.groupCount.toString(),
         selectedcases: [],
         hasfilters: false,
-        attributes: groupAttrs});
+        attributes: groupAttrs
+      });
 
       groupAttrs = [];
       vm_.groupCount += 1;
       _.each(data_.groups.sample.attr_meta, function(attrData) {
         attrData.group_type = 'sample';
-        if (chartsCount < 20) {
+        if (chartsCount < iViz.opts.numOfChartsLimit) {
           if (attrData.show) {
             attrData.group_id = vm_.groupCount.toString();
             groupAttrs.push(attrData);
@@ -620,13 +618,14 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         }
         charts[attrData.attr_id] = attrData;
       });
-
+      
       groups.push({
         type: 'sample',
         id: vm_.groupCount.toString(),
         selectedcases: [],
         hasfilters: false,
-        attributes: groupAttrs});
+        attributes: groupAttrs
+      });
       vm_.groupCount += 1;
       var _self = this;
       var requests = groups.map(function(group) {
@@ -653,7 +652,12 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     createGroupNdx: function(group) {
       var def = new $.Deferred();
       var _caseAttrId = group.type === 'patient' ? 'patient_uid' : 'sample_uid';
-      var _attrIds = [_caseAttrId, 'study_id'];
+      if(_caseAttrId === 'sample_uid'){
+        //add 'sample_id' to get mutation count and cna fraction for scatter plot
+        var _attrIds = [_caseAttrId, 'sample_id', 'study_id'];
+      } else {
+        var _attrIds = [_caseAttrId, 'study_id'];
+      }
       _attrIds = _attrIds.concat(_.pluck(group.attributes, 'attr_id'));
       $.when(iViz.getDataWithAttrs(group.type, _attrIds)).then(function(selectedData_) {
         groupNdxMap_[group.id] = {};
@@ -702,6 +706,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var hasAttrDataMap = isPatientAttributes ? data_.groups.patient.has_attr_data : data_.groups.sample.has_attr_data;
       var attrDataToGet = [];
       var updatedAttrIds = [];
+      
       _.each(attrIds, function(_attrId) {
         if (charts[_attrId] === undefined) {
           updatedAttrIds = updatedAttrIds.concat(_attrId);
@@ -771,6 +776,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         .then(function(clinicalData) {
           var idType = isPatientAttributes ? 'patient_id' : 'sample_id';
           var type = isPatientAttributes ? 'patient' : 'sample';
+          var attrsFromServer = {};
           _.each(clinicalData, function(_clinicalAttributeData, _attrId) {
             var selectedAttrMeta = charts[_attrId];
 
@@ -788,8 +794,48 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               ++selectedAttrMeta.keys[_dataObj.attr_val];
               ++selectedAttrMeta.numOfDatum;
             });
+
+            // Hide chart which only has no more than one category.
+            var numOfKeys = Object.keys(selectedAttrMeta.keys).length;
+            if (numOfKeys <= 1) {
+              selectedAttrMeta.show = false;
+              attrIds = attrIds.filter(function(obj) {
+                return obj !== _attrId;
+              });
+            } else {
+              // If there is clinical data returned from server side.
+              attrsFromServer[_attrId] = 1;
+            }
+
+            if (selectedAttrMeta.datatype === 'STRING' &&
+              numOfKeys > iViz.opts.pie2TableLimit) {
+              // Change pie chart to table if the number of categories
+              // more then the pie2TableLimit configuration
+              var uids = isPatientAttributes ?
+                Object.keys(data_.groups.group_mapping.patient_to_sample) :
+                Object.keys(data_.groups.group_mapping.sample_to_patient);
+
+              selectedAttrMeta.view_type = 'table';
+              selectedAttrMeta.layout = [1, 4];
+              selectedAttrMeta.type = 'pieLabel';
+              selectedAttrMeta.options = {
+                allCases: uids,
+                sequencedCases: uids
+              };
+            }
           });
 
+          // Hide all attributes if no data available for selected cases.
+          // Basically all NAs
+          _.each(_.difference(attrIds, Object.keys(attrsFromServer)), function(_attrId) {
+            var selectedAttrMeta = charts[_attrId];
+
+            hasAttrDataMap[_attrId] = '';
+            selectedAttrMeta.keys = {};
+            selectedAttrMeta.numOfDatum = 0;
+            selectedAttrMeta.show = false;
+          });
+          
           def.resolve();
         }, function() {
           def.reject();
@@ -841,14 +887,14 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           var _geneSymbol = _cnaDataPerStudy.gene[_index];
           var _altType = '';
           switch (_cnaDataPerStudy.alter[_index]) {
-            case -2:
-              _altType = 'DEL';
-              break;
-            case 2:
-              _altType = 'AMP';
-              break;
-            default:
-              break;
+          case -2:
+            _altType = 'DEL';
+            break;
+          case 2:
+            _altType = 'AMP';
+            break;
+          default:
+            break;
           }
           var _uniqueId = _geneSymbol + '-' + _altType;
           _.each(_caseIdsPerGene, function(_caseId) {
@@ -908,6 +954,76 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       } else {
         def.resolve(tableData_[attrId]);
       }
+      return def.promise();
+    },
+    getScatterData: function(_self) {
+      var def = new $.Deferred();
+      var self = this;
+      var data = {};
+      
+      $.when(window.iviz.datamanager.getCnaFractionData(),
+        self.getMutationCountData(_self))
+        .then(function(_cnaFractionData, _mutationCountResult) {
+          var _hasCNAFractionData = _.keys(_cnaFractionData).length > 0;
+          var _hasMutationCountData = false;
+          var groupId = _self.attributes.group_id;
+
+          if (_mutationCountResult[1]) {
+            _hasMutationCountData = _mutationCountResult[1];
+          }
+          data = self.getGroupNdx(groupId);
+
+          _.each(data, function(_sampleDatum) {
+            // cna fraction
+            if (_hasCNAFractionData) {
+              if (_cnaFractionData[_sampleDatum.study_id] === undefined ||
+                _cnaFractionData[_sampleDatum.study_id][_sampleDatum.sample_id] === undefined ||
+                _cnaFractionData[_sampleDatum.study_id][_sampleDatum.sample_id] === null) {
+                _sampleDatum.cna_fraction = 'NA';
+                _sampleDatum.copy_number_alterations = 'NA';
+              } else {
+                _sampleDatum.cna_fraction = _cnaFractionData[_sampleDatum.study_id][_sampleDatum.sample_id];
+                _sampleDatum.copy_number_alterations = _cnaFractionData[_sampleDatum.study_id][_sampleDatum.sample_id];
+              }
+            }
+          });
+          def.resolve(data, _hasCNAFractionData, _hasMutationCountData);
+        }, function() {
+          def.reject();
+        });
+      return def.promise();
+    },
+    getMutationCountData: function(_self) {
+      var def = new $.Deferred();
+      var self = this;
+      var data = {};
+
+      $.when(window.iviz.datamanager.getMutationCount())
+        .then(function(_mutationCountData) {
+          var _hasMutationCountData = _.keys(_mutationCountData).length > 0;
+          var groupId = _self.attributes.group_id;
+          data = self.getGroupNdx(groupId);
+
+          _.each(data, function(_sampleDatum) {
+            // mutation count
+            if (_hasMutationCountData) {
+              if (_mutationCountData[_sampleDatum.study_id] === undefined ||
+                _mutationCountData[_sampleDatum.study_id][_sampleDatum.sample_id] === undefined ||
+                _mutationCountData[_sampleDatum.study_id][_sampleDatum.sample_id] === null) {
+                if (_self.attributes.sequencedCaseUIdsMap[_sampleDatum.sample_uid] === undefined) {
+                  _sampleDatum.mutation_count = 'NA';
+                } else {
+                  _sampleDatum.mutation_count = 0;
+                }
+              } else {
+                _sampleDatum.mutation_count = _mutationCountData[_sampleDatum.study_id][_sampleDatum.sample_id];
+              }
+            }
+          });
+          def.resolve(data, _hasMutationCountData);
+        }, function() {
+          def.reject();
+        });
       return def.promise();
     },
     getCasesMap: function(type) {
@@ -1202,7 +1318,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             showScreenLoad: false,
             showDropDown: false,
             numOfSurvivalPlots: 0,
-            showedSurvivalPlot: false
+            showedSurvivalPlot: false,
+            userMovedChart: false
           }, watch: {
             charts: function() {
               this.checkForDropDownCharts();
@@ -1259,6 +1376,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               this.setSelectedCases(selectionType, selectedCases);
             }, 'remove-chart': function(attrId, groupId) {
               this.removeChart(attrId, groupId);
+            },
+            'user-moved-chart': function() {
+              this.userMovedChart = true;
             }
           }, methods: {
             checkForDropDownCharts: function() {
@@ -1327,6 +1447,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               self_.$nextTick(function() {
                 if (_attrAdded) {
                   $.when(iViz.updateGroupNdx(attrData.group_id, attrData.attr_id)).then(function(isGroupNdxDataUpdated) {
+                    attrData.addChartBy = 'user';
                     self_.groups[_groupIdToPush].attributes.push(attrData);
                     if (isGroupNdxDataUpdated) {
                       self_.$broadcast('add-chart-to-group', attrData.group_id);
@@ -1406,8 +1527,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                   selectedCaseUIDs = selectedCaseUIDs.concat(caseUIDs);
                 }
               });
-
-
 
               if (unmappedCaseIDs.length > 0) {
                 new Notification().createNotification(selectedCaseUIDs.length +
@@ -1566,244 +1685,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 'use strict';
 (function(iViz, _, cbio) {
   iViz.util = (function() {
-    var content = {};
-
-    /**
-     * Convert number to specific precision end.
-     * @param {number} number The number you want to convert.
-     * @param {integer} precision Significant figures.
-     * @param {number} threshold The upper bound threshold.
-     * @return {number} Converted number.
-     */
-    content.toPrecision = function(number, precision, threshold) {
-      if (number >= 0.000001 && number < threshold) {
-        return number.toExponential(precision);
-      }
-      return number.toPrecision(precision);
-    };
-
-    /**
-     * iViz color schema.
-     * @return {string[]} Color array.
-     */
-    content.getColors = function() {
-      return [
-        '#2986e2', '#dc3912', '#f88508', '#109618',
-        '#990099', '#0099c6', '#dd4477', '#66aa00',
-        '#b82e2e', '#316395', '#994499', '#22aa99',
-        '#aaaa11', '#6633cc', '#e67300', '#8b0707',
-        '#651067', '#329262', '#5574a6', '#3b3eac',
-        '#b77322', '#16d620', '#b91383', '#f4359e',
-        '#9c5935', '#a9c413', '#2a778d', '#668d1c',
-        '#bea413', '#0c5922', '#743411', '#743440',
-        '#9986e2', '#6c3912', '#788508', '#609618',
-        '#790099', '#5099c6', '#2d4477', '#76aa00',
-        '#882e2e', '#916395', '#794499', '#92aa99',
-        '#2aaa11', '#5633cc', '#667300', '#100707',
-        '#751067', '#229262', '#4574a6', '#103eac',
-        '#177322', '#66d620', '#291383', '#94359e',
-        '#5c5935', '#29c413', '#6a778d', '#868d1c',
-        '#5ea413', '#6c5922', '#243411', '#103440',
-        '#2886e2', '#d93912', '#f28508', '#110618',
-        '#970099', '#0109c6', '#d10477', '#68aa00',
-        '#b12e2e', '#310395', '#944499', '#24aa99',
-        '#a4aa11', '#6333cc', '#e77300', '#820707',
-        '#610067', '#339262', '#5874a6', '#313eac',
-        '#b67322', '#13d620', '#b81383', '#f8359e',
-        '#935935', '#a10413', '#29778d', '#678d1c',
-        '#b2a413', '#075922', '#763411', '#773440',
-        '#2996e2', '#dc4912', '#f81508', '#104618',
-        '#991099', '#0049c6', '#dd2477', '#663a00',
-        '#b84e2e', '#312395', '#993499', '#223a99',
-        '#aa1a11', '#6673cc', '#e66300', '#8b5707',
-        '#656067', '#323262', '#5514a6', '#3b8eac',
-        '#b71322', '#165620', '#b99383', '#f4859e',
-        '#9c4935', '#a91413', '#2a978d', '#669d1c',
-        '#be1413', '#0c8922', '#742411', '#744440',
-        '#2983e2', '#dc3612', '#f88808', '#109518',
-        '#990599', '#0092c6', '#dd4977', '#66a900',
-        '#b8282e', '#316295', '#994199', '#22a499',
-        '#aaa101', '#66310c', '#e67200', '#8b0907',
-        '#651167', '#329962', '#5573a6', '#3b37ac',
-        '#b77822', '#16d120', '#b91783', '#f4339e',
-        '#9c5105', '#a9c713', '#2a710d', '#66841c',
-        '#bea913', '#0c5822', '#743911', '#743740',
-        '#298632', '#dc3922', '#f88588', '#109658',
-        '#990010', '#009916', '#dd4447', '#66aa60',
-        '#b82e9e', '#316365', '#994489', '#22aa69',
-        '#aaaa51', '#66332c', '#e67390', '#8b0777',
-        '#651037', '#329232', '#557486', '#3b3e4c',
-        '#b77372', '#16d690', '#b91310', '#f4358e',
-        '#9c5910', '#a9c493', '#2a773d', '#668d5c',
-        '#bea463', '#0c5952', '#743471', '#743450',
-        '#2986e3', '#dc3914', '#f88503', '#109614',
-        '#990092', '#0099c8', '#dd4476', '#66aa04',
-        '#b82e27', '#316397', '#994495', '#22aa93',
-        '#aaaa14', '#6633c1', '#e67303', '#8b0705',
-        '#651062', '#329267', '#5574a1', '#3b3ea5'
-      ];
-    };
-
-    content.idMapping = function(mappingObj, inputCases) {
-      var _selectedMappingCases = {};
-
-      _.each(inputCases, function(_case) {
-        _.each(mappingObj[_case], function(_case) {
-          _selectedMappingCases[_case] = '';
-        });
-      });
-
-      return Object.keys(_selectedMappingCases);
-    };
-
-    content.unique = function(arr_) {
-      var tempArr_ = {};
-      _.each(arr_, function(obj_) {
-        if (tempArr_[obj_] === undefined) {
-          tempArr_[obj_] = true;
-        }
-      });
-      return Object.keys(tempArr_);
-    };
-
-    content.isRangeFilter = function(filterObj) {
-      if (filterObj.filterType !== undefined) {
-        if (filterObj.filterType === 'RangedFilter') {
-          return true;
-        }
-      }
-      return false;
-    };
-
-    content.sortByAttribute = function(objs, attrName) {
-      function compare(a, b) {
-        if (a[attrName] < b[attrName]) {
-          return -1;
-        }
-        if (a[attrName] > b[attrName]) {
-          return 1;
-        }
-        return 0;
-      }
-
-      objs.sort(compare);
-      return objs;
-    };
-
-    content.download = function(chartType, fileType, content) {
-      switch (chartType) {
-        case 'pieChart':
-          pieChartDownload(fileType, content);
-          break;
-        case 'barChart':
-          barChartDownload(fileType, content);
-          break;
-        case 'survivalPlot':
-          survivalChartDownload(fileType, content);
-          break;
-        case 'scatterPlot':
-          survivalChartDownload(fileType, content);
-          break;
-        case 'table':
-          tableDownload(fileType, content);
-          break;
-        default:
-          break;
-      }
-    };
-
-    content.restrictNumDigits = function(str) {
-      if (!isNaN(str)) {
-        var num = Number(str);
-        if (num % 1 !== 0) {
-          num = num.toFixed(2);
-          str = num.toString();
-        }
-      }
-      return str;
-    };
-
-    /**
-     * Get a random color hex.
-     *
-     * @return {string} Color HEX
-     */
-    content.getRandomColor = function() {
-      var letters = '0123456789abcdef';
-      var color = '#';
-      for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    };
-
-    /**
-     * Get a random color hex out of Colors in getColors function;
-     *
-     * @return {string} Color HEX
-     */
-    content.getRandomColorOutOfLib = function() {
-      var color;
-      while (!color || content.getColors().indexOf(color) !== -1) {
-        color = content.getRandomColor();
-      }
-      return color;
-    };
-
-    content.calcFreq = function(fraction, numerator, toFixed) {
-      var freq = 0;
-      toFixed = isNaN(toFixed) ? 2 : Number(toFixed);
-      if (numerator > 0) {
-        freq = fraction / numerator * 100;
-        freq = freq % 1 === 0 ? freq : freq.toFixed(toFixed);
-      }
-      return freq + '%';
-    };
-
-    /**
-     * Remove illegal characters for DOM id
-     * @param {string} str Original DOM id string
-     * @return {string} trimmed id
-     */
-    content.trimDomId = function(str) {
-      if (str) {
-        str = str.replace(/>/g, '_greater_than_');
-        str = str.replace(/</g, '_less_than_');
-        str = str.replace(/\+/g, '_plus_');
-        str = str.replace(/-/g, '_minus_');
-        str = str.replace(/^[^a-z]+|[^\w:.-]+/gi, '');
-      }
-      return str;
-    };
-
-    /**
-     * Generate default DOM ids
-     * @param {string} type Available types are: chartDivId, resetBtnId, chartId, chartTableId
-     * @param {string} attrId
-     * @return {string} Default DOM id
-     */
-    content.getDefaultDomId = function(type, attrId) {
-      var domId = '';
-      if (type && attrId) {
-        var attrId = this.trimDomId(attrId);
-        switch (type) {
-        case 'chartDivId':
-          domId = 'chart-' + attrId + '-div';
-          break;
-        case 'resetBtnId':
-          domId = 'chart-' + attrId + '-reset';
-          break;
-        case 'chartId':
-          domId = 'chart-new-' + attrId;
-          break;
-        case 'chartTableId':
-          domId = 'table-' + attrId;
-          break;
-        }
-      }
-      // TODO: DOM id pool. Ideally id shouldn't be repeated
-      return domId;
-    };
     
     function tableDownload(fileType, content) {
       switch (fileType) {
@@ -2159,7 +2040,279 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         break;
       }
     }
+    /**
+     * @author Adam Abeshouse
+     * @param {number | string} a
+     * @param {number | string} b
+     * @param {boolean} asc
+     * @return {number} result
+     */
+    function compareValues(a, b, asc) {
+      var ret = 0;
+      if (a !== b) {
+        if (a === null) {
+          // a sorted to end
+          ret = 1;
+        } else if (b === null) {
+          // b sorted to end
+          ret = -1;
+        } else {
+          // neither are null
+          if (typeof a === "number") {
+            // sort numbers
+            if (a < b) {
+              ret = (asc ? -1 : 1);
+            } else {
+              // we know a !== b here so this case is a > b
+              ret = (asc ? 1 : -1);
+            }
+          } else if (typeof a === "string") {
+            // sort strings
+            ret = (asc ? 1 : -1) * (a.localeCompare(b));
+          }
+        }
+      }
+      return ret;
+    }
 
+    var content = {};
+
+    /**
+     * Convert number to specific precision end.
+     * @param {number} number The number you want to convert.
+     * @param {integer} precision Significant figures.
+     * @param {number} threshold The upper bound threshold.
+     * @return {number} Converted number.
+     */
+    content.toPrecision = function(number, precision, threshold) {
+      if (number >= 0.000001 && number < threshold) {
+        return number.toExponential(precision);
+      }
+      return number.toPrecision(precision);
+    };
+
+    /**
+     * iViz color schema.
+     * @return {string[]} Color array.
+     */
+    content.getColors = function() {
+      return [
+        '#2986e2', '#dc3912', '#f88508', '#109618',
+        '#990099', '#0099c6', '#dd4477', '#66aa00',
+        '#b82e2e', '#316395', '#994499', '#22aa99',
+        '#aaaa11', '#6633cc', '#e67300', '#8b0707',
+        '#651067', '#329262', '#5574a6', '#3b3eac',
+        '#b77322', '#16d620', '#b91383', '#f4359e',
+        '#9c5935', '#a9c413', '#2a778d', '#668d1c',
+        '#bea413', '#0c5922', '#743411', '#743440',
+        '#9986e2', '#6c3912', '#788508', '#609618',
+        '#790099', '#5099c6', '#2d4477', '#76aa00',
+        '#882e2e', '#916395', '#794499', '#92aa99',
+        '#2aaa11', '#5633cc', '#667300', '#100707',
+        '#751067', '#229262', '#4574a6', '#103eac',
+        '#177322', '#66d620', '#291383', '#94359e',
+        '#5c5935', '#29c413', '#6a778d', '#868d1c',
+        '#5ea413', '#6c5922', '#243411', '#103440',
+        '#2886e2', '#d93912', '#f28508', '#110618',
+        '#970099', '#0109c6', '#d10477', '#68aa00',
+        '#b12e2e', '#310395', '#944499', '#24aa99',
+        '#a4aa11', '#6333cc', '#e77300', '#820707',
+        '#610067', '#339262', '#5874a6', '#313eac',
+        '#b67322', '#13d620', '#b81383', '#f8359e',
+        '#935935', '#a10413', '#29778d', '#678d1c',
+        '#b2a413', '#075922', '#763411', '#773440',
+        '#2996e2', '#dc4912', '#f81508', '#104618',
+        '#991099', '#0049c6', '#dd2477', '#663a00',
+        '#b84e2e', '#312395', '#993499', '#223a99',
+        '#aa1a11', '#6673cc', '#e66300', '#8b5707',
+        '#656067', '#323262', '#5514a6', '#3b8eac',
+        '#b71322', '#165620', '#b99383', '#f4859e',
+        '#9c4935', '#a91413', '#2a978d', '#669d1c',
+        '#be1413', '#0c8922', '#742411', '#744440',
+        '#2983e2', '#dc3612', '#f88808', '#109518',
+        '#990599', '#0092c6', '#dd4977', '#66a900',
+        '#b8282e', '#316295', '#994199', '#22a499',
+        '#aaa101', '#66310c', '#e67200', '#8b0907',
+        '#651167', '#329962', '#5573a6', '#3b37ac',
+        '#b77822', '#16d120', '#b91783', '#f4339e',
+        '#9c5105', '#a9c713', '#2a710d', '#66841c',
+        '#bea913', '#0c5822', '#743911', '#743740',
+        '#298632', '#dc3922', '#f88588', '#109658',
+        '#990010', '#009916', '#dd4447', '#66aa60',
+        '#b82e9e', '#316365', '#994489', '#22aa69',
+        '#aaaa51', '#66332c', '#e67390', '#8b0777',
+        '#651037', '#329232', '#557486', '#3b3e4c',
+        '#b77372', '#16d690', '#b91310', '#f4358e',
+        '#9c5910', '#a9c493', '#2a773d', '#668d5c',
+        '#bea463', '#0c5952', '#743471', '#743450',
+        '#2986e3', '#dc3914', '#f88503', '#109614',
+        '#990092', '#0099c8', '#dd4476', '#66aa04',
+        '#b82e27', '#316397', '#994495', '#22aa93',
+        '#aaaa14', '#6633c1', '#e67303', '#8b0705',
+        '#651062', '#329267', '#5574a1', '#3b3ea5'
+      ];
+    };
+
+    content.idMapping = function(mappingObj, inputCases) {
+      var _selectedMappingCases = {};
+
+      _.each(inputCases, function(_case) {
+        _.each(mappingObj[_case], function(_case) {
+          _selectedMappingCases[_case] = '';
+        });
+      });
+
+      return Object.keys(_selectedMappingCases);
+    };
+
+    content.unique = function(arr_) {
+      var tempArr_ = {};
+      _.each(arr_, function(obj_) {
+        if (tempArr_[obj_] === undefined) {
+          tempArr_[obj_] = true;
+        }
+      });
+      return Object.keys(tempArr_);
+    };
+
+    content.isRangeFilter = function(filterObj) {
+      if (filterObj.filterType !== undefined
+        && filterObj.filterType === 'RangedFilter') {
+        return true;
+      }
+      return false;
+    };
+
+    content.sortByAttribute = function(objs, attrName) {
+      function compare(a, b) {
+        if (a[attrName] < b[attrName]) {
+          return -1;
+        }
+        if (a[attrName] > b[attrName]) {
+          return 1;
+        }
+        return 0;
+      }
+
+      objs.sort(compare);
+      return objs;
+    };
+
+    content.download = function(chartType, fileType, content) {
+      switch (chartType) {
+      case 'pieChart':
+        pieChartDownload(fileType, content);
+        break;
+      case 'barChart':
+        barChartDownload(fileType, content);
+        break;
+      case 'survivalPlot':
+        survivalChartDownload(fileType, content);
+        break;
+      case 'scatterPlot':
+        survivalChartDownload(fileType, content);
+        break;
+      case 'table':
+        tableDownload(fileType, content);
+        break;
+      default:
+        break;
+      }
+    };
+
+    content.restrictNumDigits = function(str) {
+      if (!isNaN(str)) {
+        var num = Number(str);
+        if (num % 1 !== 0) {
+          num = num.toFixed(2);
+          str = num.toString();
+        }
+      }
+      return str;
+    };
+
+    /**
+     * Get a random color hex.
+     *
+     * @return {string} Color HEX
+     */
+    content.getRandomColor = function() {
+      var letters = '0123456789abcdef';
+      var color = '#';
+      for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    };
+
+    /**
+     * Get a random color hex out of Colors in getColors function;
+     *
+     * @return {string} Color HEX
+     */
+    content.getRandomColorOutOfLib = function() {
+      var color;
+      while (!color || content.getColors().indexOf(color) !== -1) {
+        color = content.getRandomColor();
+      }
+      return color;
+    };
+
+    content.calcFreq = function(fraction, numerator, toFixed) {
+      var freq = 0;
+      toFixed = isNaN(toFixed) ? 2 : Number(toFixed);
+      if (numerator > 0) {
+        freq = fraction / numerator * 100;
+        freq = freq % 1 === 0 ? freq : freq.toFixed(toFixed);
+      }
+      return freq + '%';
+    };
+
+    /**
+     * Remove illegal characters for DOM id
+     * @param {string} str Original DOM id string
+     * @return {string} trimmed id
+     */
+    content.trimDomId = function(str) {
+      if (str) {
+        str = str.replace(/>/g, '_greater_than_');
+        str = str.replace(/</g, '_less_than_');
+        str = str.replace(/\+/g, '_plus_');
+        str = str.replace(/-/g, '_minus_');
+        str = str.replace(/^[^a-z]+|[^\w:.-]+/gi, '');
+      }
+      return str;
+    };
+
+    /**
+     * Generate default DOM ids
+     * @param {string} type Available types are: chartDivId, resetBtnId, chartId, chartTableId
+     * @param {string} attrId
+     * @return {string} Default DOM id
+     */
+    content.getDefaultDomId = function(type, attrId) {
+      var domId = '';
+      if (type && attrId) {
+        var attrId = this.trimDomId(attrId);
+        switch (type) {
+        case 'chartDivId':
+          domId = 'chart-' + attrId + '-div';
+          break;
+        case 'resetBtnId':
+          domId = 'chart-' + attrId + '-reset';
+          break;
+        case 'chartId':
+          domId = 'chart-new-' + attrId;
+          break;
+        case 'chartTableId':
+          domId = 'table-' + attrId;
+          break;
+        }
+      }
+      // TODO: DOM id pool. Ideally id shouldn't be repeated
+      return domId;
+    };
+    
     /**
      * Finds the intersection elements between two arrays in a simple fashion.
      * Should have O(n) operations, where n is n = MIN(a.length, b.length)
@@ -2250,10 +2403,135 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       return str;
     };
 
+    /**
+     * If input is na, NA, NaN, n/a, null or undefined, return true
+     * Else, return false.
+     * @param str
+     * @param includeEmptyStr Whether empty string should be treated as NA
+     * @returns {boolean}
+     */
+    content.strIsNa = function(str, includeEmptyStr) {
+      var status = false;
+      includeEmptyStr = _.isBoolean(includeEmptyStr) ? includeEmptyStr : false;
+      if (_.isString(str)) {
+        if (['na', 'nan', 'n/a'].indexOf(str.toLowerCase()) > -1 ||
+          (includeEmptyStr && !str)) {
+          status = true;
+        }
+      } else if (typeof str === 'undefined' || str === null) {
+        status = true;
+      }
+      return status;
+    };
+
     return content;
   })();
 })(window.iViz,
   window._, window.cbio);
+/**
+ * @author Hongxin Zhang on 5/12/17.
+ */
+
+/**
+ * Please see Study-View.md under cBioPortal repository for more information 
+ * about priority and layout.
+ */
+
+
+'use strict';
+(function(iViz, _) {
+  iViz.priorityManager = (function() {
+    var content = {};
+    var clinicalAttrsPriority = {};
+    var defaultPriority = 1;
+
+    /**
+     * Calculate combination chart priority
+     * @param {string} id Clinical attribute ID.
+     * @return {array}
+     */
+    function getCombinationPriority(id) {
+      var priority = _.clone(defaultPriority);
+      if (id) {
+        switch (id) {
+        case 'DFS_SURVIVAL':
+          var _dfsStatus = getPriority('DFS_STATUS');
+          var _dfsMonths = getPriority('DFS_MONTHS');
+          if (_dfsStatus === 0 || _dfsMonths === 0) {
+            priority = 0;
+          } else {
+            priority = (_dfsMonths + _dfsStatus ) / 2;
+            priority = priority > 1 ? priority :
+              clinicalAttrsPriority['DFS_SURVIVAL'];
+          }
+          break;
+        case 'OS_SURVIVAL':
+          var _osStatus = getPriority('OS_STATUS');
+          var _osMonths = getPriority('OS_MONTHS');
+          if (_osStatus === 0 || _osMonths === 0) {
+            priority = 0;
+          } else {
+            priority = (_osStatus + _osMonths ) / 2;
+            priority = priority > 1 ? priority :
+              clinicalAttrsPriority['OS_SURVIVAL'];
+          }
+          break;
+        case 'MUT_CNT_VS_CNA':
+          priority = clinicalAttrsPriority['MUT_CNT_VS_CNA'];
+          break;
+        }
+      }
+      return priority;
+    }
+
+    /**
+     * Get priority by clinical attribute.
+     * @param{string} id Clinical attribute ID.
+     * @return {number}
+     */
+    function getPriority(id) {
+      return clinicalAttrsPriority.hasOwnProperty(id)
+        ? clinicalAttrsPriority[id] : 1;
+    }
+
+    content.comparePriorities = function(_a, _b, asc) {
+      return asc ? (_a - _b) : (_b - _a);
+    };
+
+    content.getDefaultPriority = function(id, isCombinationChart) {
+      var priority = _.clone(defaultPriority);
+      if (!_.isBoolean(isCombinationChart)) {
+        isCombinationChart = false;
+      }
+      if (id) {
+        if (isCombinationChart) {
+          priority = getCombinationPriority(id);
+        } else {
+          priority = clinicalAttrsPriority.hasOwnProperty(id) ?
+            clinicalAttrsPriority[id] : priority;
+        }
+      }
+      return priority;
+    };
+
+    content.setClinicalAttrPriority = function(attr, priority) {
+      if (attr) {
+        if (priority !== 1 || !clinicalAttrsPriority.hasOwnProperty(attr)) {
+          clinicalAttrsPriority[attr] = priority;
+        }
+      }
+    };
+
+    content.setDefaultClinicalAttrPriorities = function(priorities) {
+      if (_.isObject(priorities)) {
+        _.extend(clinicalAttrsPriority, priorities);
+      }
+    };
+
+    return content;
+  })();
+})(window.iViz,
+  window._);
 /**
  * Created by Karthik Kalletla on 4/13/16.
  */
@@ -2279,7 +2557,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         selectedSamplesByFilters: [],
         initialized: false,
         renderGroups: [],
-        chartsGrid: []
+        chartsGrid: [],
+        windowResizeTimeout: ''
       };
     }, watch: {
       groups: function() {
@@ -2319,9 +2598,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
     }, methods: {
       sortByNumber: function(a, b) {
-        var aName = Number(a.element.attributes['data-number'].nodeValue);
-        var bName = Number(b.element.attributes['data-number'].nodeValue);
-        return aName - bName;
+        var _a = this.$root.charts[a.element.attributes['attribute-id'].nodeValue].layout[0];
+        var _b = this.$root.charts[b.element.attributes['attribute-id'].nodeValue].layout[0];
+        return _b - _a;
       },
       updateGrid: function(ChartsIds) {
         var self_ = this;
@@ -2333,6 +2612,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             gutter: 5,
             initLayout: false
           });
+          self_.updateLayoutMatrix();
           self_.grid_.items.sort(this.sortByNumber);
           _.each(self_.grid_.getItemElements(), function(_gridItem) {
             var _draggie = new Draggabilly(_gridItem, {
@@ -2340,22 +2620,193 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             });
             self_.grid_.bindDraggabillyEvents(_draggie);
           });
+          self_.grid_.on( 'dragItemPositioned', function() {
+            self_.$dispatch('user-moved-chart');
+          });
         } else {
+          var chartDivIds = _.pluck(self_.grid_.getItemElements(), 'id');
           _.each(ChartsIds, function(chartId) {
-            self_.grid_.addItems(document.getElementById(chartId));
-            var _draggie = new Draggabilly(document.getElementById(chartId), {
-              handle: '.dc-chart-drag'
-            });
-            self_.grid_.bindDraggabillyEvents(_draggie);
+            // make sure that async charts' divId not in current grids
+            if (!_.includes(chartDivIds, chartId)) {
+              self_.grid_.addItems(document.getElementById(chartId));
+              var _draggie = new Draggabilly(document.getElementById(chartId), {
+                handle: '.dc-chart-drag'
+              });
+              self_.grid_.bindDraggabillyEvents(_draggie);
+            }
           });
         }
         self_.grid_.layout();
-      }
+      },
+      updateLayoutMatrix: function() {
+        var self_ = this;
+        var _charts = _.values(this.$root.charts);
+        _charts.sort(function(a, b) {
+          return iViz.priorityManager.comparePriorities(a.priority, b.priority, false);
+        });
+
+        // Group attributes into 2*2 matrix
+        var layoutMatrix = [];
+        _.each(_charts, function(chart) {
+          if (chart.show) {
+            layoutMatrix = self_.getLayoutMatrix(layoutMatrix, chart);
+          }
+        });
+
+        // Layout group base on window width.
+        var layoutAttrs = [];
+        var layoutB = [];
+        var browserWidth = $('#main-grid').width() || 1200;
+        var groupsPerRow = Math.floor(browserWidth / 400);
+        
+        // One group will be at least displayed on the page;
+        // Lower than 1 will also create infinite loop of following function
+        groupsPerRow = groupsPerRow < 1 ? 1 : groupsPerRow;
+
+        for (var i = 0; i < layoutMatrix.length;) {
+          var _group = [];
+          for (var j = 0; j < groupsPerRow; j++) {
+            _group.push(layoutMatrix[i + j]);
+          }
+          layoutAttrs.push(_group);
+          i = i + groupsPerRow;
+        }
+
+        _.each(layoutAttrs, function(group) {
+          // Plot first two elements
+          _.each(group, function(item) {
+            if (item) {
+              for (var j = 0; j < 2; j++) {
+                layoutB.push(item.matrix[j]);
+              }
+            }
+          });
+          // Plot rest third and forth elements
+          _.each(group, function(item) {
+            if (item) {
+              for (var j = 2; j < 4; j++) {
+                layoutB.push(item.matrix[j]);
+              }
+            }
+          });
+        });
+        _.each(_.filter(_.uniq(layoutB).reverse(), function(item) {
+          return _.isString(item);
+        }), function(attrId, index) {
+          self_.$root.charts[attrId].layout[0] = index;
+        });
+      },
+      updateLayout: function() {
+        this.updateLayoutMatrix();
+        this.grid_.items.sort(this.sortByNumber);
+        this.grid_.layout();
+      },
+      getLayoutMatrix: function(layoutMatrix, chart) {
+        var self_ = this;
+        var neighborIndex;
+        var foundSpace = false;
+        var layout = chart.layout;
+        var space = layout[1];
+        var direction = 'h'; // h or v
+
+        _.some(layoutMatrix, function(layoutItem) {
+          if (foundSpace) {
+            return true;
+          }
+          if (layoutItem.notFull) {
+            var _matrix = layoutItem.matrix;
+            _.some(_matrix, function(item, _matrixIndex) {
+              if (space === 2) {
+                var _validIndex = false;
+                if (direction === 'v') {
+                  neighborIndex = _matrixIndex + 2;
+                  if (_matrixIndex < 2) {
+                    _validIndex = true;
+                  }
+                } else {
+                  neighborIndex = _matrixIndex + 1;
+                  if (_matrixIndex % 2 === 0) {
+                    _validIndex = true;
+                  }
+                }
+                if (neighborIndex < _matrix.length && _validIndex) {
+                  if (item === -1 && _matrix[neighborIndex] === -1) {
+                    // Found a place for chart
+                    _matrix[_matrixIndex] = _matrix[neighborIndex] = chart.attr_id;
+                    foundSpace = true;
+                    layoutItem.notFull = !self_.matrixIsFull(_matrix);
+                    return true;
+                  }
+                }
+              } else if (space === 1) {
+                if (item === -1) {
+                  // Found a place for chart
+                  _matrix[_matrixIndex] = chart.attr_id;
+                  foundSpace = true;
+                  if (_matrixIndex === _matrix.length - 1) {
+                    layoutItem.notFull = false;
+                  }
+                  return true;
+                }
+              } else if (space === 4) {
+                if (item === -1 && _matrix[0] === -1 && _matrix[1] === -1 && _matrix[2] === -1 && _matrix[3] === -1) {
+                  // Found a place for chart
+                  _matrix = [chart.attr_id, chart.attr_id, chart.attr_id, chart.attr_id];
+                  layoutItem.notFull = false;
+                  foundSpace = true;
+                  return true;
+                }
+              }
+            });
+            layoutItem.matrix = _matrix;
+          }
+        });
+
+        if (!foundSpace) {
+          layoutMatrix.push({
+            notFull: true,
+            matrix: [-1, -1, -1, -1]
+          });
+          layoutMatrix = self_.getLayoutMatrix(layoutMatrix, chart);
+        }
+        return layoutMatrix;
+      },
+      matrixIsFull: function(matrix) {
+        var full = true;
+        _.some(matrix, function(item) {
+          if (item === -1) {
+            full = false;
+            return true;
+          }
+        });
+        return full;
+      },
     },
     events: {
       'update-grid': function() {
         this.grid_.layout();
       }, 'remove-grid-item': function(item) {
+        var self_ = this;
+        if (self_.grid_ === '') {
+          self_.grid_ = new Packery(document.querySelector('.grid'), {
+            itemSelector: '.grid-item',
+            columnWidth: window.iViz.styles.vars.width.one + 5,
+            rowHeight: window.iViz.styles.vars.height.one + 5,
+            gutter: 5,
+            initLayout: false
+          });
+          self_.updateLayoutMatrix();
+          self_.grid_.items.sort(this.sortByNumber);
+          _.each(self_.grid_.getItemElements(), function(_gridItem) {
+            var _draggie = new Draggabilly(_gridItem, {
+              handle: '.dc-chart-drag'
+            });
+            self_.grid_.bindDraggabillyEvents(_draggie);
+          });
+          self_.grid_.on( 'dragItemPositioned', function() {
+            self_.$dispatch('user-moved-chart');
+          });
+        }
         this.grid_.remove(item);
         this.grid_.layout();
       },
@@ -2508,6 +2959,18 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       'remove-rainbow-survival': function() {
         this.$broadcast('resetBarColor', []);
       }
+    },
+    ready: function() {
+      var self_ = this;
+      // Register window resize event.
+      $(window).resize(function() {
+        clearTimeout(self_.windowResizeTimeout);
+        self_.windowResizeTimeout = setTimeout(function() {
+          if (!self_.$root.userMovedChart) {
+            self_.updateLayout();
+          }
+        }, 500);
+      });
     }
   });
 })(window.Vue,
@@ -2792,7 +3255,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     '<span class="chart-title-span" id="{{chartId}}-title">{{displayName}}' +
     '</span></div>' +
     '<div :class="[showOperations?chartOperationsActive:chartOperations]">' +
-    '<div class="checkbox-div" v-if="showLogScale">' +
+    '<div class="checkbox-div" v-if="showLogScale && chartInitialed"">' +
     '<input type="checkbox" value="" id="" ' +
     'class="checkbox" v-model="logChecked">' +
     '<span id="scale-span-{{chartId}}">' +
@@ -2803,13 +3266,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     'class="fa fa-info-circle icon hover" ' +
     'id="{{chartId}}-description-icon"' +
     'aria-hidden="true"></i>' +
-    '<i v-if="showTableIcon" class="fa fa-table icon hover" ' +
+    '<i v-if="showTableIcon && chartInitialed" class="fa fa-table icon hover" ' +
     'aria-hidden="true" @click="changeView()"></i>' +
-    '<i v-if="showPieIcon" class="fa fa-pie-chart icon hover" ' +
+    '<i v-if="showPieIcon && chartInitialed"" class="fa fa-pie-chart icon hover" ' +
     'aria-hidden="true" @click="changeView()"></i>' +
-    '<img v-if="showSurvivalIcon" src="images/survival_icon.svg" ' +
+    '<img v-if="showSurvivalIcon && chartInitialed"" src="images/survival_icon.svg" ' +
     'class="icon hover" @click="getRainbowSurvival" alt="Survival Analysis"/>' +
-    '<div v-if="showDownloadIcon" id="{{chartId}}-download-icon-wrapper" class="download">' +
+    '<div v-if="showDownloadIcon && chartInitialed"" id="{{chartId}}-download-icon-wrapper" class="download">' +
     '<i class="fa fa-download icon hover" alt="download" ' +
     'id="{{chartId}}-download"></i>' +
     '</div>' +
@@ -2852,6 +3315,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }, attributes: {
         type: Object
       }, showDownloadIcon: {
+        type: Boolean,
+        default: true
+      }, chartInitialed: {
         type: Boolean,
         default: true
       }
@@ -3069,7 +3535,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     'v-if="(filtersToSkipShowing.indexOf(attributes.attr_id) === -1) && ' +
     '(specialTables.indexOf(attributes.attr_id) === -1)" class="breadcrumb_items">' +
     '<span v-if="attributes.view_type===\'bar_chart\'">' +
-    '<span class="breadcrumb_item">{{filters[0]}} -- {{filters[1]}}</span>' +
+    '<span v-if="filters[0]!==\'\' && filters[1]!==\'\'" class="breadcrumb_item">{{filters[0]}} ~ {{filters[1]}}</span>' +
+    '<span v-if="filters[0]!==\'\' && filters[1]===\'\'" class="breadcrumb_item">{{filters[0]}}</span>' +
+    '<span v-if="filters[0]===\'\' && filters[1]!==\'\'" class="breadcrumb_item">{{filters[1]}}</span>' +
     '<i class="fa fa-times breadcrumb_remove" @click="removeFilter()"></i>' +
     '</span>' +
     '<template v-else>' +
@@ -3252,10 +3720,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
     };
 
-    content.filtered = function() {
+    content.filtered = function(filters) {
       updateTables();
-      isFiltered = true;
-      updateQtip = false;
+      isFiltered = _.isArray(filters) && filters.length > 0;
     };
 
     content.getCurrentCategories = function(sortBy) {
@@ -3691,7 +4158,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   Vue.component('pieChart', {
     template: '<div id={{chartDivId}} ' +
     'class="grid-item grid-item-h-1 grid-item-w-1" ' +
-    ':data-number="attributes.priority" ' +
+    ':attribute-id="attributes.attr_id" ' +
     '@mouseenter="mouseEnter($event)" @mouseleave="mouseLeave($event)">' +
     '<chart-operations :has-chart-title="hasChartTitle" ' +
     ':display-name="displayName" :show-table-icon.sync="showTableIcon" ' +
@@ -3869,7 +4336,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             _self.$dispatch('update-filters');
           }
           // Trigger pie chart filtered event.
-          _self.piechart.filtered();
+          _self.piechart.filtered(_self.attributes.filter);
         }
       });
 
@@ -3899,38 +4366,69 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     var initDc_ = function(logScale) {
       var tickVal = [];
       var i = 0;
-
-      dcDimension = ndx_.dimension(function(d) {
+      var barSet = new Set();
+      
+      dcDimension = ndx_.dimension(function (d) {
         var val = d[data_.attrId];
         var _min;
         var _max;
-        if (typeof val === 'undefined' || val === 'NA' || val === '' ||
-          val === 'NaN') {
-          val = opts_.xDomain[opts_.xDomain.length - 1];
+        var endNumIndex = opts_.xDomain.length - 1; // when data doesn't have NA
+
+        // isNaN(val) treats string in data as 'NA', such as "withheld" and "cannotReleaseHIPAA"
+        if (iViz.util.strIsNa(val, true) || isNaN(val)) {
+            val = opts_.xDomain[opts_.xDomain.length - 1];
         } else if (logScale) {
-          for (i = 1; i < opts_.xDomain.length; i++) {
-            if (d[data_.attrId] < opts_.xDomain[i] &&
-              d[data_.attrId] >= opts_.xDomain[i - 1]) {
-              val = parseInt(Math.pow(10, i / 2 - 0.25), 10);
-              _min = opts_.xDomain[i - 1];
-              _max = opts_.xDomain[i];
-              break;
+            for (i = 1; i < opts_.xDomain.length; i++) {
+                if (d[data_.attrId] < opts_.xDomain[i] &&
+                    d[data_.attrId] >= opts_.xDomain[i - 1]) {
+                    val = parseInt(Math.pow(10, i / 2 - 0.25), 10);
+                    _min = opts_.xDomain[i - 1];
+                    _max = opts_.xDomain[i];
+                    break;
+                }
+            }
+        } else if (!data_.noGrouping) {
+          if (data_.smallDataFlag) {
+            if (d[data_.attrId] <= opts_.xDomain[1]) {
+              val = opts_.xDomain[0];
+            } else if (d[data_.attrId] > opts_.xDomain[opts_.xDomain.length - 3] && data_.hasNA) {
+              val = opts_.xDomain[opts_.xDomain.length - 2];
+            } else if (d[data_.attrId] > opts_.xDomain[opts_.xDomain.length - 2] && !data_.hasNA) {
+              val = opts_.xDomain[opts_.xDomain.length - 1];
+            } else {
+              if (data_.hasNA) {
+                endNumIndex = opts_.xDomain.length - 2;
+              } 
+              for (i = 2; i < endNumIndex; i++) {
+                if (d[data_.attrId] <= opts_.xDomain[i] &&
+                  d[data_.attrId] >= opts_.xDomain[i - 1]) {
+                  _min = opts_.xDomain[i - 1];
+                  _max = opts_.xDomain[i];
+                  val = _min + (_max - _min) / 4;
+                  break;
+                }
+              }
+            }
+          } else {
+            if (d[data_.attrId] <= opts_.xDomain[1]) {
+              val = opts_.xDomain[0];
+            } else if (d[data_.attrId] > opts_.xDomain[opts_.xDomain.length - 3] && data_.hasNA) {
+              val = opts_.xDomain[opts_.xDomain.length - 2];
+            } else if (d[data_.attrId] > opts_.xDomain[opts_.xDomain.length - 2] && !data_.hasNA) {
+              val = opts_.xDomain[opts_.xDomain.length - 1];
+            } else {
+              // minus half of separateDistance to make the margin values
+              // always map to the left side. Thus for any value x, it is in the
+              // range of (a, b] which means a < x <= b
+              val = Math.ceil((d[data_.attrId] - opts_.startPoint) / opts_.gutter) *
+                opts_.gutter + opts_.startPoint - opts_.gutter / 2;
+              _min = val - opts_.gutter / 2;
+              _max = val + opts_.gutter / 2;
             }
           }
-        } else if (d[data_.attrId] <= opts_.xDomain[1]) {
-          val = opts_.xDomain[0];
-        } else if (d[data_.attrId] > opts_.xDomain[opts_.xDomain.length - 3]) {
-          val = opts_.xDomain[opts_.xDomain.length - 2];
-        } else {
-          // minus half of separateDistance to make the margin values
-          // always map to the left side. Thus for any value x, it is in the
-          // range of (a, b] which means a < x <= b
-          val = Math.ceil((d[data_.attrId] - opts_.startPoint) / opts_.gutter) *
-            opts_.gutter + opts_.startPoint - opts_.gutter / 2;
-          _min = val - opts_.gutter / 2;
-          _max = val + opts_.gutter / 2;
-        }
-
+        } 
+        
+        barSet.add(val);
         if (tickVal.indexOf(val) === -1) {
           tickVal.push(Number(val));
         }
@@ -3948,10 +4446,16 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           data_.groupType === 'patient' ? d.patient_uid : d.sample_uid);
         return val;
       });
+    
+      opts_.xBarValues = Array.from(barSet);
+      opts_.xBarValues.sort(function (a, b) {
+          return a < b ? -1 : 1;
+      });
 
       tickVal.sort(function(a, b) {
         return a < b ? -1 : 1;
       });
+
 
       chartInst_
         .width(opts_.width)
@@ -3970,9 +4474,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         .renderHorizontalGridLines(false)
         .renderVerticalGridLines(false);
 
-      if (logScale) {
+      if (data_.noGrouping) {
+        chartInst_.barPadding(1);// separate continuous bar
+      }
+
+      if (logScale || data_.smallDataFlag) {
         chartInst_.x(d3.scale.log().nice()
-          .domain([0.7, opts_.maxDomain]));
+          .domain([opts_.minDomain, opts_.maxDomain]));
       } else {
         chartInst_.x(d3.scale.linear()
           .domain([
@@ -3980,7 +4488,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             opts_.xDomain[opts_.xDomain.length - 1] + opts_.gutter
           ]));
       }
-
       chartInst_.yAxis().ticks(6);
       chartInst_.yAxis().tickFormat(d3.format('d'));
       chartInst_.xAxis().tickFormat(function(v) {
@@ -3996,7 +4503,16 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     function getTickFormat(v, logScale) {
       var _returnValue = v;
       var index = 0;
-      if (logScale) {
+      var e = d3.format('.1e');// convert small data to scientific notation format
+      var formattedValue = '';
+      
+      if (data_.noGrouping) {
+        if (v === opts_.emptyMappingVal) {
+          _returnValue = 'NA';
+        } else {
+          _returnValue = v;
+        }
+      } else if (logScale) {
         if (v === opts_.emptyMappingVal) {
           _returnValue = 'NA';
         } else {
@@ -4005,21 +4521,25 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             _returnValue = '';
           }
         }
-      } else if (opts_.xDomain.length === 1) {
+      } else if (v === opts_.emptyMappingVal || opts_.xDomain.length === 1) {
         return 'NA';
-      } else if (opts_.xDomain.length === 2) {
-        // when there is only one value and NA in the data
-        if (v === opts_.xDomain[0]) {
-          _returnValue = v;
-        } else {
-          _returnValue = 'NA';
-        }
       } else if (v === opts_.xDomain[0]) {
-        return '<=' + opts_.xDomain[1];
-      } else if (v === opts_.xDomain[opts_.xDomain.length - 2]) {
-        return '>' + opts_.xDomain[opts_.xDomain.length - 3];
-      } else if (v === opts_.xDomain[opts_.xDomain.length - 1]) {
-        return 'NA';
+        formattedValue = opts_.xDomain[1];
+        if (data_.smallDataFlag) {
+          return '<=' + e(formattedValue);
+        }
+        return '<=' + formattedValue;
+      } else if ((v === opts_.xDomain[opts_.xDomain.length - 2] && data_.hasNA) ||
+        (v === opts_.xDomain[opts_.xDomain.length - 1] && !data_.hasNA)) {
+        if (data_.hasNA) {
+          formattedValue = opts_.xDomain[opts_.xDomain.length - 3];
+        } else {
+          formattedValue = opts_.xDomain[opts_.xDomain.length - 2];
+        }
+        if (data_.smallDataFlag) {
+          return '>' + e(formattedValue);
+        }
+        return '>' + formattedValue;
       } else if (data_.min > 1500 &&
         opts_.xDomain.length > 7) {
         // this is the special case for printing out year
@@ -4031,6 +4551,14 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         }
       } else {
         _returnValue = v;
+      }
+
+      if (data_.smallDataFlag) {
+        _returnValue = e(_returnValue);
+        var _tempValue = e(v).toString();
+        if (_tempValue.charAt(0) !== '1') {// hide tick values whose format is not 1.0e-N
+          _returnValue = '';
+        }
       }
       return _returnValue;
     }
@@ -4066,7 +4594,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           var sampleUID = _cases[i].sample_uid;
           var sampleId = iViz.getCaseIdUsingUID('sample', sampleUID);
           var patientId = iViz.getPatientId(_cases[i].study_id, sampleId);
-          
+
           row.push(sampleId);
           row.push(patientId);
         }
@@ -4100,7 +4628,14 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       data_ = data;
       opts_ = _.extend(opts_, iViz.util.barChart.getDcConfig({
         min: data_.min,
-        max: data_.max
+        max: data_.max,
+        meta: data_.meta,
+        sortedData: data_.sortedData,
+        minExponent: data_.minExponent,
+        maxExponent: data_.maxExponent,
+        smallDataFlag: data_.smallDataFlag,
+        noGrouping: data_.noGrouping,
+        hasNA: data_.hasNA
       }, opts.logScaleChecked));
       ndx_ = ndx;
 
@@ -4113,10 +4648,224 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       return chartInst_;
     };
 
+    content.rangeFilter = function(logScaleChecked, _filter) {
+      var tempFilters_ = [];
+      var minNumBarPoint = '';
+      var maxNumBarPoint = '';
+      var selectedNumBar = [];
+      var hasNA = false;
+      var hasGreaterOutlier = false;
+      var hasSmallerOutlier = false;
+      var startNumIndex = 0;
+      var endNumIndex = opts_.xDomain.length >= 1 ? opts_.xDomain.length - 1 : 0;
+
+      tempFilters_[0] = '';
+      tempFilters_[1] = '';
+      
+      if (opts_.xDomain.length === 0) {
+        tempFilters_[0] = 'Invalid Selection';
+      } else {
+        // set start and end indexes for number bars
+        if (opts_.xDomain.length >= 2) {
+          if (data_.noGrouping) {
+            if (data_.hasNA) {
+              endNumIndex = opts_.xDomain.length - 2 ;
+            }
+          } else {
+            if (logScaleChecked) {
+              if (data_.hasNA) { // has 'NA' tick
+                endNumIndex = opts_.xDomain.length - 2;
+              }
+            } else {
+              startNumIndex = 1;
+              if (data_.hasNA) {// has 'NA' tick
+                endNumIndex = opts_.xDomain.length >= 3 ? opts_.xDomain.length - 3 : endNumIndex;
+              } else {
+                endNumIndex = opts_.xDomain.length - 2;
+              }
+            }
+          }
+        }
+
+        _.each(opts_.xDomain, function(tick) {
+          if (tick >= _filter[0] && tick <= _filter[1]) {
+            if (data_.hasNA && tick === opts_.xDomain[opts_.xDomain.length - 1]) {
+              hasNA = true;
+            } else if (!data_.noGrouping && !logScaleChecked) {
+              if (tick === opts_.xDomain[0]) {
+                hasSmallerOutlier = true;
+              } else if (tick === opts_.xDomain[endNumIndex + 1]) {
+                hasGreaterOutlier = true;
+              }
+            }
+          }
+        });
+
+        // store all number bars' middle value in selected range
+        _.each(opts_.xBarValues, function(middle) {
+          if (middle >= _filter[0] && middle <= _filter[1]) {
+            if ((data_.noGrouping || logScaleChecked) &&
+              (data_.hasNA && middle !== opts_.xDomain[opts_.xDomain.length - 1])) {
+              // exclude 'NA' value
+              selectedNumBar.push(middle);
+            } else {
+              // exclude '>max', '<=min' and 'NA' value
+              if (middle !== opts_.xDomain[0] || middle !== opts_.xDomain[endNumIndex + 1] ||
+                (data_.hasNA && middle !== opts_.xDomain[opts_.xDomain.length - 1])) {
+                selectedNumBar.push(middle);
+              }
+            }
+          }
+        });
+
+        // make sure x axis has "<=min" and ">max" ticks
+        if (!data_.noGrouping && !logScaleChecked && opts_.xDomain.length >= 2) {
+          // if left point between '<= min' and 'min'
+          if (_filter[0] > opts_.xDomain[0] && _filter[0] <= opts_.xDomain[1]) {
+            minNumBarPoint = opts_.xDomain[1];
+          }
+          // if right point between 'max' and '>max'
+          if (_filter[1] >= opts_.xDomain[endNumIndex] && _filter[1] < opts_.xDomain[endNumIndex + 1]) {
+            maxNumBarPoint = opts_.xDomain[endNumIndex];
+          }
+        }
+        
+        for (var i = startNumIndex; i <= endNumIndex - 1; i++) {
+          if (_filter[0] >= opts_.xDomain[i] && _filter[0] < opts_.xDomain[i + 1]) {// check left range point
+            // when there is a bar inside single slot
+            if (selectedNumBar[0] >= opts_.xDomain[i + 1] && selectedNumBar[0] < opts_.xDomain[i + 2]) {
+              // left point is closer to the upward tick
+              minNumBarPoint = opts_.xDomain[i + 1];
+            } else {
+              if ((_filter[0] - opts_.xDomain[i]) > (opts_.xDomain[i + 1] - _filter[0])) {
+                // left point is closer to the upward tick
+                minNumBarPoint = opts_.xDomain[i + 1];
+              } else {
+                // left point is closer to the downward tick
+                minNumBarPoint = opts_.xDomain[i];
+              }
+            }
+          }
+
+          if (_filter[1] >= opts_.xDomain[i] && _filter[1] < opts_.xDomain[i + 1]) {// check right range point
+            if (selectedNumBar[selectedNumBar.length - 1] >= opts_.xDomain[i - 1] &&
+              selectedNumBar[selectedNumBar.length - 1] < opts_.xDomain[i]) {
+              // right point is closer to the downward tick
+              maxNumBarPoint = opts_.xDomain[i];
+            } else {
+              if ((_filter[1] - opts_.xDomain[i]) > (opts_.xDomain[i + 1] - _filter[1])) {
+                // right point is closer to the upward tick
+                maxNumBarPoint = opts_.xDomain[i + 1];
+              } else {
+                // right point is closer to the downward tick
+                maxNumBarPoint = opts_.xDomain[i];
+              }
+            }
+          }
+        }
+
+        // avoid "min< ~ <=min"
+        if (_.isNumber(minNumBarPoint) && _.isNumber(maxNumBarPoint) && minNumBarPoint === maxNumBarPoint) {
+          tempFilters_[0] = 'Invalid Selection';
+        } else if (_filter[0] < opts_.xDomain[0] && _filter[1] > opts_.xDomain[opts_.xDomain.length - 1]) {
+          tempFilters_[0] = 'All';
+        } else {
+          if (data_.noGrouping) {
+            if (selectedNumBar.length === opts_.xBarValues.length ||
+              (_filter[0] <= opts_.xBarValues[0] && _filter[1] >= opts_.xBarValues[opts_.xBarValues.length - 2] &&
+              data_.hasNA && !hasNA)) {// select all number bars
+              tempFilters_[0] = 'All Numbers';
+            } else if (selectedNumBar.length === 0 && hasNA) {// only choose NA bar
+              tempFilters_[0] = 'NA';
+            } else if (selectedNumBar.length === 1) {// only choose 1 number bar
+              if (hasNA) { // chose max num bar and NA bar
+                tempFilters_[0] = selectedNumBar[0] + ', NA';
+              } else {
+                tempFilters_[0] = selectedNumBar[0];
+              }
+            } else {
+              _.each(selectedNumBar, function(barValue) {
+                tempFilters_[0] += barValue + ', ';
+              });
+              if (hasNA) {
+                tempFilters_[0] += 'NA';
+              } else {
+                tempFilters_[0] = tempFilters_[0].slice(0, -2);// remove last coma
+              }
+            }
+          } else {
+            if (logScaleChecked) {
+              if (!hasNA && _filter[0] < opts_.xDomain[startNumIndex] &&
+                _filter[1] > opts_.xDomain[endNumIndex]) {
+                tempFilters_[0] = 'All Numbers';
+              } else if (!hasNA && minNumBarPoint !== '' && maxNumBarPoint !== '') {
+                tempFilters_[0] = minNumBarPoint + '<';
+                tempFilters_[1] = '<=' + maxNumBarPoint;
+              } else if (!hasNA && minNumBarPoint === '' && maxNumBarPoint !== '') {
+                tempFilters_[1] = '<=' + maxNumBarPoint;
+              } else if (hasNA && minNumBarPoint !== '' && maxNumBarPoint === '') {
+                tempFilters_[0] = minNumBarPoint + '<';
+                tempFilters_[1] = '<=' + opts_.xDomain[endNumIndex] + ", NA";
+              } else if (hasNA && minNumBarPoint === '' && maxNumBarPoint === ''){//only select "NA" bar
+                tempFilters_[0] = 'NA';
+              } else {
+                tempFilters_[0] = 'Invalid Selection';
+              }
+            } else {
+              if (!hasNA && !hasSmallerOutlier && !hasGreaterOutlier &&
+                minNumBarPoint !== '' && maxNumBarPoint !== '') {
+                tempFilters_[0] = minNumBarPoint + '<';
+                tempFilters_[1] = '<=' + maxNumBarPoint;
+              } else if (hasNA && !hasSmallerOutlier) {
+                if (hasGreaterOutlier) { // "> Num, NA"
+                  if (minNumBarPoint === '') {// only select '>Num' and 'NA' bars
+                    tempFilters_[1] = '> ' + opts_.xDomain[opts_.xDomain.length - 3] + ', NA';
+                  } else {
+                    tempFilters_[1] = '> ' + minNumBarPoint + ', NA';
+                  }
+                } else {
+                  if (minNumBarPoint === '' && maxNumBarPoint === '') {
+                    tempFilters_[0] = 'NA';
+                  }
+                }
+              } else if (!hasNA && hasGreaterOutlier) {
+                if (hasSmallerOutlier) {// Select all bars excluding NA
+                  tempFilters_[0] = 'All Numbers';
+                } else {// "> Num"
+                  if(minNumBarPoint === '') {
+                    tempFilters_[1] = '> ' + opts_.xDomain[endNumIndex];
+                  } else {
+                    tempFilters_[1] = '> ' + minNumBarPoint;
+                  }
+                }
+              } else if (hasSmallerOutlier && !hasGreaterOutlier && !hasNA) {// "<= Num"
+                if (maxNumBarPoint === '') {
+                  tempFilters_[1] = '<= ' + opts_.xDomain[1];
+                } else {
+                  tempFilters_[1] = '<= ' + maxNumBarPoint;
+                }
+              } else {
+                tempFilters_[0] = 'Invalid Selection';
+              }
+            }
+          }
+        }
+      }      
+
+      return tempFilters_;
+    };
+
     content.redraw = function(logScaleChecked) {
       opts_ = _.extend(opts_, iViz.util.barChart.getDcConfig({
         min: data_.min,
-        max: data_.max
+        max: data_.max,
+        meta: data_.meta,
+        sortedData: data_.sortedData,
+        minExponent: data_.minExponent,
+        maxExponent: data_.maxExponent,
+        smallDataFlag: data_.smallDataFlag,
+        noGrouping: data_.noGrouping,
+        hasNA: data_.hasNA
       }, logScaleChecked));
 
       initDc_(logScaleChecked);
@@ -4222,7 +4971,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         gutter: 0.2,
         startPoint: -1,
         maxVal: '',
-        maxDomain: 10000 // Design specifically for log scale
+        minDomain: 0.7, // Design specifically for log scale
+        maxDomain: 10000, // Design specifically for log scale
+        xBarValues: [],
       };
 
       if (!_.isUndefined(data.min) && !_.isUndefined(data.max)) {
@@ -4232,6 +4983,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         var rangeL = parseInt(range, 10).toString().length - 2;
         var i = 0;
         var _tmpValue;
+        var minExponent, maxExponent, exponentRange;
+
+        if (data.smallDataFlag) {
+          minExponent = data.minExponent;
+          maxExponent = data.maxExponent;
+          exponentRange = maxExponent - minExponent;
+        }
 
         // Set divider based on the number m in 10(m)
         for (i = 0; i < rangeL; i++) {
@@ -4247,14 +5005,25 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         } else if (max < 100 &&
           max > 10) {
           config.divider = 2;
+        } else if (data.smallDataFlag) {
+          var numberOfTickValues = 4;
+          if (exponentRange > 1) {
+            config.divider = Math.round(exponentRange / numberOfTickValues);
+          } else if (exponentRange === 0) {
+            config.divider = 2 * Math.pow(10, minExponent);
+          }
         }
-
-        if (max <= 1 && max > 0 && min >= -1 && min < 0) {
+        
+        if (range === 0) {
+          config.startPoint = min;
+        } else if (max <= 1 && max > 0 && min >= -1 && min < 0) {
           config.maxVal = (parseInt(max / config.divider, 10) + 1) *
             config.divider;
           config.gutter = 0.2;
           config.startPoint = (parseInt(min / 0.2, 10) - 1) * 0.2;
           // config.emptyMappingVal = config.maxVal + 0.2;
+        } else if (range <= 0.1) {
+          config.gutter = 0.01;
         } else if (range <= 1 && min >= 0 && max <= 1) {
           config.gutter = 0.1;
           config.startPoint = 0;
@@ -4281,61 +5050,114 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             config.xDomain.push(_tmpValue);
             if (_tmpValue > data.max) {
               config.xDomain.push(Math.pow(10, i + 0.5));
-              config.emptyMappingVal = Math.pow(10, i + 1);
-              config.xDomain.push(config.emptyMappingVal);
+              if (data.hasNA) {
+                config.emptyMappingVal = Math.pow(10, i + 1);
+              }
               config.maxDomain = Math.pow(10, i + 1.5);
               break;
             }
           }
+        } else if (data.smallDataFlag) {// use decimal scientific ticks for 0 < data < 0.1
+          if (exponentRange > 1) {
+            config.minDomain = Math.pow(10, minExponent - config.divider * 1.5);
+            config.xDomain.push(Math.pow(10, minExponent - config.divider));// add "<=" marker
+            for (i = minExponent; i <= maxExponent; i += config.divider) {
+              config.xDomain.push(Math.pow(10, i));
+            }
+            config.xDomain.push(Math.pow(10, maxExponent + config.divider));// add ">=" marker
+            if (data.hasNA) {
+              config.emptyMappingVal = Math.pow(10, maxExponent + config.divider * 2);// add "NA" marker
+            }
+            config.maxDomain = Math.pow(10, maxExponent + config.divider * 2.5);
+          } else if (exponentRange === 1) {
+            config.minDomain = Math.pow(10, minExponent - 1);
+            config.xDomain.push(Math.pow(10, minExponent) / 3); // add "<=" marker
+            for (i = minExponent; i <= maxExponent + 1; i++) {
+              config.xDomain.push(Math.pow(10, i));
+              config.xDomain.push(3 * Math.pow(10, i));
+            }
+            if (data.hasNA) {
+              config.emptyMappingVal = Math.pow(10, maxExponent + 2);// add "NA" marker
+            }
+            config.maxDomain = 3 * Math.pow(10, maxExponent + 2);
+          } else { // exponentRange = 0
+            config.minDomain = Math.pow(10, minExponent) - config.divider;
+            for (i = Math.pow(10, minExponent); i <= Math.pow(10, maxExponent + 1); i += config.divider) {
+              config.xDomain.push(i);
+            }
+            if (data.hasNA) {
+              config.emptyMappingVal = Math.pow(10, maxExponent + 1) + config.divider;// add "NA" marker
+            }
+            config.maxDomain = Math.pow(10, maxExponent + 1) + config.divider * 2;
+          }
         } else {
-          if (!_.isNaN(range)) {
-            for (i = 0; i <= config.numOfGroups; i++) {
-              _tmpValue = i * config.gutter + config.startPoint;
-              if (config.startPoint < 1500) {
-                _tmpValue =
-                  Number(cbio.util.toPrecision(Number(_tmpValue), 3, 0.1));
-              }
+          // for data has at most 5 points
+          if (data.noGrouping) {
+            _.each(_.unique(data.sortedData), function(value) {
+              config.xDomain.push(value);
+            });
+            if (data.hasNA) {
+              // add marker for NA values
+              config.emptyMappingVal =
+                config.xDomain[config.xDomain.length - 1] + config.gutter;
+            }
+          } else {
+            if (!_.isNaN(range)) {
+              for (i = 0; i <= config.numOfGroups; i++) {
+                _tmpValue = i * config.gutter + config.startPoint;
+                if (config.startPoint < 1500) {
+                  _tmpValue =
+                    Number(cbio.util.toPrecision(Number(_tmpValue), 3, 0.1));
+                }
 
-              // If the current tmpValue already bigger than maxmium number, the
-              // function should decrease the number of bars and also reset the
-              // Mappped empty value.
-              if (_tmpValue >= max) {
-                // if i = 0 and tmpValue bigger than maximum number, that means
-                // all data fall into NA category.
-                config.xDomain.push(_tmpValue);
-                break;
-              } else {
-                config.xDomain.push(_tmpValue);
+                // If the current tmpValue already bigger than maxmium number, the
+                // function should decrease the number of bars and also reset the
+                // Mappped empty value.
+                if (_tmpValue >= max) {
+                  // if i = 0 and tmpValue bigger than maximum number, that means
+                  // all data fall into NA category.
+                  config.xDomain.push(_tmpValue);
+                  break;
+                } else {
+                  config.xDomain.push(_tmpValue);
+                }
+              }
+            }
+
+            if (config.xDomain.length === 0) {
+              config.xDomain.push(Number(config.startPoint));
+            } else if (config.xDomain.length === 1) {
+              config.xDomain.push(Number(config.xDomain[0] + config.gutter));
+            } else if (Math.abs(min) > 1500) {
+              // currently we always add ">max" and "NA" marker
+              // add marker for greater than maximum
+              config.xDomain.push(
+                Number(config.xDomain[config.xDomain.length - 1] +
+                  config.gutter));
+              if (data.hasNA) {
+                // add marker for NA values
+                config.emptyMappingVal =
+                  config.xDomain[config.xDomain.length - 1] + config.gutter;
+              }
+            } else {
+              // add marker for greater than maximum
+              config.xDomain.push(
+                Number(cbio.util.toPrecision(
+                  Number(config.xDomain[config.xDomain.length - 1] +
+                    config.gutter), 3, 0.1)));
+              if (data.hasNA) {
+                // add marker for NA values
+                config.emptyMappingVal =
+                  Number(cbio.util.toPrecision(
+                    Number(config.xDomain[config.xDomain.length - 1] +
+                      config.gutter), 3, 0.1));
               }
             }
           }
-          if (config.xDomain.length === 0) {
-            config.xDomain.push(Number(config.startPoint));
-          } else if (config.xDomain.length === 1) {
-            config.xDomain.push(Number(config.xDomain[0] + config.gutter));
-          } else if (Math.abs(min) > 1500) {
-            // currently we always add ">max" and "NA" marker
-            // add marker for greater than maximum
-            config.xDomain.push(
-              Number(config.xDomain[config.xDomain.length - 1] +
-                config.gutter));
-            // add marker for NA values
-            config.emptyMappingVal =
-              config.xDomain[config.xDomain.length - 1] + config.gutter;
-            config.xDomain.push(config.emptyMappingVal);
-          } else {
-            // add marker for greater than maximum
-            config.xDomain.push(
-              Number(cbio.util.toPrecision(
-                Number(config.xDomain[config.xDomain.length - 1] +
-                  config.gutter), 3, 0.1)));
-            // add marker for NA values
-            config.emptyMappingVal =
-              Number(cbio.util.toPrecision(
-                Number(config.xDomain[config.xDomain.length - 1] +
-                  config.gutter), 3, 0.1));
-            config.xDomain.push(config.emptyMappingVal);
-          }
+        }
+
+        if (config.emptyMappingVal !== '') {
+          config.xDomain.push(config.emptyMappingVal);
         }
       }
       return config;
@@ -4349,7 +5171,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   window.d3,
   window.cbio
 );
-
 /**
  * Created by Karthik Kalletla on 4/6/16.
  */
@@ -4358,10 +5179,12 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   Vue.component('barChart', {
     template: '<div id={{chartDivId}} ' +
     'class="grid-item grid-item-w-2 grid-item-h-1 bar-chart" ' +
-    ':data-number="attributes.priority" @mouseenter="mouseEnter" ' +
+    ':attribute-id="attributes.attr_id" @mouseenter="mouseEnter" ' +
+    ':layout-number="attributes.layout" ' +
     '@mouseleave="mouseLeave">' +
     '<chart-operations :show-log-scale="settings.showLogScale"' +
-    ':show-operations="showOperations && !failedToInit" :groupid="attributes.group_id" ' +
+    ':show-operations="showOperations" :groupid="attributes.group_id" ' +
+    ':chart-initialed = "!failedToInit"' +
     ':show-survival-icon.sync="showSurvivalIcon"' +
     ':reset-btn-id="resetBtnId" :chart-ctrl="barChart" ' +
     ':chart-id="chartId" :show-log-scale="showLogScale" ' +
@@ -4369,8 +5192,12 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     ':filters.sync="attributes.filter"></chart-operations>' +
     '<div class="dc-chart dc-bar-chart" align="center" ' +
     'style="float:none !important;" id={{chartId}} >' +
-    '<error-handle v-if="failedToInit"></error-handle>' +
-    '</div>' +
+    '<div v-if="failedToInit" class="error-panel" align="center" style="padding-top: 10%;">' +
+    '<error-handle v-if="failedToInit" :error-message="errorMessage"></error-handle>' +
+    '</div></div>' +
+    ' <div :class="{\'show-loading\': showLoad}" ' +
+    'class="chart-loader">' +
+    ' <img src="images/ajax-loader.gif" alt="loading"></div>' +
     '<span class="text-center chart-title-span" ' +
     'id="{{chartId}}-title">{{displayName}}</span>' +
     '</div>',
@@ -4399,9 +5226,15 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           transitionDuration: iViz.opts.dc.transitionDuration
         },
         failedToInit: false,
+        errorMessage: {
+          dataInvalid: false,
+          noData: false, 
+          failedToLoadData: false
+        },
         opts: {},
         numOfSurvivalCurveLimit: iViz.opts.numOfSurvivalCurveLimit || 20,
-        addingChart: false
+        addingChart: false,
+        showLoad: true
       };
     }, watch: {
       'attributes.filter': function(newVal) {
@@ -4421,8 +5254,10 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
     }, events: {
       closeChart: function() {
-        dc.deregisterChart(this.chartInst, this.attributes.group_id);
-        this.chartInst.dimension().dispose();
+        if (!this.failedToInit) {
+          dc.deregisterChart(this.chartInst, this.attributes.group_id);
+          this.chartInst.dimension().dispose();
+        }
         this.$dispatch('close');
       },
       changeLogScale: function(logScaleChecked) {
@@ -4466,7 +5301,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         });
       },
       resetBarColor: function(exceptionAttrIds) {
-        if (_.isArray(exceptionAttrIds) && exceptionAttrIds.indexOf(this.attributes.attr_id) === -1) {
+        if (!this.showLoad && !this.failedToInit &&
+          _.isArray(exceptionAttrIds) && exceptionAttrIds.indexOf(this.attributes.attr_id) === -1) {
           this.barChart.resetBarColor();
         }
       }
@@ -4479,11 +5315,92 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             this.barChart.getCurrentCategories().length > this.numOfSurvivalCurveLimit) {
             this.showSurvivalIcon = false;
           } else {
-            this.showSurvivalIcon = true
+            this.showSurvivalIcon = true;
           }
         } else {
           this.showSurvivalIcon = false;
         }
+      },
+      processBarchartData: function (_data) {
+        var _self = this;
+        var _dataIssue = false;
+        var smallerOutlier = [];
+        var greaterOutlier = [];
+
+        this.data.meta = _.map(_.filter(_.pluck(
+          _data, this.opts.attrId), function(d) {
+          if (iViz.util.strIsNa(d, true) || (isNaN(d) && !d.includes('>') && !d.includes('<'))) {
+            _self.data.hasNA = true;
+            d = 'NA';
+          }
+          return d !== 'NA';
+        }), function(d) {
+          var number = d;
+          var smallerOutlierPattern = new RegExp('^<|(>=?)$');
+          var greaterOutlierPattern = new RegExp('^>|(<=?)$');
+          if (isNaN(d)) {
+            if (smallerOutlierPattern.test(number)) {
+              smallerOutlier.push(number.replace(/[^0-9.]/g, ''));
+            } else if (greaterOutlierPattern.test(number)) {
+              greaterOutlier.push(number.replace(/[^0-9.]/g, ''));
+            } else {
+              _dataIssue = true;
+            }
+          } else {
+            number = parseFloat(d);
+          }
+          return number;
+        });
+
+        if (_dataIssue) {
+          this.errorMessage.dataInvalid = true;
+          this.failedToInit = true;
+        } else {
+          // for scientific small number
+          if (this.data.meta[Math.ceil((this.data.meta.length * (1 / 2)))] < 0.001 &&
+            this.data.meta[Math.ceil((this.data.meta.length * (1 / 2)))] > 0) {
+            this.data.smallDataFlag = true;
+            this.data.exponents = cbio.util.getDecimalExponents(this.data.meta);
+            var findExtremeExponentResult = cbio.util.findExtremes(this.data.exponents);
+            this.data.minExponent = findExtremeExponentResult[0];
+            this.data.maxExponent = findExtremeExponentResult[1];
+          } else {
+            this.data.smallDataFlag = false;
+          }
+
+          if (smallerOutlier.length > 0 && greaterOutlier.length > 0) {// data contain ">, >=,<, <="
+            this.data.min = _.max(smallerOutlier);
+            this.data.max = _.min(greaterOutlier);
+          } else {
+            var findExtremeResult = cbio.util.findExtremes(this.data.meta);
+            this.data.min = findExtremeResult[0];
+            this.data.max = findExtremeResult[1];
+
+            // noGrouping is true when number of different values less than or equal to 5. 
+            // In this case, the chart sets data value as ticks' value directly. 
+            this.data.noGrouping = false;
+            if (_.unique(this.data.meta).length <= 5 && this.data.meta.length > 0) {// for data less than 6 points
+              var maxData = _.max(this.data.meta);
+              var minData = _.min(this.data.meta);
+              if ((maxData - minData) <= findExtremeResult[4]) {// range < iqr
+                this.data.noGrouping = true;
+                this.data.sortedData = findExtremeResult[3];// use sorted value as ticks directly
+              }
+            }
+          }
+
+          this.data.attrId = this.attributes.attr_id;
+          this.data.groupType = this.attributes.group_type;
+          if (((this.data.max - this.data.min) > 1000) && (this.data.min > 1)) {
+            this.settings.showLogScale = true;
+          }
+          this.barChart = new iViz.view.component.BarChart();
+          this.barChart.setDownloadDataTypes(['tsv', 'pdf', 'svg']);
+          this.initChart(this.settings.showLogScale);
+          this.updateShowSurvivalIcon();
+        }
+        this.showLoad = false;
+        this.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
       },
       mouseEnter: function() {
         this.showOperations = true;
@@ -4508,10 +5425,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 self_.filtersUpdated = true;
                 if (typeof _filter !== 'undefined' && _filter !== null &&
                   _filter.length > 1 && self_.chartInst.hasFilter()) {
-                  var tempFilters_ = [];
-                  tempFilters_[0] = _filter[0].toFixed(2);
-                  tempFilters_[1] = _filter[1].toFixed(2);
-                  self_.attributes.filter = tempFilters_;
+                  self_.attributes.filter = self_.barChart.rangeFilter(logScaleChecked, _filter);
                   self_.$dispatch('update-filters');
                 } else if (self_.attributes.filter.length > 0) {
                   self_.attributes.filter = [];
@@ -4524,7 +5438,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
     },
     ready: function() {
-      var _dataIssue = false;
+      var _self = this;
+      var _data = [];
+      this.showLoad = true;
       this.settings.width = window.iViz.styles.vars.barchart.width;
       this.settings.height = window.iViz.styles.vars.barchart.height;
 
@@ -4539,39 +5455,33 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         height: this.settings.height
       });
 
-      this.data.meta = _.map(_.filter(_.pluck(
-        iViz.getGroupNdx(this.opts.groupid), this.opts.attrId), function(d) {
-        if (typeof d === 'undefined' || d === 'na' || d === '' ||
-          d === 'NaN' || d == null) {
-          d = 'NA';
-        }
-        return d !== 'NA';
-      }), function(d) {
-        var number = parseFloat(d);
-        if (isNaN(number)) {
-          _dataIssue = true;
-        }
-        return number;
-      });
-      
-      if (_dataIssue) {
-        this.failedToInit = true;
+      // Mutation_count chart will cost much time to get data, so we treat it individually to avoid performance issue.  
+      // In the future, we may change it.
+      if (_self.attributes.attr_id === 'mutation_count') {
+        $.when(iViz.getMutationCountData(_self))
+          .then(function(_mutationCountData, _hasMutationCountData) {
+            if (!_hasMutationCountData) { //empty data
+              if (_self.attributes.addChartBy === 'default') {// Hide empty chart initially.
+                _self.attributes.show = false;
+                _self.$dispatch('remove-chart', _self.attributes.attr_id,  _self.attributes.group_id);//rearrange layout
+              } else { // _self.attributes.addChartBy === 'user'
+                _self.$dispatch('data-loaded', _self.attributes.group_id, _self.chartDivId);
+              }
+              _self.showLoad = false;
+              _self.errorMessage.noData = true;
+              _self.failedToInit = true;
+            } else {
+              _self.processBarchartData(_mutationCountData);
+            }
+          }, function() {
+            _self.showLoad = false;
+            _self.errorMessage.failedToLoadData = true;
+            _self.failedToInit = true;
+            _self.$dispatch('data-loaded', _self.attributes.group_id, _self.chartDivId);
+          });
       } else {
-        var findExtremeResult = cbio.util.findExtremes(this.data.meta);
-        this.data.min = findExtremeResult[0];
-        this.data.max = findExtremeResult[1];
-        this.data.attrId = this.attributes.attr_id;
-        this.data.groupType = this.attributes.group_type;
-        
-        if (((this.data.max - this.data.min) > 1000) && (this.data.min > 1)) {
-          this.settings.showLogScale = true;
-        }
-
-        this.barChart = new iViz.view.component.BarChart();
-        this.barChart.setDownloadDataTypes(['tsv', 'pdf', 'svg']);
-        this.initChart(this.settings.showLogScale);
-        this.updateShowSurvivalIcon();
-        this.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
+        _data = iViz.getGroupNdx(this.opts.groupid);
+        _self.processBarchartData(_data);
       }
     }
   });
@@ -4584,7 +5494,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   window.$ || window.jQuery,
   window.cbio
 );
-
 /**
  * Created by Yichao Sun on 5/11/16.
  */
@@ -4599,15 +5508,15 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     var opts_;
     var layout_;
     var getQtipString = function(_data) {
-      var toReturn = 'Cancer Study:' + _data.study_id + '<br>Sample Id: ' +
-        iViz.getCaseIdUsingUID('sample', _data.sample_uid) + '<br>CNA fraction: ';
+      var toReturn = ['Cancer Study:', _data.study_id, '<br>Sample Id: ',
+        iViz.getCaseIdUsingUID('sample', _data.sample_uid), '<br>CNA fraction: '];
       if (isNaN(_data.cna_fraction)) {
-        toReturn += _data.cna_fraction;
+        toReturn.push(_data.cna_fraction);
       } else {
-        toReturn += cbio.util.toPrecision(_data.cna_fraction, 2, 0.001);
+        toReturn.push(cbio.util.toPrecision(_data.cna_fraction, 2, 0.001));
       }
-      toReturn += '<br>Mutation count: ' + _data.mutation_count;
-      return toReturn;
+      toReturn.push('<br>Mutation count: ' + _data.mutation_count);
+      return toReturn.join('');
     };
 
     content.init = function(_data, opts) {
@@ -4835,7 +5744,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   Vue.component('scatterPlot', {
     template: '<div id={{chartDivId}} ' +
     'class="grid-item grid-item-h-2 grid-item-w-2" ' +
-    ':data-number="attributes.priority" @mouseenter="mouseEnter" ' +
+    ':attribute-id="attributes.attr_id" @mouseenter="mouseEnter" ' +
     '@mouseleave="mouseLeave">' +
     '<chart-operations :show-operations="showOperations"' +
     ' :display-name="displayName" :has-chart-title="true" :groupid="attributes.group_id"' +
@@ -4845,9 +5754,12 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     ' <div :class="{\'start-loading\': showLoad}" ' +
     'class="dc-chart dc-scatter-plot" align="center" ' +
     'style="float:none !important;" id={{chartId}} ></div>' +
-    ' <div id="chart-loader"  :class="{\'show-loading\': showLoad}" ' +
-    'class="chart-loader" style="top: 30%; left: 30%; display: none;">' +
-    ' <img src="images/ajax-loader.gif" alt="loading"></div></div>',
+    ' <div :class="{\'show-loading\': showLoad}" ' +
+    'class="chart-loader">' +
+    ' <img src="images/ajax-loader.gif" alt="loading"></div>' +
+    '<div v-if="failedToInit" class="error-panel" align="center">' +
+    '<error-handle v-if="failedToInit" :error-message="errorMessage"></error-handle>' +
+    '</div></div>',
     props: [
       'ndx', 'attributes'
     ],
@@ -4865,6 +5777,12 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         chartInst: {},
         hasFilters: false,
         showLoad: true,
+        errorMessage: {
+          dataInvalid: false,
+          noData: false,
+          failedToLoadData: false
+        },
+        failedToInit: false,
         invisibleDimension: {}
       };
     },
@@ -4881,18 +5799,21 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         this.showLoad = true;
       },
       'update-special-charts': function(hasFilters) {
-        var attrId =
-          this.attributes.group_type === 'patient' ? 'patient_uid' : 'sample_uid';
-        var _selectedCases =
-          _.pluck(this.invisibleDimension.top(Infinity), attrId);
+        this.hasFilters = hasFilters;
+        if (this.dataLoaded) {
+          var attrId =
+            this.attributes.group_type === 'patient' ? 'patient_uid' : 'sample_uid';
+          var _selectedCases =
+            _.pluck(this.invisibleDimension.top(Infinity), attrId);
 
-        this.selectedSamples = _selectedCases;
-        if (hasFilters) {
-          this.chartInst.update(_selectedCases);
-        } else {
-          this.chartInst.update([]);
+          this.selectedSamples = _selectedCases;
+          if (hasFilters) {
+            this.chartInst.update(_selectedCases);
+          } else {
+            this.chartInst.update([]);
+          }
+          this.attachPlotlySelectedEvent();
         }
-        this.attachPlotlySelectedEvent();
         this.showLoad = false;
       },
       'closeChart': function() {
@@ -4967,26 +5888,52 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     ready: function() {
       var _self = this;
       _self.showLoad = true;
-      var _opts = {
-        chartId: this.chartId,
-        chartDivId: this.chartDivId,
-        title: this.attributes.display_name,
-        width: window.iViz.styles.vars.scatter.width,
-        height: window.iViz.styles.vars.scatter.height
-      };
+
+      // make scatterplot can be closed even if ajax fails
       var attrId =
-        this.attributes.group_type === 'patient' ? 'patient_uid' : 'sample_uid';
-      this.invisibleDimension = this.ndx.dimension(function(d) {
+        _self.attributes.group_type === 'patient' ? 'patient_uid' : 'sample_uid';
+      _self.invisibleDimension = _self.ndx.dimension(function(d) {
         return d[attrId];
       });
+      
+      $.when(iViz.getScatterData(_self))
+        .then(function(_scatterData, _hasCnaFractionData, _hasMutationCountData) {
+          if (!_hasCnaFractionData || !_hasMutationCountData) {
+            if (_self.attributes.addChartBy === 'default') {
+              _self.attributes.show = false;
+              _self.$dispatch('remove-chart', _self.attributes.attr_id,  _self.attributes.group_id);//rearrange layout
+            } 
+            _self.errorMessage.noData = true;
+            _self.failedToInit = true;
+          } else {
+            var _opts = {
+              chartId: _self.chartId,
+              chartDivId: _self.chartDivId,
+              title: _self.attributes.display_name,
+              width: window.iViz.styles.vars.scatter.width,
+              height: window.iViz.styles.vars.scatter.height
+            };
+            
+            _self.chartInst = new iViz.view.component.ScatterPlot();
+            _self.chartInst.setDownloadDataTypes(['pdf', 'svg', 'tsv']);
+            _self.chartInst.init(_scatterData, _opts);
 
-      var data = iViz.getGroupNdx(this.attributes.group_id);
-      _self.chartInst = new iViz.view.component.ScatterPlot();
-      _self.chartInst.init(data, _opts);
-      _self.chartInst.setDownloadDataTypes(['pdf', 'svg', 'tsv']);
-
-      _self.attachPlotlySelectedEvent();
-      _self.showLoad = false;
+            _self.dataLoaded = true;
+            var _selectedCases =
+              _.pluck(_self.invisibleDimension.top(Infinity), attrId);
+            if (_self.hasFilters) {
+              _self.chartInst.update(_selectedCases);
+            }
+            _self.attachPlotlySelectedEvent();
+          }
+         
+          _self.showLoad = false;
+        }, function() {
+          _self.showLoad = false;
+          _self.errorMessage.failedToLoadData = true;
+          _self.failedToInit = true;
+        });
+      
       this.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
     }
   });
@@ -5102,7 +6049,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   Vue.component('survival', {
     template: '<div id={{chartDivId}} ' +
     'class="grid-item grid-item-h-2 grid-item-w-2" ' +
-    ':data-number="attributes.priority" @mouseenter="mouseEnter" ' +
+    ':attribute-id="attributes.attr_id" @mouseenter="mouseEnter" ' +
     '@mouseleave="mouseLeave">' +
     '<chart-operations :show-operations="showOperations" ' +
     ':show-download-icon.sync="showDownloadIcon" ' +
@@ -5113,8 +6060,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     '<div :class="{\'start-loading\': showLoad}" ' +
     'class="dc-chart dc-scatter-plot" align="center" ' +
     'style="float:none !important;" id={{chartId}} ></div>' +
-    '<div id="chart-loader"  :class="{\'show-loading\': showLoad}" ' +
-    'class="chart-loader" style="top: 30%; left: 30%; display: none;">' +
+    '<div :class="{\'show-loading\': showLoad}" ' +
+    'class="chart-loader">' +
     '<img src="images/ajax-loader.gif" alt="loading"></div></div>',
     props: [
       'ndx', 'attributes'
@@ -5231,7 +6178,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
         if (this.hasFilters) {
           var filteredClinicalAttrs = {};
-          _.map(this.$root.groups, function(group) {
+          _.each(this.$root.groups, function(group) {
             var _attrId = group.type === 'patient' ? 'patient_uid' : 'sample_uid';
             if (!filteredClinicalAttrs.hasOwnProperty(group.id)) {
               filteredClinicalAttrs[group.id] = {
@@ -5240,10 +6187,16 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 nonNaCases: []
               };
             }
-            filteredClinicalAttrs[group.id].attrs =
-              _.pluck(_.filter(group.attributes, function(attr) {
-                return attr.filter.length > 0;
-              }), 'attr_id');
+            filteredClinicalAttrs[group.id].attrs = [];
+            
+            // Loop through attrList instead of only using attr_id
+            // Combination chart has its own attr_id, but the clinical data
+            // it's using are listed under attrList
+            _.each(_.filter(group.attributes, function(attr) {
+              return attr.filter.length > 0;
+            }), function(item) {
+              filteredClinicalAttrs[group.id].attrs.push(_.pick(item, 'attr_id', 'attrList'));
+            });
           });
           if (this.excludeNa) {
             // Find qualified cases in each group.
@@ -5252,14 +6205,16 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               var nonNaCases = [];
 
               _.each(data_, function(data) {
-                var _intersection = _.intersection(Object.keys(data), group.attrs);
                 var hasNaWithinAttrs = false;
-                _.some(_intersection, function(attr) {
-                  if (data[attr].toString().toLowerCase() === 'na') {
+
+                //Check whether case contains NA value on filtered attrs
+                _.some(_.flatten(_.pluck(group.attrs, 'attrList')), function(attr) {
+                  if (iViz.util.strIsNa(data[attr], false)) {
                     hasNaWithinAttrs = true;
                     return true;
                   }
                 });
+
                 if (!hasNaWithinAttrs) {
                   var _caseId = data[group.attrId];
                   if (groupId !== _groupId) {
@@ -5340,11 +6295,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             (this.excludeNa ? 'checked' : '') + '><span>' +
             'Exclude patients with NA for any of the selected attribute(s)</span></div>');
           api.set('content.text', qtipContent.join(''));
-          
+
           // Tender tooltip after updating content
           // Otherwise, api.elements.tooltip will return null.
           api.render();
-          
+
           var tooltip = api.elements.tooltip;
           tooltip.find('.category-item').click(function() {
             var curveId = $(this).attr('curve-id');
@@ -5388,7 +6343,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           style: {
             classes: 'qtip-light qtip-rounded qtip-shadow forceZindex qtip-max-width dc-survival-chart-qtip'
           },
-          show: {event: 'mouseover', delay: 300, ready: true},
+          show: {event: 'mouseover', delay: 300},
           hide: {fixed: true, delay: 300, event: 'mouseleave'},
           // hide: false,
           position: {
@@ -5699,19 +6654,20 @@ window.LogRankTest = (function(jStat) {
     _self.elem_.curves = {};
   };
 
-  iViz.view.component.SurvivalCurve.prototype.addCurve = function(_data,
+  iViz.view.component.SurvivalCurve.prototype.addCurve = function(data,
     _curveIndex,
     _lineColor) {
     var _self = this;
+    var _data = data;
 
     // add an empty/zero point so the curve starts from zero time point
     if (_data !== null && _data.length !== 0) {
       if (_data[0].time !== 0) {
-        _data.unshift({
+        _data = [{
           status: 0,
           survival_rate: 1,
           time: 0
-        });
+        }].concat(_data);
       }
     }
 
@@ -5862,8 +6818,6 @@ window.LogRankTest = (function(jStat) {
     function(_selectedData, _unselectedData) {
       var _self = this;
       _self.elem_.svg.selectAll('.pval').remove();
-      _selectedData.splice(0, 1);
-      _unselectedData.splice(0, 1);
       var _pVal = LogRankTest.calc(_selectedData, _unselectedData);
       _self.elem_.svg.append('text')
         .attr('class', 'pval')
@@ -5910,8 +6864,10 @@ window.LogRankTest = (function(jStat) {
         } else {
           _self.opts_.curves[curveIndex].highlighted = true;
         }
+        // Don't highlight the time equal to 0. This is a fake node added
+        // in addCurve function
         _self.elem_.curves[curveIndex].invisibleDots
-          .selectAll('path')
+          .selectAll('path:not([time="0"])')
           .style('opacity', opacity);
       }
     };
@@ -6065,7 +7021,7 @@ window.LogRankTest = (function(jStat) {
     content.clearSelectedRowData = function() {
       selectedRowData = [];
     };
-
+    
     content.init =
       function(_attributes, _opts, _selectedSamples, _selectedGenes,
                _data, _callbacks, _geneData, _dimension, _genePanelMap) {
@@ -6268,11 +7224,13 @@ window.LogRankTest = (function(jStat) {
           index: index
         };
       });
+      
     }
 
     function updateCategories() {
       var _labels = {};
       var _currentSampleSize = 0;
+      
       _.each(group.top(Infinity), function(label) {
         var _labelDatum = {};
         var _labelValue = Number(label.value);
@@ -6286,7 +7244,6 @@ window.LogRankTest = (function(jStat) {
           _labels[_labelDatum.id] = _labelDatum;
         }
       });
-
       _.each(_labels, function(label) {
         label.caseRate = iViz.util.calcFreq(Number(label.cases), _currentSampleSize);
       });
@@ -6418,7 +7375,7 @@ window.LogRankTest = (function(jStat) {
         selectedRowData.push(data);
       } else {
         selectedRowData = _.filter(selectedRowData, function(item) {
-          return (item.uniqueId !== data.uniqueId);
+          return (item.uniqueid !== data.uniqueid);
         });
       }
     }
@@ -6643,7 +7600,7 @@ window.LogRankTest = (function(jStat) {
   Vue.component('tableView', {
     template: '<div id={{chartDivId}} ' +
     ':class="[\'grid-item\', classTableHeight, \'grid-item-w-2\', \'react-table\']" ' +
-    ':data-number="attributes.priority" @mouseenter="mouseEnter" ' +
+    ':attribute-id="attributes.attr_id" @mouseenter="mouseEnter" ' +
     '@mouseleave="mouseLeave">' +
     '<chart-operations :show-operations="showOperations" ' +
     ':display-name="displayName" :chart-ctrl="chartInst"' +
@@ -6655,8 +7612,8 @@ window.LogRankTest = (function(jStat) {
     '</chart-operations><div class="dc-chart dc-table-plot" ' +
     ':class="{\'start-loading\': showLoad}" align="center" ' +
     'style="float:none !important;" id={{chartId}} ></div>' +
-    '<div id="chart-loader"  :class="{\'show-loading\': showLoad}" ' +
-    'class="chart-loader" style="top: 30%; left: 30%; display: none;">' +
+    '<div :class="{\'show-loading\': showLoad}" ' +
+    'class="chart-loader">' +
     '<img src="images/ajax-loader.gif" alt="loading"></div>' +
     '<div :class="{\'error-init\': failedToInit}" ' +
     'style="display: none;">' +
@@ -6684,7 +7641,8 @@ window.LogRankTest = (function(jStat) {
         madeSelection: false,
         showSurvivalIcon: false,
         genePanelMap: {},
-        numOfSurvivalCurveLimit: iViz.opts.numOfSurvivalCurveLimit || 20
+        numOfSurvivalCurveLimit: iViz.opts.numOfSurvivalCurveLimit || 20,
+        dataLoaded: false
       };
     },
     watch: {
@@ -6711,10 +7669,10 @@ window.LogRankTest = (function(jStat) {
       },
       'update-special-charts': function() {
         // Do not update chart if the selection is made on itself
-        if(!this.failedToInit) {
+        if (!this.failedToInit) {
           if (this.madeSelection && !this.isMutatedGeneCna) {
             this.madeSelection = false;
-          } else {
+          } else if (this.dataLoaded) {
             var attrId =
               this.attributes.group_type === 'patient' ?
                 'patient_uid' : 'sample_uid';
@@ -6770,7 +7728,7 @@ window.LogRankTest = (function(jStat) {
         this.$dispatch('create-rainbow-survival', {
           attrId: this.attributes.attr_id,
           subtitle: ' (' + this.attributes.display_name + ')',
-          groups: groups,
+          groups: groups,  
           groupType: this.attributes.group_type
         });
       }
@@ -6810,6 +7768,7 @@ window.LogRankTest = (function(jStat) {
             filtersMap[filter] = true;
           }
         });
+        
         this.invisibleDimension.filterFunction(function(d) {
           return (filtersMap[d] !== undefined);
         });
@@ -6838,15 +7797,31 @@ window.LogRankTest = (function(jStat) {
           height: window.iViz.styles.vars.specialTables.height,
           chartId: this.chartId
         };
+        
+        this.dataLoaded = true;
+        
         this.chartInst.init(this.attributes, opts, this.$root.selectedsampleUIDs,
           this.$root.selectedgenes, data, {
             addGeneClick: this.addGeneClick,
             submitClick: this.submitClick
           }, this.isMutatedGeneCna ? _data.geneMeta : null, this.invisibleDimension, this.genePanelMap);
+
+        var attrId =
+          this.attributes.group_type === 'patient' ?
+            'patient_uid' : 'sample_uid';
+        var _selectedCases =
+          _.pluck(this.invisibleDimension.top(Infinity), attrId);
+        if (_selectedCases.length > 0) {
+          this.chartInst.update(_selectedCases, this.selectedRows);
+          this.showRainbowSurvival();
+        } 
+        
         this.setDisplayTitle(this.chartInst.getCases().length);
         if (!this.isMutatedGeneCna &&
           Object.keys(this.attributes.keys).length <= 3) {
           this.classTableHeight = 'grid-item-h-1';
+          this.attributes.layout[1] = 2;
+          this.attributes.layout[2] = 'h';
         }
         this.showLoad = false;
       },
@@ -6866,7 +7841,7 @@ window.LogRankTest = (function(jStat) {
       _self.showLoad = true;
       var callbacks = {};
       var attrId = this.attributes.attr_id;
-
+      
       this.isMutatedGeneCna =
         ['mutated_genes', 'cna_details']
           .indexOf(_self.attributes.attr_id) !== -1;
@@ -6877,12 +7852,12 @@ window.LogRankTest = (function(jStat) {
       }
 
       this.invisibleDimension = this.ndx.dimension(function(d) {
-        if (typeof d[attrId] === 'undefined' ||
-          ['na', 'n/a', 'N/A'].indexOf(d[attrId]) !== -1) {
+        if (iViz.util.strIsNa(d[attrId], false)) {
           d[attrId] = 'NA';
         }
         return d[attrId];
       });
+      
       callbacks.addGeneClick = this.addGeneClick;
       callbacks.submitClick = this.submitClick;
       _self.chartInst = new iViz.view.component.TableView();
@@ -6893,6 +7868,7 @@ window.LogRankTest = (function(jStat) {
             $.when(window.iviz.datamanager.getGenePanelMap())
               .then(function(_genePanelMap) {
                 // create gene panel map
+                this.dataLoaded = true;
                 _self.genePanelMap = _genePanelMap;
                 _self.processTableData(_tableData);
               }, function() {
@@ -6911,6 +7887,7 @@ window.LogRankTest = (function(jStat) {
       } else {
         _self.processTableData();
       }
+      
       this.showRainbowSurvival();
       this.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
     }
@@ -7000,9 +7977,14 @@ window.LogRankTest = (function(jStat) {
 'use strict';
 (function(Vue, iViz) {
   Vue.component('errorHandle', {
-    template: '<span class="data-invalid">Data invalid' +
+    template: '<span v-if="errorMessage.dataInvalid" class="data-invalid">Data invalid' +
     '<span v-if="emailContact">, please contact <span v-html="emailContact"></span>' +
-    '</span></span>',
+    '</span></span>' + 
+    '<span v-if="errorMessage.noData" class="no-data">No data available</span>' +
+    '<span v-if="errorMessage.failedToLoadData" class="failed-load-data">Failed to load data, refresh the page may help</span>',
+    props: [
+      'errorMessage'
+    ], 
     data: function() {
       return {
         emailContact: ''

@@ -1,12 +1,14 @@
 package org.cbioportal.web.parameter;
 
+import org.cbioportal.web.MutationController;
+
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 import java.util.List;
     
 public class MutationMultipleStudyFilter {
 
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+    @Size(min = 1, max = MutationController.MUTATION_MAX_PAGE_SIZE)
     private List<SampleGeneticIdentifier> sampleGeneticIdentifiers;
     private List<String> geneticProfileIds;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)

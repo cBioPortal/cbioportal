@@ -58,7 +58,10 @@
     </jsp:attribute>
 
     <jsp:attribute name="body_area">
-        <h1>News</h1>
+        <div>
+            <div style="float: right"><a href="https://github.com/cBioPortal/cbioportal/releases">Release Notes</a></div>
+            <h1>News</h1>
+        </div>
         <div id="newsPage"></div>
         <div id="reactRoot" class="hidden"></div>
     </jsp:attribute>

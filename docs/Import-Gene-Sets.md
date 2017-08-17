@@ -30,16 +30,16 @@ cd $PORTAL_HOME/core/src/main/scripts
 Note: This removes existing gene set, gene set hierarchy and gene set genetic profile data.
 
 ```
-./importGenesetData.pl
-	--data ../../test/resources/genesets/study_es_0_genesets.gmt
-	--new-version 1
+./importGenesetData.pl \
+	--data ../../test/resources/genesets/study_es_0_genesets.gmt \
+	--new-version 1 \
 	--supp ../../test/resources/genesets/study_es_0_supp-genesets.txt
 ```
 
 3. Import gene set hierarchy data:
 
 ```
-./importGenesetHierarchy.pl
+./importGenesetHierarchy.pl \
 	--data ../../test/resources/genesets/study_es_0_tree.yaml
 ```
 

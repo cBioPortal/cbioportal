@@ -50,6 +50,7 @@
 <jsp:include page="js_include.jsp" flush="true" />
 <%}%>
 <jsp:include page="js_include_analytics_and_email.jsp" flush="true" />
+<jsp:include page="frontend_config.jsp" flush="true" />
 
     <script type="text/javascript">
     
@@ -58,15 +59,6 @@
     $(document).ready(function(){
             $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
         });
-    
-        // Set API root variable for cbioportal-frontend repo
-        <%
-        String url = request.getRequestURL().toString();
-        String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath() + "/";
-        baseURL = baseURL.replace("https://", "").replace("http://", "");
-        %>
-        __API_ROOT__ = '<%=baseURL%>' + '/api';
-    
     </script>
     <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
 </head>

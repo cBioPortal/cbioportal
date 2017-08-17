@@ -1168,7 +1168,7 @@ class FusionValidationTestCase(PostClinicalDataFileTestCase):
         """Test if duplicate lines are detected"""
         # set level according to this test case:
         self.logger.setLevel(logging.WARNING)
-        record_list = self.validate('data_fusion_duplicate_entry.txt',
+        record_list = self.validate('data_fusions_duplicate_entry.txt',
                                     validateData.FusionValidator)
 
         self.assertEqual(len(record_list), 1)

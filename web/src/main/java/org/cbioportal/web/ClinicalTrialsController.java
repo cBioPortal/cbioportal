@@ -1,7 +1,6 @@
 package org.cbioportal.web;
 
 import io.swagger.annotations.Api;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
@@ -21,10 +20,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.HostnameVerifier;
@@ -33,7 +33,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
@@ -41,12 +40,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Clinical Trails Data", description = " ")
+@Api(tags = "Clinical Trial Data", description = "integrate MolecularMatch to retrieve clinical trials")
 public class ClinicalTrialsController {
 
     private static final Logger logger = LoggerFactory.getLogger(ClinicalTrialsController.class);
@@ -55,41 +53,27 @@ public class ClinicalTrialsController {
 
     @Value("${mm.url:https://api.molecularmatch.com/v1/search/trials}")
     public void setMolecularMatchURL(String property) {
+
         this.molecularMatchURL = property;
     }
 
 
     @RequestMapping(value = "/molecularmatch", method = RequestMethod.POST)
-    public String getMolecularMatchClinicalTrials(@RequestParam String filters, HttpMethod method) throws 
+    public String getMolecularMatchClinicalTrials(@RequestBody String filters, HttpMethod method) throws
         URISyntaxException {
 
         String apiKey = "539188c9-0516-47c4-b3a6-98b4b5524dc8";
 
-
-        Map payload = new HashedMap();
-        payload.put("apiKey", apiKey);
-        payload.put("filters", filters);
-
         try {
             JSONArray filtersArr = (JSONArray) new JSONParser().parse(filters);
-            JSONObject jsonObject = new JSONObject();
-            //put trial count
-            //put best 5 trials and their details
-            
             HashMap<String, Integer> trialCount = new HashMap<>();
-//            RestTemplate restTemplate = new RestTemplate();
             URI uri = new URI(molecularMatchURL);
-//
-//            JSONObject resp = restTemplate.postForObject(uri, payload, JSONObject.class);
 
             TrustStrategy acceptingTrustStrategy = (X509Certificate[] chain, String authType) -> true;
-
             SSLContext sslContext = SSLContexts.custom()
                 .loadTrustMaterial(null, acceptingTrustStrategy)
                 .build();
-
             SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
-
             CloseableHttpClient httpClient = HttpClients.custom()
                 .setSSLSocketFactory(csf)
                 .build();
@@ -99,43 +83,44 @@ public class ClinicalTrialsController {
 
             requestFactory.setHttpClient(httpClient);
             HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+
                 public boolean verify(String hostname, SSLSession session) {
+
                     return true;
                 }
             });
-             TrustManager[] UNQUESTIONING_TRUST_MANAGER = new TrustManager[]{
+
+            TrustManager[] UNQUESTIONING_TRUST_MANAGER = new TrustManager[]{
                 new X509TrustManager() {
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers(){
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                         return null;
                     }
-                    public void checkClientTrusted( X509Certificate[] certs, String authType ){}
-                    public void checkServerTrusted( X509Certificate[] certs, String authType ){}
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                    }
                 }
             };
             final SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init( null, UNQUESTIONING_TRUST_MANAGER, null );
+            sc.init(null, UNQUESTIONING_TRUST_MANAGER, null);
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
             RestTemplate restTemplate = new RestTemplate(requestFactory);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
             headers.setContentType(MediaType.APPLICATION_JSON);
-            
+
             JSONObject map = new JSONObject();
             map.put("apiKey", apiKey);
             map.put("filters", filtersArr);
 
             HttpEntity<JSONObject> request = new HttpEntity<JSONObject>(map, headers);
-
-           // ResponseEntity<JSONObject> response = restTemplate.postForEntity( uri, request , String.class );
-
-            ResponseEntity<JSONObject> respEntity = restTemplate.exchange(uri, HttpMethod.POST, request, JSONObject.class);
-
+            ResponseEntity<JSONObject> respEntity =
+                restTemplate.exchange(uri, HttpMethod.POST, request, JSONObject.class);
             JSONObject resp = respEntity.getBody();
 
-           
-
-            ArrayList<LinkedHashMap<String, ArrayList<String>>> trials = (ArrayList<LinkedHashMap<String, ArrayList<String>>>) resp.get("trials");
+            ArrayList<LinkedHashMap<String, ArrayList<String>>> trials =
+                (ArrayList<LinkedHashMap<String, ArrayList<String>>>) resp.get("trials");
 
             JSONArray response = new JSONArray();
             for (Object obj : filtersArr) {
@@ -152,11 +137,12 @@ public class ClinicalTrialsController {
                             if (trialCount.containsKey(searchMutation)) {
                                 int count = trialCount.get(searchMutation);
                                 trialCount.put(searchMutation, count + 1);
-                                if(count <= 5){
+                                //get best 5 trials and their details
+                                if (count < 5) {
                                     topTrial.put("id", trial.get("id"));
                                     topTrial.put("briefTitle", trial.get("briefTitle"));
                                     topTrial.put("phase", trial.get("phase"));
-                                    
+
                                     searchResults.add(topTrial);
                                 }
                             } else {
@@ -168,25 +154,22 @@ public class ClinicalTrialsController {
                             }
                         }
                     }
-                    object.put("mutation", searchMutation);                
-                    if(trialCount.get(searchMutation) != null){
+                    object.put("mutation", searchMutation);
+                    if (trialCount.get(searchMutation) != null) {
                         object.put("count", trialCount.get(searchMutation));
-                    }
-                    else{
+                    } else {
                         object.put("count", 0);
                     }
                     object.put("trials", searchResults);
                     response.add(object);
                 }
             }
-            
             return response.toJSONString();
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Error occurred while retrieving clinical trials", ex);
         }
         return null;
     }
-
 }
 

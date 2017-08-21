@@ -137,7 +137,7 @@ var DataDownloadTab = (function() {
                     return a.localeCompare(b);
                 });
                 for (var j=0; j<sample_ids.length; j++) {
-                    strs.alt_type += studyIds[i] + "\t";
+                    strs.alt_type += studyIds[i] + ":";
                     strs.alt_type += sample_ids[j] + "\t";
                     var alt_types = sample_to_line_to_alt_type[sample_ids[j]];
                     alt_types && (strs.alt_type += alt_types.join("\t"));
@@ -146,7 +146,6 @@ var DataDownloadTab = (function() {
             }
         },
         calc_case_affected = function() {
-            strs.case_affected += 'STUDY_ID'+'\t'+'CASE_ID' + "\n";
             var studyIds = Object.keys(altered_study_sample_map);
             studyIds = studyIds.sort(function(a,b) {
                 return a.localeCompare(b);
@@ -157,14 +156,13 @@ var DataDownloadTab = (function() {
                     return a.localeCompare(b);
                 });
                 for (var j=0; j<sample_ids.length; j++) {
-                    strs.case_affected += studyIds[i] + "\t";
+                    strs.case_affected += studyIds[i] + ":";
                     strs.case_affected += sample_ids[j] + "\t";
                     strs.case_affected += "\n";
                 }
             }
         },
         calc_case_matrix = function() {
-            strs.case_matrix += 'STUDY_ID'+'\t'+'CASE_ID' + "\n";
             var study_sample_map = window.QuerySession.getStudySampleMap();
             var studyIds = Object.keys(study_sample_map);
             studyIds = studyIds.sort(function(a,b) {
@@ -175,11 +173,14 @@ var DataDownloadTab = (function() {
                 sample_ids = sample_ids.sort(function(a,b) {
                     return a.localeCompare(b);
                 });
+                var altered_study_sample = altered_study_sample_map[studyIds[i]];
                 for (var j=0; j<sample_ids.length; j++) {
-                    strs.case_matrix += studyIds[i] + "\t";
-                    strs.case_matrix += sample_ids[j] + "\t";
-                    strs.case_matrix += (altered_study_sample_map[studyIds[i]][sample_ids[j]] ? "1" : "0") + "\t";
-                    strs.case_matrix += "\n";
+                    if (_.keys(altered_study_sample).length > 0) {
+                        strs.case_matrix += studyIds[i] + ":";
+                        strs.case_matrix += sample_ids[j] + "\t";
+                        strs.case_matrix += (altered_study_sample[sample_ids[j]] ? "1" : "0") + "\t";
+                        strs.case_matrix += "\n";
+                    }
                 }
             }
         };

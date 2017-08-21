@@ -297,10 +297,6 @@ window.onReactAppReady(function() {
             <%@ include file="mutation_details.jsp" %>
         <% } %>
 
-        <% if (includeNetworks) { %>
-            <%@ include file="networks.jsp" %>
-        <% } %>
-
             <% if (includeNetworks) { %>
         <%@ include file="networks.jsp" %>
             <% } %>

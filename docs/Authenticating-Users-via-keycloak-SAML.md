@@ -59,8 +59,13 @@ Make sure you add at least:
 Edit the email attribute to use the word _email_ as the **SAML Attribute Name**.
 ![](images/previews/edit-email-attribute.png)
 
-### Download SAML Metadata IDPSSODescriptor file
-1. Navigate back to the _cbioportal_ client settings and click the **Installation** tab.
+Finally, head to the **Scope** tab for the client and switch off
+**Full Scope Allowed**, to ensure that only those roles relevant to a
+particular cBioPortal instance are listed in assertions sent to the
+instance, and not any other roles tracked in Keycloak.
+
+### Export configuration for cBioPortal
+1. Next, navigate to the **Installation** tab for the same client.
 2. Select _SAML Metadata IDPSSODescriptor_ as the Format Option and click the **Download** button.
 4. Move the downloaded XML file to `portal/src/main/resources/`
 ![](images/previews/download-IDPSSODescriptor-file.png)

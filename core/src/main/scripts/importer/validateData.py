@@ -1193,7 +1193,7 @@ class MutationsExtendedValidator(Validator):
     def checkValidationStatus(self, value):
         # if value is not blank, then it should be one of these:
         if self.checkNotBlank(value) and value.lower() not in ('untested', 'inconclusive',
-                                 'valid', 'invalid', 'na'):
+                                 'valid', 'invalid', 'na', 'redacted', 'unknown'):
             return False
         return True
 

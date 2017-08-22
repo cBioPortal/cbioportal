@@ -125,38 +125,99 @@ should now see the certificate and no private key.
     saml.logout.url=/
 ```
 
-## Integrate Keycloak with your company-wide authentication service
+## Obtain user identities
 
-When integrating Keycloak with your company-wide authentication service, the user credentials will reside at your institute's users directory and Keycloak will work as a proxy between your LDAP (or SAML) service and cBioPortal.
+### Optional: create users in Keycloak
 
-Please refer to [the Keycloak documentation](https://keycloak.gitbooks.io/documentation/server_admin/topics/user-federation.html) for more information on how to integrate Keycloak with your local LDAP/SAML service.
+To create a user, click on **Users** in the left menu bar. This menu
+option brings you to the user list page. On the right side of the
+empty user list, you should see an **Add User** button. Click that to
+start creating your new user.
+
+![](images/previews/add-user.png)
+
+### Optional: integrate company-wide authentication services
+
+Keycloak can read credentials from existing user databases, for
+instance over LDAP. This is referred to as _user federation_. Keycloak
+can also allow authentication by an external login form altogether
+using a protocol such as SAML, it calls this _identity brokering_. In
+either case, Keycloak acts as a proxy between your user directory and
+cBioPortal, deciding which authorities to grant when telling
+cBioPortal that the user has authenticated.
+
+Please refer to the Keycloak documentation on
+[user federation](https://keycloak.gitbooks.io/documentation/server_admin/topics/user-federation.html)
+and
+[identity brokering](https://keycloak.gitbooks.io/documentation/server_admin/topics/identity-broker.html)
+for more information on how to integrate Keycloak with your local LDAP
+or SAML service.
+
+#### Federate LDAP/AD user directories
+
+Some notes on user federation using LDAP/Active Directory:
+
+By specifying the **Vendor** of your LDAP server, Keycloak will choose
+sensible defaults for the required objectClasses and attributes of
+your user entries. Apart from the Dedicated Name of the tree in which
+to search for users and the DN and password that Keycloak should use
+to bind to the server, make sure to specify the following **Custom
+User LDAP Filter** to ensure that only user entries that have an email
+address are considered:
+
+```
+(mail=*)
+```
+
+When using LDAP to load users from your institute's user directory,
+you will most likely want Keycloak to refrain from trying to
+synchronise changes in user details back to the central directory. You
+should set **Edit Mode** to `READ_ONLY`, as the alternative `UNSYNCED`
+would mean that users can be changed in the Keycloak database once
+imported from LDAP, and start diverging. Also disable **Sync
+Registrations** unless you want Keycloak to add new users to the LDAP
+store.
+
+Do turn on **Import Users** to make Keycloak remember users after the
+first login, if you want to be able to assign non-default roles. If
+the LDAP tree holding your users is large and you do not want to
+import all users into Keycloak, make sure to disable **Periodic Full
+Sync** and **Periodic Changed Users Sync**.
 
 ## Authorization with Keycloak
 
-### Create Roles for authorizing cBioPortal users
- To create a role, head to the **Roles** tab (along the top, **not** in the sidebar) and click the **Add Role** button. Enter a name (e.g `brca_tcga_pub`) and description for the role and hit the **Save** button.
+### Create roles to authorize cBioPortal users
+
+The roles you assign to users will be used to tell cBioPortal which
+studies a user is allowed to see. The roles will usually correspond to
+the **groups** specified in the
+[metadata files of studies](<File-Formats.md#cancer-study>), or
+alternatively to individual **study identifiers**.
+
+To create a role, head to the **Roles** tab that is displayed along
+the top while configuring the `cbioportal` client – this tab is _not_
+the link of the same name in the left sidebar.  Click the **Add
+Role** button. Enter a name (e.g.  `brca_tcga_pub`) and description
+for the role and hit the **Save** button.
 
 ![](images/previews/add-role-for-study.png)
 
-To turn a regular role into a composite role, go to the role detail page and flip the Composite Role switch on.
+### Assign roles to users
 
-### Local Keycloak users: create users and assign roles
+Next, assign roles to users. Head to **Users** in the left sidebar,
+find a user (users from external providers should be known to Keycloak
+after they have logged in for the first time), click the ID and
+open the **Role Mappings** tab for that user. Select the
+_cbioportal_ client in the dropdown under **Client Roles**, and use
+the **Available Roles** selection and its **Add selected** button to
+assign client roles to this user.
 
-1. To create a user, click on Users in the left menu bar. This menu option brings you to the user list page. On the right side of the empty user list,
- you should see an Add User button. Click that to start creating your new user.
-![](images/previews/add-user.png)
-2. Next, assign roles to each user through the Role Mappings tab for that single user.
-**A composite role is a role that has one or more additional roles associated with it**. When a composite role is mapped to the user,
- the user also gains the roles associated with that composite. This inheritance is recursive so any composite of composites also gets inherited.
 ![](images/previews/assign-role-to-user.png)
 
-### Institute's IDP users: assign roles to users
-
-When integrating Keycloak with your company-wide authentication service, the user credentials will reside at your institute's users directory and Keycloak
-will work as a proxy between your LDAP (or SAML) IDP service and cBioPortal. Nevertheless, the authorization roles
-should still be configured for the users. The steps below detail how to do this.
-
-TODO
+To automatically assign roles to all users when Keycloak first sees
+them, the **Roles** pane accessed from the left sidebar has a
+**Default Roles** tab. The interface for assigning roles here is much
+the same as the one for assigning roles to individual users.
 
 ### Doing a Test Run
 

@@ -73,8 +73,8 @@
             <span>{{ selectedSamplesNum }} samples / {{ selectedPatientsNum }} patients</span>
           </span>
             </div>
-            <session-component :show-save-button="showSaveButton" :stats="stats"
-                               :update-stats.sync="updateStats"></session-component>
+            <save-virtual-study :show-save-button="showSaveButton" :stats="stats"
+                                :update-stats.sync="updateStats"></save-virtual-study>
             <span id="iviz-header-left-patient-select" class="iviz-header-button"
                   @click="openCases" class="number"
                   role="button" tabindex="0" style="display: block;"><i class="fa fa-user-circle-o"

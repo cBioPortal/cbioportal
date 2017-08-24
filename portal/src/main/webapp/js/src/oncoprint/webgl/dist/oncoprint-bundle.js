@@ -11881,10 +11881,10 @@ var BarRuleSet = (function () {
 	}
 	var interpFn = this.makeInterpFn();
 	var value_key = this.value_key;
-        var yPosPercentages = this.getPercentages().yPos;
-        var heightPercentages = this.getPercentages().cellHeight;
         var positive_color = this.fill;
         var negative_color = this.negative_fill;
+        var yPosFn = this.getYPosPercentagesFn();
+        var cellHeightFn = this.getCellHeightPercentagesFn();
 	this.bar_rule = this.addRule(function (d) {
 	    return d[NA_STRING] !== true;
 	},
@@ -11892,11 +11892,11 @@ var BarRuleSet = (function () {
 			    type: 'rectangle',
 			    y: function (d) {
 				var t = interpFn(d[value_key]);
-                    return (1 - t) * yPosPercentages + "%";
+                    return yPosFn(t);
 			    },
 			    height: function (d) {
 				var t = interpFn(d[value_key]);
-                    return t * heightPercentages + "%";
+                    return cellHeightFn(t);
 			    },
                 fill: function (d) {
 					return d[value_key] < 0 ? negative_color : positive_color;
@@ -11912,14 +11912,28 @@ var BarRuleSet = (function () {
 				    'interpFn': interpFn}
 		});
     };
-    BarRuleSet.prototype.getPercentages = function () {
+    BarRuleSet.prototype.getYPosPercentagesFn = function () {
+    	return function (t) {
         if (this.getValueRangeType() === this.rangeTypes.NON_POSITIVE) {
-			return {yPos: 0, cellHeight: -100};
+                return 0 + "%";
 		} else if (this.getValueRangeType() === this.rangeTypes.NON_NEGATIVE) {
-            return {yPos: 100, cellHeight: 100};
+                return (1 - t) * 100 + "%";
         } else if (this.getValueRangeType() === this.rangeTypes.ALL) {
-            return {yPos: 50, cellHeight: 50};
+                return 50 + "%";
+            }
+		}.bind(this);
+	};
+
+    BarRuleSet.prototype.getCellHeightPercentagesFn = function () {
+    	return function (t) {
+            if (this.getValueRangeType() === this.rangeTypes.NON_POSITIVE) {
+                return -t * 100 + "%";
+            } else if (this.getValueRangeType() === this.rangeTypes.NON_NEGATIVE) {
+                return t * 100 + "%";
+            } else if (this.getValueRangeType() === this.rangeTypes.ALL) {
+                return -t * 50 + "%";
 		}
+		}.bind(this);
     };
 
     return BarRuleSet;

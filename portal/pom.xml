@@ -93,7 +93,7 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>com.github.adamabeshouse</groupId>
+                  <groupId>com.github.cbioportal</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
                   <version>iviz-SNAPSHOT</version>
                   <type>jar</type>

@@ -202,9 +202,9 @@
             // if not, just navigate in the standard way
             var cohortsParam = window.cohortIdsList.join(",");
             if (window.formSubmit) {
-                window.formSubmit("study.do", {cohorts: cohortsParam}, "_blank");
+                window.formSubmit("study", {id:cohortsParam}, "_blank", (cohortsParam.length > 1800 ? "post" : "get"));
             } else {
-                window.open("study.do?cohorts="+cohortsParam, "_blank");
+                window.open("study?id="+cohortsParam, "_blank");
             }
         };
 

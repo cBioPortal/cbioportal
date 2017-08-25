@@ -41,7 +41,7 @@ public class GenePanelControllerTest {
     private static final int TEST_INTERNAL_ID_1 = 1;
     private static final String TEST_DESCRIPTION_1 = "test_description_1";
     private static final String TEST_SAMPLE_ID_1 = "test_sample_id_1";
-    private static final String TEST_GENETIC_PROFILE_ID_1 = "test_genetic_profile_id_1";
+    private static final String TEST_MOLECULAR_PROFILE_ID_1 = "test_molecular_profile_id_1";
     private static final int TEST_ENTREZ_GENE_ID_1 = 100;
     private static final String TEST_HUGO_GENE_SYMBOL_1 = "test_hugo_gene_symbol_1";
     private static final int TEST_ENTREZ_GENE_ID_2 = 200;
@@ -50,7 +50,7 @@ public class GenePanelControllerTest {
     private static final int TEST_INTERNAL_ID_2 = 2;
     private static final String TEST_DESCRIPTION_2 = "test_description_2";
     private static final String TEST_SAMPLE_ID_2 = "test_sample_id_2";
-    private static final String TEST_GENETIC_PROFILE_ID_2 = "test_genetic_profile_id_2";
+    private static final String TEST_MOLECULAR_PROFILE_ID_2 = "test_molecular_profile_id_2";
     private static final int TEST_ENTREZ_GENE_ID_3 = 300;
     private static final String TEST_HUGO_GENE_SYMBOL_3 = "test_hugo_gene_symbol_3";
     private static final int TEST_ENTREZ_GENE_ID_4 = 400;
@@ -215,13 +215,13 @@ public class GenePanelControllerTest {
         GenePanelData genePanelData1 = new GenePanelData();
         genePanelData1.setGenePanelId(TEST_GENE_PANEL_ID_1);
         genePanelData1.setSampleId(TEST_SAMPLE_ID_1);
-        genePanelData1.setGeneticProfileId(TEST_GENETIC_PROFILE_ID_1);
+        genePanelData1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_ID_1);
         genePanelData1.setEntrezGeneIds(Arrays.asList(TEST_ENTREZ_GENE_ID_1, TEST_ENTREZ_GENE_ID_2));
         genePanelDataList.add(genePanelData1);
         GenePanelData genePanelData2 = new GenePanelData();
         genePanelData2.setGenePanelId(TEST_GENE_PANEL_ID_2);
         genePanelData2.setSampleId(TEST_SAMPLE_ID_2);
-        genePanelData2.setGeneticProfileId(TEST_GENETIC_PROFILE_ID_2);
+        genePanelData2.setMolecularProfileId(TEST_MOLECULAR_PROFILE_ID_2);
         genePanelData2.setEntrezGeneIds(Arrays.asList(TEST_ENTREZ_GENE_ID_3, TEST_ENTREZ_GENE_ID_4));
         genePanelDataList.add(genePanelData2);
         
@@ -234,19 +234,19 @@ public class GenePanelControllerTest {
             TEST_ENTREZ_GENE_ID_3, TEST_ENTREZ_GENE_ID_4));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/genetic-profiles/test_genetic_profile_id/gene-panel-data/fetch")
+            "/molecular-profiles/test_molecular_profile_id/gene-panel-data/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(genePanelDataFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticProfileId").value(TEST_GENETIC_PROFILE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_MOLECULAR_PROFILE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].genePanelId").value(TEST_GENE_PANEL_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneIds[0]").value(TEST_ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneIds[1]").value(TEST_ENTREZ_GENE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].geneticProfileId").value(TEST_GENETIC_PROFILE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_MOLECULAR_PROFILE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].genePanelId").value(TEST_GENE_PANEL_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneIds[0]").value(TEST_ENTREZ_GENE_ID_3))

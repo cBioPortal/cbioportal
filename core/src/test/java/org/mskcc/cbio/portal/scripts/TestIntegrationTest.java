@@ -66,7 +66,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-import org.cbioportal.model.GenesetGeneticData;
+import org.cbioportal.model.GenesetMolecularData;
 import org.cbioportal.service.GenesetDataService;
 import org.mskcc.cbio.portal.dao.DaoGeneset;
 
@@ -288,7 +288,7 @@ public class TestIntegrationTest {
             //        GO_ATP_DEPENDENT_CHROMATIN_REMODELING  -0.293861251463613  -0.226227563676626  -0.546556962547473  -0.0811115513543749  0.56919171543422
             //using new api:
             GenesetDataService genesetDataService = applicationContext.getBean(GenesetDataService.class);
-            List<GenesetGeneticData> genesetData = genesetDataService.fetchGenesetData("study_es_0_gsva_scores", "study_es_0_all",  Arrays.asList(testGeneset));
+            List<GenesetMolecularData> genesetData = genesetDataService.fetchGenesetData("study_es_0_gsva_scores", "study_es_0_all",  Arrays.asList(testGeneset));
             assertEquals(5, genesetData.size());
 
             genesetData = genesetDataService.fetchGenesetData("study_es_0_gsva_scores", Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SH-01"), Arrays.asList(testGeneset));

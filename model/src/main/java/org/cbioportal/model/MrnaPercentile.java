@@ -5,18 +5,18 @@ import java.math.BigDecimal;
 
 public class MrnaPercentile implements Serializable {
 
-    private String geneticProfileId;
+    private String molecularProfileId;
     private String sampleId;
     private Integer entrezGeneId;
     private BigDecimal percentile;
     private BigDecimal zScore;
 
-    public String getGeneticProfileId() {
-        return geneticProfileId;
+    public String getMolecularProfileId() {
+        return molecularProfileId;
     }
 
-    public void setGeneticProfileId(String geneticProfileId) {
-        this.geneticProfileId = geneticProfileId;
+    public void setMolecularProfileId(String molecularProfileId) {
+        this.molecularProfileId = molecularProfileId;
     }
 
     public String getSampleId() {

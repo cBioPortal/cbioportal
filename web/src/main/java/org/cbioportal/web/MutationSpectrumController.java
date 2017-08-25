@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.service.MutationSpectrumService;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.MutationSpectrumFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,22 +31,22 @@ public class MutationSpectrumController {
     @Autowired
     private MutationSpectrumService mutationSpectrumService;
 
-    @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/mutation-spectrums/fetch",
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutation-spectrums/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch mutation spectrums in a genetic profile")
+    @ApiOperation("Fetch mutation spectrums in a molecular profile")
     public ResponseEntity<List<MutationSpectrum>> fetchMutationSpectrums(
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
-        @PathVariable String geneticProfileId,
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
+        @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "List of Sample IDs/Sample List ID")
-        @Valid @RequestBody MutationSpectrumFilter mutationSpectrumFilter) throws GeneticProfileNotFoundException {
+        @Valid @RequestBody MutationSpectrumFilter mutationSpectrumFilter) throws MolecularProfileNotFoundException {
 
         List<MutationSpectrum> fractionGenomeAlteredList;
         if (mutationSpectrumFilter.getSampleListId() != null) {
-            fractionGenomeAlteredList = mutationSpectrumService.getMutationSpectrums(geneticProfileId,
+            fractionGenomeAlteredList = mutationSpectrumService.getMutationSpectrums(molecularProfileId,
                 mutationSpectrumFilter.getSampleListId());
         } else {
-            fractionGenomeAlteredList = mutationSpectrumService.fetchMutationSpectrums(geneticProfileId,
+            fractionGenomeAlteredList = mutationSpectrumService.fetchMutationSpectrums(molecularProfileId,
                 mutationSpectrumFilter.getSampleIds());
         }
 

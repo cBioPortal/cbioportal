@@ -5,7 +5,7 @@
     <cache size="50000"/>
 
     <sql id="select">
-        genetic_profile.STABLE_ID AS geneticProfileId,
+        genetic_profile.STABLE_ID AS molecularProfileId,
         sample.STABLE_ID AS sampleId,
         patient.STABLE_ID AS patientId,
         cna_event.ENTREZ_GENE_ID as entrezGeneId,
@@ -28,7 +28,7 @@
 
     <sql id="where">
         <where>
-            genetic_profile.STABLE_ID = #{geneticProfileId}
+            genetic_profile.STABLE_ID = #{molecularProfileId}
             <if test="sampleIds != null and !sampleIds.isEmpty()">
                 AND sample.STABLE_ID IN
                 <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
@@ -52,7 +52,7 @@
 
     <sql id="whereBySampleListId">
         <where>
-            genetic_profile.STABLE_ID = #{geneticProfileId}
+            genetic_profile.STABLE_ID = #{molecularProfileId}
             AND sample_cna_event.SAMPLE_ID IN
             (
                 SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
@@ -117,7 +117,7 @@
         INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
-        WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
+        WHERE genetic_profile.STABLE_ID = #{molecularProfileId}
         <if test="entrezGeneIds != null">
             AND
             <foreach index="i" collection="entrezGeneIds" open="(" separator="OR" close=")">
@@ -143,7 +143,7 @@
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
+        WHERE genetic_profile.STABLE_ID = #{molecularProfileId}
         <if test="entrezGeneIds != null">
             AND
             <foreach index="i" collection="entrezGeneIds" open="(" separator="OR" close=")">

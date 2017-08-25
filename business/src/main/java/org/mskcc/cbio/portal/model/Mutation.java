@@ -33,7 +33,7 @@
 package org.mskcc.cbio.portal.model;
 
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 
 import java.io.Serializable;
@@ -71,7 +71,7 @@ public class Mutation implements Serializable {
     private Integer normalRefCount;
     private String aminoAcidChange;
     private MutationEvent mutationEvent;
-    private GeneticProfile geneticProfile;
+    private MolecularProfile geneticProfile;
     private Sample sample;
     private Gene gene;
 
@@ -323,11 +323,11 @@ public class Mutation implements Serializable {
         this.mutationEvent = mutationEvent;
     }
 
-    public GeneticProfile getGeneticProfile() {
+    public MolecularProfile getGeneticProfile() {
         return geneticProfile;
     }
 
-    public void setGeneticProfile(GeneticProfile geneticProfile) {
+    public void setGeneticProfile(MolecularProfile geneticProfile) {
         this.geneticProfile = geneticProfile;
     }
 

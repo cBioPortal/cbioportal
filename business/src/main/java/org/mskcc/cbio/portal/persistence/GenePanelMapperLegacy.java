@@ -43,7 +43,7 @@ import java.util.Map;
 import org.cbioportal.model.Gene;
 import org.mskcc.cbio.portal.model.GenePanel;
 import org.mskcc.cbio.portal.model.GenePanelWithSamples;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 
 public interface GenePanelMapperLegacy {
@@ -54,7 +54,7 @@ public interface GenePanelMapperLegacy {
     List<GenePanel> getGenePanelByStableId(String stableId);
     List<GenePanel> getGenePanels();
     Sample getSampleByStableIdAndStudyId(String stableId, String studyId);
-    GeneticProfile getGeneticProfileByStableId(String stableId);
+    MolecularProfile getGeneticProfileByStableId(String stableId);
     Gene getGeneByEntrezGeneId(Integer geneId);
     Gene getGeneByHugoSymbol(String symbol);
     Gene getGeneByAlias(String symbol);

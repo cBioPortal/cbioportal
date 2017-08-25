@@ -92,15 +92,15 @@ public class GenesetCorrelationControllerTest {
         gsc1.setEntrezGeneId(ENTREZ_GENE_ID_1);
         gsc1.setHugoGeneSymbol(HUGO_GENE_SYMBOL_1);
         gsc1.setCorrelationValue(CORR_1);
-        gsc1.setExpressionGeneticProfileId(EXPR_PROF_ID);
-        gsc1.setzScoreGeneticProfileId(ZSCORE_PROF_ID);
+        gsc1.setExpressionMolecularProfileId(EXPR_PROF_ID);
+        gsc1.setzScoreMolecularProfileId(ZSCORE_PROF_ID);
         genesetCorrelationList.add(gsc1);
         GenesetCorrelation gsc2 = new GenesetCorrelation();
         gsc2.setEntrezGeneId(ENTREZ_GENE_ID_2);
         gsc2.setHugoGeneSymbol(HUGO_GENE_SYMBOL_2);
         gsc2.setCorrelationValue(CORR_2);
-        gsc2.setExpressionGeneticProfileId(EXPR_PROF_ID);
-        gsc2.setzScoreGeneticProfileId(ZSCORE_PROF_ID);
+        gsc2.setExpressionMolecularProfileId(EXPR_PROF_ID);
+        gsc2.setzScoreMolecularProfileId(ZSCORE_PROF_ID);
         genesetCorrelationList.add(gsc2);
         return genesetCorrelationList;
     }

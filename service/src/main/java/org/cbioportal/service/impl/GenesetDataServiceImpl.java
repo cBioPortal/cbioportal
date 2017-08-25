@@ -28,16 +28,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.cbioportal.model.GenesetGeneticAlteration;
-import org.cbioportal.model.GenesetGeneticData;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.GenesetMolecularAlteration;
+import org.cbioportal.model.GenesetMolecularData;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
-import org.cbioportal.persistence.GeneticDataRepository;
+import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.GenesetDataService;
-import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,25 +47,25 @@ import org.springframework.stereotype.Service;
 public class GenesetDataServiceImpl implements GenesetDataService {
 
     @Autowired
-    private GeneticDataRepository geneticDataRepository;
+    private MolecularDataRepository molecularDataRepository;
     @Autowired
     private SampleService sampleService;
     @Autowired
-    private GeneticProfileService geneticProfileService;
+    private MolecularProfileService molecularProfileService;
     @Autowired
     private SampleListService sampleListService;
 
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<GenesetGeneticData> fetchGenesetData(String geneticProfileId, List<String> sampleIds, List<String> genesetIds)
-            throws GeneticProfileNotFoundException {
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    public List<GenesetMolecularData> fetchGenesetData(String molecularProfileId, List<String> sampleIds, List<String> genesetIds)
+            throws MolecularProfileNotFoundException {
 
         //validate (throws exception if profile is not found):
-        GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
+        MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
         
-        List<GenesetGeneticData> genesetDataList = new ArrayList<>();
+        List<GenesetMolecularData> genesetDataList = new ArrayList<>();
 
-        String commaSeparatedSampleIdsOfGeneticProfile = geneticDataRepository
-            .getCommaSeparatedSampleIdsOfGeneticProfile(geneticProfileId);
+        String commaSeparatedSampleIdsOfGeneticProfile = molecularDataRepository
+            .getCommaSeparatedSampleIdsOfMolecularProfile(molecularProfileId);
         if (commaSeparatedSampleIdsOfGeneticProfile == null) {
         	//no data, return empty list:
             return genesetDataList;
@@ -78,19 +78,19 @@ public class GenesetDataServiceImpl implements GenesetDataService {
             samples = sampleService.getSamplesByInternalIds(internalSampleIds);
         } else {
             List<String> studyIds = new ArrayList<>();
-            sampleIds.forEach(s -> studyIds.add(geneticProfile.getCancerStudyIdentifier()));
+            sampleIds.forEach(s -> studyIds.add(molecularProfile.getCancerStudyIdentifier()));
             samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
         }
 
-        List<GenesetGeneticAlteration> genesetAlterations = geneticDataRepository.getGenesetGeneticAlterations(geneticProfileId,
+        List<GenesetMolecularAlteration> genesetAlterations = molecularDataRepository.getGenesetMolecularAlterations(molecularProfileId,
                 genesetIds, "SUMMARY");
 
         for (Sample sample : samples) {
             int indexOfSampleId = internalSampleIds.indexOf(sample.getInternalId());
             if (indexOfSampleId != -1) {
-                for (GenesetGeneticAlteration genesetAlteration : genesetAlterations) {
-                    GenesetGeneticData genesetData = new GenesetGeneticData();
-                    genesetData.setGeneticProfileId(geneticProfileId);
+                for (GenesetMolecularAlteration genesetAlteration : genesetAlterations) {
+                    GenesetMolecularData genesetData = new GenesetMolecularData();
+                    genesetData.setMolecularProfileId(molecularProfileId);
                     genesetData.setSampleId(sample.getStableId());
                     genesetData.setGenesetId(genesetAlteration.getGenesetId());
                     genesetData.setValue(genesetAlteration.getSplitValues()[indexOfSampleId]);
@@ -103,8 +103,8 @@ public class GenesetDataServiceImpl implements GenesetDataService {
     }
 
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<GenesetGeneticData> fetchGenesetData(String geneticProfileId, String sampleListId, List<String> genesetIds) 
-            throws GeneticProfileNotFoundException, SampleListNotFoundException {
+    public List<GenesetMolecularData> fetchGenesetData(String geneticProfileId, String sampleListId, List<String> genesetIds) 
+            throws MolecularProfileNotFoundException, SampleListNotFoundException {
 
         //get list of samples for given sampleListId:
         List<String> sampleIds = sampleListService.getAllSampleIdsInSampleList(sampleListId);

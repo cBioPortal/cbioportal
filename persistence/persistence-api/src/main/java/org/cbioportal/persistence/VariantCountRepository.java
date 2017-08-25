@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface VariantCountRepository {
     
-    List<VariantCount> fetchVariantCounts(String geneticProfileId, List<Integer> entrezGeneIds, List<String> keywords);
+    List<VariantCount> fetchVariantCounts(String molecularProfileId, List<Integer> entrezGeneIds, 
+                                          List<String> keywords);
 }

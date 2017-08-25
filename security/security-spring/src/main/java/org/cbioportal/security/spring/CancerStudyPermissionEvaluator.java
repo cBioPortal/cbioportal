@@ -34,7 +34,6 @@ package org.cbioportal.security.spring;
 
 // imports
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -44,10 +43,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.cbioportal.model.CancerStudy;
-import org.cbioportal.model.GeneticProfile;
-import org.cbioportal.model.Sample;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
-import org.cbioportal.persistence.GeneticProfileRepository;
+import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.persistence.SampleRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.SecurityRepository;
@@ -78,7 +76,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     private StudyRepository studyRepository;
 
     @Autowired
-    private GeneticProfileRepository geneticProfileRepository;
+    private MolecularProfileRepository molecularProfileRepository;
 
     @Autowired
     private SampleRepository sampleRepository;
@@ -115,16 +113,16 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
      *
      * @param authentication
      * @param targetId Serialized String cancer study id, 
-     *   String genetic profile id, 
+     *   String molecular profile id, 
      *   String sample list id, 
      *   List<String> of cancer study ids, 
-     *   List<String> of genetic profile ids,
+     *   List<String> of molecular profile ids,
      *   or List<String> of sample list ids
      * @param targetType String 'CancerStudy', 
-     *   'GeneticProfile', 
+     *   'MolecularProfile', 
      *   'SampleList',
      *   'List<CancerStudyId>', 
-     *   'List<GeneticProfileId>', 
+     *   'List<MolecularProfileId>', 
      *   or 'List<SampleListId>'
      * @param permission
      */
@@ -153,12 +151,12 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 return false;
             }
             return hasPermission(authentication, cancerStudy, permission);
-        } else if ("GeneticProfile".equals(targetType)) {
-            GeneticProfile geneticProfile = geneticProfileRepository.getGeneticProfile(targetId.toString());
-            if (geneticProfile == null) {
+        } else if ("MolecularProfile".equals(targetType)) {
+            MolecularProfile molecularProfile = molecularProfileRepository.getMolecularProfile(targetId.toString());
+            if (molecularProfile == null) {
                 return false;
             }
-            return hasPermission(authentication, geneticProfile, permission);
+            return hasPermission(authentication, molecularProfile, permission);
         } else if ("SampleList".equals(targetType)) {
             SampleList sampleList = sampleListRepository.getSampleList(targetId.toString());
             if (sampleList == null) {
@@ -173,11 +171,11 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 }
             }
             return true;
-        } else if ("List<GeneticProfileId>".equals(targetType)) {
-            List<String> geneticProfileIds = (List<String>) targetId;
-            for (String geneticProfileId : geneticProfileIds) {
-                GeneticProfile geneticProfile = geneticProfileRepository.getGeneticProfile(geneticProfileId);
-                if (geneticProfile == null || !hasPermission(authentication, geneticProfile, permission)) {
+        } else if ("List<MolecularProfileId>".equals(targetType)) {
+            List<String> molecularProfileIds = (List<String>) targetId;
+            for (String molecularProfileId : molecularProfileIds) {
+                MolecularProfile molecularProfile = molecularProfileRepository.getMolecularProfile(molecularProfileId);
+                if (molecularProfile == null || !hasPermission(authentication, molecularProfile, permission)) {
                     return false;
                 }
             }
@@ -203,7 +201,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
      * Implementation of {@code PermissionEvaluator}.
      *
      * @param authentication
-     * @param targetDomainObject CancerStudy, GeneticProfile, or SampleList
+     * @param targetDomainObject CancerStudy, MolecularProfile, or SampleList
      * @param permission
      */
     @Override
@@ -221,11 +219,11 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         CancerStudy cancerStudy = null;
         if (targetDomainObject instanceof CancerStudy) {
             cancerStudy = (CancerStudy) targetDomainObject;
-        } else if (targetDomainObject instanceof GeneticProfile) {
-            cancerStudy = ((GeneticProfile) targetDomainObject).getCancerStudy(); 
+        } else if (targetDomainObject instanceof MolecularProfile) {
+            cancerStudy = ((MolecularProfile) targetDomainObject).getCancerStudy(); 
             if (cancerStudy == null) {
                 // cancer study was not included so get it
-                cancerStudy = studyRepository.getStudy(((GeneticProfile) targetDomainObject).getCancerStudyIdentifier());
+                cancerStudy = studyRepository.getStudy(((MolecularProfile) targetDomainObject).getCancerStudyIdentifier());
             }
         } else if (targetDomainObject instanceof SampleList) {
             cancerStudy = ((SampleList) targetDomainObject).getCancerStudy();

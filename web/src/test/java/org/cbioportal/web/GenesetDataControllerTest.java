@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.cbioportal.model.GenesetGeneticData;
+import org.cbioportal.model.GenesetMolecularData;
 import org.cbioportal.service.GenesetDataService;
 import org.cbioportal.web.parameter.GenesetDataFilterCriteria;
 import org.hamcrest.Matchers;
@@ -65,7 +65,7 @@ public class GenesetDataControllerTest {
     @Test
     public void fetchGeneticDataItems() throws Exception {
 
-        List<GenesetGeneticData> genesetDataItems = createGenesetDataItemsList();
+        List<GenesetMolecularData> genesetDataItems = createGenesetDataItemsList();
         Mockito.when(genesetDataService.fetchGenesetData(Mockito.anyString(), Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class))).thenReturn(genesetDataItems);
 
@@ -89,7 +89,7 @@ public class GenesetDataControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(VALUE_2));
 
         //testing the sampleListId route:
-        List<GenesetGeneticData> genesetDataItems2 = createGenesetDataItemsList();
+        List<GenesetMolecularData> genesetDataItems2 = createGenesetDataItemsList();
         genesetDataItems2.addAll(createGenesetDataItemsList());//duplicate, just to make it different from response above
         Mockito.when(genesetDataService.fetchGenesetData(Mockito.anyString(), Mockito.anyString(),
                 Mockito.anyListOf(String.class))).thenReturn(genesetDataItems2);
@@ -105,18 +105,18 @@ public class GenesetDataControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(4)));
     }
 
-    private List<GenesetGeneticData> createGenesetDataItemsList() {
+    private List<GenesetMolecularData> createGenesetDataItemsList() {
 
-        List<GenesetGeneticData> genesetDataItems = new ArrayList<>();
-        GenesetGeneticData gsItem1 = new GenesetGeneticData();
+        List<GenesetMolecularData> genesetDataItems = new ArrayList<>();
+        GenesetMolecularData gsItem1 = new GenesetMolecularData();
         gsItem1.setGenesetId(GENESET_ID_1);
-        gsItem1.setGeneticProfileId(PROF_ID);
+        gsItem1.setMolecularProfileId(PROF_ID);
         gsItem1.setSampleId(SAMPLE_STABLE_ID_1);
         gsItem1.setValue(VALUE_1);
         genesetDataItems.add(gsItem1);
-        GenesetGeneticData gsItem2 = new GenesetGeneticData();
+        GenesetMolecularData gsItem2 = new GenesetMolecularData();
         gsItem2.setGenesetId(GENESET_ID_2);
-        gsItem2.setGeneticProfileId(PROF_ID);
+        gsItem2.setMolecularProfileId(PROF_ID);
         gsItem2.setSampleId(SAMPLE_STABLE_ID_1);
         gsItem2.setValue(VALUE_2);
         genesetDataItems.add(gsItem2);

@@ -11690,12 +11690,6 @@ var LinearInterpRuleSet = (function () {
 					range_lower = range[0],
 					range_higher = range[1];
 
-            if (val <= range_lower) {
-                return val < 0 && range_lower < 0 ? -1 : 0;
-            } else if (val >= range_higher) {
-                return val < 0 && range_lower < 0 ? 0 : 1;
-            }
-
                 if (rangeType === rangeTypes.NON_POSITIVE) {
                     // when data only contains non positive values
                     return (val - range_higher) / range_spread;

@@ -42,11 +42,20 @@
 
             if (mutationsTab.hasClass('cbioportal-frontend')) {
                 // backwards compatible with the case when mutationDetailLimitReached
-                window.renderMutationsTab(mutationsTab[0], {
+                var props = {
+                    genes: QuerySession.getQueryGenes()
+                };
+                if (["-1", "all"].indexOf(QuerySession.getCaseSetId()) > -1) {
+                    props.studyToSampleMap = QuerySession.getStudySampleMap();
+                } else {
+                    props.studyToSampleListIdMap = QuerySession.getStudySampleListMap();
+                }
+                window.renderMutationsTab(mutationsTab[0], props);
+                /*{
                     genes: QuerySession.getQueryGenes(),
-                    studyId: QuerySession.getCancerStudyIds()[0],
-                    samples: (QuerySession.getCaseSetId() === "-1" ? QuerySession.getSampleIds() : QuerySession.getCaseSetId())
-                });
+                    //studyId: QuerySession.getCancerStudyIds()[0],
+                    //samples: (QuerySession.getCaseSetId() === "-1" ? QuerySession.getSampleIds() : QuerySession.getCaseSetId())
+                });*/
                 return true;
             }
             return false;

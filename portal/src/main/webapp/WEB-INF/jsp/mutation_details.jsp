@@ -46,6 +46,7 @@
                     genes: QuerySession.getQueryGenes()
                 };
                 if (["-1", "all"].indexOf(QuerySession.getCaseSetId()) > -1) {
+		// "-1" means custom case id, "all" means all cases in the queried stud(y/ies). Neither is an actual case set that could eg be queried
                     props.studyToSampleMap = QuerySession.getStudySampleMap();
                 } else {
                     props.studyToSampleListIdMap = QuerySession.getStudySampleListMap();

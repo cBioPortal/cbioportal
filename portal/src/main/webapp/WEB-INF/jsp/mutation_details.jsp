@@ -71,11 +71,6 @@
                 }
                 props.samplesSpecification = samplesSpecification;
                 window.renderMutationsTab(mutationsTab[0], props);
-                /*{
-                    genes: QuerySession.getQueryGenes(),
-                    //studyId: QuerySession.getCancerStudyIds()[0],
-                    //samples: (QuerySession.getCaseSetId() === "-1" ? QuerySession.getSampleIds() : QuerySession.getCaseSetId())
-                });*/
                 return true;
             }
             return false;

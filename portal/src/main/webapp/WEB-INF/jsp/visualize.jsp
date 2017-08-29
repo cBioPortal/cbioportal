@@ -185,6 +185,10 @@ window.onReactAppReady(function() {
             	includeNetworks = false;
             	showPlotsTab = false;
             }
+            if(geneticProfiles.contains("mutation")) {
+                // hacky but consistent with how currently being done
+                showMutTab = true;
+            }
 
             // determine whether to show the cancerTypesSummaryTab
             // retrieve the cancerTypesMap and create an iterator for the values

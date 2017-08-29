@@ -1285,6 +1285,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			fetch_promise.reject();
 		    });
 		}),
+	'getStudySampleListMap': function() {
+	    // TODO: will this ever be used?
+	    var ret = {};
+	    ret[this.getCancerStudyIds()[0]] = this.getCaseSetId();
+	    return ret;
+	},
 	'getStudySampleMap': function() {
 	    return deepCopyObject(this.study_sample_map);
 	},

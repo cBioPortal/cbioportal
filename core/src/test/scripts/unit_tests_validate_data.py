@@ -1106,7 +1106,27 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].levelno, logging.WARNING)
         self.assertIn("implies intergenic", record_list[2].getMessage().lower())
         self.assertEqual(record_list[2].levelno, logging.WARNING)
+
+    def test_customized_variants_skipped(self):
         
+        """Test if customized mutations are skipped with a message."""
+        # set level according to this test case:
+        self.logger.setLevel(logging.INFO)
+        old_variant_types = validateData.MutationsExtendedValidator.SKIP_VARIANT_TYPES
+        validateData.MutationsExtendedValidator.SKIP_VARIANT_TYPES = ["5'Flank", "Frame_Shift_Del", "Frame_Shift_Ins"]
+        record_list = self.validate('mutations/data_mutations_some_silent.maf',
+                                    validateData.MutationsExtendedValidator,
+                                    extra_meta_fields={
+                                            'swissprot_identifier': 'name'})
+        # we expect 6 infos: 4 about filtered mutations, 2 general info messages:
+        self.assertEqual(len(record_list), 6)
+        # First 3 INFO messages should be something like: "Line will not be loaded due to the variant classification filter. Filtered types:"
+        for record in record_list[:4]: 
+            self.assertIn("filtered types", record.getMessage().lower())
+        
+        # restore the default skipped variant types
+        validateData.MutationsExtendedValidator.SKIP_VARIANT_TYPES = old_variant_types
+               
     def test_isValidGenePosition(self):
         """Test if proper warnings/errors are given for wrong/blank gene positions 
         (Start_Position and End_Position) change vals."""

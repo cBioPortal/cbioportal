@@ -173,7 +173,7 @@ getStudies
 	"name":"Breast Invasive Carcinoma (TCGA, Nature 2012)",
 	"short_name":"Breast (TCGA pub)",
 	"description":"<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"https://tcga-data.nci.nih.gov/docs/publications/brca_2012/\">Raw data via the TCGA Data Portal</a>.",
-	"pmid":23000897,
+	"pmid":"23000897",
 	"citation":"TCGA, Nature 2012",
 	"groups":"PUBLIC"
 }

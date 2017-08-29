@@ -527,8 +527,11 @@ The mutation metadata file should contain the following fields:
 6. **profile_name**: A name for the mutation data, e.g., "Mutations".
 7. **profile_description**: A description of the mutation data, e.g., "Mutation data from whole exome sequencing.".
 8. **data_filename**: your data file
-9. **gene_panel (Optional)**:  gene panel stable id
-10. **swissprot_identifier (Optional)**: either `accession` or `name`, indicating the type of identifier in the `SWISSPROT` column
+9. **gene_panel (optional)**:  gene panel stable id
+10. **swissprot_identifier (optional)**: either `accession` or `name`, indicating the type of identifier in the `SWISSPROT` column
+11. **variant_classification_filter (optional)**: mutation types to be filtered out, separated by commas, using the allowed values specified below. By default, cBioPortal filters out the following mutation types: Silent, Intron, IGR, 3'UTR, 5'UTR, 3'Flank and 5'Flank, except the promoter mutations for the TERT gene. If no types want to be filtered out, include this field in the metadata file, but do not specify any type. If you want the cBioPortal default filtering, do not include this field in the metadata file.
+
+Allowed values to filter out (mainly from [Mutation Annotation Format page](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification)): `Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame, Splice_Region and Unknown`
 
 An example metadata file would be:
 
@@ -548,7 +551,7 @@ A minimal mutation annotations file can contain just three of the MAF columns pl
 
 * **Hugo_Symbol**: (MAF column) A [HUGO](http://www.genenames.org/) gene symbol.
 * **Tumor_Sample_Barcode**: (MAF column) This is the sample ID as listed in the clinical data file.
-* **Variant_Classification**: (MAF column) Translational effect of variant allele. Allowed values (from [Mutation Annotation Format page](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification)): `Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR1 , Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame`. cBioPortal skips the following types during the import: `Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR and RNA`. Two extra values are allowed by cBioPortal here as well: `Splice_Region, Unknown`. :warning: the values should be in the correct case. E.g. `missense_mutation` is not allowed, while `Missense_Mutation` is.
+* **Variant_Classification**: (MAF column) Translational effect of variant allele. Allowed values (from [Mutation Annotation Format page](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification)): `Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame`. cBioPortal skips the following types during the import: `Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR and RNA`. Two extra values are allowed by cBioPortal here as well: `Splice_Region, Unknown`. :warning: the values should be in the correct case. E.g. `missense_mutation` is not allowed, while `Missense_Mutation` is.
 * **HGVSp_Short**: (annotation column) Amino Acid Change, e.g. p.V600E.
 
 Note: next to Hugo_Symbol, it is recommended to have the Entrez gene ID:

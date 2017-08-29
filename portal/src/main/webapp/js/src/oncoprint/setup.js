@@ -619,7 +619,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		new_url = changeURLParam(HEATMAP_TRACK_GROUPS_PARAM,
 					encodeURIComponent(getHeatmapParamValue(State.heatmap_track_groups)),
 					new_url);
-		window.history.pushState({"html":window.location.html,"pageTitle":window.location.pageTitle},"", new_url);
+		window.history.replaceState({"html":window.location.html,"pageTitle":window.location.pageTitle},"", new_url);
 	    },
 	    'getInitDataType': function() {
 		if (init_show_samples === null) {

@@ -67,19 +67,25 @@ public class ImportExtendedMutationData{
     private Set<String> sampleSet = new HashSet<String>();
     private Set<String> geneSet = new HashSet<String>();
                      private String genePanel;
+    private Set<String> filteredMutations = new HashSet<String>();
 
     /**
      * construct an ImportExtendedMutationData.
      * Filter mutations according to the no argument MutationFilter().
      */
-    public ImportExtendedMutationData(File mutationFile, int geneticProfileId, String genePanel) {
+    public ImportExtendedMutationData(File mutationFile, int geneticProfileId, String genePanel, Set<String> filteredMutations) {
         this.mutationFile = mutationFile;
         this.geneticProfileId = geneticProfileId;
         this.swissprotIsAccession = false;
         this.genePanel = genePanel;
-
+        this.filteredMutations = filteredMutations;
+        
         // create default MutationFilter
         myMutationFilter = new MutationFilter( );
+    }
+    
+    public ImportExtendedMutationData(File mutationFile, int geneticProfileId, String genePanel) {
+        this(mutationFile, geneticProfileId, genePanel, null);
     }
 
     /**
@@ -317,7 +323,7 @@ public class ImportExtendedMutationData{
                     }
                     // treat as IGR:
                     myMutationFilter.decisions++;
-                    myMutationFilter.igrRejects++;
+                    myMutationFilter.addRejectedVariant(myMutationFilter.rejectionMap, "IGR");
                     // skip entry:
                     entriesSkipped++;
                     continue;
@@ -390,7 +396,7 @@ public class ImportExtendedMutationData{
                     sequencedCaseSet.add(sample.getStableId());
 
                     //  Filter out Mutations
-                    if( myMutationFilter.acceptMutation( mutation )) {
+                    if( myMutationFilter.acceptMutation( mutation, this.filteredMutations )) {
                                                 MutationEvent event =
                                                     existingEvents.containsKey(mutation.getEvent()) ?
                                                     existingEvents.get(mutation.getEvent()) :

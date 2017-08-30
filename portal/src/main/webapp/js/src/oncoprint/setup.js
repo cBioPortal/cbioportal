@@ -1454,7 +1454,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 
     State.clinical_attributes_fetched.then(function () {
 	State.unused_clinical_attributes.sort(function (attrA, attrB) {
-	    var set_attribute_order = ["FRACTION_GENOME_ALTERED", "# mutations", "NO_CONTEXT_MUTATION_SIGNATURE"];
+	    var set_attribute_order = ["FRACTION_GENOME_ALTERED", "# mutations", "CANCER_STUDY", "NO_CONTEXT_MUTATION_SIGNATURE"];
 	    var attrA_index = set_attribute_order.indexOf(attrA.attr_id);
 	    var attrB_index = set_attribute_order.indexOf(attrB.attr_id);
 	    if (attrA_index < 0) {

@@ -1,8 +1,6 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
-
-public class Patient implements Serializable {
+public class Patient extends UniqueKeyBase {
 
     private Integer internalId;
     private String stableId;

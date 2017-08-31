@@ -9,6 +9,7 @@
         copy_number_seg.CANCER_STUDY_ID AS cancerStudyId,
         cancer_study.CANCER_STUDY_IDENTIFIER AS cancerStudyIdentifier,
         copy_number_seg.SAMPLE_ID AS sampleId,
+        patient.STABLE_ID AS patientId,
         sample.STABLE_ID AS sampleStableId,
         copy_number_seg.CHR AS chr,
         copy_number_seg.START AS start,
@@ -24,6 +25,7 @@
         FROM copy_number_seg
         INNER JOIN cancer_study ON copy_number_seg.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         INNER JOIN sample ON copy_number_seg.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
     </sql>
     
     <sql id="where">

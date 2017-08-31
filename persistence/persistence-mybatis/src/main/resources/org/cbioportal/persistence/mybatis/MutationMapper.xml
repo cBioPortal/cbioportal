@@ -8,7 +8,8 @@
         genetic_profile.STABLE_ID AS molecularProfileId,
         sample.STABLE_ID AS sampleId,
         patient.STABLE_ID AS patientId,
-        mutation.ENTREZ_GENE_ID as entrezGeneId
+        mutation.ENTREZ_GENE_ID as entrezGeneId,
+        cancer_study.CANCER_STUDY_IDENTIFIER AS studyId
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
             mutation.CENTER AS center,
@@ -50,6 +51,7 @@
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     </sql>
 
     <sql id="where">

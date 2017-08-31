@@ -1,8 +1,6 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
-
-public class Sample implements Serializable {
+public class Sample extends UniqueKeyBase {
 
     public enum SampleType {
 

@@ -1,12 +1,13 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class MrnaPercentile implements Serializable {
+public class MrnaPercentile extends UniqueKeyBase {
 
     private String molecularProfileId;
     private String sampleId;
+    private String patientId;
+    private String studyId;
     private Integer entrezGeneId;
     private BigDecimal percentile;
     private BigDecimal zScore;
@@ -25,6 +26,22 @@ public class MrnaPercentile implements Serializable {
 
     public void setSampleId(String sampleId) {
         this.sampleId = sampleId;
+    }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getStudyId() {
+        return studyId;
+    }
+
+    public void setStudyId(String studyId) {
+        this.studyId = studyId;
     }
 
     public Integer getEntrezGeneId() {

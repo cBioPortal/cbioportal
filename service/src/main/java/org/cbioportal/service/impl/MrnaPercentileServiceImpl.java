@@ -50,6 +50,8 @@ public class MrnaPercentileServiceImpl implements MrnaPercentileService {
                 MrnaPercentile mrnaPercentile = new MrnaPercentile();
                 mrnaPercentile.setEntrezGeneId(molecularData.getEntrezGeneId());
                 mrnaPercentile.setSampleId(sampleId);
+                mrnaPercentile.setPatientId(molecularData.getPatientId());
+                mrnaPercentile.setStudyId(molecularData.getStudyId());
                 mrnaPercentile.setMolecularProfileId(molecularProfileId);
                 mrnaPercentile.setzScore(new BigDecimal(molecularData.getValue()));
 

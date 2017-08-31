@@ -1,9 +1,8 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class ClinicalEvent implements Serializable {
+public class ClinicalEvent extends UniqueKeyBase {
     
     private Integer clinicalEventId;
     private String studyId;

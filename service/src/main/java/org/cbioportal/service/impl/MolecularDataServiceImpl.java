@@ -90,6 +90,8 @@ public class MolecularDataServiceImpl implements MolecularDataService {
                     GeneMolecularData molecularData = new GeneMolecularData();
                     molecularData.setMolecularProfileId(molecularProfileId);
                     molecularData.setSampleId(sample.getStableId());
+                    molecularData.setPatientId(sample.getPatientStableId());
+                    molecularData.setStudyId(sample.getCancerStudyIdentifier());
                     molecularData.setEntrezGeneId(molecularAlteration.getEntrezGeneId());
                     molecularData.setValue(molecularAlteration.getSplitValues()[indexOfSampleId]);
                     molecularData.setGene(molecularAlteration.getGene());

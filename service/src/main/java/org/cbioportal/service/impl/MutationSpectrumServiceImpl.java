@@ -54,6 +54,8 @@ public class MutationSpectrumServiceImpl implements MutationSpectrumService {
             MutationSpectrum mutationSpectrum = new MutationSpectrum();
             mutationSpectrum.setMolecularProfileId(molecularProfileId);
             mutationSpectrum.setSampleId(sampleId);
+            mutationSpectrum.setPatientId(mutationsInSample.get(0).getPatientId());
+            mutationSpectrum.setStudyId(mutationsInSample.get(0).getStudyId());
             mutationSpectrum.setCtoA(Math.toIntExact(mutationsInSample.stream().filter(m -> checkSpectrum(m, "C", "A") 
                 || checkSpectrum(m, "G", "T")).count()));
             mutationSpectrum.setCtoG(Math.toIntExact(mutationsInSample.stream().filter(m -> checkSpectrum(m, "C", "G") 

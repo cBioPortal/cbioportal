@@ -6,14 +6,14 @@
 
     <sql id="select">
         sample.INTERNAL_ID AS "${prefix}internalId",
-        sample.STABLE_ID AS "${prefix}stableId"
+        sample.STABLE_ID AS "${prefix}stableId",
+        patient.STABLE_ID AS "${prefix}patientStableId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
             sample.SAMPLE_TYPE AS "${prefix}sampleType",
             sample.PATIENT_ID AS "${prefix}patientId",
-            patient.STABLE_ID AS "${prefix}patientStableId",
-            sample.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId",
-            cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
+            sample.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId"
         </if>
         <if test="projection == 'DETAILED'">
             ,

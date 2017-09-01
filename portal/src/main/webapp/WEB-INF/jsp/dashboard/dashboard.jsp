@@ -324,7 +324,7 @@
                         }
                     }
                     $("#submit_button").click(function(){
-                        window.open(window.cbioURL + "index.do?cancer_study_list=" + $("#cancer_study_list").val(), "_blank");
+                        iViz.submitForm(true);
                     });
                 }
 

@@ -1,15 +1,15 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.Sample;
-import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationEnrichmentService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.SampleService;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,15 +27,15 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
     @Autowired
     private SampleService sampleService;
     @Autowired
-    private GeneticProfileService geneticProfileService;
+    private MolecularProfileService molecularProfileService;
     @Autowired
     private AlterationEnrichmentUtil alterationEnrichmentUtil;
 
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<AlterationEnrichment> getMutationEnrichments(String geneticProfileId, List<String> alteredIds,
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    public List<AlterationEnrichment> getMutationEnrichments(String molecularProfileId, List<String> alteredIds,
                                                              List<String> unalteredIds, String enrichmentType)
-        throws GeneticProfileNotFoundException {
+        throws MolecularProfileNotFoundException {
 
         List<String> allIds = new ArrayList<>(alteredIds);
         allIds.addAll(unalteredIds);
@@ -43,17 +43,17 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
         List<Mutation> mutations;
         
         if (enrichmentType.equals("SAMPLE")) {
-            mutationCountByGeneList = mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(geneticProfileId, 
+            mutationCountByGeneList = mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(molecularProfileId, 
                 allIds, null);
-            mutations = mutationService.fetchMutationsInGeneticProfile(geneticProfileId, alteredIds, null, null, "ID", 
-                null, null, null, null);
+            mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileId, alteredIds, null, null, 
+                "ID", null, null, null, null);
         } else {
-            mutationCountByGeneList = mutationService.getPatientCountByEntrezGeneIdsAndSampleIds(geneticProfileId,
+            mutationCountByGeneList = mutationService.getPatientCountByEntrezGeneIdsAndSampleIds(molecularProfileId,
                 allIds, null);
-            GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
+            MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
             List<Sample> sampleList = sampleService.getAllSamplesOfPatientsInStudy(
-                geneticProfile.getCancerStudyIdentifier(), alteredIds, "ID");
-            mutations = mutationService.fetchMutationsInGeneticProfile(geneticProfileId,
+                molecularProfile.getCancerStudyIdentifier(), alteredIds, "ID");
+            mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileId,
                 sampleList.stream().map(Sample::getStableId).collect(Collectors.toList()), null, null, "ID", null, null,
                 null, null);
         }

@@ -5,14 +5,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneGeneticData;
+import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.GenesetCorrelation;
-import org.cbioportal.model.GenesetGeneticData;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.GenesetMolecularData;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.service.GenesetDataService;
 import org.cbioportal.service.GenesetService;
-import org.cbioportal.service.GeneticDataService;
-import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,13 +33,13 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
     @Mock
     private GenesetDataService genesetDataService;
     @Mock
-    private GeneticDataService geneticDataService;
+    private MolecularDataService geneticDataService;
     @Mock
     private GenesetService genesetService;
     @Mock
     private SampleService sampleService;
     @Mock
-    private GeneticProfileService geneticProfileService;
+    private MolecularProfileService geneticProfileService;
 
     /**
      * This is executed n times, for each of the n test methods below:
@@ -61,67 +61,67 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
             .thenReturn(geneList);
 
         //stub for geneset data list:
-        List<GenesetGeneticData> genesetDataList1 = new ArrayList<GenesetGeneticData>();
+        List<GenesetMolecularData> genesetDataList1 = new ArrayList<GenesetMolecularData>();
         genesetDataList1.add(getSimpleFlatGenesetDataItem(SAMPLE_ID1, GENESET_ID1, "0.2"));
         genesetDataList1.add(getSimpleFlatGenesetDataItem(SAMPLE_ID2, GENESET_ID1, "0.499"));
-        Mockito.when(genesetDataService.fetchGenesetData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+        Mockito.when(genesetDataService.fetchGenesetData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
                 Arrays.asList(GENESET_ID1)))
             .thenReturn(genesetDataList1);
         //simulate 1 empty sample:
-        Mockito.when(genesetDataService.fetchGenesetData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3),
+        Mockito.when(genesetDataService.fetchGenesetData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3),
                 Arrays.asList(GENESET_ID1)))
             .thenReturn(genesetDataList1);
         
         //dummy stubs (normally these will return different profiles, but for the test this is enough:
-        GeneticProfile geneticProfile = new GeneticProfile();
-        geneticProfile.setStableId(GENETIC_PROFILE_ID);
-        Mockito.when(geneticProfileService.getGeneticProfilesReferredBy(GENETIC_PROFILE_ID))
+        MolecularProfile geneticProfile = new MolecularProfile();
+        geneticProfile.setStableId(MOLECULAR_PROFILE_ID);
+        Mockito.when(geneticProfileService.getMolecularProfilesReferredBy(MOLECULAR_PROFILE_ID))
             .thenReturn(Arrays.asList(geneticProfile));
-        GeneticProfile zscoreGeneticProfile = new GeneticProfile();
-        zscoreGeneticProfile.setStableId(GENETIC_PROFILE_ID);
+        MolecularProfile zscoreGeneticProfile = new MolecularProfile();
+        zscoreGeneticProfile.setStableId(MOLECULAR_PROFILE_ID);
         zscoreGeneticProfile.setDatatype("Z_SCORE");
-        Mockito.when(geneticProfileService.getGeneticProfilesReferringTo(GENETIC_PROFILE_ID))
+        Mockito.when(geneticProfileService.getMolecularProfilesReferringTo(MOLECULAR_PROFILE_ID))
             .thenReturn(Arrays.asList(zscoreGeneticProfile));
         
         //stub for gene data list, one gene at a time:
-        List<GeneGeneticData> geneDataList1 = new ArrayList<GeneGeneticData>();
+        List<GeneMolecularData> geneDataList1 = new ArrayList<GeneMolecularData>();
         geneDataList1.add(getSimpleFlatGeneDataItem(SAMPLE_ID1, 1, "0.2"));
         geneDataList1.add(getSimpleFlatGeneDataItem(SAMPLE_ID2, 1, "0.350"));
-        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+        Mockito.when(geneticDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
                 Arrays.asList(1), "SUMMARY"))
             .thenReturn(geneDataList1);
         //simulate 1 empty sample:
-        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3),
+        Mockito.when(geneticDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3),
                 Arrays.asList(1), "SUMMARY"))
             .thenReturn(geneDataList1);
 
-        List<GeneGeneticData> geneDataList2 = new ArrayList<GeneGeneticData>();
+        List<GeneMolecularData> geneDataList2 = new ArrayList<GeneMolecularData>();
         geneDataList2.add(getSimpleFlatGeneDataItem(SAMPLE_ID1, 2, "0.89"));
         geneDataList2.add(getSimpleFlatGeneDataItem(SAMPLE_ID2, 2, "-0.509"));
-        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+        Mockito.when(geneticDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
                 Arrays.asList(2), "SUMMARY"))
             .thenReturn(geneDataList2);
         //simulate 1 empty sample:
-        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3),
+        Mockito.when(geneticDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3),
                 Arrays.asList(2), "SUMMARY"))
             .thenReturn(geneDataList2);
     }
 
 
-    private GenesetGeneticData getSimpleFlatGenesetDataItem(String sampleStableId, String genesetId, String value){
+    private GenesetMolecularData getSimpleFlatGenesetDataItem(String sampleStableId, String genesetId, String value){
     
-        GenesetGeneticData item = new GenesetGeneticData();
-        item.setGeneticProfileId(GENETIC_PROFILE_ID);
+        GenesetMolecularData item = new GenesetMolecularData();
+        item.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         item.setGenesetId(genesetId);
         item.setSampleId(sampleStableId);
         item.setValue(value);
         return item;
     }
     
-    private GeneGeneticData getSimpleFlatGeneDataItem(String sampleStableId, int entrezGeneId, String value){
+    private GeneMolecularData getSimpleFlatGeneDataItem(String sampleStableId, int entrezGeneId, String value){
         
-        GeneGeneticData item = new GeneGeneticData();
-        item.setGeneticProfileId(GENETIC_PROFILE_ID);
+        GeneMolecularData item = new GeneMolecularData();
+        item.setMolecularProfileId(MOLECULAR_PROFILE_ID);
         item.setEntrezGeneId(entrezGeneId);
         item.setSampleId(sampleStableId);
         item.setValue(value);
@@ -131,7 +131,7 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
     @Test
     public void fetchCorrelatedGenes() throws Exception {
 
-        List<GenesetCorrelation> result = genesetCorrelationService.fetchCorrelatedGenes(GENESET_ID1, GENETIC_PROFILE_ID,
+        List<GenesetCorrelation> result = genesetCorrelationService.fetchCorrelatedGenes(GENESET_ID1, MOLECULAR_PROFILE_ID,
                 Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 0.3);
 
         //what we expect: gene 1 has good correlation with geneset 1, while gene 2 is anti-correlated. So 
@@ -141,7 +141,7 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(1, result.get(0).getEntrezGeneId().intValue());
         Assert.assertEquals(1.0, result.get(0).getCorrelationValue());
 
-        result = genesetCorrelationService.fetchCorrelatedGenes(GENESET_ID1, GENETIC_PROFILE_ID,
+        result = genesetCorrelationService.fetchCorrelatedGenes(GENESET_ID1, MOLECULAR_PROFILE_ID,
                 Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), -1.0);
 
         //now we expect both genes to return, since correlation threshold is at -1.0 (just a dummy threshold for testing):
@@ -152,7 +152,7 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(-1.0, result.get(1).getCorrelationValue());
 
         //test when 1 of the samples does not have data:
-        result = genesetCorrelationService.fetchCorrelatedGenes(GENESET_ID1, GENETIC_PROFILE_ID,
+        result = genesetCorrelationService.fetchCorrelatedGenes(GENESET_ID1, MOLECULAR_PROFILE_ID,
                 Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), -1.0);
         Assert.assertEquals(2, result.size());
     }

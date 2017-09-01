@@ -106,7 +106,7 @@ public class CopyNumberEnrichmentControllerTest {
         enrichmentFilter.setUnalteredIds(Arrays.asList("test_sample_id_2"));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/genetic-profiles/test_genetic_profile_id/copy-number-enrichments/fetch")
+            "/molecular-profiles/test_molecular_profile_id/copy-number-enrichments/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(enrichmentFilter)))

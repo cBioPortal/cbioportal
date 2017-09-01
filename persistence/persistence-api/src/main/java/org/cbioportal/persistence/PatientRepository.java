@@ -7,7 +7,8 @@ import java.util.List;
 
 public interface PatientRepository {
 
-    List<Patient> getAllPatientsInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction);
+    List<Patient> getAllPatientsInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber, 
+                                        String sortBy, String direction);
 
     BaseMeta getMetaPatientsInStudy(String studyId);
 

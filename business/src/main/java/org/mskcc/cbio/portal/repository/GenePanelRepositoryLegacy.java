@@ -50,7 +50,7 @@ public interface GenePanelRepositoryLegacy {
         // removed once a proper import solution is put in place.
         List<GenePanel> getGenePanelByStableId(String stableId);
         List<GenePanel> getGenePanels();
-        GeneticProfile getGeneticProfileByStableId(String stableId);
+        MolecularProfile getGeneticProfileByStableId(String stableId);
         Gene getGeneByEntrezGeneId(Integer geneId);
         Gene getGeneByHugoSymbol(String symbol);
         Gene getGeneByAlias(String symbol);

@@ -14,9 +14,9 @@ public class VariantCountMyBatisRepository implements VariantCountRepository {
     private VariantCountMapper variantCountMapper;
     
     @Override
-    public List<VariantCount> fetchVariantCounts(String geneticProfileId, List<Integer> entrezGeneIds, 
+    public List<VariantCount> fetchVariantCounts(String molecularProfileId, List<Integer> entrezGeneIds, 
                                                  List<String> keywords) {
         
-        return variantCountMapper.fetchVariantCounts(geneticProfileId, entrezGeneIds, keywords);
+        return variantCountMapper.fetchVariantCounts(molecularProfileId, entrezGeneIds, keywords);
     }
 }

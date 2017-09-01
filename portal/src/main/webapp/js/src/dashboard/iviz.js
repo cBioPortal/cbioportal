@@ -323,11 +323,17 @@ window.QueryByGeneUtil = (function() {
           _arr.push(_studyId + "|" + _sampleId);
         });
       });
-      submitForm(window.cbioURL + 'index.do', {
-        'cancer_study_id': studyId,
-        'case_ids': _arr.join('+'),
+      var params = {
+	'case_ids': _arr.join('+'),
         'case_set_id': -1
-      });
+      };
+      if (window.cohortIdsList.length > 1) {
+	  params.cancer_study_id = 'all';
+	  params.cancer_study_list = window.cohortIdsList.join(",");
+      } else {
+	  params.cancer_study_id = studyId;
+      }
+      submitForm(window.cbioURL + 'index.do', params);
     },
     toQueryPageSingleCohort: function(studyId, selectedCases,
                                       selectedGenes, mutationProfileId, cnaProfileId) {
@@ -1188,7 +1194,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         // TODO: give warning/error message to user if the download is failed
       });
     },
-    submitForm: function() {
+    submitForm: function(toMainPage) {
       var _self = this;
       _self.selectedsamples = _.keys(iViz.getCasesMap('sample'));
       _self.selectedpatients = _.keys(iViz.getCasesMap('patient'));
@@ -1198,7 +1204,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       $('#iviz-form input:not(:first)').remove();
 
       if (_self.cohorts_.length === 1) { // to query single study
-        if (QueryByGeneTextArea.isEmpty()) {
+        if (toMainPage || QueryByGeneTextArea.isEmpty()) {
           QueryByGeneUtil.toMainPage(_self.cohorts_[0], _self.stat().selectedCases);
         } else {
           QueryByGeneTextArea.validateGenes(this.decideSubmitSingleCohort, false);
@@ -1436,8 +1442,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             downloadCaseData: function() {
               iViz.downloadCaseData();
             },
-            submitForm: function() {
-              iViz.submitForm();
+            submitForm: function(toMainPage) {
+              iViz.submitForm(toMainPage);
             },
             clearAllCharts: function(includeNextTickFlag) {
               var self_ = this;

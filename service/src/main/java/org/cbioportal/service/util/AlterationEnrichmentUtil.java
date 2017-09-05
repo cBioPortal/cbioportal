@@ -107,7 +107,7 @@ public class AlterationEnrichmentUtil {
         int alteredInNoneCount = unalteredCount - alterationEnrichment.getUnalteredCount();
         int alteredOnlyInQueryGenesCount = alteredCount - alterationEnrichment.getAlteredCount();
 
-        double pValue = fisherExactTestCalculator.getCumlativePValue(alteredInNoneCount,
+        double pValue = fisherExactTestCalculator.getCumulativePValue(alteredInNoneCount,
             alterationEnrichment.getUnalteredCount(), alteredOnlyInQueryGenesCount,
             alterationEnrichment.getAlteredCount());
 

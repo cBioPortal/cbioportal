@@ -504,6 +504,46 @@ window.onReactAppReady(function() {
                 position: {my:'left top',at:'right bottom', viewport: $(window)}
             }
         );
+
+        //Move code related to expression tab from cross_cancer_results.jsp to here
+        window.ccQueriedGenes = window.QuerySession.getOQLQuery().match(/\S+/g) || [];
+        
+        var _cc_plots_gene_list = "";
+        var tmp = setInterval(function () {timer();}, 1000);
+        function timer() {
+            if (window.ccQueriedGenes !== undefined) {
+                clearInterval(tmp);
+                var cc_plots_tab_init = false;
+                if ($("#cc-plots").is(":visible")) {
+                    _cc_plots_gene_list = _cc_plots_gene_list;
+                    _.each(window.ccQueriedGenes, function (_gene) {
+                        $("#cc_plots_gene_list").append(
+                            "<option value='" + _gene + "'>" + _gene + "</option>");
+                    });
+                    ccPlots.init();
+
+                    cc_plots_tab_init = true;
+                } else {
+                    $(window).trigger("resize");
+                }
+                $("#tabs").bind("tabsactivate", function(event, ui) {
+                    if (ui.newTab.text().trim().toLowerCase() === "expression") {
+                        if (cc_plots_tab_init === false) {
+                            _cc_plots_gene_list = _cc_plots_gene_list;
+                            _.each(window.ccQueriedGenes, function (_gene) {
+                                $("#cc_plots_gene_list").append(
+                                    "<option value='" + _gene + "'>" + _gene + "</option>");
+                            });
+                            ccPlots.init();
+                            cc_plots_tab_init = true;
+                            $(window).trigger("resize");
+                        } else {
+                            $(window).trigger("resize");
+                        }
+                    }
+                });
+            }
+        }
     });
 </script>
 

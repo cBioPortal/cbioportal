@@ -52,7 +52,7 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("BRCA1 truncating", mutation.getKeyword());
         Assert.assertEquals("Germline", mutation.getMutationStatus());
         Assert.assertEquals("Nonsense_Mutation", mutation.getMutationType());
-        Assert.assertEquals("37", mutation.getNcbiBuild());
+        Assert.assertEquals("GRCh37", mutation.getNcbiBuild());
         Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
         Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosEnd());
@@ -93,7 +93,7 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("BRCA1 truncating", mutation.getKeyword());
         Assert.assertEquals("Germline", mutation.getMutationStatus());
         Assert.assertEquals("Nonsense_Mutation", mutation.getMutationType());
-        Assert.assertEquals("37", mutation.getNcbiBuild());
+        Assert.assertEquals("GRCh37", mutation.getNcbiBuild());
         Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
         Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosEnd());
@@ -119,7 +119,7 @@ public class MutationMyBatisRepositoryTest {
         List<Mutation> result =  mutationMyBatisRepository.getMutationsInMolecularProfileBySampleListId(
             "study_tcga_pub_mutations", "study_tcga_pub_all", null, null, "DETAILED", null, null, null, null);
 
-        Assert.assertEquals(8, result.size());
+        Assert.assertEquals(3, result.size());
         Mutation mutation = result.get(0);
         Assert.assertEquals("study_tcga_pub_mutations", mutation.getMolecularProfileId());
         Assert.assertEquals("TCGA-A1-A0SB-01", mutation.getSampleId());
@@ -135,7 +135,7 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("getma.org/?cm=var&var=hg19,17,41244748,G,A&fts=all", mutation.getLinkXvar());
         Assert.assertEquals("NA", mutation.getLinkPdb());
         Assert.assertEquals("NA", mutation.getLinkMsa());
-        Assert.assertEquals("37", mutation.getNcbiBuild());
+        Assert.assertEquals("GRCh37", mutation.getNcbiBuild());
         Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
         Assert.assertEquals((Integer) (-1), mutation.getNormalRefCount());
         Assert.assertEquals((Integer) 934, mutation.getOncotatorProteinPosEnd());
@@ -157,7 +157,7 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 207, gene.getEntrezGeneId());
         Assert.assertEquals("AKT1", gene.getHugoGeneSymbol());
         Assert.assertEquals("protein-coding", gene.getType());
-        Assert.assertEquals("14q32.32", gene.getCytoband());
+        Assert.assertEquals("14q32.33", gene.getCytoband());
         Assert.assertEquals((Integer) 10838, gene.getLength());
     }
 

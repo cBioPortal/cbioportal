@@ -258,8 +258,9 @@ public final class DaoMutation {
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement(
-                    "SELECT * FROM mutation " +
+                    "SELECT *, reference_genome.`build_name` AS `NCBI_BUILD` FROM mutation " +
                     "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
+                    "INNER JOIN reference_genome ON reference_genome.reference_genome_id = mutation_event.REFERENCE_GENOME_ID " +
                     "WHERE SAMPLE_ID = ? AND GENETIC_PROFILE_ID = ? AND mutation.ENTREZ_GENE_ID = ?");
             pstmt.setInt(1, sampleId);
             pstmt.setInt(2, geneticProfileId);
@@ -563,7 +564,9 @@ public final class DaoMutation {
         Set<ExtendedMutation.MutationEvent> events = new HashSet<ExtendedMutation.MutationEvent>();
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
-            pstmt = con.prepareStatement("SELECT * FROM mutation_event");
+            pstmt = con.prepareStatement("SELECT mutation_event.*,reference_genome.`build_name` AS `NCBI_BUILD`" 
+                + " FROM mutation_event "
+                + " JOIN reference_genome ON mutation_event.`REFERENCE_GENOME_ID`=reference_genome.`reference_genome_id`");
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 ExtendedMutation.MutationEvent event = extractMutationEvent(rs);
@@ -930,6 +933,7 @@ public final class DaoMutation {
                     " FROM mutation cme, mutation_event me1, mutation_event me2" +
                     " WHERE me1.`MUTATION_EVENT_ID` IN ("+ concatEventIds + ")" +
                     " AND me1.`KEYWORD`=me2.`KEYWORD`" +
+                    " AND me1.`REFERENCE_GENOME_ID`=m2.`REFERENCE_GENOME_ID`" +
                     " AND cme.`MUTATION_EVENT_ID`=me2.`MUTATION_EVENT_ID`";
             pstmt = con.prepareStatement(sql);
             Map<Sample, Set<Long>> map = new HashMap<Sample, Set<Long>> ();

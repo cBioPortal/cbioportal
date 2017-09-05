@@ -24,7 +24,7 @@ public class CopyNumberSegmentServiceImpl implements CopyNumberSegmentService {
 
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
-    public List<CopyNumberSeg> getCopyNumberSegmentsInSampleInStudy(String studyId, String profileId, String sampleId,
+    public List<CopyNumberSeg> getCopyNumberSegmentsInSampleInStudy(String studyId, String geneticProfileId, String sampleId,
                                                                     String projection, Integer pageSize,
                                                                     Integer pageNumber, String sortBy,
                                                                     String direction) throws SampleNotFoundException, 
@@ -32,17 +32,17 @@ public class CopyNumberSegmentServiceImpl implements CopyNumberSegmentService {
         
         sampleService.getSampleInStudy(studyId, sampleId);
 
-        return copyNumberSegmentRepository.getCopyNumberSegmentsInSampleInStudy(profileId, sampleId, projection, pageSize,
+        return copyNumberSegmentRepository.getCopyNumberSegmentsInSampleInStudy(geneticProfileId, sampleId, projection, pageSize,
             pageNumber, sortBy, direction);
     }
 
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
-    public BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String profileId, String sampleId)
+    public BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String geneticProfileId, String sampleId)
         throws SampleNotFoundException, StudyNotFoundException {
         sampleService.getSampleInStudy(studyId, sampleId);
         
-        return copyNumberSegmentRepository.getMetaCopyNumberSegmentsInSampleInStudy(profileId, sampleId);
+        return copyNumberSegmentRepository.getMetaCopyNumberSegmentsInSampleInStudy(geneticProfileId, sampleId);
     }
 
     @Override

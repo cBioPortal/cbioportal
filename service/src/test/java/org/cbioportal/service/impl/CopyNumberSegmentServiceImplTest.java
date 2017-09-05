@@ -16,6 +16,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.math.BigDecimal;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CopyNumberSegmentServiceImplTest extends BaseServiceImplTest {
@@ -82,10 +83,10 @@ public class CopyNumberSegmentServiceImplTest extends BaseServiceImplTest {
         expectedCopyNumberSegList.add(copyNumberSeg);
 
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Arrays.asList(PROFILE_ID), 
-            Arrays.asList(PATIENT_ID), PROJECTION)).thenReturn(expectedCopyNumberSegList);
+            Arrays.asList(SAMPLE_ID1), PROJECTION)).thenReturn(expectedCopyNumberSegList);
 
         List<CopyNumberSeg> result = copyNumberSegmentService.fetchCopyNumberSegments(Arrays.asList(PROFILE_ID),
-            Arrays.asList(PATIENT_ID), PROJECTION);
+            Arrays.asList(SAMPLE_ID1), PROJECTION);
 
         Assert.assertEquals(expectedCopyNumberSegList, result);
     }
@@ -95,24 +96,34 @@ public class CopyNumberSegmentServiceImplTest extends BaseServiceImplTest {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
         Mockito.when(copyNumberSegmentRepository.fetchMetaCopyNumberSegments(Arrays.asList(PROFILE_ID),
-            Arrays.asList(PATIENT_ID))).thenReturn(expectedBaseMeta);
+            Arrays.asList(SAMPLE_ID1))).thenReturn(expectedBaseMeta);
         BaseMeta result = copyNumberSegmentService.fetchMetaCopyNumberSegments(Arrays.asList(PROFILE_ID),
-            Arrays.asList(PATIENT_ID));
+            Arrays.asList(SAMPLE_ID1));
 
         Assert.assertEquals(expectedBaseMeta, result);
     }
 
     @Test
     public void getCopyNumberSegmentsBySampleListId() throws Exception {
-
+        
         List<CopyNumberSeg> expectedCopyNumberSegList = new ArrayList<>();
         CopyNumberSeg copyNumberSeg = new CopyNumberSeg();
+        copyNumberSeg.setGeneticProfileId("study_tcga_pub_methylation_hm27");
+        copyNumberSeg.setChr("2");
+        copyNumberSeg.setSampleStableId("TCGA-A1-A0SD-01");
+        copyNumberSeg.setSampleId(2);
+        copyNumberSeg.setSegId(50236593);
+        copyNumberSeg.setCancerStudyId(1);
+        copyNumberSeg.setEnd(190262486);
+        copyNumberSeg.setStart(1402650);
+        copyNumberSeg.setNumProbes(207);
+        copyNumberSeg.setSegmentMean(new BigDecimal("0.0265"));
         expectedCopyNumberSegList.add(copyNumberSeg);
 
-        Mockito.when(copyNumberSegmentRepository.getCopyNumberSegmentsBySampleListId(STUDY_ID, SAMPLE_LIST_ID, 
+        Mockito.when(copyNumberSegmentRepository.getCopyNumberSegmentsBySampleListId(GENETIC_PROFILE_ID1, SAMPLE_LIST_ID, 
             PROJECTION)).thenReturn(expectedCopyNumberSegList);
 
-        List<CopyNumberSeg> result = copyNumberSegmentService.getCopyNumberSegmentsBySampleListId(PROFILE_ID, 
+        List<CopyNumberSeg> result = copyNumberSegmentService.getCopyNumberSegmentsBySampleListId(GENETIC_PROFILE_ID1, 
             SAMPLE_LIST_ID, PROJECTION);
 
         Assert.assertEquals(expectedCopyNumberSegList, result);

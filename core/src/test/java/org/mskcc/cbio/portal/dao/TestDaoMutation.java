@@ -62,11 +62,11 @@ public class TestDaoMutation {
 	public void setUp() throws DaoException {
 		int studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
 		ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
-		geneticProfileId = list.get(0).getGeneticProfileId();
+		geneticProfileId = list.get(4).getGeneticProfileId();
 		
 		sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SB-01").getInternalId();
 		
-        gene = new CanonicalGene(321, "BLAH");
+        gene = new CanonicalGene(672, "BRCA1");
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         daoGeneOptimized.addGene(gene);
 	}
@@ -142,7 +142,7 @@ public class TestDaoMutation {
 		if( MySQLbulkLoader.isBulkLoad()){
             MySQLbulkLoader.flushAll();
 		}
-		ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(geneticProfileId, 1, 321);
+		ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(geneticProfileId, 6, 672);
 		validateMutation(mutationList.get(0));
 
 		//  Test the getGenesInProfile method
@@ -151,8 +151,8 @@ public class TestDaoMutation {
 
 		ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>(geneSet);
 		CanonicalGene gene = geneList.get(0);
-		assertEquals (321, gene.getEntrezGeneId());
-		assertEquals ("BLAH", gene.getHugoGeneSymbolAllCaps());
+		assertEquals (672, gene.getEntrezGeneId());
+		assertEquals ("BRCA1", gene.getHugoGeneSymbolAllCaps());
 
 	}
 

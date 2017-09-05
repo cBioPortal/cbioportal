@@ -72,6 +72,8 @@ public final class ExtendedMutation
         private int oncotatorProteinPosStart;
         private int oncotatorProteinPosEnd;
         private boolean canonicalTranscript;
+        private int referenceGenomeId;
+        
 
         public long getMutationEventId() {
             return mutationEventId;
@@ -186,6 +188,10 @@ public final class ExtendedMutation
         public void setNcbiBuild(String ncbiBuild) {
             this.ncbiBuild = ncbiBuild;
         }
+        
+        public int getReferenceGenomeId() { return this.referenceGenomeId; }
+        
+        public void setReferenceGenomeId(int referenceGenomeId) { this.referenceGenomeId = referenceGenomeId; }
 
         public String getStrand() {
             return strand;

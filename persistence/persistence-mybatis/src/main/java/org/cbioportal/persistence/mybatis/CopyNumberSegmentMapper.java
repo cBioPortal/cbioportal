@@ -7,10 +7,10 @@ import java.util.List;
 
 public interface CopyNumberSegmentMapper {
     
-    List<CopyNumberSeg> getCopyNumberSegments(List<String> profileIds, List<String> sampleIds, String projection, 
+    List<CopyNumberSeg> getCopyNumberSegments(List<String> geneticProfileIds, List<String> sampleIds, String projection, 
                                               Integer limit, Integer offset, String sortBy, String direction);
 
-    BaseMeta getMetaCopyNumberSegments(List<String> profileIds, List<String> sampleIds);
+    BaseMeta getMetaCopyNumberSegments(List<String> geneticProfileIds, List<String> sampleIds);
     
-    List<CopyNumberSeg> getCopyNumberSegmentsBySampleListId(String profileId, String sampleListId, String projection);
+    List<CopyNumberSeg> getCopyNumberSegmentsBySampleListId(String geneticProfileId, String sampleListId, String projection);
 }

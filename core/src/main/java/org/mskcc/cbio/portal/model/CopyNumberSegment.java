@@ -38,7 +38,8 @@ package org.mskcc.cbio.portal.model;
  */
 public class CopyNumberSegment {
     private long segId;
-    private int cancerStudyId;
+    //private int cancerStudyId;
+    private int geneticProfileId;
     private int sampleId;
     private String chr; // 1-22,X/Y,M
     private long start;
@@ -46,9 +47,10 @@ public class CopyNumberSegment {
     private int numProbes;
     private double segMean;
 
-    public CopyNumberSegment(int cancerStudyId, int sampleId, String chr,
+    public CopyNumberSegment(int geneticProfileId, int sampleId, String chr,
             long start, long end, int numProbes, double segMean) {
-        this.cancerStudyId = cancerStudyId;
+        //this.cancerStudyId = cancerStudyId;
+        this.geneticProfileId = geneticProfileId;
         this.sampleId = sampleId;
         this.chr = chr;
         this.start = start;
@@ -57,14 +59,19 @@ public class CopyNumberSegment {
         this.segMean = segMean;
     }
 
-    public int getCancerStudyId() {
+    /*public int getCancerStudyId() {
         return cancerStudyId;
     }
 
     public void setCancerStudyId(int cancerStudyId) {
         this.cancerStudyId = cancerStudyId;
+    }*/
+    public int getGeneticProfileId() {
+        return geneticProfileId;
     }
-
+    public void setGeneticProfileId(int geneticProfileId) {
+        this.geneticProfileId = geneticProfileId;
+    }
     public String getChr() {
         return chr;
     }

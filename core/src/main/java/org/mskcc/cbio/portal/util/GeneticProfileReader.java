@@ -132,6 +132,7 @@ public class GeneticProfileReader {
         // Get ID
         GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfile.getStableId());
         geneticProfile.setGeneticProfileId(gp.getGeneticProfileId());
+        geneticProfile.setReferenceGenomeId(gp.getReferenceGenomeId());
         return geneticProfile;
     }
 

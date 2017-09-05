@@ -24,7 +24,7 @@
     <sql id="from">
         FROM copy_number_seg
         INNER JOIN sample ON copy_number_seg.SAMPLE_ID = sample.INTERNAL_ID
-        <if test="profileIds != null and !profileIds.isEmpty()">
+        <if test="geneticProfileIds != null and !geneticProfileIds.isEmpty()">
             INNER JOIN genetic_profile ON copy_number_seg.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
             INNER JOIN cancer_study on cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
         </if>
@@ -32,9 +32,9 @@
     
     <sql id="where">
         <where>
-            <if test="profileIds != null and !profileIds.isEmpty()">
-                <foreach index="i" collection="profileIds" open="(" separator="OR" close=")">
-                    genetic_profile.STABLE_ID = #{profileIds[0]}
+            <if test="geneticProfileIds != null and !geneticProfileIds.isEmpty()">
+                <foreach index="i" collection="geneticProfileIds" open="(" separator="OR" close=")">
+                    genetic_profile.STABLE_ID = #{geneticProfileIds[0]}
                 </foreach>
             </if>
             <if test="sampleIds != null and !sampleIds.isEmpty()">
@@ -73,8 +73,11 @@
     <select id="getCopyNumberSegmentsBySampleListId" resultType="org.cbioportal.model.CopyNumberSeg">
         SELECT
         <include refid="select"/>
-        <include refid="from"/>
-        WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        FROM copy_number_seg
+        INNER JOIN sample ON copy_number_seg.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN genetic_profile ON copy_number_seg.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN cancer_study on cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        WHERE genetic_profile.STABLE_ID = #{geneticProfileId}
         AND copy_number_seg.SAMPLE_ID IN
         (
             SELECT sample_list_list.SAMPLE_ID FROM sample_list_list

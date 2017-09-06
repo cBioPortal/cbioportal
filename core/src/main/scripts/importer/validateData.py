@@ -1603,11 +1603,12 @@ class ClinicalValidator(Validator):
                         invalid_values = True
                 elif self.METADATA_LINES[line_index] == 'priority':
                     try:
-                        if int(value) < 1:
+                        if int(value) < 0:
                             raise ValueError()
                     except ValueError:
                         self.logger.error(
-                            'Priority definition is not a positive integer',
+                            'Priority definition should be an integer, and should be '
+                            'greater than or equal to zero',
                             extra={'line_number': line_index + 1,
                                    'column_number': col_index + 1,
                                    'cause': value})

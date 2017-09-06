@@ -488,7 +488,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
 'use strict';
 (function(Vue, $, vcSession) {
   Vue.component('sessionComponent', {
-    template: '<div v-if="showManageButton || showSaveButton" ' +
+    template: '<div v-if="showManageButton || showSaveButton || showShareButton" ' +
     'class="input-group"><span class="input-group-addon">Cohort</span>' +
     '<div class="input-group-btn">' +
     '<button v-if="showSaveButton" type="button" ' +

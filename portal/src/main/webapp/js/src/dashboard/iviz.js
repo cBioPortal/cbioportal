@@ -1351,7 +1351,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             charts: {},
             groupCount: 0,
             updateSpecialCharts: false,
-            showSaveButton: true,
+            showSaveButton: true, 
+              showShareButton: true,
             showManageButton: true,
             loadUserSpecificCohorts: false,
             stats: '',
@@ -8178,3 +8179,168 @@ window.LogRankTest = (function(jStat) {
   });
 })(window.Vue,
   window.$ || window.jQuery, window.vcSession);
+
+/**
+ * Share virtual cohort component
+ * 
+ */
+
+'use strict';
+(function(Vue, $, vcSession) {
+    Vue.component('shareVirtualStudy', {
+        template:
+        '<div v-if="showShareButton" class="share-virtual-study">' +
+        '<div class="share-cohort-btn">' +
+        '<i class="fa fa-share-alt" alt="Share Virtual Study"></i></div></div>',
+        props: [
+            'selectedPatientsNum', 'selectedSamplesNum',
+            'stats', 'updateStats', 'showShareButton'
+        ],
+        data: function() {
+            return {
+                savedVC: null
+            };
+        }, methods: {
+            saveCohort: function() {
+                var _self = this;
+                _self.updateStats = true;
+                _self.$nextTick(function() {
+                    _self.addNewVC = true;
+                });
+            }
+        }, ready: function() {
+            var self_ = this;
+            if (this.showShareButton) {
+                $('.share-virtual-study').qtip({
+                    style: {
+                        classes: 'qtip-light qtip-rounded qtip-shadow'
+                    },
+                    show: {event: 'mouseover', ready: false},
+                    hide: {fixed: true, delay: 200, event: 'mouseleave'},
+                    position: {
+                        my: 'bottom center',
+                        at: 'top center',
+                        viewport: $(window)
+                    },
+                    content: 'Share Virtual Study'
+                });
+                $('.share-cohort-btn').qtip({
+                    style: {
+                        classes: 'qtip-light qtip-rounded qtip-shadow ' +
+                        'iviz-share-cohort-btn-qtip'
+                    },
+                    show: {event: 'click', ready: false},
+                    hide: false,
+                    position: {
+                        my: 'top center',
+                        at: 'bottom center',
+                        viewport: $(window)
+                    },
+                    events: {
+                        render: function(event, api) {
+                            var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
+                            tooltip.find('.share-cohort').click(function() {
+                                tooltip.find('.shared').css('display', 'none');
+                                tooltip.find('.dialog').css('display', 'none');
+                                api.reposition();
+
+                                // var cohortName = tooltip.find('.cohort-name').val();
+                                // var cohortDescription =
+                                //     tooltip.find('.cohort-description').val();
+                                // if (_.isObject(vcSession)) {
+                                //     self_.updateStats = true;
+                                //     self_.$nextTick(function() {
+                                //         var _selectedSamplesNum = 0;
+                                //         var _selectedPatientsNum = 0;
+                                //         if (_.isObject(self_.stats.selectedCases)) {
+                                //             _.each(self_.stats.selectedCases, function(studyCasesMap) {
+                                //                 _selectedSamplesNum += studyCasesMap.samples.length;
+                                //                 _selectedPatientsNum += studyCasesMap.patients.length;
+                                //             });
+                                //             self_.selectedSamplesNum = _selectedSamplesNum;
+                                //             self_.selectedPatientsNum = _selectedPatientsNum;
+                                //         }
+                                //
+                                //         vcSession.events.saveCohort(self_.stats,
+                                //             cohortName, cohortDescription || '')
+                                //             .done(function(response) {
+                                //                 self_.savedVC = response;
+                                //                 tooltip.find('.savedMessage').html(
+                                //                     '<span>Virtual study <i>' + cohortName +
+                                //                     '</i> is saved.</span>' +
+                                //                     '<a class="left-space" href="' +
+                                //                     window.cbioURL + 'study?id=' +
+                                //                     self_.savedVC.id + '">view</a>');
+                                //             })
+                                //             .fail(function() {
+                                //                 tooltip.find('.savedMessage').html(
+                                //                     '<i class="fa fa-exclamation-triangle"></i>' +
+                                //                     '<span class="left-space">' +
+                                //                     'Failed to save virtual study, ' +
+                                //                     'please try again later.</span>');
+                                //             })
+                                //             .always(function() {
+                                //                 tooltip.find('.saved').css('display', 'block');
+                                //                 tooltip.find('.saving').css('display', 'none');
+                                //                 tooltip.find('.dialog').css('display', 'none');
+                                //                 tooltip.find('.cohort-name').val('');
+                                //                 tooltip.find('.cohort-description').val('');
+                                //                 tooltip.find('.save-cohort')
+                                //                     .attr('disabled', true);
+                                //                 api.reposition();
+                                //             });
+                                //     });
+                                // }
+                            });
+                            tooltip.find('.cohort-name')
+                                .keyup(function() {
+                                    if (tooltip.find('.cohort-name').val() === '') {
+                                        tooltip.find('.save-cohort')
+                                            .attr('disabled', true);
+                                    } else {
+                                        tooltip.find('.save-cohort')
+                                            .attr('disabled', false);
+                                    }
+                                });
+                        },
+                        show: function() {
+                            var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
+                            self_.updateStats = true;
+                            self_.$nextTick(function() {
+                                // If user hasn't specific description only.
+                                if (!tooltip.find('.cohort-description').val()) {
+                                    $.when(vcSession.utils.generateCohortDescription(self_.stats.selectedCases))
+                                        .then(function(_desp) {
+                                            // If user hasn't specific description only.
+                                            if (!tooltip.find('.cohort-description').val()) {
+                                                tooltip.find('.cohort-description').val(_desp);
+                                            }
+                                        });
+                                }
+                            });
+                            tooltip.find('.dialog').css('display', 'block');
+                            tooltip.find('.shared').css('display', 'none');
+
+                            // Tell the tip itself to not bubble up clicks on it
+                            $($(this).qtip('api').elements.tooltip).click(function() { return false; });
+
+                            // Tell the document itself when clicked to hide the tip and then unbind
+                            // the click event (the .one() method does the auto-unbinding after one time)
+                            $(document).one("click", function() { $(".share-cohort-btn").qtip('hide'); });
+                        }
+                    },
+                    content: '<div><div class="dialog"><div class="input-group">' +
+                    '<input type="text" class="form-control cohort-name" ' +
+                    'placeholder="Virtual study Name"> <span class="input-group-btn">' +
+                    '<button class="btn btn-default save-cohort" ' +
+                    'type="button" disabled>Share</button></span>' +
+                    '</div></div>' +
+                    '<div class="shared" style="display: none;">' +
+                    '<span class="sharedMessage"></span>' +
+                    '</div></div>'
+                });
+            }
+        }
+    });
+})(window.Vue,
+    window.$ || window.jQuery, window.vcSession);

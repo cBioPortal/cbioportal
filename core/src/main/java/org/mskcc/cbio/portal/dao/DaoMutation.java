@@ -83,7 +83,10 @@ public final class DaoMutation {
                     Integer.toString(mutation.getTumorAltCount()),
                     Integer.toString(mutation.getTumorRefCount()),
                     Integer.toString(mutation.getNormalAltCount()),
-                    Integer.toString(mutation.getNormalRefCount()));
+                    Integer.toString(mutation.getNormalRefCount()),
+                    mutation.getClonalStatus(),
+                    Float.toString(mutation.getCcf()),
+                    mutation.getCcfCluster());
             return result;
         }
     }
@@ -653,6 +656,9 @@ public final class DaoMutation {
             mutation.setTumorRefCount(rs.getInt("TUMOR_REF_COUNT"));
             mutation.setNormalAltCount(rs.getInt("NORMAL_ALT_COUNT"));
             mutation.setNormalRefCount(rs.getInt("NORMAL_REF_COUNT"));
+            mutation.setClonalStatus(rs.getString("CLONAL_STATUS"));
+            mutation.setCcf(rs.getFloat("CCF"));
+            mutation.setCcfCluster(rs.getString("CCF_CLUSTER"));
             return mutation;
         }
         catch(NullPointerException e) {

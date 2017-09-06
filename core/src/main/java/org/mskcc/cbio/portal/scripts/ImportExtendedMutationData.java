@@ -378,6 +378,9 @@ public class ImportExtendedMutationData{
                     mutation.setValidationMethod(record.getValidationMethod());
                     mutation.setScore(record.getScore());
                     mutation.setBamFile(record.getBamFile());
+                    mutation.setClonalStatus(record.getClonalStatus());
+                    mutation.setCcf(record.getCcf());
+                    mutation.setCcfCluster(record.getCcfCluster());
                     mutation.setTumorAltCount(ExtendedMutationUtil.getTumorAltCount(record));
                     mutation.setTumorRefCount(ExtendedMutationUtil.getTumorRefCount(record));
                     mutation.setNormalAltCount(ExtendedMutationUtil.getNormalAltCount(record));

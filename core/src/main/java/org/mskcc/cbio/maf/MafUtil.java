@@ -145,6 +145,12 @@ public class MafUtil
 	public static final String MA_LINK_PDB = "MA:link.PDB";
 	public static final String MA_PROTEIN_CHANGE = "MA:protein.change";
 
+	// clonality information
+	public static final String CLONAL_STATUS = "clonal_status";
+	public static final String CCF = "ccf";
+	public static final String CCF_CLUSTER = "cluster";
+
+
 
     // standard MAF column indices
 	private int chrIndex = -1; // CHR
@@ -231,6 +237,11 @@ public class MafUtil
 	private int maLinkMsaIndex = -1; // MA:link.MSA
 	private int maLinkPdbIndex = -1; // MA:link.PDB
 	private int maProteinChangeIndex = -1; // MA:protein.change
+
+	// clonality information
+	private int clonalStatusIndex = -1; // 
+	private int ccfIndex = -1; // 
+	private int ccfClusterIndex = -1; // 
 
 	// number of headers in the header line
     private int headerCount;
@@ -426,7 +437,13 @@ public class MafUtil
                 normalDepthIndex = i;
             } else if(header.equalsIgnoreCase(NORMAL_VAF)) {
                 normalVafIndex = i;
-            }
+            } else if(header.equalsIgnoreCase(CLONAL_STATUS)) {
+                clonalStatusIndex = i;
+        	} else if(header.equalsIgnoreCase(CCF)) {
+                ccfIndex = i;
+        	} else if(header.equalsIgnoreCase(CCF_CLUSTER)) {
+                ccfClusterIndex = i;
+        	}
         }
     }
 
@@ -533,7 +550,11 @@ public class MafUtil
 	    record.setOncotatorExonAffectedBestEffect(TabDelimitedFileUtil.getPartInt(oncoExonAffectedBeIndex, parts));
 	    record.setOncotatorProteinPosStartBestEffect(TabDelimitedFileUtil.getPartInt(oncoProteinPosStartBeIndex, parts));
 	    record.setOncotatorProteinPosEndBestEffect(TabDelimitedFileUtil.getPartInt(oncoProteinPosEndBeIndex, parts));
-            
+        
+	    record.setClonalStatus(TabDelimitedFileUtil.getPartString(clonalStatusIndex, parts));
+	    record.setCcf(TabDelimitedFileUtil.getPartFloat(ccfIndex, parts));
+	    record.setCcfCluster(TabDelimitedFileUtil.getPartString(ccfClusterIndex, parts));
+
             fixEndPointForInsertion(record);
             
         return record;
@@ -858,6 +879,21 @@ public class MafUtil
 	public int getOncoProteinPosEndBeIndex()
 	{
 		return oncoProteinPosEndBeIndex;
+	}
+
+	public int getClonalStatusIndex()
+	{
+		return clonalStatusIndex;
+	}
+
+	public int getCcfIndex()
+	{
+		return ccfIndex;
+	}
+
+	public int getCcfClusterIndex()
+	{
+		return ccfClusterIndex;
 	}
 
 	public int getColumnIndex(String colName)

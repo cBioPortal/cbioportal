@@ -6,8 +6,10 @@
 
     <sql id="selectSample">
         clinical_sample.INTERNAL_ID AS "${prefix}internalId",
-        sample.STABLE_ID AS "${prefix}stableId",
-        clinical_sample.ATTR_ID AS "${prefix}attrId"
+        sample.STABLE_ID AS "${prefix}sampleId",
+        patient.STABLE_ID AS "${prefix}patientId",
+        clinical_sample.ATTR_ID AS "${prefix}attrId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             , clinical_sample.ATTR_VALUE AS "${prefix}attrValue"
         </if>
@@ -21,8 +23,9 @@
 
     <sql id="selectPatient">
         clinical_patient.INTERNAL_ID AS "${prefix}internalId",
-        patient.STABLE_ID AS "${prefix}stableId",
-        clinical_patient.ATTR_ID AS "${prefix}attrId"
+        patient.STABLE_ID AS "${prefix}patientId",
+        clinical_patient.ATTR_ID AS "${prefix}attrId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             , clinical_patient.ATTR_VALUE AS "${prefix}attrValue"
         </if>

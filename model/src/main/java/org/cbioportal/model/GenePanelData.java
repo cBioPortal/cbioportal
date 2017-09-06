@@ -1,12 +1,13 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class GenePanelData implements Serializable {
+public class GenePanelData extends UniqueKeyBase {
     
     private String molecularProfileId;
     private String sampleId;
+    private String patientId;
+    private String studyId;
     private String genePanelId;
     private List<Integer> entrezGeneIds;
 
@@ -24,6 +25,22 @@ public class GenePanelData implements Serializable {
 
     public void setSampleId(String sampleId) {
         this.sampleId = sampleId;
+    }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getStudyId() {
+        return studyId;
+    }
+
+    public void setStudyId(String studyId) {
+        this.studyId = studyId;
     }
 
     public String getGenePanelId() {

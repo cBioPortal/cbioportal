@@ -326,6 +326,29 @@
                     $("#submit_button").click(function(){
                         iViz.submitForm(true);
                     });
+                } else {
+                    var study_name = "";
+                    var study_description = "";
+                    _.each(_cancerStudies, function (study) {
+                        study_name += study.name + "<br />";
+                        study_description += study.description + "<br />";
+                    });
+                    $("#show_study_details").css('display','block');
+                    if (study_name.length > 150){
+                       study_name = [study_name.slice(0 , 150), '<span class="truncated">', study_name.slice(150, study_name.length - 6), '</span>'].join('');
+                    }
+                    if (study_description.length > 250){
+                        study_description = [study_description.slice(0 , 250), '<span class="truncated">', study_description.slice(250, study_description.length - 6), '</span>'].join('');
+                    }
+                    $("#study_name").append(study_name);
+                    $("#study_desc ").append(study_description);
+
+                    $('.truncated').hide()                       // Hide the text initially
+                        .after('<i class="fa fa-plus-circle" aria-hidden="true" style="padding-left: 5px;"></i>') // Create toggle button
+                        .next().on('click', function(){          // Attach behavior
+                        $(this).toggleClass("fa-minus-circle")   // Swap the icon
+                            .prev().toggle();                    // Hide/show the text
+                    });
                 }
 
                 $("#study-tabs").tabs({disabled: true});

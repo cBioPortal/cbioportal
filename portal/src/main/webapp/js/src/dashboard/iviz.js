@@ -8224,26 +8224,33 @@ window.LogRankTest = (function(jStat) {
                     events: {
                         render: function(event, api) {
                             var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
-                            tooltip.find('.share-cohort').click(function() {
-                                tooltip.find('.shared').css('display', 'none');
-                                tooltip.find('.dialog').css('display', 'none');
-                                api.reposition();
-
-                                // Copy virtual study link to clipboard
-                                var $temp = $("<input>");
-                                $("body").append($temp);
-                                $temp.val(tooltip.find('.cohort-link').val()).select();
-                                document.execCommand("copy");
-                                if ($temp.val() === window.location.href || 
-                                    $temp.val() === window.location.href.replace('#summary', '')) {
-                                    tooltip.find('.shared').css('display', 'block');
+                            if (window.location.href.includes("id=")) {
+                                tooltip.find('.share-cohort').click(function() {
+                                    tooltip.find('.shared').css('display', 'none');
                                     tooltip.find('.dialog').css('display', 'none');
-                                    tooltip.find('.cohort-link').val('');
-                                    $temp.remove();
                                     api.reposition();
-                                }
-                            });
-                            
+                                    // Copy virtual study link to clipboard
+                                    var $temp = $("<input>");
+                                    $("body").append($temp);
+                                    $temp.val(tooltip.find('.cohort-link').val()).select();
+                                    document.execCommand("copy");
+                                    // Check if users copy url successfully
+                                    if ($temp.val() === window.location.href ||
+                                        $temp.val() === window.location.href.replace('#summary', '')) {
+                                        tooltip.find('.shared').css('display', 'block');
+                                        tooltip.find('.dialog').css('display', 'none');
+                                        tooltip.find('.cohort-link').val('');
+                                        $temp.remove();
+                                        api.reposition();
+                                    }
+                                });
+                            } else {
+                                tooltip.find('.failed').css('display', 'block');
+                                tooltip.find('.dialog').css('display', 'none');
+                                tooltip.find('.shared').css('display', 'none');
+                                tooltip.find('.cohort-link').val('');
+                                api.reposition();
+                            }
                         },
                         show: function() {
                             var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
@@ -8261,10 +8268,12 @@ window.LogRankTest = (function(jStat) {
                     },
                     content: '<div><div class="dialog"><div class="input-group">' +
                     '<input type="text" class="form-control cohort-link"' +
-                    'value="' + window.getStudySummaryUrl + '"> <span class="input-group-btn">' +
+                    'value="' + window.location.href + '"> <span class="input-group-btn">' +
                     '<button class="btn btn-default share-cohort" ' +
                     'type="button">Copy</button></span>' +
                     '</div></div>' +
+                    '<div class="failed" style="display: none;">' +
+                    '<span class="failedMessage">There are too many studies to be bookmarked.</span></div>' +
                     '<div class="shared" style="display: none;">' +
                     '<span class="sharedMessage">The URL has been copied to clipboard.</span>' +
                     '</div></div>'

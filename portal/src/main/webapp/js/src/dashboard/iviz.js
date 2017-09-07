@@ -8239,7 +8239,6 @@ window.LogRankTest = (function(jStat) {
                                         $temp.val() === window.location.href.replace('#summary', '')) {
                                         tooltip.find('.shared').css('display', 'block');
                                         tooltip.find('.dialog').css('display', 'none');
-                                        tooltip.find('.cohort-link').val('');
                                         $temp.remove();
                                         api.reposition();
                                     }
@@ -8248,14 +8247,17 @@ window.LogRankTest = (function(jStat) {
                                 tooltip.find('.failed').css('display', 'block');
                                 tooltip.find('.dialog').css('display', 'none');
                                 tooltip.find('.shared').css('display', 'none');
-                                tooltip.find('.cohort-link').val('');
                                 api.reposition();
                             }
                         },
                         show: function() {
                             var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
-                          
-                            tooltip.find('.dialog').css('display', 'block');
+                            
+                            if (window.location.href.includes("id=")) {
+                                tooltip.find('.dialog').css('display', 'block');
+                            } else {
+                                tooltip.find('.dialog').css('display', 'none');
+                            }
                             tooltip.find('.shared').css('display', 'none');
 
                             // Tell the tip itself to not bubble up clicks on it

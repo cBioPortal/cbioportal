@@ -8186,30 +8186,15 @@ window.LogRankTest = (function(jStat) {
  */
 
 'use strict';
-(function(Vue, $, vcSession) {
+(function(Vue, $) {
     Vue.component('shareVirtualStudy', {
         template:
         '<div v-if="showShareButton" class="share-virtual-study">' +
         '<div class="share-cohort-btn">' +
         '<i class="fa fa-share-alt" alt="Share Virtual Study"></i></div></div>',
         props: [
-            'selectedPatientsNum', 'selectedSamplesNum',
-            'stats', 'updateStats', 'showShareButton'
-        ],
-        data: function() {
-            return {
-                savedVC: null
-            };
-        }, methods: {
-            saveCohort: function() {
-                var _self = this;
-                _self.updateStats = true;
-                _self.$nextTick(function() {
-                    _self.addNewVC = true;
-                });
-            }
-        }, ready: function() {
-            var self_ = this;
+            'showShareButton'
+        ], ready: function() {
             if (this.showShareButton) {
                 $('.share-virtual-study').qtip({
                     style: {
@@ -8244,80 +8229,25 @@ window.LogRankTest = (function(jStat) {
                                 tooltip.find('.dialog').css('display', 'none');
                                 api.reposition();
 
-                                // var cohortName = tooltip.find('.cohort-name').val();
-                                // var cohortDescription =
-                                //     tooltip.find('.cohort-description').val();
-                                // if (_.isObject(vcSession)) {
-                                //     self_.updateStats = true;
-                                //     self_.$nextTick(function() {
-                                //         var _selectedSamplesNum = 0;
-                                //         var _selectedPatientsNum = 0;
-                                //         if (_.isObject(self_.stats.selectedCases)) {
-                                //             _.each(self_.stats.selectedCases, function(studyCasesMap) {
-                                //                 _selectedSamplesNum += studyCasesMap.samples.length;
-                                //                 _selectedPatientsNum += studyCasesMap.patients.length;
-                                //             });
-                                //             self_.selectedSamplesNum = _selectedSamplesNum;
-                                //             self_.selectedPatientsNum = _selectedPatientsNum;
-                                //         }
-                                //
-                                //         vcSession.events.saveCohort(self_.stats,
-                                //             cohortName, cohortDescription || '')
-                                //             .done(function(response) {
-                                //                 self_.savedVC = response;
-                                //                 tooltip.find('.savedMessage').html(
-                                //                     '<span>Virtual study <i>' + cohortName +
-                                //                     '</i> is saved.</span>' +
-                                //                     '<a class="left-space" href="' +
-                                //                     window.cbioURL + 'study?id=' +
-                                //                     self_.savedVC.id + '">view</a>');
-                                //             })
-                                //             .fail(function() {
-                                //                 tooltip.find('.savedMessage').html(
-                                //                     '<i class="fa fa-exclamation-triangle"></i>' +
-                                //                     '<span class="left-space">' +
-                                //                     'Failed to save virtual study, ' +
-                                //                     'please try again later.</span>');
-                                //             })
-                                //             .always(function() {
-                                //                 tooltip.find('.saved').css('display', 'block');
-                                //                 tooltip.find('.saving').css('display', 'none');
-                                //                 tooltip.find('.dialog').css('display', 'none');
-                                //                 tooltip.find('.cohort-name').val('');
-                                //                 tooltip.find('.cohort-description').val('');
-                                //                 tooltip.find('.save-cohort')
-                                //                     .attr('disabled', true);
-                                //                 api.reposition();
-                                //             });
-                                //     });
-                                // }
+                                // Copy virtual study link to clipboard
+                                var $temp = $("<input>");
+                                $("body").append($temp);
+                                $temp.val(tooltip.find('.cohort-link').val()).select();
+                                document.execCommand("copy");
+                                if ($temp.val() === window.location.href || 
+                                    $temp.val() === window.location.href.replace('#summary', '')) {
+                                    tooltip.find('.shared').css('display', 'block');
+                                    tooltip.find('.dialog').css('display', 'none');
+                                    tooltip.find('.cohort-link').val('');
+                                    $temp.remove();
+                                    api.reposition();
+                                }
                             });
-                            tooltip.find('.cohort-name')
-                                .keyup(function() {
-                                    if (tooltip.find('.cohort-name').val() === '') {
-                                        tooltip.find('.save-cohort')
-                                            .attr('disabled', true);
-                                    } else {
-                                        tooltip.find('.save-cohort')
-                                            .attr('disabled', false);
-                                    }
-                                });
+                            
                         },
                         show: function() {
                             var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
-                            self_.updateStats = true;
-                            self_.$nextTick(function() {
-                                // If user hasn't specific description only.
-                                if (!tooltip.find('.cohort-description').val()) {
-                                    $.when(vcSession.utils.generateCohortDescription(self_.stats.selectedCases))
-                                        .then(function(_desp) {
-                                            // If user hasn't specific description only.
-                                            if (!tooltip.find('.cohort-description').val()) {
-                                                tooltip.find('.cohort-description').val(_desp);
-                                            }
-                                        });
-                                }
-                            });
+                          
                             tooltip.find('.dialog').css('display', 'block');
                             tooltip.find('.shared').css('display', 'none');
 
@@ -8330,13 +8260,13 @@ window.LogRankTest = (function(jStat) {
                         }
                     },
                     content: '<div><div class="dialog"><div class="input-group">' +
-                    '<input type="text" class="form-control cohort-name" ' +
-                    'placeholder="Virtual study Name"> <span class="input-group-btn">' +
-                    '<button class="btn btn-default save-cohort" ' +
-                    'type="button" disabled>Share</button></span>' +
+                    '<input type="text" class="form-control cohort-link"' +
+                    'value="' + window.location.href + '"> <span class="input-group-btn">' +
+                    '<button class="btn btn-default share-cohort" ' +
+                    'type="button">Copy</button></span>' +
                     '</div></div>' +
                     '<div class="shared" style="display: none;">' +
-                    '<span class="sharedMessage"></span>' +
+                    '<span class="sharedMessage">The URL has been copied to clipboard.</span>' +
                     '</div></div>'
                 });
             }

@@ -75,8 +75,7 @@
             </div>
             <save-virtual-study :show-save-button="showSaveButton" :stats="stats"
                                 :update-stats.sync="updateStats"></save-virtual-study>
-            <share-virtual-study :show-share-button="showShareButton" :stats="stats"
-                                :update-stats.sync="updateStats"></share-virtual-study>
+            <share-virtual-study :show-share-button="showShareButton"></share-virtual-study>
             <span id="iviz-header-left-patient-select" class="iviz-header-button"
                   @click="openCases" class="number"
                   role="button" tabindex="0" style="display: block;"><i class="fa fa-user-circle-o"

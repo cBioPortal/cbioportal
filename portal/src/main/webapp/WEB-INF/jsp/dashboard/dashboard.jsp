@@ -408,7 +408,7 @@
 
                 // This is used to indicate how to disable two buttons. By default, they are set to true.
                 if(vcSession.URL !== undefined) {
-                    iViz.vue.manage.getInstance().showSaveButton=true;
+                    iViz.vue.manage.getInstance().showSaveButton=false;
                     iViz.vue.manage.getInstance().showShareButton=true;
                     iViz.vue.manage.getInstance().showManageButton=true;
                     if(username !== '') {

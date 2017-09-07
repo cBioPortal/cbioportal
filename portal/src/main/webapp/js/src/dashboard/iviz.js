@@ -8261,7 +8261,7 @@ window.LogRankTest = (function(jStat) {
                     },
                     content: '<div><div class="dialog"><div class="input-group">' +
                     '<input type="text" class="form-control cohort-link"' +
-                    'value="' + window.location.href + '"> <span class="input-group-btn">' +
+                    'value="' + window.getStudySummaryUrl + '"> <span class="input-group-btn">' +
                     '<button class="btn btn-default share-cohort" ' +
                     'type="button">Copy</button></span>' +
                     '</div></div>' +

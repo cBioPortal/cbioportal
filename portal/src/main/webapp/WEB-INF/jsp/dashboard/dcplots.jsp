@@ -70,8 +70,8 @@
             <div class="iviz-header-left-case">
                 <span class="name" style="display: block;">Selected:</span>
                 <span class="content">
-            <span>{{ selectedSamplesNum }} samples / {{ selectedPatientsNum }} patients</span>
-          </span>
+                    <span>{{ selectedSamplesNum }} samples / {{ selectedPatientsNum }} patients</span>
+                </span>
             </div>
             <save-virtual-study :show-save-button="showSaveButton" :stats="stats"
                                 :update-stats.sync="updateStats"></save-virtual-study>

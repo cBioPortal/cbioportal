@@ -8186,105 +8186,149 @@ window.LogRankTest = (function(jStat) {
  */
 
 'use strict';
-(function(Vue, $) {
+(function(Vue, $, vcSession) {
     Vue.component('shareVirtualStudy', {
         template:
         '<div v-if="showShareButton" class="share-virtual-study">' +
         '<div class="share-cohort-btn">' +
         '<i class="fa fa-share-alt" alt="Share Virtual Study"></i></div></div>',
         props: [
-            'showShareButton'
-        ], ready: function() {
+            'selectedPatientsNum', 'selectedSamplesNum',
+            'stats', 'updateStats', 'showShareButton'
+        ],
+        data: function() {
+            return {
+                savedVC: null
+            };
+        }, methods: {
+            saveCohort: function() {
+                var _self = this;
+                _self.updateStats = true;
+                _self.$nextTick(function() {
+                    _self.addNewVC = true;
+                });
+            }
+        },
+        ready: function() {
+            var self_ = this;
             if (this.showShareButton) {
-                if (window.location.href.length > 0) {
-                    $('.share-virtual-study').qtip({
-                        style: {
-                            classes: 'qtip-light qtip-rounded qtip-shadow'
-                        },
-                        show: {event: 'mouseover', ready: false},
-                        hide: {fixed: true, delay: 200, event: 'mouseleave'},
-                        position: {
-                            my: 'bottom center',
-                            at: 'top center',
-                            viewport: $(window)
-                        },
-                        content: 'Share Virtual Study'
-                    });
-                    $('.share-cohort-btn').qtip({
-                        style: {
-                            classes: 'qtip-light qtip-rounded qtip-shadow ' +
-                            'iviz-share-cohort-btn-qtip'
-                        },
-                        show: {event: 'click', ready: false},
-                        hide: false,
-                        position: {
-                            my: 'top center',
-                            at: 'bottom center',
-                            viewport: $(window)
-                        },
-                        events: {
-                            render: function(event, api) {
-                                var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
-                                if (window.location.href.includes("id=")) {
-                                    tooltip.find('.share-cohort').click(function() {
-                                        tooltip.find('.shared').css('display', 'none');
-                                        tooltip.find('.dialog').css('display', 'none');
-                                        api.reposition();
-                                        // Copy virtual study link to clipboard
-                                        var $temp = $("<input>");
-                                        $("body").append($temp);
-                                        $temp.val(tooltip.find('.cohort-link').val()).select();
-                                        document.execCommand("copy");
-                                        // Check if users copy url successfully
-                                        if ($temp.val() === window.location.href ||
-                                            $temp.val() === window.location.href.replace('#summary', '')) {
-                                            tooltip.find('.shared').css('display', 'block');
-                                            tooltip.find('.dialog').css('display', 'none');
-                                            $temp.remove();
-                                            api.reposition();
+                $('.share-virtual-study').qtip({
+                    style: {
+                        classes: 'qtip-light qtip-rounded qtip-shadow'
+                    },
+                    show: {event: 'mouseover', ready: false},
+                    hide: {fixed: true, delay: 200, event: 'mouseleave'},
+                    position: {
+                        my: 'bottom center',
+                        at: 'top center',
+                        viewport: $(window)
+                    },
+                    content: 'Share Virtual Study'
+                });
+                $('.share-cohort-btn').qtip({
+                    style: {
+                        classes: 'qtip-light qtip-rounded qtip-shadow ' +
+                        'iviz-share-cohort-btn-qtip'
+                    },
+                    show: {event: 'click', ready: false},
+                    hide: false,
+                    position: {
+                        my: 'top center',
+                        at: 'bottom center',
+                        viewport: $(window)
+                    },
+                    events: {
+                        render: function(event, api) {
+                            var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
+                            
+                            tooltip.find('.share-cohort').click(function() {
+                                tooltip.find('.shared').css('display', 'none');
+                                tooltip.find('.dialog').css('display', 'none');
+                                api.reposition();
+
+                                var cohortName = tooltip.find('.study-name').val();
+                                var cohortDescription =
+                                    tooltip.find('.study-description').val();
+                                if (_.isObject(vcSession)) {
+                                    self_.updateStats = true;
+                                    self_.$nextTick(function() {
+                                        var _selectedSamplesNum = 0;
+                                        var _selectedPatientsNum = 0;
+                                        if (_.isObject(self_.stats.selectedCases)) {
+                                            _.each(self_.stats.selectedCases, function(studyCasesMap) {
+                                                _selectedSamplesNum += studyCasesMap.samples.length;
+                                                _selectedPatientsNum += studyCasesMap.patients.length;
+                                            });
+                                            self_.selectedSamplesNum = _selectedSamplesNum;
+                                            self_.selectedPatientsNum = _selectedPatientsNum;
                                         }
+
+                                        vcSession.events.saveCohort(self_.stats,
+                                            cohortName, cohortDescription || '')
+                                            .done(function(response) {
+                                                self_.savedVC = response;
+                                                tooltip.find('.savedMessage').html(
+                                                    '<a class="left-space" id="virtual-study-link" href="' +
+                                                    window.cbioURL + 'study?id=' +
+                                                    self_.savedVC.id + '">View</a>');
+                                            })
+                                            .fail(function() {
+                                                tooltip.find('.savedMessage').html(
+                                                    '<i class="fa fa-exclamation-triangle"></i>' +
+                                                    '<span class="left-space">' +
+                                                    'Failed to save virtual study, ' +
+                                                    'please try again later.</span>');
+                                            })
+                                            .always(function() {
+                                                tooltip.find('.saved').css('display', 'block');
+                                                tooltip.find('.dialog').css('display', 'none');
+                                                tooltip.find('.save-cohort')
+                                                    .attr('disabled', true);
+                                                api.reposition();
+                                            });
                                     });
-                                } else {
-                                    tooltip.find('.failed').css('display', 'block');
+                                }
+                                
+                                
+                                // Copy virtual study link to clipboard
+                                var $temp = $("<input>");
+                                $("body").append($temp);
+                                $temp.val(tooltip.find('.virtual-study-link').attr('href')).select();
+                                document.execCommand("copy");
+                                // Check if users copy url successfully
+                                if ($temp.val() === window.location.href ||
+                                    $temp.val() === window.location.href.replace('#summary', '')) {
+                                    tooltip.find('.shared').css('display', 'block');
                                     tooltip.find('.dialog').css('display', 'none');
-                                    tooltip.find('.shared').css('display', 'none');
+                                    $temp.remove();
                                     api.reposition();
                                 }
-                            },
-                            show: function() {
-                                var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
-                                if (window.location.href.includes("id=")) {
-                                    tooltip.find('.dialog').css('display', 'block');
-                                } else {
-                                    tooltip.find('.dialog').css('display', 'none');
-                                }
-                                tooltip.find('.shared').css('display', 'none');
-
-                                // Tell the tip itself to not bubble up clicks on it
-                                $($(this).qtip('api').elements.tooltip).click(function() { return false; });
-
-                                // Tell the document itself when clicked to hide the tip and then unbind
-                                // the click event (the .one() method does the auto-unbinding after one time)
-                                $(document).one("click", function() { $(".share-cohort-btn").qtip('hide'); });
-                            }
+                            });
+                            
                         },
-                        content: '<div><div class="dialog"><div class="input-group">' +
-                        '<input type="text" class="form-control cohort-link"' +
-                        'value="' + window.location.href + '"> <span class="input-group-btn">' +
-                        '<button class="btn btn-default share-cohort" ' +
-                        'type="button">Copy</button></span>' +
-                        '</div></div>' +
-                        '<div class="failed" style="display: none;">' +
-                        '<span class="failedMessage">There are too many studies to be bookmarked.</span></div>' +
-                        '<div class="shared" style="display: none;">' +
-                        '<span class="sharedMessage">The URL has been copied to clipboard.</span>' +
-                        '</div></div>'
-                    });
-                } else {
-                    // Set "Share" button not clickable if window.location.href is invalid.
-                    $('.share-virtual-study').css('cursor', 'not-allowed');
-                }
-                
+                        show: function() {
+                            var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
+                            tooltip.find('.dialog').css('display', 'block');
+                            tooltip.find('.shared').css('display', 'none');
+
+                            // Tell the tip itself to not bubble up clicks on it
+                            $($(this).qtip('api').elements.tooltip).click(function() { return false; });
+
+                            // Tell the document itself when clicked to hide the tip and then unbind
+                            // the click event (the .one() method does the auto-unbinding after one time)
+                            $(document).one("click", function() { $(".share-cohort-btn").qtip('hide'); });
+                        }
+                    },
+                    content: '<div><div class="dialog"><div class="input-group">' +
+                    '<div class="saved"></div>' +
+                    '<span class="input-group-btn">' +
+                    '<button class="btn btn-default share-cohort" ' +
+                    'type="button">Copy</button></span>' +
+                    '</div></div>' +
+                    '<div class="shared" style="display: none;">' +
+                    '<span class="sharedMessage">The URL has been copied to clipboard.</span>' +
+                    '</div></div>'
+                });
             }
         }
     });

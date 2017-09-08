@@ -389,6 +389,11 @@ public class ImportExtendedMutationData{
                     mutation.setOncotatorUniprotAccession(uniprotAccession);
                     mutation.setOncotatorProteinPosStart(proteinPosStart);
                     mutation.setOncotatorProteinPosEnd(proteinPosEnd);
+                                        
+                    mutation.setDriverFilter(record.getDriverFilter());
+                    mutation.setDriverFilterAnn(record.getDriverFilterAnn());
+                    mutation.setDriverTiersFilter(record.getDriverTiersFilter());
+                    mutation.setDriverTiersFilterAnn(record.getDriverTiersFilterAnn());
 
                     // TODO we don't use this info right now...
                     mutation.setCanonicalTranscript(true);

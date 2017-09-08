@@ -83,7 +83,13 @@ public final class DaoMutation {
                     Integer.toString(mutation.getTumorAltCount()),
                     Integer.toString(mutation.getTumorRefCount()),
                     Integer.toString(mutation.getNormalAltCount()),
-                    Integer.toString(mutation.getNormalRefCount()));
+                    Integer.toString(mutation.getNormalRefCount()),
+                    //AminoAcidChange column is not used
+                    null,
+                    mutation.getDriverFilter(),
+                    mutation.getDriverFilterAnn(),
+                    mutation.getDriverTiersFilter(),
+                    mutation.getDriverTiersFilterAnn());
             return result;
         }
     }
@@ -1464,5 +1470,93 @@ public final class DaoMutation {
         } finally {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
+    }
+    
+    /**
+     * Gets all tiers in alphabetical order.
+     *
+     * @param
+     * @return Ordered list of tiers.
+     * @throws DaoException Database Error.
+     */
+    public static List<String> getTiers(String cancerStudyStableId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<String> tiers = new ArrayList<String>();
+        ArrayList<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId());
+        for (GeneticProfile geneticProfile : geneticProfiles) {
+            if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+                try {
+                    con = JdbcUtil.getDbConnection(DaoMutation.class);
+                    pstmt = con.prepareStatement(
+                            "SELECT DISTINCT DRIVER_TIERS_FILTER FROM mutation "
+                            + "WHERE DRIVER_TIERS_FILTER is not NULL AND DRIVER_TIERS_FILTER <> '' AND GENETIC_PROFILE_ID=? "
+                            + "ORDER BY DRIVER_TIERS_FILTER");
+                    pstmt.setLong(1, geneticProfile.getGeneticProfileId());
+                    rs = pstmt.executeQuery();
+                    while (rs.next()) {
+                        tiers.add(rs.getString("DRIVER_TIERS_FILTER"));
+                    }
+                } catch (SQLException e) {
+                    throw new DaoException(e);
+                } finally {
+                    JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+                }
+            }
+        }
+        
+        return tiers;
+    }
+    
+    /**
+     * Returns the number of tiers in the cancer study..
+     *
+     * @param
+     * @return Ordered list of tiers.
+     * @throws DaoException Database Error.
+     */
+    public static int numTiers(String cancerStudyStableId) throws DaoException {
+        List<String> tiers = getTiers(cancerStudyStableId);
+        return tiers.size();
+    }
+    
+    /**
+     * Returns true if there are "Putative_Driver" or "Putative_Passenger" values in the
+     * binary annotation column. Otherwise, it returns false.
+     *
+     * @param
+     * @return Ordered list of tiers.
+     * @throws DaoException Database Error.
+     */
+    public static boolean hasDriverAnnotations(String cancerStudyStableId) throws DaoException {
+	Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<String> driverValues = new ArrayList<String>();
+        ArrayList<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId());
+        for (GeneticProfile geneticProfile : geneticProfiles) {
+            if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+                try {
+                    con = JdbcUtil.getDbConnection(DaoMutation.class);
+                    pstmt = con.prepareStatement(
+                            "SELECT DISTINCT DRIVER_FILTER FROM mutation "
+                            + "WHERE DRIVER_FILTER is not NULL AND DRIVER_FILTER <> '' AND GENETIC_PROFILE_ID=? ");
+                    pstmt.setLong(1, geneticProfile.getGeneticProfileId());
+                    rs = pstmt.executeQuery();
+                    while (rs.next()) {
+                        driverValues.add(rs.getString("DRIVER_FILTER"));
+                    }
+                } catch (SQLException e) {
+                    throw new DaoException(e);
+                } finally {
+                    JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+                }
+            }
+        }
+        if (driverValues.size() > 0) {
+            return true;
+        }
+        return false;
     }
 }

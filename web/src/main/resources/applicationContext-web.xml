@@ -16,6 +16,8 @@
         <property name="ignoreUnresolvablePlaceholders" value="true" />
         <property name="locations">
             <list>
+                <value>file:///${PORTAL_HOME}/portal.properties</value>
+                <value>classpath:portal.properties</value>
                 <value>classpath:springfox.properties</value>
             </list>
         </property>

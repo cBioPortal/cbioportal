@@ -1,6 +1,7 @@
 # app name
 app.name=cbioportal
 app.version=${timestamp}
+portal.version=${project.version}
 
 # database
 db.user=cbio_user

@@ -192,7 +192,7 @@ function GeneValidator(geneAreaId, geneModel){
         $("#"+gene).change(function() {
             nrOfNotifications--;
             // replace the value in the text area
-            self.replaceAreaValue($(this).attr("name"), $(this).attr("value"));
+            self.replaceAreaValue($(this).attr("name"), $(this).val());
 
             // destroy the qtip if it's still there
             $(this).qtip("destroy");

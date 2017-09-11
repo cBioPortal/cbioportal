@@ -6,7 +6,7 @@ function clearDevState(e){
 }
 
 window.loadReactApp = function(config) {
-
+    
     // Set frontend route to /patient
     window.defaultRoute = '/' + config.defaultRoute;
     

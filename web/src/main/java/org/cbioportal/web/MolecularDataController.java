@@ -64,7 +64,7 @@ public class MolecularDataController {
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/molecular-data/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch molecular data in a molecular profile")
+    @ApiOperation("Fetch molecular data by sample ID(s)")
     public ResponseEntity<List<GeneMolecularData>> fetchAllMolecularDataInMolecularProfile(
         @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
         @PathVariable String molecularProfileId,

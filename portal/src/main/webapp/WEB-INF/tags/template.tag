@@ -24,7 +24,7 @@
 <jsp:include page="/WEB-INF/jsp/global/frontend_config.jsp" />
 <link rel="stylesheet" href="css/header.css?<%=GlobalProperties.getAppVersion()%>" />
 <script src="js/src/load-frontend.js?<%=GlobalProperties.getAppVersion()%>"></script>
-    
+
 <jsp:invoke fragment="head_area"/>
 
 <%
@@ -95,6 +95,8 @@ if (cssClass != null) {
         });
     });
     </script>
+
+    <jsp:include page="/WEB-INF/jsp/global/js_include_analytics_and_email.jsp" />
     
     </body>
 </html>

@@ -43,12 +43,9 @@
     else if (authenticationMethod.equals("googleplus") || authenticationMethod.equals("saml") || authenticationMethod.equals("ad")) {
         principal = "principal.username";
     }
-
-    // retrieve right-logo from global properties. Based on the tagLineImage code.
-    String rightLogo = (authenticationMethod.equals("saml")) ?
-            "/" + GlobalProperties.getRightLogo() : GlobalProperties.getRightLogo();
-    pageContext.setAttribute("rightLogo", rightLogo);
+    pageContext.setAttribute("principal", principal);
 %>
+<c:set var="rightLogo" value="${GlobalProperties.getRightLogo()}"/>
 
 <header>
         <div id="leftHeaderContent">
@@ -127,12 +124,12 @@
         </div>
 
         <div id="rightHeaderContent">
-        <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
+        <%-- Display Sign Out Button for Real (Non-Anonymous) User --%>
         <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
             <div class="userControls">
             <span class="username"><i class="fa fa-cog" aria-hidden="true"></i></span>&nbsp;
                 
-                <div class="identity">Logged in as <sec:authentication property='<%=principal%>' />&nbsp;|&nbsp;
+                <div class="identity">Logged in as <sec:authentication property="${principal}" />&nbsp;|&nbsp;
                 <% if (authenticationMethod.equals("saml")) { %>
                     <a href="<c:url value="/saml/logout?local=true"/>">Sign out</a>
                 <%} else { %>
@@ -143,15 +140,10 @@
                 </div>
             </div>
         </sec:authorize>
-    
-    
-            <% if (rightLogo != "") { %>
-            <img id="institute-logo" src="<c:url value="${rightLogo}"/>" alt="Institute Logo" />
-            <% } %>
-    
-        </div>
-    
-    
 
+        <c:if test="${rightLogo != ''}">
+            <img id="institute-logo" src="<c:url value="${rightLogo}"/>" alt="Institute Logo" />
+        </c:if>
+        </div>
 
     </header>

@@ -269,7 +269,7 @@ window.DataManagerForIviz = (function($, _) {
               addAttr({
                 attr_id: 'sequenced',
                 display_name: 'With Mutation Data',
-                description: 'If the sample got sequenced'
+                description: 'If the sample has mutation data'
               }, 'sample');
 
               addAttr({

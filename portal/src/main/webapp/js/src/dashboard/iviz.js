@@ -8211,6 +8211,7 @@ window.LogRankTest = (function(jStat) {
         },
         ready: function() {
             var self_ = this;
+            var previous_selectedCases = {};
             if (this.showShareButton) {
                 $('.share-virtual-study').qtip({
                     style: {
@@ -8245,50 +8246,6 @@ window.LogRankTest = (function(jStat) {
                                 tooltip.find('.shared').css('display', 'none');
                                 tooltip.find('.dialog').css('display', 'none');
                                 api.reposition();
-
-                                var cohortName = tooltip.find('.study-name').val();
-                                var cohortDescription =
-                                    tooltip.find('.study-description').val();
-                                if (_.isObject(vcSession)) {
-                                    self_.updateStats = true;
-                                    self_.$nextTick(function() {
-                                        var _selectedSamplesNum = 0;
-                                        var _selectedPatientsNum = 0;
-                                        if (_.isObject(self_.stats.selectedCases)) {
-                                            _.each(self_.stats.selectedCases, function(studyCasesMap) {
-                                                _selectedSamplesNum += studyCasesMap.samples.length;
-                                                _selectedPatientsNum += studyCasesMap.patients.length;
-                                            });
-                                            self_.selectedSamplesNum = _selectedSamplesNum;
-                                            self_.selectedPatientsNum = _selectedPatientsNum;
-                                        }
-
-                                        vcSession.events.saveCohort(self_.stats,
-                                            cohortName, cohortDescription || '')
-                                            .done(function(response) {
-                                                self_.savedVC = response;
-                                                tooltip.find('.savedMessage').html(
-                                                    '<a class="left-space" id="virtual-study-link" href="' +
-                                                    window.cbioURL + 'study?id=' +
-                                                    self_.savedVC.id + '">View</a>');
-                                            })
-                                            .fail(function() {
-                                                tooltip.find('.savedMessage').html(
-                                                    '<i class="fa fa-exclamation-triangle"></i>' +
-                                                    '<span class="left-space">' +
-                                                    'Failed to save virtual study, ' +
-                                                    'please try again later.</span>');
-                                            })
-                                            .always(function() {
-                                                tooltip.find('.saved').css('display', 'block');
-                                                tooltip.find('.dialog').css('display', 'none');
-                                                tooltip.find('.save-cohort')
-                                                    .attr('disabled', true);
-                                                api.reposition();
-                                            });
-                                    });
-                                }
-                                
                                 
                                 // Copy virtual study link to clipboard
                                 var $temp = $("<input>");
@@ -8296,8 +8253,7 @@ window.LogRankTest = (function(jStat) {
                                 $temp.val(tooltip.find('.virtual-study-link').attr('href')).select();
                                 document.execCommand("copy");
                                 // Check if users copy url successfully
-                                if ($temp.val() === window.location.href ||
-                                    $temp.val() === window.location.href.replace('#summary', '')) {
+                                if ($temp.val() === tooltip.find('.virtual-study-link').attr('href')) {
                                     tooltip.find('.shared').css('display', 'block');
                                     tooltip.find('.dialog').css('display', 'none');
                                     $temp.remove();
@@ -8310,6 +8266,81 @@ window.LogRankTest = (function(jStat) {
                             var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
                             tooltip.find('.dialog').css('display', 'block');
                             tooltip.find('.shared').css('display', 'none');
+                            
+                            var cohortName = $('.study-name').val();
+                            var cohortDescription = $('.study-description').val();
+                            if (_.isObject(vcSession)) {
+                                self_.updateStats = true;
+                                
+                                self_.$nextTick(function() {
+                                    var _selectedSamplesNum = 0;
+                                    var _selectedPatientsNum = 0;
+                                    var saveCohort = false;
+                                    
+                                    if (_.isObject(self_.stats.selectedCases)) {
+                                        var different_patients = [];
+                                        var different_samples = [];
+                                        for (var i = 0; i < self_.stats.selectedCases.length; i++) {
+                                            // When users double click "Share" button, the virtual cohort will 
+                                            // be stored twice. Thus, we need to check if the current 
+                                            // virtual cohort is same as previous saved virtual cohort.
+                                            if (_.isEmpty(previous_selectedCases)||
+                                                previous_selectedCases[i].patients.length !==
+                                                self_.stats.selectedCases[i].patients.length ||
+                                                previous_selectedCases[i].samples.length !==
+                                                self_.stats.selectedCases[i].samples.length) {
+                                                saveCohort = true;
+                                                break;
+                                            } else if (previous_selectedCases[i].patients.length ===
+                                                self_.stats.selectedCases[i].patients.length) {
+                                                different_patients = _.difference(previous_selectedCases[i].patients,
+                                                    self_.stats.selectedCases[i].patients);
+                                                if (different_patients.length > 0) {
+                                                    saveCohort = true;
+                                                    break;
+                                                }
+                                            } else if (previous_selectedCases[i].samples.length ===
+                                                self_.stats.selectedCases[i].samples.length) {
+                                                different_samples = _.difference(previous_selectedCases[i].samples,
+                                                    self_.stats.selectedCases[i].samples);
+                                                if (different_samples.length > 0) {
+                                                    saveCohort = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        if (saveCohort) {
+                                            _.each(self_.stats.selectedCases, function (studyCasesMap) {
+                                                _selectedSamplesNum += studyCasesMap.samples.length;
+                                                _selectedPatientsNum += studyCasesMap.patients.length;
+                                            });
+                                            self_.selectedSamplesNum = _selectedSamplesNum;
+                                            self_.selectedPatientsNum = _selectedPatientsNum;
+
+                                            vcSession.events.saveCohort(self_.stats,
+                                                cohortName, cohortDescription || '')
+                                                .done(function (response) {
+                                                    self_.savedVC = response;
+                                                    tooltip.find('.savedMessage').html(
+                                                        '<span><a class="left-space virtual-study-link" href="' +
+                                                        window.cbioURL + 'study?id=' + self_.savedVC.id +
+                                                        '"  target="_blank" >View</a> the virtual cohort.</span>');
+                                                    previous_selectedCases = self_.stats.selectedCases;
+                                                })
+                                                .fail(function () {
+                                                    tooltip.find('.savedMessage').html(
+                                                        '<i class="fa fa-exclamation-triangle"></i>' +
+                                                        '<span class="left-space">' +
+                                                        'Failed to save virtual study, ' +
+                                                        'please try again later.</span>');
+                                                    tooltip.find('.share-cohort')
+                                                        .attr('disabled', true);
+                                                });
+                                        }
+                                    }
+                                });
+                            }
 
                             // Tell the tip itself to not bubble up clicks on it
                             $($(this).qtip('api').elements.tooltip).click(function() { return false; });
@@ -8319,11 +8350,10 @@ window.LogRankTest = (function(jStat) {
                             $(document).one("click", function() { $(".share-cohort-btn").qtip('hide'); });
                         }
                     },
-                    content: '<div><div class="dialog"><div class="input-group">' +
-                    '<div class="saved"></div>' +
-                    '<span class="input-group-btn">' +
+                    content: '<div><div class="dialog"><div class="copy-group">' +
+                    '<div class="savedMessage"></div>' +
                     '<button class="btn btn-default share-cohort" ' +
-                    'type="button">Copy</button></span>' +
+                    'type="button">Copy</button>' +
                     '</div></div>' +
                     '<div class="shared" style="display: none;">' +
                     '<span class="sharedMessage">The URL has been copied to clipboard.</span>' +

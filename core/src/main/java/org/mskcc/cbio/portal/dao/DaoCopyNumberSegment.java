@@ -206,7 +206,9 @@ public final class DaoCopyNumberSegment {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
-            pstmt = con.prepareStatement("SELECT EXISTS (SELECT 1 FROM `copy_number_seg` WHERE `CANCER_STUDY_ID`=?)");
+            pstmt = con.prepareStatement("SELECT EXISTS (SELECT 1 FROM `copy_number_seg`"
+                + " JOIN `genetic_profile` ON copy_number_seg.`GENETIC_PROFILE_ID`=genetic_profile.GENETIC_PROFILE_ID"
+                + " WHERE genetic_profile.`CANCER_STUDY_ID`=?)");
             pstmt.setInt(1, cancerStudyId);
             rs = pstmt.executeQuery();
             return rs.next() && rs.getInt(1)==1;
@@ -231,7 +233,8 @@ public final class DaoCopyNumberSegment {
         try {
             con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
             pstmt = con.prepareStatement("SELECT EXISTS(SELECT 1 FROM `copy_number_seg`"
-                + " WHERE `CANCER_STUDY_ID`=? AND `SAMPLE_ID`=?");
+                + " JOIN genetic_profile ON copy_number_seg.`GENETIC_PROFILE_ID`=genetic_profile.`GENETIC_PROFILE_ID`"
+                + " WHERE genetic_profile.`CANCER_STUDY_ID`=? AND `SAMPLE_ID`=?");
             pstmt.setInt(1, cancerStudyId);
             pstmt.setInt(2, sampleId);
             rs = pstmt.executeQuery();

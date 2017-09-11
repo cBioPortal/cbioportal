@@ -603,6 +603,10 @@ public final class ExtendedMutation
     public void setNcbiBuild(String ncbiBuild) {
         event.setNcbiBuild(ncbiBuild);
     }
+    
+    public void setReferenceGenomeId(int referenceGenomeId) { event.setReferenceGenomeId(referenceGenomeId); }
+    
+    public int getReferenceGenomeId() { return event.getReferenceGenomeId(); }
 
     public String getStrand() {
         return event.getStrand();

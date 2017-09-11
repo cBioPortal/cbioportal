@@ -83,6 +83,7 @@ public class TestImportTabDelimData {
 		newGeneticProfile.setStableId("study_tcga_pub_test");
 		newGeneticProfile.setProfileName("Barry CNA Results");
 		newGeneticProfile.setDatatype("test");
+		newGeneticProfile.setReferenceGenomeId(1);
 		DaoGeneticProfile.addGeneticProfile(newGeneticProfile);
 		
 		geneticProfileId =  DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_test").getGeneticProfileId();
@@ -275,6 +276,7 @@ public class TestImportTabDelimData {
         geneticProfile.setDatatype("CONTINUOUS");
         geneticProfile.setProfileName("MRNA Data");
         geneticProfile.setProfileDescription("mRNA Data");
+        geneticProfile.setReferenceGenomeId(1);
         DaoGeneticProfile.addGeneticProfile(geneticProfile);
         
         int newGeneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("gbm_mrna").getGeneticProfileId();
@@ -328,6 +330,7 @@ public class TestImportTabDelimData {
         geneticProfile.setDatatype("CONTINUOUS");
         geneticProfile.setProfileName("MRNA Data");
         geneticProfile.setProfileDescription("mRNA Data");
+        geneticProfile.setReferenceGenomeId(1);
         DaoGeneticProfile.addGeneticProfile(geneticProfile);
         
         int newGeneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("gbm_mrna").getGeneticProfileId();
@@ -420,6 +423,7 @@ public class TestImportTabDelimData {
         geneticProfile.setDatatype("LOG2-VALUE");
         geneticProfile.setProfileName("RPPA Data");
         geneticProfile.setProfileDescription("RPPA Data");
+        geneticProfile.setReferenceGenomeId(1);
         DaoGeneticProfile.addGeneticProfile(geneticProfile);
         
         int newGeneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("gbm_rppa").getGeneticProfileId();

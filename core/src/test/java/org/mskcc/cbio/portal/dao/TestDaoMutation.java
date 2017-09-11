@@ -64,7 +64,7 @@ public class TestDaoMutation {
 		ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
 		geneticProfileId = list.get(4).getGeneticProfileId();
 		
-		sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SB-01").getInternalId();
+		sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SH-01").getInternalId();
 		
         gene = new CanonicalGene(672, "BRCA1");
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
@@ -89,7 +89,7 @@ public class TestDaoMutation {
 		mutation.setGene(gene);
 		mutation.setValidationStatus("validated");
 		mutation.setMutationStatus("somatic");
-		mutation.setMutationType("missense");
+		mutation.setMutationType("Nonsense_Mutation");
 		mutation.setChr("chr1");
 		mutation.setStartPosition(10000);
 		mutation.setEndPosition(20000);
@@ -159,10 +159,10 @@ public class TestDaoMutation {
 	private void validateMutation(ExtendedMutation mutation) {
 		assertEquals (geneticProfileId, mutation.getGeneticProfileId());
 		assertEquals (sampleId, mutation.getSampleId());
-		assertEquals (321, mutation.getEntrezGeneId());
+		assertEquals (672, mutation.getGene().getEntrezGeneId());
 		assertEquals ("validated", mutation.getValidationStatus());
 		assertEquals ("somatic", mutation.getMutationStatus());
-		assertEquals ("missense", mutation.getMutationType());
+		assertEquals ("Nonsense_Mutation", mutation.getMutationType());
 		assertEquals ("chr1", mutation.getChr());
 		assertEquals (10000, mutation.getStartPosition());
 		assertEquals (20000, mutation.getEndPosition());
@@ -174,7 +174,7 @@ public class TestDaoMutation {
 		assertEquals ("link1", mutation.getLinkXVar());
 		assertEquals ("link2", mutation.getLinkPdb());
 		assertEquals ("link3", mutation.getLinkMsa());
-		assertEquals ("37/hg19", mutation.getNcbiBuild());
+		assertEquals ("GRCh37", mutation.getNcbiBuild());
 		assertEquals ("+", mutation.getStrand());
 		assertEquals ("Consolidated", mutation.getVariantType());
 		assertEquals ("ATGC", mutation.getReferenceAllele());

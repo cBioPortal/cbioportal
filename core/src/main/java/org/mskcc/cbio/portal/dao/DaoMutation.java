@@ -101,6 +101,7 @@ public final class DaoMutation {
         MySQLbulkLoader.getMySQLbulkLoader("mutation_event").insertRecord(
                 Long.toString(event.getMutationEventId()),
                 Long.toString(event.getGene().getEntrezGeneId()),
+                Integer.toString(event.getReferenceGenomeId()),
                 event.getChr(),
                 Long.toString(event.getStartPosition()),
                 Long.toString(event.getEndPosition()),
@@ -113,7 +114,6 @@ public final class DaoMutation {
                 event.getLinkXVar(),
                 event.getLinkPdb(),
                 event.getLinkMsa(),
-                event.getNcbiBuild(),
                 event.getStrand(),
                 event.getVariantType(),
                 event.getDbSnpRs(),
@@ -260,8 +260,9 @@ public final class DaoMutation {
             pstmt = con.prepareStatement(
                     "SELECT *, reference_genome.`build_name` AS `NCBI_BUILD` FROM mutation " +
                     "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
-                    "INNER JOIN reference_genome ON reference_genome.reference_genome_id = mutation_event.REFERENCE_GENOME_ID " +
-                    "WHERE SAMPLE_ID = ? AND GENETIC_PROFILE_ID = ? AND mutation.ENTREZ_GENE_ID = ?");
+                    "INNER JOIN genetic_profile on genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID " +  
+                    "INNER JOIN reference_genome ON reference_genome.reference_genome_id = genetic_profile.REFERENCE_GENOME_ID " +
+                    "WHERE SAMPLE_ID = ? AND mutation.GENETIC_PROFILE_ID = ? AND mutation.ENTREZ_GENE_ID = ?");
             pstmt.setInt(1, sampleId);
             pstmt.setInt(2, geneticProfileId);
             pstmt.setLong(3, entrezGeneId);
@@ -389,9 +390,11 @@ public final class DaoMutation {
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement(
-                    "SELECT * FROM mutation " +
+                    "SELECT *, reference_genome.`build_name` AS `NCBI_BUILD` FROM mutation " +
                     "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
-                    "WHERE GENETIC_PROFILE_ID = ? AND SAMPLE_ID in ('"+ StringUtils.join(sampleIds, "','")+"')");
+                    "INNER JOIN genetic_profile on genetic_profile.`GENETIC_PROFILE_ID`=mutation.`GENETIC_PROFILE_ID` " +
+                    "INNER JOIN reference_genome on reference_genome.`reference_genome_id`=genetic_profile.`REFERENCE_GENOME_ID` " +    
+                    "WHERE mutation.`GENETIC_PROFILE_ID` = ? AND SAMPLE_ID in ('"+ StringUtils.join(sampleIds, "','")+"')");
             pstmt.setInt(1, geneticProfileId);
             rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -478,9 +481,11 @@ public final class DaoMutation {
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement(
-                    "SELECT * FROM mutation " +
+                    "SELECT *, reference_genome.`build_name` AS `NCBI_BUILD` FROM mutation " +
                     "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
-                    "WHERE GENETIC_PROFILE_ID = ? AND mutation.ENTREZ_GENE_ID = ?");
+                    "INNER JOIN genetic_profile on genetic_profile.`GENETIC_PROFILE_ID` = mutation.`GENETIC_PROFILE_ID` " + 
+                    "INNER JOIN reference_genome on reference_genome.`reference_genome_id` = genetic_profile.`REFERENCE_GENOME_ID` " +   
+                    "WHERE mutation.`GENETIC_PROFILE_ID` = ? AND mutation.`ENTREZ_GENE_ID` = ?");
             pstmt.setInt(1, geneticProfileId);
             pstmt.setLong(2, entrezGeneId);
             rs = pstmt.executeQuery();
@@ -504,8 +509,11 @@ public final class DaoMutation {
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement(
-                    "SELECT * FROM mutation " +
-                        "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID");
+                    "SELECT *, reference_genome.`build_name` AS `NCBI_BUILD` FROM mutation " +
+                        "INNER JOIN mutation_event ON mutation.`MUTATION_EVENT_ID`=mutation_event.`MUTATION_EVENT_ID` " +
+                        "INNER JOIN genetic_profile ON genetic_profile.`GENETIC_PROFILE_ID` = mutation.`GENETIC_PROFILE_ID` " +
+                        "INNER JOIN reference_genome on reference_genome.`reference_genome_id` = genetic_profile.`REFERENCE_GENOME_ID` "
+            );
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 ExtendedMutation mutation = extractMutation(rs);
@@ -536,8 +544,10 @@ public final class DaoMutation {
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement(
-                    "SELECT * FROM mutation " +
+                    "SELECT *, reference_genome.`build_name` AS `NCBI_BUILD` FROM mutation " +
                     "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
+                    "INNER JOIN genetic_profile ON genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID " +
+                    "INNER JOIN reference_genome ON reference_genome.reference_genome_id = genetic_profile.REFERENCE_GENOME_ID " +
                     "WHERE mutation.GENETIC_PROFILE_ID = ?");
             pstmt.setInt(1, geneticProfileId);
             rs = pstmt.executeQuery();
@@ -589,7 +599,10 @@ public final class DaoMutation {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
-            pstmt = con.prepareStatement("SELECT * from mutation_event WHERE" +
+            pstmt = con.prepareStatement("SELECT *, reference_genome.`build_name` AS `NCBI_BUILD` " +
+                            "FROM mutation_event " +
+                            "INNER JOIN reference_genome on reference_genome.`reference_genome_id` = mutation_event.`REFERENCE_GENOME_ID` " +
+                            "WHERE" +
                                          " `ENTREZ_GENE_ID`=?" +
                                          " AND `CHR`=?" +
                                          " AND `START_POSITION`=?" +

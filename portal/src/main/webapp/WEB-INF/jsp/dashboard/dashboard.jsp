@@ -326,20 +326,18 @@
                     $("#submit_button").click(function(){
                         iViz.submitForm(true);
                     });
-                } else {
-                    var study_name = "";
-                    var study_description = "";
-                    _.each(_cancerStudies, function (study) {
-                        study_name += study.name + "<br />";
-                        study_description += study.description + "<br />";
-                    });
+                } else if (cohortIdsList.length >= 2) {
+                    var study_name = 'Combined Studies';
+                    var study_description = 'Total ' + cohortIdsList.length + ' studies.';
+                    var collapse_study_name = _cancerStudies.map(function(study) { 
+                        // Remove html tags in study.description in case title of <a> not work 
+                        return '<a href="' + window.cbioURL + 'study?id=' + study.id + '" title="' + 
+                            study.description.replace(/(<([^>]+)>)/ig, '') + '" target="_blank">' + 
+                            study.name + '</a>'; }).join("<br />");
+                    
+                    study_description += '<span class="truncated"><br />' + collapse_study_name + '</span>';
+                    
                     $("#show_study_details").css('display','block');
-                    if (study_name.length > 150){
-                       study_name = [study_name.slice(0 , 150), '<span class="truncated">', study_name.slice(150, study_name.length - 6), '</span>'].join('');
-                    }
-                    if (study_description.length > 250){
-                        study_description = [study_description.slice(0 , 250), '<span class="truncated">', study_description.slice(250, study_description.length - 6), '</span>'].join('');
-                    }
                     $("#study_name").append(study_name);
                     $("#study_desc ").append(study_description);
 

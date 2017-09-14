@@ -8211,7 +8211,7 @@ window.LogRankTest = (function(jStat) {
         },
         ready: function() {
             var self_ = this;
-            var previous_selectedCases = {};
+            var previousSelectedCases = {};
             if (this.showShareButton) {
                 $('.share-virtual-study').qtip({
                     style: {
@@ -8256,9 +8256,9 @@ window.LogRankTest = (function(jStat) {
                                 if ($temp.val() === tooltip.find('.virtual-study-link').attr('href')) {
                                     tooltip.find('.shared').css('display', 'block');
                                     tooltip.find('.dialog').css('display', 'none');
-                                    $temp.remove();
                                     api.reposition();
                                 }
+                                $temp.remove();
                             });
                             
                         },
@@ -8273,44 +8273,50 @@ window.LogRankTest = (function(jStat) {
                                 self_.updateStats = true;
                                 
                                 self_.$nextTick(function() {
-                                    var _selectedSamplesNum = 0;
-                                    var _selectedPatientsNum = 0;
                                     var saveCohort = false;
                                     
                                     if (_.isObject(self_.stats.selectedCases)) {
-                                        var different_patients = [];
-                                        var different_samples = [];
-                                        for (var i = 0; i < self_.stats.selectedCases.length; i++) {
-                                            // When users double click "Share" button, the virtual cohort will 
-                                            // be stored twice. Thus, we need to check if the current 
-                                            // virtual cohort is same as previous saved virtual cohort.
-                                            if (_.isEmpty(previous_selectedCases)||
-                                                previous_selectedCases[i].patients.length !==
-                                                self_.stats.selectedCases[i].patients.length ||
-                                                previous_selectedCases[i].samples.length !==
-                                                self_.stats.selectedCases[i].samples.length) {
-                                                saveCohort = true;
-                                                break;
-                                            } else if (previous_selectedCases[i].patients.length ===
-                                                self_.stats.selectedCases[i].patients.length) {
-                                                different_patients = _.difference(previous_selectedCases[i].patients,
-                                                    self_.stats.selectedCases[i].patients);
-                                                if (different_patients.length > 0) {
-                                                    saveCohort = true;
-                                                    break;
+                                        var selectedCasesMap = {};
+                                        _.each(self_.stats.selectedCases, function(study){
+                                            selectedCasesMap[study.studyID] = study;
+                                        });
+                                        
+                                        // When users double click "Share" button, the virtual cohort will 
+                                        // be stored twice. Thus, we need to check if the current 
+                                        // virtual cohort is same as previous saved virtual cohort.
+                                        if (_.isEmpty(previousSelectedCases)) {
+                                            saveCohort = true;
+                                        } else {
+                                            _.every(selectedCasesMap, function(selectedCase){
+                                                if(previousSelectedCases[selectedCase.studyID]){
+                                                    var previousCase = previousSelectedCases[selectedCase.studyID];
+                                                    if (previousCase.patients.length !== selectedCase.patients.length ||
+                                                        previousCase.samples.length !== selectedCase.samples.length) {
+                                                        saveCohort = true;
+                                                    } else if (previousCase.patients.length === 
+                                                        selectedCase.patients.length) {
+                                                        var differentPatients = _.difference(previousCase.patients,
+                                                            selectedCase.patients);
+                                                        if (differentPatients.length > 0) {
+                                                            saveCohort = true;
+                                                        }
+                                                    } else if (previousCase.samples.length === 
+                                                        selectedCase.samples.length) {
+                                                        var differentSamples = _.difference(previousCase.samples,
+                                                            selectedCase.samples);
+                                                        if (differentSamples.length > 0) {
+                                                            saveCohort = true;
+                                                        }
+                                                    }
                                                 }
-                                            } else if (previous_selectedCases[i].samples.length ===
-                                                self_.stats.selectedCases[i].samples.length) {
-                                                different_samples = _.difference(previous_selectedCases[i].samples,
-                                                    self_.stats.selectedCases[i].samples);
-                                                if (different_samples.length > 0) {
-                                                    saveCohort = true;
-                                                    break;
-                                                }
-                                            }
+                                                return !saveCohort;
+                                            });
                                         }
+                                        
 
                                         if (saveCohort) {
+                                            var _selectedSamplesNum = 0;
+                                            var _selectedPatientsNum = 0;
                                             _.each(self_.stats.selectedCases, function (studyCasesMap) {
                                                 _selectedSamplesNum += studyCasesMap.samples.length;
                                                 _selectedPatientsNum += studyCasesMap.patients.length;
@@ -8327,7 +8333,9 @@ window.LogRankTest = (function(jStat) {
                                                         'study?id=' + self_.savedVC.id + '" onclick="window.open(\'' + 
                                                         window.cbioURL + 'study?id=' + self_.savedVC.id + '\')">' + 
                                                         window.cbioURL + 'study?id=' + self_.savedVC.id + '</a>');
-                                                    previous_selectedCases = self_.stats.selectedCases;
+                                                    _.each(self_.stats.selectedCases, function(study){
+                                                       previousSelectedCases[study.studyID] = study; 
+                                                    });
                                                 })
                                                 .fail(function () {
                                                     tooltip.find('.failedMessage').html(

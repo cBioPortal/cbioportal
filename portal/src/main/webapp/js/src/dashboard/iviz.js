@@ -8267,8 +8267,8 @@ window.LogRankTest = (function(jStat) {
                             tooltip.find('.dialog').css('display', 'block');
                             tooltip.find('.shared').css('display', 'none');
                             
-                            var cohortName = $('.study-name').val();
-                            var cohortDescription = $('.study-description').val();
+                            var cohortName = $('#study_name').val();
+                            var cohortDescription = $('#study_desc').val();
                             if (_.isObject(vcSession)) {
                                 self_.updateStats = true;
                                 
@@ -8322,20 +8322,21 @@ window.LogRankTest = (function(jStat) {
                                                 cohortName, cohortDescription || '')
                                                 .done(function (response) {
                                                     self_.savedVC = response;
-                                                    tooltip.find('.savedMessage').html(
-                                                        '<span><a class="left-space virtual-study-link" href="' +
-                                                        window.cbioURL + 'study?id=' + self_.savedVC.id +
-                                                        '"  target="_blank" >View</a> the virtual cohort.</span>');
+                                                    tooltip.find('.cohort-link').html(
+                                                    '<a class="virtual-study-link" href="' + window.cbioURL + 
+                                                        'study?id=' + self_.savedVC.id + '" onclick="window.open(\'' + 
+                                                        window.cbioURL + 'study?id=' + self_.savedVC.id + '\')">' + 
+                                                        window.cbioURL + 'study?id=' + self_.savedVC.id + '</a>');
                                                     previous_selectedCases = self_.stats.selectedCases;
                                                 })
                                                 .fail(function () {
-                                                    tooltip.find('.savedMessage').html(
+                                                    tooltip.find('.failedMessage').html(
                                                         '<i class="fa fa-exclamation-triangle"></i>' +
                                                         '<span class="left-space">' +
                                                         'Failed to save virtual study, ' +
                                                         'please try again later.</span>');
-                                                    tooltip.find('.share-cohort')
-                                                        .attr('disabled', true);
+                                                    tooltip.find('.failed').css('display', 'block');
+                                                    tooltip.find('.dialog').css('display', 'none');
                                                 });
                                         }
                                     }
@@ -8350,11 +8351,13 @@ window.LogRankTest = (function(jStat) {
                             $(document).one("click", function() { $(".share-cohort-btn").qtip('hide'); });
                         }
                     },
-                    content: '<div><div class="dialog"><div class="copy-group">' +
-                    '<div class="savedMessage"></div>' +
+                    content: '<div><div class="dialog"><div class="input-group">' +
+                    '<span class="cohort-link"></span> <span class="input-group-btn">' +
                     '<button class="btn btn-default share-cohort" ' +
-                    'type="button">Copy</button>' +
+                    'type="button">Copy</button></span>' +
                     '</div></div>' +
+                    '<div class="failed" style="display: none;">' +
+                    '<span class="failedMessage"></span></div>' +
                     '<div class="shared" style="display: none;">' +
                     '<span class="sharedMessage">The URL has been copied to clipboard.</span>' +
                     '</div></div>'

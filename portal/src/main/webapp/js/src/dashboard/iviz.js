@@ -8265,6 +8265,7 @@ window.LogRankTest = (function(jStat) {
                         show: function() {
                             var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
                             tooltip.find('.dialog').css('display', 'block');
+                            tooltip.find('.saving').css('display', 'block');
                             tooltip.find('.shared').css('display', 'none');
                             
                             var cohortName = $('#study_name').val();
@@ -8327,13 +8328,17 @@ window.LogRankTest = (function(jStat) {
                                             vcSession.events.saveCohort(self_.stats,
                                                 cohortName, cohortDescription || '')
                                                 .done(function (response) {
+                                                    var deepCopySelectedCases = JSON.parse(
+                                                        JSON.stringify(self_.stats.selectedCases));
                                                     self_.savedVC = response;
                                                     tooltip.find('.cohort-link').html(
                                                     '<a class="virtual-study-link" href="' + window.cbioURL + 
                                                         'study?id=' + self_.savedVC.id + '" onclick="window.open(\'' + 
                                                         window.cbioURL + 'study?id=' + self_.savedVC.id + '\')">' + 
                                                         window.cbioURL + 'study?id=' + self_.savedVC.id + '</a>');
-                                                    _.each(self_.stats.selectedCases, function(study){
+                                                    tooltip.find('.saving').css('display', 'none');
+                                                    tooltip.find('.cohort-link').css('display', 'block');
+                                                    _.each(deepCopySelectedCases, function(study){
                                                        previousSelectedCases[study.studyID] = study; 
                                                     });
                                                 })
@@ -8360,8 +8365,10 @@ window.LogRankTest = (function(jStat) {
                         }
                     },
                     content: '<div><div class="dialog"><div class="input-group">' +
-                    '<span class="cohort-link"></span> <span class="input-group-btn">' +
-                    '<button class="btn btn-default share-cohort" ' +
+                    '<span class="cohort-link" style="display: none;"></span>' + 
+                    '<div class="saving" style="display: none;">' +
+                    '<i class="fa fa-spinner fa-spin"></i> Saving virtual study</div>' +
+                    '<span class="input-group-btn"><button class="btn btn-default share-cohort" ' +
                     'type="button">Copy</button></span>' +
                     '</div></div>' +
                     '<div class="failed" style="display: none;">' +

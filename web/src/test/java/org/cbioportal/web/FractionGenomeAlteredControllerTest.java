@@ -77,24 +77,25 @@ public class FractionGenomeAlteredControllerTest {
         fractionGenomeAltered2.setValue(TEST_VALUE_2);
         fractionGenomeAlteredList.add(fractionGenomeAltered2);
         
-        Mockito.when(fractionGenomeAlteredService.fetchFractionGenomeAltered(PROFILE_ID,
-            Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2), CUTOFF)).thenReturn(fractionGenomeAlteredList);
+        Mockito.when(fractionGenomeAlteredService.fetchFractionGenomeAltered(Mockito.anyString(),
+            Mockito.anyList(), Mockito.anyDouble())).thenReturn(fractionGenomeAlteredList);
 
         FractionGenomeAlteredFilter fractionGenomeAlteredFilter = new FractionGenomeAlteredFilter();
         fractionGenomeAlteredFilter.setSampleIds(Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/studies/test_study_id/fraction-genome-altered/fetch")
+            "/genetic-profiles/test_profile_id/fraction-genome-altered/fetch")
+            .param("geneticProfileId", PROFILE_ID)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(fractionGenomeAlteredFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].profileId").value(PROFILE_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].profileId").value(PROFILE_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_VALUE_2));
     }

@@ -823,6 +823,7 @@ public class MutationControllerTest {
         mutation1.setOncotatorProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_1);
         mutation1.setOncotatorProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_1);
         mutation1.setKeyword(TEST_KEYWORD_1);
+        mutation1.setChr(TEST_CHROMOSOME_1);
         mutationList.add(mutation1);
         Mutation mutation2 = new Mutation();
         mutation2.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_2);
@@ -857,6 +858,7 @@ public class MutationControllerTest {
         mutation2.setOncotatorProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_2);
         mutation2.setOncotatorProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_2);
         mutation2.setKeyword(TEST_KEYWORD_2);
+        mutation2.setChr(TEST_CHROMOSOME_1);
         mutationList.add(mutation2);
         
         return mutationList;

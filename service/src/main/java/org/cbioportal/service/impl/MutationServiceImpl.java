@@ -21,6 +21,7 @@ public class MutationServiceImpl implements MutationService {
     private MutationRepository mutationRepository;
     @Autowired
     private GeneticProfileService geneticProfileService;
+    
     @Autowired
     private ChromosomeCalculator chromosomeCalculator;
 
@@ -38,7 +39,8 @@ public class MutationServiceImpl implements MutationService {
         List<Mutation> mutationList = mutationRepository.getMutationsInGeneticProfileBySampleListId(geneticProfileId,
             sampleListId, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction);
 
-        mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
+        mutationList.forEach(mutation -> chromosomeCalculator.renameChromosome(mutation));
+        
         return mutationList;
     }
 
@@ -64,7 +66,8 @@ public class MutationServiceImpl implements MutationService {
         List<Mutation> mutationList = mutationRepository.getMutationsInMultipleGeneticProfiles(geneticProfileIds, 
             sampleIds, entrezGeneIds, projection, pageSize, pageNumber, sortBy, direction);
 
-        mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
+        mutationList.forEach(mutation -> chromosomeCalculator.renameChromosome(mutation));
+
         return mutationList;
     }
 
@@ -89,7 +92,7 @@ public class MutationServiceImpl implements MutationService {
 
         List<Mutation> mutationList = mutationRepository.fetchMutationsInGeneticProfile(geneticProfileId, sampleIds, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction);
 
-        mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
+        mutationList.forEach(mutation -> chromosomeCalculator.renameChromosome(mutation));
         return mutationList;
     }
 

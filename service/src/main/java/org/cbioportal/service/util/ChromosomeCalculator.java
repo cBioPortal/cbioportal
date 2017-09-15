@@ -1,6 +1,7 @@
 package org.cbioportal.service.util;
 
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.Mutation;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;
@@ -37,4 +38,15 @@ public class ChromosomeCalculator {
             gene.setChromosome(getChromosome(gene.getCytoband()));
         }
     }
+    
+    public void renameChromosome(Mutation mutation) {
+        if (mutation != null) {
+            if (mutation.getChr().equals("23")) {
+                mutation.setChr("X");
+            } else if (mutation.getChr().equals("24")) {
+                mutation.setChr("Y");
+            }
+        }
+    }
+    
 }

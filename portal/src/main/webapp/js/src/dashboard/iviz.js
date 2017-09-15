@@ -8245,6 +8245,7 @@ window.LogRankTest = (function(jStat) {
                             tooltip.find('.share-cohort').click(function() {
                                 tooltip.find('.shared').css('display', 'none');
                                 tooltip.find('.dialog').css('display', 'none');
+                                tooltip.find('.saving').css('display', 'none');
                                 api.reposition();
                                 
                                 // Copy virtual study link to clipboard
@@ -8351,6 +8352,9 @@ window.LogRankTest = (function(jStat) {
                                                     tooltip.find('.failed').css('display', 'block');
                                                     tooltip.find('.dialog').css('display', 'none');
                                                 });
+                                        } else {
+                                            // Hide saving icon if current study is same as previous.
+                                            tooltip.find('.saving').css('display', 'none');
                                         }
                                     }
                                 });

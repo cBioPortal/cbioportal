@@ -42,7 +42,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
         Mutation mutation = new Mutation();
         Gene gene = new Gene();
         mutation.setGene(gene);
-        mutation.setChr(CHR_ID);
+        mutation.setChromosome(CHR_ID);
         expectedMutationList.add(mutation);
 
         Mockito.when(mutationRepository.getMutationsInGeneticProfileBySampleListId(GENETIC_PROFILE_ID, SAMPLE_LIST_ID,
@@ -54,7 +54,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
 
         Assert.assertEquals(expectedMutationList, result);
         //Assert.assertEquals("19", result.get(0).getGene().getChromosome());
-        Assert.assertEquals(CHR_ID,result.get(0).getChr());
+        Assert.assertEquals(CHR_ID,result.get(0).getChromosome());
     }
 
     @Test(expected = GeneticProfileNotFoundException.class)
@@ -98,7 +98,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
         Mutation mutation = new Mutation();
         Gene gene = new Gene();
         mutation.setGene(gene);
-        mutation.setChr(CHR_ID);
+        mutation.setChromosome(CHR_ID);
         expectedMutationList.add(mutation);
 
         Mockito.when(mutationRepository.getMutationsInMultipleGeneticProfiles(Arrays.asList(GENETIC_PROFILE_ID), 
@@ -110,7 +110,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
             DIRECTION);
 
         Assert.assertEquals(expectedMutationList, result);
-        Assert.assertEquals(CHR_ID, result.get(0).getChr());
+        Assert.assertEquals(CHR_ID, result.get(0).getChromosome());
     }
 
     @Test
@@ -136,7 +136,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
         Mutation mutation = new Mutation();
         Gene gene = new Gene();
         mutation.setGene(gene);
-        mutation.setChr(CHR_ID);
+        mutation.setChromosome(CHR_ID);
         expectedMutationList.add(mutation);
 
         Mockito.when(mutationRepository.fetchMutationsInGeneticProfile(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1),
@@ -148,7 +148,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
             DIRECTION);
 
         Assert.assertEquals(expectedMutationList, result);
-        Assert.assertEquals(CHR_ID, result.get(0).getChr());
+        Assert.assertEquals(CHR_ID, result.get(0).getChromosome());
     }
 
     @Test(expected = GeneticProfileNotFoundException.class)

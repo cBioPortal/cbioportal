@@ -41,10 +41,10 @@ public class ChromosomeCalculator {
     
     public void renameChromosome(Mutation mutation) {
         if (mutation != null) {
-            if (mutation.getChr().equals("23")) {
-                mutation.setChr("X");
-            } else if (mutation.getChr().equals("24")) {
-                mutation.setChr("Y");
+            if (mutation.getChromosome().equals("23")) {
+                mutation.setChromosome("X");
+            } else if (mutation.getChromosome().equals("24")) {
+                mutation.setChromosome("Y");
             }
         }
     }

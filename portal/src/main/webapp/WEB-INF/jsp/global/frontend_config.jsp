@@ -26,6 +26,8 @@ window.skinRightNavShowDatasets = <%=GlobalProperties.showRightNavDataSets()%>;
 window.skinRightNavShowExamples = <%=GlobalProperties.showRightNavExamples()%>;
 window.skinRightNavShowTestimonials = <%=GlobalProperties.showRightNavTestimonials()%>;
 window.skinRightNavExamplesHTML = '<%=GlobalProperties.getExamplesRightColumnHtml()%>';
+window.skinRightNavExamplesHTML = '<%=GlobalProperties.getExamplesRightColumnHtml()%>';
+window.skinRightNavWhatsNewBlurb = '<%=GlobalProperties.getRightNavWhatsNewBlurb()%>';
 // Prioritized studies for study selector
 window.priorityStudies = {};
 <%

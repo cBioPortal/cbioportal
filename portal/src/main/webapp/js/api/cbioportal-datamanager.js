@@ -965,6 +965,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    // index the UID map by sample or patient as appropriate
 		    interim_data[gene][case_id].uid = case_uid_map[study_id][case_id];
 		    interim_data[gene][case_id].profile_data = null;
+		    interim_data[gene][case_id].na = true;
 		}
 	    }
 	    // fill profile_data properties with scores
@@ -974,6 +975,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		var sample_id = receive_datum.sample_id;
 		var case_id = (sample_or_patient === "sample" ? sample_id : sample_to_patient_map[sample_id]);
 		var interim_datum = interim_data[gene][case_id];
+		interim_datum.na = false;
 		if (interim_datum.profile_data === null) {
 		    // set the initial value for this sample or patient
 		    interim_datum.profile_data = parseFloat(receive_datum.profile_data);

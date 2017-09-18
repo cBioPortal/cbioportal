@@ -4,8 +4,7 @@ LABEL Description="cBioPortal for Cancer Genomics"
 ENV APP_NAME="cbioportal" \
     PORTAL_HOME="/cbioportal"
 #======== Install Prerequisites ===============#
-RUN echo 'deb http://ftp.debian.org/debian stretch-backports main' >> /etc/apt/sources.list \
-    && apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
         libmysql-java \
         patch \
@@ -13,10 +12,6 @@ RUN echo 'deb http://ftp.debian.org/debian stretch-backports main' >> /etc/apt/s
         python-jinja2 \
         python-mysqldb \
         python-requests \
-    # install new versions of these packages backported to Debian stable;
-    # Debian does not add new features or break backwards compatibility within
-    # a stable release, but for these dependencies we need versions that do.
-    && apt-get install -y --no-install-recommends -t stretch-backports \
         maven \
         openjdk-8-jdk \
     && ln -s /usr/share/java/mysql-connector-java.jar "$CATALINA_HOME"/lib/ \

@@ -1156,7 +1156,16 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}
 			return populateHeatmapTrack(genetic_profile_id, gene, track_id);
 		    }
-		}));
+		})).then(function () {
+		    // Give the optionally sortable heatmap track groups a
+		    // higher sort-by-data priority than the inherently sorted
+		    // alteration track groups
+		    var ordered_group_ids = (oncoprint.model.getTrackGroups()
+			.map(function (__, group_index) { return group_index; })
+			.filter(function(group_index) { return group_index != 1; }));
+		    ordered_group_ids.push(1);
+		    oncoprint.setTrackGroupSortPriority(ordered_group_ids);
+		});
 	    },
 	    'useAndAddAttribute': function(attr_id) {
 		var attr = this.useAttribute(attr_id);

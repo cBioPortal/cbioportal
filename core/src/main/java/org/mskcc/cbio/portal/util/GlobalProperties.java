@@ -42,6 +42,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.net.HttpURLConnection;
 import java.util.*;
 import java.net.URL;
@@ -152,12 +155,7 @@ public class GlobalProperties {
 
     // property for setting the news blurb in the right column
     public static final String SKIN_RIGHT_NAV_WHATS_NEW_BLURB = "skin.right_nav.whats_new_blurb";
-    public static final String DEFAULT_SKIN_WHATS_NEW_BLURB = 
-            "<form action=\"https://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
-            "<b>Sign up for low-volume email news alerts:</b></br> &nbsp;&nbsp;&nbsp;&nbsp;<input type=\"text\" " +
-            "name=\"email\" title=\"Subscribe to mailing list\"> <input type=\"submit\" name=\"sub\" value=\"Subscribe\"> " +
-            "</form> &nbsp;&nbsp;&nbsp;&nbsp;<b>Or follow us <a href=\"http://www.twitter.com/cbioportal\">" +
-            "<i>@cbioportal</i></a> on Twitter</b>\n";
+    public static final String DEFAULT_SKIN_WHATS_NEW_BLURB = ""; // default is in cbioportal-frontend repo
 
     // footer
     public static final String SKIN_FOOTER = "skin.footer";
@@ -240,17 +238,40 @@ public class GlobalProperties {
     @Value("${show.civic:false}") // default is false
     public void setShowCivic(String property) { showCivic = Boolean.parseBoolean(property); }
 
-    private static String civicUrl;
-    @Value("${civic.url:https://civic.genome.wustl.edu/api/}") // default
-    public void setCivicUrl(String property) {
-        if (!property.isEmpty()) {
-            civicUrl = property.trim();
+	/*
+     * Trim whitespace of url and append / if it does not exist. Return empty
+     * string otherwise.
+     */
+	public static String parseUrl(String url)
+    {
+		String rv;
 
-            if (!civicUrl.endsWith("/")) {
-                civicUrl += "/";
+        if (!url.isEmpty()) {
+            rv = url.trim();
+
+            if (!rv.endsWith("/")) {
+                rv += "/";
             }
-        }
-    }
+        } else {
+			rv = "";
+		}
+
+		return rv;
+	}
+
+	private static String civicUrl;
+	@Value("${civic.url:https://civic.genome.wustl.edu/api/}") // default
+	public void setCivicUrl(String property) { civicUrl = parseUrl(property); }
+
+    private static String frontendUrl;
+    @Value("${frontend.url:}") // default is empty string
+    public void setFrontendUrl(String property) { frontendUrl = parseUrl(property); }
+
+    /* read frontendUrl from this file at runtime (TODO: read from URL),
+     * overrides frontend.url */
+    private static String frontendUrlRuntime;
+    @Value("${frontend.url.runtime:}") 
+    public void setFrontendUrlRuntime(String property) { frontendUrlRuntime = property; }
 
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -811,6 +832,24 @@ public class GlobalProperties {
 
     public static boolean showCivic() {
         return showCivic;
+    }
+
+    public static String getFrontendUrl() {
+        if (frontendUrlRuntime.length() > 0) {
+            try {
+                String url = parseUrl(new String(Files.readAllBytes(Paths.get(frontendUrlRuntime)), StandardCharsets.UTF_8).replaceAll("[\\r\\n]+", ""));
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Using frontend from " + frontendUrlRuntime + ": " + url);
+                }
+                return url;
+            } catch (IOException e) {
+                // error reading file, use existing frontendUrl
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Can't read frontend.url.runtime: " + frontendUrlRuntime);
+                }
+            }
+        }
+        return frontendUrl;
     }
 
     public static boolean showMyCancerGenomeUrl()

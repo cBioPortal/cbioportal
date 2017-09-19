@@ -22,7 +22,7 @@ public class FractionGenomeAlteredServiceImpl implements FractionGenomeAlteredSe
     private CopyNumberSegmentService copyNumberSegmentService;
 
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<FractionGenomeAltered> getFractionGenomeAltered(String geneticProfileId, String sampleListId, Double cutoff) {
 
         List<CopyNumberSeg> copyNumberSegList = copyNumberSegmentService.getCopyNumberSegmentsBySampleListId(geneticProfileId, sampleListId, "SUMMARY");
@@ -30,19 +30,19 @@ public class FractionGenomeAlteredServiceImpl implements FractionGenomeAlteredSe
     }
 
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<FractionGenomeAltered> fetchFractionGenomeAltered(String geneticProfileId, List<String> sampleIds,
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    public List<FractionGenomeAltered> fetchFractionGenomeAltered(String molecularProfileId, List<String> sampleIds,
                                                                   Double cutoff) {
         
         /*List<String> studyIds = new ArrayList<>();
         sampleIds.forEach(s -> studyIds.add(studyId));*/
 
-        List<CopyNumberSeg> copyNumberSegList = copyNumberSegmentService.fetchCopyNumberSegments(Arrays.asList(geneticProfileId), 
+        List<CopyNumberSeg> copyNumberSegList = copyNumberSegmentService.fetchCopyNumberSegments(Arrays.asList(molecularProfileId), 
                     sampleIds, "SUMMARY");
-        return createFractionGenomeAlteredList(geneticProfileId, cutoff, copyNumberSegList);
+        return createFractionGenomeAlteredList(molecularProfileId, cutoff, copyNumberSegList);
     }
 
-    private List<FractionGenomeAltered> createFractionGenomeAlteredList(String geneticProfileId, Double cutoff, 
+    private List<FractionGenomeAltered> createFractionGenomeAlteredList(String molecularProfileId, Double cutoff, 
                                                                         List<CopyNumberSeg> copyNumberSegList) {
 
         Map<String, List<CopyNumberSeg>> copyNumberSegMap = copyNumberSegList.stream().collect(
@@ -61,7 +61,7 @@ public class FractionGenomeAlteredServiceImpl implements FractionGenomeAlteredSe
             }
             long alteredLength = alteredCopyNumberSegList.stream().mapToLong(m -> m.getEnd() - m.getStart()).sum();
             FractionGenomeAltered fractionGenomeAltered = new FractionGenomeAltered();
-            fractionGenomeAltered.setProfileId(geneticProfileId);
+            fractionGenomeAltered.setMolecularProfileId(molecularProfileId);
             fractionGenomeAltered.setSampleId(sampleId);
             fractionGenomeAltered.setPatientId(measuredCopyNumberSegList.get(0).getPatientId());
             fractionGenomeAltered.setValue(BigDecimal.valueOf((double) alteredLength / (double) measuredLength));

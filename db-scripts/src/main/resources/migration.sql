@@ -376,6 +376,11 @@ UPDATE info SET DB_SCHEMA_VERSION="2.3.1";
 
 
 ##version: 2.4.0
+ALTER TABLE `mutation` ADD COLUMN `DRIVER_FILTER` VARCHAR(20) NULL;
+ALTER TABLE `mutation` ADD COLUMN `DRIVER_FILTER_ANNOTATION` VARCHAR(80) NULL;
+ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER` VARCHAR(50) NULL;
+ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER_ANNOTATION` VARCHAR(80) NULL;
+
 -- ========================== new reference genome gene related tables =============================================
 CREATE TABLE `reference_genome` (
     `reference_genome_id` int(11) NOT NULL AUTO_INCREMENT,

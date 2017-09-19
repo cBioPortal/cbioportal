@@ -67,12 +67,12 @@ public class FractionGenomeAlteredControllerTest {
 
         List<FractionGenomeAltered> fractionGenomeAlteredList = new ArrayList<>();
         FractionGenomeAltered fractionGenomeAltered1 = new FractionGenomeAltered();
-        fractionGenomeAltered1.setProfileId(PROFILE_ID);
+        fractionGenomeAltered1.setMolecularProfileId(PROFILE_ID);
         fractionGenomeAltered1.setSampleId(TEST_SAMPLE_ID_1);
         fractionGenomeAltered1.setValue(TEST_VALUE_1);
         fractionGenomeAlteredList.add(fractionGenomeAltered1);
         FractionGenomeAltered fractionGenomeAltered2 = new FractionGenomeAltered();
-        fractionGenomeAltered2.setProfileId(PROFILE_ID);
+        fractionGenomeAltered2.setMolecularProfileId(PROFILE_ID);
         fractionGenomeAltered2.setSampleId(TEST_SAMPLE_ID_2);
         fractionGenomeAltered2.setValue(TEST_VALUE_2);
         fractionGenomeAlteredList.add(fractionGenomeAltered2);
@@ -84,18 +84,18 @@ public class FractionGenomeAlteredControllerTest {
         fractionGenomeAlteredFilter.setSampleIds(Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/genetic-profiles/test_profile_id/fraction-genome-altered/fetch")
-            .param("geneticProfileId", PROFILE_ID)
+            "/molecular-profiles/test_profile_id/fraction-genome-altered/fetch")
+            .param("molecularProfileId", PROFILE_ID)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(fractionGenomeAlteredFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].profileId").value(PROFILE_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(PROFILE_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].profileId").value(PROFILE_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(PROFILE_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_VALUE_2));
     }

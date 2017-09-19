@@ -9,15 +9,15 @@ import java.util.List;
 
 public interface CopyNumberSegmentService {
 
-    List<CopyNumberSeg> getCopyNumberSegmentsInSampleInStudy(String studyId, String geneticProfileId, String sampleId, String projection,
+    List<CopyNumberSeg> getCopyNumberSegmentsInSampleInStudy(String studyId, String molecularProfileId, String sampleId, String projection,
                                                              Integer pageSize, Integer pageNumber, String sortBy,
                                                              String direction) throws SampleNotFoundException, StudyNotFoundException;
 
-    BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String geneticProfileId, String sampleId) throws SampleNotFoundException, StudyNotFoundException;
+    BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String molecularProfileId, String sampleId) throws SampleNotFoundException, StudyNotFoundException;
 
-    List<CopyNumberSeg> fetchCopyNumberSegments(List<String> geneticProfileIds, List<String> sampleIds, String projection);
+    List<CopyNumberSeg> fetchCopyNumberSegments(List<String> molecularProfileIds, List<String> sampleIds, String projection);
 
-    BaseMeta fetchMetaCopyNumberSegments(List<String> geneticProfileIds, List<String> sampleIds);
+    BaseMeta fetchMetaCopyNumberSegments(List<String> molecularProfileIds, List<String> sampleIds);
 
-    List<CopyNumberSeg> getCopyNumberSegmentsBySampleListId(String geneticProfileId, String sampleListId, String projection);
+    List<CopyNumberSeg> getCopyNumberSegmentsBySampleListId(String molecularProfileId, String sampleListId, String projection);
 }

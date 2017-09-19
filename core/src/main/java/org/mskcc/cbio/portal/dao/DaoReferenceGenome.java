@@ -33,30 +33,21 @@
 package org.mskcc.cbio.portal.dao;
 
 import java.sql.*;
-import java.text.*;
-import java.time.LocalDate;
-import java.util.*;
-import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.*;
+
 
 /**
- * Analogous to and replaces the old DaoCancerType. A CancerStudy has a NAME and
- * DESCRIPTION. If PUBLIC is true a CancerStudy can be accessed by anyone,
- * otherwise can only be accessed through access control.
- *
- * @author Ethan Cerami
- * @author Arthur Goldberg goldberg@cbio.mskcc.org
- * @author Ersin Ciftci
+ * Track Reference Genome used by molecular profiling
+ * @author Kelsey Zhu
  */
 public final class DaoReferenceGenome {
     
     public DaoReferenceGenome() {}
 
     /**
-     * Adds a reference Genome to the Database.
+     * Add a reference Genome to the Database.
      *
-     * @param referenceGenome   Cancer Study Object.
+     * @param referenceGenome   Reference Genome Object.
      * @throws DaoException Database Error.
      */
     public static void addReferenceGenome(ReferenceGenome referenceGenome) throws DaoException {
@@ -64,7 +55,7 @@ public final class DaoReferenceGenome {
     }
 
     /**
-     * Adds a reference genome to the Database.
+     * Add a reference genome to the Database.
      * @param referenceGenome
      * @param overwrite if true, overwrite if exist.
      * @throws DaoException
@@ -127,6 +118,12 @@ public final class DaoReferenceGenome {
         }
     }
 
+    /**
+     * Retrieve Reference Genomes by internal db ID
+     * @param internalId   Reference Genome internal db ID
+     * @throws DaoException Database Error.
+     */
+    
     public static ReferenceGenome getReferenceGenomeByInternalId(int internalId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -149,6 +146,12 @@ public final class DaoReferenceGenome {
         }
     }
 
+    /**
+     * Retrieve Reference Genomes by genome build name
+     * @param name   Reference Genome build name
+     * @throws DaoException Database Error.
+     */
+    
     public static int getReferenceGenomeByName(String name) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

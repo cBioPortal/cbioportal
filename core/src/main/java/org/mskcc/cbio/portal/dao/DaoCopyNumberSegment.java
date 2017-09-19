@@ -52,7 +52,7 @@ public final class DaoCopyNumberSegment {
         } else {
             MySQLbulkLoader.getMySQLbulkLoader("copy_number_seg").insertRecord(
                     Long.toString(seg.getSegId()),
-                    Integer.toString(seg.getGeneticProfileId()),
+                    Integer.toString(seg.getMolecularProfileId()),
                     Integer.toString(seg.getSampleId()),
                     seg.getChr(),
                     Long.toString(seg.getStart()),

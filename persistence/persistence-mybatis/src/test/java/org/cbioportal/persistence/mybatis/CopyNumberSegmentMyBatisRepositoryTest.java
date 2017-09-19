@@ -31,7 +31,7 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
         Assert.assertEquals(2, result.size());
         CopyNumberSeg copyNumberSeg = result.get(0);
         Assert.assertEquals((Integer) 50236594, copyNumberSeg.getSegId());
-        Assert.assertEquals("study_tcga_pub_methylation_hm27", copyNumberSeg.getGeneticProfileId());
+        Assert.assertEquals("study_tcga_pub_methylation_hm27", copyNumberSeg.getMolecularProfileId());
         Assert.assertEquals("study_tcga_pub", copyNumberSeg.getCancerStudyIdentifier());
         Assert.assertEquals("2", copyNumberSeg.getSampleId().toString());
         Assert.assertEquals("TCGA-A1-A0SD-01", copyNumberSeg.getSampleStableId());
@@ -46,12 +46,13 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     public void getCopyNumberSegmentsInSampleInStudySummaryProjection() throws Exception {
 
         List<CopyNumberSeg> result = copyNumberSegmentMyBatisRepository.getCopyNumberSegmentsInSampleInStudy(
-            "study_tcga_pub_methylation_hm27", "TCGA-A1-A0SD-01", "SUMMARY", null, null, null, null);
+            "study_tcga_pub_methylation_hm27", "TCGA-A1-A0SD-01", "SUMMARY", 
+            null, null, null, null);
 
         Assert.assertEquals(2, result.size());
         CopyNumberSeg copyNumberSeg = result.get(0);
         Assert.assertEquals((Integer) 50236593, copyNumberSeg.getSegId());
-        Assert.assertEquals("study_tcga_pub_methylation_hm27", copyNumberSeg.getGeneticProfileId());
+        Assert.assertEquals("study_tcga_pub_methylation_hm27", copyNumberSeg.getMolecularProfileId());
         Assert.assertEquals("study_tcga_pub", copyNumberSeg.getCancerStudyIdentifier());
         Assert.assertEquals("2", copyNumberSeg.getSampleId().toString());
         Assert.assertEquals("TCGA-A1-A0SD-01", copyNumberSeg.getSampleStableId());
@@ -66,12 +67,13 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     public void getCopyNumberSegmentsInSampleInStudyDetailedProjection() throws Exception {
 
         List<CopyNumberSeg> result = copyNumberSegmentMyBatisRepository.getCopyNumberSegmentsInSampleInStudy(
-            "study_tcga_pub_methylation_hm27", "TCGA-A1-A0SD-01", "DETAILED", null, null, null, null);
+            "study_tcga_pub_methylation_hm27", "TCGA-A1-A0SD-01", "DETAILED", 
+            null, null, null, null);
 
         Assert.assertEquals(2, result.size());
         CopyNumberSeg copyNumberSeg = result.get(0);
         Assert.assertEquals((Integer) 50236593, copyNumberSeg.getSegId());
-        Assert.assertEquals("study_tcga_pub_methylation_hm27", copyNumberSeg.getGeneticProfileId());
+        Assert.assertEquals("study_tcga_pub_methylation_hm27", copyNumberSeg.getMolecularProfileId());
         Assert.assertEquals("study_tcga_pub", copyNumberSeg.getCancerStudyIdentifier());
         Assert.assertEquals("2",copyNumberSeg.getSampleId().toString());
         Assert.assertEquals("TCGA-A1-A0SD-01", copyNumberSeg.getSampleStableId());
@@ -87,7 +89,8 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     public void getCopyNumberSegmentsInSampleInStudySummaryProjection1PageSize() throws Exception {
 
         List<CopyNumberSeg> result = copyNumberSegmentMyBatisRepository.getCopyNumberSegmentsInSampleInStudy(
-            "study_tcga_pub_methylation_hm27", "TCGA-A1-A0SD-01", "SUMMARY", 1, 0, null, null);
+            "study_tcga_pub_methylation_hm27", "TCGA-A1-A0SD-01", "SUMMARY", 
+            1, 0, null, null);
         
         Assert.assertEquals(1, result.size());
     }

@@ -67,9 +67,9 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
                     
                     FractionGenomeAltered fractionGenomeAltered = (FractionGenomeAltered) object;
                     fractionGenomeAltered.setUniqueSampleKey(calculateBase64(fractionGenomeAltered.getSampleId(), 
-                        fractionGenomeAltered.getStudyId()));
+                        fractionGenomeAltered.getMolecularProfileId()));
                     fractionGenomeAltered.setUniquePatientKey(calculateBase64(fractionGenomeAltered.getPatientId(), 
-                        fractionGenomeAltered.getStudyId()));
+                        fractionGenomeAltered.getMolecularProfileId()));
                 } else if (object instanceof GenePanelData) {
                     
                     GenePanelData genePanelData = (GenePanelData) object;

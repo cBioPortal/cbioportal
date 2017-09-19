@@ -50,8 +50,8 @@ public class CopyNumberSegmentController {
     public ResponseEntity<List<CopyNumberSeg>> getCopyNumberSegmentsInSampleInStudy(
         @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
-        @ApiParam(required = true, value = "Genetic Profile ID")
-        @RequestParam(required = true) String geneticProfileId,
+        @ApiParam(required = true, value = "Molecular Profile ID") 
+        @RequestParam(required = true) String molecularProfileId,
         @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")
         @PathVariable String sampleId,
         @ApiParam("Level of detail of the response")
@@ -72,11 +72,11 @@ public class CopyNumberSegmentController {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, copyNumberSegmentService
-                .getMetaCopyNumberSegmentsInSampleInStudy(studyId, geneticProfileId, sampleId).getTotalCount().toString());
+                .getMetaCopyNumberSegmentsInSampleInStudy(studyId, molecularProfileId, sampleId).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(studyId, geneticProfileId, sampleId,
+                copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(studyId, molecularProfileId, sampleId,
                     projection.name(), pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(),
                     direction.name()), HttpStatus.OK);
         }
@@ -86,8 +86,8 @@ public class CopyNumberSegmentController {
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch copy number segments by sample ID")
     public ResponseEntity<List<CopyNumberSeg>> fetchCopyNumberSegments(
-        @ApiParam(required = true, value = "List of Profile IDs")
-        @RequestParam(required = true) List<String> geneticProfileIds,
+        @ApiParam(required = true, value = "List of Molecular Profile IDs")
+        @RequestParam(required = true) List<String> molecularProfileIds,
         @ApiParam(required = true, value = "List of sample identifiers")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<SampleIdentifier> sampleIdentifiers,
@@ -105,11 +105,11 @@ public class CopyNumberSegmentController {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, copyNumberSegmentService
-                .fetchMetaCopyNumberSegments(geneticProfileIds, sampleIds).getTotalCount().toString());
+                .fetchMetaCopyNumberSegments(molecularProfileIds, sampleIds).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                copyNumberSegmentService.fetchCopyNumberSegments(geneticProfileIds, sampleIds, projection.name()), 
+                copyNumberSegmentService.fetchCopyNumberSegments(molecularProfileIds, sampleIds, projection.name()), 
                 HttpStatus.OK);
         }
     }

@@ -6,7 +6,7 @@ function clearDevState(e){
 }
 
 window.loadReactApp = function(config) {
-
+    
     // Set frontend route to /patient
     window.defaultRoute = '/' + config.defaultRoute;
     
@@ -56,11 +56,19 @@ window.loadReactApp = function(config) {
         });
 
     } else {
+        if (window.frontendUrl === undefined) {
+            // this should never happen
+            if (console.error) {
+                console.error('ERROR: No frontend URL defined, should at least be empty string');
+            } else {
+                console.log('ERROR: No frontend URL defined, should at least be empty string');
+            }
+        }
         // Use deployed sources//
-        document.write('<link rel="stylesheet" type="text/css" href="reactapp/prefixed-bootstrap.min.css?'+ window.appVersion +'" />');
-        document.write('<link rel="stylesheet" type="text/css" href="reactapp/styles.css?'+ window.appVersion +'" />');
-        document.write('<script src="reactapp/common.bundle.js?'+ window.appVersion +'"></scr' + 'ipt>');
-        document.write('<script src="reactapp/main.app.js?'+ window.appVersion +'"></scr' + 'ipt>');
+        document.write('<link rel="stylesheet" type="text/css" href="' + window.frontendUrl + 'reactapp/prefixed-bootstrap.min.css?'+ window.appVersion +'" />');
+        document.write('<link rel="stylesheet" type="text/css" href="' + window.frontendUrl + 'reactapp/styles.css?'+ window.appVersion +'" />');
+        document.write('<script src="' + window.frontendUrl + 'reactapp/common.bundle.js?'+ window.appVersion +'"></scr' + 'ipt>');
+        document.write('<script src="' + window.frontendUrl + 'reactapp/main.app.js?'+ window.appVersion +'"></scr' + 'ipt>');
     }
 
 };

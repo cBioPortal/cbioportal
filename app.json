@@ -18,6 +18,11 @@
     "MAVEN_CUSTOM_OPTS": {
         "description":"set heroku profile for mvn",
         "value":"-Pheroku,public -DskipTests -Dfinal.war.name=cbioportal -Ddb.user=cbio_user -Ddb.password=cbio_pass -Ddb.portal_db_name=public_test_small -Dtomcat.catalina.scope=runtime -Ddb.connection_string=jdbc:mysql://sm4sa6ozhn5ya6.cuooweljyhix.us-east-1.rds.amazonaws.com:3306/ -Ddb.host=sm4sa6ozhn5ya6.cuooweljyhix.us-east-1.rds.amazonaws.com"
+    },
+    "FRONTEND_URL": {
+        "description":"set frontend URL to use (default: empty string, uses frontend inside war)",
+        "value":"",
+        "required":false
     }
   },
   "buildpacks": [

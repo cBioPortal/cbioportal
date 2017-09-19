@@ -501,7 +501,7 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("CANCER_TYPE", "CANCER_TYPE"): MetaFileTypes.CANCER_TYPE,
         # clinical and timeline
         ("CLINICAL", "PATIENT_ATTRIBUTES"): MetaFileTypes.PATIENT_ATTRIBUTES,
-        ("CLINICAL", "SAMPLE_ATTRIBUTES"): MetaFileTypes.SAMPLE_ATTRIBUTES,git
+        ("CLINICAL", "SAMPLE_ATTRIBUTES"): MetaFileTypes.SAMPLE_ATTRIBUTES,
         ("CLINICAL", "TIMELINE"): MetaFileTypes.TIMELINE,
         # rppa and mass spectrometry
         ("PROTEIN_LEVEL", "LOG2-VALUE"): MetaFileTypes.PROTEIN,

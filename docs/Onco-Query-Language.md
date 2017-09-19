@@ -1,13 +1,13 @@
 # Advanced cancer genomic data visualization: Onco Query Language (OQL)
 
-You can use the Onco Query Language (OQL) to select specific types of genetic alterations on the cBioPortal for Cancer Genomics. OQL-specified genetic alterations will be reflected on most tabs, including OncoPrint, but are not currently reflected on the Plots or Mutations tabs. Note that OQL assumes any word that it doesn't recognize is a mutation code.
+You can use the Onco Query Language (OQL) to select specific types of alterations on the cBioPortal for Cancer Genomics. OQL-specified alterations will be reflected on most tabs, including OncoPrint, but are not currently reflected on the Plots or Mutations tabs. Note that OQL assumes any word that it doesn't recognize is a mutation code.
 
 ## OQL Keywords
 Users can define specific subsets of genetic alterations for four data types:
 
 Data Type | Keyword | Categories and Levels | Default*
 --------- | ------- | --------------------- | --------
-Copy Number Alterations | `CNA` | `AMP` Ampified <br> `HOMDEL` Deep Deletion <br> `GAIN` Gained <br> `HETLOSS` Shallow Deletion <br> Comparison operators can also be used (e.g. `CNA >= GAIN` is the same as `AMP GAIN` | `AMP` <br> `HOMDEL`
+Copy Number Alterations | `CNA` | `AMP` Amplified <br> `HOMDEL` Deep Deletion <br> `GAIN` Gained <br> `HETLOSS` Shallow Deletion <br> Comparison operators can also be used (e.g. `CNA >= GAIN` is the same as `AMP GAIN`) | `AMP` <br> `HOMDEL`
 Mutations | `MUT` | `MUT` All somatic, non-synonymous mutations <br> `MUT = <protein change>` Specific amino acid changes (e.g. `V600E` or `V600`) <br> `MUT = <mutation type>` Acceptable values are: `MISSENSE, NONSENSE, NONSTART, NONSTOP, FRAMESHIFT, INFRAME, SPLICE, TRUNC` <br> `FUSION` Show cases with fusions | `MUT` <br> `FUSION`
 mRNA Expression | `EXP` | `EXP < -x` Under-expression is less than `x` standard deviations (SD) below the mean <br> `EXP > x` Over-expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `EXP >= 2` <br> `EXP <= -2`
 Protein/phosphoprotein level (RPPA) | `PROT` | `PROT < -x` Protein-level under-expression is less than `x` standard deviations (SD) below the mean <br> `PROT > x` Protein-level over-expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `PROT >= 2` <br> `PROT <= -2`

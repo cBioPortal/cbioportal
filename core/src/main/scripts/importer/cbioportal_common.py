@@ -501,7 +501,7 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("CANCER_TYPE", "CANCER_TYPE"): MetaFileTypes.CANCER_TYPE,
         # clinical and timeline
         ("CLINICAL", "PATIENT_ATTRIBUTES"): MetaFileTypes.PATIENT_ATTRIBUTES,
-        ("CLINICAL", "SAMPLE_ATTRIBUTES"): MetaFileTypes.SAMPLE_ATTRIBUTES,
+        ("CLINICAL", "SAMPLE_ATTRIBUTES"): MetaFileTypes.SAMPLE_ATTRIBUTES,git
         ("CLINICAL", "TIMELINE"): MetaFileTypes.TIMELINE,
         # rppa and mass spectrometry
         ("PROTEIN_LEVEL", "LOG2-VALUE"): MetaFileTypes.PROTEIN,
@@ -512,6 +512,7 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS,
         ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.CNA_LOG2,
         ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,
+        ("COPY_NUMBER_SEGMENT", "SEG"): MetaFileTypes.SEG,
         # expression
         ("MRNA_EXPRESSION", "CONTINUOUS"): MetaFileTypes.EXPRESSION,
         ("MRNA_EXPRESSION", "Z-SCORE"): MetaFileTypes.EXPRESSION,

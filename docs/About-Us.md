@@ -12,6 +12,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Zachary Heins
 * Robert Sheridan
 * Angelica Ochoa
+* Aaron Lisman
 * Manda Wilson
 * Jiaojiao Wang
 * Nikolaus Schultz
@@ -78,18 +79,20 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided by:
 
 ### Current:
+* ITCR, through a [U24 grant](https://itcr.nci.nih.gov/funded-project/cbioportal-cancer-genomics) (NCI-U24CA220457) 
 * Marie-José and Henry R. Kravis Center for Molecular Oncology at MSK
 * Dana Farber Cancer Institute
-* Robertson Foundation
+* American Association for Cancer Research through AACR Project GENIE
 * POETIC Consortium
-* Prostate Cancer Foundation
-* Breast Cancer Research Foundation
-* Adenoid Cystic Carcinoma Research Foundation
+* Robertson Foundation
 
 ### Past:
 * Stand Up 2 Cancer
-* American Association for Cancer Research (AACR) through Project GENIE
 * The Ben & Catherine Ivy Foundation
 * NCI, as a [TCGA Genome Data Analysis Center (GDAC)](http://tcga.cancer.gov/wwd/program/research_network/gdac.asp) (NCI-U24CA143840)
 * NCRR, as the [National Resource for Network Biology (NRNB)](http://nrnb.org/) Research Resource (RR 031228-02)
 * Starr Cancer Consortium
+* Breast Cancer Research Foundation
+* Adenoid Cystic Carcinoma Research Foundation
+* Prostate Cancer Foundation
+

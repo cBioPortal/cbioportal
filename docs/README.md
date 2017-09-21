@@ -37,6 +37,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 
 ## 3. cBioPortal Maintenance
 * [Updating your cBioPortal Database Scheme](Updating-your-cBioPortal-installation.md)
+* [Update genes and gene aliases](Updating-gene-and-gene_alias-tables.md)
 
 ## 4. Development      
 * [cBioPortal Entity-relationship Diagram](cBioPortal-ER-Diagram.md)

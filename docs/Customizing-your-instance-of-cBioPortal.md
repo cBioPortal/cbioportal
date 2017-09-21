@@ -91,10 +91,10 @@ Below you can find the complete list of all the available skin properties.
 			<td>Specify as name at somewhere dot extension or as name@somewhere.extension</td>
 		</tr>
       <tr>
-         <td>skin.examples_right_column</td>
-         <td>set the Examples Queries section in the right navigation bar. The html page should be placed in the content directory or in a subdirectory of the content directory. If placed in a subdirectory, the skin.examples_right_column value has to contain the folder, e.g. skin.examples_right_column = myFolder/myExamples.html</td>
-         <td>examples.html</td>
-         <td>text</td>
+         <td>skin.examples_right_column_html</td>
+         <td>set the Examples Queries section in the right navigation bar</td>
+         <td>&lt;ul&gt;&lt;li&gt;&lt;a href="case.do#/patient?studyId=ucec_tcga_pub&caseId=TCGA-BK-A0CC"&gt;Patient view of an endometrial cancer case&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;</td>
+         <td>Any HTML text</td>
       </tr>
 		<tr>
 			<td>skin.footer</td>
@@ -213,9 +213,9 @@ Below you can find the complete list of all the available skin properties.
    </tbody>
 </table>
 
-# Creating your own local news/about/FAQ/or Examples page
+# Creating your own local news/about or FAQ page
 
-Creating you own local news/about/FAQ or Examples page involves three steps. For example, to create your own news page:
+Creating you own local news/about or FAQ page involves three steps. For example, to create your own news page:
 
 1. Copy `{PORTAL_HOME}/portal/src/main/webapp/content/news.html` to `news_XXXX.html`
 2. Modify `news_XXXX.html` as needed.

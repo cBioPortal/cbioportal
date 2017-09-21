@@ -828,8 +828,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             selectedAttrMeta.numOfDatum = 0;
 
             _.each(_clinicalAttributeData, function(_dataObj) {
-              _data[self_.getCaseIndex(type, _dataObj.study_id, _dataObj[idType])][_dataObj.attr_id] = _dataObj.attr_val;
-
+                var caseIndex = self_.getCaseIndex(type, _dataObj.study_id, _dataObj[idType]);
+                // Filter 'undefined' case index
+                if (caseIndex !== undefined) {
+                    _data[caseIndex][_dataObj.attr_id] = _dataObj.attr_val;
+                }
               if (!selectedAttrMeta.keys
                   .hasOwnProperty(_dataObj.attr_val)) {
                 selectedAttrMeta.keys[_dataObj.attr_val] = 0;
@@ -2710,9 +2713,16 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         });
       },
       updateLayout: function() {
-        this.updateLayoutMatrix();
-        this.grid_.items.sort(this.sortByNumber);
-        this.grid_.layout();
+          var self = this;
+          self.updateLayoutMatrix();
+          var tmp = setInterval(function () { timer(); }, 1000);
+          function timer() {
+              if (self.grid_ !== '') {
+                  clearInterval(tmp);
+                  self.grid_.items.sort(self.sortByNumber);
+                  self.grid_.layout();
+              }
+          }
       },
       getLayoutMatrix: function(layoutMatrix, chart) {
         var self_ = this;
@@ -6671,8 +6681,12 @@ window.LogRankTest = (function(jStat) {
     _curveIndex,
     _lineColor) {
     var _self = this;
-    var _data = data;
-
+    
+    // Filter points with negative value 
+    var _data = _.filter(data, function(point){ 
+        return point.time >= 0 && point.survival_rate >= 0; 
+    });
+      
     // add an empty/zero point so the curve starts from zero time point
     if (_data !== null && _data.length !== 0) {
       if (_data[0].time !== 0) {

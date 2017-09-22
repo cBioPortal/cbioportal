@@ -41,14 +41,16 @@ Please note if you are logged in the master realm, this drop-down menu lists all
 Enter a **Client ID** for the client, e.g. '_cbioportal_', this will be the expected `issuer` value in SAML requests sent by the application. Select _saml_ in the **Client Protocol** drop down box.
 ![](images/previews/add-client.png)
 
-Enter '`http://localhost:8080/auth/realms/demo/protocol/saml`' in the **Client SAML Endpoint** textbox, this is the URL that the Keycloak server will send SAML requests and responses to. Then click the **Save** button; this will take you to the client page below.
+Enter '`http://localhost:8081/cbioportal/saml`' in the **Client SAML Endpoint** textbox, this is the URL that the Keycloak server will send SAML requests and responses to. Then click the **Save** button; this will take you to the client page below.
 
 ![](images/previews/edit-client.png)
 
 4. Choose _email_ as your **Name ID Format**.
-5. Next, enter a pattern for **Valid Redirect URIs** that Keycloak can use upon a successful authentication, e.g. `http://localhost:8081/cbioportal/*`.
+5. Next, enter a pattern for **Valid Redirect URIs** that Keycloak can use upon a successful authentication, e.g. `http://localhost:8081/cbioportal/*`. :information_source: notice that you can add multiple URLs in this field. You could use this in some cases to support 
+the URLs with and without port (e.g. if tomcat is running on port `80` and you want to allow both `http://localhost:80/cbioportal/*` and `http://localhost/cbioportal/*` as redirect URLs).
 6. Set **Force POST Binding** and **Front Channel Logout** to _OFF_ and **Force Name ID Format** to _ON_.
-7. Leave everything else as it is and click **Save**.
+7. Expand the subsection **Fine Grain SAML Endpoint Configuration** and set **Logout Service POST Binding URL** to `http://localhost:8081/cbioportal/saml/logout`.
+8. Leave everything else as it is and click **Save**.
 
 ### Map SAML Assertion Attributes
 To specify attributes included in the SAML assertion, simply click on the **Mappers** tab, and add mappers using the **Add Builtin** and **Create** buttons.

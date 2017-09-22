@@ -36,7 +36,11 @@
             mutation_event.ONCOTATOR_REFSEQ_MRNA_ID AS oncotatorRefseqMrnaId,
             mutation_event.ONCOTATOR_PROTEIN_POS_START AS oncotatorProteinPosStart,
             mutation_event.ONCOTATOR_PROTEIN_POS_END AS oncotatorProteinPosEnd,
-            mutation_event.KEYWORD AS keyword
+            mutation_event.KEYWORD AS keyword,
+            mutation.DRIVER_FILTER as driverFilter,
+            mutation.DRIVER_FILTER_ANNOTATION as driverFilterAnnotation,
+            mutation.DRIVER_TIERS_FILTER as driverTiersFilter,
+            mutation.DRIVER_TIERS_FILTER_ANNOTATION as driverTiersFilterAnnotation
         </if>
         <if test="projection == 'DETAILED'">
             ,

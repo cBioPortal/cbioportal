@@ -30,6 +30,10 @@ public class Mutation extends Alteration implements Serializable {
     private Integer oncotatorProteinPosStart;
     private Integer oncotatorProteinPosEnd;
     private String keyword;
+    private String driverFilter;
+    private String driverFilterAnnotation;
+    private String driverTiersFilter;
+    private String driverTiersFilterAnnotation;
     
     public String getCenter() {
         return center;
@@ -229,5 +233,37 @@ public class Mutation extends Alteration implements Serializable {
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
+    }
+    
+    public String getDriverFilter() {
+        return driverFilter;
+    }
+    
+    public void setDriverFilter(String driverFilter) {
+        this.driverFilter = driverFilter;
+    }
+    
+    public String getDriverFilterAnnotation() {
+        return driverFilterAnnotation;
+    }
+    
+    public void setDriverFilterAnnotation(String driverFilterAnnotation) {
+        this.driverFilterAnnotation = driverFilterAnnotation;
+    }
+    
+    public String getDriverTiersFilter() {
+        return driverTiersFilter;
+    }
+    
+    public void setDriverTiersFilter(String driverTiersFilter) {
+        this.driverTiersFilter = driverTiersFilter;
+    }
+    
+    public String getDriverTiersFilterAnnotation() {
+        return driverTiersFilterAnnotation;
+    }
+    
+    public void setDriverTiersFilterAnnotation(String driverTiersFilterAnnotation) {
+        this.driverTiersFilterAnnotation = driverTiersFilterAnnotation;
     }
 }

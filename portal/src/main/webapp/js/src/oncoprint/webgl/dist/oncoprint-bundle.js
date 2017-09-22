@@ -7420,7 +7420,7 @@ module.exports = {
 	for (var i=0; i<=100; i++) {
 	    var color = extractColor(colorFn(i/100));
 	    gradient.appendChild(
-	    	this.stop(i + '%', color.rgb, color.opacity)
+	    	this.stop(i, color.rgb, color.opacity)
 		);
 	}
 	return gradient;

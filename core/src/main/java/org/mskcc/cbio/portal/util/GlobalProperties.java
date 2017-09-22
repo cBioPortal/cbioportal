@@ -238,6 +238,10 @@ public class GlobalProperties {
     @Value("${show.civic:false}") // default is false
     public void setShowCivic(String property) { showCivic = Boolean.parseBoolean(property); }
 
+    private static boolean showGenomeNexus;
+    @Value("${show.genomenexus:true}") // default is true
+    public void setShowGenomeNexus(String property) { showGenomeNexus = Boolean.parseBoolean(property); }
+
 	/*
      * Trim whitespace of url and append / if it does not exist. Return empty
      * string otherwise.
@@ -269,6 +273,10 @@ public class GlobalProperties {
 	private static String civicUrl;
 	@Value("${civic.url:https://civic.genome.wustl.edu/api/}") // default
 	public void setCivicUrl(String property) { civicUrl = parseUrl(property); }
+
+	private static String genomeNexusApiUrl;
+	@Value("${genomenexus.url:genomenexus.org}") // default
+	public void setGenomeNexusApiUrl(String property) { genomeNexusApiUrl = parseUrl(property); }
 
     private static String frontendUrl;
     @Value("${frontend.url:}") // default is empty string
@@ -815,6 +823,10 @@ public class GlobalProperties {
         return civicUrl;
     }
 
+    public static String getGenomeNexusApiUrl() {
+        return genomeNexusApiUrl;
+    }
+
     public static boolean showOncoKB() {
         String showOncokb = properties.getProperty(SHOW_ONCOKB);
         if (showOncokb==null || showOncokb.isEmpty()) {
@@ -839,6 +851,10 @@ public class GlobalProperties {
 
     public static boolean showCivic() {
         return showCivic;
+    }
+
+    public static boolean showGenomeNexus() {
+        return showGenomeNexus;
     }
 
     public static String getFrontendUrl() {

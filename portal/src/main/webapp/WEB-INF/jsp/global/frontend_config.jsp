@@ -10,9 +10,11 @@ window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
 window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
 window.showOncoKB = <%=GlobalProperties.showOncoKB()%>;
 window.oncoKBApiUrl = '<%=GlobalProperties.getOncoKBPublicApiUrl()%>';
+window.genomeNexusApiUrl = '<%=GlobalProperties.getGenomeNexusApiUrl()%>';
 window.showCivic = <%=GlobalProperties.showCivic()%>;
 window.showHotspot = <%=GlobalProperties.showHotspot()%>;
 window.showMyCancerGenome = <%=GlobalProperties.showMyCancerGenomeUrl()%>;
+window.showGenomeNexus = <%=GlobalProperties.showGenomeNexus()%>;
 
 // this prevents react router from messing with hash in a way that could is unecessary (static pages)
 // or could conflict

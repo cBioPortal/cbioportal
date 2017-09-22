@@ -1142,8 +1142,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         attr.study_id = 'Study ID';
         attr.patient_id = 'Patient ID';
         attr.sample_id = 'Sample ID';
-        attr.mutated_genes = 'With Mutation Data';
-        attr.cna_details = 'With CNA Data';
 
         var arr = [];
         var strA = [];

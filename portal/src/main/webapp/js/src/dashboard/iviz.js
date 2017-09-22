@@ -831,6 +831,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 var caseIndex = self_.getCaseIndex(type, _dataObj.study_id, _dataObj[idType]);
                 // Filter 'undefined' case index
                 if (caseIndex !== undefined) {
+                    _data[caseIndex] = _data[caseIndex] || {};
                     _data[caseIndex][_dataObj.attr_id] = _dataObj.attr_val;
                 }
               if (!selectedAttrMeta.keys

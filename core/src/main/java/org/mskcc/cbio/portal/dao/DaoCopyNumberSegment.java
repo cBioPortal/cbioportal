@@ -127,6 +127,48 @@ public final class DaoCopyNumberSegment {
             JdbcUtil.closeAll(DaoCopyNumberSegment.class, con, pstmt, rs);
         }
     }
+
+    public static List<CopyNumberSegment> getSegmentForSamplesInGeneticProfile(
+        Collection<Integer> sampleIds, int geneticProfileId) throws DaoException {
+        if (sampleIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        String concatSampleIds = "('"+StringUtils.join(sampleIds, "','")+"')";
+
+        List<CopyNumberSegment> segs = new ArrayList<CopyNumberSegment>();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
+            pstmt = con.prepareStatement
+                ("SELECT copy_number_seg.* FROM copy_number_seg"
+                    + " JOIN genetic_profile on copy_number_seg.`GENETIC_PROFILE_ID`=genetic_profile.`GENETIC_PROFILE_ID`"
+                    + " WHERE `SAMPLE_ID` IN "+ concatSampleIds
+                    + " AND genetic_profile.`GENETIC_PROFILE_ID`="+geneticProfileId);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                CopyNumberSegment seg = new CopyNumberSegment(
+                    rs.getInt("GENETIC_PROFILE_ID"),
+                    rs.getInt("SAMPLE_ID"),
+                    rs.getString("CHR"),
+                    rs.getLong("START"),
+                    rs.getLong("END"),
+                    rs.getInt("NUM_PROBES"),
+                    rs.getDouble("SEGMENT_MEAN"));
+                seg.setSegId(rs.getLong("SEG_ID"));
+                segs.add(seg);
+            }
+            return segs;
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoCopyNumberSegment.class, con, pstmt, rs);
+        }
+    }
+    
     
     public static double getCopyNumberActeredFraction(int sampleId,
             int cancerStudyId, double cutoff) throws DaoException {

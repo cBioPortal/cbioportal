@@ -64,8 +64,9 @@
                     </foreach>
                 </if>
                 <if test="studyIds.size() > 1">
-                    <foreach index="i" collection="sampleIds" open="(" separator="OR" close=")">
-                        cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[${i}]} AND sample.STABLE_ID = #{sampleIds[${i}]}
+                    (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
                     </foreach>
                 </if>
             </if>
@@ -92,8 +93,9 @@
                     </foreach>
                 </if>
                 <if test="studyIds.size() > 1">
-                    <foreach index="i" collection="patientIds" open="(" separator="OR" close=")">
-                        cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[${i}]} AND patient.STABLE_ID = #{patientIds[${i}]}
+                    (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
+                    <foreach index="i" collection="patientIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{patientIds[${i}]})
                     </foreach>
                 </if>
             </if>

@@ -112,6 +112,14 @@ public class MutationControllerTest {
     private static final int TEST_MUTATION_COUNT_1 = 100;
     private static final int TEST_MUTATION_COUNT_2 = 200;
     private static final String TEST_SAMPLE_LIST_ID = "test_sample_list_id";
+    private static final String TEST_DRIVER_FILTER_1 = "test_driver_filter_1";
+    private static final String TEST_DRIVER_FILTER_ANNOTATION_1 = "test_driver_filter_annotation_1";
+    private static final String TEST_DRIVER_TIERS_FILTER_1 = "test_driver_tiers_filter_1";
+    private static final String TEST_DRIVER_TIERS_FILTER_ANNOTATION_1 = "test_driver_tiers_filter_annotation_1";
+    private static final String TEST_DRIVER_FILTER_2 = "test_driver_filter_2";
+    private static final String TEST_DRIVER_FILTER_ANNOTATION_2 = "test_driver_filter_annotation_2";
+    private static final String TEST_DRIVER_TIERS_FILTER_2 = "test_driver_tiers_filter_2";
+    private static final String TEST_DRIVER_TIERS_FILTER_ANNOTATION_2 = "test_driver_tiers_filter_annotation_2";
 
     @Autowired
     private WebApplicationContext wac;
@@ -167,6 +175,10 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinChange").value(TEST_PROTEIN_CHANGE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutationType").value(TEST_MUTATION_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilter").value(TEST_DRIVER_FILTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
                 .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
@@ -198,6 +210,10 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinChange").value(TEST_PROTEIN_CHANGE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationType").value(TEST_MUTATION_TYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilter").value(TEST_DRIVER_FILTER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
                 .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
@@ -247,6 +263,10 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinChange").value(TEST_PROTEIN_CHANGE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutationType").value(TEST_MUTATION_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilter").value(TEST_DRIVER_FILTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
                 .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
@@ -282,6 +302,10 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinChange").value(TEST_PROTEIN_CHANGE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationType").value(TEST_MUTATION_TYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilter").value(TEST_DRIVER_FILTER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
                 .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
@@ -364,6 +388,10 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinChange").value(TEST_PROTEIN_CHANGE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutationType").value(TEST_MUTATION_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilter").value(TEST_DRIVER_FILTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
                 .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
@@ -395,6 +423,10 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinChange").value(TEST_PROTEIN_CHANGE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationType").value(TEST_MUTATION_TYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilter").value(TEST_DRIVER_FILTER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
                 .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
@@ -451,6 +483,10 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinChange").value(TEST_PROTEIN_CHANGE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutationType").value(TEST_MUTATION_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilter").value(TEST_DRIVER_FILTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
                 .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
@@ -482,6 +518,10 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinChange").value(TEST_PROTEIN_CHANGE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationType").value(TEST_MUTATION_TYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilter").value(TEST_DRIVER_FILTER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
                 .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
@@ -539,6 +579,10 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].proteinChange").value(TEST_PROTEIN_CHANGE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutationType").value(TEST_MUTATION_TYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilter").value(TEST_DRIVER_FILTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].functionalImpactScore")
                 .value(TEST_FUNCTIONAL_IMPACT_SCORE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].fisValue").value(TEST_FIS_VALUE_1))
@@ -575,6 +619,10 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinChange").value(TEST_PROTEIN_CHANGE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationType").value(TEST_MUTATION_TYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilter").value(TEST_DRIVER_FILTER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilterAnnotation").value(TEST_DRIVER_FILTER_ANNOTATION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilter").value(TEST_DRIVER_TIERS_FILTER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation").value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].functionalImpactScore")
                 .value(TEST_FUNCTIONAL_IMPACT_SCORE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].fisValue").value(TEST_FIS_VALUE_2))
@@ -760,6 +808,10 @@ public class MutationControllerTest {
         mutation1.setTumorSeqAllele(TEST_TUMOR_SEQ_ALLELE_1);
         mutation1.setProteinChange(TEST_PROTEIN_CHANGE_1);
         mutation1.setMutationType(TEST_MUTATION_TYPE_1);
+        mutation1.setDriverFilter(TEST_DRIVER_FILTER_1);
+        mutation1.setDriverFilterAnnotation(TEST_DRIVER_FILTER_ANNOTATION_1);
+        mutation1.setDriverTiersFilter(TEST_DRIVER_TIERS_FILTER_1);
+        mutation1.setDriverTiersFilterAnnotation(TEST_DRIVER_TIERS_FILTER_ANNOTATION_1);
         mutation1.setFunctionalImpactScore(TEST_FUNCTIONAL_IMPACT_SCORE_1);
         mutation1.setFisValue(TEST_FIS_VALUE_1);
         mutation1.setLinkXvar(TEST_LINK_XVAR_1);
@@ -790,6 +842,10 @@ public class MutationControllerTest {
         mutation2.setTumorSeqAllele(TEST_TUMOR_SEQ_ALLELE_2);
         mutation2.setProteinChange(TEST_PROTEIN_CHANGE_2);
         mutation2.setMutationType(TEST_MUTATION_TYPE_2);
+        mutation2.setDriverFilter(TEST_DRIVER_FILTER_2);
+        mutation2.setDriverFilterAnnotation(TEST_DRIVER_FILTER_ANNOTATION_2);
+        mutation2.setDriverTiersFilter(TEST_DRIVER_TIERS_FILTER_2);
+        mutation2.setDriverTiersFilterAnnotation(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2);
         mutation2.setFunctionalImpactScore(TEST_FUNCTIONAL_IMPACT_SCORE_2);
         mutation2.setFisValue(TEST_FIS_VALUE_2);
         mutation2.setLinkXvar(TEST_LINK_XVAR_2);

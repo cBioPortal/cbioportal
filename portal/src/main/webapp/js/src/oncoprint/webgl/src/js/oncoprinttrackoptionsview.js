@@ -124,8 +124,8 @@ var OncoprintTrackOptionsView = (function () {
 	var sortarrow_char = '';
 	if (model.isTrackSortDirectionChangeable(track_id)){
 	    sortarrow_char = {
-		    '1': '&#9650;',
-		    '-1': '&#9660;',
+		    '1': '<i class="fa fa-signal" aria-hidden="true" title="Sorted ascending"></i>',
+		    '-1': '<i class="fa fa-signal" style="transform: scaleX(-1);" aria-hidden="true" title="Sorted descending"></i>',
 		    '0': ''}[model.getTrackSortDirection(track_id)];
 	}
 	$sortarrow.html(sortarrow_char);
@@ -136,7 +136,7 @@ var OncoprintTrackOptionsView = (function () {
 	var top = model.getZoomedTrackTops(track_id);
 	$div = $('<div>').appendTo(view.$buttons_ctr).css({'position': 'absolute', 'left': '0px', 'top': top + 'px', 'white-space': 'nowrap'});
 	$img = $('<img/>').appendTo($div).attr({'src': 'images/menudots.svg', 'width': view.img_size, 'height': view.img_size}).css({'float': 'left', 'cursor': 'pointer', 'border': '1px solid rgba(125,125,125,0)'});
-	$sortarrow = $('<span>').appendTo($div).css({'vertical-align': -Math.floor(view.img_size / 1.2) + 'px'});
+	$sortarrow = $('<span>').appendTo($div).css({'position': 'absolute', 'top': Math.floor(view.img_size / 4) + 'px'});
 	$dropdown = $('<ul>').appendTo(view.$dropdown_ctr).css({'position':'absolute', 'width': 120, 'display': 'none', 'list-style-type': 'none', 'padding-left': '6', 'padding-right': '6', 'float': 'right', 'background-color': 'rgb(255,255,255)',
 								'left':'0px', 'top': top + view.img_size + 'px'});
 	view.track_options_$elts[track_id] = {'$div': $div, '$img': $img, '$dropdown': $dropdown};

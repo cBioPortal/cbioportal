@@ -122,8 +122,9 @@
         WHERE genetic_profile.STABLE_ID = #{molecularProfileId}
         <if test="entrezGeneIds != null">
             AND
-            <foreach index="i" collection="entrezGeneIds" open="(" separator="OR" close=")">
-                cna_event.ENTREZ_GENE_ID = #{entrezGeneIds[${i}]} AND cna_event.ALTERATION = #{alterations[${i}]}
+            (cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION) IN
+            <foreach index="i" collection="entrezGeneIds" open="(" separator="," close=")">
+                (#{entrezGeneIds[${i}]}, #{alterations[${i}]})
             </foreach>
         </if>
         <if test="sampleIds != null and !sampleIds.isEmpty()">
@@ -148,8 +149,9 @@
         WHERE genetic_profile.STABLE_ID = #{molecularProfileId}
         <if test="entrezGeneIds != null">
             AND
-            <foreach index="i" collection="entrezGeneIds" open="(" separator="OR" close=")">
-                cna_event.ENTREZ_GENE_ID = #{entrezGeneIds[${i}]} AND cna_event.ALTERATION = #{alterations[${i}]}
+            (cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION) IN
+            <foreach index="i" collection="entrezGeneIds" open="(" separator="," close=")">
+                (#{entrezGeneIds[${i}]}, #{alterations[${i}]})
             </foreach>
         </if>
         <if test="patientIds != null and !patientIds.isEmpty()">

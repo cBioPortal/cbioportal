@@ -126,7 +126,7 @@
             AND
             (cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION) IN
             <foreach index="i" collection="entrezGeneIds" open="(" separator="," close=")">
-                (#{entrezGeneIds[${i}]}, #{alterations[${i}]})
+                (#{entrezGeneIds[${i}]} , #{alterations[${i}]})
             </foreach>
         </if>
         <if test="sampleIds != null and !sampleIds.isEmpty()">
@@ -153,7 +153,7 @@
             AND
             (cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION) IN
             <foreach index="i" collection="entrezGeneIds" open="(" separator="," close=")">
-                (#{entrezGeneIds[${i}]}, #{alterations[${i}]})
+                (#{entrezGeneIds[${i}]},#{alterations[${i}]})
             </foreach>
         </if>
         <if test="patientIds != null and !patientIds.isEmpty()">

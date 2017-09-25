@@ -35,14 +35,15 @@
     <sql id="where">
         <where>
             <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
-                <foreach index="i" collection="molecularProfileIds" open="(" separator="OR" close=")">
-                    genetic_profile.STABLE_ID = #{molecularProfileIds[0]}
+                genetic_profile.STABLE_ID IN
+                <foreach index="i" collection="molecularProfileIds" open="(" separator="," close=")">
+                    #{molecularProfileIds[0]}
                 </foreach>
             </if>
             <if test="sampleIds != null and !sampleIds.isEmpty()">
-                AND
-                <foreach index="i" collection="sampleIds" open="(" separator="OR" close=")">
-                    sample.STABLE_ID = #{sampleIds[${i}]}
+                AND sample.STABLE_ID IN
+                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                    #{sampleIds[${i}]}
                 </foreach>
             </if>
 

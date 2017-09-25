@@ -108,7 +108,7 @@
             <if test="sampleIds != null">
                 (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
                 <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                    (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
+                    (#{sampleIds[${i}]},#{molecularProfileIds[${i}]})
                 </foreach>
             </if>
             <if test="sampleIds == null">

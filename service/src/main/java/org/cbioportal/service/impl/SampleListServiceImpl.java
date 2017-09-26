@@ -57,8 +57,9 @@ public class SampleListServiceImpl implements SampleListService {
 
         List<SampleListSampleCount> sampleListSampleCounts = sampleListRepository.getSampleCounts(
             Arrays.asList(sampleList.getListId()));
-        sampleList.setSampleCount(sampleListSampleCounts.get(0).getSampleCount());
-
+        if (!sampleListSampleCounts.isEmpty()) {
+            sampleList.setSampleCount(sampleListSampleCounts.get(0).getSampleCount());
+        }
         return sampleList;
     }
 
@@ -103,7 +104,7 @@ public class SampleListServiceImpl implements SampleListService {
         List<SampleListSampleCount> sampleListSampleCounts = sampleListRepository.getSampleCounts(sampleLists.stream()
             .map(SampleList::getListId).collect(Collectors.toList()));
 
-        sampleLists.forEach(s -> s.setSampleCount(sampleListSampleCounts.stream().filter(p -> p.getSampleListId()
-            .equals(s.getListId())).findFirst().get().getSampleCount()));
+        sampleLists.forEach(s -> sampleListSampleCounts.stream().filter(p -> p.getSampleListId()
+            .equals(s.getListId())).findFirst().ifPresent(l -> s.setSampleCount(l.getSampleCount())));
     }
 }

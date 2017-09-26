@@ -4776,7 +4776,7 @@ var LinearInterpRuleSet = (function () {
 	this.value_key = params.value_key;
 	this.value_range = params.value_range;
 	this.log_scale = params.log_scale; // boolean
-
+    this.type = params.type;
 	this.rangeTypes = {
 		'ALL': 'ALL',                   // all values positive, negative and zero
 		'NON_NEGATIVE': 'NON_NEGATIVE', // value range all positive values inclusive zero (0)
@@ -4786,6 +4786,7 @@ var LinearInterpRuleSet = (function () {
 	this.makeInterpFn = function () {
 	    var range = this.getEffectiveValueRange();
 	    var rangeType = this.getValueRangeType();
+	    var plotType = this.type;
 	    var rangeTypes = this.rangeTypes;
 	    if (this.log_scale) {
 		var shift_to_make_pos = Math.abs(range[0]) + 1;
@@ -4799,18 +4800,21 @@ var LinearInterpRuleSet = (function () {
 		return function (val) {
                 var range_spread = range[1] - range[0],
 					range_lower = range[0],
-					range_higher = range[1];
-
-                if (rangeType === rangeTypes.NON_POSITIVE) {
-                    // when data only contains non positive values
-                    return (val - range_higher) / range_spread;
-				} else if (rangeType === rangeTypes.NON_NEGATIVE) {
-                    // when data only contains non negative values
-			        return (val - range_lower) / range_spread;
-				} else if (rangeType === rangeTypes.ALL) {
-                    range_spread = Math.abs(range[0]) > range[1] ? Math.abs(range[0]) : range[1];
-                    return val / range_spread;
-		    }
+					range_higher = range[1];             
+                if (plotType === 'bar') {
+                    if (rangeType === rangeTypes.NON_POSITIVE) {
+                        // when data only contains non positive values
+                        return (val - range_higher) / range_spread;
+                    } else if (rangeType === rangeTypes.NON_NEGATIVE) {
+                        // when data only contains non negative values
+                        return (val - range_lower) / range_spread;
+                    } else if (rangeType === rangeTypes.ALL) {
+                        range_spread = Math.abs(range[0]) > range[1] ? Math.abs(range[0]) : range[1];
+                        return val / range_spread;
+                    }
+                } else {
+                    return (val - range_lower) / range_spread;
+                }
 		};
 	    }
 	};
@@ -4894,8 +4898,6 @@ var GradientRuleSet = (function () {
 	}
 	
 	this.value_stop_points = params.value_stop_points;
-
-	this.gradient_rule;
 	this.null_color = params.null_color || "rgba(211,211,211,1)";
     }
     GradientRuleSet.prototype = Object.create(LinearInterpRuleSet.prototype);
@@ -7420,7 +7422,7 @@ module.exports = {
 	for (var i=0; i<=100; i++) {
 	    var color = extractColor(colorFn(i/100));
 	    gradient.appendChild(
-	    	this.stop(i + '%', color.rgb, color.opacity)
+	    	this.stop(i, color.rgb, color.opacity)
 		);
 	}
 	return gradient;

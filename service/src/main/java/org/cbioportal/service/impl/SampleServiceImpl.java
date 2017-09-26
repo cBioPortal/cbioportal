@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class SampleServiceImpl implements SampleService {
 
     private static final String SEQUENCED = "_sequenced";
-    
+
     @Autowired
     private SampleRepository sampleRepository;
     @Autowired
@@ -42,15 +42,15 @@ public class SampleServiceImpl implements SampleService {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<Sample> getAllSamplesInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber,
                                              String sortBy, String direction) throws StudyNotFoundException {
-        
+
         studyService.getStudy(studyId);
-        List<Sample> samples = sampleRepository.getAllSamplesInStudy(studyId, projection, pageSize, pageNumber, sortBy, 
+        List<Sample> samples = sampleRepository.getAllSamplesInStudy(studyId, projection, pageSize, pageNumber, sortBy,
             direction);
 
-        processSamples(samples);
+        processSamples(samples, projection);
         return samples;
     }
-    
+
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaSamplesInStudy(String studyId) throws StudyNotFoundException {
@@ -62,7 +62,7 @@ public class SampleServiceImpl implements SampleService {
 
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
-    public Sample getSampleInStudy(String studyId, String sampleId) throws SampleNotFoundException, 
+    public Sample getSampleInStudy(String studyId, String sampleId) throws SampleNotFoundException,
         StudyNotFoundException {
 
         studyService.getStudy(studyId);
@@ -72,7 +72,7 @@ public class SampleServiceImpl implements SampleService {
             throw new SampleNotFoundException(studyId, sampleId);
         }
 
-        processSamples(Arrays.asList(sample));
+        processSamples(Arrays.asList(sample), "DETAILED");
         return sample;
     }
 
@@ -80,20 +80,20 @@ public class SampleServiceImpl implements SampleService {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<Sample> getAllSamplesOfPatientInStudy(String studyId, String patientId, String projection,
                                                       Integer pageSize, Integer pageNumber, String sortBy,
-                                                      String direction) throws StudyNotFoundException, 
+                                                      String direction) throws StudyNotFoundException,
         PatientNotFoundException {
-        
+
         patientService.getPatientInStudy(studyId, patientId);
-        List<Sample> samples = sampleRepository.getAllSamplesOfPatientInStudy(studyId, patientId, projection, pageSize, 
+        List<Sample> samples = sampleRepository.getAllSamplesOfPatientInStudy(studyId, patientId, projection, pageSize,
             pageNumber, sortBy, direction);
 
-        processSamples(samples);
+        processSamples(samples, projection);
         return samples;
     }
 
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
-    public BaseMeta getMetaSamplesOfPatientInStudy(String studyId, String patientId) throws StudyNotFoundException, 
+    public BaseMeta getMetaSamplesOfPatientInStudy(String studyId, String patientId) throws StudyNotFoundException,
         PatientNotFoundException {
 
         patientService.getPatientInStudy(studyId, patientId);
@@ -104,19 +104,19 @@ public class SampleServiceImpl implements SampleService {
     @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<Sample> getAllSamplesOfPatientsInStudy(String studyId, List<String> patientIds, String projection) {
-        
+
         List<Sample> samples = sampleRepository.getAllSamplesOfPatientsInStudy(studyId, patientIds, projection);
 
-        processSamples(samples);
+        processSamples(samples, projection);
         return samples;
     }
 
     @Override
     @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {
-        
+
         List<Sample> samples = sampleRepository.fetchSamples(studyIds, sampleIds, projection);
-        processSamples(samples);
+        processSamples(samples, projection);
         return samples;
     }
 
@@ -135,24 +135,27 @@ public class SampleServiceImpl implements SampleService {
         return sampleRepository.getSamplesByInternalIds(internalIds);
     }
 
-    private void processSamples(List<Sample> samples) {
+    private void processSamples(List<Sample> samples, String projection) {
 
-        Map<String, List<String>> sequencedSampleIdsMap = new HashMap<>();
-        List<String> distinctStudyIds = samples.stream().map(Sample::getCancerStudyIdentifier).distinct()
-            .collect(Collectors.toList());
-        for (String studyId : distinctStudyIds) {
-            sequencedSampleIdsMap.put(studyId, sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED));
+        if (projection.equals("DETAILED")) {
+            Map<String, List<String>> sequencedSampleIdsMap = new HashMap<>();
+            List<String> distinctStudyIds = samples.stream().map(Sample::getCancerStudyIdentifier).distinct()
+                .collect(Collectors.toList());
+            for (String studyId : distinctStudyIds) {
+                sequencedSampleIdsMap.put(studyId, sampleListRepository
+                    .getAllSampleIdsInSampleList(studyId + SEQUENCED));
+            }
+
+            List<CopyNumberSeg> copyNumberSegs = copyNumberSegmentRepository.fetchCopyNumberSegments(samples.stream()
+                .map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()), samples.stream()
+                .map(Sample::getStableId).collect(Collectors.toList()), "ID");
+
+            samples.forEach(sample -> {
+                sample.setSequenced(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier())
+                    .contains(sample.getStableId()));
+                sample.setCopyNumberSegmentPresent(copyNumberSegs.stream().anyMatch(c -> c.getCancerStudyIdentifier()
+                    .equals(sample.getCancerStudyIdentifier()) && c.getSampleStableId().equals(sample.getStableId())));
+            });
         }
-        
-        List<CopyNumberSeg> copyNumberSegs = copyNumberSegmentRepository.fetchCopyNumberSegments(samples.stream()
-            .map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()), samples.stream()
-            .map(Sample::getStableId).collect(Collectors.toList()), "ID");
-        
-        samples.forEach(sample -> {
-            sample.setSequenced(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier())
-                .contains(sample.getStableId()));
-            sample.setCopyNumberSegmentPresent(copyNumberSegs.stream().anyMatch(c -> c.getCancerStudyIdentifier()
-                .equals(sample.getCancerStudyIdentifier()) && c.getSampleStableId().equals(sample.getStableId())));
-        });
     }
 }

@@ -48,8 +48,8 @@ public class Sample extends UniqueKeyBase {
     private String typeOfCancerId;
     private Patient patient;
     private String cancerStudyIdentifier;
-    private boolean sequenced;
-    private boolean copyNumberSegmentPresent;
+    private Boolean sequenced;
+    private Boolean copyNumberSegmentPresent;
 
     public Integer getInternalId() {
         return internalId;
@@ -115,19 +115,19 @@ public class Sample extends UniqueKeyBase {
         this.cancerStudyIdentifier = cancerStudyIdentifier;
     }
 
-    public boolean isSequenced() {
+    public Boolean isSequenced() {
         return sequenced;
     }
 
-    public void setSequenced(boolean sequenced) {
+    public void setSequenced(Boolean sequenced) {
         this.sequenced = sequenced;
     }
 
-    public boolean isCopyNumberSegmentPresent() {
+    public Boolean isCopyNumberSegmentPresent() {
         return copyNumberSegmentPresent;
     }
 
-    public void setCopyNumberSegmentPresent(boolean copyNumberSegmentPresent) {
+    public void setCopyNumberSegmentPresent(Boolean copyNumberSegmentPresent) {
         this.copyNumberSegmentPresent = copyNumberSegmentPresent;
     }
 }

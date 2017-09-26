@@ -155,11 +155,12 @@
                <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_mutation_color_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
                  <span>Download</span>&nbsp;<span class="caret"></span>
                </button>
-               <div class="dropdown-menu" style="padding: 10px 5px; width: 70px;min-width: 70px;">
-                    <button class='oncoprint-diagram-download' type='pdf' style='font-size:13px; cursor:pointer;width:50px;'>PDF</button> <br/>
-                    <button class='oncoprint-diagram-download' type='png' style='font-size:13px; cursor:pointer;width:50px;'>PNG</button> <br/>
-                    <button class='oncoprint-diagram-download' type='svg' style='font-size:13px; cursor:pointer;width:50px;'>SVG</button> <br/>
-                    <button class='oncoprint-sample-download'  type='txt' style='font-size:13px; cursor:pointer;width:50px;'>Sample order</button>
+               <div class="dropdown-menu" style="padding: 10px 5px; width: 120px;min-width: 70px;">
+                    <button class='oncoprint-diagram-download' type='pdf' style='font-size:13px; cursor:pointer;width:100px;'>PDF</button> <br/>
+                    <button class='oncoprint-diagram-download' type='png' style='font-size:13px; cursor:pointer;width:100px;'>PNG</button> <br/>
+                    <button class='oncoprint-diagram-download' type='svg' style='font-size:13px; cursor:pointer;width:100px;'>SVG</button> <br/>
+                    <button class='oncoprint-sample-download'  type='txt' style='font-size:13px; cursor:pointer;width:100px;'>Sample order</button>
+                    <button class='oncoprint-tabular-download'  type='tsv' style='font-size:13px; cursor:pointer;width:100px;'>Tab-separated values</button>
                </div>
             </div>
             

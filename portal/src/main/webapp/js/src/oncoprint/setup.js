@@ -1,3 +1,5 @@
+/* globals cbio, QuerySession */
+/* jshint devel: true, laxbreak: true*/
 var stringListUnique = function(list) {
     var seen = {};
     var ret = [];
@@ -388,16 +390,18 @@ var comparator_utils = {
 	    mandatory: mandatory
 	};
     },
-    'numericalClinicalComparator': function (d1, d2) {
-	if (d1.na && d2.na) {
-	    return 0;
-	} else if (d1.na && !d2.na) {
-	    return 2;
-	} else if (!d1.na && d2.na) {
-	    return -2;
-	} else {
-	    return (d1.attr_val < d2.attr_val ? -1 : (d1.attr_val === d2.attr_val ? 0 : 1));
-	}
+    'makeNumericalComparator': function (value_key) {
+	return function (d1, d2) {
+	    if (d1.na && d2.na) {
+		return 0;
+	    } else if (d1.na && !d2.na) {
+		return 2;
+	    } else if (!d1.na && d2.na) {
+		return -2;
+	    } else {
+		return (d1[value_key] < d2[value_key] ? -1 : (d1[value_key] === d2[value_key] ? 0 : 1));
+	    }
+	};
     },
     'stringClinicalComparator': function (d1, d2) {
 	if (d1.na && d2.na) {
@@ -458,6 +462,8 @@ var comparator_utils = {
     }
 	
 };
+comparator_utils.numericalClinicalComparator = comparator_utils.makeNumericalComparator('attr_val');
+comparator_utils.heatmapComparator = comparator_utils.makeNumericalComparator('profile_data');
 
 	
 window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_selector) {
@@ -1119,7 +1125,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			'target_group': heatmap_track_group.track_group_id,
 			'removable': true,
 			'removeCallback': makeRemoveHeatmapHandler(genetic_profile_id, gene),
-			//'sortCmpFn': function(d1, d2) {return 0;},
+			'sort_direction_changeable': true,
+			'sortCmpFn': comparator_utils.heatmapComparator,
+			'init_sort_direction': 0,
 			'description': gene + ' data from ' + genetic_profile_id,
 			//'track_group_header': genetic_profile_id
 		    };
@@ -1148,7 +1156,16 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}
 			return populateHeatmapTrack(genetic_profile_id, gene, track_id);
 		    }
-		}));
+		})).then(function () {
+		    // Give the optionally sortable heatmap track groups a
+		    // higher sort-by-data priority than the inherently sorted
+		    // alteration track groups
+		    var ordered_group_ids = (oncoprint.model.getTrackGroups()
+			.map(function (__, group_index) { return group_index; })
+			.filter(function(group_index) { return group_index != 1; }));
+		    ordered_group_ids.push(1);
+		    oncoprint.setTrackGroupSortPriority(ordered_group_ids);
+		});
 	    },
 	    'useAndAddAttribute': function(attr_id) {
 		var attr = this.useAttribute(attr_id);

@@ -66,6 +66,10 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("A", mutation.getTumorSeqAllele());
         Assert.assertEquals("Unknown", mutation.getValidationStatus());
         Assert.assertEquals("SNP", mutation.getVariantType());
+        Assert.assertEquals("Putative_Driver", mutation.getDriverFilter());
+        Assert.assertEquals("Pathogenic", mutation.getDriverFilterAnnotation());
+        Assert.assertEquals("Tier 1", mutation.getDriverTiersFilter());
+        Assert.assertEquals("Highly Actionable", mutation.getDriverTiersFilterAnnotation());
     }
 
     @Test
@@ -103,6 +107,10 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("A", mutation.getTumorSeqAllele());
         Assert.assertEquals("Unknown", mutation.getValidationStatus());
         Assert.assertEquals("SNP", mutation.getVariantType());
+        Assert.assertEquals("Putative_Driver", mutation.getDriverFilter());
+        Assert.assertEquals("Pathogenic", mutation.getDriverFilterAnnotation());
+        Assert.assertEquals("Tier 1", mutation.getDriverTiersFilter());
+        Assert.assertEquals("Highly Actionable", mutation.getDriverTiersFilterAnnotation());
     }
 
     @Test
@@ -141,6 +149,10 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals("A", mutation.getTumorSeqAllele());
         Assert.assertEquals("Unknown", mutation.getValidationStatus());
         Assert.assertEquals("SNP", mutation.getVariantType());
+        Assert.assertEquals("Putative_Driver", mutation.getDriverFilter());
+        Assert.assertEquals("Pathogenic", mutation.getDriverFilterAnnotation());
+        Assert.assertEquals("Tier 1", mutation.getDriverTiersFilter());
+        Assert.assertEquals("Highly Actionable", mutation.getDriverTiersFilterAnnotation());
         Gene gene = mutation.getGene();
         Assert.assertEquals((Integer) 207, gene.getEntrezGeneId());
         Assert.assertEquals("AKT1", gene.getHugoGeneSymbol());

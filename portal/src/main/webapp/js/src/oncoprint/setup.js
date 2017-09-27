@@ -1581,6 +1581,23 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	
 	return State.addAndPopulateClinicalTracks(attr);
     };
+    
+    var isAnyDriverLabellingDataSourceSelected = function() {
+	result = true;
+	var known_mutation_settings = QuerySession.getKnownMutationSettings();
+	    var tiers = false;
+	    Object.keys(known_mutation_settings.recognize_driver_tiers).forEach(function(tier) {
+		if (known_mutation_settings.recognize_driver_tiers[tier] === true) {
+		    tiers = true;
+		}
+	    });
+	    if (!known_mutation_settings.recognize_hotspot && !known_mutation_settings.recognize_cbioportal_count
+		    && !known_mutation_settings.recognize_cosmic_count && !known_mutation_settings.recognize_oncokb_oncogenic 
+		    && !known_mutation_settings.recognize_driver_filter && !tiers) {
+		result = false;
+	    }
+	return result;
+    };
 
     (/**
       * Initializes the OncoPrint tracks, populates them and scrolls back.
@@ -1597,10 +1614,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	console.log("in initOncoprint, fetching genomic event data");
 	return QuerySession.getOncoprintSampleGenomicEventData()
 	.then(function (oncoprint_data) {
-	    var known_mutation_settings = QuerySession.getKnownMutationSettings();
-	    if (!known_mutation_settings.recognize_hotspot && !known_mutation_settings.recognize_cbioportal_count
-		    && !known_mutation_settings.recognize_cosmic_count && !known_mutation_settings.recognize_oncokb_oncogenic 
-		    && !known_mutation_settings.recognize_driver_filter) {
+	    if (!isAnyDriverLabellingDataSourceSelected()) {
 		// If no data sources selected, turn off driver/passenger labeling..
 		State.colorby_knowledge = false;
 		// .. and filtering
@@ -2060,11 +2074,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		if (!external_data_status.oncokb) {
 		    $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="oncokb"]').attr("disabled", true);
 		}
-		
-		var known_mutation_settings = QuerySession.getKnownMutationSettings();
-		if (!known_mutation_settings.recognize_hotspot && !known_mutation_settings.recognize_cbioportal_count
-			    && !known_mutation_settings.recognize_cosmic_count && !known_mutation_settings.recognize_oncokb_oncogenic 
-			    && !known_mutation_settings.recognize_driver_filter) {
+		if (!isAnyDriverLabellingDataSourceSelected()) {
 		    // If no data sources selected, turn off driver/passenger labeling..
 		    State.colorby_knowledge = false;
 		    // .. and filtering

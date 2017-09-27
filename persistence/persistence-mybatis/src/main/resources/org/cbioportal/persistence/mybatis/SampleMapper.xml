@@ -95,7 +95,7 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM sample
+        <include refid="from"/>
         <where>
             <if test="internalIds != null and !internalIds.isEmpty()">
                 sample.INTERNAL_ID IN

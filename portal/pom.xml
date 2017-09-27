@@ -13,6 +13,18 @@
   <url>http://maven.apache.org</url>
 
   <dependencies>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-taglibs</artifactId>
+      <version>${spring.security.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security.extensions</groupId>
+      <artifactId>spring-security-saml2-core</artifactId>
+      <version>${spring.security.saml.version}</version>
+      <scope>runtime</scope>
+    </dependency>
     <!-- jstl -->
     <dependency>
       <groupId>jstl</groupId>

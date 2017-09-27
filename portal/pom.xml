@@ -93,7 +93,7 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>com.github.ersinciftci</groupId>
+                  <groupId>com.github.cbioportal</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
                   <version>2eb1f24a2a77c92cd8acd27c521802decb924873</version>
                   <type>jar</type>

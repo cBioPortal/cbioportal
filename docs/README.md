@@ -24,6 +24,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 * [User Authorization](User-Authorization.md)
 * [Authenticating Users via SAML](Authenticating-Users-via-SAML.md)
 * [Authenticating Users via LDAP](Authenticating-Users-via-LDAP.md)
+* [Authenticating and Authorizing Users via Keycloak](Authenticating-and-Authorizing-Users-via-keycloak.md)
 
 ### 2.3 Customization 
 * [Customizing your cBioPortal Instance via portal.properties](Customizing-your-instance-of-cBioPortal.md)

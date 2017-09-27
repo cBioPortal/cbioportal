@@ -219,15 +219,21 @@ var DataDownloadTab = (function() {
                     _processedProfiles.push(_p);
                 });
             }
-
-            $.each(_processedProfiles, function(index, val) {
-                var _str = "<li style=\"margin-bottom: 1em;\">" + val.name + ": ";
-                _formats.forEach(function(inner_obj) {
-                    _str += "<a href='#' onclick=\"DataDownloadTab.onClickDownload('"+val.profileIds+"','" +val.alterationType+"','" + inner_obj.value + "','" + val.fileName + "')\"> [ " + inner_obj.name + " ]</a>&nbsp;&nbsp;&nbsp;"
+            
+            // Hide download file links for multi-studies.
+            if (_processedProfiles.length > 1) {
+                $('#data_download_tab_links_li_div').css('display','none');
+                $('#data_download_tab_text_areas').css('margin-top','10px');
+            } else {
+                $.each(_processedProfiles, function(index, val) {
+                    var _str = "<li style=\"margin-bottom: 1em;\">" + val.name + ": ";
+                    _formats.forEach(function(inner_obj) {
+                        _str += "<a href='#' onclick=\"DataDownloadTab.onClickDownload('"+val.profileIds+"','" +val.alterationType+"','" + inner_obj.value + "','" + val.fileName + "')\"> [ " + inner_obj.name + " ]</a>&nbsp;&nbsp;&nbsp;"
+                    });
+                    _str += "</li>";
+                    $("#data_download_links_li").append(_str);
                 });
-                _str += "</li>";
-                $("#data_download_links_li").append(_str);
-            });
+            }
         });
 
         //configure the download link (link back to the home page download data tab)

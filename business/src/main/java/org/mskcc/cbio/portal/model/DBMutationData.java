@@ -36,4 +36,8 @@ public class DBMutationData extends DBProfileData implements Serializable {
     public String variant_read_count_normal;
     public String cosmic_count;
     public String keyword;
+    public String driver_filter;
+    public String driver_filter_annotation;
+    public String driver_tiers_filter;
+    public String driver_tiers_filter_annotation;
 }

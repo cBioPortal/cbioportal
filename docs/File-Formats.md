@@ -516,6 +516,8 @@ AGRN<TAB>0.142<TAB>0.091<TAB>...
 The mutation data file extends the [Mutation Annotation Format](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification) (MAF) created as part of the [Cancer Genome Atlas](https://wiki.nci.nih.gov/display/TCGA/TCGA+Home) project, by adding *extra annotations* to each mutation record.  If your mutation data is already in [VCF](http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41) format (which by default most variant callers produce) you can use this  [vcf2maf](https://github.com/ckandoth/vcf2maf) converter.
 **Please note that all data should be mapped to UniProt canonical isoforms.** This can be done by calling the vcf2maf or maf2maf with the ```--custom-enst``` flag and the mapping file available [here](https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot). This will ensure the SWISSPROT column, which contains the UniProt canonical isoform, can be used correctly by cBioPortal.
 
+In mouse, the "chromosome plot" displayed in the Patient View is not fully supported ([see issue](https://github.com/cBioPortal/cbioportal-frontend/issues/410)).
+
 #### Meta file
 The mutation metadata file should contain the following fields:
 
@@ -570,12 +572,17 @@ The following extra annotation columns are also important for making sure mutati
 
 *Adding your mutation annotation columns to the complete MAF rows* can also be done. In this way, the portal will parse and store the MAF fields as well. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](http://mutationassessor.org/), which leads to a 'Mutation Assessor” column in the [mutation table](http://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
 
-The MAF format recognized by the portal (excluding the annotation columns already mentioned above) has 32 columns + 4 columns with information on reference and variant allele counts in tumor and normal samples. A more detailed example MAF can be found on our [Downloads](Downloads.md#maf-example) page. Description of each column is provided below:
+The MAF format recognized by the portal (excluding the annotation columns already mentioned above) has:
+* 32 columns from the [TCGA MAF format](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification).
+* 1 column with the amino acid change.
+* 4 columns with information on reference and variant allele counts in tumor and normal samples. 
+* 4 columns with custom annotation of driver and passenger mutations (find more information [here](portal.properties-Reference.md#oncoprint). 
 
+A more detailed example MAF can be found in [study_es_0](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/core/src/test/scripts/test_data/study_es_0/brca_tcga_pub.maf). The description of each column is provided below:
 1. **Hugo_Symbol (Required)**: A [HUGO](http://www.genenames.org/) gene symbol.
 2. **Entrez_Gene_Id (Optional, but desired)**: A [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
 3. **Center (Optional)**: The sequencing center.
-4. **NCBI_Build (Optional)**: Must be "37".
+4. **NCBI_Build (Optional)**: Must be "GRCh37" for human, and "GRCm38" for mouse.
 5. **Chromosome (Optional)**: A chromosome number, e.g., "7".
 6. **Start_Position (Optional)**: Start position of event.
 7. **End_Position (Optional)**: End position of event.
@@ -604,12 +611,21 @@ The MAF format recognized by the portal (excluding the annotation columns alread
 30. **Score (Optional)**: Not in use.
 31. **BAM_File (Optional)**: Not used.
 32. **Sequencer (Optional)**: Instrument used to produce primary data.
-33. **t_alt_count (Optional)**: Variant allele count (tumor). 
-34. **t_ref_count (Optional)**: Reference allele count (tumor).
-35. **n_alt_count (Optional)**: Variant allele count (normal).
-36. **n_ref_count (Optional)**: Reference allele count (normal).
+33. **HGVSp_Short (Required)**: Amino Acid Change, e.g. p.V600E.
+34. **t_alt_count (Optional)**: Variant allele count (tumor). 
+35. **t_ref_count (Optional)**: Reference allele count (tumor).
+36. **n_alt_count (Optional)**: Variant allele count (normal).
+37. **n_ref_count (Optional)**: Reference allele count (normal).
+38. **cbp_driver (Optional)**: "Putative_Passenger", "Putative_Driver", "Unknown", "NA" or "" (empty value).
+39. **cbp_driver_annotation (Optional)**: field to give more information about the cbp_driver value (limited to 80 characters). This field can only be present if the cbp_driver is also present in the MAF file. This field is free text. Example values for this field are: "Pathogenic" or "VUS".
+40. **cbp_driver_tiers (Optional)**: free label/category that marks the mutation as a putative driver (limited to 20 characters). This field is free text. Example values for this field are: "Tier 1", Tier 2"... In the Oncoprint menu, the tiers are be ordered alphabetically. If you do not want to put specific mutations in any category, leave the field blank or type "NA".
+41. **cbp_driver_tiers_annotation (Optional)**: field to give more information about the cbp_driver_tiers value (limited to 80 characters). This field can only be present if the cbp_driver_tiers is also present in the MAF file. This field is free text. Example values for this field are: "Highly Actionable", "Potentially Actionable", "Not currently actionable"...
 
-⚠️ Please make sure that, even if you are using the MAF format, all required columns specified in the beginning of the Data File section are present!
+⚠️ Please make sure that, even if you are using the MAF format, all 4 required columns specified in the beginning of the Data File section are present!
+
+##### Custom Putative Driver/Passenger mutations
+The "cbp_driver" columns are used in the OncoPrint, providing two customized annotations of driver and passenger mutations. The first one, `cbp_driver`, allows to define the mutation only as driver or passenger, whereas the second one (`cbp_driver_tiers`), allows to assign a tier to the mutation. When the tier where the mutation belongs is selected, the mutation is higlighted as driver. Both columns contain a second column with the suffix `_annotation`, to add more information about the classification. This information is displayed in the tooltip that appears when hovering over the mutation in the OncoPrint. You can learn more about the configuration of those annotations [here](). When properly configured, the customized annotations appear in the "Mutation Color" menu of the OncoPrint: \
+![schreenshot mutation color menu](images/screenshot-mutation-color-menu.png) 
 
 ## Methylation Data
 The Portal expects a single value for each gene in each sample, usually a beta-value from the Infinium methylation array platform.

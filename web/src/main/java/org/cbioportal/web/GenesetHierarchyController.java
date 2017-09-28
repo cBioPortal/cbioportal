@@ -30,7 +30,7 @@ import javax.validation.constraints.Min;
 
 import org.cbioportal.model.GenesetHierarchyInfo;
 import org.cbioportal.service.GenesetHierarchyService;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +81,7 @@ public class GenesetHierarchyController {
         @ApiParam(required = false, value = "Fill this one if you want to specify a subset of samples:"
         		+ " sampleIds: custom list of samples or patients to query, e.g. [\"TCGA-A1-A0SD-01\", \"TCGA-A1-A0SE-01\"]")
         @RequestBody(required = false) List<String> sampleIds)
-        throws GeneticProfileNotFoundException, SampleListNotFoundException {
+        throws MolecularProfileNotFoundException, SampleListNotFoundException {
 
 	        if (sampleListId != null && sampleListId.trim().length() > 0) {
 	    		return new ResponseEntity<>(

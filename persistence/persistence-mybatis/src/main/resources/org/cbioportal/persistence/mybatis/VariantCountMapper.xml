@@ -6,7 +6,7 @@
     
     <select id="fetchVariantCounts" resultType="org.cbioportal.model.VariantCount">
         SELECT
-        genetic_profile.STABLE_ID AS geneticProfileId,
+        genetic_profile.STABLE_ID AS molecularProfileId,
         mutation_count_by_keyword.KEYWORD AS keyword,
         mutation_count_by_keyword.ENTREZ_GENE_ID AS entrezGeneId,
         mutation_count_by_keyword.KEYWORD_COUNT AS numberOfSamplesWithKeyword,
@@ -14,7 +14,7 @@
         FROM mutation_count_by_keyword
         INNER JOIN genetic_profile ON mutation_count_by_keyword.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         WHERE
-        genetic_profile.STABLE_ID = #{geneticProfileId}
+        genetic_profile.STABLE_ID = #{molecularProfileId}
         <if test="entrezGeneIds != null">
             AND
             <foreach index="i" collection="entrezGeneIds" open="(" separator="OR" close=")">

@@ -63,6 +63,7 @@ public class FractionGenomeAlteredServiceImpl implements FractionGenomeAlteredSe
             FractionGenomeAltered fractionGenomeAltered = new FractionGenomeAltered();
             fractionGenomeAltered.setStudyId(studyId);
             fractionGenomeAltered.setSampleId(sampleId);
+            fractionGenomeAltered.setPatientId(measuredCopyNumberSegList.get(0).getPatientId());
             fractionGenomeAltered.setValue(BigDecimal.valueOf((double) alteredLength / (double) measuredLength));
             fractionGenomeAlteredList.add(fractionGenomeAltered);
         }

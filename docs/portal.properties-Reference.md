@@ -68,6 +68,38 @@ The default view in OncoPrint ("patient" or "sample") can be set with the follow
 oncoprint.defaultview=sample
 ```
 
+## Custom annotation of driver and passenger mutations
+cBioPortal allows for two different formats of custom annotation of driver and passenger mutations in the MAF files (see [file format documentation](File-Formats.md#extending-the-maf-format)). To enable the view of those annotations (just one or all both), you must specify a name for the label(s) that you want to enable (those labels appear in the oncoprint "Mutation color" menu):
+```
+oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation
+oncoprint.custom_driver_annotation.tiers.menu_label=Custom tiers
+```
+
+By default, when at least one of the custom annotations is enabled in portal.properties and the required columns are present in MAF files, custom annotations are automatically selected, instead of OncoKB and Hotspots. If you wish to change this default behavior and have OncoKB and Hotspots as the default selected annotations, set this parameter to false:
+```
+ oncoprint.custom_driver_annotation.default=false
+```
+
+By default, when at least one of the custom annotations is enabled in portal.properties and the required columns are present in MAF files, custom annotations are automatically selected. You can change this behaviour and set the following properties to "false" to automatically unselect one or both custom driver/passenger mutations (by default, those properties are set to true):
+```
+oncoprint.custom_driver_annotation.default=false
+oncoprint.custom_driver_tiers_annotation.default=false
+```
+
+Independently of the custom annotations, OncoKB and Hotspots are always automatically selected as annotation source. If you want to disable them, set the following property to false:
+```
+oncoprint.oncokb_hotspots.default=false
+``` 
+However, you can also set the same property to "custom". This will automatically select OncoKB and Hotspots only if there are no custom annotation driver and passenger mutations:
+```
+oncoprint.oncokb_hotspots.default=custom
+```
+
+By default, the putative passenger mutations are not hidden. If you want to automatically hide Putative Passenger Mutations, set this property to true:
+```
+oncoprint.hide_passenger.default=true
+```
+
 # Civic integration
 
 Civic integration can be turned on or off with the following property (default: true):

@@ -4389,7 +4389,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     var initDc_ = function(logScale) {
       var tickVal = [];
       var i = 0;
-      var barSet = new Set();
+      var barSet = {};
       
       dcDimension = ndx_.dimension(function (d) {
         var val = d[data_.attrId];
@@ -4451,7 +4451,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           }
         } 
         
-        barSet.add(val);
+        barSet[val] = 1;
         if (tickVal.indexOf(val) === -1) {
           tickVal.push(Number(val));
         }
@@ -4470,7 +4470,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         return val;
       });
     
-      opts_.xBarValues = Array.from(barSet);
+      opts_.xBarValues = Object.keys(barSet);
       opts_.xBarValues.sort(function (a, b) {
           return a < b ? -1 : 1;
       });

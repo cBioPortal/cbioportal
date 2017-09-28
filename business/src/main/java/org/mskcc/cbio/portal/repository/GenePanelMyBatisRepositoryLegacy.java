@@ -69,7 +69,7 @@ public class GenePanelMyBatisRepositoryLegacy implements GenePanelRepositoryLega
     }
 
     @Override
-    public GeneticProfile getGeneticProfileByStableId(String stableId) {
+    public MolecularProfile getGeneticProfileByStableId(String stableId) {
         return genePanelMapper.getGeneticProfileByStableId(stableId);
     }
 

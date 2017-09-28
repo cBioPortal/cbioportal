@@ -21,87 +21,89 @@ public class MutationMyBatisRepository implements MutationRepository {
     private OffsetCalculator offsetCalculator;
 
     @Override
-    public List<Mutation> getMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId,
-                                                                     List<Integer> entrezGeneIds, Boolean snpOnly,
-                                                                     String projection, Integer pageSize,
-                                                                     Integer pageNumber, String sortBy,
-                                                                     String direction) {
+    public List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
+                                                                       List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                                       String projection, Integer pageSize,
+                                                                       Integer pageNumber, String sortBy,
+                                                                       String direction) {
 
-        return mutationMapper.getMutationsBySampleListId(geneticProfileId, sampleListId, entrezGeneIds, snpOnly,
+        return mutationMapper.getMutationsBySampleListId(molecularProfileId, sampleListId, entrezGeneIds, snpOnly,
             projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
-    public MutationMeta getMetaMutationsInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId,
-                                                                       List<Integer> entrezGeneIds) {
+    public MutationMeta getMetaMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
+                                                                         List<Integer> entrezGeneIds) {
 
-        return mutationMapper.getMetaMutationsBySampleListId(geneticProfileId, sampleListId, entrezGeneIds, null);
+        return mutationMapper.getMetaMutationsBySampleListId(molecularProfileId, sampleListId, entrezGeneIds, null);
     }
 
     @Override
-    public List<Mutation> getMutationsInMultipleGeneticProfiles(List<String> geneticProfileIds, List<String> sampleIds,
-                                                                List<Integer> entrezGeneIds, String projection,
-                                                                Integer pageSize, Integer pageNumber, String sortBy,
-                                                                String direction) {
+    public List<Mutation> getMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
+                                                                  List<String> sampleIds, List<Integer> entrezGeneIds, 
+                                                                  String projection, Integer pageSize, 
+                                                                  Integer pageNumber, String sortBy, String direction) {
 
-        return mutationMapper.getMutationsInMultipleGeneticProfiles(geneticProfileIds, sampleIds, entrezGeneIds, null,
-            projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        return mutationMapper.getMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds, 
+            null, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
-    public MutationMeta getMetaMutationsInMultipleGeneticProfiles(List<String> geneticProfileIds,
-                                                                  List<String> sampleIds, List<Integer> entrezGeneIds) {
+    public MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds,
+                                                                    List<String> sampleIds, 
+                                                                    List<Integer> entrezGeneIds) {
 
-        return mutationMapper.getMetaMutationsInMultipleGeneticProfiles(geneticProfileIds, sampleIds, entrezGeneIds,
+        return mutationMapper.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds,
             null);
     }
 
     @Override
-    public List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds,
-                                                         List<Integer> entrezGeneIds, Boolean snpOnly,
-                                                         String projection, Integer pageSize, Integer pageNumber,
-                                                         String sortBy, String direction) {
+    public List<Mutation> fetchMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
+                                                           List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                           String projection, Integer pageSize, Integer pageNumber,
+                                                           String sortBy, String direction) {
 
-        return mutationMapper.getMutationsBySampleIds(geneticProfileId, sampleIds, entrezGeneIds, snpOnly, projection,
+        return mutationMapper.getMutationsBySampleIds(molecularProfileId, sampleIds, entrezGeneIds, snpOnly, projection,
             pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
-    public MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds,
-                                                           List<Integer> entrezGeneIds) {
+    public MutationMeta fetchMetaMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
+                                                             List<Integer> entrezGeneIds) {
 
-        return mutationMapper.getMetaMutationsBySampleIds(geneticProfileId, sampleIds, entrezGeneIds, null);
+        return mutationMapper.getMetaMutationsBySampleIds(molecularProfileId, sampleIds, entrezGeneIds, null);
     }
 
     @Override
-    public List<MutationCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
+    public List<MutationCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
                                                                                List<String> sampleIds,
                                                                                List<Integer> entrezGeneIds) {
 
-        return mutationMapper.getSampleCountByEntrezGeneIdsAndSampleIds(geneticProfileId, sampleIds, entrezGeneIds,
+        return mutationMapper.getSampleCountByEntrezGeneIdsAndSampleIds(molecularProfileId, sampleIds, entrezGeneIds,
             null);
     }
 
     @Override
-    public List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String geneticProfileId,
+    public List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
                                                                                 List<String> patientIds,
                                                                                 List<Integer> entrezGeneIds) {
 
-        return mutationMapper.getPatientCountByEntrezGeneIdsAndSampleIds(geneticProfileId, patientIds, entrezGeneIds,
+        return mutationMapper.getPatientCountByEntrezGeneIdsAndSampleIds(molecularProfileId, patientIds, entrezGeneIds,
             null);
     }
 
     @Override
-    public List<MutationCount> getMutationCountsInGeneticProfileBySampleListId(String geneticProfileId,
-                                                                               String sampleListId) {
+    public List<MutationCount> getMutationCountsInMolecularProfileBySampleListId(String molecularProfileId,
+                                                                                 String sampleListId) {
 
-        return mutationMapper.getMutationCountsBySampleListId(geneticProfileId, sampleListId);
+        return mutationMapper.getMutationCountsBySampleListId(molecularProfileId, sampleListId);
     }
 
     @Override
-    public List<MutationCount> fetchMutationCountsInGeneticProfile(String geneticProfileId, List<String> sampleIds) {
+    public List<MutationCount> fetchMutationCountsInMolecularProfile(String molecularProfileId, 
+                                                                     List<String> sampleIds) {
 
-        return mutationMapper.getMutationCountsBySampleIds(geneticProfileId, sampleIds);
+        return mutationMapper.getMutationCountsBySampleIds(molecularProfileId, sampleIds);
     }
 
     @Override

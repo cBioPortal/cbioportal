@@ -93,7 +93,7 @@ public class ProxyController
   // Created by Hongxin
   @RequestMapping(value="/{path}")
   public @ResponseBody String getProxyURL(@PathVariable String path,
-                                          @RequestBody String body, HttpMethod method,
+                                          @RequestBody(required = false) String body, HttpMethod method,
                                           HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException
   {
       Map<String, String> pathToUrl = new HashMap<>();

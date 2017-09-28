@@ -66,6 +66,7 @@
 <%@ page import="org.codehaus.jackson.JsonParser" %>
 <%@ page import="org.codehaus.jackson.JsonFactory" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoMutation" %>
 
 <%
     //Security Instance
@@ -148,17 +149,24 @@
         var studySampleObj = JSON.parse('<%=studySampleMapJson%>');
         var studyIdsList = Object.keys(studySampleObj);
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
-            converted_oql,
-            studyIdsList,
-            studySampleObj,
-            parseFloat('<%=zScoreThreshold%>'),
-            parseFloat('<%=rppaScoreThreshold%>'),
-            {
-                case_set_id: '<%=sampleSetId%>',
-                case_ids_key: '<%=sampleIdsKey%>',
-                case_set_name: '<%=sampleSetName%>',
-                case_set_description: '<%=sampleSetDescription%>'
-            });
+                                                            converted_oql,
+							    studyIdsList,
+							    studySampleObj,
+							    parseFloat('<%=zScoreThreshold%>'),
+							    parseFloat('<%=rppaScoreThreshold%>'),
+							    {
+								case_set_id: '<%=sampleSetId%>',
+								case_ids_key: '<%=sampleIdsKey%>',
+								case_set_name: '<%=sampleSetName%>',
+								case_set_description: '<%=sampleSetDescription%>'
+							    }, <%=GlobalProperties.enableDriverAnnotations()%>,
+                                                            <%=GlobalProperties.showBinaryCustomDriverAnnotation()%>,
+                                                            <%=DaoMutation.hasDriverAnnotations(request.getParameter(QueryBuilder.CANCER_STUDY_ID))%>,
+                                                            <%=DaoMutation.numTiers(request.getParameter(QueryBuilder.CANCER_STUDY_ID))%>,
+                                                            '<%=GlobalProperties.enableOncoKBandHotspots()%>',
+                                                            <%=GlobalProperties.showTiersCustomDriverAnnotation()%>,
+                                                            <%=GlobalProperties.enableTiers()%>,
+                                                            <%=GlobalProperties.hidePassengerMutations()%>);
     })();
 
 

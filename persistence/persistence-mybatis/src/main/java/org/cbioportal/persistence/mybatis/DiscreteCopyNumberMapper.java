@@ -8,26 +8,26 @@ import java.util.List;
 
 public interface DiscreteCopyNumberMapper {
 
-    List<DiscreteCopyNumberData> getDiscreteCopyNumbersBySampleListId(String geneticProfileId, String sampleListId,
+    List<DiscreteCopyNumberData> getDiscreteCopyNumbersBySampleListId(String molecularProfileId, String sampleListId,
                                                                       List<Integer> entrezGeneIds,
                                                                       List<Integer> alterationTypes, String projection);
 
-    BaseMeta getMetaDiscreteCopyNumbersBySampleListId(String geneticProfileId, String sampleListId,
+    BaseMeta getMetaDiscreteCopyNumbersBySampleListId(String molecularProfileId, String sampleListId,
                                                       List<Integer> entrezGeneIds, List<Integer> alterationTypes);
 
-    List<DiscreteCopyNumberData> getDiscreteCopyNumbersBySampleIds(String geneticProfileId, List<String> sampleIds,
+    List<DiscreteCopyNumberData> getDiscreteCopyNumbersBySampleIds(String molecularProfileId, List<String> sampleIds,
                                                                    List<Integer> entrezGeneIds,
                                                                    List<Integer> alterationTypes, String projection);
 
-    BaseMeta getMetaDiscreteCopyNumbersBySampleIds(String geneticProfileId, List<String> sampleIds,
+    BaseMeta getMetaDiscreteCopyNumbersBySampleIds(String molecularProfileId, List<String> sampleIds,
                                                    List<Integer> entrezGeneIds, List<Integer> alterationTypes);
 
-    List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String geneticProfileId,
+    List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String molecularProfileId,
                                                                               List<String> sampleIds,
                                                                               List<Integer> entrezGeneIds,
                                                                               List<Integer> alterations);
 
-    List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String geneticProfileId,
+    List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId,
                                                                                 List<String> patientIds,
                                                                                 List<Integer> entrezGeneIds,
                                                                                 List<Integer> alterations);

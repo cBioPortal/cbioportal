@@ -32,23 +32,29 @@
 
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ taglib prefix='c' uri='http://java.sun.com/jsp/jstl/core' %>
+<%@ taglib prefix="s" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%
     String principal = "";
-    String samlLogoutURL = "/saml/logout?local=" + GlobalProperties.getSamlIsLogoutLocal();
     String authenticationMethod = GlobalProperties.authenticationMethod();
+    pageContext.setAttribute("authenticationMethod", authenticationMethod);
     if (authenticationMethod.equals("openid") || authenticationMethod.equals("ldap")) {
         principal = "principal.name";
     }
     else if (authenticationMethod.equals("googleplus") || authenticationMethod.equals("saml") || authenticationMethod.equals("ad")) {
         principal = "principal.username";
     }
-
-    // retrieve right-logo from global properties. Based on the tagLineImage code.
-    String rightLogo = (authenticationMethod.equals("saml")) ?
-            "/" + GlobalProperties.getRightLogo() : GlobalProperties.getRightLogo();
-    pageContext.setAttribute("rightLogo", rightLogo);
+    pageContext.setAttribute("principal", principal);
 %>
+<%-- Calling static methods is not supported in all versions of EL without
+     explicitly defining a function in an external taglib XML file. Using
+     Spring's SpEL instead to keep it short for this one function call --%>
+<s:eval var="rightLogo" expression="T(org.mskcc.cbio.portal.util.GlobalProperties).getRightLogo()"/>
+<s:eval var="samlLogoutLocal" expression="T(org.mskcc.cbio.portal.util.GlobalProperties).getSamlIsLogoutLocal()"/>
+
+<c:url var="samlLogoutUrl" value="/saml/logout">
+    <c:param name="local" value="${samlLogoutLocal}" />
+</c:url>
 
 <header>
         <div id="leftHeaderContent">
@@ -127,31 +133,29 @@
         </div>
 
         <div id="rightHeaderContent">
-        <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
+        <%-- Display Sign Out Button for Real (Non-Anonymous) User --%>
         <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
             <div class="userControls">
             <span class="username"><i class="fa fa-cog" aria-hidden="true"></i></span>&nbsp;
                 
-                <div class="identity">Logged in as <sec:authentication property='<%=principal%>' />&nbsp;|&nbsp;
-                <% if (authenticationMethod.equals("saml")) { %>
-                    <a href="<c:url value="/saml/logout?local=true"/>">Sign out</a>
-                <%} else { %>
-                    <a href="j_spring_security_logout">Sign out</a>
-                <% } %>
+                <div class="identity">Logged in as <sec:authentication property="${principal}" />&nbsp;|&nbsp;
+                <c:choose>
+                    <c:when test="${authenticationMethod == 'saml'}">
+                        <a href="${samlLogoutUrl}">Sign out</a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="j_spring_security_logout">Sign out</a>
+                    </c:otherwise>
+                </c:choose>
                 &nbsp;&nbsp;
                 <i class="fa fa-cog" aria-hidden="true"></i>
                 </div>
             </div>
         </sec:authorize>
-    
-    
-            <% if (rightLogo != "") { %>
-            <img id="institute-logo" src="<c:url value="${rightLogo}"/>" alt="Institute Logo" />
-            <% } %>
-    
-        </div>
-    
-    
 
+        <c:if test="${rightLogo != ''}">
+            <img id="institute-logo" src="<c:url value="${rightLogo}"/>" alt="Institute Logo" />
+        </c:if>
+        </div>
 
     </header>

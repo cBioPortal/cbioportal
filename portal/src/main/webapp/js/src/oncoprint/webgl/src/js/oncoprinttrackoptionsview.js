@@ -120,14 +120,28 @@ var OncoprintTrackOptionsView = (function () {
 	return $('<li>').css({'border-top': '1px solid black'});
     };
 
+    var renderSortArrow = function($sortarrow, model, track_id) {
+	var sortarrow_char = '';
+	if (model.isTrackSortDirectionChangeable(track_id)){
+	    sortarrow_char = {
+		    '1': '<i class="fa fa-signal" aria-hidden="true" title="Sorted ascending"></i>',
+		    '-1': '<i class="fa fa-signal" style="transform: scaleX(-1);" aria-hidden="true" title="Sorted descending"></i>',
+		    '0': ''}[model.getTrackSortDirection(track_id)];
+	}
+	$sortarrow.html(sortarrow_char);
+    }
+
     var renderTrackOptions = function (view, model, track_id) {
-	var $div, $img, $dropdown;
+	var $div, $img, $sortarrow, $dropdown;
 	var top = model.getZoomedTrackTops(track_id);
-	$div = $('<div>').appendTo(view.$buttons_ctr).css({'position': 'absolute', 'left': '0px', 'top': top + 'px'});
+	$div = $('<div>').appendTo(view.$buttons_ctr).css({'position': 'absolute', 'left': '0px', 'top': top + 'px', 'white-space': 'nowrap'});
 	$img = $('<img/>').appendTo($div).attr({'src': 'images/menudots.svg', 'width': view.img_size, 'height': view.img_size}).css({'float': 'left', 'cursor': 'pointer', 'border': '1px solid rgba(125,125,125,0)'});
+	$sortarrow = $('<span>').appendTo($div).css({'position': 'absolute', 'top': Math.floor(view.img_size / 4) + 'px'});
 	$dropdown = $('<ul>').appendTo(view.$dropdown_ctr).css({'position':'absolute', 'width': 120, 'display': 'none', 'list-style-type': 'none', 'padding-left': '6', 'padding-right': '6', 'float': 'right', 'background-color': 'rgb(255,255,255)',
 								'left':'0px', 'top': top + view.img_size + 'px'});
 	view.track_options_$elts[track_id] = {'$div': $div, '$img': $img, '$dropdown': $dropdown};
+
+	renderSortArrow($sortarrow, model, track_id);
 
 	$img.hover(function (evt) {
 	    if (!view.menu_shown[track_id]) {
@@ -173,6 +187,7 @@ var OncoprintTrackOptionsView = (function () {
 		$sort_dec_li.css('font-weight', 'normal');
 		$dont_sort_li.css('font-weight', 'normal');
 		view.sortChangeCallback(track_id, 1);
+		renderSortArrow($sortarrow, model, track_id);
 	    });
 	    $sort_dec_li = $makeDropdownOption('Sort Z-a', (model.getTrackSortDirection(track_id) === -1 ? 'bold' : 'normal'), function (evt) {
 		evt.stopPropagation();
@@ -180,6 +195,7 @@ var OncoprintTrackOptionsView = (function () {
 		$sort_dec_li.css('font-weight', 'bold');
 		$dont_sort_li.css('font-weight', 'normal');
 		view.sortChangeCallback(track_id, -1);
+		renderSortArrow($sortarrow, model, track_id);
 	    });
 	    $dont_sort_li = $makeDropdownOption('Don\'t sort track', (model.getTrackSortDirection(track_id) === 0 ? 'bold' : 'normal'), function (evt) {
 		evt.stopPropagation();
@@ -187,6 +203,7 @@ var OncoprintTrackOptionsView = (function () {
 		$sort_dec_li.css('font-weight', 'normal');
 		$dont_sort_li.css('font-weight', 'bold');
 		view.sortChangeCallback(track_id, 0);
+		renderSortArrow($sortarrow, model, track_id);
 	    });
 	    $dropdown.append($sort_inc_li);
 	    $dropdown.append($sort_dec_li);
@@ -230,7 +247,7 @@ var OncoprintTrackOptionsView = (function () {
 	scroll(this, model.getVertScroll());
     }
     OncoprintTrackOptionsView.prototype.getWidth = function () {
-	return 10 + this.img_size;
+	return 18 + this.img_size;
     }
     OncoprintTrackOptionsView.prototype.addTracks = function (model) {
 	renderAllOptions(this, model);

@@ -14,7 +14,6 @@
     <properties>
       <spring.social.version>1.1.0.RELEASE</spring.social.version>
       <org.springframework.social.google-version>1.0.0.RELEASE</org.springframework.social.google-version>
-      <spring.security.saml.version>1.0.0.RELEASE</spring.security.saml.version>
     </properties>
 
     <dependencies>
@@ -99,5 +98,18 @@
         <scope>provided</scope>
       </dependency>
     </dependencies>
-
+    <build>
+      <filters>
+        <filter>../../src/main/resources/portal.properties</filter>
+      </filters>
+      <resources>
+        <resource>
+          <directory>src/main/resources</directory>
+          <filtering>true</filtering>
+          <includes>
+            <include>applicationContext-security.xml</include>
+          </includes>
+        </resource>
+      </resources>
+    </build>
 </project>

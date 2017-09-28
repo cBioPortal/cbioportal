@@ -33,17 +33,17 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.Geneset;
-import org.cbioportal.model.GenesetGeneticData;
+import org.cbioportal.model.GenesetMolecularData;
 import org.cbioportal.model.GenesetHierarchyInfo;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.GenesetHierarchyRepository;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.GenesetDataService;
 import org.cbioportal.service.GenesetHierarchyService;
-import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -55,7 +55,7 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
     @Autowired
     private GenesetDataService genesetDataService;
     @Autowired
-    private GeneticProfileService geneticProfileService;
+    private MolecularProfileService geneticProfileService;
     @Autowired
     private GenesetHierarchyRepository genesetHierarchyRepository;
     @Autowired
@@ -65,10 +65,10 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 	
 	@PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
 	public List<GenesetHierarchyInfo> fetchGenesetHierarchyInfo(String geneticProfileId, Integer percentile, 
-			Double scoreThreshold, Double pvalueThreshold) throws GeneticProfileNotFoundException {
+			Double scoreThreshold, Double pvalueThreshold) throws MolecularProfileNotFoundException {
 		
 		// get sample ids from study
-		CancerStudy cancerStudy = geneticProfileService.getGeneticProfile(geneticProfileId).getCancerStudy();
+		CancerStudy cancerStudy = geneticProfileService.getMolecularProfile(geneticProfileId).getCancerStudy();
 		List<Sample> samples = sampleService.fetchSamples(Arrays.asList(cancerStudy.getCancerStudyIdentifier()), null, "SUMMARY");
 		// convert to string list:
 		List<String> sampleIds = samples.stream().map(o -> o.getStableId()).collect( Collectors.toList() );
@@ -77,7 +77,7 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 
 	@PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
 	public List<GenesetHierarchyInfo> fetchGenesetHierarchyInfo(String geneticProfileId, Integer percentile,
-			Double scoreThreshold, Double pvalueThreshold, String sampleListId) throws GeneticProfileNotFoundException, SampleListNotFoundException {
+			Double scoreThreshold, Double pvalueThreshold, String sampleListId) throws MolecularProfileNotFoundException, SampleListNotFoundException {
 		
 		// get sample ids from sampleList
 		List<String> sampleIds = sampleListService.getAllSampleIdsInSampleList(sampleListId);		
@@ -86,10 +86,10 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 
 	@PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
 	public List<GenesetHierarchyInfo> fetchGenesetHierarchyInfo(String geneticProfileId, Integer percentile,
-			Double scoreThreshold, Double pvalueThreshold, List<String> sampleIds) throws GeneticProfileNotFoundException {
+			Double scoreThreshold, Double pvalueThreshold, List<String> sampleIds) throws MolecularProfileNotFoundException {
 
 		//validate: 
-		GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
+		MolecularProfile geneticProfile = geneticProfileService.getMolecularProfile(geneticProfileId);
 		//also validate if profile is of geneset_score type:
 		if (!geneticProfile.getDatatype().equals("GSVA_SCORE")) {
 			throw new IllegalArgumentException("Genetic profile should be of DATA_TYPE = GSVA_SCORE, but found: " +
@@ -97,8 +97,8 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 		}
 		
 		//get list of genesets and respective score records for gene sets that have data for this profile:
-		List<GenesetGeneticData> genesetScores = genesetDataService.fetchGenesetData(geneticProfileId, sampleIds, null); 
-		List<GenesetGeneticData> genesetPvalues = getGenesetPvalues(geneticProfileId, sampleIds);
+		List<GenesetMolecularData> genesetScores = genesetDataService.fetchGenesetData(geneticProfileId, sampleIds, null); 
+		List<GenesetMolecularData> genesetPvalues = getGenesetPvalues(geneticProfileId, sampleIds);
 		
 		return getGenesetHierarchyItems(genesetScores, genesetPvalues, percentile, scoreThreshold, pvalueThreshold);
 	}
@@ -109,11 +109,11 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 	 * @param scoresGeneticProfileId: genetic profile containing gene set scores
 	 * @param sampleIds: samples to use for the representative score calculation
 	 * @return
-	 * @throws GeneticProfileNotFoundException
+	 * @throws MolecularProfileNotFoundException
 	 */
-	private List<GenesetGeneticData> getGenesetPvalues(String scoresGeneticProfileId, List<String> sampleIds) throws GeneticProfileNotFoundException {
+	private List<GenesetMolecularData> getGenesetPvalues(String scoresGeneticProfileId, List<String> sampleIds) throws MolecularProfileNotFoundException {
 
-		List<GeneticProfile> pvaluesGeneticProfiles = geneticProfileService.getGeneticProfilesReferringTo(scoresGeneticProfileId);
+		List<MolecularProfile> pvaluesGeneticProfiles = geneticProfileService.getMolecularProfilesReferringTo(scoresGeneticProfileId);
 		//validate : 
 		if (pvaluesGeneticProfiles == null || pvaluesGeneticProfiles.size() != 1) {
 			//unexpected, but could happen if dataset validation is skipped
@@ -124,7 +124,7 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 			throw new IllegalArgumentException("Genetic profile should be of DATA_TYPE = P_VALUE");
 		}
 
-		List<GenesetGeneticData> genesetPvalues = genesetDataService.fetchGenesetData(pvaluesGeneticProfiles.get(0).getStableId(), sampleIds, null);  
+		List<GenesetMolecularData> genesetPvalues = genesetDataService.fetchGenesetData(pvaluesGeneticProfiles.get(0).getStableId(), sampleIds, null);  
 		return genesetPvalues;
 	}
 
@@ -137,11 +137,11 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 	 * @param pvalueThreshold: filter criterion
 	 * 
 	 * @return
-	 * @throws GeneticProfileNotFoundException
+	 * @throws MolecularProfileNotFoundException
 	 */
-	private List<GenesetHierarchyInfo> getGenesetHierarchyItems(List<GenesetGeneticData> genesetScores,
-			List<GenesetGeneticData> genesetPvalues,
-    		Integer percentile, Double scoreThreshold, Double pvalueThreshold) throws GeneticProfileNotFoundException {
+	private List<GenesetHierarchyInfo> getGenesetHierarchyItems(List<GenesetMolecularData> genesetScores,
+			List<GenesetMolecularData> genesetPvalues,
+    		Integer percentile, Double scoreThreshold, Double pvalueThreshold) throws MolecularProfileNotFoundException {
 
 		List<String> genesetIds = new ArrayList<String>(genesetScores.stream().map(o -> o.getGenesetId()).collect( Collectors.toSet() ));
 
@@ -149,10 +149,10 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 		List<GenesetHierarchyInfo> hierarchySuperNodes = genesetHierarchyRepository.getGenesetHierarchySuperNodes(genesetIds);
 		
 		//index genesetData : 
-		Map<String, List<GenesetGeneticData>> genesetScoresMap =
-				genesetScores.stream().collect(Collectors.groupingBy(GenesetGeneticData::getGenesetId));
-		Map<String, List<GenesetGeneticData>> genesetPvaluesMap =
-				genesetPvalues.stream().collect(Collectors.groupingBy(GenesetGeneticData::getGenesetId));
+		Map<String, List<GenesetMolecularData>> genesetScoresMap =
+				genesetScores.stream().collect(Collectors.groupingBy(GenesetMolecularData::getGenesetId));
+		Map<String, List<GenesetMolecularData>> genesetPvaluesMap =
+				genesetPvalues.stream().collect(Collectors.groupingBy(GenesetMolecularData::getGenesetId));
 		
 		
 		//get the nodes that have gene sets as child/leafs:
@@ -237,7 +237,7 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 		return result;
 	}
 
-	private List<Geneset> getFilteredGenesets(List<Geneset> genesets, Map<String, List<GenesetGeneticData>> genesetDataMap) {
+	private List<Geneset> getFilteredGenesets(List<Geneset> genesets, Map<String, List<GenesetMolecularData>> genesetDataMap) {
 		
 		List<Geneset> result = new ArrayList<Geneset>();
 		for (Geneset geneset: genesets) {
@@ -258,22 +258,22 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 	 * @param genesetDataMap: the set of GSVA(like) scores per sample for each gene set 
 	 * @param percentile: (optional) which percentile to use when determining the representativeScore. If not 
 	 *            set, max of absolute score is returned.
-	 * @throws GeneticProfileNotFoundException 
+	 * @throws MolecularProfileNotFoundException 
 	 */
-	private void fillRepresentativeScoresAndPvalues(List<Geneset> genesets, 
-			Map<String, List<GenesetGeneticData>> genesetScoresMap, Map<String, List<GenesetGeneticData>> genesetPvaluesMap, 
-			Integer percentile) throws GeneticProfileNotFoundException {
+	private void fillRepresentativeScoresAndPvalues(List<Geneset> genesets,
+                                                    Map<String, List<GenesetMolecularData>> genesetScoresMap, Map<String, List<GenesetMolecularData>> genesetPvaluesMap,
+                                                    Integer percentile) throws MolecularProfileNotFoundException {
 		
 		genesets.stream().forEach(g -> calculateAndSetRepresentativeScoreAndPvalue(g, genesetScoresMap, genesetPvaluesMap, percentile));
 	}
 
 	private void calculateAndSetRepresentativeScoreAndPvalue(Geneset geneset, 
-			Map<String, List<GenesetGeneticData>> genesetScoresMap, 
-			Map<String, List<GenesetGeneticData>> genesetPvaluesMap, 
+			Map<String, List<GenesetMolecularData>> genesetScoresMap, 
+			Map<String, List<GenesetMolecularData>> genesetPvaluesMap, 
 			Integer percentile) {
 		
-		List<GenesetGeneticData> genesetScoreData = genesetScoresMap.get(geneset.getGenesetId());
-		List<GenesetGeneticData> genesetPvalueData = genesetPvaluesMap.get(geneset.getGenesetId());
+		List<GenesetMolecularData> genesetScoreData = genesetScoresMap.get(geneset.getGenesetId());
+		List<GenesetMolecularData> genesetPvalueData = genesetPvaluesMap.get(geneset.getGenesetId());
 		
 		//lists to hold the score and p-value pairs:
 		List<ImmutablePair<Double,Double>> positiveScoresAndPvalues = new ArrayList<ImmutablePair<Double,Double>>();

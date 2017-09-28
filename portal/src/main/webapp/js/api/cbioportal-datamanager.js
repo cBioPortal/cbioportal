@@ -1,5 +1,6 @@
 window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, study_sample_map, z_score_threshold, rppa_score_threshold,
-	case_set_properties) {
+	case_set_properties, customDriverAnnotationsByDefault, showDriverAnnotation, hasDriverAnnotations, numTiers, enableOncoKBandHotspots,
+	showTierAnnotation, enableTiers, hidePassenger) {
 
     var signOfDiff = function(a,b) {
 	if (a < b) {
@@ -903,6 +904,17 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	};
     };
     
+    var getTiersMap = function () {
+	var driver_tiers_filter_values = {};
+	var checkboxes = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"]');
+	for (var i=0; i < checkboxes.length; i++) {
+		if (checkboxes[i].name.lastIndexOf("driver_tiers_filter_") != -1) {
+		    driver_tiers_filter_values[checkboxes[i].name] = checkboxes[i].value;
+		}
+	}
+	return driver_tiers_filter_values;
+    }
+    
     var applyKnownMutationSettings = function (ws_data, known_mutation_settings, getters) {
 	var filtered_mutation_types = ["missense", "inframe", "trunc"];
 	var oncogenic = ["likely oncogenic", "predicted oncogenic", "oncogenic"];
@@ -924,6 +936,20 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    d.cosmic_count = cosmic_count;
 		    ret = ret || ((typeof cosmic_count !== "undefined") && (cosmic_count >= known_mutation_settings.cosmic_count_thresh));
 		}
+		if (known_mutation_settings.recognize_driver_filter) {
+		    if (d.driver_filter == "Putative_Driver") {
+			ret = true; //Set the element to be a driver
+		    }
+		}
+		var collectTiersMap = getTiersMap();
+		for (var tier in collectTiersMap) {
+		    if (collectTiersMap.hasOwnProperty(tier) &&
+			    known_mutation_settings.recognize_driver_tiers[tier] &&
+			    collectTiersMap[tier] == d.driver_tiers_filter) {
+			ret = true;
+			}
+		    }
+		
 		if (ret) {
 		    d.putative_driver = true;
 		} else {
@@ -968,6 +994,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		    // index the UID map by sample or patient as appropriate
 		    interim_data[gene][case_id].uid = cases[j].uid;
 		    interim_data[gene][case_id].profile_data = null;
+		    interim_data[gene][case_id].na = true;
 		}
 	    }
 	    // fill profile_data properties with scores
@@ -978,6 +1005,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		var sample_id = receive_datum.sample_id;
 		var case_id = (sample_or_patient === "sample" ? sample_id : sample_to_patient_map[study_id][sample_id]);
 		var interim_datum = interim_data[gene][case_id];
+		interim_datum.na = false;
 		if (interim_datum.profile_data === null) {
 		    // set the initial value for this sample or patient
 		    interim_datum.profile_data = parseFloat(receive_datum.profile_data);
@@ -1075,17 +1103,50 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    return def.promise();
 	};
     })();
+
+    function setKnownMutations (enableOncoKBandHotspots, showDriverAnnotation, hasDriverAnnotations,
+	                        showTierAnnotation, numTiers, enableTiers, hidePassenger){
+	    var oncoKBandHotspots = true;
+            if (enableOncoKBandHotspots == "custom") {
+                if (hasDriverAnnotations || numTiers > 0) {
+                    oncoKBandHotspots = false;
+                } else {
+                    oncoKBandHotspots = true;
+                }
+            } else if (enableOncoKBandHotspots == "false") {
+                oncoKBandHotspots = false;
+            }
+            var driverFilter = false;
+            if (showDriverAnnotation && hasDriverAnnotations) {
+                driverFilter = customDriverAnnotationsByDefault;
+            }
+            
+            var driverTiers = {};
+            for (tier=0; tier < numTiers; tier++) {
+                driverTiers["driver_tiers_filter_"+tier] = false;
+            }
+            if (showTierAnnotation && numTiers > 0) {
+                for (tier=0; tier < numTiers; tier++) {
+                    driverTiers["driver_tiers_filter_"+tier] = enableTiers;
+                }
+            }
+            
+            return {
+                'ignore_unknown': hidePassenger,
+                'recognize_cbioportal_count': false,
+                'cbioportal_count_thresh': 10,
+                'recognize_cosmic_count': false,
+                'cosmic_count_thresh': 10,
+                'recognize_hotspot': oncoKBandHotspots,
+                'recognize_oncokb_oncogenic': oncoKBandHotspots,
+                'recognize_driver_filter': driverFilter,
+                'recognize_driver_tiers': driverTiers
+            }
+    }
     
     return {
-	'known_mutation_settings': {
-	    'ignore_unknown': false,
-	    'recognize_cbioportal_count': false,
-	    'cbioportal_count_thresh': 10,
-	    'recognize_cosmic_count': false,
-	    'cosmic_count_thresh': 10,
-	    'recognize_hotspot': true,
-	    'recognize_oncokb_oncogenic': true,
-	},
+	'known_mutation_settings': setKnownMutations (enableOncoKBandHotspots, showDriverAnnotation, hasDriverAnnotations,
+                showTierAnnotation, numTiers, enableTiers, hidePassenger),
 	'external_data_status': {
 	    'oncokb':false,
 	    'hotspots':false,
@@ -1614,6 +1675,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 						data[j].oncoprint_mutation_type = getOncoprintMutationType(data[j].simplified_mutation_type);
 					    }
 					    data[j].genetic_alteration_type = genetic_alteration_type;
+					    if (data[j].driver_filter == "Putative_Driver") {
+						
+					    }
 					}
 				    } else {
 					for (var j = 0; j < data.length; j++) {

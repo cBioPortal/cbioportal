@@ -7,7 +7,7 @@ import org.cbioportal.model.CopyNumberCount;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.DiscreteCopyNumberService;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.CopyNumberCountIdentifier;
 import org.cbioportal.web.parameter.DiscreteCopyNumberEventType;
@@ -43,58 +43,58 @@ public class DiscreteCopyNumberController {
     @Autowired
     private DiscreteCopyNumberService discreteCopyNumberService;
 
-    @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/discrete-copy-number", method = RequestMethod.GET,
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/discrete-copy-number", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get discrete copy number alterations in a genetic profile")
-    public ResponseEntity<List<DiscreteCopyNumberData>> getDiscreteCopyNumbersInGeneticProfile(
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_gistic")
-        @PathVariable String geneticProfileId,
+    @ApiOperation("Get discrete copy number alterations in a molecular profile")
+    public ResponseEntity<List<DiscreteCopyNumberData>> getDiscreteCopyNumbersInMolecularProfile(
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_gistic")
+        @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "Sample List ID e.g. acc_tcga_all")
         @RequestParam String sampleListId,
         @ApiParam("Type of the copy number event")
         @RequestParam(defaultValue = "HOMDEL_AND_AMP") DiscreteCopyNumberEventType discreteCopyNumberEventType,
         @ApiParam("Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws GeneticProfileNotFoundException {
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, discreteCopyNumberService
-                .getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(geneticProfileId, sampleListId, null,
+                .getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(molecularProfileId, sampleListId, null,
                     discreteCopyNumberEventType.getAlterationTypes()).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                discreteCopyNumberService.getDiscreteCopyNumbersInGeneticProfileBySampleListId(geneticProfileId, 
+                discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(molecularProfileId, 
                     sampleListId, null, discreteCopyNumberEventType.getAlterationTypes(), projection.name()), 
                 HttpStatus.OK);
         }
     }
 
-    @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/discrete-copy-number/fetch",
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/discrete-copy-number/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch discrete copy number alterations in a genetic profile by sample ID")
-    public ResponseEntity<List<DiscreteCopyNumberData>> fetchDiscreteCopyNumbersInGeneticProfile(
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_gistic")
-        @PathVariable String geneticProfileId,
+    @ApiOperation("Fetch discrete copy number alterations in a molecular profile by sample ID")
+    public ResponseEntity<List<DiscreteCopyNumberData>> fetchDiscreteCopyNumbersInMolecularProfile(
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_gistic")
+        @PathVariable String molecularProfileId,
         @ApiParam("Type of the copy number event")
         @RequestParam(defaultValue = "HOMDEL_AND_AMP") DiscreteCopyNumberEventType discreteCopyNumberEventType,
         @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
         @Valid @RequestBody DiscreteCopyNumberFilter discreteCopyNumberFilter,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection)
-        throws GeneticProfileNotFoundException {
+        throws MolecularProfileNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             BaseMeta baseMeta;
 
             if (discreteCopyNumberFilter.getSampleListId() != null) {
-                baseMeta = discreteCopyNumberService.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
-                    geneticProfileId, discreteCopyNumberFilter.getSampleListId(), 
+                baseMeta = discreteCopyNumberService.getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(
+                    molecularProfileId, discreteCopyNumberFilter.getSampleListId(), 
                     discreteCopyNumberFilter.getEntrezGeneIds(), discreteCopyNumberEventType.getAlterationTypes());
             } else {
-                baseMeta = discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInGeneticProfile(geneticProfileId, 
+                baseMeta = discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInMolecularProfile(molecularProfileId, 
                     discreteCopyNumberFilter.getSampleIds(), discreteCopyNumberFilter.getEntrezGeneIds(), 
                     discreteCopyNumberEventType.getAlterationTypes());
             }
@@ -104,12 +104,12 @@ public class DiscreteCopyNumberController {
             List<DiscreteCopyNumberData> discreteCopyNumberDataList;
             if (discreteCopyNumberFilter.getSampleListId() != null) {
                 discreteCopyNumberDataList = discreteCopyNumberService
-                    .getDiscreteCopyNumbersInGeneticProfileBySampleListId(geneticProfileId, 
+                    .getDiscreteCopyNumbersInMolecularProfileBySampleListId(molecularProfileId, 
                         discreteCopyNumberFilter.getSampleListId(), discreteCopyNumberFilter.getEntrezGeneIds(), 
                         discreteCopyNumberEventType.getAlterationTypes(), projection.name());
             } else {
-                discreteCopyNumberDataList = discreteCopyNumberService.fetchDiscreteCopyNumbersInGeneticProfile(
-                    geneticProfileId, discreteCopyNumberFilter.getSampleIds(), 
+                discreteCopyNumberDataList = discreteCopyNumberService.fetchDiscreteCopyNumbersInMolecularProfile(
+                    molecularProfileId, discreteCopyNumberFilter.getSampleIds(), 
                     discreteCopyNumberFilter.getEntrezGeneIds(), discreteCopyNumberEventType.getAlterationTypes(), 
                     projection.name());
             }
@@ -118,17 +118,17 @@ public class DiscreteCopyNumberController {
         }
     }
 
-    @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/discrete-copy-number-counts/fetch",
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/discrete-copy-number-counts/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get counts of specific genes and alterations within a CNA genetic profile")
+    @ApiOperation("Get counts of specific genes and alterations within a CNA molecular profile")
     public ResponseEntity<List<CopyNumberCount>> fetchCopyNumberCounts(
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
-        @PathVariable String geneticProfileId,
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
+        @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "List of copy number count identifiers")
         @Size(min = 1, max = COPY_NUMBER_COUNT_MAX_PAGE_SIZE)
         @RequestBody List<CopyNumberCountIdentifier> copyNumberCountIdentifiers)
-        throws GeneticProfileNotFoundException {
+        throws MolecularProfileNotFoundException {
 
         List<Integer> entrezGeneIds = new ArrayList<>();
         List<Integer> alterations = new ArrayList<>();
@@ -139,7 +139,7 @@ public class DiscreteCopyNumberController {
             alterations.add(copyNumberCountIdentifier.getAlteration());
         }
 
-        return new ResponseEntity<>(discreteCopyNumberService.fetchCopyNumberCounts(geneticProfileId, entrezGeneIds,
+        return new ResponseEntity<>(discreteCopyNumberService.fetchCopyNumberCounts(molecularProfileId, entrezGeneIds,
             alterations), HttpStatus.OK);
     }
 }

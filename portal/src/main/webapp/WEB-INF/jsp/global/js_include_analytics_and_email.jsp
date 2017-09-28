@@ -55,6 +55,7 @@ if (googleAnalyticsProfileId!=null && !googleAnalyticsProfileId.isEmpty()) {
 <script type="text/javascript">
     <!-- When the document is ready, de-obfuscate the email addresses -->
     $(document).ready(function() {
-        $('span.mailme').mailme();
+        if ($.fn.mailme)
+            $('span.mailme').mailme();
     });
 </script>

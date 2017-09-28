@@ -2,9 +2,9 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.CoExpression;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneGeneticData;
+import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.service.GeneService;
-import org.cbioportal.service.GeneticDataService;
+import org.cbioportal.service.MolecularDataService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,23 +27,23 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
     private CoExpressionServiceImpl coExpressionService;
     
     @Mock
-    private GeneticDataService geneticDataService;
+    private MolecularDataService molecularDataService;
     @Mock
     private GeneService geneService;
     
     @Test
     public void getCoExpressions() throws Exception {
 
-        List<GeneGeneticData> geneticDataList = createGeneGeneticData();
-        Mockito.when(geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, null, "SUMMARY"))
-            .thenReturn(geneticDataList);
+        List<GeneMolecularData> molecularDataList = createGeneMolecularData();
+        Mockito.when(molecularDataService.getMolecularData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, null, "SUMMARY"))
+            .thenReturn(molecularDataList);
 
         List<Gene> genes = createGenes();
 
         Mockito.when(geneService.fetchGenes(Arrays.asList("2", "3", "4"), "ENTREZ_GENE_ID", "SUMMARY"))
             .thenReturn(genes);
 
-        List<CoExpression> result = coExpressionService.getCoExpressions(GENETIC_PROFILE_ID,
+        List<CoExpression> result = coExpressionService.getCoExpressions(MOLECULAR_PROFILE_ID,
             SAMPLE_LIST_ID, ENTREZ_GENE_ID, THRESHOLD);
 
         Assert.assertEquals(2, result.size());
@@ -64,16 +64,16 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
     @Test
     public void fetchCoExpressions() throws Exception {
 
-        List<GeneGeneticData> geneticDataList = createGeneGeneticData();
-        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 
-            null, "SUMMARY")).thenReturn(geneticDataList);
+        List<GeneMolecularData> molecularDataList = createGeneMolecularData();
+        Mockito.when(molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 
+            null, "SUMMARY")).thenReturn(molecularDataList);
 
         List<Gene> genes = createGenes();
 
         Mockito.when(geneService.fetchGenes(Arrays.asList("2", "3", "4"), "ENTREZ_GENE_ID", "SUMMARY"))
             .thenReturn(genes);
 
-        List<CoExpression> result = coExpressionService.fetchCoExpressions(GENETIC_PROFILE_ID,
+        List<CoExpression> result = coExpressionService.fetchCoExpressions(MOLECULAR_PROFILE_ID,
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), ENTREZ_GENE_ID, THRESHOLD);
 
         Assert.assertEquals(2, result.size());
@@ -91,57 +91,57 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
     }
 
-    private List<GeneGeneticData> createGeneGeneticData() {
-        List<GeneGeneticData> geneticDataList = new ArrayList<>();
-        GeneGeneticData geneGeneticData1 = new GeneGeneticData();
-        geneGeneticData1.setEntrezGeneId(ENTREZ_GENE_ID);
-        geneGeneticData1.setValue("2.1");
-        geneticDataList.add(geneGeneticData1);
-        GeneGeneticData geneGeneticData2 = new GeneGeneticData();
-        geneGeneticData2.setEntrezGeneId(ENTREZ_GENE_ID);
-        geneGeneticData2.setValue("3");
-        geneticDataList.add(geneGeneticData2);
-        GeneGeneticData geneGeneticData3 = new GeneGeneticData();
-        geneGeneticData3.setEntrezGeneId(ENTREZ_GENE_ID);
-        geneGeneticData3.setValue("3");
-        geneticDataList.add(geneGeneticData3);
-        GeneGeneticData geneGeneticData4 = new GeneGeneticData();
-        geneGeneticData4.setEntrezGeneId(2);
-        geneGeneticData4.setValue("2");
-        geneticDataList.add(geneGeneticData4);
-        GeneGeneticData geneGeneticData5 = new GeneGeneticData();
-        geneGeneticData5.setEntrezGeneId(2);
-        geneGeneticData5.setValue("3");
-        geneticDataList.add(geneGeneticData5);
-        GeneGeneticData geneGeneticData6 = new GeneGeneticData();
-        geneGeneticData6.setEntrezGeneId(2);
-        geneGeneticData6.setValue("2");
-        geneticDataList.add(geneGeneticData6);
-        GeneGeneticData geneGeneticData7 = new GeneGeneticData();
-        geneGeneticData7.setEntrezGeneId(3);
-        geneGeneticData7.setValue("1.1");
-        geneticDataList.add(geneGeneticData7);
-        GeneGeneticData geneGeneticData8 = new GeneGeneticData();
-        geneGeneticData8.setEntrezGeneId(3);
-        geneGeneticData8.setValue("5");
-        geneticDataList.add(geneGeneticData8);
-        GeneGeneticData geneGeneticData9 = new GeneGeneticData();
-        geneGeneticData9.setEntrezGeneId(3);
-        geneGeneticData9.setValue("3");
-        geneticDataList.add(geneGeneticData9);
-        GeneGeneticData geneGeneticData10 = new GeneGeneticData();
-        geneGeneticData10.setEntrezGeneId(4);
-        geneGeneticData10.setValue("1");
-        geneticDataList.add(geneGeneticData10);
-        GeneGeneticData geneGeneticData11 = new GeneGeneticData();
-        geneGeneticData11.setEntrezGeneId(4);
-        geneGeneticData11.setValue("4");
-        geneticDataList.add(geneGeneticData11);
-        GeneGeneticData geneGeneticData12 = new GeneGeneticData();
-        geneGeneticData12.setEntrezGeneId(4);
-        geneGeneticData12.setValue("0");
-        geneticDataList.add(geneGeneticData12);
-        return geneticDataList;
+    private List<GeneMolecularData> createGeneMolecularData() {
+        List<GeneMolecularData> molecularDataList = new ArrayList<>();
+        GeneMolecularData geneMolecularData1 = new GeneMolecularData();
+        geneMolecularData1.setEntrezGeneId(ENTREZ_GENE_ID);
+        geneMolecularData1.setValue("2.1");
+        molecularDataList.add(geneMolecularData1);
+        GeneMolecularData geneMolecularData2 = new GeneMolecularData();
+        geneMolecularData2.setEntrezGeneId(ENTREZ_GENE_ID);
+        geneMolecularData2.setValue("3");
+        molecularDataList.add(geneMolecularData2);
+        GeneMolecularData geneMolecularData3 = new GeneMolecularData();
+        geneMolecularData3.setEntrezGeneId(ENTREZ_GENE_ID);
+        geneMolecularData3.setValue("3");
+        molecularDataList.add(geneMolecularData3);
+        GeneMolecularData geneMolecularData4 = new GeneMolecularData();
+        geneMolecularData4.setEntrezGeneId(2);
+        geneMolecularData4.setValue("2");
+        molecularDataList.add(geneMolecularData4);
+        GeneMolecularData geneMolecularData5 = new GeneMolecularData();
+        geneMolecularData5.setEntrezGeneId(2);
+        geneMolecularData5.setValue("3");
+        molecularDataList.add(geneMolecularData5);
+        GeneMolecularData geneMolecularData6 = new GeneMolecularData();
+        geneMolecularData6.setEntrezGeneId(2);
+        geneMolecularData6.setValue("2");
+        molecularDataList.add(geneMolecularData6);
+        GeneMolecularData geneMolecularData7 = new GeneMolecularData();
+        geneMolecularData7.setEntrezGeneId(3);
+        geneMolecularData7.setValue("1.1");
+        molecularDataList.add(geneMolecularData7);
+        GeneMolecularData geneMolecularData8 = new GeneMolecularData();
+        geneMolecularData8.setEntrezGeneId(3);
+        geneMolecularData8.setValue("5");
+        molecularDataList.add(geneMolecularData8);
+        GeneMolecularData geneMolecularData9 = new GeneMolecularData();
+        geneMolecularData9.setEntrezGeneId(3);
+        geneMolecularData9.setValue("3");
+        molecularDataList.add(geneMolecularData9);
+        GeneMolecularData geneMolecularData10 = new GeneMolecularData();
+        geneMolecularData10.setEntrezGeneId(4);
+        geneMolecularData10.setValue("1");
+        molecularDataList.add(geneMolecularData10);
+        GeneMolecularData geneMolecularData11 = new GeneMolecularData();
+        geneMolecularData11.setEntrezGeneId(4);
+        geneMolecularData11.setValue("4");
+        molecularDataList.add(geneMolecularData11);
+        GeneMolecularData geneMolecularData12 = new GeneMolecularData();
+        geneMolecularData12.setEntrezGeneId(4);
+        geneMolecularData12.setValue("0");
+        molecularDataList.add(geneMolecularData12);
+        return molecularDataList;
     }
 
     private List<Gene> createGenes() {

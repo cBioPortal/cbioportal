@@ -323,17 +323,11 @@ window.QueryByGeneUtil = (function() {
           _arr.push(_studyId + "|" + _sampleId);
         });
       });
-      var params = {
-	'case_ids': _arr.join('+'),
+      submitForm(window.cbioURL + 'index.do', {
+        'cancer_study_id': studyId,
+        'case_ids': _arr.join('+'),
         'case_set_id': -1
-      };
-      if (window.cohortIdsList.length > 1) {
-	  params.cancer_study_id = 'all';
-	  params.cancer_study_list = window.cohortIdsList.join(",");
-      } else {
-	  params.cancer_study_id = studyId;
-      }
-      submitForm(window.cbioURL + 'index.do', params);
+      });
     },
     toQueryPageSingleCohort: function(studyId, selectedCases,
                                       selectedGenes, mutationProfileId, cnaProfileId) {
@@ -828,12 +822,14 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             selectedAttrMeta.numOfDatum = 0;
 
             _.each(_clinicalAttributeData, function(_dataObj) {
-                var caseIndex = self_.getCaseIndex(type, _dataObj.study_id, _dataObj[idType]);
-                // Filter 'undefined' case index
-                if (caseIndex !== undefined) {
-                    _data[caseIndex] = _data[caseIndex] || {};
-                    _data[caseIndex][_dataObj.attr_id] = _dataObj.attr_val;
-                }
+              var caseIndex = self_.getCaseIndex(type, _dataObj.study_id, _dataObj[idType]);
+
+              // Filter 'undefined' case index		
+              if (caseIndex !== undefined) {
+                _data[caseIndex] = _data[caseIndex] || {};
+                _data[caseIndex][_dataObj.attr_id] = _dataObj.attr_val;
+              }
+              
               if (!selectedAttrMeta.keys
                   .hasOwnProperty(_dataObj.attr_val)) {
                 selectedAttrMeta.keys[_dataObj.attr_val] = 0;
@@ -1196,7 +1192,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         // TODO: give warning/error message to user if the download is failed
       });
     },
-    submitForm: function(toMainPage) {
+    submitForm: function() {
       var _self = this;
       _self.selectedsamples = _.keys(iViz.getCasesMap('sample'));
       _self.selectedpatients = _.keys(iViz.getCasesMap('patient'));
@@ -1206,7 +1202,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       $('#iviz-form input:not(:first)').remove();
 
       if (_self.cohorts_.length === 1) { // to query single study
-        if (toMainPage || QueryByGeneTextArea.isEmpty()) {
+        if (QueryByGeneTextArea.isEmpty()) {
           QueryByGeneUtil.toMainPage(_self.cohorts_[0], _self.stat().selectedCases);
         } else {
           QueryByGeneTextArea.validateGenes(this.decideSubmitSingleCohort, false);
@@ -1353,11 +1349,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             charts: {},
             groupCount: 0,
             updateSpecialCharts: false,
-            showSaveButton: true, 
-              showShareButton: true,
-            showManageButton: true,
+            showShareButton: false,
+            showSaveButton: false,
+            showManageButton: false,
             loadUserSpecificCohorts: false,
-            stats: '',
+            stats: {},
             updateStats: false,
             clearAll: false,
             showScreenLoad: false,
@@ -1445,8 +1441,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             downloadCaseData: function() {
               iViz.downloadCaseData();
             },
-            submitForm: function(toMainPage) {
-              iViz.submitForm(toMainPage);
+            submitForm: function() {
+              iViz.submitForm();
             },
             clearAllCharts: function(includeNextTickFlag) {
               var self_ = this;
@@ -2439,6 +2435,24 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
       return status;
     };
+    
+    content.defaultQtipConfig = function(content) {
+      var configuration = {
+        style: {
+          classes: 'qtip-light qtip-rounded qtip-shadow'
+        },
+        show: {event: 'mouseover', ready: false},
+        hide: {fixed: true, delay: 200, event: 'mouseleave'},
+        position: {
+          my: 'bottom center',
+          at: 'top center',
+          viewport: $(window)
+        },
+        content: content
+      };
+      
+      return configuration;
+    };
 
     return content;
   })();
@@ -2713,16 +2727,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         });
       },
       updateLayout: function() {
-          var self = this;
-          self.updateLayoutMatrix();
-          var tmp = setInterval(function () { timer(); }, 1000);
-          function timer() {
-              if (self.grid_ !== '') {
-                  clearInterval(tmp);
-                  self.grid_.items.sort(self.sortByNumber);
-                  self.grid_.layout();
-              }
-          }
+        this.updateLayoutMatrix();
+        if (_.isObject(this.grid_)) {
+          this.grid_.items.sort(this.sortByNumber);
+          this.grid_.layout();
+        }
       },
       getLayoutMatrix: function(layoutMatrix, chart) {
         var self_ = this;
@@ -6682,11 +6691,11 @@ window.LogRankTest = (function(jStat) {
     _lineColor) {
     var _self = this;
     
-    // Filter points with negative value 
-    var _data = _.filter(data, function(point){ 
-        return point.time >= 0 && point.survival_rate >= 0; 
+    // Filter points with negative value 		
+    var _data = _.filter(data, function(point){
+      return point.time >= 0 && point.survival_rate >= 0;
     });
-      
+    
     // add an empty/zero point so the curve starts from zero time point
     if (_data !== null && _data.length !== 0) {
       if (_data[0].time !== 0) {
@@ -8027,44 +8036,61 @@ window.LogRankTest = (function(jStat) {
   window.iViz);
 
 'use strict';
-(function(Vue, $, vcSession) {
+(function(Vue, $, vcSession, iViz) {
   Vue.component('saveVirtualStudy', {
     template: 
     '<div v-if="showSaveButton" class="save-virtual-study">' +
     '<div class="save-cohort-btn">' +
     '<i class="fa fa-floppy-o" alt="Save Virtual Study"></i></div></div>',
-    props: [
-      'selectedPatientsNum', 'selectedSamplesNum',
-      'stats', 'updateStats', 'showSaveButton'
-    ],
+    props: {
+      selectedPatientsNum: {
+        type: Number,
+        default: 0
+      },
+      selectedSamplesNum: {
+        type: Number,
+        default: 0
+      },
+      stats: {
+        type: Object
+      },
+      updateStats: {
+        type: Boolean,
+        default: false
+      },
+      showSaveButton: {
+        type: Boolean,
+        default: false
+      },
+      createdQtip: {
+        type: Boolean,
+        default: false
+      }
+    },
     data: function() {
       return {
         savedVC: null
       };
-    }, methods: {
+    },
+    watch: {
+      'showSaveButton': function(showSaveButton) {
+        // In case static qtip will be created multiple times.
+        if (showSaveButton && !this.createdQtip) {
+          this.createQtip();
+        }
+      }
+    }, 
+    methods: {
       saveCohort: function() {
         var _self = this;
         _self.updateStats = true;
         _self.$nextTick(function() {
           _self.addNewVC = true;
         });
-      }
-    }, ready: function() {
-      var self_ = this;
-      if (this.showSaveButton) {
-        $('.save-virtual-study').qtip({
-          style: {
-            classes: 'qtip-light qtip-rounded qtip-shadow'
-          },
-          show: {event: 'mouseover', ready: false},
-          hide: {fixed: true, delay: 200, event: 'mouseleave'},
-          position: {
-            my: 'bottom center',
-            at: 'top center',
-            viewport: $(window)
-          },
-          content: 'Save Virtual Study'
-        });
+      },
+      createQtip: function() {
+        var self_ = this;
+        $('.save-virtual-study').qtip(iViz.util.defaultQtipConfig('Save Virtual Study'));
         $('.save-cohort-btn').qtip({
           style: {
             classes: 'qtip-light qtip-rounded qtip-shadow ' +
@@ -8110,7 +8136,7 @@ window.LogRankTest = (function(jStat) {
                         tooltip.find('.savedMessage').html(
                           '<span>Virtual study <i>' + cohortName +
                           '</i> is saved.</span>' +
-                          '<a class="left-space" href="' + 
+                          '<a class="left-space" href="' +
                           window.cbioURL + 'study?id=' +
                           self_.savedVC.id + '">view</a>');
                       })
@@ -8144,6 +8170,7 @@ window.LogRankTest = (function(jStat) {
                       .attr('disabled', false);
                   }
                 });
+              this.createdQtip = true;
             },
             show: function() {
               var tooltip = $('.iviz-save-cohort-btn-qtip .qtip-content');
@@ -8191,211 +8218,227 @@ window.LogRankTest = (function(jStat) {
     }
   });
 })(window.Vue,
-  window.$ || window.jQuery, window.vcSession);
-
+  window.$ || window.jQuery, window.vcSession, window.iViz);
 /**
  * Share virtual cohort component
- * 
+ * Created by Jing Su on 9/25/2017
  */
 
 'use strict';
-(function(Vue, $, vcSession) {
-    Vue.component('shareVirtualStudy', {
-        template:
-        '<div v-if="showShareButton" class="share-virtual-study">' +
-        '<div class="share-cohort-btn">' +
-        '<i class="fa fa-share-alt" alt="Share Virtual Study"></i></div></div>',
-        props: [
-            'selectedPatientsNum', 'selectedSamplesNum',
-            'stats', 'updateStats', 'showShareButton'
-        ],
-        data: function() {
-            return {
-                savedVC: null
-            };
-        }, methods: {
-            saveCohort: function() {
-                var _self = this;
-                _self.updateStats = true;
-                _self.$nextTick(function() {
-                    _self.addNewVC = true;
-                });
-            }
-        },
-        ready: function() {
-            var self_ = this;
-            var previousSelectedCases = {};
-            if (this.showShareButton) {
-                $('.share-virtual-study').qtip({
-                    style: {
-                        classes: 'qtip-light qtip-rounded qtip-shadow'
-                    },
-                    show: {event: 'mouseover', ready: false},
-                    hide: {fixed: true, delay: 200, event: 'mouseleave'},
-                    position: {
-                        my: 'bottom center',
-                        at: 'top center',
-                        viewport: $(window)
-                    },
-                    content: 'Share Virtual Study'
-                });
-                $('.share-cohort-btn').qtip({
-                    style: {
-                        classes: 'qtip-light qtip-rounded qtip-shadow ' +
-                        'iviz-share-cohort-btn-qtip'
-                    },
-                    show: {event: 'click', ready: false},
-                    hide: false,
-                    position: {
-                        my: 'top center',
-                        at: 'bottom center',
-                        viewport: $(window)
-                    },
-                    events: {
-                        render: function(event, api) {
-                            var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
-                            
-                            tooltip.find('.share-cohort').click(function() {
-                                tooltip.find('.shared').css('display', 'none');
-                                tooltip.find('.dialog').css('display', 'none');
-                                tooltip.find('.saving').css('display', 'none');
-                                api.reposition();
-                                
-                                // Copy virtual study link to clipboard
-                                var $temp = $("<input>");
-                                $("body").append($temp);
-                                $temp.val(tooltip.find('.virtual-study-link').attr('href')).select();
-                                document.execCommand("copy");
-                                // Check if users copy url successfully
-                                if ($temp.val() === tooltip.find('.virtual-study-link').attr('href')) {
-                                    tooltip.find('.shared').css('display', 'block');
-                                    tooltip.find('.dialog').css('display', 'none');
-                                    api.reposition();
-                                }
-                                $temp.remove();
-                            });
-                            
-                        },
-                        show: function() {
-                            var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
-                            tooltip.find('.dialog').css('display', 'block');
-                            tooltip.find('.saving').css('display', 'block');
-                            tooltip.find('.shared').css('display', 'none');
-                            
-                            var cohortName = $('#study_name').val();
-                            var cohortDescription = $('#study_desc').val();
-                            if (_.isObject(vcSession)) {
-                                self_.updateStats = true;
-                                
-                                self_.$nextTick(function() {
-                                    var saveCohort = false;
-                                    
-                                    if (_.isObject(self_.stats.selectedCases)) {
-                                        var selectedCasesMap = {};
-                                        _.each(self_.stats.selectedCases, function(study){
-                                            selectedCasesMap[study.studyID] = study;
-                                        });
-                                        
-                                        // When users double click "Share" button, the virtual cohort will 
-                                        // be stored twice. Thus, we need to check if the current 
-                                        // virtual cohort is same as previous saved virtual cohort.
-                                        if (_.isEmpty(previousSelectedCases)) {
-                                            saveCohort = true;
-                                        } else {
-                                            _.every(selectedCasesMap, function(selectedCase){
-                                                if(previousSelectedCases[selectedCase.studyID]){
-                                                    var previousCase = previousSelectedCases[selectedCase.studyID];
-                                                    if (previousCase.patients.length !== selectedCase.patients.length ||
-                                                        previousCase.samples.length !== selectedCase.samples.length) {
-                                                        saveCohort = true;
-                                                    } else if (previousCase.patients.length === 
-                                                        selectedCase.patients.length) {
-                                                        var differentPatients = _.difference(previousCase.patients,
-                                                            selectedCase.patients);
-                                                        if (differentPatients.length > 0) {
-                                                            saveCohort = true;
-                                                        }
-                                                    } else if (previousCase.samples.length === 
-                                                        selectedCase.samples.length) {
-                                                        var differentSamples = _.difference(previousCase.samples,
-                                                            selectedCase.samples);
-                                                        if (differentSamples.length > 0) {
-                                                            saveCohort = true;
-                                                        }
-                                                    }
-                                                }
-                                                return !saveCohort;
-                                            });
-                                        }
-                                        
-
-                                        if (saveCohort) {
-                                            var _selectedSamplesNum = 0;
-                                            var _selectedPatientsNum = 0;
-                                            _.each(self_.stats.selectedCases, function (studyCasesMap) {
-                                                _selectedSamplesNum += studyCasesMap.samples.length;
-                                                _selectedPatientsNum += studyCasesMap.patients.length;
-                                            });
-                                            self_.selectedSamplesNum = _selectedSamplesNum;
-                                            self_.selectedPatientsNum = _selectedPatientsNum;
-
-                                            vcSession.events.saveCohort(self_.stats,
-                                                cohortName, cohortDescription || '')
-                                                .done(function (response) {
-                                                    var deepCopySelectedCases = JSON.parse(
-                                                        JSON.stringify(self_.stats.selectedCases));
-                                                    self_.savedVC = response;
-                                                    tooltip.find('.cohort-link').html(
-                                                    '<a class="virtual-study-link" href="' + window.cbioURL + 
-                                                        'study?id=' + self_.savedVC.id + '" onclick="window.open(\'' + 
-                                                        window.cbioURL + 'study?id=' + self_.savedVC.id + '\')">' + 
-                                                        window.cbioURL + 'study?id=' + self_.savedVC.id + '</a>');
-                                                    tooltip.find('.saving').css('display', 'none');
-                                                    tooltip.find('.cohort-link').css('display', 'block');
-                                                    _.each(deepCopySelectedCases, function(study){
-                                                       previousSelectedCases[study.studyID] = study; 
-                                                    });
-                                                })
-                                                .fail(function () {
-                                                    tooltip.find('.failedMessage').html(
-                                                        '<i class="fa fa-exclamation-triangle"></i>' +
-                                                        '<span class="left-space">' +
-                                                        'Failed to save virtual study, ' +
-                                                        'please try again later.</span>');
-                                                    tooltip.find('.failed').css('display', 'block');
-                                                    tooltip.find('.dialog').css('display', 'none');
-                                                });
-                                        } else {
-                                            // Hide saving icon if current study is same as previous.
-                                            tooltip.find('.saving').css('display', 'none');
-                                        }
-                                    }
-                                });
-                            }
-
-                            // Tell the tip itself to not bubble up clicks on it
-                            $($(this).qtip('api').elements.tooltip).click(function() { return false; });
-
-                            // Tell the document itself when clicked to hide the tip and then unbind
-                            // the click event (the .one() method does the auto-unbinding after one time)
-                            $(document).one("click", function() { $(".share-cohort-btn").qtip('hide'); });
-                        }
-                    },
-                    content: '<div><div class="dialog"><div class="input-group">' +
-                    '<span class="cohort-link" style="display: none;"></span>' + 
-                    '<div class="saving" style="display: none;">' +
-                    '<i class="fa fa-spinner fa-spin"></i> Saving virtual study</div>' +
-                    '<span class="input-group-btn"><button class="btn btn-default share-cohort" ' +
-                    'type="button">Copy</button></span>' +
-                    '</div></div>' +
-                    '<div class="failed" style="display: none;">' +
-                    '<span class="failedMessage"></span></div>' +
-                    '<div class="shared" style="display: none;">' +
-                    '<span class="sharedMessage">The URL has been copied to clipboard.</span>' +
-                    '</div></div>'
-                });
-            }
+(function(Vue, $, vcSession, iViz) {
+  Vue.component('shareVirtualStudy', {
+    template:
+    '<div v-if="showShareButton" class="share-virtual-study">' +
+    '<div class="share-cohort-btn">' +
+    '<i class="fa fa-share-alt" alt="Share Virtual Study"></i></div></div>',
+    props: {
+      selectedPatientsNum: {
+        type: Number,
+        default: 0
+      },
+      selectedSamplesNum: {
+        type: Number,
+        default: 0
+      },
+      stats: {
+        type: Object
+      },
+      updateStats: {
+        type: Boolean,
+        default: false
+      },
+      showShareButton: {
+        type: Boolean,
+        default: false
+      },
+      createdQtip: {
+        type: Boolean,
+        default: false
+      }
+    },
+    data: function() {
+      return {
+        savedVC: null
+      };
+    },
+    watch: {
+      'showShareButton': function(showShareButton) {
+        // In case static qtip will be created multiple times.
+        if (showShareButton && !this.createdQtip) {
+          this.createQtip();
         }
-    });
+      }
+    }, 
+    methods: {
+      saveCohort: function() {
+        var _self = this;
+        _self.updateStats = true;
+        _self.$nextTick(function() {
+          _self.addNewVC = true;
+        });
+      }, 
+      createQtip: function () {
+        var self_ = this;
+        var previousSelectedCases = {};
+        $('.share-virtual-study').qtip(iViz.util.defaultQtipConfig('Share Virtual Study'));
+        $('.share-cohort-btn').qtip({
+          style: {
+            classes: 'qtip-light qtip-rounded qtip-shadow ' +
+            'iviz-share-cohort-btn-qtip'
+          },
+          show: {event: 'click', ready: false},
+          hide: false,
+          position: {
+            my: 'top center',
+            at: 'bottom center',
+            viewport: $(window)
+          },
+          events: {
+            render: function(event, api) {
+              var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
+
+              tooltip.find('.share-cohort').click(function() {
+                tooltip.find('.shared').css('display', 'none');
+                tooltip.find('.dialog').css('display', 'none');
+                tooltip.find('.saving').css('display', 'none');
+                api.reposition();
+
+                // Copy virtual study link to clipboard
+                var temp = $("<input>");
+                $("body").append(temp);
+                temp.val(tooltip.find('.virtual-study-link').attr('href')).select();
+                // execCommand('copy') allows to run commands to copy the contents of selected editable region.
+                document.execCommand("copy");
+                // Check if users copy url successfully
+                if (temp.val() === tooltip.find('.virtual-study-link').attr('href')) {
+                  tooltip.find('.shared').css('display', 'block');
+                  tooltip.find('.dialog').css('display', 'none');
+                  api.reposition();
+                }
+                temp.remove();
+              });
+              this.createdQtip = true;
+            },
+            show: function() {
+              var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
+              tooltip.find('.dialog').css('display', 'block');
+              tooltip.find('.saving').css('display', 'block');
+              tooltip.find('.shared').css('display', 'none');
+
+              var cohortName = $('#study_name').val();
+              var cohortDescription = $('#study_desc').val();
+              if (_.isObject(vcSession)) {
+                self_.updateStats = true;
+
+                self_.$nextTick(function() {
+                  var saveCohort = false;
+
+                  if (_.isObject(self_.stats.selectedCases)) {
+                    var selectedCasesMap = {};
+                    _.each(self_.stats.selectedCases, function(study){
+                      selectedCasesMap[study.studyID] = study;
+                    });
+
+                    // When a user clicks copy, it will trigger saving the current virtual cohort and return the url 
+                    // to the user. When a user want to see the cohort url, he/she needs to click Share button. 
+                    // We always show the url to user but we don't need to same virtual cohort every time 
+                    // if it is same with the previous saved cohort.
+                    if (_.isEmpty(previousSelectedCases)) {
+                      saveCohort = true;
+                    } else {
+                      _.every(selectedCasesMap, function(selectedCase){
+                        if(previousSelectedCases[selectedCase.studyID]){
+                          var previousCase = previousSelectedCases[selectedCase.studyID];
+                          if (previousCase.patients.length !== selectedCase.patients.length ||
+                            previousCase.samples.length !== selectedCase.samples.length) {
+                            saveCohort = true;
+                          } else if (previousCase.patients.length ===
+                            selectedCase.patients.length) {
+                            var differentPatients = _.difference(previousCase.patients,
+                              selectedCase.patients);
+                            if (differentPatients.length > 0) {
+                              saveCohort = true;
+                            }
+                          } else if (previousCase.samples.length ===
+                            selectedCase.samples.length) {
+                            var differentSamples = _.difference(previousCase.samples,
+                              selectedCase.samples);
+                            if (differentSamples.length > 0) {
+                              saveCohort = true;
+                            }
+                          }
+                        }
+                        return !saveCohort;
+                      });
+                    }
+
+                    if (saveCohort) {
+                      var _selectedSamplesNum = 0;
+                      var _selectedPatientsNum = 0;
+                      _.each(self_.stats.selectedCases, function (studyCasesMap) {
+                        _selectedSamplesNum += studyCasesMap.samples.length;
+                        _selectedPatientsNum += studyCasesMap.patients.length;
+                      });
+                      self_.selectedSamplesNum = _selectedSamplesNum;
+                      self_.selectedPatientsNum = _selectedPatientsNum;
+
+                      vcSession.events.saveCohort(self_.stats,
+                        cohortName, cohortDescription || '')
+                        .done(function (response) {
+                          var deepCopySelectedCases = JSON.parse(
+                            JSON.stringify(self_.stats.selectedCases));
+                          self_.savedVC = response;
+                          tooltip.find('.cohort-link').html(
+                            '<a class="virtual-study-link" href="' + window.cbioURL +
+                            'study?id=' + self_.savedVC.id + '" onclick="window.open(\'' +
+                            window.cbioURL + 'study?id=' + self_.savedVC.id + '\')">' +
+                            window.cbioURL + 'study?id=' + self_.savedVC.id + '</a>');
+                          tooltip.find('.saving').css('display', 'none');
+                          tooltip.find('.cohort-link').css('display', 'block');
+                          _.each(deepCopySelectedCases, function(study){
+                            previousSelectedCases[study.studyID] = study;
+                          });
+                        })
+                        .fail(function () {
+                          tooltip.find('.failedMessage').html(
+                            '<i class="fa fa-exclamation-triangle"></i>' +
+                            '<span class="left-space">' +
+                            'Failed to save virtual study, ' +
+                            'please try again later.</span>');
+                          tooltip.find('.failed').css('display', 'block');
+                          tooltip.find('.dialog').css('display', 'none');
+                        });
+                    } else {
+                      // Hide saving icon if current study is same as previous.
+                      tooltip.find('.saving').css('display', 'none');
+                    }
+                  }
+                });
+              }
+
+              // Tell the tip itself to not bubble up clicks on it
+              $($(this).qtip('api').elements.tooltip).click(function() { return false; });
+
+              // Tell the document itself when clicked to hide the tip and then unbind
+              // the click event (the .one() method does the auto-unbinding after one time)
+              $(document).one("click", function() { $(".share-cohort-btn").qtip('hide'); });
+            }
+          },
+          content: '<div><div class="dialog"><div class="input-group">' +
+          '<span class="cohort-link" style="display: none;"></span>' +
+          '<div class="saving" style="display: none;">' +
+          '<i class="fa fa-spinner fa-spin"></i> Saving virtual study</div>' +
+          '<span class="input-group-btn"><button class="btn btn-default share-cohort" ' +
+          'type="button">Copy</button></span>' +
+          '</div></div>' +
+          '<div class="failed" style="display: none;">' +
+          '<span class="failedMessage"></span></div>' +
+          '<div class="shared" style="display: none;">' +
+          '<span class="sharedMessage">The URL has been copied to clipboard.</span>' +
+          '</div></div>'
+        });
+      }
+    }
+  });
 })(window.Vue,
-    window.$ || window.jQuery, window.vcSession);
+  window.$ || window.jQuery, window.vcSession, window.iViz);

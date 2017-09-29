@@ -82,11 +82,32 @@ public class PatientView extends HttpServlet {
             throws ServletException, IOException {
         XDebug xdebug = new XDebug( request );
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
-                
-        request.setAttribute(QueryBuilder.HTML_TITLE, "Patient");
-        
-        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/patient_view/patient_view.jsp");
-        dispatcher.forward(request, response);
+
+        // Convert old URL parameters cancer_study_id and case_id/sample_id to new frontend
+        // hash style URL paramters #studyId=x&caseId=y
+        String cancerStudyId = (String) request.getParameter("cancer_study_id");
+        if (cancerStudyId != null) {
+            String hashUrl = "#/patient?studyId=" + cancerStudyId;
+            String caseId = (String) request.getParameter("case_id");
+            String sampleId = (String) request.getParameter("sample_id");
+            if (caseId != null) {
+                hashUrl += "&caseId=" + caseId;
+            } else if (sampleId != null) {
+                hashUrl += "&sampleId=" + sampleId;
+            } else {
+               response.sendError(HttpServletResponse.SC_NOT_FOUND); 
+               return;
+            }
+            
+            response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+            String oldUrl = ((HttpServletRequest)request).getRequestURL().toString();
+            response.setHeader("Location", oldUrl + hashUrl);
+        } else {
+            request.setAttribute(QueryBuilder.HTML_TITLE, "Patient");
+
+            RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/patient_view/patient_view.jsp");
+            dispatcher.forward(request, response);
+        }
     }
 
     private static String getFullURL(HttpServletRequest request) {

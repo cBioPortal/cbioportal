@@ -4,6 +4,7 @@
 
 <script type="text/javascript">
 
+window.frontendUrl = '<%=GlobalProperties.getFrontendUrl()%>';
 window.enableDarwin = <%=CheckDarwinAccessServlet.CheckDarwinAccess.existsDarwinProperties()%>;
 window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
 window.maxTreeDepth = '<%=GlobalProperties.getMaxTreeDepth()%>';
@@ -25,6 +26,8 @@ window.skinRightNavShowDatasets = <%=GlobalProperties.showRightNavDataSets()%>;
 window.skinRightNavShowExamples = <%=GlobalProperties.showRightNavExamples()%>;
 window.skinRightNavShowTestimonials = <%=GlobalProperties.showRightNavTestimonials()%>;
 window.skinRightNavExamplesHTML = '<%=GlobalProperties.getExamplesRightColumnHtml()%>';
+window.skinRightNavExamplesHTML = '<%=GlobalProperties.getExamplesRightColumnHtml()%>';
+window.skinRightNavWhatsNewBlurb = '<%=GlobalProperties.getRightNavWhatsNewBlurb()%>';
 // Prioritized studies for study selector
 window.priorityStudies = {};
 <%

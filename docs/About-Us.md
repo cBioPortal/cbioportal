@@ -1,4 +1,4 @@
-The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan Kettering Cancer Center](http://www.mskcc.org/) (MSK). The [public cBioPortal site](http://cbioportal.org) is hosted by the [Center for Molecular Oncology](http://www.mskcc.org/research/molecular-oncology) at MSK. The cBioPortal software is now available under an open source license via [GitHub](https://github.com/cBioPortal/cbioportal/). The software is now developed and maintained by a multi-institutional team, consisting of MSK, the Dana Farber Cancer Institute, Princess Margaret Cancer Centre in Toronto, Children's Hospital of Philadelphia, The Hyve in the Netherlands, and Bilkent University in Ankara, Turkey.
+The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan Kettering Cancer Center](http://www.mskcc.org/) (MSK). The [public cBioPortal site](http://cbioportal.org) is hosted by the [Center for Molecular Oncology](http://www.mskcc.org/research/molecular-oncology) at MSK. The cBioPortal software is now available under an open source license via [GitHub](https://github.com/cBioPortal/cbioportal/). The software is now developed and maintained by a multi-institutional team, consisting of MSK, the Dana Farber Cancer Institute, Princess Margaret Cancer Centre in Toronto, Children's Hospital of Philadelphia, [The Hyve](http://thehyve.nl) in the Netherlands, and Bilkent University in Ankara, Turkey.
 
 ## Memorial Sloan Kettering Cancer Center
 * Jianjiong Gao
@@ -44,8 +44,8 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Sander Tan
 * Oleguer Plantalech
 * Irina Pulyakhina
-* Piotr Zakrzewski
-* Peter Kok
+* Riza Nugraha
+* Dionne Zaal
 * Sjoerd van Hagen
 * Kees van Bochove
 
@@ -74,6 +74,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Erik Larsson
 * Dong Li
 * James Xu
+* Peter Kok
 
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided by:
 

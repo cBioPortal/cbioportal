@@ -4,6 +4,12 @@
     Boolean isVirtualStudy = (Boolean)request.getAttribute("is_virtual_study");
     String cancerStudyId = (String)request.getParameter(QueryBuilder.CANCER_STUDY_ID);
     String cancerStudyIdListStr = (String)request.getAttribute(QueryBuilder.CANCER_STUDY_LIST);
+    String normalizedCancerStudyIdListStr;
+    if (cancerStudyIdListStr == null) {
+            normalizedCancerStudyIdListStr = cancerStudyId;
+    } else {
+            normalizedCancerStudyIdListStr = cancerStudyIdListStr;
+    }
 %>
 <script type="text/javascript">
 

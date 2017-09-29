@@ -161,8 +161,8 @@
 								case_set_description: '<%=sampleSetDescription%>'
 							    }, <%=GlobalProperties.enableDriverAnnotations()%>,
                                                             <%=GlobalProperties.showBinaryCustomDriverAnnotation()%>,
-                                                            <%=DaoMutation.hasDriverAnnotations(request.getParameter(QueryBuilder.CANCER_STUDY_ID))%>,
-                                                            <%=DaoMutation.numTiers(request.getParameter(QueryBuilder.CANCER_STUDY_ID))%>,
+                                                            <%=DaoMutation.hasDriverAnnotations(normalizedCancerStudyIdListStr)%>,
+                                                            <%=DaoMutation.numTiers(normalizedCancerStudyIdListStr)%>,
                                                             '<%=GlobalProperties.enableOncoKBandHotspots()%>',
                                                             <%=GlobalProperties.showTiersCustomDriverAnnotation()%>,
                                                             <%=GlobalProperties.enableTiers()%>,

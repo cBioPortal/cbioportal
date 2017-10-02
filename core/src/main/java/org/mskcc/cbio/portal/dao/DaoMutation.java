@@ -1487,9 +1487,9 @@ public final class DaoMutation {
         List<String> tiers = new ArrayList<String>();
         ArrayList<GeneticProfile> geneticProfiles = new ArrayList<>();
 	for (String cancerStudyStableId: cancerStudyStableIds) {
-		DaoGeneticProfile.getAllGeneticProfiles(
+		geneticProfiles.addAll(DaoGeneticProfile.getAllGeneticProfiles(
 			DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId()
-		);
+		));
 	}
         for (GeneticProfile geneticProfile : geneticProfiles) {
             if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {

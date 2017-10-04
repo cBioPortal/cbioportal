@@ -1,3 +1,14 @@
+## October 2, 2017
+ *   **Added data** of 1646 samples from 7 published studies:
+     *   [NGS in Anaplastic Oligodendroglioma and Anaplastic Oligoastrocytomas tumors (MSKCC, Neuro Oncol 2017)](http://www.cbioportal.org/study?id=odg_msk_2017#summary)   *22 samples*
+     *   [MSK-IMPACT Clinical Sequencing Cohort for Non-Small Cell Cancer (MSK, Cancer Discovery 2017)](http://www.cbioportal.org/study?id=lung_msk_2017) *915 samples*
+     *   [Integrated genomic analyses reveal frequent TERT aberrations in acral melanoma. (Genome Res 2017)](http://www.cbioportal.org/study?id=mel_tsam_liang_2017#summary) *38 samples*
+     *   [MSK-IMPACT Clinical Sequencing Cohort, Prostate Cancer. (JCO Precision Oncology 2017)](http://www.cbioportal.org/study?id=prad_mskcc_2017#summary) *504 samples*
+     *   [Genetic Characterization of pretreatment melanoma tumors (UCLA, Cell 2016)](http://www.cbioportal.org/study?id=skcm_ucla_2016#summary) *39 samples*
+     *   [PTEN loss of function alterations are associated with intrinsic resistance to BRAF inhibitors in metastatic melanoma (JCO Precision Oncology,2017)](http://www.cbioportal.org/study?id=skcm_vanderbilt_mskcc_2015#summary) *66 samples*
+     *   [Unclassified Renal Cell Carcinoma (Nature, 2016)](https://cbioportal.mskcc.org/study?id=urcc_mskcc_2016#summary) *62 samples*
+ *   **Updated data** for [MSK-IMPACT Clinical Sequencing Cohort (MSK, Nat Med 2017)](http://www.cbioportal.org/study?id=msk_impact_2017) with overall survival data.
+
 ## August 3, 2017
  *   The third phase of the cBioPortal architectural upgrade is now complete: The _Mutations_ tab now has a fresh look and faster performance -- see [example](http://www.cbioportal.org/index.do?session_id=598386e5498e5df2e29376ab&show_samples=false&#mutation_details&)
  

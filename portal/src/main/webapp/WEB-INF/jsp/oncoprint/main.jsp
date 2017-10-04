@@ -117,13 +117,13 @@
                            <div class="checkbox"><label><input type="checkbox" name="hotspots" value="hotspots"> Hotspots <img id="colorby_hotspot_info" src="images/cancer-hotspots.svg" style="height:15px; width:15px; cursor:pointer;"/></label></div>
                            <div class="checkbox"><label><input type="checkbox" name="cbioportal" value="cbioportal"/> cBioPortal  >= <input type="text" id="cbioportal_threshold" style="width:35px;"/></label></div>
                            <div class="checkbox"><label><input type="checkbox" name="cosmic" value="cosmic"> COSMIC  >= <input type="text" id="cosmic_threshold" style="width:35px;"/></label></div>
-                           <% if (GlobalProperties.showBinaryCustomDriverAnnotation() && DaoMutation.hasDriverAnnotations(request.getParameter(QueryBuilder.CANCER_STUDY_ID))) { %>
+                           <% if (GlobalProperties.showBinaryCustomDriverAnnotation() && DaoMutation.hasDriverAnnotations(normalizedCancerStudyIdListStr)) { %>
                            <div class="checkbox"><label><input type="checkbox" name="driver_filter" value="driver_filter"/> <c:out value="${GlobalProperties.getBinaryCustomDriverAnnotationMenuLabel()}" /> <img id="colorby_driver_filter_info" src="images/driver.png" alt="driver filter" style="height:15px; width:15px; cursor:pointer;"/></label></div>
                            <% }
-                           if (GlobalProperties.showTiersCustomDriverAnnotation() && DaoMutation.numTiers(request.getParameter(QueryBuilder.CANCER_STUDY_ID)) > 0) { %>
+                           if (GlobalProperties.showTiersCustomDriverAnnotation() && DaoMutation.numTiers(normalizedCancerStudyIdListStr) > 0) { %>
                            <span class="caret"></span>&nbsp;&nbsp;<span>${GlobalProperties.getTiersCustomDriverAnnotationMenuLabel()}</span>&nbsp;<img id="colorby_driver_tiers_filter_info" src="images/driver_tiers.png" alt="driver tiers filter" style="height:15px; width:15px; cursor:pointer;"/>
                            <div id="tiers" style="margin-left: 30px;">
-                               <c:forEach var="tier" items="${DaoMutation.getTiers(requestScope[QueryBuilder.CANCER_STUDY_ID])}" varStatus="loop">
+                               <c:forEach var="tier" items="${DaoMutation.getTiers(normalizedCancerStudyIdListStr)}" varStatus="loop">
                                    <div class="checkbox"><label><input type="checkbox" name="driver_tiers_filter_${loop.index}" value="${fn:escapeXml(tier)}" /> <c:out value="${tier}" /></label></div>
                                </c:forEach>
                            </div>

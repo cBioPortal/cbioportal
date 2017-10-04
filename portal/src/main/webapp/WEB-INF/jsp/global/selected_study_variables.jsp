@@ -10,6 +10,7 @@
     } else {
             normalizedCancerStudyIdListStr = cancerStudyIdListStr;
     }
+    pageContext.setAttribute("normalizedCancerStudyIdListStr", normalizedCancerStudyIdListStr);
 %>
 <script type="text/javascript">
 

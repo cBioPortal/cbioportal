@@ -15,6 +15,7 @@ window.showCivic = <%=GlobalProperties.showCivic()%>;
 window.showHotspot = <%=GlobalProperties.showHotspot()%>;
 window.showMyCancerGenome = <%=GlobalProperties.showMyCancerGenomeUrl()%>;
 window.showGenomeNexus = <%=GlobalProperties.showGenomeNexus()%>;
+window.querySetsOfGenes = <%=GlobalProperties.getQuerySetsOfGenes()%>;
 
 // this prevents react router from messing with hash in a way that could is unecessary (static pages)
 // or could conflict
@@ -30,6 +31,7 @@ window.skinRightNavShowTestimonials = <%=GlobalProperties.showRightNavTestimonia
 window.skinRightNavExamplesHTML = '<%=GlobalProperties.getExamplesRightColumnHtml()%>';
 window.skinRightNavExamplesHTML = '<%=GlobalProperties.getExamplesRightColumnHtml()%>';
 window.skinRightNavWhatsNewBlurb = '<%=GlobalProperties.getRightNavWhatsNewBlurb()%>';
+
 // Prioritized studies for study selector
 window.priorityStudies = {};
 <%

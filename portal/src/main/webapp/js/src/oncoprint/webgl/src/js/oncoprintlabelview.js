@@ -188,7 +188,7 @@ var OncoprintLabelView = (function () {
 	    view.ctx.fillText(shortenLabelIfNecessary(view, view.labels[view.dragged_label_track_id]), 0, view.supersampling_ratio*view.drag_mouse_y);
 	    view.ctx.fillStyle = 'rgba(0,0,0,0.15)';
 	    var group = view.model.getContainingTrackGroup(view.dragged_label_track_id);
-	    var label_above_mouse = getLabelAboveMouseSpace(view, group, view.drag_mouse_y, null);
+	    var label_above_mouse = view.model.getLastExpansion(getLabelAboveMouseSpace(view, group, view.drag_mouse_y, null));
 	    var label_below_mouse = getLabelBelowMouseSpace(view, group, view.drag_mouse_y, null);
 	    var rect_y, rect_height;
 	    if (label_above_mouse === view.dragged_label_track_id || label_below_mouse === view.dragged_label_track_id) {

@@ -73,10 +73,29 @@
     HashSet<String> geneticProfileIdSet = (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS);
     String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
     geneticProfiles = xssUtil.getCleanerInput(geneticProfiles.trim());
-
-    //Info about threshold settings
-    double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
-    double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
+    
+    /*
+     * Info about z score settings
+     */
+    double mRnaZscoreUpThreshold = 100;
+    double mRnaZscoreDownThreshold = -100;
+    double proteinZscoreUpThreshold = 100;
+    double proteinZscoreDownThreshold = -100; // TODO: change default to null
+    if (("on").equals(request.getParameter(QueryBuilder.APPLY_MRNA_EXP_Z_SCORE_UP_THRESHOLD))) {
+        mRnaZscoreUpThreshold = Double.parseDouble(request.getAttribute(QueryBuilder.MRNA_EXP_Z_SCORE_UP_THRESHOLD).toString());;
+    }
+    if (("on").equals(request.getParameter(QueryBuilder.APPLY_MRNA_EXP_Z_SCORE_DOWN_THRESHOLD))) {
+        mRnaZscoreDownThreshold = Double.parseDouble(request.getAttribute(QueryBuilder.MRNA_EXP_Z_SCORE_DOWN_THRESHOLD).toString());;
+    }
+    if (("on").equals(request.getParameter(QueryBuilder.APPLY_PROTEIN_EXP_Z_SCORE_UP_THRESHOLD))) {
+        proteinZscoreUpThreshold = Double.parseDouble(request.getAttribute(QueryBuilder.PROTEIN_EXP_Z_SCORE_UP_THRESHOLD).toString());;
+    }
+    if (("on").equals(request.getParameter(QueryBuilder.APPLY_PROTEIN_EXP_Z_SCORE_DOWN_THRESHOLD))) {
+        proteinZscoreDownThreshold = Double.parseDouble(request.getAttribute(QueryBuilder.PROTEIN_EXP_Z_SCORE_DOWN_THRESHOLD).toString());;
+    }
+    String mrnaZscoreSampleSet = request.getAttribute(QueryBuilder.MRNA_EXP_Z_SCORE_SAMPLE_SET).toString();
+    String proteinExpZscoreSampleSet = request.getAttribute(QueryBuilder.PROTEIN_EXP_Z_SCORE_SAMPLE_SET).toString();
+    // ---- close getting threshold for getting zscore settings
 
     //Onco Query Language Parser Instance
     String oql = request.getParameter(QueryBuilder.GENE_LIST);
@@ -167,6 +186,13 @@
     var patientSampleIdMap = {};
     var patientCaseSelect;
 
+    '<%=mRnaZscoreUpThreshold%>';
+    '<%=mRnaZscoreDownThreshold%>';
+    '<%=proteinZscoreUpThreshold%>';
+    '<%=proteinZscoreDownThreshold%>';
+    '<%=mrnaZscoreSampleSet%>';
+    '<%=proteinExpZscoreSampleSet%>';
+
     window.PortalGlobals = {
         setPatientSampleIdMap: function(_patientSampleIdMap) {patientSampleIdMap = _patientSampleIdMap;},
     };
@@ -179,8 +205,10 @@
                                                             converted_oql,
                                                             ['<%=cancerStudyId%>'.trim()],
                                                             JSON.parse('<%=studySampleMapJson%>'),
-                                                            parseFloat('<%=zScoreThreshold%>'),
-                                                            parseFloat('<%=rppaScoreThreshold%>'),
+                                                            parseFloat('<%=mRnaZscoreUpThreshold%>'),
+                                                            parseFloat('<%=mRnaZscoreDownThreshold%>'),
+                                                            parseFloat('<%=proteinZscoreUpThreshold%>'),
+                                                            parseFloat('<%=proteinZscoreDownThreshold%>'),
                                                             {
                                                                 case_set_id: '<%=sampleSetId%>',
                                                                 case_ids_key: '<%=sampleIdsKey%>',

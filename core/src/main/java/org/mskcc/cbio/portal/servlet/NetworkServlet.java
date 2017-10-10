@@ -201,7 +201,8 @@ public class NetworkServlet extends HttpServlet {
                 Set<GeneticProfile> geneticProfileSet = getGeneticProfileSet(req, cancerStudyId);
 
                 // getzScoreThreshold
-                double zScoreThreshold = Double.parseDouble(req.getParameter(QueryBuilder.Z_SCORE_THRESHOLD));
+                //double zScoreThreshold = Double.parseDouble(req.getParameter(QueryBuilder.Z_SCORE_THRESHOLD));
+                double zScoreThreshold = 2.0; // TODO: get zscore threshold from the UI
 
                 xdebug.startTimer();
 
@@ -803,7 +804,6 @@ public class NetworkServlet extends HttpServlet {
         String geneticProfileIdsStr = req.getParameter(QueryBuilder.GENETIC_PROFILE_IDS);
         String cancerStudyId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
         String caseSetId = req.getParameter(QueryBuilder.CASE_SET_ID);
-        String zscoreThreshold = req.getParameter(QueryBuilder.Z_SCORE_THRESHOLD);
         String netSrc = req.getParameter("netsrc");
         String netSize = req.getParameter("netsize");
         String nLinker = req.getParameter("linkers");
@@ -813,7 +813,8 @@ public class NetworkServlet extends HttpServlet {
                 +"&"+QueryBuilder.GENETIC_PROFILE_IDS+"="+geneticProfileIdsStr
                 +"&"+QueryBuilder.CANCER_STUDY_ID+"="+cancerStudyId
                 +"&"+QueryBuilder.CASE_SET_ID+"="+caseSetId
-                +"&"+QueryBuilder.Z_SCORE_THRESHOLD+"="+zscoreThreshold
+                //+"&"+QueryBuilder.Z_SCORE_THRESHOLD+"="+zscoreThreshold
+                +"&"+"zscore_threshold"+"="+"2.0" //TODO: get zscore threshold from the UI
                 +"&netsrc="+netSrc
                 +"&msgoff=t";
 

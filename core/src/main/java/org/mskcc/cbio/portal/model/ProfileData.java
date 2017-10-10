@@ -114,13 +114,15 @@ public class ProfileData {
      *
      * @param geneSymbol Gene Symbol.
      * @param caseId     Case ID.
+     * @param zScoreUpThreshold
+     * @param zScoreDownThreshold
      * @return value.
      */
-    public ValueParser getValueParsed(String geneSymbol, String caseId, double zScoreThreshold) {
+    public ValueParser getValueParsed(String geneSymbol, String caseId, double zScoreUpThreshold, double zScoreDownThreshold) {
         String key = createKey(geneSymbol, caseId);
         String value = mapFromGeneAndCaseToGeneProperties.get(key);
         if (value != null) {
-            return new ValueParser (value, zScoreThreshold);
+            return new ValueParser (value, zScoreUpThreshold, zScoreDownThreshold);
         }
         return null;
     }

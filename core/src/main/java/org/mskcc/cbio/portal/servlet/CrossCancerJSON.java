@@ -271,15 +271,27 @@ public class CrossCancerJSON extends HttpServlet {
                                               HttpServletResponse response) throws IOException,
             ServletException, DaoException {
 
-        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
-        double zScore = ZScoreUtil.getZScore(new HashSet<String>(defaultGeneticProfileSet.keySet()),
-                new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()), request);
-        double rppaScore = ZScoreUtil.getRPPAScore(request);
+        double mRnaZscoreUpThreshold = 100;
+        double mRnaZscoreDownThreshold = -100;
+        double proteinZscoreUpThreshold = 100;
+        double proteinZscoreDownThreshold = -100; // TODO: change default to null
+        if (("on").equals(request.getParameter(QueryBuilder.APPLY_MRNA_EXP_Z_SCORE_UP_THRESHOLD))) {
+            mRnaZscoreUpThreshold = Double.parseDouble(request.getAttribute(QueryBuilder.MRNA_EXP_Z_SCORE_UP_THRESHOLD).toString());;
+        }
+        if (("on").equals(request.getParameter(QueryBuilder.APPLY_MRNA_EXP_Z_SCORE_DOWN_THRESHOLD))) {
+            mRnaZscoreDownThreshold = Double.parseDouble(request.getAttribute(QueryBuilder.MRNA_EXP_Z_SCORE_DOWN_THRESHOLD).toString());;
+        }
+        if (("on").equals(request.getParameter(QueryBuilder.APPLY_PROTEIN_EXP_Z_SCORE_UP_THRESHOLD))) {
+            proteinZscoreUpThreshold = Double.parseDouble(request.getAttribute(QueryBuilder.PROTEIN_EXP_Z_SCORE_UP_THRESHOLD).toString());;
+        }
+        if (("on").equals(request.getParameter(QueryBuilder.APPLY_PROTEIN_EXP_Z_SCORE_DOWN_THRESHOLD))) {
+            proteinZscoreDownThreshold = Double.parseDouble(request.getAttribute(QueryBuilder.PROTEIN_EXP_Z_SCORE_DOWN_THRESHOLD).toString());;
+        } // ---- close getting threshold for getting zscore settings
 
         ParserOutput theOncoPrintSpecParserOutput =
                 OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(geneListStr,
                         new HashSet<String>(defaultGeneticProfileSet.keySet()),
-                        new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()), zScore, rppaScore);
+                        new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()), mRnaZscoreUpThreshold, proteinZscoreUpThreshold); //TODO: separate up & down threshold
 
         ArrayList<String> geneList = new ArrayList<String>();
         geneList.addAll(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes());
@@ -304,8 +316,14 @@ public class CrossCancerJSON extends HttpServlet {
         ProfileMerger merger = new ProfileMerger(profileDataList);
         ProfileData mergedProfile = merger.getMergedProfile();
 
-        ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScore, rppaScore);
+        ProfileDataSummary dataSummary = new ProfileDataSummary(
+            mergedProfile,
+            theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(),
+            mRnaZscoreUpThreshold,
+            mRnaZscoreDownThreshold,
+            proteinZscoreUpThreshold,
+            proteinZscoreDownThreshold
+        );
         return dataSummary;
     }
 }

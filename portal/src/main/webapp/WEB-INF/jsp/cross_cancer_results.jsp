@@ -359,7 +359,7 @@ if (sessionError != null) {  %>
 </script>
 
 <script type="text/template" id="study-link-tmpl">
-    <a href="index.do?tab_index=tab_visualize&cancer_study_id={{study.studyId}}&genetic_profile_ids_PROFILE_MUTATION_EXTENDED={{study.mutationProfile}}&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION={{study.cnaProfile}}&Z_SCORE_THRESHOLD=2.0&case_set_id={{study.caseSetId}}&case_ids=&gene_list={{genes}}&gene_set_choice=user-defined-list&Action=Submit" target="_blank">
+    <a href="index.do?tab_index=tab_visualize&cancer_study_id={{study.studyId}}&genetic_profile_ids_PROFILE_MUTATION_EXTENDED={{study.mutationProfile}}&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION={{study.cnaProfile}}&mrna_exp_apply_up_threshold=on&mrna_exp_up_threshold_val=2.0&mrna_exp_apply_down_threshold=on&mrna_exp_down_threshold_val=-2.0&mrna_exp_zscore_sample_set=diploid&protein_exp_apply_up_threshold=on&protein_exp_up_threshold_val=2.0&protein_exp_apply_down_threshold=on&protein_exp_down_threshold_val=-2.0&protein_exp_zscore_sample_set=diploid&case_set_id={{study.caseSetId}}&case_ids=&gene_list={{genes}}&gene_set_choice=user-defined-list&Action=Submit" target="_blank">
         click to view details &raquo;
     </a>
 </script>

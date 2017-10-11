@@ -223,3 +223,6 @@ oncoprint.defaultview=patient
 
 # Set this to true if you want to check the "hide Putative Passenger Mutations" checkbox by default.
 # oncoprint.hide_passenger.default=true
+
+# Change this to custom file (e.g. file:/<path>) to have a custom set of genes in query page:
+querypage.setsofgenes.location = classpath:/setsofgenes.json

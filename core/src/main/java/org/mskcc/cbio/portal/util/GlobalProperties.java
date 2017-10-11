@@ -37,9 +37,11 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -233,6 +235,8 @@ public class GlobalProperties {
     public static final String DEFAULT_UCSC_BUILD = "hg19";
 
     public static final String ONCOPRINT_DEFAULTVIEW = "oncoprint.defaultview";
+    
+    public static final String SETSOFGENES_LOCATION = "querypage.setsofgenes.location";
 
     private static boolean showCivic;
     @Value("${show.civic:false}") // default is false
@@ -1053,5 +1057,22 @@ public class GlobalProperties {
     public static boolean hidePassengerMutations() {
 	String hidePassenger = properties.getProperty(HIDE_PASSENGER_MUTATIONS, "false");
 	return Boolean.parseBoolean(hidePassenger);
+    }
+    
+    public static String getQuerySetsOfGenes() {
+	String result = new String();
+	try {
+	    BufferedReader br = new BufferedReader(new FileReader(ResourceUtils.getFile(properties.getProperty(SETSOFGENES_LOCATION, "classpath:/setsofgenes.json"))));
+	    for (String line = br.readLine();line != null;line = br.readLine()) {
+		line = line.trim();
+		result = result + line;
+	    }
+	    br.close();
+	} catch (FileNotFoundException e) {
+	    throw new RuntimeException("File not found: ", e);
+	} catch (IOException e) {
+	    throw new RuntimeException("Line not found: ", e);
+	}
+	return result;
     }
 }

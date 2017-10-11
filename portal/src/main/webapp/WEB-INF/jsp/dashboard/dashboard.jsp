@@ -342,7 +342,7 @@
                     $("#study_desc ").append(study_description);
 
                     $('.truncated').hide()                       // Hide the text initially
-                        .after('<i class="fa fa-plus-circle" aria-hidden="true" style="padding-left: 5px;"></i>') // Create toggle button
+                        .after('<i class="fa fa-plus-circle" aria-hidden="true"></i>') // Create toggle button
                         .next().on('click', function(){          // Attach behavior
                         $(this).toggleClass("fa-minus-circle")   // Swap the icon
                             .prev().toggle();                    // Hide/show the text

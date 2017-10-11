@@ -219,3 +219,8 @@ header {
 .legacy .studyContainer .contentWidth {
     width:1300px;
 }
+
+#study_desc i { 
+    cursor: pointer; 
+    padding-left: 5px;
+}

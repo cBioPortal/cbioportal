@@ -1322,7 +1322,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             showDropDown: false,
             numOfSurvivalPlots: 0,
             showedSurvivalPlot: false,
-            userMovedChart: false
+            userMovedChart: false,
+            failedToInit: {
+              status: false,
+              message: 'Failed to open the study.' + (iViz.opts.emailContact ? (' Please contact ' + iViz.opts.emailContact + '.') : '')
+            },
           }, watch: {
             charts: function() {
               this.checkForDropDownCharts();
@@ -1382,6 +1386,10 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             },
             'user-moved-chart': function() {
               this.userMovedChart = true;
+            },
+            'fail-during-init': function(message) {
+              this.failedToInit.status = true;
+              this.failedToInit.message = message;
             }
           }, methods: {
             checkForDropDownCharts: function() {
@@ -1690,7 +1698,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 'use strict';
 (function(iViz, _, cbio) {
   iViz.util = (function() {
-    
+
     function tableDownload(fileType, content) {
       switch (fileType) {
         case 'tsv':
@@ -2045,6 +2053,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         break;
       }
     }
+
     /**
      * @author Adam Abeshouse
      * @param {number | string} a
@@ -2317,7 +2326,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       // TODO: DOM id pool. Ideally id shouldn't be repeated
       return domId;
     };
-    
+
     /**
      * Finds the intersection elements between two arrays in a simple fashion.
      * Should have O(n) operations, where n is n = MIN(a.length, b.length)
@@ -2427,6 +2436,24 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         status = true;
       }
       return status;
+    };
+
+    content.getDataErrorMessage = function(type) {
+      var message = 'Failed to load data';
+      switch (type) {
+      case 'dataInvalid':
+        message = 'Data Invalid' + (iViz.opts.emailContact ?
+          ('<span v-if="emailContact">' +
+            ', please contact <span v-html="emailContact"></span></span>') : '');
+        break;
+      case 'noData':
+        message = 'No data available';
+        break;
+      case 'failedToLoadData':
+        message = 'Failed to load data, refresh the page may help';
+        break;
+      }
+      return message;
     };
 
     return content;
@@ -5200,7 +5227,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     '<div class="dc-chart dc-bar-chart" align="center" ' +
     'style="float:none !important;" id={{chartId}} >' +
     '<div v-if="failedToInit" class="error-panel" align="center" style="padding-top: 10%;">' +
-    '<error-handle v-if="failedToInit" :error-message="errorMessage"></error-handle>' +
+    '<error v-if="failedToInit" :message="errorMessage"></error>' +
     '</div></div>' +
     ' <div :class="{\'show-loading\': showLoad}" ' +
     'class="chart-loader">' +
@@ -5233,11 +5260,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           transitionDuration: iViz.opts.dc.transitionDuration
         },
         failedToInit: false,
-        errorMessage: {
-          dataInvalid: false,
-          noData: false, 
-          failedToLoadData: false
-        },
+        errorMessage: '',
         opts: {},
         numOfSurvivalCurveLimit: iViz.opts.numOfSurvivalCurveLimit || 20,
         addingChart: false,
@@ -5328,7 +5351,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           this.showSurvivalIcon = false;
         }
       },
-      processBarchartData: function (_data) {
+      processBarchartData: function(_data) {
         var _self = this;
         var _dataIssue = false;
         var smallerOutlier = [];
@@ -5360,7 +5383,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         });
 
         if (_dataIssue) {
-          this.errorMessage.dataInvalid = true;
+          this.errorMessage = iViz.util.getDataErrorMessage('dataInvalid');
           this.failedToInit = true;
         } else {
           // for scientific small number
@@ -5470,19 +5493,19 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             if (!_hasMutationCountData) { //empty data
               if (_self.attributes.addChartBy === 'default') {// Hide empty chart initially.
                 _self.attributes.show = false;
-                _self.$dispatch('remove-chart', _self.attributes.attr_id,  _self.attributes.group_id);//rearrange layout
+                _self.$dispatch('remove-chart', _self.attributes.attr_id, _self.attributes.group_id);//rearrange layout
               } else { // _self.attributes.addChartBy === 'user'
                 _self.$dispatch('data-loaded', _self.attributes.group_id, _self.chartDivId);
               }
               _self.showLoad = false;
-              _self.errorMessage.noData = true;
+              _self.errorMessage = iViz.util.getDataErrorMessage('noData');
               _self.failedToInit = true;
             } else {
               _self.processBarchartData(_mutationCountData);
             }
           }, function() {
             _self.showLoad = false;
-            _self.errorMessage.failedToLoadData = true;
+            _self.errorMessage = iViz.util.getDataErrorMessage('failedToLoadData');
             _self.failedToInit = true;
             _self.$dispatch('data-loaded', _self.attributes.group_id, _self.chartDivId);
           });
@@ -5765,7 +5788,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     'class="chart-loader">' +
     ' <img src="images/ajax-loader.gif" alt="loading"></div>' +
     '<div v-if="failedToInit" class="error-panel" align="center">' +
-    '<error-handle v-if="failedToInit" :error-message="errorMessage"></error-handle>' +
+    '<error-handle v-if="failedToInit" :error="error"></error-handle>' +
     '</div></div>',
     props: [
       'ndx', 'attributes'
@@ -5784,7 +5807,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         chartInst: {},
         hasFilters: false,
         showLoad: true,
-        errorMessage: {
+        error: {
           dataInvalid: false,
           noData: false,
           failedToLoadData: false
@@ -5910,7 +5933,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               _self.attributes.show = false;
               _self.$dispatch('remove-chart', _self.attributes.attr_id,  _self.attributes.group_id);//rearrange layout
             } 
-            _self.errorMessage.noData = true;
+            _self.error.noData = true;
             _self.failedToInit = true;
           } else {
             var _opts = {
@@ -5937,7 +5960,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           _self.showLoad = false;
         }, function() {
           _self.showLoad = false;
-          _self.errorMessage.failedToLoadData = true;
+          _self.error.failedToLoadData = true;
           _self.failedToInit = true;
         });
       
@@ -7982,26 +8005,24 @@ window.LogRankTest = (function(jStat) {
  * Created by Hongxin Zhang on 4/24/17.
  */
 'use strict';
-(function(Vue, iViz) {
-  Vue.component('errorHandle', {
-    template: '<span v-if="errorMessage.dataInvalid" class="data-invalid">Data invalid' +
-    '<span v-if="emailContact">, please contact <span v-html="emailContact"></span>' +
-    '</span></span>' + 
-    '<span v-if="errorMessage.noData" class="no-data">No data available</span>' +
-    '<span v-if="errorMessage.failedToLoadData" class="failed-load-data">Failed to load data, refresh the page may help</span>',
-    props: [
-      'errorMessage'
-    ], 
-    data: function() {
-      return {
-        emailContact: ''
-      };
-    },
-    ready: function() {
-      if (iViz.opts.emailContact) {
-        this.emailContact = iViz.opts.emailContact;
+(function(Vue) {
+  Vue.component('error', {
+    template: '<div id="{{containerId}}" >' +
+    '<span class="className">{{{message}}}</span>' +
+    '</div>',
+    props: {
+      containerId: {
+        type: String,
+        default: new Date().getTime() + '-error'
+      },
+      message: {
+        type: String,
+        default: ''
+      },
+      className: {
+        type: String,
+        default: 'error-message'
       }
     }
   });
-})(window.Vue,
-  window.iViz);
+})(window.Vue);

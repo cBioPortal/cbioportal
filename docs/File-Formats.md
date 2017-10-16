@@ -414,6 +414,7 @@ The expression metadata file should contain the following fields:
 
 #### Supported stable_id values for MRNA_EXPRESSION
 For historical reasons, cBioPortal expects the `stable_id` to be one of those listed in the following static set.
+The stable_id for continous RNA-seq data has two options. These options were added to distinguish between two different TCGA pipelines. For custom datasets either one of these stable_id can be chosen.
 
 <table>
 <thead>

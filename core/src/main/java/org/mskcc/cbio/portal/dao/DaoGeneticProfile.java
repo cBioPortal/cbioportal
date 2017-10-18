@@ -101,8 +101,8 @@ public final class DaoGeneticProfile {
 
             pstmt = con.prepareStatement
                     ("INSERT INTO genetic_profile (`STABLE_ID`, `CANCER_STUDY_ID`, `GENETIC_ALTERATION_TYPE`," +
-                            "`DATATYPE`, `NAME`, `DESCRIPTION`, `SHOW_PROFILE_IN_ANALYSIS_TAB`) " +
-                            "VALUES (?,?,?,?,?,?,?)");
+                            "`DATATYPE`, `NAME`, `DESCRIPTION`, `SHOW_PROFILE_IN_ANALYSIS_TAB`,`REFERENCE_GENOME_ID`) " +
+                            "VALUES (?,?,?,?,?,?,?,?)");
             pstmt.setString(1, profile.getStableId());
             pstmt.setInt(2, profile.getCancerStudyId());
             pstmt.setString(3, profile.getGeneticAlterationType().name());
@@ -110,6 +110,7 @@ public final class DaoGeneticProfile {
             pstmt.setString(5, profile.getProfileName());
             pstmt.setString(6, profile.getProfileDescription());
             pstmt.setBoolean(7, profile.showProfileInAnalysisTab());
+            pstmt.setInt(8, profile.getReferenceGenomeId());
             rows = pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -177,6 +178,32 @@ public final class DaoGeneticProfile {
         return byStableId.get(stableId);
     }
 
+    public static GeneticProfile getGeneticProfileByCancerStudyID(int cancerStudyId, String referenceGenomeID) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
+            pstmt = con.prepareStatement
+                ("SELECT genetic_profile.* FROM genetic_profile " +
+                    "JOIN reference_genome ON genetic_profile.GENETIC_PROFILE_ID = reference_genome.reference_genome_id " +
+                    "WHERE CANCER_STUDY_ID=? AND GENETIC_ALTERATION_TYPE=? AND reference_genome.name=?");
+            pstmt.setInt(1, cancerStudyId);
+            pstmt.setString(2, "COPY_NUMBER_ALTERATION");
+            pstmt.setString(3, referenceGenomeID);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return extractGeneticProfile(rs);
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
+        }
+    }
+    
     public static GeneticProfile getGeneticProfileById(int geneticProfileId) {
         return byInternalId.get(geneticProfileId);
     }
@@ -217,6 +244,7 @@ public final class DaoGeneticProfile {
         profileType.setGeneticAlterationType(GeneticAlterationType.valueOf(rs.getString("GENETIC_ALTERATION_TYPE")));
         profileType.setDatatype(rs.getString("DATATYPE"));
         profileType.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
+        profileType.setReferenceGenomeId(rs.getInt("REFERENCE_GENOME_ID"));
         return profileType;
     }
 

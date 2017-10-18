@@ -38,7 +38,8 @@ public class CopyNumberSegmentFile
     {
         hg18("hg18"),
         hg19("hg19"),
-    	mm10("mm10");
+    	mm10("mm10"),
+        hg38("hg38");
 
         private String propertyName;
         

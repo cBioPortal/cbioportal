@@ -4,17 +4,17 @@ import java.math.BigDecimal;
 
 public class FractionGenomeAltered extends UniqueKeyBase {
 
-    private String studyId;
+    private String molecularProfileId;
     private String sampleId;
     private String patientId;
     private BigDecimal value;
 
-    public String getStudyId() {
-        return studyId;
+    public String getMolecularProfileId() {
+        return molecularProfileId;
     }
 
-    public void setStudyId(String studyId) {
-        this.studyId = studyId;
+    public void setMolecularProfileId(String molecularProfileId) {
+        this.molecularProfileId = molecularProfileId;
     }
 
     public String getSampleId() {

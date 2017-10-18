@@ -6,6 +6,7 @@ public class CopyNumberSeg extends UniqueKeyBase {
 
     private Integer segId;
     private Integer cancerStudyId;
+    private String molecularProfileId;
     private String cancerStudyIdentifier;
     private Integer sampleId;
     private String sampleStableId;
@@ -31,7 +32,15 @@ public class CopyNumberSeg extends UniqueKeyBase {
     public void setCancerStudyId(Integer cancerStudyId) {
         this.cancerStudyId = cancerStudyId;
     }
+    
+    public String getMolecularProfileId() {
+        return molecularProfileId;
+    }
 
+    public void setMolecularProfileId(String molecularProfileId) {
+        this.molecularProfileId = molecularProfileId;
+    }
+    
     public String getCancerStudyIdentifier() {
         return cancerStudyIdentifier;
     }

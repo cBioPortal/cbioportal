@@ -32,19 +32,19 @@ public class FractionGenomeAlteredServiceImplTest extends BaseServiceImplTest {
 
         List<CopyNumberSeg> copyNumberSegList = createCopyNumberSegList();
         
-        Mockito.when(copyNumberSegmentService.getCopyNumberSegmentsBySampleListId(STUDY_ID, SAMPLE_LIST_ID, "SUMMARY"))
+        Mockito.when(copyNumberSegmentService.getCopyNumberSegmentsBySampleListId(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, "SUMMARY"))
             .thenReturn(copyNumberSegList);
         
-        List<FractionGenomeAltered> result = fractionGenomeAlteredService.getFractionGenomeAltered(STUDY_ID, 
+        List<FractionGenomeAltered> result = fractionGenomeAlteredService.getFractionGenomeAltered(MOLECULAR_PROFILE_ID,
             SAMPLE_LIST_ID, CUTOFF);
 
         Assert.assertEquals(2, result.size());
         FractionGenomeAltered fractionGenomeAltered1 = result.get(0);
-        Assert.assertEquals(STUDY_ID, fractionGenomeAltered1.getStudyId());
+        Assert.assertEquals(MOLECULAR_PROFILE_ID, fractionGenomeAltered1.getMolecularProfileId());
         Assert.assertEquals(SAMPLE_ID1, fractionGenomeAltered1.getSampleId());
         Assert.assertEquals(new BigDecimal("0.18845872899926955"), fractionGenomeAltered1.getValue());
         FractionGenomeAltered fractionGenomeAltered2 = result.get(1);
-        Assert.assertEquals(STUDY_ID, fractionGenomeAltered2.getStudyId());
+        Assert.assertEquals(MOLECULAR_PROFILE_ID, fractionGenomeAltered2.getMolecularProfileId());
         Assert.assertEquals(SAMPLE_ID2, fractionGenomeAltered2.getSampleId());
         Assert.assertEquals(new BigDecimal("1.0"), fractionGenomeAltered2.getValue());
     }
@@ -54,19 +54,19 @@ public class FractionGenomeAlteredServiceImplTest extends BaseServiceImplTest {
 
         List<CopyNumberSeg> copyNumberSegList = createCopyNumberSegList();
 
-        Mockito.when(copyNumberSegmentService.fetchCopyNumberSegments(Arrays.asList(STUDY_ID, STUDY_ID), 
+        Mockito.when(copyNumberSegmentService.fetchCopyNumberSegments(Arrays.asList(MOLECULAR_PROFILE_ID),
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), "SUMMARY")).thenReturn(copyNumberSegList);
 
-        List<FractionGenomeAltered> result = fractionGenomeAlteredService.fetchFractionGenomeAltered(STUDY_ID,
+        List<FractionGenomeAltered> result = fractionGenomeAlteredService.fetchFractionGenomeAltered(MOLECULAR_PROFILE_ID,
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), CUTOFF);
 
         Assert.assertEquals(2, result.size());
         FractionGenomeAltered fractionGenomeAltered1 = result.get(0);
-        Assert.assertEquals(STUDY_ID, fractionGenomeAltered1.getStudyId());
+        Assert.assertEquals(MOLECULAR_PROFILE_ID, fractionGenomeAltered1.getMolecularProfileId());
         Assert.assertEquals(SAMPLE_ID1, fractionGenomeAltered1.getSampleId());
         Assert.assertEquals(new BigDecimal("0.18845872899926955"), fractionGenomeAltered1.getValue());
         FractionGenomeAltered fractionGenomeAltered2 = result.get(1);
-        Assert.assertEquals(STUDY_ID, fractionGenomeAltered2.getStudyId());
+        Assert.assertEquals(MOLECULAR_PROFILE_ID, fractionGenomeAltered2.getMolecularProfileId());
         Assert.assertEquals(SAMPLE_ID2, fractionGenomeAltered2.getSampleId());
         Assert.assertEquals(new BigDecimal("1.0"), fractionGenomeAltered2.getValue());
     }

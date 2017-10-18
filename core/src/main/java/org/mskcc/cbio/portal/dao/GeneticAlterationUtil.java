@@ -92,6 +92,8 @@ public class GeneticAlterationUtil {
                         GeneticAlterationType.PHOSPHORYLATION.name() : GeneticAlterationType.PROTEIN_LEVEL.name();
                 sampleMap = getProteinArrayDataMap (targetGeneticProfile.getCancerStudyId(),
                                                    targetSampleList, canonicalGene, type, null)[0];
+            } else if (targetGeneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_SEGMENT) {
+                sampleMap = getCopyNumberSegmentMap(targetSampleList, targetGeneticProfile.getGeneticProfileId());
             }
             else {
 
@@ -158,6 +160,31 @@ public class GeneticAlterationUtil {
         return mutationMap;
     }
 
+
+    /**
+     * Gets a Map of Mutation Data.
+     */
+    private static HashMap <Integer, String> getCopyNumberSegmentMap (List<Integer> targetSampleList,
+                                                             int geneticProfileId) throws DaoException {
+        HashMap <Integer, String> segmentMap = new HashMap <Integer, String>();
+        List<CopyNumberSegment> segmentList = DaoCopyNumberSegment.getSegmentForSamplesInGeneticProfile(
+                            targetSampleList, geneticProfileId);
+        
+        for (CopyNumberSegment segment : segmentList) {
+            Integer sampleId = segment.getSampleId();
+            //  Handle the possibility of multiple mutations in the same gene / sample
+            //  Handles issue:  165
+            if (segmentMap.containsKey(sampleId)) {
+                String existingStr = segmentMap.get(sampleId);
+                segmentMap.put(sampleId, existingStr + "," +
+                    segment.getSegMean());
+            } else {
+                segmentMap.put(sampleId, Double.toString(segment.getSegMean()));
+            }
+        }
+        return segmentMap;
+    }
+    
     /**
      * Gets a Map of Protein Array Data.
      */

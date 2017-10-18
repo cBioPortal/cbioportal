@@ -65,7 +65,7 @@ public class TestDaoGeneticProfile {
 	public void testDaoGetAllGeneticProfiles() throws DaoException {
 
 		ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
-		assertEquals(6, list.size());
+		assertEquals(5, list.size());
 	}
 		
 	@Test
@@ -95,6 +95,7 @@ public class TestDaoGeneticProfile {
 		geneticProfile.setStableId("test");
 		geneticProfile.setGeneticAlterationType(GeneticAlterationType.FUSION);
 		geneticProfile.setDatatype("test");
+		geneticProfile.setReferenceGenomeId(1);
 		DaoGeneticProfile.addGeneticProfile(geneticProfile);
 		
 		GeneticProfile readGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId("test");
@@ -127,12 +128,12 @@ public class TestDaoGeneticProfile {
 
 		GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(2);
 
-		assertEquals(6, DaoGeneticProfile.getCount());
-		DaoGeneticProfile.deleteGeneticProfile(geneticProfile);
 		assertEquals(5, DaoGeneticProfile.getCount());
+		DaoGeneticProfile.deleteGeneticProfile(geneticProfile);
+		assertEquals(4, DaoGeneticProfile.getCount());
 		
 		ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
-		assertEquals(5, list.size());
+		assertEquals(4, list.size());
 		geneticProfile = list.get(0);
 		assertEquals(studyId, geneticProfile.getCancerStudyId());
 		assertEquals("mRNA expression (microarray)", geneticProfile.getProfileName());
@@ -148,7 +149,7 @@ public class TestDaoGeneticProfile {
 				geneticProfile.getGeneticProfileId(), "Updated Name",
 				"Updated Description"));
 		ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
-		assertEquals(6, list.size());
+		assertEquals(5, list.size());
 		geneticProfile = list.get(0);
 		assertEquals(studyId, geneticProfile.getCancerStudyId());
 		assertEquals("Updated Name", geneticProfile.getProfileName());

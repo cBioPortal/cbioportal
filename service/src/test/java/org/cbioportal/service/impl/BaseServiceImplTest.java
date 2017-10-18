@@ -2,12 +2,13 @@ package org.cbioportal.service.impl;
 
 public class BaseServiceImplTest {
 
-    public static final String PROJECTION = "projection";
+    public static final String PROJECTION = "SUMMARY";
     public static final Integer PAGE_SIZE = 1000;
     public static final Integer PAGE_NUMBER = 0;
     public static final String SORT = "sort";
     public static final String DIRECTION = "direction";
-    public static final String STUDY_ID = "study_id";
+    public static final String STUDY_ID = "study_tcga_pub";
+    public static final String MOLECULAR_PROFILE_ID1 = "molecular_profile_id1";
     public static final String MOLECULAR_PROFILE_ID = "molecular_profile_id";
     public static final String SAMPLE_ID1 = "sample_id1";
     public static final String SAMPLE_ID2 = "sample_id2";
@@ -29,4 +30,5 @@ public class BaseServiceImplTest {
     public static final Integer PROTEIN_POS_START = 1;
     public static final Integer PROTEIN_POS_END = 2;
     public static final String GENE_PANEL_ID = "gene_panel_id";
+    public static final String CHR_ID = "19";
 }

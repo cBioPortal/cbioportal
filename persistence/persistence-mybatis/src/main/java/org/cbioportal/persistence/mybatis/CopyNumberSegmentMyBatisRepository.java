@@ -20,38 +20,39 @@ public class CopyNumberSegmentMyBatisRepository implements CopyNumberSegmentRepo
 
 
     @Override
-    public List<CopyNumberSeg> getCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId,
+    public List<CopyNumberSeg> getCopyNumberSegmentsInSampleInStudy(String molecularProfileId, String sampleId,
                                                                     String projection, Integer pageSize,
                                                                     Integer pageNumber, String sortBy,
                                                                     String direction) {
 
-        return copyNumberSegmentMapper.getCopyNumberSegments(Arrays.asList(studyId), Arrays.asList(sampleId), 
+        List<CopyNumberSeg> result = copyNumberSegmentMapper.getCopyNumberSegments(Arrays.asList(molecularProfileId), Arrays.asList(sampleId), 
             projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        return result;
     }
 
     @Override
-    public BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId) {
+    public BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String molecularProfileId, String sampleId) {
 
-        return copyNumberSegmentMapper.getMetaCopyNumberSegments(Arrays.asList(studyId), Arrays.asList(sampleId));
+        return copyNumberSegmentMapper.getMetaCopyNumberSegments(Arrays.asList(molecularProfileId), Arrays.asList(sampleId));
     }
 
     @Override
-    public List<CopyNumberSeg> fetchCopyNumberSegments(List<String> studyIds, List<String> sampleIds, 
+    public List<CopyNumberSeg> fetchCopyNumberSegments(List<String> molecularProfileIds, List<String> sampleIds, 
                                                        String projection) {
         
-        return copyNumberSegmentMapper.getCopyNumberSegments(studyIds, sampleIds, projection, 0, 0, null, null);
+        return copyNumberSegmentMapper.getCopyNumberSegments(molecularProfileIds, sampleIds, projection, 0, 0, null, null);
     }
 
     @Override
-    public BaseMeta fetchMetaCopyNumberSegments(List<String> studyIds, List<String> sampleIds) {
+    public BaseMeta fetchMetaCopyNumberSegments(List<String> molecularProfileIds, List<String> sampleIds) {
         
-        return copyNumberSegmentMapper.getMetaCopyNumberSegments(studyIds, sampleIds);
+        return copyNumberSegmentMapper.getMetaCopyNumberSegments(molecularProfileIds, sampleIds);
     }
 
     @Override
-    public List<CopyNumberSeg> getCopyNumberSegmentsBySampleListId(String studyId, String sampleListId, 
+    public List<CopyNumberSeg> getCopyNumberSegmentsBySampleListId(String molecularProfileId, String sampleListId, 
                                                                    String projection) {
         
-        return copyNumberSegmentMapper.getCopyNumberSegmentsBySampleListId(studyId, sampleListId, projection);
+        return copyNumberSegmentMapper.getCopyNumberSegmentsBySampleListId(molecularProfileId, sampleListId, projection);
     }
 }

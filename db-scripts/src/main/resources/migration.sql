@@ -374,10 +374,106 @@ INSERT INTO mutation_count_by_keyword
 
 UPDATE info SET DB_SCHEMA_VERSION="2.3.1";
 
+
 ##version: 2.4.0
 ALTER TABLE `mutation` ADD COLUMN `DRIVER_FILTER` VARCHAR(20) NULL;
 ALTER TABLE `mutation` ADD COLUMN `DRIVER_FILTER_ANNOTATION` VARCHAR(80) NULL;
 ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER` VARCHAR(50) NULL;
 ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER_ANNOTATION` VARCHAR(80) NULL;
 
+-- ========================== new reference genome gene related tables =============================================
+CREATE TABLE `reference_genome` (
+    `reference_genome_id` int(11) NOT NULL AUTO_INCREMENT,
+    `species` varchar(64) DEFAULT NULL,
+    `name` varchar(64) DEFAULT NULL,
+    `build_name` varchar(64) DEFAULT NULL,
+    `genome_size` bigint(20) DEFAULT NULL,
+    `URL` varchar(256) DEFAULT NULL,
+    `release_date` datetime DEFAULT NULL,
+    PRIMARY KEY (`reference_genome_id`),
+    UNIQUE INDEX `NAME_UNIQUE` (`build_name` ASC)
+);
+
+-- ========================== new reference genomes ====================================================================
+INSERT INTO `reference_genome` 
+VALUES (1, 'human', 'hg19', 'GRCh37', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes', '2009-02-01');
+INSERT INTO `reference_genome` 
+VALUES (2, 'human', 'hg38', 'GRCh38', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/hg38.chrom.sizes', '2013-12-01');
+INSERT INTO `reference_genome` 
+VALUES (3, 'mouse', 'mm10', 'GRCm38', NULL, 'http://hgdownload.cse.ucsc.edu//goldenPath/mm10/bigZips/mm10.chrom.sizes', '2012-01-01');
+
+CREATE TABLE `reference_genome_gene` (
+    `entrez_gene_id` int(11) NOT NULL,
+    `cytoband` varchar(64) DEFAULT NULL,
+    `exonic_length` int(11) DEFAULT NULL,
+    `gene_start` bigint(20) DEFAULT NULL,
+    `gene_end` bigint(20) DEFAULT NULL,
+    `gene_stable_ID` varchar(64) DEFAULT NULL,
+    `chr` varchar(64) DEFAULT NULL,
+    `reference_genome_id` int(11) NOT NULL,
+    PRIMARY KEY (`entrez_gene_id`,`reference_genome_id`),
+    FOREIGN KEY (`reference_genome_id`) REFERENCES `reference_genome` (`reference_genome_id`) ON DELETE CASCADE,
+    FOREIGN KEY (`entrez_gene_id`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
+);
+
+INSERT INTO reference_genome_gene (entrez_gene_id, cytoband, exonic_length, chr, reference_genome_id)
+(SELECT 
+	ENTREZ_GENE_ID, 
+	CYTOBAND, 
+	LENGTH, 
+	SUBSTRING_INDEX(gene.CYTOBAND,IF(LOCATE('p', gene.CYTOBAND), 'p', 'q'), 1), 
+	1 
+FROM `gene`);
+
+-- ========================== new foreign key references new reference genome table  ===================================
+ALTER TABLE `mutation_event` ADD COLUMN `REFERENCE_GENOME_ID` INT NULL AFTER `NCBI_BUILD`;
+ALTER TABLE `mutation_event` 
+ADD FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE CASCADE;
+UPDATE `mutation_event` set REFERENCE_GENOME_ID = 1 WHERE NCBI_BUILD in ('hg19', 'GRCh37','37');
+UPDATE `mutation_event` set REFERENCE_GENOME_ID = 2 WHERE NCBI_BUILD in ('hg38', 'GRCh38');
+UPDATE `mutation_event` set REFERENCE_GENOME_ID = 3 WHERE NCBI_BUILD in ('mm10', 'GRCm38');
+
+-- ========================== new columns and foreign keys to support multiple genome profiling ==========================
+ALTER TABLE `copy_number_seg` ADD COLUMN `GENETIC_PROFILE_ID` INT NULL AFTER `SEG_ID`;
+ALTER TABLE `copy_number_seg` 
+ADD FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE;
+
+ALTER TABLE `genetic_profile` ADD COLUMN `REFERENCE_GENOME_ID` INT NULL AFTER `CANCER_STUDY_ID`;
+ALTER TABLE `genetic_profile` 
+ADD FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE CASCADE;
+
+UPDATE `genetic_profile` 
+INNER JOIN `copy_number_seg_file` 
+ON `copy_number_seg_file`.`CANCER_STUDY_ID` = `genetic_profile`.`CANCER_STUDY_ID` 
+AND `genetic_profile`.`GENETIC_ALTERATION_TYPE` in ('MRNA_EXPRESSION','COPY_NUMBER_ALTERATION')
+SET `genetic_profile`.`REFERENCE_GENOME_ID`=(CASE WHEN`copy_number_seg_file`.`REFERENCE_GENOME_ID`='hg38' THEN 2 ELSE 1 END);
+
+INSERT INTO genetic_profile (STABLE_ID, CANCER_STUDY_ID, GENETIC_ALTERATION_TYPE, DATATYPE, NAME, DESCRIPTION, 
+        SHOW_PROFILE_IN_ANALYSIS_TAB, REFERENCE_GENOME_ID)
+(SELECT 
+    CONCAT(cs.CANCER_STUDY_IDENTIFIER,'_segments'), 
+    cs.CANCER_STUDY_ID,
+	'COPY_NUMBER_SEGMENT', 
+	'CONTINUOUS', 
+	'Copy number segment', 
+	CONCAT('Somatic CNA data (copy number ratio from tumor samples minus ratio from matched normals) ', cs.CANCER_STUDY_IDENTIFIER), 
+	1,
+	CASE sf.REFERENCE_GENOME_ID 
+		WHEN 'hg19' THEN 1
+		WHEN 'hg38' THEN 2
+		WHEN 'mm10' THEN 3
+	END 
+FROM `copy_number_seg_file` sf
+JOIN `cancer_study` cs on sf.CANCER_STUDY_ID = cs.CANCER_STUDY_ID);
+
+UPDATE `copy_number_seg` 
+INNER JOIN `genetic_profile` 
+on `copy_number_seg`.`CANCER_STUDY_ID` = `genetic_profile`.`CANCER_STUDY_ID` 
+AND `genetic_profile`.`GENETIC_ALTERATION_TYPE`='COPY_NUMBER_SEGMENT'
+SET `copy_number_seg`.`GENETIC_PROFILE_ID`=`genetic_profile`.`GENETIC_PROFILE_ID`;
+
+ALTER TABLE `copy_number_seg` DROP FOREIGN KEY `copy_number_seg_ibfk_1`;
+ALTER TABLE `copy_number_seg` DROP COLUMN `CANCER_STUDY_ID`;
+
+-- ========================= new schema version ========================================================================
 UPDATE info SET DB_SCHEMA_VERSION="2.4.0";

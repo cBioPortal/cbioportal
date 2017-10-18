@@ -73,7 +73,7 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 207, gene.getEntrezGeneId());
         Assert.assertEquals("AKT1", gene.getHugoGeneSymbol());
         Assert.assertEquals("protein-coding", gene.getType());
-        Assert.assertEquals("14q32.32", gene.getCytoband());
+        Assert.assertEquals("14q32.33", gene.getCytoband());
         Assert.assertEquals((Integer) 10838, gene.getLength());
     }
 

@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.CopyNumberSeg;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.CopyNumberSegmentService;
+import org.cbioportal.service.exception.SampleNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -38,6 +41,8 @@ public class CopyNumberSegmentControllerTest {
     private static final String TEST_SAMPLE_STABLE_ID_1 = "test_sample_stable_id_1";
     private static final int TEST_CANCER_STUDY_ID_1 = 1;
     private static final String TEST_CANCER_STUDY_IDENTIFIER_1 = "test_study_1";
+    private static final String TEST_PROFILE_ID_1 = "test_profile_id_1";
+    private static final String TEST_PROFILE_ID_2 = "test_profile_id_2";
     private static final Integer TEST_SEG_ID_1 = 1;
     private static final String TEST_CHR_1 = "test_chr_1";
     private static final Integer TEST_START_1 = 15;
@@ -61,6 +66,7 @@ public class CopyNumberSegmentControllerTest {
 
     @Autowired
     private CopyNumberSegmentService copyNumberSegmentService;
+    
     private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -81,12 +87,15 @@ public class CopyNumberSegmentControllerTest {
     public void getCopyNumberSegmentsInSampleInStudyDefaultProjection() throws Exception {
 
         List<CopyNumberSeg> copyNumberSegList = createExampleCopyNumberSegs();
-
-        Mockito.when(copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(Mockito.anyString(), 
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), 
-            Mockito.anyString())).thenReturn(copyNumberSegList);
+            
+        Mockito.when(copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(Mockito.anyString(), Mockito.anyString(),
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(),
+            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(copyNumberSegList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id/copy-number-segments")
+            .param("studyId", TEST_CANCER_STUDY_IDENTIFIER_1)
+            .param("molecularProfileId", TEST_PROFILE_ID_1)
+            .param("sampleId", TEST_SAMPLE_STABLE_ID_1)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
@@ -100,7 +109,7 @@ public class CopyNumberSegmentControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].numberOfProbes").value(TEST_NUM_PROBES_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].segmentMean").value(TEST_SEGMENT_MEAN_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].segId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].chromosome").value(TEST_CHR_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].start").value(TEST_START_2))
@@ -115,10 +124,13 @@ public class CopyNumberSegmentControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(copyNumberSegmentService.getMetaCopyNumberSegmentsInSampleInStudy(Mockito.anyString(), 
+        Mockito.when(copyNumberSegmentService.getMetaCopyNumberSegmentsInSampleInStudy(Mockito.anyString(), Mockito.anyString(),
             Mockito.anyString())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id/copy-number-segments")
+            .param("studyId", TEST_CANCER_STUDY_IDENTIFIER_1)
+            .param("molecularProfileId", TEST_PROFILE_ID_1)
+            .param("sampleId", TEST_SAMPLE_STABLE_ID_1)
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -129,7 +141,7 @@ public class CopyNumberSegmentControllerTest {
 
         List<CopyNumberSeg> copyNumberSegList = createExampleCopyNumberSegs();
 
-        Mockito.when(copyNumberSegmentService.fetchCopyNumberSegments(Mockito.anyListOf(String.class), 
+        Mockito.when(copyNumberSegmentService.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(copyNumberSegList);
 
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
@@ -141,8 +153,15 @@ public class CopyNumberSegmentControllerTest {
         sampleIdentifier2.setStudyId(TEST_CANCER_STUDY_IDENTIFIER_1);
         sampleIdentifier2.setSampleId(TEST_SAMPLE_STABLE_ID_2);
         sampleIdentifiers.add(sampleIdentifier2);
+        
+        List<String> molecularProfileIdList = new ArrayList<String>() {{
+            add(TEST_PROFILE_ID_1);
+            add(TEST_PROFILE_ID_2);
+        }};
 
         mockMvc.perform(MockMvcRequestBuilders.post("/copy-number-segments/fetch")
+            .param("molecularProfileIds", molecularProfileIdList.toString())
+            .param("sampleIdentifiers", sampleIdentifiers.toString())
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(sampleIdentifiers)))
@@ -158,7 +177,7 @@ public class CopyNumberSegmentControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].numberOfProbes").value(TEST_NUM_PROBES_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].segmentMean").value(TEST_SEGMENT_MEAN_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].segId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].chromosome").value(TEST_CHR_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].start").value(TEST_START_2))
@@ -186,7 +205,14 @@ public class CopyNumberSegmentControllerTest {
         sampleIdentifier2.setSampleId(TEST_SAMPLE_STABLE_ID_2);
         sampleIdentifiers.add(sampleIdentifier2);
 
+        List<String> molecularProfileIdList = new ArrayList<String>() {{
+            add(TEST_PROFILE_ID_1);
+            add(TEST_PROFILE_ID_2);
+        }};
+        
         mockMvc.perform(MockMvcRequestBuilders.post("/copy-number-segments/fetch")
+            .param("molecularProfileIds", molecularProfileIdList.toString())
+            .param("sampleIdentifiers", sampleIdentifiers.toString())
             .param("projection", "META")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(sampleIdentifiers)))
@@ -199,6 +225,7 @@ public class CopyNumberSegmentControllerTest {
         CopyNumberSeg copyNumberSeg1 = new CopyNumberSeg();
         copyNumberSeg1.setSegId(TEST_SEG_ID_1);
         copyNumberSeg1.setCancerStudyId(TEST_CANCER_STUDY_ID_1);
+        copyNumberSeg1.setMolecularProfileId(TEST_PROFILE_ID_1);
         copyNumberSeg1.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_1);
         copyNumberSeg1.setSampleId(TEST_SAMPLE_ID_1);
         copyNumberSeg1.setSampleStableId(TEST_SAMPLE_STABLE_ID_1);
@@ -210,8 +237,9 @@ public class CopyNumberSegmentControllerTest {
         copyNumberSegList.add(copyNumberSeg1);
         CopyNumberSeg copyNumberSeg2 = new CopyNumberSeg();
         copyNumberSeg2.setSegId(TEST_SEG_ID_2);
-        copyNumberSeg2.setCancerStudyId(TEST_CANCER_STUDY_ID_2);
-        copyNumberSeg2.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_2);
+        copyNumberSeg2.setCancerStudyId(TEST_CANCER_STUDY_ID_1);
+        copyNumberSeg1.setMolecularProfileId(TEST_PROFILE_ID_1);
+        copyNumberSeg2.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_1);
         copyNumberSeg2.setSampleId(TEST_SAMPLE_ID_2);
         copyNumberSeg2.setSampleStableId(TEST_SAMPLE_STABLE_ID_2);
         copyNumberSeg2.setChr(TEST_CHR_2);

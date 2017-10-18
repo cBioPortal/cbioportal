@@ -21,7 +21,8 @@ public class MolecularProfile implements Serializable {
         PROTEIN_LEVEL,
         PROTEIN_ARRAY_PROTEIN_LEVEL,
         PROTEIN_ARRAY_PHOSPHORYLATION,
-        GENESET_SCORE
+        GENESET_SCORE,
+        COPY_NUMBER_SEGMENT
     }
 
     private Integer molecularProfileId;
@@ -114,4 +115,5 @@ public class MolecularProfile implements Serializable {
     public void setCancerStudy(CancerStudy cancerStudy) {
         this.cancerStudy = cancerStudy;
     }
+    
 }

@@ -50,6 +50,7 @@ public class GeneticProfile {
     private String targetLine;
     private boolean showProfileInAnalysisTab;
     private Properties otherMetadataFields;
+    private int referenceGenomeId;
 
     public GeneticProfile() {
       super();
@@ -65,6 +66,7 @@ public class GeneticProfile {
       this.profileName = profileName;
       this.profileDescription = profileDescription;
       this.showProfileInAnalysisTab = showProfileInAnalysisTab;
+      this.referenceGenomeId = 1;
    }
 
 
@@ -159,6 +161,14 @@ public class GeneticProfile {
         this.showProfileInAnalysisTab = showProfileInAnalysisTab;
     }
 
+    public void setReferenceGenomeId(int referenceGenomeId) {
+       this.referenceGenomeId = referenceGenomeId;
+    }
+    
+    public int getReferenceGenomeId() {
+       return this.referenceGenomeId;
+    }
+    
     /**
      * Stores metadata fields only recognized in particular data file types.
      *

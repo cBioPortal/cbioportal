@@ -528,7 +528,7 @@ public final class DaoCancerStudy {
                 "DELETE FROM sample WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM clinical_patient WHERE INTERNAL_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM patient WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM copy_number_seg WHERE CANCER_STUDY_ID=?",
+                "DELETE FROM copy_number_seg WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=? AND GENETIC_ALTERATION_TYPE = 'MRNA_EXPRESSION')",
                 "DELETE FROM copy_number_seg_file WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM sample_list WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM structural_variant WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",

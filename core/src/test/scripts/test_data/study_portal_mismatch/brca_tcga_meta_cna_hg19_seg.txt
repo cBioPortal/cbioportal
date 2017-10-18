@@ -1,6 +1,7 @@
 cancer_study_identifier: brca_tcga_pub
-genetic_alteration_type: COPY_NUMBER_ALTERATION
+genetic_alteration_type: COPY_NUMBER_SEGMENT
 datatype: SEG
+stable_id: segment
 reference_genome_id: hg19
 description: Somatic CNA data (copy number ratio from tumor samples minus ratio from matched normals) from TCGA.
 data_filename: brca_tcga_data_cna_hg19.seg

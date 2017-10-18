@@ -75,6 +75,7 @@ public class TestImportExtendedMutationData {
 		geneticProfile.setStableId("test");
 		geneticProfile.setGeneticAlterationType(GeneticAlterationType.MUTATION_EXTENDED);
 		geneticProfile.setDatatype("test");
+		geneticProfile.setReferenceGenomeId(1);
 		DaoGeneticProfile.addGeneticProfile(geneticProfile);
 		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("test").getGeneticProfileId();
 
@@ -89,7 +90,7 @@ public class TestImportExtendedMutationData {
         MySQLbulkLoader.bulkLoadOn();
         
 		// TBD: change this to use getResourceAsStream()
-        File file = new File("src/test/resources/data_mutations_extended.txt");
+        File file = new File("src/test/resources/data_mutations_extended_2.txt");
         ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null);
         parser.importData();
         MySQLbulkLoader.flushAll();

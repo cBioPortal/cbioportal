@@ -129,7 +129,8 @@ META_FIELD_MAP = {
         'datatype': True,
         'reference_genome_id': True,
         'data_filename': True,
-        'description': True
+        'description': True,
+        'stable_id': True
     },
     MetaFileTypes.MUTATION: {
         'cancer_study_identifier': True,
@@ -512,6 +513,7 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS,
         ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.CNA_LOG2,
         ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,
+        ("COPY_NUMBER_SEGMENT", "SEG"): MetaFileTypes.SEG,
         # expression
         ("MRNA_EXPRESSION", "CONTINUOUS"): MetaFileTypes.EXPRESSION,
         ("MRNA_EXPRESSION", "Z-SCORE"): MetaFileTypes.EXPRESSION,

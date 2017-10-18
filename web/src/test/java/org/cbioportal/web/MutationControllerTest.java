@@ -75,7 +75,7 @@ public class MutationControllerTest {
     private static final int TEST_LENGTH_1 = 100;
     private static final String TEST_CHROMOSOME_1 = "test_chromosome_1";
     private static final int TEST_MOLECULAR_PROFILE_ID_2 = 2;
-    private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_2 = "test_molecular_profile_stable_id_2";
+    private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_2 = "test_genetic_profile_stable_id_2";
     private static final int TEST_SAMPLE_ID_2 = 2;
     private static final String TEST_SAMPLE_STABLE_ID_2 = "test_sample_stable_id_2";
     private static final int TEST_ENTREZ_GENE_ID_2 = 2;
@@ -284,8 +284,9 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.type").value(TEST_TYPE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.cytoband").value(TEST_CYTOBAND_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.length").value(TEST_LENGTH_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.chromosome").value(TEST_CHROMOSOME_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].chromosome").value(TEST_CHROMOSOME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
+                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].center").value(TEST_CENTER_2))
@@ -323,7 +324,7 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.cytoband").value(TEST_CYTOBAND_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.length").value(TEST_LENGTH_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.chromosome").value(TEST_CHROMOSOME_2));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].chromosome").value(TEST_CHROMOSOME_2));
     }
 
     @Test
@@ -350,7 +351,7 @@ public class MutationControllerTest {
         Mockito.when(mutationService.getMutationsInMultipleMolecularProfiles(Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyString(), Mockito.anyInt(),
             Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
-
+        
         List<SampleMolecularIdentifier> sampleMolecularIdentifiers = new ArrayList<>();
         SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();
         sampleMolecularIdentifier1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_1);
@@ -684,8 +685,8 @@ public class MutationControllerTest {
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_STABLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutationCount").value(TEST_MUTATION_COUNT_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").
-                value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
+                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationCount").value(TEST_MUTATION_COUNT_2));
     }
@@ -702,8 +703,7 @@ public class MutationControllerTest {
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
         sampleIds.add(TEST_SAMPLE_STABLE_ID_2);
 
-        mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-profiles/test_molecular_profile_id/mutation-counts/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/mutation-counts/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(sampleIds)))
@@ -823,6 +823,7 @@ public class MutationControllerTest {
         mutation1.setOncotatorProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_1);
         mutation1.setOncotatorProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_1);
         mutation1.setKeyword(TEST_KEYWORD_1);
+        mutation1.setChromosome(TEST_CHROMOSOME_1);
         mutationList.add(mutation1);
         Mutation mutation2 = new Mutation();
         mutation2.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_2);
@@ -857,6 +858,7 @@ public class MutationControllerTest {
         mutation2.setOncotatorProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_2);
         mutation2.setOncotatorProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_2);
         mutation2.setKeyword(TEST_KEYWORD_2);
+        mutation2.setChromosome(TEST_CHROMOSOME_2);
         mutationList.add(mutation2);
         
         return mutationList;

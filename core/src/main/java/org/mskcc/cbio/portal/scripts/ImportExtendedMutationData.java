@@ -340,7 +340,7 @@ public class ImportExtendedMutationData{
                     continue;
                 } else {
                     ExtendedMutation mutation = new ExtendedMutation();
-
+                    
                     mutation.setGeneticProfileId(geneticProfileId);
                     mutation.setSampleId(sample.getInternalId());
                     mutation.setGene(gene);
@@ -360,6 +360,7 @@ public class ImportExtendedMutationData{
                     mutation.setLinkPdb(linkPdb);
                     mutation.setLinkMsa(linkMsa);
                     mutation.setNcbiBuild(record.getNcbiBuild());
+                    mutation.setReferenceGenomeId(DaoReferenceGenome.getReferenceGenomeByName(record.getNcbiBuild()));
                     mutation.setStrand(record.getStrand());
                     mutation.setVariantType(record.getVariantType());
                                         mutation.setAllele(record.getTumorSeqAllele1(), record.getTumorSeqAllele2(), record.getReferenceAllele());

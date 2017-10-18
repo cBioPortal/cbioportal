@@ -78,7 +78,7 @@ public class TestImportProfileData {
     @Test
     public void testImportMutationsFile() throws Exception {
         String[] args = {
-                "--data","src/test/resources/data_mutations_extended.txt",
+                "--data","src/test/resources/data_mutations_extended_2.txt",
                 "--meta","src/test/resources/meta_mutations_extended.txt",
                 "--loadMode", "bulkLoad"
         };

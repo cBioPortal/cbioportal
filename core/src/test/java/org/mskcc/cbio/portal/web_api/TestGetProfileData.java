@@ -74,6 +74,7 @@ public class TestGetProfileData {
 		newGeneticProfile.setStableId("study_tcga_pub_test");
 		newGeneticProfile.setProfileName("Barry CNA Results");
 		newGeneticProfile.setDatatype("test");
+		newGeneticProfile.setReferenceGenomeId(1);
 		DaoGeneticProfile.addGeneticProfile(newGeneticProfile);
 		
 		geneticProfileId =  DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_test").getGeneticProfileId();

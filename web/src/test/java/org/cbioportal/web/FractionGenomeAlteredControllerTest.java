@@ -39,6 +39,7 @@ public class FractionGenomeAlteredControllerTest {
     private static final BigDecimal TEST_VALUE_1 = new BigDecimal(2.1);
     private static final BigDecimal TEST_VALUE_2 = new BigDecimal(3.1);
     private static final double CUTOFF = 0.2;
+    private static final String PROFILE_ID = "1";
 
     @Autowired
     private WebApplicationContext wac;
@@ -66,34 +67,35 @@ public class FractionGenomeAlteredControllerTest {
 
         List<FractionGenomeAltered> fractionGenomeAlteredList = new ArrayList<>();
         FractionGenomeAltered fractionGenomeAltered1 = new FractionGenomeAltered();
-        fractionGenomeAltered1.setStudyId(TEST_STUDY_ID);
+        fractionGenomeAltered1.setMolecularProfileId(PROFILE_ID);
         fractionGenomeAltered1.setSampleId(TEST_SAMPLE_ID_1);
         fractionGenomeAltered1.setValue(TEST_VALUE_1);
         fractionGenomeAlteredList.add(fractionGenomeAltered1);
         FractionGenomeAltered fractionGenomeAltered2 = new FractionGenomeAltered();
-        fractionGenomeAltered2.setStudyId(TEST_STUDY_ID);
+        fractionGenomeAltered2.setMolecularProfileId(PROFILE_ID);
         fractionGenomeAltered2.setSampleId(TEST_SAMPLE_ID_2);
         fractionGenomeAltered2.setValue(TEST_VALUE_2);
         fractionGenomeAlteredList.add(fractionGenomeAltered2);
         
-        Mockito.when(fractionGenomeAlteredService.fetchFractionGenomeAltered(TEST_STUDY_ID, 
-            Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2), CUTOFF)).thenReturn(fractionGenomeAlteredList);
+        Mockito.when(fractionGenomeAlteredService.fetchFractionGenomeAltered(Mockito.anyString(),
+            Mockito.anyList(), Mockito.anyDouble())).thenReturn(fractionGenomeAlteredList);
 
         FractionGenomeAlteredFilter fractionGenomeAlteredFilter = new FractionGenomeAlteredFilter();
         fractionGenomeAlteredFilter.setSampleIds(Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/studies/test_study_id/fraction-genome-altered/fetch")
+            "/molecular-profiles/test_profile_id/fraction-genome-altered/fetch")
+            .param("molecularProfileId", PROFILE_ID)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(fractionGenomeAlteredFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(PROFILE_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(PROFILE_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_VALUE_2));
     }

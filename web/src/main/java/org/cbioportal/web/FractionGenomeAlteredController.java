@@ -31,13 +31,13 @@ public class FractionGenomeAlteredController {
     @Autowired
     private FractionGenomeAlteredService fractionGenomeAlteredService;
 
-    @RequestMapping(value = "/studies/{studyId}/fraction-genome-altered/fetch",
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/fraction-genome-altered/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch fraction genome altered")
     public ResponseEntity<List<FractionGenomeAltered>> fetchFractionGenomeAltered(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
-        @PathVariable String studyId,
+        @ApiParam(required = true, value = "Molecular Profile ID")
+        @RequestParam(required = true) String molecularProfileId,
         @ApiParam(required = true, value = "List of Sample IDs/Sample List ID")
         @Valid @RequestBody FractionGenomeAlteredFilter fractionGenomeAlteredFilter,
         @ApiParam(required = true, value = "Cutoff")
@@ -45,10 +45,10 @@ public class FractionGenomeAlteredController {
 
         List<FractionGenomeAltered> fractionGenomeAlteredList;
         if (fractionGenomeAlteredFilter.getSampleListId() != null) {
-            fractionGenomeAlteredList = fractionGenomeAlteredService.getFractionGenomeAltered(studyId, 
+            fractionGenomeAlteredList = fractionGenomeAlteredService.getFractionGenomeAltered(molecularProfileId,
                 fractionGenomeAlteredFilter.getSampleListId(), cutoff);
         } else {
-            fractionGenomeAlteredList = fractionGenomeAlteredService.fetchFractionGenomeAltered(studyId, 
+            fractionGenomeAlteredList = fractionGenomeAlteredService.fetchFractionGenomeAltered(molecularProfileId,
                 fractionGenomeAlteredFilter.getSampleIds(), cutoff);
         }
         

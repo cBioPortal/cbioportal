@@ -49,7 +49,7 @@ import java.util.*;
 public class ImportCopyNumberSegmentData extends ConsoleRunnable {
     private int entriesSkipped;
     
-    private void importData(File file, int cancerStudyId) throws IOException, DaoException {
+    private void importData(File file, int cancerStudyId, int molecularProfileId) throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
@@ -101,7 +101,8 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
 	                entriesSkipped++;
 	                continue;
 	            }
-	            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), chrom, start, end, numProbes, segMean);
+	            
+	            CopyNumberSegment cns = new CopyNumberSegment(molecularProfileId, s.getInternalId(), chrom, start, end, numProbes, segMean);
 	            cns.setSegId(++segId);
 	            DaoCopyNumberSegment.addCopyNumberSegment(cns);
 	        }
@@ -133,7 +134,8 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
 		    }
 		
 		    importCopyNumberSegmentFileMetadata(cancerStudy, properties);
-		    importCopyNumberSegmentFileData(cancerStudy, dataFile);
+		    GeneticProfile molecularProfile = GeneticProfileReader.loadGeneticProfile(descriptorFile);
+		    importCopyNumberSegmentFileData(cancerStudy, molecularProfile, dataFile);
         } catch (RuntimeException e) {
             throw e;
         } catch (IOException|DaoException e) {
@@ -163,13 +165,13 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
         DaoCopyNumberSegmentFile.addCopyNumberSegmentFile(copyNumSegFile);
     }
 
-    private void importCopyNumberSegmentFileData(CancerStudy cancerStudy, String dataFilename) throws IOException, DaoException {
+    private void importCopyNumberSegmentFileData(CancerStudy cancerStudy, GeneticProfile molecularProfile, String dataFilename) throws IOException, DaoException {
         File file = new File(dataFilename);
         int numLines = FileUtil.getNumLines(file);
         ProgressMonitor.setCurrentMessage(" --> total number of data lines:  " + (numLines-1));
         ProgressMonitor.setMaxValue(numLines);
         entriesSkipped = 0;
-        importData(file, cancerStudy.getInternalId());
+        importData(file, cancerStudy.getInternalId(), molecularProfile.getGeneticProfileId());
         ProgressMonitor.setCurrentMessage(" --> total number of entries skipped:  " + entriesSkipped);
     }
 

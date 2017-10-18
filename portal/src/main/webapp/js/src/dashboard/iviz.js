@@ -573,60 +573,62 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
 
       var chartsCount = 0;
-      var patientChartsCount = 0;
-      var groupAttrs = [];
+      var patientGroupAttrs = [];
+      var sampleGroupAttrs = [];
       var groups = [];
 
       _.each(data_.groups.patient.attr_meta, function(attrData) {
         attrData.group_type = 'patient';
-        if (chartsCount < iViz.opts.numOfChartsLimit &&
-          patientChartsCount < iViz.opts.numOfChartsLimit / 2) {
-          if (attrData.show) {
-            attrData.group_id = vm_.groupCount.toString();
-            groupAttrs.push(attrData);
-            chartsCount++;
-            patientChartsCount++;
-          }
-        } else {
-          attrData.show = false;
-        }
         charts[attrData.attr_id] = attrData;
         if (attrData.view_type === 'survival' && attrData.show) {
           vm_.numOfSurvivalPlots++;
         }
       });
+      _.each(data_.groups.sample.attr_meta, function(attrData) {
+        attrData.group_type = 'sample';
+        charts[attrData.attr_id] = attrData;
+      });
+
+      _.each(iviz.datamanager.sortByClinicalPriority(
+        data_.groups.patient.attr_meta.concat(data_.groups.sample.attr_meta))
+        , function(attrData) {
+          if (chartsCount < iViz.opts.numOfChartsLimit) {
+            if (attrData.show) {
+              if (attrData.group_type === 'patient') {
+                patientGroupAttrs.push(attrData);
+              } else {
+                sampleGroupAttrs.push(attrData);
+              }
+              chartsCount++;
+            }
+          } else {
+            attrData.show = false;
+          }
+        });
       groups.push({
         type: 'patient',
         id: vm_.groupCount.toString(),
         selectedcases: [],
         hasfilters: false,
-        attributes: groupAttrs
+        attributes: _.map(patientGroupAttrs, function(attr) {
+          attr.group_id = vm_.groupCount.toString();
+          return attr;
+        })
       });
-
-      groupAttrs = [];
       vm_.groupCount += 1;
-      _.each(data_.groups.sample.attr_meta, function(attrData) {
-        attrData.group_type = 'sample';
-        if (chartsCount < iViz.opts.numOfChartsLimit) {
-          if (attrData.show) {
-            attrData.group_id = vm_.groupCount.toString();
-            groupAttrs.push(attrData);
-            chartsCount++;
-          }
-        } else {
-          attrData.show = false;
-        }
-        charts[attrData.attr_id] = attrData;
-      });
-      
+
       groups.push({
         type: 'sample',
         id: vm_.groupCount.toString(),
         selectedcases: [],
         hasfilters: false,
-        attributes: groupAttrs
+        attributes: _.map(sampleGroupAttrs, function(attr) {
+          attr.group_id = vm_.groupCount.toString();
+          return attr;
+        })
       });
       vm_.groupCount += 1;
+
       var _self = this;
       var requests = groups.map(function(group) {
         var _def = new $.Deferred();
@@ -652,7 +654,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     createGroupNdx: function(group) {
       var def = new $.Deferred();
       var _caseAttrId = group.type === 'patient' ? 'patient_uid' : 'sample_uid';
-      if(_caseAttrId === 'sample_uid'){
+      if (_caseAttrId === 'sample_uid') {
         //add 'sample_id' to get mutation count and cna fraction for scatter plot
         var _attrIds = [_caseAttrId, 'sample_id', 'study_id'];
       } else {
@@ -706,7 +708,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var hasAttrDataMap = isPatientAttributes ? data_.groups.patient.has_attr_data : data_.groups.sample.has_attr_data;
       var attrDataToGet = [];
       var updatedAttrIds = [];
-      
+
       _.each(attrIds, function(_attrId) {
         if (charts[_attrId] === undefined) {
           updatedAttrIds = updatedAttrIds.concat(_attrId);
@@ -797,7 +799,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
             // Hide chart which only has no more than one category.
             var numOfKeys = Object.keys(selectedAttrMeta.keys).length;
-            if (numOfKeys <= 1) {
+            if (numOfKeys <= 1
+              && ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'].indexOf(_attrId) === -1) {
               selectedAttrMeta.show = false;
               attrIds = attrIds.filter(function(obj) {
                 return obj !== _attrId;
@@ -835,7 +838,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             selectedAttrMeta.numOfDatum = 0;
             selectedAttrMeta.show = false;
           });
-          
+
           def.resolve();
         }, function() {
           def.reject();
@@ -960,7 +963,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var def = new $.Deferred();
       var self = this;
       var data = {};
-      
+
       $.when(window.iviz.datamanager.getCnaFractionData(),
         self.getMutationCountData(_self))
         .then(function(_cnaFractionData, _mutationCountResult) {
@@ -1448,6 +1451,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 if (_attrAdded) {
                   $.when(iViz.updateGroupNdx(attrData.group_id, attrData.attr_id)).then(function(isGroupNdxDataUpdated) {
                     attrData.addChartBy = 'user';
+                    attrData.show = true;
                     self_.groups[_groupIdToPush].attributes.push(attrData);
                     if (isGroupNdxDataUpdated) {
                       self_.$broadcast('add-chart-to-group', attrData.group_id);
@@ -1467,6 +1471,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                   newgroup_.type = _group.type;
                   newgroup_.id = self_.groupCount;
                   attrData.group_id = newgroup_.id;
+                  attrData.show = true;
                   self_.groupCount += 1;
                   groupAttrs.push(attrData);
                   newgroup_.attributes = groupAttrs;
@@ -2698,8 +2703,10 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       },
       updateLayout: function() {
         this.updateLayoutMatrix();
-        this.grid_.items.sort(this.sortByNumber);
-        this.grid_.layout();
+        if(_.isObject(this.grid_)) {
+          this.grid_.items.sort(this.sortByNumber);
+          this.grid_.layout();
+        }
       },
       getLayoutMatrix: function(layoutMatrix, chart) {
         var self_ = this;

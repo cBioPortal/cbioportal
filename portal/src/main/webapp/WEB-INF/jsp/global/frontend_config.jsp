@@ -15,6 +15,7 @@ window.showCivic = <%=GlobalProperties.showCivic()%>;
 window.showHotspot = <%=GlobalProperties.showHotspot()%>;
 window.showMyCancerGenome = <%=GlobalProperties.showMyCancerGenomeUrl()%>;
 window.showGenomeNexus = <%=GlobalProperties.showGenomeNexus()%>;
+window.querySetsOfGenes = JSON.parse('<%=GlobalProperties.getQuerySetsOfGenes()%>');
 
 // this prevents react router from messing with hash in a way that could is unecessary (static pages)
 // or could conflict

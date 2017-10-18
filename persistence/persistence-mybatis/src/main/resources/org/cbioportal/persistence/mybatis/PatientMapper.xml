@@ -31,8 +31,9 @@
                 cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
             </if>
             <if test="patientIds != null">
-                <foreach index="i" collection="patientIds" open="(" separator="OR" close=")">
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[${i}]} AND patient.STABLE_ID = #{patientIds[${i}]}
+                (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
+                <foreach index="i" collection="patientIds" open="(" separator="," close=")">
+                    (#{studyIds[${i}]}, #{patientIds[${i}]})
                 </foreach>
             </if>
         </where>

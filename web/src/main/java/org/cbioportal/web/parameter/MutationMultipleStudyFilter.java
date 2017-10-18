@@ -9,30 +9,30 @@ import java.util.List;
 public class MutationMultipleStudyFilter {
 
     @Size(min = 1, max = MutationController.MUTATION_MAX_PAGE_SIZE)
-    private List<SampleGeneticIdentifier> sampleGeneticIdentifiers;
-    private List<String> geneticProfileIds;
+    private List<SampleMolecularIdentifier> sampleMolecularIdentifiers;
+    private List<String> molecularProfileIds;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<Integer> entrezGeneIds;
 
     @AssertTrue
     private boolean isEitherSampleListIdOrSampleIdsPresent() {
-        return geneticProfileIds != null ^ sampleGeneticIdentifiers != null;
+        return molecularProfileIds != null ^ sampleMolecularIdentifiers != null;
     }
 
-    public List<SampleGeneticIdentifier> getSampleGeneticIdentifiers() {
-        return sampleGeneticIdentifiers;
+    public List<SampleMolecularIdentifier> getSampleMolecularIdentifiers() {
+        return sampleMolecularIdentifiers;
     }
 
-    public void setSampleGeneticIdentifiers(List<SampleGeneticIdentifier> sampleGeneticIdentifiers) {
-        this.sampleGeneticIdentifiers = sampleGeneticIdentifiers;
+    public void setSampleMolecularIdentifiers(List<SampleMolecularIdentifier> sampleMolecularIdentifiers) {
+        this.sampleMolecularIdentifiers = sampleMolecularIdentifiers;
     }
 
-    public List<String> getGeneticProfileIds() {
-        return geneticProfileIds;
+    public List<String> getMolecularProfileIds() {
+        return molecularProfileIds;
     }
 
-    public void setGeneticProfileIds(List<String> geneticProfileIds) {
-        this.geneticProfileIds = geneticProfileIds;
+    public void setMolecularProfileIds(List<String> molecularProfileIds) {
+        this.molecularProfileIds = molecularProfileIds;
     }
 
     public List<Integer> getEntrezGeneIds() {

@@ -7,7 +7,7 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.Geneset;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenesetRepository;
-import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GenesetNotFoundException;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class GenesetServiceImplTest extends BaseServiceImplTest {
     @Mock
     private SampleService sampleService;
     @Mock
-    private GeneticProfileService geneticProfileService;
+    private MolecularProfileService geneticProfileService;
 
     @Test
     public void getAllGenesets() {

@@ -6,7 +6,7 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>Portal Master</name>
-  <version>v1.8.4-SNAPSHOT</version>
+  <version>1.9.1-SNAPSHOT</version>
   <description>master maven module</description>
 
   <scm>
@@ -192,7 +192,7 @@
 
   <properties>
     <slf4j.version>1.6.6</slf4j.version>
-    <spring.version>4.0.4.RELEASE</spring.version>
+    <spring.version>4.1.9.RELEASE</spring.version>
     <spring.context.support.version>4.1.2.RELEASE</spring.context.support.version>
     <spring.integration.version>4.1.0.RELEASE</spring.integration.version>
     <spring.security.version>3.2.5.RELEASE</spring.security.version>
@@ -221,7 +221,7 @@
     <tomcat.catalina.scope>provided</tomcat.catalina.scope>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.3.1</db.version>
+    <db.version>2.4.0</db.version>
 
   </properties>
 
@@ -287,7 +287,8 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.8.2</version>
+      <version>4.11</version>
+        <scope>test</scope>
     </dependency>
     <!-- log4j -->
     <dependency>
@@ -410,6 +411,12 @@
       <artifactId>mockito-core</artifactId>
       <version>${mockito.version}</version>
       <scope>test</scope>
+        <exclusions>
+            <exclusion>
+                <artifactId>hamcrest-core</artifactId>
+                <groupId>org.hamcrest</groupId>
+            </exclusion>
+        </exclusions>
     </dependency>
   </dependencies>
 

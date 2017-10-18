@@ -3,13 +3,13 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.CopyNumberEnrichmentService;
 import org.cbioportal.service.DiscreteCopyNumberService;
-import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,16 +27,16 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
     @Autowired
     private SampleService sampleService;
     @Autowired
-    private GeneticProfileService geneticProfileService;
+    private MolecularProfileService molecularProfileService;
     @Autowired
     private AlterationEnrichmentUtil alterationEnrichmentUtil;
     
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<AlterationEnrichment> getCopyNumberEnrichments(String geneticProfileId, List<String> alteredIds,
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    public List<AlterationEnrichment> getCopyNumberEnrichments(String molecularProfileId, List<String> alteredIds,
                                                                List<String> unalteredIds, List<Integer> alterationTypes, 
                                                                String enrichmentType)
-        throws GeneticProfileNotFoundException {
+        throws MolecularProfileNotFoundException {
 
         List<String> allIds = new ArrayList<>(alteredIds);
         allIds.addAll(unalteredIds);
@@ -45,17 +45,17 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
         
         if (enrichmentType.equals("SAMPLE")) {
             copyNumberCountByGeneList = discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(
-                geneticProfileId, allIds, null, null);
+                molecularProfileId, allIds, null, null);
             discreteCopyNumberDataList = discreteCopyNumberService
-                .fetchDiscreteCopyNumbersInGeneticProfile(geneticProfileId, alteredIds, null, alterationTypes, "ID");
+                .fetchDiscreteCopyNumbersInMolecularProfile(molecularProfileId, alteredIds, null, alterationTypes, "ID");
         } else {
             copyNumberCountByGeneList = discreteCopyNumberService.getPatientCountByGeneAndAlterationAndPatientIds(
-                geneticProfileId, allIds, null, null);
-            GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
+                molecularProfileId, allIds, null, null);
+            MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
             List<Sample> sampleList = sampleService.getAllSamplesOfPatientsInStudy(
-                geneticProfile.getCancerStudyIdentifier(), alteredIds, "ID");
+                molecularProfile.getCancerStudyIdentifier(), alteredIds, "ID");
             discreteCopyNumberDataList = discreteCopyNumberService
-                .fetchDiscreteCopyNumbersInGeneticProfile(geneticProfileId, 
+                .fetchDiscreteCopyNumbersInMolecularProfile(molecularProfileId, 
                     sampleList.stream().map(Sample::getStableId).collect(Collectors.toList()), null, alterationTypes, 
                     "ID");
         }

@@ -1,3 +1,7 @@
+## October 17, 2017
+ *   The fourth phase of the cBioPortal architectural upgrade is now complete: The _Mutual Exclusivity_ and _Cancer Type Summary_ tabs have been moved to the new architecture.
+ *   Updated protein structure alignment data in Mutations tab are now retrieved from Genome Nexus via the [G2S web service](https://g2s.genomenexus.org/).
+
 ## October 2, 2017
  *   **Added data** of 1646 samples from 7 published studies:
      *   [NGS in Anaplastic Oligodendroglioma and Anaplastic Oligoastrocytomas tumors (MSK, Neuro Oncol 2017)](http://www.cbioportal.org/study?id=odg_msk_2017#summary)   *22 samples*

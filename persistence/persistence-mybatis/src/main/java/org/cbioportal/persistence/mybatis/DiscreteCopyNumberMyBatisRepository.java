@@ -16,64 +16,64 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
     private DiscreteCopyNumberMapper discreteCopyNumberMapper;
 
     @Override
-    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInGeneticProfileBySampleListId(
-        String geneticProfileId,
+    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMolecularProfileBySampleListId(
+        String molecularProfileId,
         String sampleListId,
         List<Integer> entrezGeneIds,
         List<Integer> alterationTypes,
         String projection) {
 
-        return discreteCopyNumberMapper.getDiscreteCopyNumbersBySampleListId(geneticProfileId, sampleListId, 
+        return discreteCopyNumberMapper.getDiscreteCopyNumbersBySampleListId(molecularProfileId, sampleListId, 
             entrezGeneIds, alterationTypes, projection);
     }
 
     @Override
-    public BaseMeta getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId,
-                                                                             String sampleListId,
-                                                                             List<Integer> entrezGeneIds,
-                                                                             List<Integer> alterationTypes) {
+    public BaseMeta getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(String molecularProfileId,
+                                                                               String sampleListId,
+                                                                               List<Integer> entrezGeneIds,
+                                                                               List<Integer> alterationTypes) {
 
-        return discreteCopyNumberMapper.getMetaDiscreteCopyNumbersBySampleListId(geneticProfileId, sampleListId, 
+        return discreteCopyNumberMapper.getMetaDiscreteCopyNumbersBySampleListId(molecularProfileId, sampleListId, 
             entrezGeneIds, alterationTypes);
     }
 
     @Override
-    public List<DiscreteCopyNumberData> fetchDiscreteCopyNumbersInGeneticProfile(String geneticProfileId,
-                                                                                 List<String> sampleIds,
-                                                                                 List<Integer> entrezGeneIds,
-                                                                                 List<Integer> alterationTypes,
-                                                                                 String projection) {
+    public List<DiscreteCopyNumberData> fetchDiscreteCopyNumbersInMolecularProfile(String molecularProfileId,
+                                                                                   List<String> sampleIds,
+                                                                                   List<Integer> entrezGeneIds,
+                                                                                   List<Integer> alterationTypes,
+                                                                                   String projection) {
 
-        return discreteCopyNumberMapper.getDiscreteCopyNumbersBySampleIds(geneticProfileId, sampleIds, entrezGeneIds,
+        return discreteCopyNumberMapper.getDiscreteCopyNumbersBySampleIds(molecularProfileId, sampleIds, entrezGeneIds,
             alterationTypes, projection);
     }
 
     @Override
-    public BaseMeta fetchMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, List<String> sampleIds,
-                                                                 List<Integer> entrezGeneIds,
-                                                                 List<Integer> alterationTypes) {
+    public BaseMeta fetchMetaDiscreteCopyNumbersInMolecularProfile(String molecularProfileId, List<String> sampleIds,
+                                                                   List<Integer> entrezGeneIds,
+                                                                   List<Integer> alterationTypes) {
 
-        return discreteCopyNumberMapper.getMetaDiscreteCopyNumbersBySampleIds(geneticProfileId, sampleIds,
+        return discreteCopyNumberMapper.getMetaDiscreteCopyNumbersBySampleIds(molecularProfileId, sampleIds,
             entrezGeneIds, alterationTypes);
     }
 
     @Override
-    public List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String geneticProfileId, 
+    public List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String molecularProfileId, 
                                                                                      List<String> sampleIds, 
                                                                                      List<Integer> entrezGeneIds, 
                                                                                      List<Integer> alterations) {
         
-        return discreteCopyNumberMapper.getSampleCountByGeneAndAlterationAndSampleIds(geneticProfileId, sampleIds, 
+        return discreteCopyNumberMapper.getSampleCountByGeneAndAlterationAndSampleIds(molecularProfileId, sampleIds, 
             entrezGeneIds, alterations);
     }
 
     @Override
-    public List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String geneticProfileId, 
+    public List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId, 
                                                                                        List<String> patientIds, 
                                                                                        List<Integer> entrezGeneIds, 
                                                                                        List<Integer> alterations) {
         
-        return discreteCopyNumberMapper.getPatientCountByGeneAndAlterationAndPatientIds(geneticProfileId, patientIds, 
+        return discreteCopyNumberMapper.getPatientCountByGeneAndAlterationAndPatientIds(molecularProfileId, patientIds, 
             entrezGeneIds, alterations);
     }
 }

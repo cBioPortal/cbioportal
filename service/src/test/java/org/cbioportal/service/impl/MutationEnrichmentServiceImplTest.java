@@ -40,18 +40,18 @@ public class MutationEnrichmentServiceImplTest extends BaseServiceImplTest {
         allSampleIds.addAll(unalteredSampleIds);
 
         List<MutationCountByGene> mutationSampleCountByGeneList = new ArrayList<>();
-        Mockito.when(mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(GENETIC_PROFILE_ID, allSampleIds, null))
+        Mockito.when(mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(MOLECULAR_PROFILE_ID, allSampleIds, null))
             .thenReturn(mutationSampleCountByGeneList);
         
         List<Mutation> mutations = new ArrayList<>();
-        Mockito.when(mutationService.fetchMutationsInGeneticProfile(GENETIC_PROFILE_ID, alteredSampleIds, null, null, 
+        Mockito.when(mutationService.fetchMutationsInMolecularProfile(MOLECULAR_PROFILE_ID, alteredSampleIds, null, null, 
             "ID", null, null, null, null)).thenReturn(mutations);
         
         List<AlterationEnrichment> expectedAlterationEnrichments = new ArrayList<>(); 
         Mockito.when(alterationEnrichmentUtil.createAlterationEnrichments(2, 2, mutationSampleCountByGeneList, 
             mutations, "SAMPLE")).thenReturn(expectedAlterationEnrichments);
         
-        List<AlterationEnrichment> result = mutationEnrichmentService.getMutationEnrichments(GENETIC_PROFILE_ID, 
+        List<AlterationEnrichment> result = mutationEnrichmentService.getMutationEnrichments(MOLECULAR_PROFILE_ID, 
             alteredSampleIds, unalteredSampleIds, "SAMPLE");
 
         Assert.assertEquals(result, expectedAlterationEnrichments);

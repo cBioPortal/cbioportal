@@ -176,6 +176,11 @@ window.onReactAppReady(function() {
                     }
                 }
             }
+            
+            String[] geneList = ((String) request.getAttribute(QueryBuilder.GENE_LIST)).split("( )|(\\n)");
+            if (geneList.length <= 1) {
+                computeLogOddsRatio = false;
+            }
 
             // determine whether to show the cancerTypesSummaryTab
             // retrieve the cancerTypesMap and create an iterator for the values

@@ -92,7 +92,7 @@ public class CoExpressionControllerTest {
         coExpressionFilter.setSampleIds(Arrays.asList("test_sample_id"));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/genetic-profiles/test_genetic_profile_id/co-expressions/fetch")
+            "/molecular-profiles/test_molecular_profile_id/co-expressions/fetch")
             .param("entrezGeneId", "1")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)

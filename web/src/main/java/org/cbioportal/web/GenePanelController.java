@@ -7,7 +7,7 @@ import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.GenePanelDataFilter;
@@ -82,21 +82,21 @@ public class GenePanelController {
         return new ResponseEntity<>(genePanelService.getGenePanel(genePanelId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/gene-panel-data/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/gene-panel-data/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get gene panel data")
     public ResponseEntity<List<GenePanelData>> getGenePanelData(
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. nsclc_unito_2016_mutations")
-        @PathVariable String geneticProfileId,
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. nsclc_unito_2016_mutations")
+        @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
-        @Valid @RequestBody GenePanelDataFilter genePanelDataFilter) throws GeneticProfileNotFoundException {
+        @Valid @RequestBody GenePanelDataFilter genePanelDataFilter) throws MolecularProfileNotFoundException {
 
         List<GenePanelData> genePanelDataList;
         if (genePanelDataFilter.getSampleListId() != null) {
-            genePanelDataList = genePanelService.getGenePanelData(geneticProfileId,
+            genePanelDataList = genePanelService.getGenePanelData(molecularProfileId,
                 genePanelDataFilter.getSampleListId(), genePanelDataFilter.getEntrezGeneIds());
         } else {
-            genePanelDataList = genePanelService.fetchGenePanelData(geneticProfileId,
+            genePanelDataList = genePanelService.fetchGenePanelData(molecularProfileId,
                 genePanelDataFilter.getSampleIds(), genePanelDataFilter.getEntrezGeneIds());
         }
 

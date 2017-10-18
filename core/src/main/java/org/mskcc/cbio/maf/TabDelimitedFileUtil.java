@@ -108,6 +108,27 @@ public class TabDelimitedFileUtil
 					e);
 		}
 	}
+	
+	/**
+	 * Return the trimmed string from the column, or an empty string if -1
+	 * or "NA".
+	 *
+	 * Require the column to exist before the end of the data line.
+	 *
+	 * @param index : index of the column to parse. May be set to -1 if the
+	 *                column was not found in header, to return "".
+	 * @param parts: the data line parts, i.e. the line split by separator.
+	 * 
+	 * @return : the value as is, or "" if the index is -1.
+	 */
+	public static String getPartStringAllowEmptyAndNA(int index, String[] parts)
+	{
+		String value = getPartStringAllowEmpty(index, parts);
+		if (value.equals(NA_STRING)) {
+				value = "";
+		}
+		return value;
+}
 
 	public static Long getPartLong(int index, String[] parts) {
 		try {

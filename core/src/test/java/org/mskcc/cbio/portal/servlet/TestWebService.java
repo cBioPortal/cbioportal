@@ -357,7 +357,7 @@ public class TestWebService {
       // profiles, and (b) this requires better test data
       
 //      aNullHttpServletRequest.setParameter(
-//               WebService.GENETIC_PROFILE_ID, privateGeneticProfile.getStableId() + ","
+//               WebService.MOLECULAR_PROFILE_ID, privateGeneticProfile.getStableId() + ","
 //              + publicGeneticProfile.getStableId() );
 //      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
 //      assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId

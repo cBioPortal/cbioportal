@@ -769,6 +769,39 @@ class Validator(object):
 
         return identified_entrez_id
 
+    def checkDriverAnnotationColumn(self, driver_value=None, driver_annotation=None):
+        """Ensures that cbp_driver_annotation is filled when the cbp_driver column
+        contains "Putative_Driver" or "Putative_Passenger".
+        """
+        if driver_annotation is None and (driver_value is "Putative_Driver" or driver_value is "Putative_Passenger"):
+            self.logger.error(
+                'This line does not contain a value '
+                'for cbp_driver_annotation, and cbp_driver '
+                'contains "Putative_Driver" or '
+                '"Putative_Passenger".',
+                extra={'line_number': self.line_number,
+                       'cause': driver_annotation})
+        return None
+    
+    def checkDriverTiersColumnsValues(self, driver_tiers_value=None, driver_tiers_annotation=None):
+        """Ensures that there are no mutations with one multiclass column filled and 
+        the other empty.
+        """
+        if driver_tiers_value is None and driver_tiers_annotation is not None:
+            self.logger.error(
+                'This line has no value for cbp_driver_tiers '
+                'and a value for cbp_driver_tiers_annotation. '
+                'Please, fill the cbp_driver_tiers column.',
+                extra={'line_number': self.line_number,
+                       'cause': driver_tiers_value})
+        if driver_tiers_annotation is None and driver_tiers_value is not None:
+            self.logger.error(
+                'This line has no value for cbp_driver_annotation '
+                'and a value for cbp_driver_tiers. Please, fill '
+                'the annotation column.',
+                extra={'line_number': self.line_number,
+                       'cause': driver_tiers_annotation})
+        return None
 
     def _checkRepeatedColumns(self):
         num_errors = 0
@@ -988,6 +1021,8 @@ class MutationsExtendedValidator(Validator):
     ]
 
     NULL_AA_CHANGE_VALUES = ('', 'NULL', 'NA')
+    NULL_DRIVER_VALUES = ('Putative_Passenger', 'Putative_Driver', 'NA', 'Unknown', '')
+    NULL_DRIVER_TIERS_VALUES = ('', 'NA')
 
     # extra unofficial Variant classification values from https://github.com/mskcc/vcf2maf/issues/88:
     EXTRA_VARIANT_CLASSIFICATION_VALUES = ['Splice_Region', 'Fusion']
@@ -1024,7 +1059,11 @@ class MutationsExtendedValidator(Validator):
         'Variant_Classification': 'checkVariantClassification',
         'SWISSPROT': 'checkSwissProt',
         'Start_Position': 'checkStartPosition',
-        'End_Position': 'checkEndPosition'
+        'End_Position': 'checkEndPosition',
+        'cbp_driver': 'checkDriver',
+        'cbp_driver_tiers': 'checkDriverTiers',
+        'cbp_driver_annotation': 'checkFilterAnnotation',
+        'cbp_driver_tiers_annotation': 'checkFilterAnnotation'
     }
 
     def __init__(self, *args, **kwargs):
@@ -1034,6 +1073,7 @@ class MutationsExtendedValidator(Validator):
         self.extraCols = []
         self.extra_exists = False
         self.extra = ''
+        self.tiers = set()
 
     def checkHeader(self, cols):
         """Validate header, requiring at least one gene id column."""
@@ -1067,7 +1107,27 @@ class MutationsExtendedValidator(Validator):
                               'Amino_Acid_Change needs to be present.',
                               extra={'line_number': self.line_number})
             num_errors += 1
-
+        
+        # raise errors if the filter_annotations are found without the "filter" columns
+        if 'cbp_driver_annotation' in self.cols and 'cbp_driver' not in self.cols:
+            self.logger.error('Column cbp_driver_annotation '
+                              'found without any cbp_driver '
+                              'column.', extra={'column_number': self.cols.index('cbp_driver_annotation')})
+        if 'cbp_driver_tiers_annotation' in self.cols and 'cbp_driver_tiers' not in self.cols:
+            self.logger.error('Column cbp_driver_tiers_annotation '
+                              'found without any cbp_driver_tiers '
+                              'column.', extra={'column_number': self.cols.index('cbp_driver_tiers_annotation')})
+            
+        # raise errors if the "filter" columns are found without the filter_annotations
+        if 'cbp_driver' in self.cols and 'cbp_driver_annotation' not in self.cols:
+            self.logger.error('Column cbp_driver '
+                              'found without any cbp_driver_annotation '
+                              'column.', extra={'column_number': self.cols.index('cbp_driver')})
+        if 'cbp_driver_tiers' in self.cols and 'cbp_driver_tiers_annotation' not in self.cols:
+            self.logger.error('Column cbp_driver_tiers '
+                              'found without any cbp_driver_tiers_annotation '
+                              'column.', extra={'column_number': self.cols.index('cbp_driver_tiers')})
+            
         return num_errors
 
     def checkLine(self, data):
@@ -1123,6 +1183,34 @@ class MutationsExtendedValidator(Validator):
                 entrez_id = None
         # validate hugo and entrez together:
         self.checkGeneIdentification(hugo_symbol, entrez_id)
+        
+        # parse custom driver annotation values to validate them together
+        driver_value = None
+        driver_annotation = None
+        driver_tiers_value = None
+        driver_tiers_annotation = None
+        if 'cbp_driver' in self.cols:
+            driver_value = data[self.cols.index('cbp_driver')].strip()
+            # treat the empty string as a missing value
+            if driver_value in (''):
+                driver_value = None
+        if 'cbp_driver_annotation' in self.cols:
+            driver_annotation = data[self.cols.index('cbp_driver_annotation')].strip()
+            # treat the empty string as a missing value
+            if driver_annotation in (''):
+                driver_annotation = None
+        if 'cbp_driver_tiers' in self.cols:
+            driver_tiers_value = data[self.cols.index('cbp_driver_tiers')].strip()
+            # treat the empty string as a missing value
+            if driver_tiers_value in (''):
+                driver_tiers_value = None
+        if 'cbp_driver_tiers_annotation' in self.cols:
+            driver_tiers_annotation = data[self.cols.index('cbp_driver_tiers_annotation')].strip()
+            # treat the empty string as a missing value
+            if driver_tiers_annotation in (''):
+                driver_tiers_annotation = None
+        self.checkDriverAnnotationColumn(driver_value, driver_annotation)
+        self.checkDriverTiersColumnsValues(driver_tiers_value, driver_tiers_annotation)
 
         # check if a non-blank amino acid change exists for non-splice sites
         if ('Variant_Classification' not in self.cols or
@@ -1252,7 +1340,11 @@ class MutationsExtendedValidator(Validator):
         """Test whether the mutation is silent and should be skipped."""
         is_silent = False
         variant_classification = data[self.cols.index('Variant_Classification')]
-
+        if 'variant_classification_filter' in self.meta_dict:
+            self.SKIP_VARIANT_TYPES = [x.strip() 
+                                       for x 
+                                       in self.meta_dict['variant_classification_filter'].split(',')]
+        
         hugo_symbol = data[self.cols.index('Hugo_Symbol')]
         entrez_id = '0'
         if 'Entrez_Gene_Id' in self.cols:
@@ -1271,8 +1363,8 @@ class MutationsExtendedValidator(Validator):
                        'cause': "Gene symbol 'Unknown', Entrez gene id 0"})
             is_silent = True
         elif variant_classification in self.SKIP_VARIANT_TYPES:
-            self.logger.info("Validation of line skipped due to cBioPortal's filtering. "
-                             "Filtered types: [%s]",
+            self.logger.info("Line will not be loaded due to the variant "
+                             "classification filter. Filtered types: [%s]",
                              ', '.join(self.SKIP_VARIANT_TYPES),
                              extra={'line_number': self.line_number,
                                     'cause': variant_classification})
@@ -1371,6 +1463,38 @@ class MutationsExtendedValidator(Validator):
         # if no reasons to return with a message were found, return valid
         return True
 
+    def checkDriver(self, value):
+        """Validate the values in the cbp_driver column."""
+        if value not in self.NULL_DRIVER_VALUES:
+            self.extra = 'Only "Putative_Passenger", "Putative_Driver", "NA", "Unknown" and "" (empty) are allowed.'
+            self.extra_exists = True
+            return False
+        return True
+    
+    def checkDriverTiers(self, value):
+        """Report the tiers in the cbp_driver_tiers column (skipping the empty values)."""
+        if value not in self.NULL_DRIVER_TIERS_VALUES:
+            self.logger.info('Values contained in the column cbp_driver_tiers that will appear in the "Mutation Color" '
+                             'menu of the Oncoprint',
+                             extra={'line_number': self.line_number, 'column_number': self.cols.index('cbp_driver_tiers'), 'cause': value})
+            self.tiers.add(value)
+        if len(self.tiers) > 10:
+            self.logger.warning('cbp_driver_tiers contains more than 10 different tiers.',
+                                extra={'line_number': self.line_number, 'column_number': self.cols.index('cbp_driver_tiers'),
+                                       'cause': value})
+        if len(value) > 50:
+            self.extra= 'cbp_driver_tiers column does not support values longer than 50 characters'
+            self.extra_exists = True
+            return False
+        return True
+    
+    def checkFilterAnnotation(self, value):
+        """Check if the annotation values are smaller than 80 characters."""
+        if len(value) > 80:
+            self.extra = 'cbp_driver_annotation and cbp_driver_tiers_annotation columns do not support annotations longer than 80 characters'
+            self.extra_exists = True
+            return False
+        return True
 
 class ClinicalValidator(Validator):
 

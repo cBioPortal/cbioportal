@@ -7,8 +7,8 @@ public class GenesetCorrelation implements Serializable {
 	private Integer entrezGeneId;
     private String hugoGeneSymbol;
 	private Double correlationValue;
-    private String expressionGeneticProfileId;
-    private String zScoreGeneticProfileId;
+    private String expressionMolecularProfileId;
+    private String zScoreMolecularProfileId;
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -34,21 +34,19 @@ public class GenesetCorrelation implements Serializable {
         this.correlationValue = correlationValue;
     }
 
-	public String getExpressionGeneticProfileId() {
-		return expressionGeneticProfileId;
-	}
+    public String getExpressionMolecularProfileId() {
+        return expressionMolecularProfileId;
+    }
 
-	public void setExpressionGeneticProfileId(String expressionGeneticProfileId) {
-		this.expressionGeneticProfileId = expressionGeneticProfileId;
-	}
+    public void setExpressionMolecularProfileId(String expressionMolecularProfileId) {
+        this.expressionMolecularProfileId = expressionMolecularProfileId;
+    }
 
-	public String getzScoreGeneticProfileId() {
-		return zScoreGeneticProfileId;
-	}
+    public String getzScoreMolecularProfileId() {
+        return zScoreMolecularProfileId;
+    }
 
-	public void setzScoreGeneticProfileId(String zScoreGeneticProfileId) {
-		this.zScoreGeneticProfileId = zScoreGeneticProfileId;
-	}
-
-
+    public void setzScoreMolecularProfileId(String zScoreMolecularProfileId) {
+        this.zScoreMolecularProfileId = zScoreMolecularProfileId;
+    }
 }

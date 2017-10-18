@@ -1,11 +1,11 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
-
-public class MutationSpectrum implements Serializable {
+public class MutationSpectrum extends UniqueKeyBase {
     
-    private String geneticProfileId;
+    private String molecularProfileId;
     private String sampleId;
+    private String patientId;
+    private String studyId;
     private Integer ctoA;
     private Integer ctoG;
     private Integer ctoT;
@@ -13,12 +13,12 @@ public class MutationSpectrum implements Serializable {
     private Integer ttoC;
     private Integer ttoG;
 
-    public String getGeneticProfileId() {
-        return geneticProfileId;
+    public String getMolecularProfileId() {
+        return molecularProfileId;
     }
 
-    public void setGeneticProfileId(String geneticProfileId) {
-        this.geneticProfileId = geneticProfileId;
+    public void setMolecularProfileId(String molecularProfileId) {
+        this.molecularProfileId = molecularProfileId;
     }
 
     public String getSampleId() {
@@ -27,6 +27,22 @@ public class MutationSpectrum implements Serializable {
 
     public void setSampleId(String sampleId) {
         this.sampleId = sampleId;
+    }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getStudyId() {
+        return studyId;
+    }
+
+    public void setStudyId(String studyId) {
+        this.studyId = studyId;
     }
 
     public Integer getCtoA() {

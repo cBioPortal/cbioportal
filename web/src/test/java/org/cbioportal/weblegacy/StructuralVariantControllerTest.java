@@ -37,7 +37,7 @@ import java.util.List;
 
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
 import org.mskcc.cbio.portal.model.StructuralVariant;
@@ -278,11 +278,11 @@ public class StructuralVariantControllerTest {
         sample3.setPatientId(3);
         sample3.setPatient(patient3);
         sample3.setTypeOfCancerId("brca");
-        GeneticProfile geneticProfile1 = new GeneticProfile();
-        geneticProfile1.setGeneticProfileId(7);
+        MolecularProfile geneticProfile1 = new MolecularProfile();
+        geneticProfile1.setMolecularProfileId(7);
         geneticProfile1.setStableId("study_tcga_pub_sv");
         geneticProfile1.setCancerStudy(cancerStudy1);
-        geneticProfile1.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.STRUCTURAL_VARIANT);
+        geneticProfile1.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
         geneticProfile1.setDatatype("SV");
         geneticProfile1.setName("Structural Variants");
         geneticProfile1.setDescription("Structural Variants detected by Illumina HiSeq sequencing.");
@@ -432,9 +432,9 @@ public class StructuralVariantControllerTest {
         sample3.setSampleType(null);
         sample3.setPatientId(null);
         sample3.setTypeOfCancerId(null);
-        geneticProfile1.setGeneticProfileId(null);
+        geneticProfile1.setMolecularProfileId(null);
         geneticProfile1.setStableId(null);
-        geneticProfile1.setGeneticAlterationType(null);
+        geneticProfile1.setMolecularAlterationType(null);
         geneticProfile1.setDatatype(null);
         geneticProfile1.setName(null);
         geneticProfile1.setDescription(null);

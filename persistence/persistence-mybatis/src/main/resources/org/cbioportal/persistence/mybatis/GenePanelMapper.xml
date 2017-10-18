@@ -63,13 +63,17 @@
         SELECT
         gene_panel.STABLE_ID AS genePanelId,
         sample.STABLE_ID AS sampleId,
-        genetic_profile.STABLE_ID AS geneticProfileId
+        patient.STABLE_ID AS patientId,
+        cancer_study.CANCER_STUDY_IDENTIFIER AS studyId,
+        genetic_profile.STABLE_ID AS molecularProfileId
         FROM sample_profile
         INNER JOIN gene_panel ON sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
         INNER JOIN genetic_profile ON sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON sample_profile.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         WHERE
-        genetic_profile.STABLE_ID = #{geneticProfileId}
+        genetic_profile.STABLE_ID = #{molecularProfileId}
         AND sample_profile.SAMPLE_ID IN
         (
             SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
@@ -82,13 +86,17 @@
         SELECT
         gene_panel.STABLE_ID AS genePanelId,
         sample.STABLE_ID AS sampleId,
-        genetic_profile.STABLE_ID AS geneticProfileId
+        patient.STABLE_ID AS patientId,
+        cancer_study.CANCER_STUDY_IDENTIFIER AS studyId,
+        genetic_profile.STABLE_ID AS molecularProfileId
         FROM sample_profile
         INNER JOIN gene_panel ON sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
         INNER JOIN genetic_profile ON sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON sample_profile.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         WHERE
-        genetic_profile.STABLE_ID = #{geneticProfileId}
+        genetic_profile.STABLE_ID = #{molecularProfileId}
         <if test="sampleIds != null and !sampleIds.isEmpty()">
             AND sample.STABLE_ID IN
             <foreach item="item" collection="sampleIds" open="(" separator="," close=")">

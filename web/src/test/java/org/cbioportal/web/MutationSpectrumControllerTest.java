@@ -32,7 +32,7 @@ import java.util.List;
 @Configuration
 public class MutationSpectrumControllerTest {
 
-    private static final String TEST_GENETIC_PROFILE_ID = "test_genetic_profile_id";
+    private static final String TEST_MOLECULAR_PROFILE_ID = "test_molecular_profile_id";
     private static final String TEST_SAMPLE_ID_1 = "test_sample_id_1";
     private static final String TEST_SAMPLE_ID_2 = "test_sample_id_2";
     private static final int TEST_C_TO_A_1 = 1;
@@ -74,7 +74,7 @@ public class MutationSpectrumControllerTest {
         
         List<MutationSpectrum> mutationSpectrumList = new ArrayList<>();
         MutationSpectrum mutationSpectrum1 = new MutationSpectrum();
-        mutationSpectrum1.setGeneticProfileId(TEST_GENETIC_PROFILE_ID);
+        mutationSpectrum1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_ID);
         mutationSpectrum1.setSampleId(TEST_SAMPLE_ID_1);
         mutationSpectrum1.setCtoA(TEST_C_TO_A_1);
         mutationSpectrum1.setCtoG(TEST_C_TO_G_1);
@@ -84,7 +84,7 @@ public class MutationSpectrumControllerTest {
         mutationSpectrum1.setTtoG(TEST_T_TO_G_1);
         mutationSpectrumList.add(mutationSpectrum1);
         MutationSpectrum mutationSpectrum2 = new MutationSpectrum();
-        mutationSpectrum2.setGeneticProfileId(TEST_GENETIC_PROFILE_ID);
+        mutationSpectrum2.setMolecularProfileId(TEST_MOLECULAR_PROFILE_ID);
         mutationSpectrum2.setSampleId(TEST_SAMPLE_ID_2);
         mutationSpectrum2.setCtoA(TEST_C_TO_A_2);
         mutationSpectrum2.setCtoG(TEST_C_TO_G_2);
@@ -94,21 +94,21 @@ public class MutationSpectrumControllerTest {
         mutationSpectrum2.setTtoG(TEST_T_TO_G_2);
         mutationSpectrumList.add(mutationSpectrum2);
 
-        Mockito.when(mutationSpectrumService.fetchMutationSpectrums(TEST_GENETIC_PROFILE_ID,
+        Mockito.when(mutationSpectrumService.fetchMutationSpectrums(TEST_MOLECULAR_PROFILE_ID,
             Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2))).thenReturn(mutationSpectrumList);
 
         MutationSpectrumFilter mutationSpectrumFilter = new MutationSpectrumFilter();
         mutationSpectrumFilter.setSampleIds(Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/genetic-profiles/test_genetic_profile_id/mutation-spectrums/fetch")
+            "/molecular-profiles/test_molecular_profile_id/mutation-spectrums/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mutationSpectrumFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticProfileId").value(TEST_GENETIC_PROFILE_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_MOLECULAR_PROFILE_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].CtoA").value(TEST_C_TO_A_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].CtoG").value(TEST_C_TO_G_1))
@@ -116,7 +116,7 @@ public class MutationSpectrumControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].TtoA").value(TEST_T_TO_A_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].TtoC").value(TEST_T_TO_C_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].TtoG").value(TEST_T_TO_G_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].geneticProfileId").value(TEST_GENETIC_PROFILE_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_MOLECULAR_PROFILE_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].CtoA").value(TEST_C_TO_A_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].CtoG").value(TEST_C_TO_G_2))

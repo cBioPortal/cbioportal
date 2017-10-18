@@ -96,21 +96,33 @@ module.exports = {
     bgrect: function(width, height, fill) {
 	return makeSVGElement('rect', {'width':width, 'height':height, 'fill':fill});
     },
-    path: function(points, stroke, fill) {
+    path: function(points, stroke, fill, linearGradient) {
 	points = points.map(function(pt) { return pt.join(","); });
 	points[0] = 'M'+points[0];
 	for (var i=1; i<points.length; i++) {
 	    points[i] = 'L'+points[i];
 	}
+	if (!linearGradient) {
 	stroke = extractColor(stroke);
 	fill = extractColor(fill);
+	}
 	return makeSVGElement('path', {
 	    'd': points.join(" "),
-	    'stroke': stroke.rgb,
-	    'stroke-opacity': stroke.opacity,
-	    'fill': fill.rgb,
-	    'fill-opacity': fill.opacity
+	    'stroke': linearGradient ? 'url(#'+linearGradient.getAttribute('id')+')' : stroke.rgb,
+	    'stroke-opacity': linearGradient ? 0 : stroke.opacity,
+	    'fill': linearGradient ? 'url(#'+linearGradient.getAttribute('id')+')' : fill.rgb,
+	    'fill-opacity': linearGradient ? 1 : fill.opacity
 	});
+    },
+    stop: function (offset, stop_color, stop_opacity) {
+		return makeSVGElement('stop', {
+			'offset': offset + '%',
+			'stop-color': stop_color,
+			'stop-opacity': stop_opacity
+	});
+	},
+	linearGradient: function () {
+        return makeSVGElement('linearGradient', {'id': 'linearGradient'+gradientId()});
     },
     defs: function() {
 	return makeSVGElement('defs');
@@ -125,11 +137,9 @@ module.exports = {
 	});
 	for (var i=0; i<=100; i++) {
 	    var color = extractColor(colorFn(i/100));
-	    gradient.appendChild(makeSVGElement('stop', {
-		'offset': i + '%',
-		'stop-color':color.rgb,
-		'stop-opacity': color.opacity
-	    }));
+	    gradient.appendChild(
+	    	this.stop(i, color.rgb, color.opacity)
+		);
 	}
 	return gradient;
     }

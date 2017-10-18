@@ -1,11 +1,11 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
-
-public class ClinicalData implements Serializable {
+public class ClinicalData extends UniqueKeyBase {
 
     private Integer internalId;
-    private String stableId;
+    private String sampleId;
+    private String patientId;
+    private String studyId;
     private String attrId;
     private String attrValue;
     private ClinicalAttribute clinicalAttribute;
@@ -18,12 +18,28 @@ public class ClinicalData implements Serializable {
         this.internalId = internalId;
     }
 
-    public String getStableId() {
-        return stableId;
+    public String getSampleId() {
+        return sampleId;
     }
 
-    public void setStableId(String stableId) {
-        this.stableId = stableId;
+    public void setSampleId(String sampleId) {
+        this.sampleId = sampleId;
+    }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getStudyId() {
+        return studyId;
+    }
+
+    public void setStudyId(String studyId) {
+        this.studyId = studyId;
     }
 
     public String getAttrId() {

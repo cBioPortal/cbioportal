@@ -28,13 +28,13 @@ public class VariantCountMyBatisRepositoryTest {
 
         Assert.assertEquals(3, result.size());
         VariantCount variantCount1 = result.get(0);
-        Assert.assertEquals("study_tcga_pub_mutations", variantCount1.getGeneticProfileId());
+        Assert.assertEquals("study_tcga_pub_mutations", variantCount1.getMolecularProfileId());
         Assert.assertEquals((Integer) 207, variantCount1.getEntrezGeneId());
         Assert.assertEquals(null, variantCount1.getKeyword());
         Assert.assertEquals((Integer) 21, variantCount1.getNumberOfSamplesWithKeyword());
         Assert.assertEquals((Integer) 22, variantCount1.getNumberOfSamplesWithMutationInGene());
         VariantCount variantCount2 = result.get(1);
-        Assert.assertEquals("study_tcga_pub_mutations", variantCount2.getGeneticProfileId());
+        Assert.assertEquals("study_tcga_pub_mutations", variantCount2.getMolecularProfileId());
         Assert.assertEquals((Integer) 207, variantCount2.getEntrezGeneId());
         Assert.assertEquals("AKT1 truncating", variantCount2.getKeyword());
         Assert.assertEquals((Integer) 54, variantCount2.getNumberOfSamplesWithKeyword());

@@ -165,7 +165,7 @@ public class ClinicalDataController {
 
     @RequestMapping(value = "/studies/{studyId}/clinical-data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch all clinical data in a study")
+    @ApiOperation("Fetch clinical data by patient IDs or sample IDs (specific study)")
     public ResponseEntity<List<ClinicalData>> fetchAllClinicalDataInStudy(
         @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
@@ -192,7 +192,7 @@ public class ClinicalDataController {
 
     @RequestMapping(value = "/clinical-data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch clinical data by patient IDs or sample IDs")
+    @ApiOperation("Fetch clinical data by patient IDs or sample IDs (all studies)")
     public ResponseEntity<List<ClinicalData>> fetchClinicalData(
         @ApiParam("Type of the clinical data")
         @RequestParam(defaultValue = "SAMPLE") ClinicalDataType clinicalDataType,

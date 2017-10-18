@@ -42,11 +42,35 @@
 
             if (mutationsTab.hasClass('cbioportal-frontend')) {
                 // backwards compatible with the case when mutationDetailLimitReached
-                window.renderMutationsTab(mutationsTab[0], {
-                    genes: QuerySession.getQueryGenes(),
-                    studyId: QuerySession.getCancerStudyIds()[0],
-                    samples: (QuerySession.getCaseSetId() === "-1" ? QuerySession.getSampleIds() : QuerySession.getCaseSetId())
-                });
+                var props = {
+                    genes: QuerySession.getQueryGenes()
+                };
+                var samplesSpecification = [];
+                if (["-1", "all"].indexOf(QuerySession.getCaseSetId()) > -1) {
+		// "-1" means custom case id, "all" means all cases in the queried stud(y/ies). Neither is an actual case set that could eg be queried
+                    var studyToSampleMap = QuerySession.getStudySampleMap();
+                    var studies = Object.keys(studyToSampleMap);
+                    for (var i=0; i<studies.length; i++) {
+                        var study = studies[i];
+                        samplesSpecification = samplesSpecification.concat(studyToSampleMap[study].map(function(sampleId) {
+                            return {
+                                sampleId: sampleId,
+                                studyId: study
+                            };
+                        }));
+                    }
+                } else {
+                    var studyToSampleListIdMap = QuerySession.getStudySampleListMap();
+                    var studies = Object.keys(studyToSampleListIdMap);
+                    for (var i=0; i<studies.length; i++) {
+                        samplesSpecification.push({
+                            sampleListId: studyToSampleListIdMap[studies[i]],
+                            studyId: studies[i]
+                        });
+                    }
+                }
+                props.samplesSpecification = samplesSpecification;
+                window.renderMutationsTab(mutationsTab[0], props);
                 return true;
             }
             return false;

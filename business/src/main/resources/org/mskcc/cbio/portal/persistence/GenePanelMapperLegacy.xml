@@ -74,7 +74,7 @@
         <result property="length" column="LENGTH"/>
     </resultMap>
 
-    <resultMap id="geneticProfileResultMap" type="org.cbioportal.model.GeneticProfile">
+    <resultMap id="geneticProfileResultMap" type="org.cbioportal.model.MolecularProfile">
         <result property="geneticProfileId" column="GENETIC_PROFILE_ID"/>
         <result property="stableId" column="STABLE_ID"/>
         <result property="cancerStudyId" column="CANCER_STUDY_ID"/>

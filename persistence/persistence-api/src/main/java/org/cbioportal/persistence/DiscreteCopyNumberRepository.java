@@ -8,32 +8,32 @@ import java.util.List;
 
 public interface DiscreteCopyNumberRepository {
 
-    List<DiscreteCopyNumberData> getDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId,
-                                                                                      String sampleListId,
-                                                                                      List<Integer> entrezGeneIds,
-                                                                                      List<Integer> alterationTypes,
-                                                                                      String projection);
+    List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMolecularProfileBySampleListId(String molecularProfileId,
+                                                                                        String sampleListId,
+                                                                                        List<Integer> entrezGeneIds,
+                                                                                        List<Integer> alterationTypes,
+                                                                                        String projection);
 
 
-    BaseMeta getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId, String sampleListId,
-                                                                      List<Integer> entrezGeneIds,
-                                                                      List<Integer> alterationTypes);
+    BaseMeta getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
+                                                                        List<Integer> entrezGeneIds,
+                                                                        List<Integer> alterationTypes);
 
-    List<DiscreteCopyNumberData> fetchDiscreteCopyNumbersInGeneticProfile(String geneticProfileId,
-                                                                          List<String> sampleIds,
-                                                                          List<Integer> entrezGeneIds,
-                                                                          List<Integer> alterationTypes,
-                                                                          String projection);
+    List<DiscreteCopyNumberData> fetchDiscreteCopyNumbersInMolecularProfile(String molecularProfileId,
+                                                                            List<String> sampleIds,
+                                                                            List<Integer> entrezGeneIds,
+                                                                            List<Integer> alterationTypes,
+                                                                            String projection);
 
-    BaseMeta fetchMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, List<String> sampleIds,
-                                                          List<Integer> entrezGeneIds, List<Integer> alterationTypes);
+    BaseMeta fetchMetaDiscreteCopyNumbersInMolecularProfile(String molecularProfileId, List<String> sampleIds,
+                                                            List<Integer> entrezGeneIds, List<Integer> alterationTypes);
 
-    List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String geneticProfileId,
+    List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String molecularProfileId,
                                                                               List<String> sampleIds,
                                                                               List<Integer> entrezGeneIds,
                                                                               List<Integer> alterations);
 
-    List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String geneticProfileId,
+    List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId,
                                                                                 List<String> patientIds,
                                                                                 List<Integer> entrezGeneIds,
                                                                                 List<Integer> alterations);

@@ -40,7 +40,7 @@ public class ClinicalAttributeController {
 
     @RequestMapping(value = "/clinical-attributes", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all clinical attributes in a study")
+    @ApiOperation("Get all clinical attributes")
     public ResponseEntity<List<ClinicalAttribute>> getAllClinicalAttributes(
             @ApiParam("Level of detail of the response")
             @RequestParam(defaultValue = "SUMMARY") Projection projection,
@@ -70,7 +70,7 @@ public class ClinicalAttributeController {
 
     @RequestMapping(value = "/studies/{studyId}/clinical-attributes", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all clinical attributes in a study")
+    @ApiOperation("Get all clinical attributes in the specified study")
     public ResponseEntity<List<ClinicalAttribute>> getAllClinicalAttributesInStudy(
             @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
@@ -103,12 +103,13 @@ public class ClinicalAttributeController {
 
     @RequestMapping(value = "/studies/{studyId}/clinical-attributes/{clinicalAttributeId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all clinical attributes in a study")
+    @ApiOperation("Get specified clinical attribute")
     public ResponseEntity<ClinicalAttribute> getClinicalAttributeInStudy(
             @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
             @ApiParam(required = true, value= "Clinical Attribute ID e.g. CANCER_TYPE")
-            @PathVariable String clinicalAttributeId) throws ClinicalAttributeNotFoundException, StudyNotFoundException {
+            @PathVariable String clinicalAttributeId) 
+        throws ClinicalAttributeNotFoundException, StudyNotFoundException {
 
         return new ResponseEntity<>(clinicalAttributeService.getClinicalAttribute(studyId, clinicalAttributeId),
                 HttpStatus.OK);

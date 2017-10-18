@@ -4,7 +4,7 @@ import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.MutationSpectrumService;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -21,28 +21,28 @@ public class MutationSpectrumServiceImpl implements MutationSpectrumService {
     private MutationService mutationService;
     
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<MutationSpectrum> getMutationSpectrums(String geneticProfileId, String sampleListId) 
-        throws GeneticProfileNotFoundException {
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    public List<MutationSpectrum> getMutationSpectrums(String molecularProfileId, String sampleListId) 
+        throws MolecularProfileNotFoundException {
 
-        List<Mutation> mutations = mutationService.getMutationsInGeneticProfileBySampleListId(geneticProfileId, 
+        List<Mutation> mutations = mutationService.getMutationsInMolecularProfileBySampleListId(molecularProfileId, 
             sampleListId, null, true, "SUMMARY", null, null, null, null);
         
-        return createMutationSpectrums(geneticProfileId, mutations);
+        return createMutationSpectrums(molecularProfileId, mutations);
     }
 
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<MutationSpectrum> fetchMutationSpectrums(String geneticProfileId, List<String> sampleIds) 
-        throws GeneticProfileNotFoundException {
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    public List<MutationSpectrum> fetchMutationSpectrums(String molecularProfileId, List<String> sampleIds) 
+        throws MolecularProfileNotFoundException {
         
-        List<Mutation> mutations = mutationService.fetchMutationsInGeneticProfile(geneticProfileId, sampleIds, null, 
+        List<Mutation> mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileId, sampleIds, null, 
             true, "SUMMARY", null, null, null, null);
         
-        return createMutationSpectrums(geneticProfileId, mutations);
+        return createMutationSpectrums(molecularProfileId, mutations);
     }
 
-    private List<MutationSpectrum> createMutationSpectrums(String geneticProfileId, List<Mutation> mutations) {
+    private List<MutationSpectrum> createMutationSpectrums(String molecularProfileId, List<Mutation> mutations) {
         
         Map<String, List<Mutation>> mutationMap = mutations.stream().collect(Collectors.groupingBy(
             Mutation::getSampleId));
@@ -52,8 +52,10 @@ public class MutationSpectrumServiceImpl implements MutationSpectrumService {
 
             List<Mutation> mutationsInSample = mutationMap.get(sampleId);
             MutationSpectrum mutationSpectrum = new MutationSpectrum();
-            mutationSpectrum.setGeneticProfileId(geneticProfileId);
+            mutationSpectrum.setMolecularProfileId(molecularProfileId);
             mutationSpectrum.setSampleId(sampleId);
+            mutationSpectrum.setPatientId(mutationsInSample.get(0).getPatientId());
+            mutationSpectrum.setStudyId(mutationsInSample.get(0).getStudyId());
             mutationSpectrum.setCtoA(Math.toIntExact(mutationsInSample.stream().filter(m -> checkSpectrum(m, "C", "A") 
                 || checkSpectrum(m, "G", "T")).count()));
             mutationSpectrum.setCtoG(Math.toIntExact(mutationsInSample.stream().filter(m -> checkSpectrum(m, "C", "G") 

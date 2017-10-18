@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.ExpressionEnrichment;
 import org.cbioportal.service.ExpressionEnrichmentService;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.EnrichmentFilter;
 import org.cbioportal.web.parameter.EnrichmentType;
@@ -33,19 +33,19 @@ public class ExpressionEnrichmentController {
     @Autowired
     private ExpressionEnrichmentService expressionEnrichmentService;
 
-    @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/expression-enrichments/fetch",
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/expression-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch expression enrichments in a genetic profile")
+    @ApiOperation("Fetch expression enrichments in a molecular profile")
     public ResponseEntity<List<ExpressionEnrichment>> fetchExpressionEnrichments(
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
-        @PathVariable String geneticProfileId,
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
+        @PathVariable String molecularProfileId,
         @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
         @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
         @ApiParam(required = true, value = "List of altered and unaltered Sample/Patient IDs")
-        @Valid @RequestBody EnrichmentFilter enrichmentFilter) throws GeneticProfileNotFoundException {
+        @Valid @RequestBody EnrichmentFilter enrichmentFilter) throws MolecularProfileNotFoundException {
 
-        return new ResponseEntity<>(expressionEnrichmentService.getExpressionEnrichments(geneticProfileId,
+        return new ResponseEntity<>(expressionEnrichmentService.getExpressionEnrichments(molecularProfileId,
             enrichmentFilter.getAlteredIds(), enrichmentFilter.getUnalteredIds(), enrichmentType.name()), 
             HttpStatus.OK);
     }

@@ -12,7 +12,7 @@ import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.MutationService;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -21,7 +21,7 @@ import org.cbioportal.web.parameter.MutationMultipleStudyFilter;
 import org.cbioportal.web.parameter.MutationPositionIdentifier;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
-import org.cbioportal.web.parameter.SampleGeneticIdentifier;
+import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.cbioportal.web.parameter.sort.MutationSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -53,12 +53,12 @@ public class MutationController {
     @Autowired
     private MutationService mutationService;
 
-    @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/mutations", method = RequestMethod.GET,
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutations", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get mutations in a genetic profile by Sample List ID")
-    public ResponseEntity<List<Mutation>> getMutationsInGeneticProfileBySampleListId(
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
-        @PathVariable String geneticProfileId,
+    @ApiOperation("Get mutations in a molecular profile by Sample List ID")
+    public ResponseEntity<List<Mutation>> getMutationsInMolecularProfileBySampleListId(
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
+        @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "Sample List ID e.g. acc_tcga_all")
         @RequestParam String sampleListId,
         @ApiParam("Level of detail of the response")
@@ -73,28 +73,28 @@ public class MutationController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) MutationSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) throws GeneticProfileNotFoundException {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws MolecularProfileNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT,
-                mutationService.getMetaMutationsInGeneticProfileBySampleListId(geneticProfileId,
-                    sampleListId, null).getTotalCount().toString());
+                mutationService.getMetaMutationsInMolecularProfileBySampleListId(molecularProfileId, sampleListId, null)
+                    .getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                mutationService.getMutationsInGeneticProfileBySampleListId(geneticProfileId, sampleListId, null, null,
+                mutationService.getMutationsInMolecularProfileBySampleListId(molecularProfileId, sampleListId, null, null,
                     projection.name(), pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(),
                     direction.name()), HttpStatus.OK);
         }
     }
 
-    @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/mutations/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutations/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch mutations in a genetic profile by sample IDs")
-    public ResponseEntity<List<Mutation>> fetchMutationsInGeneticProfile(
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
-        @PathVariable String geneticProfileId,
+    @ApiOperation("Fetch mutations in a molecular profile by sample IDs")
+    public ResponseEntity<List<Mutation>> fetchMutationsInMolecularProfile(
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
+        @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
         @Valid @RequestBody MutationFilter mutationFilter,
         @ApiParam("Level of detail of the response")
@@ -109,17 +109,17 @@ public class MutationController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) MutationSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) throws GeneticProfileNotFoundException {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws MolecularProfileNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             MutationMeta mutationMeta;
 
             if (mutationFilter.getSampleListId() != null) {
-                mutationMeta = mutationService.getMetaMutationsInGeneticProfileBySampleListId(geneticProfileId,
+                mutationMeta = mutationService.getMetaMutationsInMolecularProfileBySampleListId(molecularProfileId,
                     mutationFilter.getSampleListId(), mutationFilter.getEntrezGeneIds());
             } else {
-                mutationMeta = mutationService.fetchMetaMutationsInGeneticProfile(geneticProfileId,
+                mutationMeta = mutationService.fetchMetaMutationsInMolecularProfile(molecularProfileId,
                     mutationFilter.getSampleIds(), mutationFilter.getEntrezGeneIds());
             }
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
@@ -127,11 +127,11 @@ public class MutationController {
         } else {
             List<Mutation> mutations;
             if (mutationFilter.getSampleListId() != null) {
-                mutations = mutationService.getMutationsInGeneticProfileBySampleListId(geneticProfileId,
-                    mutationFilter.getSampleListId(), mutationFilter.getEntrezGeneIds(), null, projection.name(), pageSize,
-                    pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
+                mutations = mutationService.getMutationsInMolecularProfileBySampleListId(molecularProfileId,
+                    mutationFilter.getSampleListId(), mutationFilter.getEntrezGeneIds(), null, projection.name(), 
+                    pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
             } else {
-                mutations = mutationService.fetchMutationsInGeneticProfile(geneticProfileId,
+                mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileId,
                     mutationFilter.getSampleIds(), mutationFilter.getEntrezGeneIds(), null, projection.name(), pageSize,
                     pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
             }
@@ -142,9 +142,9 @@ public class MutationController {
 
     @RequestMapping(value = "/mutations/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch mutations in multiple genetic profiles by sample IDs")
-    public ResponseEntity<List<Mutation>> fetchMutationsInMultipleGeneticProfiles(
-        @ApiParam(required = true, value = "List of Genetic Profile ID and Sample ID pairs and Entrez Gene IDs")
+    @ApiOperation("Fetch mutations in multiple molecular profiles by sample IDs")
+    public ResponseEntity<List<Mutation>> fetchMutationsInMultipleMolecularProfiles(
+        @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs and Entrez Gene IDs")
         @Valid @RequestBody MutationMultipleStudyFilter mutationMultipleStudyFilter,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
@@ -164,33 +164,33 @@ public class MutationController {
             HttpHeaders responseHeaders = new HttpHeaders();
             MutationMeta mutationMeta;
 
-            if (mutationMultipleStudyFilter.getGeneticProfileIds() != null) {
-                mutationMeta = mutationService.getMetaMutationsInMultipleGeneticProfiles(
-                    mutationMultipleStudyFilter.getGeneticProfileIds(), null, 
+            if (mutationMultipleStudyFilter.getMolecularProfileIds() != null) {
+                mutationMeta = mutationService.getMetaMutationsInMultipleMolecularProfiles(
+                    mutationMultipleStudyFilter.getMolecularProfileIds(), null, 
                     mutationMultipleStudyFilter.getEntrezGeneIds());
             } else {
 
-                List<String> geneticProfileIds = new ArrayList<>();
+                List<String> molecularProfileIds = new ArrayList<>();
                 List<String> sampleIds = new ArrayList<>();
-                extractGeneticProfileAndSampleIds(mutationMultipleStudyFilter, geneticProfileIds, sampleIds);
-                mutationMeta = mutationService.getMetaMutationsInMultipleGeneticProfiles(geneticProfileIds,
+                extractMolecularProfileAndSampleIds(mutationMultipleStudyFilter, molecularProfileIds, sampleIds);
+                mutationMeta = mutationService.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds,
                     sampleIds, mutationMultipleStudyFilter.getEntrezGeneIds());
             }
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             List<Mutation> mutations;
-            if (mutationMultipleStudyFilter.getGeneticProfileIds() != null) {
-                mutations = mutationService.getMutationsInMultipleGeneticProfiles(
-                    mutationMultipleStudyFilter.getGeneticProfileIds(), null, 
+            if (mutationMultipleStudyFilter.getMolecularProfileIds() != null) {
+                mutations = mutationService.getMutationsInMultipleMolecularProfiles(
+                    mutationMultipleStudyFilter.getMolecularProfileIds(), null, 
                     mutationMultipleStudyFilter.getEntrezGeneIds(), projection.name(), pageSize, pageNumber, 
                     sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
             } else {
 
-                List<String> geneticProfileIds = new ArrayList<>();
+                List<String> molecularProfileIds = new ArrayList<>();
                 List<String> sampleIds = new ArrayList<>();
-                extractGeneticProfileAndSampleIds(mutationMultipleStudyFilter, geneticProfileIds, sampleIds);
-                mutations = mutationService.getMutationsInMultipleGeneticProfiles(geneticProfileIds,
+                extractMolecularProfileAndSampleIds(mutationMultipleStudyFilter, molecularProfileIds, sampleIds);
+                mutations = mutationService.getMutationsInMultipleMolecularProfiles(molecularProfileIds,
                     sampleIds, mutationMultipleStudyFilter.getEntrezGeneIds(), projection.name(), pageSize,
                     pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
             }
@@ -199,31 +199,32 @@ public class MutationController {
         }
     }
 
-    @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/mutation-counts", method = RequestMethod.GET,
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutation-counts", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get mutation counts in a genetic profile by Sample List ID")
-    public ResponseEntity<List<MutationCount>> getMutationCountsInGeneticProfileBySampleListId(
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
-        @PathVariable String geneticProfileId,
+    @ApiOperation("Get mutation counts in a molecular profile by Sample List ID")
+    public ResponseEntity<List<MutationCount>> getMutationCountsInMolecularProfileBySampleListId(
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
+        @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "Sample List ID e.g. acc_tcga_all")
-        @RequestParam String sampleListId) throws GeneticProfileNotFoundException {
+        @RequestParam String sampleListId) throws MolecularProfileNotFoundException {
 
-        return new ResponseEntity<>(mutationService.getMutationCountsInGeneticProfileBySampleListId(
-            geneticProfileId, sampleListId), HttpStatus.OK);
+        return new ResponseEntity<>(mutationService.getMutationCountsInMolecularProfileBySampleListId(
+            molecularProfileId, sampleListId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/mutation-counts/fetch", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch mutation counts in a genetic profile by sample IDs")
-    public ResponseEntity<List<MutationCount>> fetchMutationCountsInGeneticProfile(
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
-        @PathVariable String geneticProfileId,
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutation-counts/fetch", 
+        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch mutation counts in a molecular profile by sample IDs")
+    public ResponseEntity<List<MutationCount>> fetchMutationCountsInMolecularProfile(
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
+        @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "List of Sample IDs")
         @Size(min = 1, max = MUTATION_MAX_PAGE_SIZE)
-        @RequestBody List<String> sampleIds) throws GeneticProfileNotFoundException {
+        @RequestBody List<String> sampleIds) throws MolecularProfileNotFoundException {
 
-        return new ResponseEntity<>(mutationService.fetchMutationCountsInGeneticProfile(geneticProfileId,
-            sampleIds), HttpStatus.OK);
+        return new ResponseEntity<>(mutationService.fetchMutationCountsInMolecularProfile(molecularProfileId, sampleIds), 
+            HttpStatus.OK);
     }
 
     @RequestMapping(value = "/mutation-counts-by-position/fetch", method = RequestMethod.POST,
@@ -248,14 +249,14 @@ public class MutationController {
             proteinPosEnds), HttpStatus.OK);
     }
 
-    private void extractGeneticProfileAndSampleIds(MutationMultipleStudyFilter mutationMultipleStudyFilter, 
-                                                   List<String> geneticProfileIds, List<String> sampleIds) {
+    private void extractMolecularProfileAndSampleIds(MutationMultipleStudyFilter mutationMultipleStudyFilter,
+                                                     List<String> molecularProfileIds, List<String> sampleIds) {
         
-        for (SampleGeneticIdentifier sampleGeneticIdentifier :
-            mutationMultipleStudyFilter.getSampleGeneticIdentifiers()) {
+        for (SampleMolecularIdentifier sampleMolecularIdentifier :
+            mutationMultipleStudyFilter.getSampleMolecularIdentifiers()) {
 
-            geneticProfileIds.add(sampleGeneticIdentifier.getGeneticProfileId());
-            sampleIds.add(sampleGeneticIdentifier.getSampleId());
+            molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
+            sampleIds.add(sampleMolecularIdentifier.getSampleId());
         }
     }
 }

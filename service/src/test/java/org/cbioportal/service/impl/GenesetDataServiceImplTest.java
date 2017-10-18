@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.cbioportal.model.GenesetGeneticAlteration;
-import org.cbioportal.model.GenesetGeneticData;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.GenesetMolecularAlteration;
+import org.cbioportal.model.GenesetMolecularData;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
-import org.cbioportal.persistence.GeneticDataRepository;
-import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.persistence.MolecularDataRepository;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,11 +28,11 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
     private GenesetDataServiceImpl genesetDataService;
 
     @Mock
-    private GeneticDataRepository geneticDataRepository;
+    private MolecularDataRepository geneticDataRepository;
     @Mock
     private SampleService sampleService;
     @Mock
-    private GeneticProfileService geneticProfileService;
+    private MolecularProfileService geneticProfileService;
 
     /**
      * This is executed n times, for each of the n test methods below:
@@ -42,7 +42,7 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
     @Before 
     public void setUp() throws Exception {
         //stub for samples
-        Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(
+        Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(
                 "1,2,");
 
         List<Sample> sampleList1 = new ArrayList<>();
@@ -61,24 +61,24 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
             .thenReturn(sampleListAll);
 
         //stub for genetic profile
-        GeneticProfile geneticProfile = new GeneticProfile();
+        MolecularProfile geneticProfile = new MolecularProfile();
         geneticProfile.setCancerStudyIdentifier(STUDY_ID);
-        Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(geneticProfile);
+        Mockito.when(geneticProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(geneticProfile);
 
         //stub for repository data
-        List<GenesetGeneticAlteration> genesetGeneticAlterationList = new ArrayList<>();
-        GenesetGeneticAlteration genesetGeneticAlteration = new GenesetGeneticAlteration();
+        List<GenesetMolecularAlteration> genesetGeneticAlterationList = new ArrayList<>();
+        GenesetMolecularAlteration genesetGeneticAlteration = new GenesetMolecularAlteration();
         genesetGeneticAlteration.setGenesetId(GENESET_ID1);
         genesetGeneticAlteration.setValues("0.2,0.499");
         genesetGeneticAlterationList.add(genesetGeneticAlteration);
-        genesetGeneticAlteration = new GenesetGeneticAlteration();
+        genesetGeneticAlteration = new GenesetMolecularAlteration();
         genesetGeneticAlteration.setGenesetId(GENESET_ID2);
         genesetGeneticAlteration.setValues("0.89,-0.509");
         genesetGeneticAlterationList.add(genesetGeneticAlteration);
 
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(ENTREZ_GENE_ID);
-        Mockito.when(geneticDataRepository.getGenesetGeneticAlterations(GENETIC_PROFILE_ID, Arrays.asList(GENESET_ID1, GENESET_ID2), "SUMMARY"))
+        Mockito.when(geneticDataRepository.getGenesetMolecularAlterations(MOLECULAR_PROFILE_ID, Arrays.asList(GENESET_ID1, GENESET_ID2), "SUMMARY"))
             .thenReturn(genesetGeneticAlterationList);
     }
 
@@ -86,7 +86,7 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
     @Test
     public void fetchGenesetData() throws Exception {
 
-        List<GenesetGeneticData> result = genesetDataService.fetchGenesetData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+        List<GenesetMolecularData> result = genesetDataService.fetchGenesetData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
                 Arrays.asList(GENESET_ID1, GENESET_ID2));
 
         //what we expect: 2 samples x 2 geneset items = 4 GenesetData items:
@@ -97,30 +97,30 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
         //   geneset1 value: 0.499
         //   geneset2 value: -0.509
         Assert.assertEquals(4, result.size());
-        GenesetGeneticData item1 = result.get(0);
+        GenesetMolecularData item1 = result.get(0);
         Assert.assertEquals(item1.getSampleId(), SAMPLE_ID1);
         Assert.assertEquals(item1.getGenesetId(), GENESET_ID1);
         Assert.assertEquals(item1.getValue(), "0.2");
-        Assert.assertEquals(item1.getGeneticProfileId(), GENETIC_PROFILE_ID);
-        GenesetGeneticData item2 = result.get(1);
+        Assert.assertEquals(item1.getMolecularProfileId(), MOLECULAR_PROFILE_ID);
+        GenesetMolecularData item2 = result.get(1);
         Assert.assertEquals(item2.getSampleId(), SAMPLE_ID1);
         Assert.assertEquals(item2.getGenesetId(), GENESET_ID2);
         Assert.assertEquals(item2.getValue(), "0.89");
-        Assert.assertEquals(item2.getGeneticProfileId(), GENETIC_PROFILE_ID);
-        GenesetGeneticData item4 = result.get(3);
+        Assert.assertEquals(item2.getMolecularProfileId(), MOLECULAR_PROFILE_ID);
+        GenesetMolecularData item4 = result.get(3);
         Assert.assertEquals(item4.getSampleId(), SAMPLE_ID2);
         Assert.assertEquals(item4.getGenesetId(), GENESET_ID2);
         Assert.assertEquals(item4.getValue(), "-0.509");
-        Assert.assertEquals(item4.getGeneticProfileId(), GENETIC_PROFILE_ID);
+        Assert.assertEquals(item4.getMolecularProfileId(), MOLECULAR_PROFILE_ID);
 
         //check when selecting only 1 sample:
-        result = genesetDataService.fetchGenesetData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1),
+        result = genesetDataService.fetchGenesetData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1),
                 Arrays.asList(GENESET_ID1, GENESET_ID2));
         Assert.assertEquals(2, result.size());
         item1 = result.get(0);
         Assert.assertEquals(item1.getSampleId(), SAMPLE_ID1);
         Assert.assertEquals(item1.getGenesetId(), GENESET_ID1);
         Assert.assertEquals(item1.getValue(), "0.2");
-        Assert.assertEquals(item1.getGeneticProfileId(), GENETIC_PROFILE_ID);
+        Assert.assertEquals(item1.getMolecularProfileId(), MOLECULAR_PROFILE_ID);
     }
 }

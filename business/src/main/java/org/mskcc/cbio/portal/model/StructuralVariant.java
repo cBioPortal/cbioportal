@@ -33,7 +33,7 @@
 package org.mskcc.cbio.portal.model;
 
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 
 import java.io.Serializable;
@@ -66,16 +66,16 @@ public class StructuralVariant implements Serializable {
     private Integer tumorVariantCount;
     private String variantStatusName;
     private Integer geneticProfileId;
-    private GeneticProfile geneticProfile;
+    private MolecularProfile geneticProfile;
     private Gene gene1;
     private Gene gene2;
     private Sample sample;
 
-    public GeneticProfile getGeneticProfile() {
+    public MolecularProfile getGeneticProfile() {
         return geneticProfile;
     }
 
-    public void setGeneticProfile(GeneticProfile geneticProfile) {
+    public void setGeneticProfile(MolecularProfile geneticProfile) {
         this.geneticProfile = geneticProfile;
     }
 

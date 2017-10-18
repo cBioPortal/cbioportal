@@ -105,7 +105,7 @@ public class MutationEnrichmentControllerTest {
         enrichmentFilter.setUnalteredIds(Arrays.asList("test_sample_id_2"));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/genetic-profiles/test_genetic_profile_id/mutation-enrichments/fetch")
+            "/molecular-profiles/test_molecular_profile_id/mutation-enrichments/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(enrichmentFilter)))

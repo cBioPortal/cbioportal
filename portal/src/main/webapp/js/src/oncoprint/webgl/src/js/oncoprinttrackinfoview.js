@@ -25,7 +25,7 @@ var OncoprintTrackInfoView = (function () {
 	    view.minimum_track_height = Math.min(view.minimum_track_height, model.getTrackHeight(tracks[i]));
 	}
 
-	view.width = 40;
+	view.width = 32;
 
 	var label_tops = model.getLabelTops();
 	scroll(view, model.getVertScroll());

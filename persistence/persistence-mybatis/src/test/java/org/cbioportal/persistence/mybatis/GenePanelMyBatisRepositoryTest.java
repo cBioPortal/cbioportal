@@ -80,7 +80,7 @@ public class GenePanelMyBatisRepositoryTest {
         
         Assert.assertEquals(2, result.size());
         GenePanelData genePanelData = result.get(0);
-        Assert.assertEquals("study_tcga_pub_mrna", genePanelData.getGeneticProfileId());
+        Assert.assertEquals("study_tcga_pub_mrna", genePanelData.getMolecularProfileId());
         Assert.assertEquals("TESTPANEL1", genePanelData.getGenePanelId());
         Assert.assertEquals("TCGA-A1-A0SB-01", genePanelData.getSampleId());
     }
@@ -93,7 +93,7 @@ public class GenePanelMyBatisRepositoryTest {
 
         Assert.assertEquals(2, result.size());
         GenePanelData genePanelData = result.get(0);
-        Assert.assertEquals("study_tcga_pub_mrna", genePanelData.getGeneticProfileId());
+        Assert.assertEquals("study_tcga_pub_mrna", genePanelData.getMolecularProfileId());
         Assert.assertEquals("TESTPANEL1", genePanelData.getGenePanelId());
         Assert.assertEquals("TCGA-A1-A0SB-01", genePanelData.getSampleId());
     }

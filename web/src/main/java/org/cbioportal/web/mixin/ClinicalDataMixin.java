@@ -7,8 +7,6 @@ public class ClinicalDataMixin {
 
     @JsonIgnore
     private Integer internalId;
-    @JsonProperty("entityId")
-    private String stableId;
     @JsonProperty("clinicalAttributeId")
     private String attrId;
     @JsonProperty("value")

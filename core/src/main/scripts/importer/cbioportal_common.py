@@ -142,7 +142,8 @@ META_FIELD_MAP = {
         'data_filename': True,
         'normal_samples_list': False,
         'swissprot_identifier': False,
-        'gene_panel': False
+        'gene_panel': False,
+        'variant_classification_filter': False
     },
     MetaFileTypes.EXPRESSION: {
         'cancer_study_identifier': True,

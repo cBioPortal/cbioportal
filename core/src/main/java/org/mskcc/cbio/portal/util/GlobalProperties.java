@@ -37,9 +37,11 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -233,10 +235,16 @@ public class GlobalProperties {
     public static final String DEFAULT_UCSC_BUILD = "hg19";
 
     public static final String ONCOPRINT_DEFAULTVIEW = "oncoprint.defaultview";
+    
+    public static final String SETSOFGENES_LOCATION = "querypage.setsofgenes.location";
 
     private static boolean showCivic;
     @Value("${show.civic:false}") // default is false
     public void setShowCivic(String property) { showCivic = Boolean.parseBoolean(property); }
+
+    private static boolean showGenomeNexus;
+    @Value("${show.genomenexus:true}") // default is true
+    public void setShowGenomeNexus(String property) { showGenomeNexus = Boolean.parseBoolean(property); }
 
 	/*
      * Trim whitespace of url and append / if it does not exist. Return empty
@@ -258,10 +266,21 @@ public class GlobalProperties {
 
 		return rv;
 	}
+    
+    public static final String BINARY_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL = "oncoprint.custom_driver_annotation.binary.menu_label";
+    public static final String TIERS_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL = "oncoprint.custom_driver_annotation.tiers.menu_label";
+    public static final String ENABLE_DRIVER_ANNOTATIONS = "oncoprint.custom_driver_annotation.default";
+    public static final String ENABLE_TIERS = "oncoprint.custom_driver_tiers_annotation.default";
+    public static final String ENABLE_ONCOKB_AND_HOTSPOTS_ANNOTATIONS = "oncoprint.oncokb_hotspots.default";
+    public static final String HIDE_PASSENGER_MUTATIONS = "oncoprint.hide_passenger.default";
 
 	private static String civicUrl;
 	@Value("${civic.url:https://civic.genome.wustl.edu/api/}") // default
 	public void setCivicUrl(String property) { civicUrl = parseUrl(property); }
+
+	private static String genomeNexusApiUrl;
+	@Value("${genomenexus.url:genomenexus.org}") // default
+	public void setGenomeNexusApiUrl(String property) { genomeNexusApiUrl = parseUrl(property); }
 
     private static String frontendUrl;
     @Value("${frontend.url:}") // default is empty string
@@ -808,6 +827,10 @@ public class GlobalProperties {
         return civicUrl;
     }
 
+    public static String getGenomeNexusApiUrl() {
+        return genomeNexusApiUrl;
+    }
+
     public static boolean showOncoKB() {
         String showOncokb = properties.getProperty(SHOW_ONCOKB);
         if (showOncokb==null || showOncokb.isEmpty()) {
@@ -832,6 +855,10 @@ public class GlobalProperties {
 
     public static boolean showCivic() {
         return showCivic;
+    }
+
+    public static boolean showGenomeNexus() {
+        return showGenomeNexus;
     }
 
     public static String getFrontendUrl() {
@@ -971,9 +998,86 @@ public class GlobalProperties {
         }
         return defaultOncoprintView.trim();
     }
-
+    
+    public static boolean enableDriverAnnotations() {
+        String enableDriverAnnotations = properties.getProperty(ENABLE_DRIVER_ANNOTATIONS, "true");
+        if (!showBinaryCustomDriverAnnotation()) {
+            return false;  // do not enable driver annotations by default
+        }
+        return Boolean.parseBoolean(enableDriverAnnotations);
+    }
+    
+    public static boolean enableTiers() {
+        String enableTiers = properties.getProperty(ENABLE_TIERS, "true");
+        if (!showTiersCustomDriverAnnotation()) {
+            return false;  // do not enable driver annotations by default
+        }
+        return Boolean.parseBoolean(enableTiers);
+    }
+    
+    public static String enableOncoKBandHotspots() {
+        String enableOncoKBandHotspots = properties.getProperty(ENABLE_ONCOKB_AND_HOTSPOTS_ANNOTATIONS, "true").trim();
+        if (enableOncoKBandHotspots.equalsIgnoreCase("custom")) {
+            return "custom";
+        } else if (enableOncoKBandHotspots.equalsIgnoreCase("false")) {
+            return "false";
+        }
+        return "true";
+    }
+    
+    public static String getBinaryCustomDriverAnnotationMenuLabel()
+    {
+        return properties.getProperty(BINARY_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL);
+    }
+    
+    public static String getTiersCustomDriverAnnotationMenuLabel()
+    {
+        return properties.getProperty(TIERS_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL);
+    }
+    
     public static void main(String[] args)
     {
         System.out.println(getAppVersion());
+    }
+    
+    public static boolean showBinaryCustomDriverAnnotation() {
+        if (getBinaryCustomDriverAnnotationMenuLabel()==null || getBinaryCustomDriverAnnotationMenuLabel().isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+    
+    public static boolean showTiersCustomDriverAnnotation() {
+	if (getTiersCustomDriverAnnotationMenuLabel()==null || getTiersCustomDriverAnnotationMenuLabel().isEmpty()) {
+	    return false;
+	}
+        return true;
+    }
+    
+    public static boolean hidePassengerMutations() {
+	String hidePassenger = properties.getProperty(HIDE_PASSENGER_MUTATIONS, "false");
+	return Boolean.parseBoolean(hidePassenger);
+    }
+    
+    public static String getQuerySetsOfGenes() {
+	String result = new String();
+	String fileName = properties.getProperty(SETSOFGENES_LOCATION, null);
+	if (fileName == null) {
+	    result = null;
+	} else {
+	    try {
+		BufferedReader br = new BufferedReader(new FileReader(ResourceUtils.getFile(fileName)));
+		for (String line = br.readLine();line != null;line = br.readLine()) {
+		    line = line.trim();
+		    result = result + line;
+		}
+		br.close();
+	    } catch (FileNotFoundException e) {
+		throw new RuntimeException("File not found: ", e);
+	    } catch (IOException e) {
+		throw new RuntimeException("Line not found: ", e);
+	    }
+	}
+	return result;
     }
 }

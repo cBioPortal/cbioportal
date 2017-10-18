@@ -11,9 +11,11 @@ public interface CopyNumberSegmentService {
 
     List<CopyNumberSeg> getCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId, String projection,
                                                              Integer pageSize, Integer pageNumber, String sortBy,
-                                                             String direction) throws SampleNotFoundException, StudyNotFoundException;
+                                                             String direction) 
+        throws SampleNotFoundException, StudyNotFoundException;
 
-    BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId) throws SampleNotFoundException, StudyNotFoundException;
+    BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId) 
+        throws SampleNotFoundException, StudyNotFoundException;
 
     List<CopyNumberSeg> fetchCopyNumberSegments(List<String> studyIds, List<String> sampleIds, String projection);
 

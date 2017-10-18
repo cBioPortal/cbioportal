@@ -2,9 +2,9 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.ExpressionEnrichment;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneGeneticData;
+import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.service.GeneService;
-import org.cbioportal.service.GeneticDataService;
+import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.util.BenjaminiHochbergFDRCalculator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
     private ExpressionEnrichmentServiceImpl expressionEnrichmentService;
 
     @Mock
-    private GeneticDataService geneticDataService;
+    private MolecularDataService molecularDataService;
     @Mock
     private GeneService geneService;
     @Mock
@@ -42,45 +42,45 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         unalteredSampleIds.add("sample_id_3");
         unalteredSampleIds.add("sample_id_4");
         
-        List<GeneGeneticData> alteredGeneGeneticDataList = new ArrayList<>();
-        GeneGeneticData geneGeneticData1 = new GeneGeneticData();
-        geneGeneticData1.setEntrezGeneId(2);
-        geneGeneticData1.setValue("2");
-        alteredGeneGeneticDataList.add(geneGeneticData1);
-        GeneGeneticData geneGeneticData2 = new GeneGeneticData();
-        geneGeneticData2.setEntrezGeneId(2);
-        geneGeneticData2.setValue("3");
-        alteredGeneGeneticDataList.add(geneGeneticData2);
-        GeneGeneticData geneGeneticData3 = new GeneGeneticData();
-        geneGeneticData3.setEntrezGeneId(3);
-        geneGeneticData3.setValue("1.1");
-        alteredGeneGeneticDataList.add(geneGeneticData3);
-        GeneGeneticData geneGeneticData4 = new GeneGeneticData();
-        geneGeneticData4.setEntrezGeneId(3);
-        geneGeneticData4.setValue("5");
-        alteredGeneGeneticDataList.add(geneGeneticData4);
-        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, alteredSampleIds, null, "SUMMARY"))
-            .thenReturn(alteredGeneGeneticDataList);
+        List<GeneMolecularData> alteredGeneMolecularDataList = new ArrayList<>();
+        GeneMolecularData geneMolecularData1 = new GeneMolecularData();
+        geneMolecularData1.setEntrezGeneId(2);
+        geneMolecularData1.setValue("2");
+        alteredGeneMolecularDataList.add(geneMolecularData1);
+        GeneMolecularData geneMolecularData2 = new GeneMolecularData();
+        geneMolecularData2.setEntrezGeneId(2);
+        geneMolecularData2.setValue("3");
+        alteredGeneMolecularDataList.add(geneMolecularData2);
+        GeneMolecularData geneMolecularData3 = new GeneMolecularData();
+        geneMolecularData3.setEntrezGeneId(3);
+        geneMolecularData3.setValue("1.1");
+        alteredGeneMolecularDataList.add(geneMolecularData3);
+        GeneMolecularData geneMolecularData4 = new GeneMolecularData();
+        geneMolecularData4.setEntrezGeneId(3);
+        geneMolecularData4.setValue("5");
+        alteredGeneMolecularDataList.add(geneMolecularData4);
+        Mockito.when(molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, alteredSampleIds, null, "SUMMARY"))
+            .thenReturn(alteredGeneMolecularDataList);
 
-        List<GeneGeneticData> unalteredGeneGeneticDataList = new ArrayList<>();
-        GeneGeneticData geneGeneticData5 = new GeneGeneticData();
-        geneGeneticData5.setEntrezGeneId(2);
-        geneGeneticData5.setValue("2.1");
-        unalteredGeneGeneticDataList.add(geneGeneticData5);
-        GeneGeneticData geneGeneticData6 = new GeneGeneticData();
-        geneGeneticData6.setEntrezGeneId(2);
-        geneGeneticData6.setValue("3");
-        unalteredGeneGeneticDataList.add(geneGeneticData6);
-        GeneGeneticData geneGeneticData7 = new GeneGeneticData();
-        geneGeneticData7.setEntrezGeneId(3);
-        geneGeneticData7.setValue("2.3");
-        unalteredGeneGeneticDataList.add(geneGeneticData7);
-        GeneGeneticData geneGeneticData8 = new GeneGeneticData();
-        geneGeneticData8.setEntrezGeneId(3);
-        geneGeneticData8.setValue("3");
-        unalteredGeneGeneticDataList.add(geneGeneticData8);
-        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, unalteredSampleIds, null, "SUMMARY"))
-            .thenReturn(unalteredGeneGeneticDataList);
+        List<GeneMolecularData> unalteredGeneMolecularDataList = new ArrayList<>();
+        GeneMolecularData geneMolecularData5 = new GeneMolecularData();
+        geneMolecularData5.setEntrezGeneId(2);
+        geneMolecularData5.setValue("2.1");
+        unalteredGeneMolecularDataList.add(geneMolecularData5);
+        GeneMolecularData geneMolecularData6 = new GeneMolecularData();
+        geneMolecularData6.setEntrezGeneId(2);
+        geneMolecularData6.setValue("3");
+        unalteredGeneMolecularDataList.add(geneMolecularData6);
+        GeneMolecularData geneMolecularData7 = new GeneMolecularData();
+        geneMolecularData7.setEntrezGeneId(3);
+        geneMolecularData7.setValue("2.3");
+        unalteredGeneMolecularDataList.add(geneMolecularData7);
+        GeneMolecularData geneMolecularData8 = new GeneMolecularData();
+        geneMolecularData8.setEntrezGeneId(3);
+        geneMolecularData8.setValue("3");
+        unalteredGeneMolecularDataList.add(geneMolecularData8);
+        Mockito.when(molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, unalteredSampleIds, null, "SUMMARY"))
+            .thenReturn(unalteredGeneMolecularDataList);
 
         List<Gene> genes = new ArrayList<>();
         Gene gene1 = new Gene();
@@ -99,7 +99,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         Mockito.when(benjaminiHochbergFDRCalculator.calculate(new double[]{0.8716148250471419, 0.9475795430163914}))
             .thenReturn(new double[]{0.6, 1});
 
-        List<ExpressionEnrichment> result = expressionEnrichmentService.getExpressionEnrichments(GENETIC_PROFILE_ID, 
+        List<ExpressionEnrichment> result = expressionEnrichmentService.getExpressionEnrichments(MOLECULAR_PROFILE_ID, 
             alteredSampleIds, unalteredSampleIds, "SAMPLE");
 
         Assert.assertEquals(2, result.size());

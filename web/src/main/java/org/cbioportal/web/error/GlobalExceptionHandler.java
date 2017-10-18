@@ -49,10 +49,10 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(GeneticProfileNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleGeneticProfileNotFound(GeneticProfileNotFoundException ex) {
+    @ExceptionHandler(MolecularProfileNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleMolecularProfileNotFound(MolecularProfileNotFoundException ex) {
 
-        return new ResponseEntity<>(new ErrorResponse("Genetic profile not found: " + ex.getGeneticProfileId()),
+        return new ResponseEntity<>(new ErrorResponse("Molecular profile not found: " + ex.getMolecularProfileId()),
                 HttpStatus.NOT_FOUND);
     }
 

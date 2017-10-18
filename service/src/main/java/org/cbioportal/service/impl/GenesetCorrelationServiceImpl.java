@@ -35,19 +35,19 @@ import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GenesetCorrelation;
-import org.cbioportal.model.GenesetGeneticData;
-import org.cbioportal.model.GeneGeneticData;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.GenesetMolecularData;
+import org.cbioportal.model.GeneMolecularData;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.GenesetService;
 import org.cbioportal.service.GenesetCorrelationService;
 import org.cbioportal.service.GenesetDataService;
-import org.cbioportal.service.GeneticDataService;
-import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GenesetNotFoundException;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,11 +57,11 @@ import org.springframework.stereotype.Service;
 public class GenesetCorrelationServiceImpl implements GenesetCorrelationService {
 
 	@Autowired
-	private GeneticDataService geneticDataService;
+	private MolecularDataService molecularDataService;
 	@Autowired
 	private GenesetDataService genesetDataService;
 	@Autowired
-	private GeneticProfileService geneticProfileService;
+	private MolecularProfileService molecularProfileService;
 	@Autowired
 	private GenesetService genesetService;
 	@Autowired
@@ -70,53 +70,60 @@ public class GenesetCorrelationServiceImpl implements GenesetCorrelationService 
 	private SampleListService sampleListService;
 
 
-	@PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-	public List<GenesetCorrelation> fetchCorrelatedGenes(String genesetId, String geneticProfileId,
-			double correlationThreshold) throws GeneticProfileNotFoundException, GenesetNotFoundException {
+	@PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+	public List<GenesetCorrelation> fetchCorrelatedGenes(String genesetId, String molecularProfileId,
+			double correlationThreshold) throws MolecularProfileNotFoundException, GenesetNotFoundException {
 
 		// get sample ids from study
-		CancerStudy cancerStudy = geneticProfileService.getGeneticProfile(geneticProfileId).getCancerStudy();
+		CancerStudy cancerStudy = molecularProfileService.getMolecularProfile(molecularProfileId).getCancerStudy();
 		List<Sample> samples = sampleService.fetchSamples(Arrays.asList(cancerStudy.getCancerStudyIdentifier()), null, "SUMMARY");
 		// convert to string list:
 		List<String> sampleIds = samples.stream().map(o -> o.getStableId()).collect( Collectors.toList() );
-		return fetchCorrelatedGenes(genesetId, geneticProfileId, sampleIds, correlationThreshold);
+		return fetchCorrelatedGenes(genesetId, molecularProfileId, sampleIds, correlationThreshold);
 	}
 
-	@PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-	public List<GenesetCorrelation> fetchCorrelatedGenes(String genesetId, String geneticProfileId, String sampleListId,
-			double correlationThreshold) throws GeneticProfileNotFoundException, SampleListNotFoundException, GenesetNotFoundException {
+	@PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+	public List<GenesetCorrelation> fetchCorrelatedGenes(String genesetId, String molecularProfileId, 
+                                                         String sampleListId, double correlationThreshold) 
+        throws MolecularProfileNotFoundException, SampleListNotFoundException, GenesetNotFoundException {
 
 		// get sample ids from sampleList
 		List<String> sampleIds = sampleListService.getAllSampleIdsInSampleList(sampleListId);		
-		return fetchCorrelatedGenes(genesetId, geneticProfileId, sampleIds, correlationThreshold);
+		return fetchCorrelatedGenes(genesetId, molecularProfileId, sampleIds, correlationThreshold);
 	}
 
-	@PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-	public List<GenesetCorrelation> fetchCorrelatedGenes(String genesetId, String geneticProfileId, List<String> sampleIds,
-			double correlationThreshold) throws GeneticProfileNotFoundException, GenesetNotFoundException {
+	@PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+	public List<GenesetCorrelation> fetchCorrelatedGenes(String genesetId, String molecularProfileId, 
+                                                         List<String> sampleIds, double correlationThreshold) 
+        throws MolecularProfileNotFoundException, GenesetNotFoundException {
+	    
 		List<GenesetCorrelation> result = new ArrayList<GenesetCorrelation>();
 
 		// find the genes in the geneset
 		List<Gene> genes = genesetService.getGenesByGenesetId(genesetId);
 
 		// the geneset data:
-		List<GenesetGeneticData> genesetData = genesetDataService.fetchGenesetData(geneticProfileId, sampleIds, Arrays.asList(genesetId));
+		List<GenesetMolecularData> genesetData = genesetDataService.fetchGenesetData(molecularProfileId, sampleIds, 
+            Arrays.asList(genesetId));
 		double[] genesetValues = getGenesetValues(sampleIds, genesetData);
 		// find the expression profile related to the given geneticProfileId
-		List<GeneticProfile> expressionProfilesReferredByGenesetProfile = geneticProfileService.getGeneticProfilesReferredBy(geneticProfileId);
+		List<MolecularProfile> expressionProfilesReferredByGenesetProfile = 
+            molecularProfileService.getMolecularProfilesReferredBy(molecularProfileId);
 		//we expect only 1 in this case (a geneset only refers to 1 expression profile, so give error otherwise):
 		if (expressionProfilesReferredByGenesetProfile.size() != 1) {
-			throw new RuntimeException("Unexpected error: given geneset profile refers to " + expressionProfilesReferredByGenesetProfile.size() + " profile(s). Should refer to only 1");
+			throw new RuntimeException("Unexpected error: given geneset profile refers to " + 
+                expressionProfilesReferredByGenesetProfile.size() + " profile(s). Should refer to only 1");
 		}
-		GeneticProfile expressionProfile = expressionProfilesReferredByGenesetProfile.get(0);
-		GeneticProfile zscoresProfile = getLinkedZscoreProfile(expressionProfile);
+		MolecularProfile expressionProfile = expressionProfilesReferredByGenesetProfile.get(0);
+		MolecularProfile zscoresProfile = getLinkedZscoreProfile(expressionProfile);
 
-		// TODO : if this turns out to take too long, we can always implement this loop in parallel to improve performance. Multi-threading is easy in this scenario.
+		// TODO : if this turns out to take too long, we can always implement this loop in parallel to improve 
+        // performance. Multi-threading is easy in this scenario.
 		// get genetic data for each gene and calculate correlation
 		for (Gene gene : genes) {
 			Integer entrezGeneId = gene.getEntrezGeneId();
-			List<GeneGeneticData> geneData = geneticDataService.fetchGeneticData(expressionProfile.getStableId(), sampleIds, 
-					Arrays.asList(entrezGeneId), "SUMMARY");
+			List<GeneMolecularData> geneData = molecularDataService.fetchMolecularData(expressionProfile.getStableId(), 
+                sampleIds, Arrays.asList(entrezGeneId), "SUMMARY");
 			double correlationValue = calculateCorrelation(sampleIds, geneData, genesetValues);
 			// filter out the ones below correlationThreshold
 			if (correlationValue < correlationThreshold) {
@@ -126,8 +133,8 @@ public class GenesetCorrelationServiceImpl implements GenesetCorrelationService 
 			genesetCorrelationItem.setEntrezGeneId(entrezGeneId);
 			genesetCorrelationItem.setHugoGeneSymbol(gene.getHugoGeneSymbol());
 			genesetCorrelationItem.setCorrelationValue(correlationValue);
-			genesetCorrelationItem.setExpressionGeneticProfileId(expressionProfile.getStableId());
-			genesetCorrelationItem.setzScoreGeneticProfileId(zscoresProfile.getStableId());
+			genesetCorrelationItem.setExpressionMolecularProfileId(expressionProfile.getStableId());
+			genesetCorrelationItem.setzScoreMolecularProfileId(zscoresProfile.getStableId());
 			result.add(genesetCorrelationItem);
 		}        
 		// return sorted
@@ -136,12 +143,12 @@ public class GenesetCorrelationServiceImpl implements GenesetCorrelationService 
 	}
 
 
-	private GeneticProfile getLinkedZscoreProfile(GeneticProfile expressionProfile) throws GeneticProfileNotFoundException {
+	private MolecularProfile getLinkedZscoreProfile(MolecularProfile expressionProfile) throws MolecularProfileNotFoundException {
 
 		//Find the related z-score profile via the genetic_profile_link table:
-		List<GeneticProfile> referringProfiles = geneticProfileService.getGeneticProfilesReferringTo(expressionProfile.getStableId());
-		GeneticProfile zscoresProfile = null;
-		for (GeneticProfile referringProfile : referringProfiles) {
+		List<MolecularProfile> referringProfiles = molecularProfileService.getMolecularProfilesReferringTo(expressionProfile.getStableId());
+		MolecularProfile zscoresProfile = null;
+		for (MolecularProfile referringProfile : referringProfiles) {
 			//use the first z-score profile we can find in this list of referring profiles (normally there should be only 1 anyway):
 			if (referringProfile.getDatatype().equals("Z_SCORE")) {
 				zscoresProfile = referringProfile;
@@ -188,11 +195,11 @@ public class GenesetCorrelationServiceImpl implements GenesetCorrelationService 
 	 * 
 	 * @return: Spearman's correlation value between values in geneGeneticDataItems and genesetValues.
 	 */
-	private double calculateCorrelation(List<String> sampleIds, List<GeneGeneticData> geneGeneticDataItems, double[] genesetValues) {
+	private double calculateCorrelation(List<String> sampleIds, List<GeneMolecularData> geneGeneticDataItems, double[] genesetValues) {
 		
 		//index geneData values
 		Map<String, Double> sampleValues = new HashMap<String, Double>();
-		for (GeneGeneticData geneGeneticDataItem : geneGeneticDataItems) {
+		for (GeneMolecularData geneGeneticDataItem : geneGeneticDataItems) {
 			double value = Double.NaN;
 			if (NumberUtils.isNumber(geneGeneticDataItem.getValue())) {
 				value = Double.parseDouble(geneGeneticDataItem.getValue());
@@ -229,11 +236,11 @@ public class GenesetCorrelationServiceImpl implements GenesetCorrelationService 
 	}
 
 
-	private double[] getGenesetValues(List<String> sampleIds, List<GenesetGeneticData> genesetDataItems) {
+	private double[] getGenesetValues(List<String> sampleIds, List<GenesetMolecularData> genesetDataItems) {
 
 		//index genesetData values
 		Map<String, Double> sampleValues = new HashMap<String, Double>();
-		for (GenesetGeneticData genesetDataItem : genesetDataItems) {
+		for (GenesetMolecularData genesetDataItem : genesetDataItems) {
 			double value = Double.NaN;
 			if (NumberUtils.isNumber(genesetDataItem.getValue())) {
 				value = Double.parseDouble(genesetDataItem.getValue());

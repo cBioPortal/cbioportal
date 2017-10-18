@@ -3,10 +3,10 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.GenePanelToGene;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
-import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
     @Mock
     private GenePanelRepository genePanelRepository;
     @Mock
-    private GeneticProfileService geneticProfileService;
+    private MolecularProfileService molecularProfileService;
     
     @Test
     public void getAllGenePanelsSummaryProjection() throws Exception {
@@ -126,15 +126,15 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         genePanelToGene.setEntrezGeneId(ENTREZ_GENE_ID);
         expectedGenePanelToGeneList.add(genePanelToGene);
         
-        Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(new GeneticProfile());
+        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(new MolecularProfile());
         
-        Mockito.when(genePanelRepository.getGenePanelData(GENETIC_PROFILE_ID, SAMPLE_LIST_ID))
+        Mockito.when(genePanelRepository.getGenePanelData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID))
             .thenReturn(expectedGenePanelDataList);
 
         Mockito.when(genePanelRepository.getGenesOfPanels(Arrays.asList(GENE_PANEL_ID)))
             .thenReturn(expectedGenePanelToGeneList);
         
-        List<GenePanelData> result = genePanelService.getGenePanelData(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, 
+        List<GenePanelData> result = genePanelService.getGenePanelData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
             Arrays.asList(ENTREZ_GENE_ID));
         
         Assert.assertEquals(expectedGenePanelDataList, result);
@@ -157,15 +157,15 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         genePanelToGene.setEntrezGeneId(ENTREZ_GENE_ID);
         expectedGenePanelToGeneList.add(genePanelToGene);
 
-        Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(new GeneticProfile());
+        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(new MolecularProfile());
 
-        Mockito.when(genePanelRepository.fetchGenePanelData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2)))
+        Mockito.when(genePanelRepository.fetchGenePanelData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2)))
             .thenReturn(expectedGenePanelDataList);
 
         Mockito.when(genePanelRepository.getGenesOfPanels(Arrays.asList(GENE_PANEL_ID)))
             .thenReturn(expectedGenePanelToGeneList);
 
-        List<GenePanelData> result = genePanelService.fetchGenePanelData(GENETIC_PROFILE_ID,
+        List<GenePanelData> result = genePanelService.fetchGenePanelData(MOLECULAR_PROFILE_ID,
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), Arrays.asList(ENTREZ_GENE_ID));
 
         Assert.assertEquals(expectedGenePanelDataList, result);

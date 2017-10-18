@@ -3,14 +3,14 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.CopyNumberCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.GeneGeneticData;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.GeneMolecularData;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.service.DiscreteCopyNumberService;
-import org.cbioportal.service.GeneticDataService;
-import org.cbioportal.service.GeneticProfileService;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -26,46 +26,46 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     @Autowired
     private DiscreteCopyNumberRepository discreteCopyNumberRepository;
     @Autowired
-    private GeneticDataService geneticDataService;
+    private MolecularDataService molecularDataService;
     @Autowired
-    private GeneticProfileService geneticProfileService;
+    private MolecularProfileService molecularProfileService;
 
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInGeneticProfileBySampleListId(
-        String geneticProfileId,
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMolecularProfileBySampleListId(
+        String molecularProfileId,
         String sampleListId,
         List<Integer> entrezGeneIds,
         List<Integer> alterationTypes,
         String projection)
-        throws GeneticProfileNotFoundException {
+        throws MolecularProfileNotFoundException {
 
-        validateGeneticProfile(geneticProfileId);
+        validateMolecularProfile(molecularProfileId);
         if (isHomdelOrAmpOnly(alterationTypes)) {
 
-            return discreteCopyNumberRepository.getDiscreteCopyNumbersInGeneticProfileBySampleListId(geneticProfileId,
+            return discreteCopyNumberRepository.getDiscreteCopyNumbersInMolecularProfileBySampleListId(molecularProfileId,
                 sampleListId, entrezGeneIds, alterationTypes, projection);
         }
 
-        return geneticDataService.getGeneticData(geneticProfileId, sampleListId, entrezGeneIds, projection).stream()
+        return molecularDataService.getMolecularData(molecularProfileId, sampleListId, entrezGeneIds, projection).stream()
             .filter(g -> isValidAlteration(alterationTypes, g)).map(this::convert).collect(Collectors.toList());
     }
 
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public BaseMeta getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(String geneticProfileId,
-                                                                             String sampleListId,
-                                                                             List<Integer> entrezGeneIds,
-                                                                             List<Integer> alterationTypes)
-        throws GeneticProfileNotFoundException {
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    public BaseMeta getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(String molecularProfileId,
+                                                                               String sampleListId,
+                                                                               List<Integer> entrezGeneIds,
+                                                                               List<Integer> alterationTypes)
+        throws MolecularProfileNotFoundException {
 
-        validateGeneticProfile(geneticProfileId);
+        validateMolecularProfile(molecularProfileId);
         if (isHomdelOrAmpOnly(alterationTypes)) {
-            return discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInGeneticProfileBySampleListId(
-                geneticProfileId, sampleListId, entrezGeneIds, alterationTypes);
+            return discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(
+                molecularProfileId, sampleListId, entrezGeneIds, alterationTypes);
         }
 
-        long totalCount = geneticDataService.getGeneticData(geneticProfileId, sampleListId, entrezGeneIds, "ID")
+        long totalCount = molecularDataService.getMolecularData(molecularProfileId, sampleListId, entrezGeneIds, "ID")
             .stream().filter(g -> isValidAlteration(alterationTypes, g)).count();
 
         BaseMeta baseMeta = new BaseMeta();
@@ -75,40 +75,41 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<DiscreteCopyNumberData> fetchDiscreteCopyNumbersInGeneticProfile(String geneticProfileId,
-                                                                                 List<String> sampleIds,
-                                                                                 List<Integer> entrezGeneIds,
-                                                                                 List<Integer> alterationTypes,
-                                                                                 String projection)
-        throws GeneticProfileNotFoundException {
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    public List<DiscreteCopyNumberData> fetchDiscreteCopyNumbersInMolecularProfile(String molecularProfileId,
+                                                                                   List<String> sampleIds,
+                                                                                   List<Integer> entrezGeneIds,
+                                                                                   List<Integer> alterationTypes,
+                                                                                   String projection)
+        throws MolecularProfileNotFoundException {
 
-        validateGeneticProfile(geneticProfileId);
+        validateMolecularProfile(molecularProfileId);
         if (isHomdelOrAmpOnly(alterationTypes)) {
-            return discreteCopyNumberRepository.fetchDiscreteCopyNumbersInGeneticProfile(geneticProfileId, sampleIds,
-                entrezGeneIds, alterationTypes, projection);
+            return discreteCopyNumberRepository.fetchDiscreteCopyNumbersInMolecularProfile(molecularProfileId, 
+                sampleIds, entrezGeneIds, alterationTypes, projection);
         }
 
-        return geneticDataService.fetchGeneticData(geneticProfileId, sampleIds, entrezGeneIds, projection).stream()
-            .filter(g -> isValidAlteration(alterationTypes, g)).map(this::convert).collect(Collectors.toList());
+        return molecularDataService.fetchMolecularData(molecularProfileId, sampleIds, entrezGeneIds, projection)
+            .stream().filter(g -> isValidAlteration(alterationTypes, g))
+            .map(this::convert).collect(Collectors.toList());
     }
 
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public BaseMeta fetchMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId,
-                                                                 List<String> sampleIds,
-                                                                 List<Integer> entrezGeneIds,
-                                                                 List<Integer> alterationTypes)
-        throws GeneticProfileNotFoundException {
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    public BaseMeta fetchMetaDiscreteCopyNumbersInMolecularProfile(String molecularProfileId,
+                                                                   List<String> sampleIds,
+                                                                   List<Integer> entrezGeneIds,
+                                                                   List<Integer> alterationTypes)
+        throws MolecularProfileNotFoundException {
 
-        validateGeneticProfile(geneticProfileId);
+        validateMolecularProfile(molecularProfileId);
         if (isHomdelOrAmpOnly(alterationTypes)) {
-            return discreteCopyNumberRepository.fetchMetaDiscreteCopyNumbersInGeneticProfile(geneticProfileId,
+            return discreteCopyNumberRepository.fetchMetaDiscreteCopyNumbersInMolecularProfile(molecularProfileId,
                 sampleIds, entrezGeneIds, alterationTypes);
         }
 
-        long totalCount = geneticDataService.fetchGeneticData(geneticProfileId, sampleIds, entrezGeneIds, "ID").stream()
-            .filter(g -> isValidAlteration(alterationTypes, g)).count();
+        long totalCount = molecularDataService.fetchMolecularData(molecularProfileId, sampleIds, entrezGeneIds, "ID")
+            .stream().filter(g -> isValidAlteration(alterationTypes, g)).count();
 
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(Math.toIntExact(totalCount));
@@ -117,37 +118,40 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(
-        String geneticProfileId,
+        String molecularProfileId,
         List<String> sampleIds,
         List<Integer> entrezGeneIds,
         List<Integer> alterations) {
 
-        return discreteCopyNumberRepository.getSampleCountByGeneAndAlterationAndSampleIds(geneticProfileId, sampleIds, 
+        return discreteCopyNumberRepository.getSampleCountByGeneAndAlterationAndSampleIds(molecularProfileId, sampleIds, 
             entrezGeneIds, alterations);
     }
 
     @Override
-    public List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String geneticProfileId, List<String> patientIds, List<Integer> entrezGeneIds, List<Integer> alterations) {
+    public List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId, 
+                                                                                       List<String> patientIds, 
+                                                                                       List<Integer> entrezGeneIds, 
+                                                                                       List<Integer> alterations) {
 
-        return discreteCopyNumberRepository.getPatientCountByGeneAndAlterationAndPatientIds(geneticProfileId, 
+        return discreteCopyNumberRepository.getPatientCountByGeneAndAlterationAndPatientIds(molecularProfileId, 
             patientIds, entrezGeneIds, alterations);
     }
 
 
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<CopyNumberCount> fetchCopyNumberCounts(String geneticProfileId, List<Integer> entrezGeneIds,
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    public List<CopyNumberCount> fetchCopyNumberCounts(String molecularProfileId, List<Integer> entrezGeneIds,
                                                        List<Integer> alterations)
-        throws GeneticProfileNotFoundException {
+        throws MolecularProfileNotFoundException {
 
-        validateGeneticProfile(geneticProfileId);
+        validateMolecularProfile(molecularProfileId);
 
-        Integer numberOfSamplesInGeneticProfile = geneticDataService.getNumberOfSamplesInGeneticProfile(
-            geneticProfileId);
+        Integer numberOfSamplesInMolecularProfile = molecularDataService.getNumberOfSamplesInMolecularProfile(
+            molecularProfileId);
         List<CopyNumberCountByGene> copyNumberSampleCountByGeneList =
-            getSampleCountByGeneAndAlterationAndSampleIds(geneticProfileId, null, entrezGeneIds, alterations);
+            getSampleCountByGeneAndAlterationAndSampleIds(molecularProfileId, null, entrezGeneIds, alterations);
 
         List<CopyNumberCount> copyNumberCounts = new ArrayList<>();
         for (int i = 0; i < alterations.size(); i++) {
@@ -155,10 +159,10 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
             Integer entrezGeneId = entrezGeneIds.get(i);
 
             CopyNumberCount copyNumberCount = new CopyNumberCount();
-            copyNumberCount.setGeneticProfileId(geneticProfileId);
+            copyNumberCount.setMolecularProfileId(molecularProfileId);
             copyNumberCount.setEntrezGeneId(entrezGeneId);
             copyNumberCount.setAlteration(alteration);
-            copyNumberCount.setNumberOfSamples(numberOfSamplesInGeneticProfile);
+            copyNumberCount.setNumberOfSamples(numberOfSamplesInMolecularProfile);
 
             Optional<CopyNumberCountByGene> copyNumberSampleCountByGene = copyNumberSampleCountByGeneList.stream()
                 .filter(p -> p.getEntrezGeneId().equals(entrezGeneId) && p.getAlteration().equals(alteration))
@@ -172,14 +176,14 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
         return copyNumberCounts;
     }
 
-    private DiscreteCopyNumberData convert(GeneGeneticData geneticData) {
+    private DiscreteCopyNumberData convert(GeneMolecularData molecularData) {
 
         DiscreteCopyNumberData discreteCopyNumberData = new DiscreteCopyNumberData();
-        discreteCopyNumberData.setGeneticProfileId(geneticData.getGeneticProfileId());
-        discreteCopyNumberData.setSampleId(geneticData.getSampleId());
-        discreteCopyNumberData.setEntrezGeneId(geneticData.getEntrezGeneId());
-        discreteCopyNumberData.setGene(geneticData.getGene());
-        discreteCopyNumberData.setAlteration(Integer.parseInt(geneticData.getValue()));
+        discreteCopyNumberData.setMolecularProfileId(molecularData.getMolecularProfileId());
+        discreteCopyNumberData.setSampleId(molecularData.getSampleId());
+        discreteCopyNumberData.setEntrezGeneId(molecularData.getEntrezGeneId());
+        discreteCopyNumberData.setGene(molecularData.getGene());
+        discreteCopyNumberData.setAlteration(Integer.parseInt(molecularData.getValue()));
 
         return discreteCopyNumberData;
     }
@@ -189,26 +193,26 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
         return !alterationTypes.contains(-1) && !alterationTypes.contains(0) && !alterationTypes.contains(1);
     }
 
-    private boolean isValidAlteration(List<Integer> alterationTypes, GeneGeneticData geneticData) {
+    private boolean isValidAlteration(List<Integer> alterationTypes, GeneMolecularData molecularData) {
 
         boolean result;
         try {
-            result = alterationTypes.contains(Integer.parseInt(geneticData.getValue()));
+            result = alterationTypes.contains(Integer.parseInt(molecularData.getValue()));
         } catch (NumberFormatException ex) {
             result = false;
         }
         return result;
     }
 
-    private void validateGeneticProfile(String geneticProfileId) throws GeneticProfileNotFoundException {
+    private void validateMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException {
 
-        GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
+        MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
 
-        if (!geneticProfile.getGeneticAlterationType()
-            .equals(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION) ||
-            !geneticProfile.getDatatype().equals("DISCRETE")) {
+        if (!molecularProfile.getMolecularAlterationType()
+            .equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION) ||
+            !molecularProfile.getDatatype().equals("DISCRETE")) {
 
-            throw new GeneticProfileNotFoundException(geneticProfileId);
+            throw new MolecularProfileNotFoundException(molecularProfileId);
         }
     }
 }

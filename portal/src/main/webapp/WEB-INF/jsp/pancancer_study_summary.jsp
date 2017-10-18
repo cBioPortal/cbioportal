@@ -46,9 +46,8 @@
 <script type="text/javascript" src="js/src/pancancer_study_summary/pancancer_study_summary_histogram.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 
-<div class="section" id="pancancer_study_summary"><!-- this div id "pancancer_study_summary" is referenced back in visualize.jsp -->
+<div class="section cbioportal-frontend" id="pancancer_study_summary"><!-- this div id "pancancer_study_summary" is referenced back in visualize.jsp -->
 	<!-- main container -->
-	<div id="pancancer_study_summary"></div>
 </div>
 
 <!-- Initialization script -->
@@ -68,10 +67,12 @@
     	function tabsUpdate() {
 	        if ($("#pancancer_study_summary").is(":visible")) {
 		    	if (tab_init === false) {
-		    		var pancancerStudySummary = new PancancerStudySummary();
-                    pancancerStudySummary.init();
-		            tab_init = true;
-		            console.log("pancancer_study_summary tab initialized");
+                    window.renderCancerTypeSummary(document.getElementById('pancancer_study_summary'));
+                    tab_init = true;
+		    		<%--var pancancerStudySummary = new PancancerStudySummary();--%>
+                    <%--pancancerStudySummary.init();--%>
+		            <%--tab_init = true;--%>
+		            <%--console.log("pancancer_study_summary tab initialized");--%>
 		        }
 		        $(window).trigger("resize");
 	    	}

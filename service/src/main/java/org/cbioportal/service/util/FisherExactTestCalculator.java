@@ -12,7 +12,7 @@ public class FisherExactTestCalculator {
         return Math.exp(p);
     }
 
-    public double getCumlativePValue(int a, int b, int c, int d) {
+    public double getCumulativePValue(int a, int b, int c, int d) {
         
         int min, i;
         int n = a + b + c + d;
@@ -35,8 +35,7 @@ public class FisherExactTestCalculator {
         if ((a * d) < (b * c)) {
             min = (a < d) ? a : d;
             for (i = 0; i < min; i++) {
-                double pTemp = getPValue(--a, ++b, ++c, --d, f);
-                p += pTemp;
+                p += getPValue(--a, ++b, ++c, --d, f);
             }
         }
         return p;

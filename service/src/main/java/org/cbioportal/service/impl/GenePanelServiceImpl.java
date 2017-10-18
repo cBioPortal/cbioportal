@@ -6,9 +6,9 @@ import org.cbioportal.model.GenePanelToGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
 import org.cbioportal.service.GenePanelService;
-import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class GenePanelServiceImpl implements GenePanelService {
     @Autowired
     private GenePanelRepository genePanelRepository;
     @Autowired
-    private GeneticProfileService geneticProfileService;
+    private MolecularProfileService molecularProfileService;
 
     @Override
     public List<GenePanel> getAllGenePanels(String projection, Integer pageSize, Integer pageNumber, String sortBy, 
@@ -63,26 +63,26 @@ public class GenePanelServiceImpl implements GenePanelService {
     }
     
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<GenePanelData> getGenePanelData(String geneticProfileId, String sampleListId, 
-                                                List<Integer> entrezGeneIds) throws GeneticProfileNotFoundException {
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    public List<GenePanelData> getGenePanelData(String molecularProfileId, String sampleListId, 
+                                                List<Integer> entrezGeneIds) throws MolecularProfileNotFoundException {
 
-        geneticProfileService.getGeneticProfile(geneticProfileId);
+        molecularProfileService.getMolecularProfile(molecularProfileId);
         
-        List<GenePanelData> genePanelDataList = genePanelRepository.getGenePanelData(geneticProfileId, sampleListId);
+        List<GenePanelData> genePanelDataList = genePanelRepository.getGenePanelData(molecularProfileId, sampleListId);
         assignGenesOfPanels(genePanelDataList, entrezGeneIds);
         
         return genePanelDataList;
     }
 
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<GenePanelData> fetchGenePanelData(String geneticProfileId, List<String> sampleIds, 
-                                                  List<Integer> entrezGeneIds) throws GeneticProfileNotFoundException {
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    public List<GenePanelData> fetchGenePanelData(String molecularProfileId, List<String> sampleIds, 
+                                                  List<Integer> entrezGeneIds) throws MolecularProfileNotFoundException {
 
-        geneticProfileService.getGeneticProfile(geneticProfileId);
+        molecularProfileService.getMolecularProfile(molecularProfileId);
 
-        List<GenePanelData> genePanelDataList = genePanelRepository.fetchGenePanelData(geneticProfileId, sampleIds);
+        List<GenePanelData> genePanelDataList = genePanelRepository.fetchGenePanelData(molecularProfileId, sampleIds);
         assignGenesOfPanels(genePanelDataList, entrezGeneIds);
 
         return genePanelDataList;

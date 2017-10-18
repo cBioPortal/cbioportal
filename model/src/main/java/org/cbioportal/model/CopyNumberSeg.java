@@ -1,15 +1,15 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class CopyNumberSeg implements Serializable {
+public class CopyNumberSeg extends UniqueKeyBase {
 
     private Integer segId;
     private Integer cancerStudyId;
     private String cancerStudyIdentifier;
     private Integer sampleId;
     private String sampleStableId;
+    private String patientId;
     private String chr;
     private Integer start;
     private Integer end;
@@ -54,6 +54,14 @@ public class CopyNumberSeg implements Serializable {
 
     public void setSampleStableId(String sampleStableId) {
         this.sampleStableId = sampleStableId;
+    }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
     }
 
     public String getChr() {

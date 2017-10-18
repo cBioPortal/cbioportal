@@ -29,15 +29,15 @@ public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
 
         List<Mutation> mutationList = createMutationList();
 
-        Mockito.when(mutationService.getMutationsInGeneticProfileBySampleListId(GENETIC_PROFILE_ID, SAMPLE_LIST_ID, 
+        Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
             null, true, "SUMMARY", null, null, null, null)).thenReturn(mutationList);
         
-        List<MutationSpectrum> result = mutationSpectrumService.getMutationSpectrums(GENETIC_PROFILE_ID, 
+        List<MutationSpectrum> result = mutationSpectrumService.getMutationSpectrums(MOLECULAR_PROFILE_ID, 
             SAMPLE_LIST_ID);
 
         Assert.assertEquals(2, result.size());
         MutationSpectrum mutationSpectrum1 = result.get(0);
-        Assert.assertEquals(GENETIC_PROFILE_ID, mutationSpectrum1.getGeneticProfileId());
+        Assert.assertEquals(MOLECULAR_PROFILE_ID, mutationSpectrum1.getMolecularProfileId());
         Assert.assertEquals(SAMPLE_ID1, mutationSpectrum1.getSampleId());
         Assert.assertEquals((Integer) 2, mutationSpectrum1.getCtoA());
         Assert.assertEquals((Integer) 0, mutationSpectrum1.getCtoG());
@@ -46,7 +46,7 @@ public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals((Integer) 0, mutationSpectrum1.getTtoC());
         Assert.assertEquals((Integer) 0, mutationSpectrum1.getTtoG());
         MutationSpectrum mutationSpectrum2 = result.get(1);
-        Assert.assertEquals(GENETIC_PROFILE_ID, mutationSpectrum2.getGeneticProfileId());
+        Assert.assertEquals(MOLECULAR_PROFILE_ID, mutationSpectrum2.getMolecularProfileId());
         Assert.assertEquals(SAMPLE_ID2, mutationSpectrum2.getSampleId());
         Assert.assertEquals((Integer) 0, mutationSpectrum2.getCtoA());
         Assert.assertEquals((Integer) 0, mutationSpectrum2.getCtoG());
@@ -61,15 +61,15 @@ public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
 
         List<Mutation> mutationList = createMutationList();
 
-        Mockito.when(mutationService.fetchMutationsInGeneticProfile(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID1, 
+        Mockito.when(mutationService.fetchMutationsInMolecularProfile(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, 
             SAMPLE_ID2), null, true, "SUMMARY", null, null, null, null)).thenReturn(mutationList);
 
-        List<MutationSpectrum> result = mutationSpectrumService.fetchMutationSpectrums(GENETIC_PROFILE_ID,
+        List<MutationSpectrum> result = mutationSpectrumService.fetchMutationSpectrums(MOLECULAR_PROFILE_ID,
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2));
 
         Assert.assertEquals(2, result.size());
         MutationSpectrum mutationSpectrum1 = result.get(0);
-        Assert.assertEquals(GENETIC_PROFILE_ID, mutationSpectrum1.getGeneticProfileId());
+        Assert.assertEquals(MOLECULAR_PROFILE_ID, mutationSpectrum1.getMolecularProfileId());
         Assert.assertEquals(SAMPLE_ID1, mutationSpectrum1.getSampleId());
         Assert.assertEquals((Integer) 2, mutationSpectrum1.getCtoA());
         Assert.assertEquals((Integer) 0, mutationSpectrum1.getCtoG());
@@ -78,7 +78,7 @@ public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals((Integer) 0, mutationSpectrum1.getTtoC());
         Assert.assertEquals((Integer) 0, mutationSpectrum1.getTtoG());
         MutationSpectrum mutationSpectrum2 = result.get(1);
-        Assert.assertEquals(GENETIC_PROFILE_ID, mutationSpectrum2.getGeneticProfileId());
+        Assert.assertEquals(MOLECULAR_PROFILE_ID, mutationSpectrum2.getMolecularProfileId());
         Assert.assertEquals(SAMPLE_ID2, mutationSpectrum2.getSampleId());
         Assert.assertEquals((Integer) 0, mutationSpectrum2.getCtoA());
         Assert.assertEquals((Integer) 0, mutationSpectrum2.getCtoG());

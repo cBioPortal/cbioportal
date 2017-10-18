@@ -144,7 +144,12 @@ public class MafUtil
 	public static final String MA_LINK_MSA = "MA:link.MSA";
 	public static final String MA_LINK_PDB = "MA:link.PDB";
 	public static final String MA_PROTEIN_CHANGE = "MA:protein.change";
-
+	
+	// custom filtering of passenger and driver mutations column names
+	public static final String DRIVER_FILTER = "cbp_driver";
+	public static final String DRIVER_FILTER_ANNOTATION = "cbp_driver_annotation";
+	public static final String DRIVER_TIERS_FILTER = "cbp_driver_tiers";
+	public static final String DRIVER_TIERS_FILTER_ANNOTATION = "cbp_driver_tiers_annotation";
 
     // standard MAF column indices
 	private int chrIndex = -1; // CHR
@@ -231,6 +236,12 @@ public class MafUtil
 	private int maLinkMsaIndex = -1; // MA:link.MSA
 	private int maLinkPdbIndex = -1; // MA:link.PDB
 	private int maProteinChangeIndex = -1; // MA:protein.change
+	
+	// custom filtering of passenger and driver mutations column indices
+	private int driverIndex = -1; //cbp_driver
+	private int driverAnnIndex = -1; //cbp_driver_annotation
+	private int driverTiersIndex = -1; //cbp_driver_tiers
+	private int driverTiersAnnIndex = -1; //cbp_driver_tiers_annotation
 
 	// number of headers in the header line
     private int headerCount;
@@ -426,6 +437,14 @@ public class MafUtil
                 normalDepthIndex = i;
             } else if(header.equalsIgnoreCase(NORMAL_VAF)) {
                 normalVafIndex = i;
+            } else if(header.equalsIgnoreCase(DRIVER_FILTER)) {
+            		driverIndex = i;
+            } else if(header.equalsIgnoreCase(DRIVER_FILTER_ANNOTATION)) {
+            		driverAnnIndex = i;
+            } else if(header.equalsIgnoreCase(DRIVER_TIERS_FILTER)) {
+            		driverTiersIndex = i;
+            } else if(header.equalsIgnoreCase(DRIVER_TIERS_FILTER_ANNOTATION)) {
+            		driverTiersAnnIndex = i;
             }
         }
     }
@@ -533,7 +552,14 @@ public class MafUtil
 	    record.setOncotatorExonAffectedBestEffect(TabDelimitedFileUtil.getPartInt(oncoExonAffectedBeIndex, parts));
 	    record.setOncotatorProteinPosStartBestEffect(TabDelimitedFileUtil.getPartInt(oncoProteinPosStartBeIndex, parts));
 	    record.setOncotatorProteinPosEndBestEffect(TabDelimitedFileUtil.getPartInt(oncoProteinPosEndBeIndex, parts));
-            
+	    
+	    // custom filtering of passenger and driver mutations columns
+
+	    record.setDriverFilter(TabDelimitedFileUtil.getPartStringAllowEmptyAndNA(driverIndex, parts));
+	    record.setDriverFilterAnn(TabDelimitedFileUtil.getPartStringAllowEmpty(driverAnnIndex, parts));
+	    record.setDriverTiersFilter(TabDelimitedFileUtil.getPartStringAllowEmptyAndNA(driverTiersIndex, parts));
+	    record.setDriverTiersFilterAnn(TabDelimitedFileUtil.getPartStringAllowEmpty(driverTiersAnnIndex, parts));
+	    
             fixEndPointForInsertion(record);
             
         return record;
@@ -858,6 +884,26 @@ public class MafUtil
 	public int getOncoProteinPosEndBeIndex()
 	{
 		return oncoProteinPosEndBeIndex;
+	}
+	
+	public int getDriverIndex()
+	{
+		return driverIndex;
+	}
+	
+	public int getDriverAnnIndex()
+	{
+		return driverAnnIndex;
+	}
+	
+	public int getDriverTiersIndex()
+	{
+		return driverTiersIndex;
+	}
+	
+	public int getDriverTiersAnnIndex()
+	{
+		return driverTiersAnnIndex;
 	}
 
 	public int getColumnIndex(String colName)

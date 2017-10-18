@@ -35,7 +35,7 @@ package org.cbioportal.weblegacy.mixin;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 
 public class StructuralVariantMixin {
@@ -72,5 +72,5 @@ public class StructuralVariantMixin {
     @JsonUnwrapped
     private Sample sample;
     @JsonUnwrapped
-    private GeneticProfile geneticProfile;
+    private MolecularProfile geneticProfile;
 }

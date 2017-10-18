@@ -33,7 +33,10 @@
 package org.mskcc.cbio.portal.scripts;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Set;
+
 import joptsimple.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
@@ -58,6 +61,7 @@ public class ImportProfileData extends ConsoleRunnable {
             ProgressMonitor.setCurrentMessage("Reading data from:  " + dataFile.getAbsolutePath());
             GeneticProfile geneticProfile = null;
             String genePanel = null;
+            Set<String> filteredMutations = GeneticProfileReader.getVariantClassificationFilter( descriptorFile );
             try {
                 geneticProfile = GeneticProfileReader.loadGeneticProfile( descriptorFile );
                 genePanel = GeneticProfileReader.loadGenePanelInformation( descriptorFile );
@@ -71,7 +75,7 @@ public class ImportProfileData extends ConsoleRunnable {
                     "\n --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType().name());
             ProgressMonitor.setMaxValue(numLines);
             if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
-                ImportExtendedMutationData importer = new ImportExtendedMutationData(dataFile, geneticProfile.getGeneticProfileId(), genePanel);
+                ImportExtendedMutationData importer = new ImportExtendedMutationData(dataFile, geneticProfile.getGeneticProfileId(), genePanel, filteredMutations);
                 String swissprotIdType = geneticProfile.getOtherMetaDataField("swissprot_identifier");
                 if (swissprotIdType != null && swissprotIdType.equals("accession")) {
                     importer.setSwissprotIsAccession(true);

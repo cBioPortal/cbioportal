@@ -36,8 +36,8 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%
     String principal = "";
-    String samlLogoutURL = "/saml/logout?local=" + GlobalProperties.getSamlIsLogoutLocal();
     String authenticationMethod = GlobalProperties.authenticationMethod();
+    pageContext.setAttribute("authenticationMethod", authenticationMethod);
     if (authenticationMethod.equals("openid") || authenticationMethod.equals("ldap")) {
         principal = "principal.name";
     }
@@ -50,6 +50,11 @@
      explicitly defining a function in an external taglib XML file. Using
      Spring's SpEL instead to keep it short for this one function call --%>
 <s:eval var="rightLogo" expression="T(org.mskcc.cbio.portal.util.GlobalProperties).getRightLogo()"/>
+<s:eval var="samlLogoutLocal" expression="T(org.mskcc.cbio.portal.util.GlobalProperties).getSamlIsLogoutLocal()"/>
+
+<c:url var="samlLogoutUrl" value="/saml/logout">
+    <c:param name="local" value="${samlLogoutLocal}" />
+</c:url>
 
 <header>
         <div id="leftHeaderContent">
@@ -134,11 +139,14 @@
             <span class="username"><i class="fa fa-cog" aria-hidden="true"></i></span>&nbsp;
                 
                 <div class="identity">Logged in as <sec:authentication property="${principal}" />&nbsp;|&nbsp;
-                <% if (authenticationMethod.equals("saml")) { %>
-                    <a href="<c:url value="/saml/logout?local=true"/>">Sign out</a>
-                <%} else { %>
-                    <a href="j_spring_security_logout">Sign out</a>
-                <% } %>
+                <c:choose>
+                    <c:when test="${authenticationMethod == 'saml'}">
+                        <a href="${samlLogoutUrl}">Sign out</a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="j_spring_security_logout">Sign out</a>
+                    </c:otherwise>
+                </c:choose>
                 &nbsp;&nbsp;
                 <i class="fa fa-cog" aria-hidden="true"></i>
                 </div>

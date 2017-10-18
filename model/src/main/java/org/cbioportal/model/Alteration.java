@@ -1,21 +1,20 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
+public class Alteration extends UniqueKeyBase {
 
-public class Alteration implements Serializable {
-
-    private String geneticProfileId;
+    private String molecularProfileId;
     private String sampleId;
     private String patientId;
     private Integer entrezGeneId;
     private Gene gene;
+    private String studyId;
 
-    public String getGeneticProfileId() {
-        return geneticProfileId;
+    public String getMolecularProfileId() {
+        return molecularProfileId;
     }
 
-    public void setGeneticProfileId(String geneticProfileId) {
-        this.geneticProfileId = geneticProfileId;
+    public void setMolecularProfileId(String molecularProfileId) {
+        this.molecularProfileId = molecularProfileId;
     }
 
     public String getSampleId() {
@@ -48,5 +47,13 @@ public class Alteration implements Serializable {
 
     public void setGene(Gene gene) {
         this.gene = gene;
+    }
+
+    public String getStudyId() {
+        return studyId;
+    }
+
+    public void setStudyId(String studyId) {
+        this.studyId = studyId;
     }
 }

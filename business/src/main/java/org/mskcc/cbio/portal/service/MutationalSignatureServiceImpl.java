@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 
 @Service
@@ -96,11 +96,11 @@ public class MutationalSignatureServiceImpl implements MutationalSignatureServic
 	@Autowired
 	private SampleMapperLegacy sampleMapperLegacy;
 	
-	private GeneticProfile getMutationProfile(String study_id) {
-		List<GeneticProfile> geneticProfiles = convertGeneticProfiles(geneticProfileMapperLegacy.getGeneticProfilesByStudy(study_id));
-		GeneticProfile mutationProfile = null;
-		for (GeneticProfile gp: geneticProfiles) {
-			if (gp.getGeneticAlterationType() == GeneticProfile.GeneticAlterationType.MUTATION_EXTENDED) {
+	private MolecularProfile getMutationProfile(String study_id) {
+		List<MolecularProfile> geneticProfiles = convertGeneticProfiles(geneticProfileMapperLegacy.getGeneticProfilesByStudy(study_id));
+		MolecularProfile mutationProfile = null;
+		for (MolecularProfile gp: geneticProfiles) {
+			if (gp.getMolecularAlterationType() == MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED) {
 				mutationProfile = gp;
 				break;
 			}
@@ -110,7 +110,7 @@ public class MutationalSignatureServiceImpl implements MutationalSignatureServic
 
   @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
 	public List<MutationalSignature> getMutationalSignaturesBySampleIds(String study_id, List<String> sample_ids) {
-		GeneticProfile mutationProfile = getMutationProfile(study_id);
+		MolecularProfile mutationProfile = getMutationProfile(study_id);
 		if (mutationProfile == null) {
 			return new ArrayList<>();
 		} else {
@@ -121,7 +121,7 @@ public class MutationalSignatureServiceImpl implements MutationalSignatureServic
 
   @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
 	public List<MutationalSignature> getMutationalSignatures(String study_id) {
-		GeneticProfile mutationProfile = getMutationProfile(study_id);
+		MolecularProfile mutationProfile = getMutationProfile(study_id);
 		if (mutationProfile == null) {
 			return new ArrayList<>();
 		} else {
@@ -135,13 +135,13 @@ public class MutationalSignatureServiceImpl implements MutationalSignatureServic
 		}
 	}
 
-    private List<GeneticProfile> convertGeneticProfiles(List<DBGeneticProfile> dbGeneticProfiles) {
+    private List<MolecularProfile> convertGeneticProfiles(List<DBGeneticProfile> dbGeneticProfiles) {
         
-	    List<GeneticProfile> geneticProfiles = new ArrayList<>();
+	    List<MolecularProfile> geneticProfiles = new ArrayList<>();
 	    for (DBGeneticProfile dbGeneticProfile : dbGeneticProfiles) {
-	        GeneticProfile geneticProfile = new GeneticProfile();
+	        MolecularProfile geneticProfile = new MolecularProfile();
 	        geneticProfile.setStableId(dbGeneticProfile.id);
-	        geneticProfile.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.valueOf(dbGeneticProfile.genetic_alteration_type));
+	        geneticProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.valueOf(dbGeneticProfile.genetic_alteration_type));
 	        geneticProfiles.add(geneticProfile);
         }
         

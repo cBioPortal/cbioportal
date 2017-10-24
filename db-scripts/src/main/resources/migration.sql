@@ -380,4 +380,49 @@ ALTER TABLE `mutation` ADD COLUMN `DRIVER_FILTER_ANNOTATION` VARCHAR(80) NULL;
 ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER` VARCHAR(50) NULL;
 ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER_ANNOTATION` VARCHAR(80) NULL;
 
+-- ========================== new reference genome gene related tables =============================================
+CREATE TABLE `reference_genome` (
+    `REFERENCE_GENOME_ID` int(4) NOT NULL AUTO_INCREMENT,
+    `SPECIES` varchar(64) DEFAULT NULL,
+    `NAME` varchar(64) DEFAULT NULL,
+    `BUILD_NAME` varchar(64) DEFAULT NULL,
+    `GENOME_SIZE` bigint(20) DEFAULT NULL,
+    `URL` varchar(256) DEFAULT NULL,
+    `RELEASE_DATE` datetime DEFAULT NULL,
+    PRIMARY KEY (`REFERENCE_GENOME_ID`),
+    UNIQUE INDEX `BUILD_NAME_UNIQUE` (`BUILD_NAME` ASC)
+);
+
+-- ========================== new reference genomes ====================================================================
+INSERT INTO `reference_genome` 
+VALUES (1, 'human', 'hg19', 'GRCh37', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes', '2009-02-01');
+INSERT INTO `reference_genome` 
+VALUES (2, 'human', 'hg38', 'GRCh38', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/hg38.chrom.sizes', '2013-12-01');
+INSERT INTO `reference_genome` 
+VALUES (3, 'mouse', 'mm10', 'GRCm38', NULL, 'http://hgdownload.cse.ucsc.edu//goldenPath/mm10/bigZips/mm10.chrom.sizes', '2012-01-01');
+
+CREATE TABLE `reference_genome_gene` (
+    `ENTREZ_GENE_ID` int(11) NOT NULL,
+    `CYTOBAND` varchar(64) NOT NULL,
+    `EXONIC_LENGTH` int(11) DEFAULT NULL,
+    `GENE_START` bigint(20) DEFAULT NULL,
+    `GENE_END` bigint(20) DEFAULT NULL,
+    `GENE_STABLE_ID` varchar(64) DEFAULT NULL,
+    `CHR` varchar(64) DEFAULT NULL,
+    `REFERENCE_GENOME_ID` int(4) NOT NULL,
+    PRIMARY KEY (`ENTREZ_GENE_ID`,`REFERENCE_GENOME_ID`),
+    FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
+);
+
+INSERT INTO reference_genome_gene (ENTREZ_GENE_ID, CYTOBAND, EXONIC_LENGTH, CHR, REFERENCE_GENOME_ID)
+(SELECT 
+	ENTREZ_GENE_ID, 
+	CYTOBAND, 
+	LENGTH, 
+	SUBSTRING_INDEX(gene.CYTOBAND,IF(LOCATE('p', gene.CYTOBAND), 'p', 'q'), 1), 
+	1 
+FROM `gene`);
+
+-- ========================= new schema version ========================================================================
 UPDATE info SET DB_SCHEMA_VERSION="2.4.0";

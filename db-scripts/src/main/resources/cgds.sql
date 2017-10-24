@@ -83,6 +83,7 @@ DROP TABLE IF EXISTS `genetic_profile`;
 DROP TABLE IF EXISTS `uniprot_id_mapping`;
 DROP TABLE IF EXISTS `gene_alias`;
 DROP TABLE IF EXISTS `geneset_gene`;
+DROP TABLE IF EXISTS `reference_genome_gene`;
 DROP TABLE IF EXISTS `gene`;
 DROP TABLE IF EXISTS `sample_list_list`;
 DROP TABLE IF EXISTS `sample_list`;
@@ -96,6 +97,7 @@ DROP TABLE IF EXISTS `geneset_hierarchy_leaf`;
 DROP TABLE IF EXISTS `geneset_hierarchy_node`;
 DROP TABLE IF EXISTS `geneset`;
 DROP TABLE IF EXISTS `genetic_entity`;
+DROP TABLE IF EXISTS `reference_genome`;
 
 -- --------------------------------------------------------
 CREATE TABLE `type_of_cancer` (
@@ -263,6 +265,20 @@ CREATE TABLE `uniprot_id_mapping` (
   KEY (`UNIPROT_ID`),
   Key (`UNIPROT_ACC`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
+);
+
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `reference_genome`;
+CREATE TABLE `reference_genome` (
+    `REFERENCE_GENOME_ID` int(4) NOT NULL AUTO_INCREMENT,
+    `SPECIES` varchar(64) DEFAULT NULL,
+    `NAME` varchar(64) DEFAULT NULL,
+    `BUILD_NAME` varchar(64) DEFAULT NULL,
+    `GENOME_SIZE` bigint(20) DEFAULT NULL,
+    `URL` varchar(256) DEFAULT NULL,
+    `RELEASE_DATE` datetime DEFAULT NULL,
+    PRIMARY KEY (`REFERENCE_GENOME_ID`),
+    UNIQUE INDEX `BUILD_NAME_UNIQUE` (`BUILD_NAME` ASC)
 );
 
 -- --------------------------------------------------------
@@ -772,6 +788,22 @@ CREATE TABLE `clinical_event_data` (
   `KEY` varchar(255) NOT NULL,
   `VALUE` varchar(5000) NOT NULL,
   FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `reference_genome_gene`;
+CREATE TABLE `reference_genome_gene` (
+    `ENTREZ_GENE_ID` int(11) NOT NULL,
+    `CYTOBAND` varchar(64) NOT NULL,
+    `EXONIC_LENGTH` int(11) DEFAULT NULL,
+    `GENE_START` bigint(20) DEFAULT NULL,
+    `GENE_END` bigint(20) DEFAULT NULL,
+    `GENE_STABLE_ID` varchar(64) DEFAULT NULL,
+    `CHR` varchar(64) DEFAULT NULL,
+    `REFERENCE_GENOME_ID` int(4) NOT NULL,
+    PRIMARY KEY (`ENTREZ_GENE_ID`,`REFERENCE_GENOME_ID`),
+    FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------

@@ -31,6 +31,10 @@ window.skinRightNavShowTestimonials = <%=GlobalProperties.showRightNavTestimonia
 window.skinRightNavExamplesHTML = '<%=GlobalProperties.getExamplesRightColumnHtml()%>';
 window.skinRightNavExamplesHTML = '<%=GlobalProperties.getExamplesRightColumnHtml()%>';
 window.skinRightNavWhatsNewBlurb = '<%=GlobalProperties.getRightNavWhatsNewBlurb()%>';
+window.userEmailAddress = '<%=GlobalProperties.getAuthenticatedUserName()%>';
+if (!window.userEmailAddress || window.userEmailAddress === 'anonymousUser') {
+    window.userEmailAddress = '';
+}
 // Prioritized studies for study selector
 window.priorityStudies = {};
 <%

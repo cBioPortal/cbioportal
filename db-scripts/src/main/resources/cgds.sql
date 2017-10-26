@@ -198,7 +198,7 @@ CREATE TABLE `gene` (
   `HUGO_GENE_SYMBOL` varchar(255) NOT NULL,
   `GENETIC_ENTITY_ID` int(11) NOT NULL,
   `TYPE` varchar(50),
-  `CYTOBAND` varchar(50),
+  `CYTOBAND` varchar(64),
   `LENGTH` int(11),
   PRIMARY KEY (`ENTREZ_GENE_ID`),
   UNIQUE KEY `GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID`),  
@@ -268,7 +268,6 @@ CREATE TABLE `uniprot_id_mapping` (
 );
 
 -- --------------------------------------------------------
-DROP TABLE IF EXISTS `reference_genome`;
 CREATE TABLE `reference_genome` (
     `REFERENCE_GENOME_ID` int(4) NOT NULL AUTO_INCREMENT,
     `SPECIES` varchar(64) DEFAULT NULL,
@@ -791,15 +790,14 @@ CREATE TABLE `clinical_event_data` (
 );
 
 -- --------------------------------------------------------
-DROP TABLE IF EXISTS `reference_genome_gene`;
 CREATE TABLE `reference_genome_gene` (
     `ENTREZ_GENE_ID` int(11) NOT NULL,
     `CYTOBAND` varchar(64) NOT NULL,
     `EXONIC_LENGTH` int(11) DEFAULT NULL,
-    `GENE_START` bigint(20) DEFAULT NULL,
-    `GENE_END` bigint(20) DEFAULT NULL,
+    `START` bigint(20) DEFAULT NULL,
+    `END` bigint(20) DEFAULT NULL,
     `GENE_STABLE_ID` varchar(64) DEFAULT NULL,
-    `CHR` varchar(64) DEFAULT NULL,
+    `CHR` varchar(5) DEFAULT NULL,
     `REFERENCE_GENOME_ID` int(4) NOT NULL,
     PRIMARY KEY (`ENTREZ_GENE_ID`,`REFERENCE_GENOME_ID`),
     FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE CASCADE,
@@ -812,4 +810,4 @@ CREATE TABLE `info` (
   `GENESET_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.4.0', NULL);
+INSERT INTO info VALUES ('2.4.1', NULL);

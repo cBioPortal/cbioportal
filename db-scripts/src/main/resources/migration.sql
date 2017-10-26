@@ -395,20 +395,20 @@ CREATE TABLE `reference_genome` (
 
 -- ========================== new reference genomes ====================================================================
 INSERT INTO `reference_genome` 
-VALUES (1, 'human', 'hg19', 'GRCh37', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes', '2009-02-01');
+VALUES (1, 'human', 'hg19', 'GRCh37', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01');
 INSERT INTO `reference_genome` 
-VALUES (2, 'human', 'hg38', 'GRCh38', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/hg38.chrom.sizes', '2013-12-01');
+VALUES (2, 'human', 'hg38', 'GRCh38', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips', '2013-12-01');
 INSERT INTO `reference_genome` 
-VALUES (3, 'mouse', 'mm10', 'GRCm38', NULL, 'http://hgdownload.cse.ucsc.edu//goldenPath/mm10/bigZips/mm10.chrom.sizes', '2012-01-01');
+VALUES (3, 'mouse', 'mm10', 'GRCm38', NULL, 'http://hgdownload.cse.ucsc.edu//goldenPath/mm10/bigZips', '2012-01-01');
 
 CREATE TABLE `reference_genome_gene` (
     `ENTREZ_GENE_ID` int(11) NOT NULL,
     `CYTOBAND` varchar(64) NOT NULL,
     `EXONIC_LENGTH` int(11) DEFAULT NULL,
-    `GENE_START` bigint(20) DEFAULT NULL,
-    `GENE_END` bigint(20) DEFAULT NULL,
+    `START` bigint(20) DEFAULT NULL,
+    `END` bigint(20) DEFAULT NULL,
     `GENE_STABLE_ID` varchar(64) DEFAULT NULL,
-    `CHR` varchar(64) DEFAULT NULL,
+    `CHR` varchar(5) DEFAULT NULL,
     `REFERENCE_GENOME_ID` int(4) NOT NULL,
     PRIMARY KEY (`ENTREZ_GENE_ID`,`REFERENCE_GENOME_ID`),
     FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE CASCADE,
@@ -425,4 +425,4 @@ INSERT INTO reference_genome_gene (ENTREZ_GENE_ID, CYTOBAND, EXONIC_LENGTH, CHR,
 FROM `gene`);
 
 -- ========================= new schema version ========================================================================
-UPDATE info SET DB_SCHEMA_VERSION="2.4.0";
+UPDATE info SET DB_SCHEMA_VERSION="2.4.1";

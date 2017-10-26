@@ -229,6 +229,7 @@
     .study-view-header-first-row-td>* {
         float: left;
         margin-right: 5px;
+        margin-bottom: 10px;
     }
     #study-view-header-download-all-data {
         display: none;

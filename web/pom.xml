@@ -92,6 +92,16 @@
           <artifactId>javax.el</artifactId>
           <version>2.2.4</version>
       </dependency>
+      <dependency>
+          <groupId>com.github.romain-warnan</groupId>
+          <artifactId>simple-java-bitly</artifactId>
+          <version>1.1</version>
+      </dependency>
+      <dependency>
+          <groupId>commons-validator</groupId>
+          <artifactId>commons-validator</artifactId>
+          <version>1.6</version>
+      </dependency>
   </dependencies>
 
 </project>

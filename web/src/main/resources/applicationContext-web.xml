@@ -46,6 +46,8 @@
         <property name="favorPathExtension" value="false" />
     </bean>
 
+    <bean class="io.sentry.spring.SentryExceptionResolver"/>
+
     <mvc:annotation-driven content-negotiation-manager="contentNegotiationManager">
         <mvc:path-matching suffix-pattern="false" />
         <mvc:message-converters>

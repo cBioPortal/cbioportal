@@ -2529,7 +2529,12 @@ var util = (function(_, cbio) {
 
 window.iViz.util = util;
 
-// export cbio.util.getTickFormat for testing
+//
+// Expose the module.
+//
+window.module = window.module || {};
+
+// export util.getTickFormat for testing
 module.exports = {
   getTickFormat: util.getTickFormat
 };

@@ -47,4 +47,10 @@ public class GenesetServiceImpl implements GenesetService {
 	    this.getGeneset(genesetId);
 		return genesetRepository.getGenesByGenesetId(genesetId);
 	}
+
+    @Override
+    public List<Geneset> fetchGenesets(List<String> genesetIds) {
+        return genesetRepository.fetchGenesets(genesetIds);
+    }
+
 }

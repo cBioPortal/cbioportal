@@ -1624,6 +1624,7 @@ var OncoprintLabelView = (function () {
 	this.label_middles_view_space = {};
 	this.labels = {};
 	this.label_colors = {};
+	this.track_link_urls = {};
 	this.track_descriptions = {};
 	this.tracks = [];
 	this.minimum_track_height = Number.POSITIVE_INFINITY;
@@ -1662,12 +1663,15 @@ var OncoprintLabelView = (function () {
 		    if (hovered_track !== null) {
 			var $tooltip_div = $('<div>');
 			var offset = view.$canvas.offset();   
-			if (isNecessaryToShortenLabel(view, view.labels[hovered_track])) {
-			    $tooltip_div.append($('<b>'+view.labels[hovered_track]+'</b>'));
+			if (isNecessaryToShortenLabel(view, view.labels[hovered_track])
+				|| view.track_link_urls[hovered_track]) {
+			    $tooltip_div.append(formatTooltipHeader(
+				    view.labels[hovered_track],
+				    view.track_link_urls[hovered_track]));
 			}
-			var track_description = view.track_descriptions[hovered_track].replace("<", "&lt;").replace(">", "&gt;");
+			var track_description = view.track_descriptions[hovered_track];
 			if (track_description.length > 0) {
-			    $tooltip_div.append(track_description + "<br>");
+			    $tooltip_div.append($('<div>').text(track_description));
 			}
 			if (model.getContainingTrackGroup(hovered_track).length > 1) {
 			    view.$canvas.css('cursor', 'move');
@@ -1687,7 +1691,7 @@ var OncoprintLabelView = (function () {
 		    var previous_track_id = getLabelAboveMouseSpace(view, track_group, evt.offsetY, view.dragged_label_track_id);
 		    stopDragging(view, previous_track_id);
 		}
-		view.tooltip.hide();
+		view.tooltip.hideIfNotAlreadyGoingTo(150);
 	    });
 	})(this);
 	
@@ -1748,6 +1752,18 @@ var OncoprintLabelView = (function () {
 	} else {
 	    return label;
 	}
+    };
+    var formatTooltipHeader = function (label, link_url) {
+	var header_contents;
+	if (link_url) {
+	    header_contents = (
+		    $('<a target="_blank" rel="noopener noreferrer">')
+		    .attr('href', link_url));
+	} else {
+	    header_contents = $('<span>');
+	}
+	header_contents.append(label.html_content || document.createTextNode(label));
+	return $('<b style="display: block;">').append(header_contents);
     };
     var renderAllLabels = function(view) {
 	if (view.rendering_suppressed) {
@@ -1888,6 +1904,7 @@ var OncoprintLabelView = (function () {
 	for (var i=0; i<track_ids.length; i++) {
 	    this.labels[track_ids[i]] = model.getTrackLabel(track_ids[i]);
 	    this.label_colors[track_ids[i]] = model.getTrackLabelColor(track_ids[i]);
+	    this.track_link_urls[track_ids[i]] = model.getTrackLinkUrl(track_ids[i]);
 	}
 	updateFromModel(this, model);
 	resizeAndClear(this, model);
@@ -3226,6 +3243,7 @@ var OncoprintModel = (function () {
 	// Track Properties
 	this.track_label = {};
 	this.track_label_color = {};
+	this.track_link_url = {};
 	this.track_description = {};
 	this.cell_height = {};
 	this.track_padding = {};
@@ -3771,7 +3789,7 @@ var OncoprintModel = (function () {
 	    var params = params_list[i];
 	    addTrack(this, params.track_id, params.target_group, params.track_group_header,
 		    params.cell_height, params.track_padding, params.has_column_spacing,
-		    params.data_id_key, params.tooltipFn,
+		    params.data_id_key, params.tooltipFn, params.link_url,
 		    params.removable, params.removeCallback, params.label, params.description, params.track_info,
 		    params.sortCmpFn, params.sort_direction_changeable, params.init_sort_direction,
 		    params.data, params.rule_set, params.track_label_color, params.expansion_of,
@@ -3782,13 +3800,14 @@ var OncoprintModel = (function () {
   
     var addTrack = function (model, track_id, target_group, track_group_header,
 	    cell_height, track_padding, has_column_spacing,
-	    data_id_key, tooltipFn,
+	    data_id_key, tooltipFn, link_url,
 	    removable, removeCallback, label, description, track_info,
 	    sortCmpFn, sort_direction_changeable, init_sort_direction,
 	    data, rule_set, track_label_color, expansion_of, expandCallback,
 	    expandButtonTextGetter) {
 	model.track_label[track_id] = ifndef(label, "Label");
 	model.track_label_color[track_id] = ifndef(track_label_color, "black");
+	model.track_link_url[track_id] = ifndef(link_url, null);
 	model.track_description[track_id] = ifndef(description, "");
 	model.cell_height[track_id] = ifndef(cell_height, 23);
 	model.track_padding[track_id] = ifndef(track_padding, 5);
@@ -3895,6 +3914,7 @@ var OncoprintModel = (function () {
 	delete this.track_data[track_id];
 	delete this.track_rule_set_id[track_id];
 	delete this.track_label[track_id];
+	delete this.track_link_url[track_id];
 	delete this.cell_height[track_id];
 	delete this.track_padding[track_id];
 	delete this.track_data_id_key[track_id];
@@ -4118,6 +4138,10 @@ var OncoprintModel = (function () {
     
     OncoprintModel.prototype.getTrackLabelColor = function (track_id) {
 	return this.track_label_color[track_id];
+    }
+    
+    OncoprintModel.prototype.getTrackLinkUrl = function (track_id) {
+	return this.track_link_url[track_id];
     }
     
     OncoprintModel.prototype.getTrackDescription = function(track_id) {

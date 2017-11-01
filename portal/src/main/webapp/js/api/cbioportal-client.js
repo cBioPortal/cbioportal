@@ -83,11 +83,19 @@ window.cbioportal_client = (function() {
 					}
 					return result;
 				}
+			},
+			'GenesetMetadata': {
+				endpoint: function (args) {
+					return ('api/genesets/fetch/');
+				},
+				args: function (args) {
+					return args.geneset_ids;
+				},
 			}
-		}
-		var ret = {};
+		};
+		var ret = {}, fn_name;
 		//legacy API
-		for (var fn_name in functionNameToEndpointProperties) {
+		for (fn_name in functionNameToEndpointProperties) {
 			if (functionNameToEndpointProperties.hasOwnProperty(fn_name)) {
 				ret['get'+fn_name] = (function(props) {
 					return function(args) {
@@ -97,7 +105,7 @@ window.cbioportal_client = (function() {
 			}
 		}
 		//new API
-		for (var fn_name in newApiFunctionNameToEndpointProperties) {
+		for (fn_name in newApiFunctionNameToEndpointProperties) {
 			if (newApiFunctionNameToEndpointProperties.hasOwnProperty(fn_name)) {
 				ret['get'+fn_name] = (function(props) {
 					return function(args) {
@@ -516,6 +524,7 @@ window.cbioportal_client = (function() {
 		getGenes: enforceRequiredArguments(makeOneIndexService('hugo_gene_symbols', function(d) { return d.hugo_gene_symbol;}, 'getGenes'), [[],["hugo_gene_symbols"]]),
 		getStudies: enforceRequiredArguments(makeOneIndexService('study_ids', function(d) { return d.id;}, 'getStudies'), [[], ["study_ids"]]),
 		getGenePanelsByPanelId: enforceRequiredArguments(makeOneIndexService('panel_id', function(d) { return d.stableId;}, 'getGenePanels'), [["panel_id"]]),
+		getGenesetMetadataByIds: enforceRequiredArguments(makeOneIndexService('geneset_ids', function(d) { return d.genesetId;}, 'getGenesetMetadata'), [["geneset_ids"]]),
 		getGeneticProfiles: enforceRequiredArguments(makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'genetic_profile_ids', function(d) {return d.id; }, true, 'getGeneticProfiles'), [["study_id"],["genetic_profile_ids"]]),
 		getSampleLists: enforceRequiredArguments(makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'sample_list_ids', function(d) {return d.id; }, true, 'getSampleLists'), [["study_id"], ["sample_list_ids"]]),
 		getSampleClinicalData: enforceRequiredArguments(makeHierIndexService(['study_id', 'attribute_ids', 'sample_ids'], ['study_id', 'attr_id', 'sample_id'], 'getSampleClinicalData'), [["study_id","attribute_ids"], ["study_id","attribute_ids","sample_ids"]]),

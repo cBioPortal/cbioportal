@@ -517,7 +517,7 @@ var QueryByGeneTextArea  = (function() {
 
 
 'use strict';
-var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
+window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   var data_;
   var vm_;
   var tableData_ = [];
@@ -1102,8 +1102,6 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         attr.study_id = 'Study ID';
         attr.patient_id = 'Patient ID';
         attr.sample_id = 'Sample ID';
-        attr.mutated_genes = 'With Mutation Data';
-        attr.cna_details = 'With CNA Data';
 
         var arr = [];
         var strA = [];
@@ -1696,9 +1694,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 })(window.Vue, window.iViz, window.dc, window._);
 
 'use strict';
-(function(iViz, _, cbio) {
-  iViz.util = (function() {
-
+var util = (function(_, cbio) {
+  return (function() {
     function tableDownload(fileType, content) {
       switch (fileType) {
         case 'tsv':
@@ -2437,6 +2434,76 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
       return status;
     };
+    
+    content.getTickFormat = function(v, logScale, data_, opts_) {
+      var _returnValue = v;
+      var index = 0;
+      var e = d3.format('.1e');// convert small data to scientific notation format
+      var formattedValue = '';
+
+      if (data_.noGrouping) {
+        if (v === opts_.emptyMappingVal) {
+          _returnValue = 'NA';
+        } else {
+          // When noGrouping is true, the number of unique data points is less than 6.
+          // The distance maybe big between points, so we use xFakeDomain to set ticks.
+          // The value of ticks shown on chart is gotten from xDomain.
+          if (data_.smallDataFlag) {
+            _returnValue = e(opts_.xDomain[opts_.xFakeDomain.indexOf(v)]);
+          } else {
+            _returnValue = opts_.xDomain[opts_.xFakeDomain.indexOf(v)];
+          }
+        }
+      } else if (logScale) {
+        if (v === opts_.emptyMappingVal) {
+          _returnValue = 'NA';
+        } else {
+          index = opts_.xDomain.indexOf(v);
+          if (index % 2 !== 0) {
+            _returnValue = '';
+          }
+        }
+      } else if (v === opts_.emptyMappingVal || opts_.xDomain.length === 1) {
+        return 'NA';
+      } else if (v === opts_.xDomain[0]) {
+        formattedValue = opts_.xDomain[1];
+        if (data_.smallDataFlag) {
+          return '<=' + e(formattedValue);
+        }
+        return '<=' + formattedValue;
+      } else if ((v === opts_.xDomain[opts_.xDomain.length - 2] && data_.hasNA) ||
+        (v === opts_.xDomain[opts_.xDomain.length - 1] && !data_.hasNA)) {
+        if (data_.hasNA) {
+          formattedValue = opts_.xDomain[opts_.xDomain.length - 3];
+        } else {
+          formattedValue = opts_.xDomain[opts_.xDomain.length - 2];
+        }
+        if (data_.smallDataFlag) {
+          return '>' + e(formattedValue);
+        }
+        return '>' + formattedValue;
+      } else if (data_.min > 1500 &&
+        opts_.xDomain.length > 7) {
+        // this is the special case for printing out year
+        index = opts_.xDomain.indexOf(v);
+        if (index % 2 === 0) {
+          _returnValue = v;
+        } else {
+          _returnValue = '';
+        }
+      } else {
+        _returnValue = v;
+      }
+
+      if (data_.smallDataFlag && !data_.noGrouping) {
+        _returnValue = e(_returnValue);
+        var _tempValue = e(v).toString();
+        if (_tempValue.charAt(0) !== '1') {// hide tick values whose format is not 1.0e-N
+          _returnValue = '';
+        }
+      }
+      return _returnValue;
+    };
 
     content.getDataErrorMessage = function(type) {
       var message = 'Failed to load data';
@@ -2458,8 +2525,14 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
     return content;
   })();
-})(window.iViz,
-  window._, window.cbio);
+})(window._, window.cbio);
+
+window.iViz.util = util;
+
+// export cbio.util.getTickFormat for testing
+module.exports = {
+  getTickFormat: util.getTickFormat
+};
 /**
  * @author Hongxin Zhang on 5/12/17.
  */
@@ -4421,7 +4494,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                     break;
                 }
             }
-        } else if (!data_.noGrouping) {
+        } else if (data_.noGrouping) {
+          val = opts_.xFakeDomain[opts_.xDomain.indexOf(Number(d[data_.attrId]))];
+        } else {
           if (data_.smallDataFlag) {
             if (d[data_.attrId] <= opts_.xDomain[1]) {
               val = opts_.xDomain[0];
@@ -4470,7 +4545,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         if (!mapTickToCaseIds.hasOwnProperty(val)) {
           mapTickToCaseIds[val] = {
             caseIds: [],
-            tick: getTickFormat(val, logScale)
+            tick: iViz.util.getTickFormat(val, logScale, data_, opts_)
           };
           if (!_.isUndefined(_min) && !_.isUndefined(_max)) {
             mapTickToCaseIds[val].range = _min + '< ~ <=' + _max;
@@ -4483,7 +4558,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     
       opts_.xBarValues = Object.keys(barSet);
       opts_.xBarValues.sort(function (a, b) {
-          return a < b ? -1 : 1;
+          return Number(a) < Number(b) ? -1 : 1;
       });
 
       tickVal.sort(function(a, b) {
@@ -4513,9 +4588,18 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
 
       if (logScale || data_.smallDataFlag) {
+        chartInst_.xAxis().tickValues(opts_.xDomain);
         chartInst_.x(d3.scale.log().nice()
           .domain([opts_.minDomain, opts_.maxDomain]));
+      } else if (data_.noGrouping) {
+        chartInst_.xAxis().tickValues(opts_.xFakeDomain);
+        chartInst_.x(d3.scale.linear()
+          .domain([
+            opts_.xFakeDomain[0] - opts_.gutter,
+            opts_.xFakeDomain[opts_.xFakeDomain.length - 1] + opts_.gutter
+          ]));
       } else {
+        chartInst_.xAxis().tickValues(opts_.xDomain);
         chartInst_.x(d3.scale.linear()
           .domain([
             opts_.xDomain[0] - opts_.gutter,
@@ -4525,77 +4609,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       chartInst_.yAxis().ticks(6);
       chartInst_.yAxis().tickFormat(d3.format('d'));
       chartInst_.xAxis().tickFormat(function(v) {
-        return getTickFormat(v, logScale);
+        return iViz.util.getTickFormat(v, logScale, data_, opts_);
       });
-
-      chartInst_.xAxis().tickValues(opts_.xDomain);
+      
       chartInst_.xUnits(function() {
         return opts_.xDomain.length * 1.3 <= 5 ? 5 : opts_.xDomain.length * 1.3;
       });
     };
-
-    function getTickFormat(v, logScale) {
-      var _returnValue = v;
-      var index = 0;
-      var e = d3.format('.1e');// convert small data to scientific notation format
-      var formattedValue = '';
-      
-      if (data_.noGrouping) {
-        if (v === opts_.emptyMappingVal) {
-          _returnValue = 'NA';
-        } else {
-          _returnValue = v;
-        }
-      } else if (logScale) {
-        if (v === opts_.emptyMappingVal) {
-          _returnValue = 'NA';
-        } else {
-          index = opts_.xDomain.indexOf(v);
-          if (index % 2 !== 0) {
-            _returnValue = '';
-          }
-        }
-      } else if (v === opts_.emptyMappingVal || opts_.xDomain.length === 1) {
-        return 'NA';
-      } else if (v === opts_.xDomain[0]) {
-        formattedValue = opts_.xDomain[1];
-        if (data_.smallDataFlag) {
-          return '<=' + e(formattedValue);
-        }
-        return '<=' + formattedValue;
-      } else if ((v === opts_.xDomain[opts_.xDomain.length - 2] && data_.hasNA) ||
-        (v === opts_.xDomain[opts_.xDomain.length - 1] && !data_.hasNA)) {
-        if (data_.hasNA) {
-          formattedValue = opts_.xDomain[opts_.xDomain.length - 3];
-        } else {
-          formattedValue = opts_.xDomain[opts_.xDomain.length - 2];
-        }
-        if (data_.smallDataFlag) {
-          return '>' + e(formattedValue);
-        }
-        return '>' + formattedValue;
-      } else if (data_.min > 1500 &&
-        opts_.xDomain.length > 7) {
-        // this is the special case for printing out year
-        index = opts_.xDomain.indexOf(v);
-        if (index % 2 === 0) {
-          _returnValue = v;
-        } else {
-          _returnValue = '';
-        }
-      } else {
-        _returnValue = v;
-      }
-
-      if (data_.smallDataFlag) {
-        _returnValue = e(_returnValue);
-        var _tempValue = e(v).toString();
-        if (_tempValue.charAt(0) !== '1') {// hide tick values whose format is not 1.0e-N
-          _returnValue = '';
-        }
-      }
-      return _returnValue;
-    }
 
     function initTsvDownloadData() {
       var data = [];
@@ -4664,7 +4684,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         min: data_.min,
         max: data_.max,
         meta: data_.meta,
-        sortedData: data_.sortedData,
+        uniqueSortedData: data_.uniqueSortedData,
         minExponent: data_.minExponent,
         maxExponent: data_.maxExponent,
         smallDataFlag: data_.smallDataFlag,
@@ -4764,44 +4784,54 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           }
         }
         
-        for (var i = startNumIndex; i <= endNumIndex - 1; i++) {
-          if (_filter[0] >= opts_.xDomain[i] && _filter[0] < opts_.xDomain[i + 1]) {// check left range point
-            // when there is a bar inside single slot
-            if (selectedNumBar[0] >= opts_.xDomain[i + 1] && selectedNumBar[0] < opts_.xDomain[i + 2]) {
-              // left point is closer to the upward tick
-              minNumBarPoint = opts_.xDomain[i + 1];
-            } else {
-              if ((_filter[0] - opts_.xDomain[i]) > (opts_.xDomain[i + 1] - _filter[0])) {
+        if (data_.noGrouping) {
+          minNumBarPoint = opts_.xFakeDomain[0];
+          if (data_.hasNA) {
+            maxNumBarPoint = opts_.xFakeDomain[opts_.xFakeDomain.length - 2];
+          } else {
+            maxNumBarPoint = opts_.xFakeDomain[opts_.xFakeDomain.length - 1];
+          }
+        } else {
+          for (var i = startNumIndex; i <= endNumIndex - 1; i++) {
+            if (_filter[0] >= opts_.xDomain[i] && _filter[0] < opts_.xDomain[i + 1]) {// check left range point
+              // when there is a bar inside single slot
+              if (selectedNumBar[0] >= opts_.xDomain[i + 1] && selectedNumBar[0] < opts_.xDomain[i + 2]) {
                 // left point is closer to the upward tick
                 minNumBarPoint = opts_.xDomain[i + 1];
               } else {
-                // left point is closer to the downward tick
-                minNumBarPoint = opts_.xDomain[i];
+                if ((_filter[0] - opts_.xDomain[i]) > (opts_.xDomain[i + 1] - _filter[0])) {
+                  // left point is closer to the upward tick
+                  minNumBarPoint = opts_.xDomain[i + 1];
+                } else {
+                  // left point is closer to the downward tick
+                  minNumBarPoint = opts_.xDomain[i];
+                }
               }
             }
-          }
 
-          if (_filter[1] >= opts_.xDomain[i] && _filter[1] < opts_.xDomain[i + 1]) {// check right range point
-            if (selectedNumBar[selectedNumBar.length - 1] >= opts_.xDomain[i - 1] &&
-              selectedNumBar[selectedNumBar.length - 1] < opts_.xDomain[i]) {
-              // right point is closer to the downward tick
-              maxNumBarPoint = opts_.xDomain[i];
-            } else {
-              if ((_filter[1] - opts_.xDomain[i]) > (opts_.xDomain[i + 1] - _filter[1])) {
-                // right point is closer to the upward tick
-                maxNumBarPoint = opts_.xDomain[i + 1];
-              } else {
+            if (_filter[1] >= opts_.xDomain[i] && _filter[1] < opts_.xDomain[i + 1]) {// check right range point
+              if (selectedNumBar[selectedNumBar.length - 1] >= opts_.xDomain[i - 1] &&
+                selectedNumBar[selectedNumBar.length - 1] < opts_.xDomain[i]) {
                 // right point is closer to the downward tick
                 maxNumBarPoint = opts_.xDomain[i];
+              } else {
+                if ((_filter[1] - opts_.xDomain[i]) > (opts_.xDomain[i + 1] - _filter[1])) {
+                  // right point is closer to the upward tick
+                  maxNumBarPoint = opts_.xDomain[i + 1];
+                } else {
+                  // right point is closer to the downward tick
+                  maxNumBarPoint = opts_.xDomain[i];
+                }
               }
             }
           }
         }
 
         // avoid "min< ~ <=min"
-        if (_.isNumber(minNumBarPoint) && _.isNumber(maxNumBarPoint) && minNumBarPoint === maxNumBarPoint) {
+        if (!data_.noGrouping && _.isNumber(minNumBarPoint) && _.isNumber(maxNumBarPoint) && minNumBarPoint === maxNumBarPoint) {
           tempFilters_[0] = 'Invalid Selection';
-        } else if (_filter[0] < opts_.xDomain[0] && _filter[1] > opts_.xDomain[opts_.xDomain.length - 1]) {
+        } else if ((!data_.noGrouping && _filter[0] < opts_.xDomain[0] && _filter[1] > opts_.xDomain[opts_.xDomain.length - 1]) || 
+          (data_.noGrouping && _filter[0] < opts_.xFakeDomain[0] && _filter[1] > opts_.xFakeDomain[opts_.xFakeDomain.length - 1])) {
           tempFilters_[0] = 'All';
         } else {
           if (data_.noGrouping) {
@@ -4813,13 +4843,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               tempFilters_[0] = 'NA';
             } else if (selectedNumBar.length === 1) {// only choose 1 number bar
               if (hasNA) { // chose max num bar and NA bar
-                tempFilters_[0] = selectedNumBar[0] + ', NA';
+                tempFilters_[0] = opts_.xDomain[opts_.xFakeDomain.indexOf(Number(selectedNumBar[0]))] + ', NA';
               } else {
-                tempFilters_[0] = selectedNumBar[0];
+                tempFilters_[0] = opts_.xDomain[opts_.xFakeDomain.indexOf(Number(selectedNumBar[0]))];
               }
             } else {
               _.each(selectedNumBar, function(barValue) {
-                tempFilters_[0] += barValue + ', ';
+                tempFilters_[0] += opts_.xDomain[opts_.xFakeDomain.indexOf(Number(barValue))] + ', ';
               });
               if (hasNA) {
                 tempFilters_[0] += 'NA';
@@ -4894,7 +4924,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         min: data_.min,
         max: data_.max,
         meta: data_.meta,
-        sortedData: data_.sortedData,
+        uniqueSortedData: data_.uniqueSortedData,
         minExponent: data_.minExponent,
         maxExponent: data_.maxExponent,
         smallDataFlag: data_.smallDataFlag,
@@ -4999,6 +5029,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     content.getDcConfig = function(data, logScale) {
       var config = {
         xDomain: [],
+        xFakeDomain: [], // Design for noGrouping Data
         divider: 1,
         numOfGroups: 10,
         emptyMappingVal: '',
@@ -5127,13 +5158,15 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         } else {
           // for data has at most 5 points
           if (data.noGrouping) {
-            _.each(_.unique(data.sortedData), function(value) {
+            _.each(data.uniqueSortedData, function(value) {
+              config.xFakeDomain.push(data.uniqueSortedData.indexOf(value) * config.gutter);
               config.xDomain.push(value);
             });
             if (data.hasNA) {
               // add marker for NA values
               config.emptyMappingVal =
-                config.xDomain[config.xDomain.length - 1] + config.gutter;
+                config.xFakeDomain[config.xFakeDomain.length - 1] + config.gutter;
+              config.xFakeDomain.push(config.emptyMappingVal);
             }
           } else {
             if (!_.isNaN(range)) {
@@ -5410,18 +5443,17 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             // In this case, the chart sets data value as ticks' value directly. 
             this.data.noGrouping = false;
             if (_.unique(this.data.meta).length <= 5 && this.data.meta.length > 0) {// for data less than 6 points
-              var maxData = _.max(this.data.meta);
-              var minData = _.min(this.data.meta);
-              if ((maxData - minData) <= findExtremeResult[4]) {// range < iqr
-                this.data.noGrouping = true;
-                this.data.sortedData = findExtremeResult[3];// use sorted value as ticks directly
-              }
+              this.data.noGrouping = true;
+              this.data.uniqueSortedData = _.unique(findExtremeResult[3]);// use sorted value as ticks directly
             }
           }
 
           this.data.attrId = this.attributes.attr_id;
           this.data.groupType = this.attributes.group_type;
-          if (((this.data.max - this.data.min) > 1000) && (this.data.min > 1)) {
+          
+          // logScale and noGroup cannot be true at same time
+          // logScale and smallDataFlag cannot be true at same time
+          if (((this.data.max - this.data.min) > 1000) && (this.data.min > 1) && !this.data.noGrouping) {
             this.settings.showLogScale = true;
           }
           this.barChart = new iViz.view.component.BarChart();

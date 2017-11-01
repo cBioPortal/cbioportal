@@ -1079,7 +1079,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, geneset_ids, 
      * @property {string} study - identifier of the study to which this sample belongs
      * @property {string} sample - identifier of the sample
      * @property {number} uid - cross-study identifier of this sample in the current Oncoprint
-     * @property {number} profile_data - score of the sample or patient for this gene set
+     * @property {(number|null)} profile_data - score of the sample for this gene set
+     * @property {boolean} na - whether the value for this cell is considered missing (null)
      */
     /**
      * One cell of patient-level gene set data for the Oncoprint
@@ -1089,7 +1090,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, geneset_ids, 
      * @property {string} study - identifier of the study to which this patient belongs
      * @property {string} patient - identifier of the patient
      * @property {number} uid - cross-study identifier of this patient in the current Oncoprint
-     * @property {number} profile_data - score of the sample or patient for this gene set
+     * @property {(number|null)} profile_data - score of the patient for this gene set
+     * @property {boolean} na - whether the value for this cell is considered missing (null)
      */
     /**
      * One track of heatmap data for the Oncoprint
@@ -1106,7 +1108,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, geneset_ids, 
      * @param {string} genetic_profile_id - identifier of the genetic profile to query
      * @param {string[]} geneset_ids - list of gene set identifiers for which to return data
      * @param {string} sample_or_patient - whether to return data per sample or aggregate to patient level
-     * @returns {Promise<OncoprintGenesetDataTrack[]>}
+     * @returns {JQueryPromise<OncoprintGenesetDataTrack[]>}
      */
     var getGenesetData = function (genetic_profile_id, geneset_ids, sample_or_patient) {
 	var def = new $.Deferred();
@@ -1161,6 +1163,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, geneset_ids, 
 		    // index the UID map by sample or patient as appropriate
 		    data_by_id[geneset_id][case_id].uid = case_uid_map[study_id][case_id];
 		    data_by_id[geneset_id][case_id].profile_data = null;
+		    data_by_id[geneset_id][case_id].na = true;
 		}
 	    }
 
@@ -1174,6 +1177,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, geneset_ids, 
 		if (data_by_id[geneset_id][case_id].profile_data === null) {
 		    // set the initial value for this sample or patient
 		    data_by_id[geneset_id][case_id].profile_data = sample_score;
+		    data_by_id[geneset_id][case_id].na = false;
 		} else if (sample_or_patient === "sample") {
 		    // this would be a programming error (unexpected output from getGeneticDataBySample)
 		    throw new Error("Unexpectedly received multiple gene set profile data for one sample");

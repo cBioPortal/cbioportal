@@ -81,8 +81,8 @@
         out.print(cancerStudyViewError);
     } else {
 %>
-<span class="studyContainer">
 <jsp:include page="../global/header.jsp" flush="true" />
+<span class="studyContainer">
 
 <table width="100%" style="margin: 8px 2px 5px 2px">
     <tr>
@@ -229,12 +229,17 @@
     .study-view-header-first-row-td>* {
         float: left;
         margin-right: 5px;
+        margin-bottom: 10px;
     }
     #study-view-header-download-all-data {
         display: none;
     }
     #study-tabs>ul{
         margin-right: 7px;
+    }
+    
+    .legacy .fixedWidth .contentWidth {
+        width:1300px;
     }
 </style>
 

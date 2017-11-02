@@ -1030,6 +1030,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			'target_group': set_track_group,
 			'expansion_of': set_track_id,
 			'removeCallback': makeRemoveExpTrackHandler(set_track_id),
+			'sort_direction_changeable': true,
+			'sortCmpFn': comparator_utils.heatmapComparator,
+			'init_sort_direction': 0,
 			'description': gene + ' data from ' + genetic_profile_id,
 		};
 		oncoprint.suppressRendering();
@@ -1416,6 +1419,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			'description': 'gene set scores from ' + genetic_profile_id,
 			'link_url': geneset_link_map[track_geneset_id],
 			'removeCallback': makeRemoveGenesetTrackHandler(track_geneset_id),
+			'sort_direction_changeable': true,
+			'sortCmpFn': comparator_utils.heatmapComparator,
+			'init_sort_direction': 0,
 			'expandCallback': makeGenesetExpandHandler(track_geneset_id),
 			'expandButtonTextGetter': function (is_expanded) {
 			    return (is_expanded ? 'More' : 'Show') + ' genes';

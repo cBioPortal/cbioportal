@@ -554,7 +554,7 @@ var QueryByGeneTextArea  = (function() {
 
 
 'use strict';
-var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
+window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   var data_;
   var vm_;
   var tableData_ = [];
@@ -610,60 +610,62 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
 
       var chartsCount = 0;
-      var patientChartsCount = 0;
-      var groupAttrs = [];
+      var patientGroupAttrs = [];
+      var sampleGroupAttrs = [];
       var groups = [];
 
       _.each(data_.groups.patient.attr_meta, function(attrData) {
         attrData.group_type = 'patient';
-        if (chartsCount < iViz.opts.numOfChartsLimit &&
-          patientChartsCount < iViz.opts.numOfChartsLimit / 2) {
-          if (attrData.show) {
-            attrData.group_id = vm_.groupCount.toString();
-            groupAttrs.push(attrData);
-            chartsCount++;
-            patientChartsCount++;
-          }
-        } else {
-          attrData.show = false;
-        }
         charts[attrData.attr_id] = attrData;
         if (attrData.view_type === 'survival' && attrData.show) {
           vm_.numOfSurvivalPlots++;
         }
       });
+      _.each(data_.groups.sample.attr_meta, function(attrData) {
+        attrData.group_type = 'sample';
+        charts[attrData.attr_id] = attrData;
+      });
+
+      _.each(iviz.datamanager.sortByClinicalPriority(
+        data_.groups.patient.attr_meta.concat(data_.groups.sample.attr_meta))
+        , function(attrData) {
+          if (chartsCount < iViz.opts.numOfChartsLimit) {
+            if (attrData.show) {
+              if (attrData.group_type === 'patient') {
+                patientGroupAttrs.push(attrData);
+              } else {
+                sampleGroupAttrs.push(attrData);
+              }
+              chartsCount++;
+            }
+          } else {
+            attrData.show = false;
+          }
+        });
       groups.push({
         type: 'patient',
         id: vm_.groupCount.toString(),
         selectedcases: [],
         hasfilters: false,
-        attributes: groupAttrs
+        attributes: _.map(patientGroupAttrs, function(attr) {
+          attr.group_id = vm_.groupCount.toString();
+          return attr;
+        })
       });
-
-      groupAttrs = [];
       vm_.groupCount += 1;
-      _.each(data_.groups.sample.attr_meta, function(attrData) {
-        attrData.group_type = 'sample';
-        if (chartsCount < iViz.opts.numOfChartsLimit) {
-          if (attrData.show) {
-            attrData.group_id = vm_.groupCount.toString();
-            groupAttrs.push(attrData);
-            chartsCount++;
-          }
-        } else {
-          attrData.show = false;
-        }
-        charts[attrData.attr_id] = attrData;
-      });
-      
+
       groups.push({
         type: 'sample',
         id: vm_.groupCount.toString(),
         selectedcases: [],
         hasfilters: false,
-        attributes: groupAttrs
+        attributes: _.map(sampleGroupAttrs, function(attr) {
+          attr.group_id = vm_.groupCount.toString();
+          return attr;
+        })
       });
       vm_.groupCount += 1;
+
       var _self = this;
       var requests = groups.map(function(group) {
         var _def = new $.Deferred();
@@ -689,7 +691,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     createGroupNdx: function(group) {
       var def = new $.Deferred();
       var _caseAttrId = group.type === 'patient' ? 'patient_uid' : 'sample_uid';
-      if(_caseAttrId === 'sample_uid'){
+      if (_caseAttrId === 'sample_uid') {
         //add 'sample_id' to get mutation count and cna fraction for scatter plot
         var _attrIds = [_caseAttrId, 'sample_id', 'study_id'];
       } else {
@@ -743,7 +745,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var hasAttrDataMap = isPatientAttributes ? data_.groups.patient.has_attr_data : data_.groups.sample.has_attr_data;
       var attrDataToGet = [];
       var updatedAttrIds = [];
-      
+
       _.each(attrIds, function(_attrId) {
         if (charts[_attrId] === undefined) {
           updatedAttrIds = updatedAttrIds.concat(_attrId);
@@ -794,8 +796,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         $.when(window.iviz.datamanager.getClinicalData(_attrIds, (_type === 'patient')))
           .then(function() {
             _def.resolve();
-          }, function() {
-            _def.reject();
+          }, function(error) {
+            _def.reject(error);
           });
       }
       return _def.promise();
@@ -840,7 +842,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
             // Hide chart which only has no more than one category.
             var numOfKeys = Object.keys(selectedAttrMeta.keys).length;
-            if (numOfKeys <= 1) {
+            if (numOfKeys <= 1
+              && ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'].indexOf(_attrId) === -1) {
               selectedAttrMeta.show = false;
               attrIds = attrIds.filter(function(obj) {
                 return obj !== _attrId;
@@ -878,10 +881,10 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             selectedAttrMeta.numOfDatum = 0;
             selectedAttrMeta.show = false;
           });
-          
+
           def.resolve();
-        }, function() {
-          def.reject();
+        }, function(error) {
+            def.reject(error);
         });
       return def.promise();
     },
@@ -1003,7 +1006,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var def = new $.Deferred();
       var self = this;
       var data = {};
-      
+
       $.when(window.iviz.datamanager.getCnaFractionData(),
         self.getMutationCountData(_self))
         .then(function(_cnaFractionData, _mutationCountResult) {
@@ -1360,7 +1363,11 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             showDropDown: false,
             numOfSurvivalPlots: 0,
             showedSurvivalPlot: false,
-            userMovedChart: false
+            userMovedChart: false,
+            failedToInit: {
+              status: false,
+              message: 'Failed to open the study.' + (iViz.opts.emailContact ? (' Please contact ' + iViz.opts.emailContact + '.') : '')
+            },
           }, watch: {
             charts: function() {
               this.checkForDropDownCharts();
@@ -1423,6 +1430,10 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             },
             'user-moved-chart': function() {
               this.userMovedChart = true;
+            },
+            'fail-during-init': function(message) {
+              this.failedToInit.status = true;
+              this.failedToInit.message = message;
             }
           }, methods: {
             checkForDropDownCharts: function() {
@@ -1492,6 +1503,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 if (_attrAdded) {
                   $.when(iViz.updateGroupNdx(attrData.group_id, attrData.attr_id)).then(function(isGroupNdxDataUpdated) {
                     attrData.addChartBy = 'user';
+                    attrData.show = true;
                     self_.groups[_groupIdToPush].attributes.push(attrData);
                     if (isGroupNdxDataUpdated) {
                       self_.$broadcast('add-chart-to-group', attrData.group_id);
@@ -1511,6 +1523,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                   newgroup_.type = _group.type;
                   newgroup_.id = self_.groupCount;
                   attrData.group_id = newgroup_.id;
+                  attrData.show = true;
                   self_.groupCount += 1;
                   groupAttrs.push(attrData);
                   newgroup_.attributes = groupAttrs;
@@ -1695,9 +1708,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 })(window.Vue, window.iViz, window.dc, window._);
 
 'use strict';
-(function(iViz, _, cbio) {
-  iViz.util = (function() {
-    
+var util = (function(_, cbio) {
+  return (function() {
     function tableDownload(fileType, content) {
       switch (fileType) {
         case 'tsv':
@@ -2052,6 +2064,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         break;
       }
     }
+
     /**
      * @author Adam Abeshouse
      * @param {number | string} a
@@ -2324,7 +2337,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       // TODO: DOM id pool. Ideally id shouldn't be repeated
       return domId;
     };
-    
+
     /**
      * Finds the intersection elements between two arrays in a simple fashion.
      * Should have O(n) operations, where n is n = MIN(a.length, b.length)
@@ -2436,6 +2449,76 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       return status;
     };
     
+    content.getTickFormat = function(v, logScale, data_, opts_) {
+      var _returnValue = v;
+      var index = 0;
+      var e = d3.format('.1e');// convert small data to scientific notation format
+      var formattedValue = '';
+
+      if (data_.noGrouping) {
+        if (v === opts_.emptyMappingVal) {
+          _returnValue = 'NA';
+        } else {
+          // When noGrouping is true, the number of unique data points is less than 6.
+          // The distance maybe big between points, so we use xFakeDomain to set ticks.
+          // The value of ticks shown on chart is gotten from xDomain.
+          if (data_.smallDataFlag) {
+            _returnValue = e(opts_.xDomain[opts_.xFakeDomain.indexOf(v)]);
+          } else {
+            _returnValue = opts_.xDomain[opts_.xFakeDomain.indexOf(v)];
+          }
+        }
+      } else if (logScale) {
+        if (v === opts_.emptyMappingVal) {
+          _returnValue = 'NA';
+        } else {
+          index = opts_.xDomain.indexOf(v);
+          if (index % 2 !== 0) {
+            _returnValue = '';
+          }
+        }
+      } else if (v === opts_.emptyMappingVal || opts_.xDomain.length === 1) {
+        return 'NA';
+      } else if (v === opts_.xDomain[0]) {
+        formattedValue = opts_.xDomain[1];
+        if (data_.smallDataFlag) {
+          return '<=' + e(formattedValue);
+        }
+        return '<=' + formattedValue;
+      } else if ((v === opts_.xDomain[opts_.xDomain.length - 2] && data_.hasNA) ||
+        (v === opts_.xDomain[opts_.xDomain.length - 1] && !data_.hasNA)) {
+        if (data_.hasNA) {
+          formattedValue = opts_.xDomain[opts_.xDomain.length - 3];
+        } else {
+          formattedValue = opts_.xDomain[opts_.xDomain.length - 2];
+        }
+        if (data_.smallDataFlag) {
+          return '>' + e(formattedValue);
+        }
+        return '>' + formattedValue;
+      } else if (data_.min > 1500 &&
+        opts_.xDomain.length > 7) {
+        // this is the special case for printing out year
+        index = opts_.xDomain.indexOf(v);
+        if (index % 2 === 0) {
+          _returnValue = v;
+        } else {
+          _returnValue = '';
+        }
+      } else {
+        _returnValue = v;
+      }
+
+      if (data_.smallDataFlag && !data_.noGrouping) {
+        _returnValue = e(_returnValue);
+        var _tempValue = e(v).toString();
+        if (_tempValue.charAt(0) !== '1') {// hide tick values whose format is not 1.0e-N
+          _returnValue = '';
+        }
+      }
+      return _returnValue;
+    };
+
     content.defaultQtipConfig = function(content) {
       var configuration = {
         style: {
@@ -2450,14 +2533,43 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         },
         content: content
       };
-      
+
       return configuration;
+    };
+
+    content.getDataErrorMessage = function(type) {
+      var message = 'Failed to load data';
+      switch (type) {
+      case 'dataInvalid':
+        message = 'Data Invalid' + (iViz.opts.emailContact ?
+          ('<span v-if="emailContact">' +
+            ', please contact <span v-html="emailContact"></span></span>') : '');
+        break;
+      case 'noData':
+        message = 'No data available';
+        break;
+      case 'failedToLoadData':
+        message = 'Failed to load data, refresh the page may help';
+        break;
+      }
+      return message;
     };
 
     return content;
   })();
-})(window.iViz,
-  window._, window.cbio);
+})(window._, window.cbio);
+
+window.iViz.util = util;
+
+//
+// Expose the module.
+//
+window.module = window.module || {};
+
+// export util.getTickFormat for testing
+module.exports = {
+  getTickFormat: util.getTickFormat
+};
 /**
  * @author Hongxin Zhang on 5/12/17.
  */
@@ -2728,10 +2840,8 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       },
       updateLayout: function() {
         this.updateLayoutMatrix();
-        if (_.isObject(this.grid_)) {
-          this.grid_.items.sort(this.sortByNumber);
-          this.grid_.layout();
-        }
+        if (_.isObject(this.grid_)) {this.grid_.items.sort(this.sortByNumber);
+        this.grid_.layout();}
       },
       getLayoutMatrix: function(layoutMatrix, chart) {
         var self_ = this;
@@ -4419,7 +4529,9 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                     break;
                 }
             }
-        } else if (!data_.noGrouping) {
+        } else if (data_.noGrouping) {
+          val = opts_.xFakeDomain[opts_.xDomain.indexOf(Number(d[data_.attrId]))];
+        } else {
           if (data_.smallDataFlag) {
             if (d[data_.attrId] <= opts_.xDomain[1]) {
               val = opts_.xDomain[0];
@@ -4468,7 +4580,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         if (!mapTickToCaseIds.hasOwnProperty(val)) {
           mapTickToCaseIds[val] = {
             caseIds: [],
-            tick: getTickFormat(val, logScale)
+            tick: iViz.util.getTickFormat(val, logScale, data_, opts_)
           };
           if (!_.isUndefined(_min) && !_.isUndefined(_max)) {
             mapTickToCaseIds[val].range = _min + '< ~ <=' + _max;
@@ -4481,7 +4593,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     
       opts_.xBarValues = Object.keys(barSet);
       opts_.xBarValues.sort(function (a, b) {
-          return a < b ? -1 : 1;
+          return Number(a) < Number(b) ? -1 : 1;
       });
 
       tickVal.sort(function(a, b) {
@@ -4511,9 +4623,18 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
 
       if (logScale || data_.smallDataFlag) {
+        chartInst_.xAxis().tickValues(opts_.xDomain);
         chartInst_.x(d3.scale.log().nice()
           .domain([opts_.minDomain, opts_.maxDomain]));
+      } else if (data_.noGrouping) {
+        chartInst_.xAxis().tickValues(opts_.xFakeDomain);
+        chartInst_.x(d3.scale.linear()
+          .domain([
+            opts_.xFakeDomain[0] - opts_.gutter,
+            opts_.xFakeDomain[opts_.xFakeDomain.length - 1] + opts_.gutter
+          ]));
       } else {
+        chartInst_.xAxis().tickValues(opts_.xDomain);
         chartInst_.x(d3.scale.linear()
           .domain([
             opts_.xDomain[0] - opts_.gutter,
@@ -4523,77 +4644,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       chartInst_.yAxis().ticks(6);
       chartInst_.yAxis().tickFormat(d3.format('d'));
       chartInst_.xAxis().tickFormat(function(v) {
-        return getTickFormat(v, logScale);
+        return iViz.util.getTickFormat(v, logScale, data_, opts_);
       });
-
-      chartInst_.xAxis().tickValues(opts_.xDomain);
+      
       chartInst_.xUnits(function() {
         return opts_.xDomain.length * 1.3 <= 5 ? 5 : opts_.xDomain.length * 1.3;
       });
     };
-
-    function getTickFormat(v, logScale) {
-      var _returnValue = v;
-      var index = 0;
-      var e = d3.format('.1e');// convert small data to scientific notation format
-      var formattedValue = '';
-      
-      if (data_.noGrouping) {
-        if (v === opts_.emptyMappingVal) {
-          _returnValue = 'NA';
-        } else {
-          _returnValue = v;
-        }
-      } else if (logScale) {
-        if (v === opts_.emptyMappingVal) {
-          _returnValue = 'NA';
-        } else {
-          index = opts_.xDomain.indexOf(v);
-          if (index % 2 !== 0) {
-            _returnValue = '';
-          }
-        }
-      } else if (v === opts_.emptyMappingVal || opts_.xDomain.length === 1) {
-        return 'NA';
-      } else if (v === opts_.xDomain[0]) {
-        formattedValue = opts_.xDomain[1];
-        if (data_.smallDataFlag) {
-          return '<=' + e(formattedValue);
-        }
-        return '<=' + formattedValue;
-      } else if ((v === opts_.xDomain[opts_.xDomain.length - 2] && data_.hasNA) ||
-        (v === opts_.xDomain[opts_.xDomain.length - 1] && !data_.hasNA)) {
-        if (data_.hasNA) {
-          formattedValue = opts_.xDomain[opts_.xDomain.length - 3];
-        } else {
-          formattedValue = opts_.xDomain[opts_.xDomain.length - 2];
-        }
-        if (data_.smallDataFlag) {
-          return '>' + e(formattedValue);
-        }
-        return '>' + formattedValue;
-      } else if (data_.min > 1500 &&
-        opts_.xDomain.length > 7) {
-        // this is the special case for printing out year
-        index = opts_.xDomain.indexOf(v);
-        if (index % 2 === 0) {
-          _returnValue = v;
-        } else {
-          _returnValue = '';
-        }
-      } else {
-        _returnValue = v;
-      }
-
-      if (data_.smallDataFlag) {
-        _returnValue = e(_returnValue);
-        var _tempValue = e(v).toString();
-        if (_tempValue.charAt(0) !== '1') {// hide tick values whose format is not 1.0e-N
-          _returnValue = '';
-        }
-      }
-      return _returnValue;
-    }
 
     function initTsvDownloadData() {
       var data = [];
@@ -4662,7 +4719,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         min: data_.min,
         max: data_.max,
         meta: data_.meta,
-        sortedData: data_.sortedData,
+        uniqueSortedData: data_.uniqueSortedData,
         minExponent: data_.minExponent,
         maxExponent: data_.maxExponent,
         smallDataFlag: data_.smallDataFlag,
@@ -4762,44 +4819,54 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           }
         }
         
-        for (var i = startNumIndex; i <= endNumIndex - 1; i++) {
-          if (_filter[0] >= opts_.xDomain[i] && _filter[0] < opts_.xDomain[i + 1]) {// check left range point
-            // when there is a bar inside single slot
-            if (selectedNumBar[0] >= opts_.xDomain[i + 1] && selectedNumBar[0] < opts_.xDomain[i + 2]) {
-              // left point is closer to the upward tick
-              minNumBarPoint = opts_.xDomain[i + 1];
-            } else {
-              if ((_filter[0] - opts_.xDomain[i]) > (opts_.xDomain[i + 1] - _filter[0])) {
+        if (data_.noGrouping) {
+          minNumBarPoint = opts_.xFakeDomain[0];
+          if (data_.hasNA) {
+            maxNumBarPoint = opts_.xFakeDomain[opts_.xFakeDomain.length - 2];
+          } else {
+            maxNumBarPoint = opts_.xFakeDomain[opts_.xFakeDomain.length - 1];
+          }
+        } else {
+          for (var i = startNumIndex; i <= endNumIndex - 1; i++) {
+            if (_filter[0] >= opts_.xDomain[i] && _filter[0] < opts_.xDomain[i + 1]) {// check left range point
+              // when there is a bar inside single slot
+              if (selectedNumBar[0] >= opts_.xDomain[i + 1] && selectedNumBar[0] < opts_.xDomain[i + 2]) {
                 // left point is closer to the upward tick
                 minNumBarPoint = opts_.xDomain[i + 1];
               } else {
-                // left point is closer to the downward tick
-                minNumBarPoint = opts_.xDomain[i];
+                if ((_filter[0] - opts_.xDomain[i]) > (opts_.xDomain[i + 1] - _filter[0])) {
+                  // left point is closer to the upward tick
+                  minNumBarPoint = opts_.xDomain[i + 1];
+                } else {
+                  // left point is closer to the downward tick
+                  minNumBarPoint = opts_.xDomain[i];
+                }
               }
             }
-          }
 
-          if (_filter[1] >= opts_.xDomain[i] && _filter[1] < opts_.xDomain[i + 1]) {// check right range point
-            if (selectedNumBar[selectedNumBar.length - 1] >= opts_.xDomain[i - 1] &&
-              selectedNumBar[selectedNumBar.length - 1] < opts_.xDomain[i]) {
-              // right point is closer to the downward tick
-              maxNumBarPoint = opts_.xDomain[i];
-            } else {
-              if ((_filter[1] - opts_.xDomain[i]) > (opts_.xDomain[i + 1] - _filter[1])) {
-                // right point is closer to the upward tick
-                maxNumBarPoint = opts_.xDomain[i + 1];
-              } else {
+            if (_filter[1] >= opts_.xDomain[i] && _filter[1] < opts_.xDomain[i + 1]) {// check right range point
+              if (selectedNumBar[selectedNumBar.length - 1] >= opts_.xDomain[i - 1] &&
+                selectedNumBar[selectedNumBar.length - 1] < opts_.xDomain[i]) {
                 // right point is closer to the downward tick
                 maxNumBarPoint = opts_.xDomain[i];
+              } else {
+                if ((_filter[1] - opts_.xDomain[i]) > (opts_.xDomain[i + 1] - _filter[1])) {
+                  // right point is closer to the upward tick
+                  maxNumBarPoint = opts_.xDomain[i + 1];
+                } else {
+                  // right point is closer to the downward tick
+                  maxNumBarPoint = opts_.xDomain[i];
+                }
               }
             }
           }
         }
 
         // avoid "min< ~ <=min"
-        if (_.isNumber(minNumBarPoint) && _.isNumber(maxNumBarPoint) && minNumBarPoint === maxNumBarPoint) {
+        if (!data_.noGrouping && _.isNumber(minNumBarPoint) && _.isNumber(maxNumBarPoint) && minNumBarPoint === maxNumBarPoint) {
           tempFilters_[0] = 'Invalid Selection';
-        } else if (_filter[0] < opts_.xDomain[0] && _filter[1] > opts_.xDomain[opts_.xDomain.length - 1]) {
+        } else if ((!data_.noGrouping && _filter[0] < opts_.xDomain[0] && _filter[1] > opts_.xDomain[opts_.xDomain.length - 1]) || 
+          (data_.noGrouping && _filter[0] < opts_.xFakeDomain[0] && _filter[1] > opts_.xFakeDomain[opts_.xFakeDomain.length - 1])) {
           tempFilters_[0] = 'All';
         } else {
           if (data_.noGrouping) {
@@ -4811,13 +4878,13 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               tempFilters_[0] = 'NA';
             } else if (selectedNumBar.length === 1) {// only choose 1 number bar
               if (hasNA) { // chose max num bar and NA bar
-                tempFilters_[0] = selectedNumBar[0] + ', NA';
+                tempFilters_[0] = opts_.xDomain[opts_.xFakeDomain.indexOf(Number(selectedNumBar[0]))] + ', NA';
               } else {
-                tempFilters_[0] = selectedNumBar[0];
+                tempFilters_[0] = opts_.xDomain[opts_.xFakeDomain.indexOf(Number(selectedNumBar[0]))];
               }
             } else {
               _.each(selectedNumBar, function(barValue) {
-                tempFilters_[0] += barValue + ', ';
+                tempFilters_[0] += opts_.xDomain[opts_.xFakeDomain.indexOf(Number(barValue))] + ', ';
               });
               if (hasNA) {
                 tempFilters_[0] += 'NA';
@@ -4892,7 +4959,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         min: data_.min,
         max: data_.max,
         meta: data_.meta,
-        sortedData: data_.sortedData,
+        uniqueSortedData: data_.uniqueSortedData,
         minExponent: data_.minExponent,
         maxExponent: data_.maxExponent,
         smallDataFlag: data_.smallDataFlag,
@@ -4997,6 +5064,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     content.getDcConfig = function(data, logScale) {
       var config = {
         xDomain: [],
+        xFakeDomain: [], // Design for noGrouping Data
         divider: 1,
         numOfGroups: 10,
         emptyMappingVal: '',
@@ -5125,13 +5193,15 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         } else {
           // for data has at most 5 points
           if (data.noGrouping) {
-            _.each(_.unique(data.sortedData), function(value) {
+            _.each(data.uniqueSortedData, function(value) {
+              config.xFakeDomain.push(data.uniqueSortedData.indexOf(value) * config.gutter);
               config.xDomain.push(value);
             });
             if (data.hasNA) {
               // add marker for NA values
               config.emptyMappingVal =
-                config.xDomain[config.xDomain.length - 1] + config.gutter;
+                config.xFakeDomain[config.xFakeDomain.length - 1] + config.gutter;
+              config.xFakeDomain.push(config.emptyMappingVal);
             }
           } else {
             if (!_.isNaN(range)) {
@@ -5225,7 +5295,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     '<div class="dc-chart dc-bar-chart" align="center" ' +
     'style="float:none !important;" id={{chartId}} >' +
     '<div v-if="failedToInit" class="error-panel" align="center" style="padding-top: 10%;">' +
-    '<error-handle v-if="failedToInit" :error-message="errorMessage"></error-handle>' +
+    '<error v-if="failedToInit" :message="errorMessage"></error>' +
     '</div></div>' +
     ' <div :class="{\'show-loading\': showLoad}" ' +
     'class="chart-loader">' +
@@ -5258,11 +5328,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           transitionDuration: iViz.opts.dc.transitionDuration
         },
         failedToInit: false,
-        errorMessage: {
-          dataInvalid: false,
-          noData: false, 
-          failedToLoadData: false
-        },
+        errorMessage: '',
         opts: {},
         numOfSurvivalCurveLimit: iViz.opts.numOfSurvivalCurveLimit || 20,
         addingChart: false,
@@ -5353,7 +5419,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           this.showSurvivalIcon = false;
         }
       },
-      processBarchartData: function (_data) {
+      processBarchartData: function(_data) {
         var _self = this;
         var _dataIssue = false;
         var smallerOutlier = [];
@@ -5385,7 +5451,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         });
 
         if (_dataIssue) {
-          this.errorMessage.dataInvalid = true;
+          this.errorMessage = iViz.util.getDataErrorMessage('dataInvalid');
           this.failedToInit = true;
         } else {
           // for scientific small number
@@ -5412,18 +5478,17 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             // In this case, the chart sets data value as ticks' value directly. 
             this.data.noGrouping = false;
             if (_.unique(this.data.meta).length <= 5 && this.data.meta.length > 0) {// for data less than 6 points
-              var maxData = _.max(this.data.meta);
-              var minData = _.min(this.data.meta);
-              if ((maxData - minData) <= findExtremeResult[4]) {// range < iqr
-                this.data.noGrouping = true;
-                this.data.sortedData = findExtremeResult[3];// use sorted value as ticks directly
-              }
+              this.data.noGrouping = true;
+              this.data.uniqueSortedData = _.unique(findExtremeResult[3]);// use sorted value as ticks directly
             }
           }
 
           this.data.attrId = this.attributes.attr_id;
           this.data.groupType = this.attributes.group_type;
-          if (((this.data.max - this.data.min) > 1000) && (this.data.min > 1)) {
+          
+          // logScale and noGroup cannot be true at same time
+          // logScale and smallDataFlag cannot be true at same time
+          if (((this.data.max - this.data.min) > 1000) && (this.data.min > 1) && !this.data.noGrouping) {
             this.settings.showLogScale = true;
           }
           this.barChart = new iViz.view.component.BarChart();
@@ -5495,19 +5560,19 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             if (!_hasMutationCountData) { //empty data
               if (_self.attributes.addChartBy === 'default') {// Hide empty chart initially.
                 _self.attributes.show = false;
-                _self.$dispatch('remove-chart', _self.attributes.attr_id,  _self.attributes.group_id);//rearrange layout
+                _self.$dispatch('remove-chart', _self.attributes.attr_id, _self.attributes.group_id);//rearrange layout
               } else { // _self.attributes.addChartBy === 'user'
                 _self.$dispatch('data-loaded', _self.attributes.group_id, _self.chartDivId);
               }
               _self.showLoad = false;
-              _self.errorMessage.noData = true;
+              _self.errorMessage = iViz.util.getDataErrorMessage('noData');
               _self.failedToInit = true;
             } else {
               _self.processBarchartData(_mutationCountData);
             }
           }, function() {
             _self.showLoad = false;
-            _self.errorMessage.failedToLoadData = true;
+            _self.errorMessage = iViz.util.getDataErrorMessage('failedToLoadData');
             _self.failedToInit = true;
             _self.$dispatch('data-loaded', _self.attributes.group_id, _self.chartDivId);
           });
@@ -5790,7 +5855,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     'class="chart-loader">' +
     ' <img src="images/ajax-loader.gif" alt="loading"></div>' +
     '<div v-if="failedToInit" class="error-panel" align="center">' +
-    '<error-handle v-if="failedToInit" :error-message="errorMessage"></error-handle>' +
+    '<error-handle v-if="failedToInit" :error="error"></error-handle>' +
     '</div></div>',
     props: [
       'ndx', 'attributes'
@@ -5809,7 +5874,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         chartInst: {},
         hasFilters: false,
         showLoad: true,
-        errorMessage: {
+        error: {
           dataInvalid: false,
           noData: false,
           failedToLoadData: false
@@ -5935,7 +6000,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               _self.attributes.show = false;
               _self.$dispatch('remove-chart', _self.attributes.attr_id,  _self.attributes.group_id);//rearrange layout
             } 
-            _self.errorMessage.noData = true;
+            _self.error.noData = true;
             _self.failedToInit = true;
           } else {
             var _opts = {
@@ -5962,7 +6027,7 @@ var iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           _self.showLoad = false;
         }, function() {
           _self.showLoad = false;
-          _self.errorMessage.failedToLoadData = true;
+          _self.error.failedToLoadData = true;
           _self.failedToInit = true;
         });
       
@@ -8011,29 +8076,27 @@ window.LogRankTest = (function(jStat) {
  * Created by Hongxin Zhang on 4/24/17.
  */
 'use strict';
-(function(Vue, iViz) {
-  Vue.component('errorHandle', {
-    template: '<span v-if="errorMessage.dataInvalid" class="data-invalid">Data invalid' +
-    '<span v-if="emailContact">, please contact <span v-html="emailContact"></span>' +
-    '</span></span>' + 
-    '<span v-if="errorMessage.noData" class="no-data">No data available</span>' +
-    '<span v-if="errorMessage.failedToLoadData" class="failed-load-data">Failed to load data, refresh the page may help</span>',
-    props: [
-      'errorMessage'
-    ], 
-    data: function() {
-      return {
-        emailContact: ''
-      };
-    },
-    ready: function() {
-      if (iViz.opts.emailContact) {
-        this.emailContact = iViz.opts.emailContact;
+(function(Vue) {
+  Vue.component('error', {
+    template: '<div id="{{containerId}}" >' +
+    '<span class="className">{{{message}}}</span>' +
+    '</div>',
+    props: {
+      containerId: {
+        type: String,
+        default: new Date().getTime() + '-error'
+      },
+      message: {
+        type: String,
+        default: ''
+      },
+      className: {
+        type: String,
+        default: 'error-message'
       }
     }
   });
-})(window.Vue,
-  window.iViz);
+})(window.Vue);
 
 'use strict';
 (function(Vue, $, vcSession, iViz) {

@@ -13,6 +13,7 @@ window.legacySupportFrontendConfig = {
     genomeNexusApiUrl : '<%=GlobalProperties.getGenomeNexusApiUrl()%>',
     showCivic : <%=GlobalProperties.showCivic()%>,
     showHotspot : <%=GlobalProperties.showHotspot()%>,
+    showTwitter: <%=GlobalProperties.showTwitterBookmark()%>,
     showMyCancerGenome : <%=GlobalProperties.showMyCancerGenomeUrl()%>,
     showGenomeNexus : <%=GlobalProperties.showGenomeNexus()%>,
     querySetsOfGenes : JSON.parse('<%=GlobalProperties.getQuerySetsOfGenes()%>'),

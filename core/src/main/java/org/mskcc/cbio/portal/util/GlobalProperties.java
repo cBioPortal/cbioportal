@@ -140,6 +140,9 @@ public class GlobalProperties {
     public static final String ONCOKB_PUBLIC_API_URL = "oncokb.public_api.url";
     public static final String SHOW_ONCOKB = "show.oncokb";
 
+    @Value("${bookmark.twitter_link.enabled:}")
+    public static final String SHOW_TWITTER_BOOKMARK = "bookmark.twitter_link.enabled";
+
     private static String sessionServiceURL;
     @Value("${session.service.url:}") // default is empty string
     public void setSessionServiceURL(String property) { sessionServiceURL = property; }
@@ -841,6 +844,15 @@ public class GlobalProperties {
             return true; // show oncoKB by default
         } else {
             return Boolean.parseBoolean(showOncokb);
+        }
+    }
+
+    public static boolean showTwitterBookmark() {
+        String showTwitter = properties.getProperty(SHOW_TWITTER_BOOKMARK);
+        if (showTwitter==null || showTwitter.isEmpty()) {
+            return true; // show Twitter by default
+        } else {
+            return Boolean.parseBoolean(showTwitter);
         }
     }
 

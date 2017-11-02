@@ -41,6 +41,7 @@ window.loadReactApp({ defaultRoute: 'results' });
 
 window.onReactAppReady(function() {
     window.initModifyQueryComponent("modifyQueryButton", "querySelector");
+    window.renderBookmark(document.getElementById("main_smry_bookmark"));
 });
     
 </script>
@@ -74,6 +75,7 @@ window.onReactAppReady(function() {
             </tr>
         </table>
     </div>
+    <div id='main_smry_bookmark' style='display: -ms-flexbox; display: flex;-webkit-justify-content: flex-end;justify-content: flex-end;-ms-flex-pack: flex-end'/>
     <div id="querySelector" class="cbioportal-frontend" style="margin-top: 10px"></div>
 </div>
 

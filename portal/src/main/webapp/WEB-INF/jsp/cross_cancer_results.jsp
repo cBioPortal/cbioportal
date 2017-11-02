@@ -84,7 +84,7 @@
 <script type="text/javascript" src="js/src/modifyQuery.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script>
-window.historyType = 'memory';
+window.frontendConfig.historyType = 'memory';
 
 window.loadReactApp({ defaultRoute: 'blank' });
     

@@ -7,7 +7,7 @@
 window.legacySupportFrontendConfig = {
     enableDarwin : <%=CheckDarwinAccessServlet.CheckDarwinAccess.existsDarwinProperties()%>,
     appVersion : '<%=GlobalProperties.getAppVersion()%>',
-    maxTreeDepth : '<%=GlobalProperties.getMaxTreeDepth()%>',
+    maxTreeDepth : <%=GlobalProperties.getMaxTreeDepth()%>,
     showOncoKB : <%=GlobalProperties.showOncoKB()%>,
     oncoKBApiUrl : '<%=GlobalProperties.getOncoKBPublicApiUrl()%>',
     genomeNexusApiUrl : '<%=GlobalProperties.getGenomeNexusApiUrl()%>',
@@ -58,7 +58,6 @@ baseURL = baseURL.replace("https://", "").replace("http://", "");
 
 window.frontendConfig = JSON.parse('<%=GlobalProperties.getFrontendConfig()%>');
 if (window.frontendConfig) {
-    otherFrontendVariables = 'frontendUrl enableDarwin appVersion maxTreeDepth showOncoKB'
     for (var prop in legacySupportFrontendConfig) {
         // use old property if none is defined in frontendConfig
         if (!window.frontendConfig.hasOwnProperty(prop)) {
@@ -70,7 +69,7 @@ if (window.frontendConfig) {
 }
 
 // frontend config that can't be changed by deployer
-window.frontendUrl = '<%=GlobalProperties.getFrontendUrl()%>',
+window.frontendConfig.frontendUrl = '<%=GlobalProperties.getFrontendUrl()%>',
 window.frontendConfig.apiRoot = '<%=baseURL%>';
-window.frontendConfig.historyType = 'memory';
+window.frontendConfig.historyType = 'memory'; // default, override on per page bases, set to hash if full react page
 </script>

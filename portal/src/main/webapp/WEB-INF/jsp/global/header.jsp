@@ -53,9 +53,6 @@
 <jsp:include page="frontend_config.jsp" flush="true" />
 
     <script type="text/javascript">
-    
-    window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
-    
     $(document).ready(function(){
             $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
         });

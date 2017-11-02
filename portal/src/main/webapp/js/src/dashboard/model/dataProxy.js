@@ -2,118 +2,9 @@
 window.DataManagerForIviz = (function($, _) {
   var content = {};
 
-  // Clinical attributes will be transfered into table.
+  // Clinical attributes will be transferred into table.
   var configs_;
   content.util = {};
-
-
-  /**
-   * General pick clinical attributes based on predesigned Regex
-   * This filter is the same one which used in previous Google Charts Version,
-   * should be revised later.
-   *
-   * @param {string} attr Clinical attribute ID.
-   * @return {boolean} Whether input attribute passed the criteria.
-   */
-  content.util.isPreSelectedClinicalAttr = function(attr) {
-    return attr.toLowerCase().match(/(os_survival)|(dfs_survival)|(mut_cnt_vs_cna)|(mutated_genes)|(cna_details)|(^age)|(gender)|(sex)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(sample_type)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(mutation_count)|(copy_number_alterations)/);
-  };
-
-  /**
-   * Compare based on data availability.
-   * Notice that: attribute with only one category will be moved to end.
-   * Number of keys in this attribute is more than half numOfDatum
-   * will be moved to end as well.
-   *
-   * @param {object} a Attribute meta item A.
-   * @param {object} b Attribute meta item B.
-   * @return {number} Indicator which item is selected.
-   */
-  content.util.compareClinicalAvailability = function(a, b) {
-    if (!a.keys || !a.numOfDatum) {
-      return 1;
-    }
-    if (!b.keys || !b.numOfDatum) {
-      return -1;
-    }
-
-    var numOfKeysA = Object.keys(a.keys).length;
-    var numOfKeysB = Object.keys(b.keys).length;
-    if (numOfKeysA === 1 && numOfKeysB !== 1) {
-      return 1;
-    }
-    if (numOfKeysA !== 1 && numOfKeysB === 1) {
-      return -1;
-    }
-
-    if (numOfKeysA / a.numOfDatum > 0.5 && numOfKeysB / b.numOfDatum <= 0.5) {
-      return 1;
-    }
-    if (numOfKeysA / a.numOfDatum <= 0.5 && numOfKeysB / b.numOfDatum > 0.5) {
-      return -1;
-    }
-
-    return b.numOfDatum - a.numOfDatum;
-  };
-
-  /**
-   * There are few steps to determine the priority.
-   * Step 1: whether it is in clinAttrs_.general.priority list
-   * Step 2: whether it will pass preSelectedAttr Regex check
-   * Step 3: Sort the rest based on data availability. Notice that: at this
-   * Step, attribute with only one category will be moved to end. Number of
-   * keys in this attribute is more than half numOfDatum will be moved to end
-   * as well.
-   *
-   * @param {array} array All clinical attributes.
-   * @return {array} Sorted clinical attributes.
-   */
-  content.util.sortClinicalAttrs = function(array) {
-    array = array.sort(function(a, b) {
-      return compareClinicalAttrs(a, b);
-    });
-    return array;
-  };
-
-  function compareClinicalAttrs(a, b) {
-    var priority = 0;
-
-    if (content.util.isPreSelectedClinicalAttr(a.attr_id)) {
-      if (content.util.isPreSelectedClinicalAttr(b.attr_id)) {
-        priority = content.util.compareClinicalAvailability(a, b);
-      } else {
-        priority = -1;
-      }
-    } else if (content.util.isPreSelectedClinicalAttr(b.attr_id)) {
-      priority = 1;
-    } else {
-      priority = 0;
-    }
-
-    if (priority !== 0) {
-      return priority;
-    }
-
-    return content.util.compareClinicalAvailability(a, b);
-  };
-
-  /**
-   * Sort clinical attributes by priority.
-   * @param {array} array Clinical attributes.
-   * @return {array} Sorted clinical attributes.
-   */
-  content.util.sortByClinicalPriority = function(array) {
-    if (_.isArray(array)) {
-      array = array.sort(function(a, b) {
-        var score = iViz.priorityManager.comparePriorities(a.priority, b.priority, false);
-        if (score === 0) {
-          score = compareClinicalAttrs(a, b);
-        }
-        return score;
-      });
-    }
-    return array;
-  };
 
   content.util.pxStringToNumber = function(_str) {
     var result;
@@ -182,11 +73,11 @@ window.DataManagerForIviz = (function($, _) {
     var initialSetup = function() {
       var _def = new $.Deferred();
       var self = this;
-      $.when(self.getSampleLists()).then(function() {
-        $.when(self.getStudyToSampleToPatientdMap(), self.getConfigs()).then(function(_studyToSampleToPatientMap, _configs) {
+      $.when(self.getSampleLists()).done(function() {
+        $.when(self.getStudyToSampleToPatientdMap(), self.getConfigs()).done(function(_studyToSampleToPatientMap, _configs) {
           $.when(self.getGeneticProfiles(), self.getCaseLists(),
             self.getClinicalAttributesByStudy())
-            .then(function(_geneticProfiles, _caseLists,
+            .done(function(_geneticProfiles, _caseLists,
                            _clinicalAttributes) {
               var _result = {};
               var _patientData = [];
@@ -326,20 +217,20 @@ window.DataManagerForIviz = (function($, _) {
               });
               _.each(_patientAttributes, function(_metaObj) {
                 switch (_metaObj.attr_id) {
-                  case 'DFS_STATUS':
-                    _hasDfsStatus = true;
-                    break;
-                  case 'DFS_MONTHS':
-                    _hasDfsMonths = true;
-                    break;
-                  case 'OS_STATUS':
-                    _hasOsStatus = true;
-                    break;
-                  case 'OS_MONTHS':
-                    _hasOsMonths = true;
-                    break;
-                  default :
-                    break;
+                case 'DFS_STATUS':
+                  _hasDfsStatus = true;
+                  break;
+                case 'DFS_MONTHS':
+                  _hasDfsMonths = true;
+                  break;
+                case 'OS_STATUS':
+                  _hasOsStatus = true;
+                  break;
+                case 'OS_MONTHS':
+                  _hasOsMonths = true;
+                  break;
+                default :
+                  break;
                 }
                 _metaObj.filter = [];
                 _metaObj.keys = {};
@@ -590,13 +481,13 @@ window.DataManagerForIviz = (function($, _) {
                   studyMap: _studyToSampleToPatientMap
                 },
                 patient: {
-                  attr_meta: content.util
+                  attr_meta: self
                     .sortByClinicalPriority(_.values(_patientAttributes)),
                   data: _patientData,
                   has_attr_data: _hasPatientAttrData
                 },
                 sample: {
-                  attr_meta: content.util
+                  attr_meta: self
                     .sortByClinicalPriority(_.values(_sampleAttributes)),
                   data: _sampleData,
                   has_attr_data: _hasSampleAttrData
@@ -626,7 +517,7 @@ window.DataManagerForIviz = (function($, _) {
               // This should not be added into attribute meta and should be saved into main.js 
               // (Centralized place storing all data for sharing across directives)
               // This needs to be updated after merging into virtual study branch
-              _mutCntAttrMeta.sequencedCaseUIdsMap = _sequencedCaseUIdsMap; 
+              _mutCntAttrMeta.sequencedCaseUIdsMap = _sequencedCaseUIdsMap;
               _sampleAttributes[_mutCntAttrMeta.attr_id] = _mutCntAttrMeta;
 
               // add mutation count
@@ -652,16 +543,22 @@ window.DataManagerForIviz = (function($, _) {
               _sampleAttributes[_MutationCountMeta.attr_id] = _MutationCountMeta;
 
               _result.groups.patient.attr_meta =
-                content.util
-                  .sortByClinicalPriority(_.values(_patientAttributes));
+                self.sortByClinicalPriority(_.values(_patientAttributes));
               _result.groups.sample.attr_meta =
-                content.util
-                  .sortByClinicalPriority(_.values(_sampleAttributes));
+                self.sortByClinicalPriority(_.values(_sampleAttributes));
 
               self.initialSetupResult = _result;
               _def.resolve(_result);
+            })
+            .fail(function(error) {
+              _def.reject(error);
             });
-        });
+        })
+          .fail(function(error) {
+            _def.reject(error);
+          });
+      }).fail(function(error) {
+        _def.reject(error);
       });
       return _def.promise();
     };
@@ -691,7 +588,7 @@ window.DataManagerForIviz = (function($, _) {
         attr_ids = attr_ids.slice();
       }
       $.when(self.getClinicalAttributesByStudy())
-        .then(function(attributes) {
+        .done(function(attributes) {
           var studyCasesMap = self.getStudyCasesMap();
           var studyAttributesMap = {};
           if (!_.isArray(attr_ids)) {
@@ -740,16 +637,18 @@ window.DataManagerForIviz = (function($, _) {
                   clinical_data[attr_id].push(data[i]);
                 }
                 _def.resolve();
-              }).fail(
-                function() {
-                  def.reject();
-                });
+              }).fail(function() {
+                def.reject('Failed to load patient clinical data.');
+              });
             }
             return _def.promise();
           }));
           $.when.apply($, fetch_promises).then(function() {
             def.resolve(clinical_data);
           });
+        })
+        .fail(function(error) {
+          def.reject(error);
         });
       return def.promise();
     };
@@ -813,10 +712,9 @@ window.DataManagerForIviz = (function($, _) {
                     clinical_data[attr_id].push(data[i]);
                   }
                   _def.resolve();
-                }).fail(
-                  function() {
-                    def.reject();
-                  });
+                }).fail(function(error) {
+                  def.reject('Failed to load sample clinical data.');
+                });
               }
               return _def.promise();
             }));
@@ -890,12 +788,12 @@ window.DataManagerForIviz = (function($, _) {
                 configs.styles.vars.borderWidth = 2;
                 configs.styles.vars.scatter = {
                   width: (
-                  configs.styles.vars.width.two -
-                  configs.styles.vars.borderWidth) || 400,
+                    configs.styles.vars.width.two -
+                    configs.styles.vars.borderWidth) || 400,
                   height: (
-                  configs.styles.vars.height.two -
-                  configs.styles.vars.chartHeader -
-                  configs.styles.vars.borderWidth) || 350
+                    configs.styles.vars.height.two -
+                    configs.styles.vars.chartHeader -
+                    configs.styles.vars.borderWidth) || 350
                 };
                 configs.styles.vars.survival = {
                   width: configs.styles.vars.scatter.width,
@@ -911,12 +809,12 @@ window.DataManagerForIviz = (function($, _) {
                 };
                 configs.styles.vars.barchart = {
                   width: (
-                  configs.styles.vars.width.two -
-                  configs.styles.vars.borderWidth) || 400,
+                    configs.styles.vars.width.two -
+                    configs.styles.vars.borderWidth) || 400,
                   height: (
-                  configs.styles.vars.height.one -
-                  configs.styles.vars.chartHeader * 2 -
-                  configs.styles.vars.borderWidth) || 130
+                    configs.styles.vars.height.one -
+                    configs.styles.vars.chartHeader * 2 -
+                    configs.styles.vars.borderWidth) || 130
                 };
                 configs_ = configs;
                 fetch_promise.resolve(configs);
@@ -952,8 +850,8 @@ window.DataManagerForIviz = (function($, _) {
               }
             });
             fetch_promise.resolve(_profiles);
-          }).fail(function() {
-            fetch_promise.reject();
+          }).fail(function(error) {
+            fetch_promise.reject(error);
           });
         }),
       getCaseLists: window.cbio.util.makeCachedPromiseFunction(
@@ -962,13 +860,14 @@ window.DataManagerForIviz = (function($, _) {
           var requests = self.getCancerStudyIds().map(
             function(cancer_study_id) {
               var def = new $.Deferred();
+              var studyCaseList = {
+                sequencedSampleIds: [],
+                cnaSampleIds: [],
+                allSampleIds: []
+              };
               self.getSampleListsData(['all', 'sequenced', 'cna'], cancer_study_id)
-                .done(function() {
-                  var studyCaseList = {
-                    sequencedSampleIds: [],
-                    cnaSampleIds: [],
-                    allSampleIds: []
-                  };
+                .always(function() {
+                  // Always check for all lists, the API call may fail partially
                   if (_.isArray(self.data.sampleLists.sequenced[cancer_study_id])) {
                     studyCaseList.sequencedSampleIds = self.data.sampleLists.sequenced[cancer_study_id];
                   }
@@ -979,16 +878,18 @@ window.DataManagerForIviz = (function($, _) {
                     studyCaseList.allSampleIds = self.data.sampleLists.all[cancer_study_id];
                   }
                   _responseStudyCaseList[cancer_study_id] = studyCaseList;
-                  def.resolve();
-                }).fail(function() {
-                fetch_promise.reject();
-              });
+                  if (_.isUndefined(studyCaseList.allSampleIds)) {
+                    def.reject('Failed to load sample list from study.');
+                  } else {
+                    def.resolve(_responseStudyCaseList);
+                  }
+                });
               return def.promise();
             });
           $.when.apply($, requests).then(function() {
             fetch_promise.resolve(_responseStudyCaseList);
-          }).fail(function() {
-            fetch_promise.reject();
+          }).fail(function(error) {
+            fetch_promise.reject(error);
           });
         }),
       getClinicalAttributesByStudy: window.cbio.util.makeCachedPromiseFunction(
@@ -1015,15 +916,15 @@ window.DataManagerForIviz = (function($, _) {
                   }
                 }
                 def.resolve();
-              }).fail(function() {
-                fetch_promise.reject();
+              }).fail(function(error) {
+                fetch_promise.reject(error);
               });
               return def.promise();
             });
           $.when.apply($, requests).then(function() {
             fetch_promise.resolve(clinical_attributes_set);
-          }).fail(function() {
-            fetch_promise.reject();
+          }).fail(function(error) {
+            fetch_promise.reject(error);
           });
         }),
       getStudyToSampleToPatientdMap: window.cbio.util.makeCachedPromiseFunction(
@@ -1036,7 +937,7 @@ window.DataManagerForIviz = (function($, _) {
             window.cbioportal_client.getSamples({
               study_id: [cancerStudyId],
               sample_ids: self.studyCasesMap[cancerStudyId].samples
-            }).then(function(data) {
+            }).done(function(data) {
               var patient_to_sample = {};
               var sample_to_patient = {};
               var sample_uid_to_patient_uid = {};
@@ -1094,11 +995,11 @@ window.DataManagerForIviz = (function($, _) {
               }
               if (_.isArray(self.studyCasesMap[cancer_study_id].samples)) {
                 getSamplesCall(cancer_study_id)
-                  .then(function() {
+                  .done(function() {
                     def.resolve();
                   })
-                  .fail(function() {
-                    fetch_promise.reject();
+                  .fail(function(error) {
+                    fetch_promise.reject(error);
                   });
               } else {
                 self.getSampleListsData(['all'], cancer_study_id)
@@ -1108,21 +1009,23 @@ window.DataManagerForIviz = (function($, _) {
                         self.data.sampleLists.all[cancer_study_id];
                     }
                     getSamplesCall(cancer_study_id)
-                      .then(function() {
+                      .always(function() {
                         def.resolve();
-                      })
-                      .fail(function() {
-                        fetch_promise.reject();
                       });
-                  }).fail(function() {
-                  fetch_promise.reject();
-                });
+                  })
+                  .fail(function() {
+                    fetch_promise.reject('Failed to load sample list from study.');
+                  });
               }
               return def.promise();
             });
-          $.when.apply($, requests).then(function() {
-            fetch_promise.resolve(study_to_sample_to_patient);
-          });
+          $.when.apply($, requests)
+            .done(function() {
+              fetch_promise.resolve(study_to_sample_to_patient);
+            })
+            .fail(function(error) {
+              fetch_promise.reject(error);
+            });
         }),
       getSampleListsData: function(lists, studyId) {
         var def = new $.Deferred();
@@ -1150,7 +1053,7 @@ window.DataManagerForIviz = (function($, _) {
                     self.data.sampleLists[list][studyId] = data;
                     _def.resolve(data);
                   }).fail(function() {
-                    _def.reject();
+                    _def.reject('Failed to load sample list data from study.');
                   });
                 }
                 promises.push(_def.promise());
@@ -1158,11 +1061,11 @@ window.DataManagerForIviz = (function($, _) {
             }
           });
           $.when.apply($, promises)
-            .then(function() {
+            .done(function() {
               def.resolve();
             })
-            .fail(function() {
-              def.reject();
+            .fail(function(error) {
+              def.reject(error);
             });
         } else {
           def.reject();
@@ -1195,8 +1098,10 @@ window.DataManagerForIviz = (function($, _) {
               return _def.promise();
             }
           }));
-        $.when.apply($, fetch_promises).then(function() {
+        $.when.apply($, fetch_promises).done(function() {
           def.resolve();
+        }).fail(function(error) {
+          def.reject(error);
         });
         return def.promise();
       },
@@ -1229,9 +1134,13 @@ window.DataManagerForIviz = (function($, _) {
               });
               return _def.promise();
             }));
-          $.when.apply($, fetch_promises).then(function() {
-            fetch_promise.resolve(_ajaxCnaFractionData);
-          });
+          $.when.apply($, fetch_promises)
+            .done(function() {
+              fetch_promise.resolve(_ajaxCnaFractionData);
+            })
+            .fail(function() {
+              fetch_promise.resolve([]);
+            });
         }),
       getCnaData: window.cbio.util.makeCachedPromiseFunction(
         function(self, fetch_promise) {
@@ -1388,7 +1297,8 @@ window.DataManagerForIviz = (function($, _) {
             });
             fetch_promise.resolve(_map);
           }).fail(function() {
-            fetch_promise.reject();
+            // Silently fail gene panel sample id calls
+            fetch_promise.resolve({});
           });
         }
       ),
@@ -1429,7 +1339,8 @@ window.DataManagerForIviz = (function($, _) {
               });
               fetch_promise.resolve(_map);
             }).fail(function() {
-              fetch_promise.reject();
+              // Silently fail gene panel calls
+              fetch_promise.resolve({});
             });
           }, function() {
             fetch_promise.reject();
@@ -1455,6 +1366,117 @@ window.DataManagerForIviz = (function($, _) {
           _map[_gene].sample_num = _sampleNumPerGene;
         });
         return _map;
+      },
+
+      /**
+       * General pick clinical attributes based on predesigned Regex
+       * This filter is the same one which used in previous Google Charts Version,
+       * should be revised later.
+       *
+       * @param {string} attr Clinical attribute ID.
+       * @return {boolean} Whether input attribute passed the criteria.
+       */
+      isPreSelectedClinicalAttr: function(attr) {
+        return attr.toLowerCase().match(/(os_survival)|(dfs_survival)|(mut_cnt_vs_cna)|(mutated_genes)|(cna_details)|(^age)|(gender)|(sex)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(sample_type)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(mutation_count)|(copy_number_alterations)/);
+      },
+
+      /**
+       * Compare based on data availability.
+       * Notice that: attribute with only one category will be moved to end.
+       * Number of keys in this attribute is more than half numOfDatum
+       * will be moved to end as well.
+       *
+       * @param {object} a Attribute meta item A.
+       * @param {object} b Attribute meta item B.
+       * @return {number} Indicator which item is selected.
+       */
+      compareClinicalAvailability: function(a, b) {
+        if (!a.keys || !a.numOfDatum) {
+          return 1;
+        }
+        if (!b.keys || !b.numOfDatum) {
+          return -1;
+        }
+
+        var numOfKeysA = Object.keys(a.keys).length;
+        var numOfKeysB = Object.keys(b.keys).length;
+        if (numOfKeysA === 1 && numOfKeysB !== 1) {
+          return 1;
+        }
+        if (numOfKeysA !== 1 && numOfKeysB === 1) {
+          return -1;
+        }
+
+        if (numOfKeysA / a.numOfDatum > 0.5 && numOfKeysB / b.numOfDatum <= 0.5) {
+          return 1;
+        }
+        if (numOfKeysA / a.numOfDatum <= 0.5 && numOfKeysB / b.numOfDatum > 0.5) {
+          return -1;
+        }
+
+        return b.numOfDatum - a.numOfDatum;
+      },
+
+      /**
+       * There are few steps to determine the priority.
+       * Step 1: whether it is in clinAttrs_.general.priority list
+       * Step 2: whether it will pass preSelectedAttr Regex check
+       * Step 3: Sort the rest based on data availability. Notice that: at this
+       * Step, attribute with only one category will be moved to end. Number of
+       * keys in this attribute is more than half numOfDatum will be moved to end
+       * as well.
+       *
+       * @param {array} array All clinical attributes.
+       * @return {array} Sorted clinical attributes.
+       */
+      sortClinicalAttrs: function(array) {
+        var self = this;
+        array = array.sort(function(a, b) {
+          return self.compareClinicalAttrs(a, b);
+        });
+        return array;
+      },
+
+      compareClinicalAttrs: function(a, b) {
+        var priority = 0;
+        var self = this;
+
+        if (self.isPreSelectedClinicalAttr(a.attr_id)) {
+          if (self.isPreSelectedClinicalAttr(b.attr_id)) {
+            priority = self.compareClinicalAvailability(a, b);
+          } else {
+            priority = -1;
+          }
+        } else if (self.isPreSelectedClinicalAttr(b.attr_id)) {
+          priority = 1;
+        } else {
+          priority = 0;
+        }
+
+        if (priority !== 0) {
+          return priority;
+        }
+
+        return self.compareClinicalAvailability(a, b);
+      },
+
+      /**
+       * Sort clinical attributes by priority.
+       * @param {array} array Clinical attributes.
+       * @return {array} Sorted clinical attributes.
+       */
+      sortByClinicalPriority: function(array) {
+        var self = this;
+        if (_.isArray(array)) {
+          array = array.sort(function(a, b) {
+            var score = iViz.priorityManager.comparePriorities(a.priority, b.priority, false);
+            if (score === 0) {
+              score = self.compareClinicalAttrs(a, b);
+            }
+            return score;
+          });
+        }
+        return array;
       },
       getCancerStudyDisplayName: function(_cancerStudyStableIds) {
         var _def = new $.Deferred();

@@ -56,7 +56,7 @@ window.loadReactApp = function(config) {
         });
 
     } else {
-        if (window.frontendUrl === undefined) {
+        if (window.frontendConfig.frontendUrl === undefined) {
             // this should never happen
             if (console.error) {
                 console.error('ERROR: No frontend URL defined, should at least be empty string');
@@ -65,10 +65,10 @@ window.loadReactApp = function(config) {
             }
         }
         // Use deployed sources//
-        document.write('<link rel="stylesheet" type="text/css" href="' + window.frontendUrl + 'reactapp/prefixed-bootstrap.min.css?'+ window.appVersion +'" />');
-        document.write('<link rel="stylesheet" type="text/css" href="' + window.frontendUrl + 'reactapp/styles.css?'+ window.appVersion +'" />');
-        document.write('<script src="' + window.frontendUrl + 'reactapp/common.bundle.js?'+ window.appVersion +'"></scr' + 'ipt>');
-        document.write('<script src="' + window.frontendUrl + 'reactapp/main.app.js?'+ window.appVersion +'"></scr' + 'ipt>');
+        document.write('<link rel="stylesheet" type="text/css" href="' + window.frontendConfig.frontendUrl + 'reactapp/prefixed-bootstrap.min.css?'+ window.appVersion +'" />');
+        document.write('<link rel="stylesheet" type="text/css" href="' + window.frontendConfig.frontendUrl + 'reactapp/styles.css?'+ window.appVersion +'" />');
+        document.write('<script src="' + window.frontendConfig.frontendUrl + 'reactapp/common.bundle.js?'+ window.appVersion +'"></scr' + 'ipt>');
+        document.write('<script src="' + window.frontendConfig.frontendUrl + 'reactapp/main.app.js?'+ window.appVersion +'"></scr' + 'ipt>');
     }
 
 };

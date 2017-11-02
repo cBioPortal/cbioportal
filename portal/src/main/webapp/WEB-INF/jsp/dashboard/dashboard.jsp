@@ -261,6 +261,14 @@
         window.cbioResourceURL = 'js/src/dashboard/resources/';
         window.iviz.datamanager = new DataManagerForIviz.init(window.cbioURL, studyCasesMap);
 
+        var emailContact_ = '<%=GlobalProperties.getEmailContact()%>';
+
+        if (emailContact_) {
+            var span = $.parseHTML(emailContact_);
+            $(span).mailme(true);
+            emailContact_ = $(span).prop('outerHTML');
+        }
+        
         $.when(window.cbioportal_client.getStudies({ study_ids: cohortIdsList}), window.iviz.datamanager.getGeneticProfiles())
             .then(function(_cancerStudies, _geneticProfiles){
                 if(cohortIdsList.length === 1){
@@ -354,20 +362,48 @@
                     if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
                         $("#study-tabs-loading-wait").css('display', 'none');
                         if(!_.isObject(window.iviz.datamanager.initialSetupResult)) {
-                            $.when(window.iviz.datamanager.initialSetup(), window.iviz.datamanager.getConfigs() ).then(function(_data, configs){
+                            $.when(window.iviz.datamanager.getConfigs())
+                                .done(function(configs) {
+                                    var opts = {};
+
+                                    if (_.isObject(configs)) {
+                                        opts = configs;
+                                    }
+                                    if (emailContact_) {
+                                        opts.emailContact = emailContact_;
+                                    }
+                                    $.when(
+                                        window.iviz.datamanager.initialSetup()
+                                    ).done(function(_data) {
+                                        initdcplots(_data, opts);
+                                    }).fail(function(error) {
+                                        iViz.vue.manage.getInstance().failedToInit.status = true;
+                                        if (error) {
+                                            iViz.vue.manage.getInstance().failedToInit.message = error
+                                        }
+                                        iViz.vue.manage.getInstance().isloading = false;
+                                    });
+                                })
+                                .fail(function() {
+                                    iViz.vue.manage.getInstance().failedToInit.status = true;
+                                    iViz.vue.manage.getInstance().failedToInit.message = 'Failed to load study view configurations.';
+                                    iViz.vue.manage.getInstance().isloading = false;
+                                });
+                        }else {
+                            $.when(window.iviz.datamanager.getConfigs()).done(function(configs){
                                 var opts = {};
-                                if(_.isObject(configs)) {
+
+                                if (_.isObject(configs)) {
                                     opts = configs;
                                 }
-                                initdcplots(_data, opts);
-                            });
-                        }else {
-                            $.when(window.iviz.datamanager.getConfigs()).then(function(configs){
-                                var opts = {};
-                                if(_.isObject(configs)) {
-                                    opts = configs;
+                                if (emailContact_) {
+                                    opts.emailContact = emailContact_;
                                 }
                                 initdcplots(window.iviz.datamanager.initialSetupResult, opts);
+                            }).fail(function() {
+                                iViz.vue.manage.getInstance().failedToInit.status = true;
+                                iViz.vue.manage.getInstance().failedToInit.message = 'Failed to load study view configurations.';
+                                iViz.vue.manage.getInstance().isloading = false;
                             });
                         }
                         $('#study-tab-summary-a').addClass("tab-clicked");

@@ -34,9 +34,14 @@
 var StudyViewMutationsTabController = (function() {
     var init = function(callback) {
         StudyViewProxy.getMutatedGenesData()
-            .then(function(data) {
+            .done(function(data) {
                 StudyViewInitMutationsTab.init(data);
-                if(_.isFunction(callback)) {
+                if (_.isFunction(callback)) {
+                    callback();
+                }
+            })
+            .fail(function() {
+                if (_.isFunction(callback)) {
                     callback();
                 }
             });

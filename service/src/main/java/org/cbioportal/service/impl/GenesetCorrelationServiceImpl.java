@@ -150,7 +150,7 @@ public class GenesetCorrelationServiceImpl implements GenesetCorrelationService 
 		MolecularProfile zscoresProfile = null;
 		for (MolecularProfile referringProfile : referringProfiles) {
 			//use the first z-score profile we can find in this list of referring profiles (normally there should be only 1 anyway):
-			if (referringProfile.getDatatype().equals("Z_SCORE")) {
+			if (referringProfile.getDatatype().equals("Z-SCORE")) {
 				zscoresProfile = referringProfile;
 				break;
 			}

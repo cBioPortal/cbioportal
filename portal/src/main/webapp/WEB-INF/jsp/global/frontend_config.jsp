@@ -26,6 +26,7 @@ window.legacySupportFrontendConfig = {
     skinRightNavExamplesHTML : '<%=GlobalProperties.getExamplesRightColumnHtml()%>',
     skinRightNavExamplesHTML : '<%=GlobalProperties.getExamplesRightColumnHtml()%>',
     skinRightNavWhatsNewBlurb : '<%=GlobalProperties.getRightNavWhatsNewBlurb()%>',
+    userEmailAddress : '<%=GlobalProperties.getAuthenticatedUserName()%>',
     priorityStudies : {}
 }
 
@@ -66,6 +67,10 @@ if (window.frontendConfig) {
     }
 } else {
     window.frontendConfig = window.legacySupportFrontendConfig;
+}
+// clean userEmailAddress config
+if (!window.frontendConfig.userEmailAddress || window.frontendConfig.userEmailAddress === 'anonymousUser') {
+    window.frontendConfig.userEmailAddress = '';
 }
 
 // frontend config that can't be changed by deployer

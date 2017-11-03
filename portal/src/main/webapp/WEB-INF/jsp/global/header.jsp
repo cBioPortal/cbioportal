@@ -55,12 +55,13 @@
     <script type="text/javascript">
         window.appVersion = '<%=GlobalProperties.getAppVersion()%>';
         $(document).ready(function(){
+            $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
+            
             window.cbioURL =  window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/",2))+'/';
             <%String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "" : GlobalProperties.getSessionServiceUrl();%>
             <%if(!sessionServiceUrl.equals("")){%>
             vcSession.URL ='api-legacy/proxy/session-service/virtual_cohort';
             <%}%>
-
         });
     </script>
     <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>

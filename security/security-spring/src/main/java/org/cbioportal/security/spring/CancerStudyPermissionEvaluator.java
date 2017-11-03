@@ -151,7 +151,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 return false;
             }
             return hasPermission(authentication, cancerStudy, permission);
-        } else if ("MolecularProfile".equals(targetType)) {
+        } else if ("MolecularProfile".equals(targetType) || "GeneticProfile".equals(targetType)) {
             MolecularProfile molecularProfile = molecularProfileRepository.getMolecularProfile(targetId.toString());
             if (molecularProfile == null) {
                 return false;
@@ -171,7 +171,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 }
             }
             return true;
-        } else if ("List<MolecularProfileId>".equals(targetType)) {
+        } else if ("List<MolecularProfileId>".equals(targetType) || "List<GeneticProfileId>".equals(targetType)) {
             List<String> molecularProfileIds = (List<String>) targetId;
             for (String molecularProfileId : molecularProfileIds) {
                 MolecularProfile molecularProfile = molecularProfileRepository.getMolecularProfile(molecularProfileId);

@@ -37,9 +37,11 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -142,6 +144,10 @@ public class GlobalProperties {
     @Value("${session.service.url:}") // default is empty string
     public void setSessionServiceURL(String property) { sessionServiceURL = property; }
 
+    private static String frontendConfig;
+    @Value("${frontend.config:}") // default is empty string
+    public void setFrontendConfig(String property) { frontendConfig = property; }
+
     // properties for showing the right logo in the header_bar and default logo
     public static final String SKIN_RIGHT_LOGO = "skin.right_logo";
 
@@ -233,6 +239,8 @@ public class GlobalProperties {
     public static final String DEFAULT_UCSC_BUILD = "hg19";
 
     public static final String ONCOPRINT_DEFAULTVIEW = "oncoprint.defaultview";
+    
+    public static final String SETSOFGENES_LOCATION = "querypage.setsofgenes.location";
 
     private static boolean showCivic;
     @Value("${show.civic:false}") // default is false
@@ -1053,5 +1061,41 @@ public class GlobalProperties {
     public static boolean hidePassengerMutations() {
 	String hidePassenger = properties.getProperty(HIDE_PASSENGER_MUTATIONS, "false");
 	return Boolean.parseBoolean(hidePassenger);
+    }
+
+    public static String readFile(String fileName)
+    {
+        String result = new String();
+
+        if (fileName == null) {
+            result = null;
+        } else {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(ResourceUtils.getFile(fileName)));
+                for (String line = br.readLine(); line != null; line = br.readLine()) {
+                    line = line.trim();
+                    result = result + line;
+                }
+                br.close();
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException("File not found: ", e);
+            } catch (IOException e) {
+                throw new RuntimeException("Line not found: ", e);
+            }
+        }
+        return result;
+    }
+
+    public static String getFrontendConfig() {
+        if (frontendConfig.length() > 0) {
+            return readFile(frontendConfig);
+        } else {
+            return null;
+        }
+    }
+    
+    public static String getQuerySetsOfGenes() {
+        String fileName = properties.getProperty(SETSOFGENES_LOCATION, null);
+        return readFile(fileName);
     }
 }

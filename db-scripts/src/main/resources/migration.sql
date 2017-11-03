@@ -380,7 +380,8 @@ ALTER TABLE `mutation` ADD COLUMN `DRIVER_FILTER_ANNOTATION` VARCHAR(80) NULL;
 ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER` VARCHAR(50) NULL;
 ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER_ANNOTATION` VARCHAR(80) NULL;
 
--- ========================== new reference genome gene related tables =============================================
+##version: 2.4.1
+-- ========================== new reference genome genes related tables =============================================
 CREATE TABLE `reference_genome` (
     `REFERENCE_GENOME_ID` int(4) NOT NULL AUTO_INCREMENT,
     `SPECIES` varchar(64) DEFAULT NULL,
@@ -393,7 +394,6 @@ CREATE TABLE `reference_genome` (
     UNIQUE INDEX `BUILD_NAME_UNIQUE` (`BUILD_NAME` ASC)
 );
 
--- ========================== new reference genomes ====================================================================
 INSERT INTO `reference_genome` 
 VALUES (1, 'human', 'hg19', 'GRCh37', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01');
 INSERT INTO `reference_genome` 
@@ -424,5 +424,5 @@ INSERT INTO reference_genome_gene (ENTREZ_GENE_ID, CYTOBAND, EXONIC_LENGTH, CHR,
 	1 
 FROM `gene`);
 
--- ========================= new schema version ========================================================================
 UPDATE info SET DB_SCHEMA_VERSION="2.4.1";
+-- ========================= end of reference genes related tables ========================================================================

@@ -38,10 +38,9 @@ Keycloak supports both OpenID-Connect and SAML authentication. When you use SAML
 ![](images/previews/add-realm.png)
 Please note if you are logged in the master realm, this drop-down menu lists all the realms created. The last entry of this drop-down menu is always **Add Realm**. Click this to add a realm. Then type '_demo_' in the name field and click the **Create** button.
 3. To create a SAML client, go to the **Clients** item in the left menu. On this page, click the **Create** button on the right. This will bring you to the **Add Client** page.
-Enter a **Client ID** for the client, e.g. '_cbioportal_', this will be the expected `issuer` value in SAML requests sent by the application. Select _saml_ in the **Client Protocol** drop down box.
-![](images/previews/add-client.png)
-
-Enter '`http://localhost:8081/cbioportal/saml`' in the **Client SAML Endpoint** textbox, this is the URL that the Keycloak server will send SAML requests and responses to. Then click the **Save** button; this will take you to the client page below.
+    * Enter a **Client ID** for the client, e.g. '_cbioportal_', this will be the expected `issuer` value in SAML requests sent by the application.
+    * Select _saml_ in the **Client Protocol** drop down box.
+    * Enter `http://localhost:8081/cbioportal/saml` in the **Client SAML Endpoint** textbox, this is the URL that the Keycloak server will send SAML requests and responses to. Then click the **Save** button; this will take you to the client page below.
 
 ![](images/previews/edit-client.png)
 

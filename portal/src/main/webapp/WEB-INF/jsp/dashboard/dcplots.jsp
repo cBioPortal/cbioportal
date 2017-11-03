@@ -54,7 +54,7 @@
          :class="{'show-loading': showScreenLoad}"
          class="chart-loader" style="top: 30%; left: 30%; display: none;"><img
         src="images/ajax-loader.gif" alt="loading"></div>
-    <div id="main-header" style="display: none" :class="{show:!isloading}">
+    <div id="main-header" style="display: none" :class="{show:!isloading}" v-if="!failedToInit.status">
         <div id="iviz-header-left">
             <div class="iviz-cohort-component" style="float: left; margin-right: 10px;">
                 <session-component :show-save-button="showSaveButton" :show-manage-button="showManageButton"
@@ -126,7 +126,7 @@
             </div>
         </div>
     </div>
-    <div :class="{'start-loading': showScreenLoad}">
+    <div :class="{'start-loading': showScreenLoad}" v-if="!failedToInit.status">
         <div class="grid" id="main-grid"
              :class="{loading:isloading}">
             <main-template :groups.sync="groups" :redrawgroups.sync="redrawgroups"
@@ -138,6 +138,7 @@
                            :clear-all="clearAll"></main-template>
         </div>
     </div>
+    <error container-id="fail-to-init" v-if="failedToInit.status" :message="failedToInit.message"></error>
 
 </div>
 

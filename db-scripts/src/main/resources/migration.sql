@@ -384,11 +384,11 @@ ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER_ANNOTATION` VARCHAR(80) N
 -- ========================== new reference genome genes related tables =============================================
 CREATE TABLE `reference_genome` (
     `REFERENCE_GENOME_ID` int(4) NOT NULL AUTO_INCREMENT,
-    `SPECIES` varchar(64) DEFAULT NULL,
-    `NAME` varchar(64) DEFAULT NULL,
-    `BUILD_NAME` varchar(64) DEFAULT NULL,
-    `GENOME_SIZE` bigint(20) DEFAULT NULL,
-    `URL` varchar(256) DEFAULT NULL,
+    `SPECIES` varchar(64) NOT NULL,
+    `NAME` varchar(64) NOT NULL,
+    `BUILD_NAME` varchar(64) NOT NULL,
+    `GENOME_SIZE` bigint(20) NULL,
+    `URL` varchar(256) NOT NULL,
     `RELEASE_DATE` datetime DEFAULT NULL,
     PRIMARY KEY (`REFERENCE_GENOME_ID`),
     UNIQUE INDEX `BUILD_NAME_UNIQUE` (`BUILD_NAME` ASC)
@@ -403,13 +403,13 @@ VALUES (3, 'mouse', 'mm10', 'GRCm38', NULL, 'http://hgdownload.cse.ucsc.edu//gol
 
 CREATE TABLE `reference_genome_gene` (
     `ENTREZ_GENE_ID` int(11) NOT NULL,
+    `REFERENCE_GENOME_ID` int(4) NOT NULL,
+    `CHR` varchar(4) NOT NULL,
     `CYTOBAND` varchar(64) NOT NULL,
     `EXONIC_LENGTH` int(11) DEFAULT NULL,
     `START` bigint(20) DEFAULT NULL,
     `END` bigint(20) DEFAULT NULL,
     `ENSEMBL_GENE_ID` varchar(64) DEFAULT NULL,
-    `CHR` varchar(5) DEFAULT NULL,
-    `REFERENCE_GENOME_ID` int(4) NOT NULL,
     PRIMARY KEY (`ENTREZ_GENE_ID`,`REFERENCE_GENOME_ID`),
     FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE CASCADE,
     FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
@@ -419,8 +419,8 @@ INSERT INTO reference_genome_gene (ENTREZ_GENE_ID, CYTOBAND, EXONIC_LENGTH, CHR,
 (SELECT 
 	ENTREZ_GENE_ID, 
 	CYTOBAND, 
-	LENGTH, 
-	SUBSTRING_INDEX(gene.CYTOBAND,IF(LOCATE('p', gene.CYTOBAND), 'p', 'q'), 1), 
+	LENGTH,
+    SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(gene.CYTOBAND,IF(LOCATE('p', gene.CYTOBAND), 'p', 'q'), 1),'q',1),'cen',1),
 	1 
 FROM `gene`);
 

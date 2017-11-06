@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -153,5 +154,73 @@ public class ClinicalAttributeMyBatisRepositoryTest {
         BaseMeta result = clinicalAttributeMyBatisRepository.getMetaClinicalAttributesInStudy("study_tcga_pub");
 
         Assert.assertEquals((Integer) 14, result.getTotalCount());
+
     }
+
+    @Test
+    public void getAllClinicalAttributesInStudyWithStatsCheckCount() throws Exception {
+
+        List<String> studyId = new ArrayList<>();
+        studyId.add("study_tcga_pub");
+        studyId.add("study_tcga_pub");
+        List<String> sampleIds = new ArrayList<String>();
+        sampleIds.add("TCGA-A1-A0SB-01");
+        sampleIds.add("TCGA-A1-A0SD-01");
+        List<ClinicalAttribute> result = clinicalAttributeMyBatisRepository
+                .getAllClinicalAttributesInStudiesBySampleIds(studyId, sampleIds, "DETAILED", null, null);
+
+        Assert.assertEquals(14, result.size());
+        ClinicalAttribute clinicalAttributeWithCountSample = result.get(0);
+        Assert.assertEquals("DAYS_TO_COLLECTION", clinicalAttributeWithCountSample.getAttrId());
+        Assert.assertEquals("study_tcga_pub", clinicalAttributeWithCountSample.getCancerStudyIdentifier());
+        Assert.assertEquals((Integer) 1, clinicalAttributeWithCountSample.getCancerStudyId());
+        Assert.assertEquals("STRING", clinicalAttributeWithCountSample.getDatatype());
+        Assert.assertEquals("Days to sample collection.", clinicalAttributeWithCountSample.getDescription());
+        Assert.assertEquals("Days to Sample Collection.", clinicalAttributeWithCountSample.getDisplayName());
+        Assert.assertEquals("1", clinicalAttributeWithCountSample.getPriority());
+        Assert.assertEquals(false, clinicalAttributeWithCountSample.getPatientAttribute());
+        Assert.assertEquals((Integer) 1, clinicalAttributeWithCountSample.getCount());
+        Assert.assertEquals(14, result.size());
+        ClinicalAttribute clinicalAttributeWithCountPatient = result.get(12);
+        Assert.assertEquals("RETROSPECTIVE_COLLECTION", clinicalAttributeWithCountPatient.getAttrId());
+        Assert.assertEquals("study_tcga_pub", clinicalAttributeWithCountPatient.getCancerStudyIdentifier());
+        Assert.assertEquals((Integer) 1, clinicalAttributeWithCountPatient.getCancerStudyId());
+        Assert.assertEquals("STRING", clinicalAttributeWithCountPatient.getDatatype());
+        Assert.assertEquals(
+                "Text indicator for the time frame of tissue procurement,indicating that the tissue was obtained and stored prior to the initiation of the project.",
+                clinicalAttributeWithCountPatient.getDescription());
+        Assert.assertEquals("Tissue Retrospective Collection Indicator",
+                clinicalAttributeWithCountPatient.getDisplayName());
+        Assert.assertEquals("1", clinicalAttributeWithCountPatient.getPriority());
+        Assert.assertEquals(true, clinicalAttributeWithCountPatient.getPatientAttribute());
+        Assert.assertEquals((Integer) 1, clinicalAttributeWithCountPatient.getCount());
+
+    }
+
+    @Test
+    public void getAllClinicalAttributesInStudyWithStatsCheckCountWhenEmptyColumn() throws Exception {
+
+        List<String> studyId = new ArrayList<>();
+        studyId.add("study_tcga_pub");
+        studyId.add("study_tcga_pub");
+        List<String> sampleIds = new ArrayList<String>();
+        sampleIds.add("TCGA-A1-A0SB-01");
+        sampleIds.add("TCGA-A1-A0SD-01");
+        List<ClinicalAttribute> result = clinicalAttributeMyBatisRepository
+                .getAllClinicalAttributesInStudiesBySampleIds(studyId, sampleIds, "DETAILED", null, null);
+
+        Assert.assertEquals(14, result.size());
+        ClinicalAttribute clinicalAttributeWithCount = result.get(1);
+        Assert.assertEquals("DFS_MONTHS", clinicalAttributeWithCount.getAttrId());
+        Assert.assertEquals("study_tcga_pub", clinicalAttributeWithCount.getCancerStudyIdentifier());
+        Assert.assertEquals((Integer) 1, clinicalAttributeWithCount.getCancerStudyId());
+        Assert.assertEquals("NUMBER", clinicalAttributeWithCount.getDatatype());
+        Assert.assertEquals("Disease free (months) since initial treatment.",
+                clinicalAttributeWithCount.getDescription());
+        Assert.assertEquals("Disease Free (Months)", clinicalAttributeWithCount.getDisplayName());
+        Assert.assertEquals("1", clinicalAttributeWithCount.getPriority());
+        Assert.assertEquals(true, clinicalAttributeWithCount.getPatientAttribute());
+        Assert.assertEquals((Integer) 0, clinicalAttributeWithCount.getCount());
+    }
+
 }

@@ -77,15 +77,33 @@ public class ClinicalAttributeServiceImpl implements ClinicalAttributeService {
 
     @Override
     @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
-	public List<ClinicalAttribute> fetchClinicalAttributes(List<String> studyIds, String projection) {
+    public List<ClinicalAttribute> fetchClinicalAttributes(List<String> studyIds, String projection) {
         
         return clinicalAttributeRepository.fetchClinicalAttributes(studyIds, projection);
-	}
+        }
 
     @Override
     @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
-	public BaseMeta fetchMetaClinicalAttributes(List<String> studyIds) {
+    public BaseMeta fetchMetaClinicalAttributes(List<String> studyIds) {
         
         return clinicalAttributeRepository.fetchMetaClinicalAttributes(studyIds);
-	}
+        }
+
+    @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
+    public List<ClinicalAttribute> getAllClinicalAttributesInStudiesBySampleIds(List<String> studyIds, List<String> sampleIds, 
+                                                                                String projection, String sortBy, String direction) {
+        
+        return clinicalAttributeRepository.getAllClinicalAttributesInStudiesBySampleIds(studyIds, sampleIds, 
+                                                                                        projection, sortBy, direction);
+    }
+
+    @Override
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
+    public List<ClinicalAttribute> getAllClinicalAttributesInStudiesBySampleListId(String sampleListId, String projection, 
+                                                                                   String sortBy, String direction) {
+
+        return clinicalAttributeRepository.getAllClinicalAttributesInStudiesBySampleListId(sampleListId, projection, 
+                                                                                           sortBy, direction);
+    }
 }

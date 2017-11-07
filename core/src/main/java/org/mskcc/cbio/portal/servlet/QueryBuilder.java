@@ -74,6 +74,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String SET_OF_CASE_IDS = "set_of_case_ids";
     public static final String CLINICAL_PARAM_SELECTION = "clinical_param_selection";
     public static final String GENE_LIST = "gene_list";
+    public static final String GENESET_LIST = "geneset_list";
     public static final String ACTION_NAME = "Action";
     public static final String XDEBUG = "xdebug";
     public static final String ACTION_SUBMIT = "Submit";

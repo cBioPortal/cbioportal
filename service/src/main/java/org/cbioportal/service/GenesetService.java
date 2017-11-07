@@ -14,8 +14,10 @@ public interface GenesetService {
     BaseMeta getMetaGenesets();
 
     Geneset getGeneset(String genesetId) throws GenesetNotFoundException;
-    
+
     List<Gene> getGenesByGenesetId(String genesetId) throws GenesetNotFoundException;
+
+    List<Geneset> fetchGenesets(List<String> genesetIds);
 
 }
 

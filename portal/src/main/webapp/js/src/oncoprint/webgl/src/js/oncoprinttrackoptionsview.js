@@ -1,5 +1,5 @@
 var OncoprintTrackOptionsView = (function () {
-    function OncoprintTrackOptionsView($div, moveUpCallback, moveDownCallback, removeCallback, sortChangeCallback) {
+    function OncoprintTrackOptionsView($div, moveUpCallback, moveDownCallback, removeCallback, sortChangeCallback, unexpandCallback) {
 	// removeCallback: function(track_id)
 	var position = $div.css('position');
 	if (position !== 'absolute' && position !== 'relative') {
@@ -10,6 +10,7 @@ var OncoprintTrackOptionsView = (function () {
 	this.moveDownCallback = moveDownCallback;
 	this.removeCallback = removeCallback; // function(track_id) { ... }
 	this.sortChangeCallback = sortChangeCallback; // function(track_id, dir) { ... }
+	this.unexpandCallback = unexpandCallback; // function(track_id)
 
 	this.$div = $div;
 	this.$ctr = $('<div></div>').css({'position': 'absolute', 'overflow-y':'hidden', 'overflow-x':'hidden'}).appendTo(this.$div);
@@ -208,6 +209,27 @@ var OncoprintTrackOptionsView = (function () {
 	    $dropdown.append($sort_inc_li);
 	    $dropdown.append($sort_dec_li);
 	    $dropdown.append($dont_sort_li);
+	}
+	if (model.isTrackExpandable(track_id)) {
+	    $dropdown.append($makeDropdownOption(
+		    model.getExpandButtonText(track_id),
+		    'normal',
+		    function (evt) {
+			evt.stopPropagation();
+			// close the menu to discourage clicking again, as it
+			// may take a moment to finish expanding
+			renderAllOptions(view, model);
+			model.expandTrack(track_id);
+		    }));
+	}
+	if (model.isTrackExpanded(track_id)) {
+	    $dropdown.append($makeDropdownOption(
+		    'Remove expansion',
+		    'normal',
+		    function (evt) {
+			evt.stopPropagation();
+			view.unexpandCallback(track_id);
+		    }));
 	}
     };
 

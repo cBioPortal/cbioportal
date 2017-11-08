@@ -793,8 +793,8 @@ CREATE TABLE `clinical_event_data` (
 CREATE TABLE `reference_genome_gene` (
     `ENTREZ_GENE_ID` int(11) NOT NULL,
     `REFERENCE_GENOME_ID` int(4) NOT NULL,
-    `CHR` varchar(4) NOT NULL,
-    `CYTOBAND` varchar(64) NOT NULL,
+    `CHR` varchar(4) DEFAULT NULL,
+    `CYTOBAND` varchar(64) DEFAULT NULL,
     `EXONIC_LENGTH` int(11) DEFAULT NULL,
     `START` bigint(20) DEFAULT NULL,
     `END` bigint(20) DEFAULT NULL,

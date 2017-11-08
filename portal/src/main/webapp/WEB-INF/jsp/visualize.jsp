@@ -46,7 +46,7 @@ window.onReactAppReady(function() {
 </script>
 
 <div id="reactRoot" class="hidden"></div>
-    
+
 <%@ page import="java.util.Map" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 
@@ -55,11 +55,11 @@ window.onReactAppReady(function() {
     // then modify URL to include session service id so bookmarking will work
     if (useSessionServiceBookmark && "POST".equals(request.getMethod())) {
 %>
-    <script>
-        changeURLToSessionServiceURL(window.location.href, 
-            window.location.pageTitle, 
-            <%= new ObjectMapper().writeValueAsString(request.getParameterMap()) %>);
-   </script>
+<script>
+    changeURLToSessionServiceURL(window.location.href,
+        window.location.pageTitle,
+        <%= new ObjectMapper().writeValueAsString(request.getParameterMap()) %>);
+</script>
 <% } // end if isPost and we have session service running %>
 
 <div class='main_smry'>
@@ -79,7 +79,7 @@ window.onReactAppReady(function() {
 
 <div id="tabs">
     <ul>
-    <%
+            <%
         Boolean showMutTab = false;
         Boolean showCancerTypesSummary = false;
         Boolean showEnrichmentsTab = true;
@@ -177,6 +177,18 @@ window.onReactAppReady(function() {
                 }
             }
             
+            if(isVirtualStudy){
+            	showCoexpTab = false;
+            	showIGVtab = false;
+            	showEnrichmentsTab = false;
+            	has_survival = false;
+            	includeNetworks = false;
+            	showPlotsTab = false;
+            }
+            if(geneticProfiles.contains("mutation")) {
+                // hacky but consistent with how currently being done
+                showMutTab = true;
+            }
             String[] geneList = ((String) request.getAttribute(QueryBuilder.GENE_LIST)).split("( )|(\\n)");
             if (geneList.length <= 1) {
                 computeLogOddsRatio = false;
@@ -184,16 +196,8 @@ window.onReactAppReady(function() {
 
             // determine whether to show the cancerTypesSummaryTab
             // retrieve the cancerTypesMap and create an iterator for the values
-            Map<String, List<String>>  cancerTypesMap = (Map<String, List<String>>) request.getAttribute(QueryBuilder.CANCER_TYPES_MAP);
-            if(cancerTypesMap.keySet().size() > 1) {
-            	showCancerTypesSummary = true;
-            }
-            else if (cancerTypesMap.keySet().size() == 1 && cancerTypesMap.values().iterator().next().size() > 1 )  {
-            	showCancerTypesSummary = true;
-            }
-            if (disabledTabs.contains("cancer_types_summary")) {
-                showCancerTypesSummary = false;
-            }
+            showCancerTypesSummary = (Boolean) request.getAttribute(QueryBuilder.HAS_CANCER_TYPES);
+            
             out.println ("<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>");
             // if showCancerTypesSummary is try, add the list item
             if(showCancerTypesSummary){
@@ -207,14 +211,16 @@ window.onReactAppReady(function() {
             }
             if (showPlotsTab) {
                 out.println ("<li><a href='#plots' class='result-tab' id='plots-result-tab'>Plots</a></li>");
-            }            
+            } else {
+                out.println ("<li><a href='#cc-plots' class='result-tab' id='cc-plots-result-tab'>Expression</a></li>");
+            }           
             if (showMutTab){
                 out.println ("<li><a href='#mutation_details' class='result-tab' id='mutation-result-tab'>Mutations</a></li>");
             }
             if (showCoexpTab) {
                 out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
-            if (has_mrna || has_copy_no || showMutTab && showEnrichmentsTab) {
+            if ((has_mrna || has_copy_no || showMutTab && showEnrichmentsTab) && !isVirtualStudy) {
                 out.println("<li><a href='#enrichementTabDiv' id='enrichments-result-tab' class='result-tab'>Enrichments</a></li>");
             }
             if (has_survival) {
@@ -268,25 +274,29 @@ window.onReactAppReady(function() {
         </div>
 
         <!-- if showCancerTypes is true, include cancer_types_summary.jsp -->
-        <% if(showCancerTypesSummary) { %>
-        <%@ include file="pancancer_study_summary.jsp" %>
-        <%}%>
+            <% if(showCancerTypesSummary) { %>
+        <%@ include file="pancancer_study_summary.jsp"%>
+            <%}%>
 
+            <% if(showPlotsTab) { %>
         <%@ include file="plots_tab.jsp" %>
+            <% } else { %>
+        <%@ include file="cross_cancer_plots_tab.jsp" %>
+            <% }%>
 
-        <% if (showIGVtab) { %>
-            <%@ include file="igv.jsp" %>
-        <% } %>
+            <% if (showIGVtab) { %>
+        <%@ include file="igv.jsp" %>
+            <% } %>
 
-        <% if (has_survival) { %>
-            <%@ include file="survival_tab.jsp" %>
-        <% } %>
+            <% if (has_survival) { %>
+        <%@ include file="survival_tab.jsp" %>
+            <% } %>
 
-        <% if (computeLogOddsRatio) { %>
-            <%@ include file="mutex_tab.jsp" %>
-        <% } %>
+            <% if (computeLogOddsRatio) { %>
+        <%@ include file="mutex_tab.jsp" %>
+            <% } %>
 
-        <% if (mutationDetailLimitReached != null) {
+            <% if (mutationDetailLimitReached != null) {
             out.println("<div class=\"section\" id=\"mutation_details\">");
             out.println("<P>To retrieve mutation details, please specify "
             + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
@@ -295,19 +305,20 @@ window.onReactAppReady(function() {
             <%@ include file="mutation_details.jsp" %>
         <% } %>
 
-        <% if (includeNetworks) { %>
-            <%@ include file="networks.jsp" %>
-        <% } %>
+            <% if (includeNetworks) { %>
+        <%@ include file="networks.jsp" %>
+            <% } %>
 
-        <% if (showCoexpTab) { %>
-            <%@ include file="co_expression.jsp" %>
-        <% } %>
+            <% if (showCoexpTab) { %>
+        <%@ include file="co_expression.jsp" %>
+            <% } %>
 
-        <% if (has_mrna || has_copy_no || showMutTab) { %>
-            <%@ include file="enrichments_tab.jsp" %>
-        <% } %>
-
+            <% if ((has_mrna || has_copy_no || showMutTab) && !isVirtualStudy) { %>
+        <%@ include file="enrichments_tab.jsp" %>
+            <% } %>
+            <% if(showDownloadTab) { %>
         <%@ include file="data_download.jsp" %>
+            <% } %>
 
 </div> <!-- end tabs div -->
 
@@ -336,56 +347,58 @@ window.onReactAppReady(function() {
         if ($("div.section#network").is(":visible"))
         {
             // init the network tab
-	        //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-	        //firstTime = false;
+            //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+            //firstTime = false;
 
-	        // TODO window.networkGraphJSON is null at this point,
-	        // this is a workaround to wait for graphJSON to get ready
-	        var interval = setInterval(function() {
-		        if (window.networkGraphJSON != null)
-		        {
-			        clearInterval(interval);
-			        if (firstTime)
-			        {
-                $(window).resize();
-				        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-				        firstTime = false;
-			        }
-		        }
-	        }, 50);
+            // TODO window.networkGraphJSON is null at this point,
+            // this is a workaround to wait for graphJSON to get ready
+            var interval = setInterval(function() {
+                if (window.networkGraphJSON != null)
+                {
+                    clearInterval(interval);
+                    if (firstTime)
+                    {
+                        $(window).resize();
+                        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                        firstTime = false;
+                    }
+                }
+            }, 50);
         }
+
+        //cbio.util.toggleMainBtn("dashboard_button", "enable");
 
         $("a.result-tab").click(function(){
 
             if($(this).attr("href")=="#network")
             {
-              var interval = setInterval(function() {
-                if (window.networkGraphJSON != null)
-                {
-                  clearInterval(interval);
-                  if(firstTime)
-                  {
-                    $(window).resize();
-                    send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-                    firstTime = false;
-                  }
-                else
-                  {
-                    // TODO this is a workaround to adjust cytoscape canvas
-                    // and probably not the best way to do it...
-                    $(window).resize();
-                  }
+                var interval = setInterval(function() {
+                    if (window.networkGraphJSON != null)
+                    {
+                        clearInterval(interval);
+                        if(firstTime)
+                        {
+                            $(window).resize();
+                            send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                            firstTime = false;
+                        }
+                        else
+                        {
+                            // TODO this is a workaround to adjust cytoscape canvas
+                            // and probably not the best way to do it...
+                            $(window).resize();
+                        }
 
-                }
-              }, 50);
+                    }
+                }, 50);
             }
         });
 
         $("#bookmark-result-tab").parent().click(function() {
             <% if (useSessionServiceBookmark) { %>
-                addSessionServiceBookmark(window.location.href, $(this).children("#bookmark-result-tab").data('session'));
+            addSessionServiceBookmark(window.location.href, $(this).children("#bookmark-result-tab").data('session'));
             <% } else { %>
-                addURLBookmark();
+            addURLBookmark();
             <% } %>
         });
 
@@ -495,6 +508,46 @@ window.onReactAppReady(function() {
                 position: {my:'left top',at:'right bottom', viewport: $(window)}
             }
         );
+
+        //Move code related to expression tab from cross_cancer_results.jsp to here
+        window.ccQueriedGenes = window.QuerySession.getOQLQuery().match(/\S+/g) || [];
+        
+        var _cc_plots_gene_list = "";
+        var tmp = setInterval(function () {timer();}, 1000);
+        function timer() {
+            if (window.ccQueriedGenes !== undefined) {
+                clearInterval(tmp);
+                var cc_plots_tab_init = false;
+                if ($("#cc-plots").is(":visible")) {
+                    _cc_plots_gene_list = _cc_plots_gene_list;
+                    _.each(window.ccQueriedGenes, function (_gene) {
+                        $("#cc_plots_gene_list").append(
+                            "<option value='" + _gene + "'>" + _gene + "</option>");
+                    });
+                    ccPlots.init();
+
+                    cc_plots_tab_init = true;
+                } else {
+                    $(window).trigger("resize");
+                }
+                $("#tabs").bind("tabsactivate", function(event, ui) {
+                    if (ui.newTab.text().trim().toLowerCase() === "expression") {
+                        if (cc_plots_tab_init === false) {
+                            _cc_plots_gene_list = _cc_plots_gene_list;
+                            _.each(window.ccQueriedGenes, function (_gene) {
+                                $("#cc_plots_gene_list").append(
+                                    "<option value='" + _gene + "'>" + _gene + "</option>");
+                            });
+                            ccPlots.init();
+                            cc_plots_tab_init = true;
+                            $(window).trigger("resize");
+                        } else {
+                            $(window).trigger("resize");
+                        }
+                    }
+                });
+            }
+        }
     });
 </script>
 

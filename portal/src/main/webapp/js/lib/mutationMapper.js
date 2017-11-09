@@ -11196,7 +11196,6 @@ function ClinicalDataProxy(options)
 		// TODO full init & cache...
 
 		var cancerStudyId;
-		var patientSampleMap = {};
 		var patientIds = [];
 		var querySession = null;
 
@@ -11213,7 +11212,7 @@ function ClinicalDataProxy(options)
 			cancerStudyId = querySession.cancer_study_ids[0];
 			querySession.getPatientSampleIdMap().then(function (patientSampleMap){
                 for (var i = 0; i < samples.length; i++) {
-                    patientIds.push(patientSampleMap[samples[i]]);
+                    patientIds.push(patientSampleMap[cancerStudyId][samples[i]]);
                 }
                 makePatientData();
             });

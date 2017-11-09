@@ -1479,12 +1479,18 @@ public final class DaoMutation {
      * @return Ordered list of tiers.
      * @throws DaoException Database Error.
      */
-    public static List<String> getTiers(String cancerStudyStableId) throws DaoException {
+    public static List<String> getTiers(String _cancerStudyStableIds) throws DaoException {
+	String[] cancerStudyStableIds = _cancerStudyStableIds.split(",");
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         List<String> tiers = new ArrayList<String>();
-        ArrayList<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId());
+        ArrayList<GeneticProfile> geneticProfiles = new ArrayList<>();
+	for (String cancerStudyStableId: cancerStudyStableIds) {
+		geneticProfiles.addAll(DaoGeneticProfile.getAllGeneticProfiles(
+			DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId()
+		));
+	}
         for (GeneticProfile geneticProfile : geneticProfiles) {
             if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
                 try {
@@ -1516,8 +1522,8 @@ public final class DaoMutation {
      * @return Ordered list of tiers.
      * @throws DaoException Database Error.
      */
-    public static int numTiers(String cancerStudyStableId) throws DaoException {
-        List<String> tiers = getTiers(cancerStudyStableId);
+    public static int numTiers(String _cancerStudyStableIds) throws DaoException {
+        List<String> tiers = getTiers(_cancerStudyStableIds);
         return tiers.size();
     }
     
@@ -1529,12 +1535,18 @@ public final class DaoMutation {
      * @return Ordered list of tiers.
      * @throws DaoException Database Error.
      */
-    public static boolean hasDriverAnnotations(String cancerStudyStableId) throws DaoException {
+    public static boolean hasDriverAnnotations(String _cancerStudyStableIds) throws DaoException {
+	String[] cancerStudyStableIds = _cancerStudyStableIds.split(",");
 	Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         List<String> driverValues = new ArrayList<String>();
-        ArrayList<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId());
+        ArrayList<GeneticProfile> geneticProfiles = new ArrayList<>();
+	for (String cancerStudyStableId: cancerStudyStableIds) {
+		geneticProfiles.addAll(
+			DaoGeneticProfile.getAllGeneticProfiles(DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId())
+		);
+	}
         for (GeneticProfile geneticProfile : geneticProfiles) {
             if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
                 try {

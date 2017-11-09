@@ -538,11 +538,11 @@ public class QueryBuilder extends HttpServlet {
     private Map<String,List<String>> parseCaseIdsTextBoxStr(String _inputStr) {
         Map<String,List<String>> _resultMap = new HashMap<>();
         _inputStr = _inputStr.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
-        _inputStr = _inputStr.replaceAll("\n", "+").replaceAll("\t", "|");
-        String[] _segs = _inputStr.split("\\+"); // _seg => a line in "Case Ids" box: study_id\tsampleId
+        _inputStr = _inputStr.replaceAll("\n", "+").replaceAll("\t", ":");
+        String[] _segs = _inputStr.split("\\+"); // _seg => a line in "Case Ids" box: study_id:sampleId
         for (String _seg: _segs) {
-            String _studyId = _seg.split("\\|")[0];
-            String _sampleId = _seg.split("\\|")[1];
+            String _studyId = _seg.split(":")[0];
+            String _sampleId = _seg.split(":")[1];
             if (_resultMap.containsKey(_studyId)) {
                 List<String> _tmpSampleList = _resultMap.get(_studyId);
                 if (!_tmpSampleList.contains(_sampleId)) {

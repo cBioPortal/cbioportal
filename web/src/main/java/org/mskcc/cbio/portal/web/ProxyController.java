@@ -176,7 +176,6 @@ public class ProxyController
     @ResponseBody
     String getSessionService(@PathVariable String type, @PathVariable String key,
                              @RequestBody(required = false) String body,  HttpMethod method,HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
-        System.out.println(sessionServiceURL + type + "/" + key);
         return respProxy(sessionServiceURL + type + "/" + key, method, body, response);
     }
     
@@ -187,7 +186,6 @@ public class ProxyController
     RestTemplate restTemplate = new RestTemplate();
     URI uri = new URI(sessionServiceURL + type);
 
-      System.out.println(sessionServiceURL + type);
     // returns {"id":"5799648eef86c0e807a2e965"}
     // using HashMap because converter is MappingJackson2HttpMessageConverter (Jackson 2 is on classpath)
     // was String when default converter StringHttpMessageConverter was used

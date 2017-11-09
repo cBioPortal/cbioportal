@@ -961,9 +961,6 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    
 	    'trackIdsInOriginalOrder': {},
 	    
-	    'patient_order_loaded': new $.Deferred(),
-	    'patient_order': [],
-	    
 	    'sortby': 'data',
 	    'sortby_type': true,
 	    'sortby_recurrence': true,
@@ -1040,12 +1037,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		console.log("in setDataType");
 		var def = new $.Deferred();
 		var self = this;
-		QuerySession.getCaseUIDMap().then(function (case_uid_map) {
+		$.when(QuerySession.getSamples(), QuerySession.getPatients()).then(function (samples, patients) {
 		    // TODO: assume multiple studies
-		    var study_id = QuerySession.getCancerStudyIds()[0];
-		    var getUID = function (id) {
-			return case_uid_map[study_id][id];
-		    };
 		    var proxy_promise;
 		    if (sample_or_patient === 'sample') {
 			self.using_sample_data = true;
@@ -1060,19 +1053,17 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			console.log("in setDataType, calling populatePatientData()");
 			proxy_promise = populatePatientData();
 		    }
-		    self.patient_order_loaded.then(function () {
-			var id_order = (self.using_sample_data ? QuerySession.getSampleIds() : self.patient_order).slice();
-			if (self.sorting_alphabetically) {
-			    id_order = id_order.sort();
-			}
-			if (self.sorting_alphabetically || self.sorting_by_given_order) {
-			    setSortOrder(id_order.map(getUID));
-			}
-			proxy_promise.then(function () {
-			    def.resolve();
-			}).fail(function () {
-			    def.fail();
-			});
+		    var id_order = (self.using_sample_data ? samples : patients);
+		    if (self.sorting_alphabetically) {
+			id_order = _.sortBy(id_order, function(x) { return x.id; });
+		    }
+		    if (self.sorting_alphabetically || self.sorting_by_given_order) {
+			setSortOrder(id_order.map(function(x) { return x.uid;}));
+		    }
+		    proxy_promise.then(function () {
+			def.resolve();
+		    }).fail(function () {
+			def.fail();
 		    });
 		});
 		return def.promise();
@@ -1316,26 +1307,6 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	
 	loadFromLocalStorage(State);
 	
-	(function loadPatientOrder(state) {
-	    if (state.patient_order_loaded.state() === "resolved") {
-		return;
-	    } else {
-		QuerySession.getPatientSampleIdMap().then(function(sample_to_patient) {
-		    var patients = QuerySession.getSampleIds().map(function(s) { return sample_to_patient[s];});
-		    var patient_added_to_order = {};
-		    var patient_order = [];
-		    for (var i=0; i<patients.length; i++) {
-			if (!patient_added_to_order[patients[i]]) {
-			    patient_added_to_order[patients[i]] = true;
-			    patient_order.push(patients[i]);
-			}
-		    }
-		    state.patient_order = patient_order;
-		    state.patient_order_loaded.resolve();
-		});
-	    }
-	})(State);
-	
 	return State;
     })();
     
@@ -1510,7 +1481,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 
     State.clinical_attributes_fetched.then(function () {
 	State.unused_clinical_attributes.sort(function (attrA, attrB) {
-	    var set_attribute_order = ["FRACTION_GENOME_ALTERED", "# mutations", "NO_CONTEXT_MUTATION_SIGNATURE"];
+	    var set_attribute_order = ["FRACTION_GENOME_ALTERED", "# mutations", "CANCER_STUDY", "NO_CONTEXT_MUTATION_SIGNATURE"];
 	    var attrA_index = set_attribute_order.indexOf(attrA.attr_id);
 	    var attrB_index = set_attribute_order.indexOf(attrB.attr_id);
 	    if (attrA_index < 0) {
@@ -1647,22 +1618,15 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    // zoom out if many columns are selected
 	    console.log("in initOncoprint, fetching altered cases while waiting for data to be populated");
 	    return $.when(QuerySession.getPatientIds(),
-		    QuerySession.getAlteredSamples(),
-		    QuerySession.getAlteredPatients(),
-		    QuerySession.getCaseUIDMap(),
+		    QuerySession.getAlteredSampleUIDs(),
+		    QuerySession.getAlteredPatientUIDs(),
 		    dataPopulatedPromise)
 	    .then(function (patient_ids,
-		    altered_samples,
-		    altered_patients,
-		    case_uid_map) {
+		    altered_sample_uids,
+		    altered_patient_uids) {
 		console.log("in initOncoprint, altered cases fetched, setting zoom level");
 		if ((State.using_sample_data ? QuerySession.getSampleIds() : patient_ids).length > 200) {
-		    // TODO: assume multiple studies
-		    var study_id = QuerySession.getCancerStudyIds()[0];
-		    var getUID = function(id) {
-			return case_uid_map[study_id][id];
-		    };
-		    oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_samples.map(getUID) : altered_patients.map(getUID));
+		    oncoprint.setHorzZoomToFit(State.using_sample_data ? altered_sample_uids : altered_patient_uids);
 		}
 		oncoprint.scrollTo(0);
 	    });
@@ -1886,11 +1850,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 					State.trackIdsInOriginalOrder[heatmap_track_group_id] = trackIdsInOriginalOrder;
 					//get heatmap data:
 					var heatmap_data_deferred = State.using_sample_data ? QuerySession.getSampleHeatmapData(grp.genetic_profile_id, Object.keys(grp.gene_to_track_id)) : QuerySession.getPatientHeatmapData(grp.genetic_profile_id, Object.keys(grp.gene_to_track_id));
-					var case_ids_deferred =  State.using_sample_data ? QuerySession.getSampleIds() : QuerySession.getPatientIds();
+					var cases_deferred =  State.using_sample_data ? QuerySession.getSamples() : QuerySession.getPatients();
 					//process data, call clustering:
-					$.when(grp.gene_to_track_id, heatmap_data_deferred, case_ids_deferred).then(
-							function (track_uid_map, heatmap_data, case_ids) {
-								$.when(QuerySession.getClusteringOrder(track_uid_map, heatmap_data, case_ids)).then(
+					$.when(grp.gene_to_track_id, heatmap_data_deferred, cases_deferred).then(
+							function (track_uid_map, heatmap_data, cases) {
+								$.when(QuerySession.getClusteringOrder(track_uid_map, heatmap_data, cases)).then(
 										function (clusteringResult) {
 											LoadingBar.update(0.9, "green");
 											oncoprint.setSortConfig({'type': 'order', order: clusteringResult.sampleUidsInClusteringOrder});
@@ -2185,24 +2149,14 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    } else if (State.sortby === "id") {
 			State.sorting_by_given_order = false;
 			State.sorting_alphabetically = true;
-			// TODO: assume multiple studies
-			$.when(QuerySession.getCaseUIDMap(), State.patient_order_loaded).then(function (case_uid_map) {
-			    var study_id = QuerySession.getCancerStudyIds()[0];
-			    var getUID = function (id) {
-				return case_uid_map[study_id][id];
-			    };
-			    oncoprint.setSortConfig({'type': 'order', order: (State.using_sample_data ? QuerySession.getSampleIds().slice().sort().map(getUID) : State.patient_order.slice().sort().map(getUID))});
+			$.when(QuerySession.getSamples(), QuerySession.getPatients()).then(function (samples, patients) {
+			    oncoprint.setSortConfig({'type': 'order', order: _.sortBy((State.using_sample_data ? samples : patients), function(x) { return x.id; }).map(function(x) { return x.uid; })});
 			});
 		    } else if (State.sortby === "custom") {
 			State.sorting_by_given_order = true;
 			State.sorting_alphabetically = false;
-			// TODO: assume multiple studies
-			$.when(QuerySession.getCaseUIDMap(), State.patient_order_loaded).then(function (case_uid_map) {
-			    var study_id = QuerySession.getCancerStudyIds()[0];
-			    var getUID = function (id) {
-				return case_uid_map[study_id][id];
-			    };
-			    oncoprint.setSortConfig({'type': 'order', order: (State.using_sample_data ? QuerySession.getSampleIds().map(getUID) : State.patient_order.map(getUID))});
+			$.when(QuerySession.getSamples(), QuerySession.getPatients()).then(function (samples, patients) {
+			    oncoprint.setSortConfig({'type': 'order', order: (State.using_sample_data ? samples : patients).map(function(x) { return x.uid; })});
 			});
 		    }
 		};

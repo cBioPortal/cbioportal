@@ -175,8 +175,8 @@ public class ProxyController
     public
     @ResponseBody
     String getSessionService(@PathVariable String type, @PathVariable String key,
-                             @RequestBody(required = false) String body,  HttpMethod method,HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
-        return respProxy(sessionServiceURL + type + "/" + key, method, body, response);
+                             HttpMethod method,HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
+        return respProxy(sessionServiceURL + type + "/" + key, method, null, response);
     }
     
   @RequestMapping(value="/session-service/{type}", method = RequestMethod.POST)

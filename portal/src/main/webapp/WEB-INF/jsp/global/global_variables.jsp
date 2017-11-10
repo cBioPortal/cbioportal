@@ -180,7 +180,7 @@
                 if (window.cohortIdsList.length === 1) {
                     $.ajax({
                         method: 'GET',
-                        url: 'proxy/' + window.sessionServiceUrl + 'virtual_cohort/' + window.cohortIdsList[0]
+                        url: 'proxy/' + window.sessionServiceUrl + 'virtual_study/' + window.cohortIdsList[0]
                     }).done(function(response){
                         response = JSON.parse(response);
                         def.resolve(response['data']['name']);

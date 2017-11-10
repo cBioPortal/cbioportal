@@ -12,7 +12,9 @@
     
     TypeReference<HashMap<String,Set<String>>> typeRef = new TypeReference<HashMap<String,Set<String>>>() {};
     ObjectMapper mapper = new ObjectMapper();
-    HashMap<String,Set<String>> StudiesMap = mapper.readValue((String)request.getAttribute("STUDY_SAMPLE_MAP"), typeRef); 
+    HashMap<String,Set<String>> StudiesMap = new HashMap<>();
+    if((String)request.getAttribute("STUDY_SAMPLE_MAP") != null)
+    		StudiesMap = mapper.readValue((String)request.getAttribute("STUDY_SAMPLE_MAP"), typeRef); 
     
     String normalizedCancerStudyIdListStr = StudiesMap.keySet().stream().collect(Collectors.joining(","));
     pageContext.setAttribute("normalizedCancerStudyIdListStr", normalizedCancerStudyIdListStr);

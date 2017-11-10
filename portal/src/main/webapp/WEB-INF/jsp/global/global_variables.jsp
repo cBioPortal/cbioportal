@@ -61,11 +61,6 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="java.lang.reflect.Array" %>
 <%@ page import="org.mskcc.cbio.portal.util.*" %>
-<%@ page import="org.codehaus.jackson.node.*" %>
-<%@ page import="org.codehaus.jackson.JsonNode" %>
-<%@ page import="org.codehaus.jackson.JsonParser" %>
-<%@ page import="org.codehaus.jackson.JsonFactory" %>
-<%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 <%@ page import="org.mskcc.cbio.portal.dao.DaoMutation" %>
 
 <%
@@ -188,7 +183,7 @@
                         url: 'proxy/' + window.sessionServiceUrl + 'virtual_cohort/' + window.cohortIdsList[0]
                     }).done(function(response){
                         response = JSON.parse(response);
-                        def.resolve(response['data']['studyName']);
+                        def.resolve(response['data']['name']);
                     }).fail(function () {
                         def.resolve([]);
                     });                    

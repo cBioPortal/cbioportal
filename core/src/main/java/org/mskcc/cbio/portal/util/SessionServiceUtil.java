@@ -124,7 +124,7 @@ public class SessionServiceUtil {
      */
     public VirtualStudy getVirtualCohortData(String virtualStudyId) {
         if(GlobalProperties.getSessionServiceUrl() != null) {
-            String url = GlobalProperties.getSessionServiceUrl() + "virtual_cohort/";
+            String url = GlobalProperties.getSessionServiceUrl() + "virtual_study/";
             try {
             		return new RestTemplate().getForObject(url + virtualStudyId, VirtualStudy.class);
             } catch (HttpStatusCodeException exception) {

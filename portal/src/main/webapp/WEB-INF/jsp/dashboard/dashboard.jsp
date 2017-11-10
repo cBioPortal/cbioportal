@@ -336,9 +336,6 @@
                             });
                         }
                     }
-                    $("#submit_button").click(function(){
-                        iViz.submitForm(true);
-                    });
                 } else if (cohortIdsList.length >= 2) {
                     var study_name = 'Combined Studies';
                     var study_description = 'Total ' + cohortIdsList.length + ' studies.';
@@ -361,6 +358,10 @@
                             .prev().toggle();                    // Hide/show the text
                     });
                 }
+                $("#submit_button").click(function(){
+                    debugger;
+                    iViz.submitForm(true);
+                });
 
                 $("#study-tabs").tabs({disabled: true});
                 $('#study-tab-summary-a').click(function () {

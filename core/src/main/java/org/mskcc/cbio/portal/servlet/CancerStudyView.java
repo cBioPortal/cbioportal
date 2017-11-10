@@ -33,10 +33,12 @@
 package org.mskcc.cbio.portal.servlet;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -47,12 +49,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cbioportal.model.virtualstudy.VirtualStudy;
+import org.cbioportal.model.virtualstudy.VirtualStudyData;
+import org.cbioportal.model.virtualstudy.VirtualStudySamples;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoSampleList;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.Cohort;
-import org.mskcc.cbio.portal.model.CohortStudyCasesMap;
 import org.mskcc.cbio.portal.model.SampleList;
 import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.util.SessionServiceUtil;
@@ -170,7 +173,7 @@ public class CancerStudyView extends HttpServlet {
         Set<String> unknownStudyIds = new HashSet<>();
         Set<String> unAuthorizedStudyIds = new HashSet<>();
         Map<String, HashSet<String>> inputCohortMap = getCohortIds(request);
-        Map<String, Cohort> cohortMap = getProcessedCohortMap(inputCohortMap);
+        Set<VirtualStudy> studies = getProcessedCohortMap(inputCohortMap);
         Map<String, Set<String>> studySampleMap = new HashMap<String, Set<String>>();
         UserDetails ud = accessControl.getUserDetails();
         if (ud != null) {
@@ -178,46 +181,48 @@ public class CancerStudyView extends HttpServlet {
                 + inputCohortMap.keySet());
         }
 
-        // Find unauthorized and unknown studies
-        for (String cohortId : inputCohortMap.keySet()) {
-            if (cohortMap.get(cohortId) == null) {
-                try {
-                    CancerStudy cancerStudy = getCancerStudyDetails(cohortId);
-                    if (cancerStudy == null) {
-                        unknownStudyIds.add(cohortId);
-                    }
-                } catch (NotAuthorizedException notAuthorizedException) {
-                    LOG.info("User: " + accessControl.getUserDetails().getUsername()
-                        + ", not authorized to query Study(s): " + cohortId);
-                    unAuthorizedStudyIds.add(cohortId);
-                }
-            }
-        }
+        Set<String> unKnownStudies = new HashSet<>();
+        Set<String> unauthorizedStudies = new HashSet<>();
+        
+        //filter unknown and unauthorized studies
+        Set<VirtualStudy> filteredStudies = studies.stream().filter(map -> {
+			for (VirtualStudySamples _study : map.getData().getStudies()) {
+				try {
+					CancerStudy _cancerStudy = getCancerStudyDetails(_study.getId());
+					if (_cancerStudy == null) 
+						unKnownStudies.add(_study.getId());
+					else 
+						return true;
+				} catch (NotAuthorizedException notAuthorizedException) {
+					unauthorizedStudies.add(_study.getId());
+				} catch (DaoException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			return false;
+        }).collect(Collectors.toSet());
 
-        // Loop though all the process map and and prepare final response map
-        for (String cohortId : cohortMap.keySet()) {
-            Cohort cohort = cohortMap.get(cohortId);
-            // if it is a virutal cohort loop through all the studies and check
-            // whether user has access to those studies and if yes add them to
-            // the response map
-            if (cohort.isVirtualCohort()) {
-                for (CohortStudyCasesMap cohortStudyCasesMap : cohort.getCohortStudyCasesMap()) {
-                    try {
-                        CancerStudy cancerStudy = getCancerStudyDetails(cohortStudyCasesMap.getStudyID());
-                        if (cancerStudy != null) {
-                            addCohortToMap(studySampleMap, cohortStudyCasesMap.getStudyID(),
-                                cohortStudyCasesMap.getSamples());
-                        } else {
-                            unknownStudyIds.add(cohortStudyCasesMap.getStudyID());
-                        }
-                    } catch (NotAuthorizedException notAuthorizedException) {
-                        unAuthorizedStudyIds.add(cohortStudyCasesMap.getStudyID());
-                    }
-                }
-            } else {
-                addCohortToMap(studySampleMap, cohort.getId(), null);
-            }
-        }
+        //prepare sample response map
+        filteredStudies.stream().forEach(data -> {
+	        	for(VirtualStudySamples _study : data.getData().getStudies()) {
+	        		
+	        		Set<String> sampleIdsToAdd = _study.getSamples();
+	            if (sampleIdsToAdd == null) {
+	                SampleList sampleList;
+					try {
+						sampleList = daoSampleList.getSampleListByStableId(_study.getId() + "_all");
+					} catch (DaoException e) {
+						throw new RuntimeException(e);
+					}
+	                sampleIdsToAdd = new HashSet<String>(sampleList.getSampleList());
+	            }
+	            Set<String> updatedSampleList  = studySampleMap.getOrDefault(_study.getId(), new HashSet<>());
+	            updatedSampleList.addAll(sampleIdsToAdd);
+	            
+	            studySampleMap.put(_study.getId(), updatedSampleList);
+	        	}
+	    });
+
         // check if there are any studies in the response map, if no then check
         if (studySampleMap.size() == 0) {
             if (unknownStudyIds.size() > 0 && unAuthorizedStudyIds.size() > 0) {
@@ -248,22 +253,27 @@ public class CancerStudyView extends HttpServlet {
      * @return Map<String, Cohort> cohortMap
      * @throws DaoException
      */
-    private Map<String, Cohort> getProcessedCohortMap(Map<String, HashSet<String>> inputCohortMap) throws DaoException {
-        Map<String, Cohort> cohortMap = new HashMap<String, Cohort>();
+    private Set<VirtualStudy> getProcessedCohortMap(Map<String, HashSet<String>> inputCohortMap) throws DaoException {
+    		Set<VirtualStudy> cohortMap = new HashSet<>();
         SessionServiceUtil sessionServiceUtil = new SessionServiceUtil();
         for (String cohortId : inputCohortMap.keySet()) {
             try {
                 CancerStudy cancerStudy = getCancerStudyDetails(cohortId);
                 if (cancerStudy == null) {
-                    Cohort virtualCohort = sessionServiceUtil.getVirtualCohortData(cohortId);
-                    if (virtualCohort != null) {
-                        cohortMap.put(virtualCohort.getId(), virtualCohort);
+                	VirtualStudy virtualStudy = sessionServiceUtil.getVirtualCohortData(cohortId);
+                    if (virtualStudy != null) {
+                        cohortMap.add(virtualStudy);
                     }
                 } else {
-                    Cohort cohort = new Cohort();
-                    cohort.setId(cancerStudy.getCancerStudyStableId());
-                    cohort.setVirtualCohort(false);
-                    cohortMap.put(cohort.getId(), cohort);
+                		VirtualStudy study = new VirtualStudy();
+                		VirtualStudySamples studySamples = new VirtualStudySamples();
+                		studySamples.setId(cohortId);
+                		studySamples.setSamples(inputCohortMap.get(cohortId));
+                		VirtualStudyData studyData = new VirtualStudyData();
+                		studyData.setStudies(Collections.singleton(studySamples));
+                		study.setId(cancerStudy.getCancerStudyStableId());
+                		study.setData(studyData);
+                		cohortMap.add(study);
                 }
             } catch (NotAuthorizedException notAuthorizedException) {
                 LOG.warn("notAuthorizedException" + notAuthorizedException);
@@ -320,30 +330,6 @@ public class CancerStudyView extends HttpServlet {
             }
         }
         return inputCohortMap;
-    }
-
-    /**
-     * This method adds a study and its related samples to the response map
-     * @param studySampleMap
-     * @param cancerStudyId
-     * @param sampleIds
-     * @throws DaoException
-     */
-    private void addCohortToMap(Map<String, Set<String>> studySampleMap, String cancerStudyId, Set<String> sampleIds)
-        throws DaoException {
-        Set<String> sampleIdsToAdd = sampleIds;
-        if (sampleIdsToAdd == null) {
-            SampleList sampleList = daoSampleList.getSampleListByStableId(cancerStudyId + "_all");
-            sampleIdsToAdd = new HashSet<String>(sampleList.getSampleList());
-        }
-
-        if (studySampleMap.containsKey(cancerStudyId)) {
-            Set<String> exisitngSampleIds = studySampleMap.get(cancerStudyId);
-            exisitngSampleIds.addAll(sampleIdsToAdd);
-            studySampleMap.put(cancerStudyId, exisitngSampleIds);
-        } else {
-            studySampleMap.put(cancerStudyId, sampleIdsToAdd);
-        }
     }
 
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response,

@@ -797,8 +797,8 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         $.when(window.iviz.datamanager.getClinicalData(_attrIds, (_type === 'patient')))
           .then(function() {
             _def.resolve();
-          }, function(error) {
-            _def.reject(error);
+          }, function() {
+            _def.reject();
           });
       }
       return _def.promise();
@@ -884,8 +884,8 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           });
 
           def.resolve();
-        }, function(error) {
-            def.reject(error);
+        }, function() {
+          def.reject();
         });
       return def.promise();
     },
@@ -1239,7 +1239,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var self = this;
 
       // extract and reformat selected cases
-      var _selectedCases = [];
+      var _studies = [];
       var _selectedStudyCasesMap = {};
       var _sampleData = data_.groups.sample.data;
 
@@ -1247,7 +1247,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         var _caseDataObj = _sampleData[sampleUID];
         if (!_selectedStudyCasesMap[_caseDataObj.study_id]) {
           _selectedStudyCasesMap[_caseDataObj.study_id] = {};
-          _selectedStudyCasesMap[_caseDataObj.study_id].studyID = _caseDataObj.study_id;
+          _selectedStudyCasesMap[_caseDataObj.study_id].id = _caseDataObj.study_id;
           _selectedStudyCasesMap[_caseDataObj.study_id].samples = [];
           _selectedStudyCasesMap[_caseDataObj.study_id].patients = [];
         }
@@ -1256,9 +1256,9 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         _selectedStudyCasesMap[_caseDataObj.study_id].patients.push(data_.groups.patient.data[temp[0]].patient_id);
       });
       $.each(_selectedStudyCasesMap, function(key, val) {
-        _selectedCases.push(val);
+        _studies.push(val);
       });
-      _result.filterspatients = [];
+      _result.filters.patients = [];
       _result.filters.samples = [];
       _.each(vm_.groups, function(group) {
         var filters_ = [];
@@ -1285,7 +1285,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           _result.filters.samples = array;
         }
       });
-      _result.selectedCases = _selectedCases;
+      _result.studies = _studies;
       return _result;
     },
 
@@ -8393,9 +8393,9 @@ window.LogRankTest = (function(jStat) {
                 self_.$nextTick(function() {
                   var saveCohort = false;
 
-                  if (_.isObject(self_.stats.selectedCases)) {
+                  if (_.isObject(self_.stats.studies)) {
                     var selectedCasesMap = {};
-                    _.each(self_.stats.selectedCases, function(study){
+                    _.each(self_.stats.studies, function(study){
                       selectedCasesMap[study.studyID] = study;
                     });
 
@@ -8435,18 +8435,18 @@ window.LogRankTest = (function(jStat) {
                     if (saveCohort) {
                       var _selectedSamplesNum = 0;
                       var _selectedPatientsNum = 0;
-                      _.each(self_.stats.selectedCases, function (studyCasesMap) {
+                      _.each(self_.stats.studies, function (studyCasesMap) {
                         _selectedSamplesNum += studyCasesMap.samples.length;
-                        _selectedPatientsNum += studyCasesMap.patients.length;
                       });
                       self_.selectedSamplesNum = _selectedSamplesNum;
-                      self_.selectedPatientsNum = _selectedPatientsNum;
+                      self_.selectedPatientsNum = _selectedSamplesNum;
 
+                      console.log(self_.stats)
                       vcSession.events.saveCohort(self_.stats,
                         cohortName, cohortDescription || '')
                         .done(function (response) {
                           var deepCopySelectedCases = JSON.parse(
-                            JSON.stringify(self_.stats.selectedCases));
+                            JSON.stringify(self_.stats.studies));
                           self_.savedVC = response;
                           tooltip.find('.cohort-link').html(
                             '<a class="virtual-study-link" href="' + window.cbioURL +
@@ -8456,7 +8456,7 @@ window.LogRankTest = (function(jStat) {
                           tooltip.find('.saving').css('display', 'none');
                           tooltip.find('.cohort-link').css('display', 'block');
                           _.each(deepCopySelectedCases, function(study){
-                            previousSelectedCases[study.studyID] = study;
+                            previousSelectedCases[study.id] = study;
                           });
                         })
                         .fail(function () {

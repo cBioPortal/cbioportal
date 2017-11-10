@@ -320,11 +320,12 @@ window.QueryByGeneUtil = (function() {
       _.each(selectedCases, function(_obj) {
         var _studyId = _obj.studyID;
         _.each(_obj.samples, function(_sampleId) {
-          _arr.push(_studyId + "|" + _sampleId);
+          _arr.push(_studyId + ":" + _sampleId);
         });
       });
       submitForm(window.cbioURL + 'index.do', {
-        'cancer_study_id': studyId,
+        'cancer_study_id': studyId? studyId : 'all',
+        'cancer_study_list': selectedCases.map(function(x) {return x.studyID}),
         'case_ids': _arr.join('+'),
         'case_set_id': -1
       });
@@ -335,7 +336,7 @@ window.QueryByGeneUtil = (function() {
       _.each(selectedCases, function(_obj) {
         var _studyId = _obj.studyID;
         _.each(_obj.samples, function(_sampleId) {
-          _arr.push(_studyId + "|" + _sampleId);
+          _arr.push(_studyId + ":" + _sampleId);
         });
       });
       submitForm(window.cbioURL + 'index.do', {
@@ -359,14 +360,14 @@ window.QueryByGeneUtil = (function() {
       _.each(_selectedCases, function(_obj) {
         var _studyId = _obj.studyID;
         _.each(_obj.samples, function(_sampleId) {
-          _arr.push(_studyId + "|" + _sampleId);
+          _arr.push(_studyId + ":" + _sampleId);
         });
       });
       submitForm(window.cbioURL + 'index.do', {
-        cancer_study_list: null,
-        cancer_study_id: _vcId,
+        cancer_study_list: _selectedCases.map(function(x) {return x.studyID}),
+        cancer_study_id: 'all',
         gene_list: _selectedGenes,
-        case_set_id: '-1',
+        case_set_id: -1,
         case_ids: _arr.join('+'),
         tab_index: 'tab_visualize',
         Action: 'Submit'
@@ -1210,16 +1211,12 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         } else {
           QueryByGeneTextArea.validateGenes(this.decideSubmitSingleCohort, false);
         }
-      } else { // to query multiple studies, always generate a tmp VC and save to session service only. 
-        $.when(vcSession.utils.buildVCObject(_self.stat().filters, _self.stat().selectedCases, "Selected patients / samples", "")).done(function (_vc) {
-          vcSession.model.saveSessionWithoutWritingLocalStorage(_vc, function (_vcId) {
-            if (QueryByGeneTextArea.isEmpty()) {
-              QueryByGeneUtil.toMainPage(_vcId, _self.stat().selectedCases);
-            } else {
-              QueryByGeneUtil.toMultiStudiesQueryPage(_vcId, _self.stat().selectedCases, QueryByGeneTextArea.getGenes());
-            }
-          });
-        });
+      } else { // query multiple studies
+        if (QueryByGeneTextArea.isEmpty()) {
+          QueryByGeneUtil.toMainPage(undefined, _self.stat().selectedCases);
+        } else {
+          QueryByGeneUtil.toMultiStudiesQueryPage(undefined, _self.stat().selectedCases, QueryByGeneTextArea.getGenes());
+        }
       }
     },
     decideSubmitSingleCohort: function(allValid) {

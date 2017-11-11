@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.web;
 
+import org.cbioportal.model.virtualstudy.VirtualStudyData;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -180,7 +181,7 @@ public class ProxyController
     }
     
   @RequestMapping(value="/session-service/{type}", method = RequestMethod.POST)
-  public @ResponseBody Map addSessionService(@PathVariable String type, @RequestBody JSONObject body, HttpMethod method,
+  public @ResponseBody Map addSessionService(@PathVariable String type, @RequestBody VirtualStudyData body, HttpMethod method,
                                                 HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
   {
     RestTemplate restTemplate = new RestTemplate();
@@ -191,7 +192,7 @@ public class ProxyController
     // was String when default converter StringHttpMessageConverter was used
       try {
           ResponseEntity<HashMap> responseEntity =
-              restTemplate.exchange(uri, method, new HttpEntity<JSONObject>(body), HashMap.class);
+              restTemplate.exchange(uri, method, new HttpEntity<VirtualStudyData>(body), HashMap.class);
           return responseEntity.getBody();
       }catch (Exception exp){
           System.out.println(exp);

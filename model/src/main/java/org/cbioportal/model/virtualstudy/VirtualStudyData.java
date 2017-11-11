@@ -1,6 +1,9 @@
 package org.cbioportal.model.virtualstudy;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class VirtualStudyData {
 
@@ -12,9 +15,13 @@ public class VirtualStudyData {
 
 	private VirtualStudyFilters filters;
 
-	private String owner;
+	private String owner = "anonymous";
 
-	private Set<String> origin;
+	private Set<String> origin = new HashSet<>();
+
+	private Long created = System.currentTimeMillis();
+	
+	private Set<String> users = new HashSet<>();
 
 	public String getName() {
 		return name;
@@ -38,6 +45,7 @@ public class VirtualStudyData {
 
 	public void setStudies(Set<VirtualStudySamples> studies) {
 		this.studies = studies;
+		this.origin = this.studies.stream().map(map -> map.getId()).collect(Collectors.toSet());
 	}
 
 	public VirtualStudyFilters getFilters() {
@@ -54,6 +62,7 @@ public class VirtualStudyData {
 
 	public void setOwner(String owner) {
 		this.owner = owner;
+		this.users = owner.equals("anonymous") ? new HashSet<>() : Collections.singleton(owner);
 	}
 
 	public Set<String> getOrigin() {
@@ -63,5 +72,23 @@ public class VirtualStudyData {
 	public void setOrigin(Set<String> origin) {
 		this.origin = origin;
 	}
+
+	public Long getCreated() {
+		return created;
+	}
+
+	public void setCreated(Long created) {
+		this.created = created;
+	}
+
+	public Set<String> getUsers() {
+		return users;
+	}
+
+	public void setUsers(Set<String> users) {
+		this.users = users;
+	}
+	
+	
 
 }

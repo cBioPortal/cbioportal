@@ -22,6 +22,8 @@ public class VirtualStudyData {
 	private Long created = System.currentTimeMillis();
 	
 	private Set<String> users = new HashSet<>();
+	
+	private Float version = 1.0f;
 
 	public String getName() {
 		return name;
@@ -89,6 +91,11 @@ public class VirtualStudyData {
 		this.users = users;
 	}
 	
-	
+	public Float getVersion() {
+		return version;
+	}
 
+	public void setVersion(Float version) {
+		this.version = version;
+	}
 }

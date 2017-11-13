@@ -42,13 +42,13 @@ window.vcSession = window.vcSession ? window.vcSession : {};
            */
           console.log('virtual cohort not found');
         } else {
-          var _match = _.findWhere(_studyMatch.selectedCases, {
-            studyID: cancerStudyID
+          var _match = _.findWhere(_studyMatch.studies, {
+            id: cancerStudyID
           });
           if (typeof _match === 'undefined') {
             var _selectedCases = vcSession.utils.buildCaseListObject(
-              _studyMatch.selectedCases, cancerStudyID, sampleID);
-            _studyMatch.selectedCases = _selectedCases;
+              _studyMatch.studies, cancerStudyID, sampleID);
+            _studyMatch.studies = _selectedCases;
             // TODO: this is the question I have for a while, should we have
             // individual length property? I understand it's convenient
             // but also easy to get out of sync with the samples array.
@@ -264,7 +264,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       var def = new $.Deferred(), _desp = "";
       $.when(window.iviz.datamanager.getCancerStudyDisplayName(_.pluck(_cases, "id"))).done(function(_studyIdNameMap) {
         _.each(_cases, function (_i) {
-          _desp += _studyIdNameMap[_i.id] + ": " + _i.samples.length + " samples / " + _i.patients.length + " patients\n";
+          _desp += _studyIdNameMap[_i.id] + ": " + _i.samples.length + " samples\n";
         });
         def.resolve(_desp);
       });

@@ -1755,6 +1755,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	};
 
 	(function setUpHeatmap() {
+	    if (QuerySession.getCancerStudyIds().length > 1) {
+		// hide for multiple studies
+		$(toolbar_selector + ' #oncoprint_diagram_heatmap_menu').hide();
+		return;
+	    }
 	    QuerySession.getHeatmapProfiles().then(function (profiles) {
 		// Make a copy to modify here
 		profiles = utils.deepCopyObject(profiles);

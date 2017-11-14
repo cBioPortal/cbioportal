@@ -122,7 +122,7 @@ public class SessionServiceUtil {
      * @param virtualStudyId
      * @return cohort object
      */
-    public VirtualStudy getVirtualCohortData(String virtualStudyId) {
+    public VirtualStudy getVirtualStudyData(String virtualStudyId) {
         if(GlobalProperties.getSessionServiceUrl() != null) {
             String url = GlobalProperties.getSessionServiceUrl() + "virtual_study/";
             try {

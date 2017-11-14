@@ -684,7 +684,7 @@ class CohortDetails {
                 CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(inputCohortId);
                 // is virtual study
                 if (cancerStudy == null) {
-                		VirtualStudy virtualCohort = sessionServiceUtil.getVirtualCohortData(inputCohortId);
+                		VirtualStudy virtualCohort = sessionServiceUtil.getVirtualStudyData(inputCohortId);
                     if (virtualCohort != null && virtualCohort.getData().getStudies().size() > 0) {
                         for (VirtualStudySamples cohortStudyCasesMap : virtualCohort.getData().getStudies()) {
                             if (studySampleMap.containsKey(cohortStudyCasesMap.getId())) {

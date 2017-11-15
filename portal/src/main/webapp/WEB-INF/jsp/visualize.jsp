@@ -197,12 +197,18 @@ window.onReactAppReady(function() {
             // determine whether to show the cancerTypesSummaryTab
             // retrieve the cancerTypesMap and create an iterator for the values
             showCancerTypesSummary = (Boolean) request.getAttribute(QueryBuilder.HAS_CANCER_TYPES);
+  
+            String cancerTypeSummaryTabButton = (showCancerTypesSummary) ? "<li><a href='#pancancer_study_summary' class='result-tab' title='Cancer types summary'>"
+                                                                    + "Cancer Types Summary</a></li>" : "";
+            String oncoprintTabButton = "<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>";
             
-            out.println ("<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>");
-            // if showCancerTypesSummary is try, add the list item
-            if(showCancerTypesSummary){
-                out.println ("<li><a href='#pancancer_study_summary' class='result-tab' title='Cancer types summary'>"
-                + "Cancer Types Summary</a></li>");
+            // for virtual studies, we want to put the cancer summary first, otherwise, oncoprint
+            if(isVirtualStudy){
+                out.println (cancerTypeSummaryTabButton);
+                out.println (oncoprintTabButton);
+            } else {
+                out.println (oncoprintTabButton);
+                out.println (cancerTypeSummaryTabButton);
             }
 
             if (computeLogOddsRatio) {

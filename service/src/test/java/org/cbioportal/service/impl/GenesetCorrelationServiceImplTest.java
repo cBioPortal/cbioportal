@@ -79,7 +79,7 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
             .thenReturn(Arrays.asList(geneticProfile));
         MolecularProfile zscoreGeneticProfile = new MolecularProfile();
         zscoreGeneticProfile.setStableId(MOLECULAR_PROFILE_ID);
-        zscoreGeneticProfile.setDatatype("Z_SCORE");
+        zscoreGeneticProfile.setDatatype("Z-SCORE");
         Mockito.when(geneticProfileService.getMolecularProfilesReferringTo(MOLECULAR_PROFILE_ID))
             .thenReturn(Arrays.asList(zscoreGeneticProfile));
         

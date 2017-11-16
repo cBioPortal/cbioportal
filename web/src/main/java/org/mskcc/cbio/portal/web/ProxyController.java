@@ -191,7 +191,7 @@ public class ProxyController
                                                 HttpServletRequest request, HttpServletResponse response)
   {
 	  HttpEntity httpEntity = new HttpEntity<JSONObject>(body);
-	  if(type == "virtual_study") {
+	  if(type.equals("virtual_study")) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			  //JSON from file to Object

@@ -12,7 +12,7 @@
     
     TypeReference<HashMap<String,Set<String>>> typeRef = new TypeReference<HashMap<String,Set<String>>>() {};
     ObjectMapper mapper = new ObjectMapper();
-    HashMap<String,Set<String>> StudiesMap = new HashMap<>();
+    HashMap<String,Set<String>> StudiesMap = new HashMap<String,Set<String>>();
     if((String)request.getAttribute("STUDY_SAMPLE_MAP") != null)
     		StudiesMap = mapper.readValue((String)request.getAttribute("STUDY_SAMPLE_MAP"), typeRef); 
     

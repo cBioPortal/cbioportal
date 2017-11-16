@@ -683,10 +683,6 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         vm_.selectedpatientUIDs = _.pluck(data_.groups.patient.data, 'patient_uid');
         vm_.groups = groups;
         vm_.charts = charts;
-        vm_.$nextTick(function() {
-          _self.fetchCompleteData('patient');
-          _self.fetchCompleteData('sample');
-        });
       });
     }, // ---- close init function ----groups
     createGroupNdx: function(group) {
@@ -2547,6 +2543,10 @@ var util = (function(_, cbio) {
         break;
       }
       return message;
+    };
+    
+    content.getHypotenuse = function(a, b) {
+      return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
     };
 
     return content;
@@ -4981,7 +4981,7 @@ module.exports = {
       var groups = dcDimension.group().top(Infinity);
       var groupTypeId =
         data_.groupType === 'patient' ? 'patient_uid' : 'sample_uid';
-      var selectedCases = _.pluck(dcDimension.top(Infinity), groupTypeId);
+      var selectedCases = _.pluck(dcDimension.top(Infinity), groupTypeId).sort();
       var categories = [];
       var colorCounter = 0;
 
@@ -5002,7 +5002,7 @@ module.exports = {
             key: group.key,
             name: mapTickToCaseIds[group.key].range || mapTickToCaseIds[group.key].tick,
             color: color,
-            caseIds: _.intersection(selectedCases, mapTickToCaseIds[group.key].caseIds)
+            caseIds: iViz.util.intersection(selectedCases, mapTickToCaseIds[group.key].caseIds.sort())
           });
         }
       });
@@ -5418,10 +5418,11 @@ module.exports = {
         var _dataIssue = false;
         var smallerOutlier = [];
         var greaterOutlier = [];
+        var dataMetaKeys = {}; // Fast index unique dataMeta instead of using _.unique
 
         this.data.meta = _.map(_.filter(_.pluck(
           _data, this.opts.attrId), function(d) {
-          if (iViz.util.strIsNa(d, true) || (isNaN(d) && !d.includes('>') && !d.includes('<'))) {
+          if (isNaN(d) && !(_.isString(d) && d.includes('>') && d.includes('<'))) {
             _self.data.hasNA = true;
             d = 'NA';
           }
@@ -5441,6 +5442,7 @@ module.exports = {
           } else {
             number = parseFloat(d);
           }
+          dataMetaKeys[number] = true;
           return number;
         });
 
@@ -5471,7 +5473,7 @@ module.exports = {
             // noGrouping is true when number of different values less than or equal to 5. 
             // In this case, the chart sets data value as ticks' value directly. 
             this.data.noGrouping = false;
-            if (_.unique(this.data.meta).length <= 5 && this.data.meta.length > 0) {// for data less than 6 points
+            if (Object.keys(dataMetaKeys).length <= 5 && this.data.meta.length > 0) {// for data less than 6 points
               this.data.noGrouping = true;
               this.data.uniqueSortedData = _.unique(findExtremeResult[3]);// use sorted value as ticks directly
             }
@@ -6295,12 +6297,20 @@ module.exports = {
               var data_ = iViz.getGroupNdx(_groupId);
               var nonNaCases = [];
 
+              //Check whether case contains NA value on filtered attrs
+              var _attrs = {};
+              _.each(group.attrs, function(groupAttr) {
+                _.each(groupAttr.attrList, function(listItem) {
+                  _attrs[listItem] = 1;
+                })
+              });
+              _attrs = Object.keys(_attrs);
+
               _.each(data_, function(data) {
                 var hasNaWithinAttrs = false;
-
-                //Check whether case contains NA value on filtered attrs
-                _.some(_.flatten(_.pluck(group.attrs, 'attrList')), function(attr) {
-                  if (iViz.util.strIsNa(data[attr], false)) {
+                _.some(_attrs, function(attr) {
+                  // All data has been normalized to NA for different NA values
+                  if (data[attr] === 'NA') {
                     hasNaWithinAttrs = true;
                     return true;
                   }
@@ -6751,10 +6761,10 @@ window.LogRankTest = (function(jStat) {
     var _self = this;
     
     // Filter points with negative value 		
-    var _data = _.filter(data, function(point){
+    var _data = _.sortBy(_.filter(data, function(point) {
       return point.time >= 0 && point.survival_rate >= 0;
-    });
-    
+    }), 'time');
+
     // add an empty/zero point so the curve starts from zero time point
     if (_data !== null && _data.length !== 0) {
       if (_data[0].time !== 0) {
@@ -6764,6 +6774,43 @@ window.LogRankTest = (function(jStat) {
           time: 0
         }].concat(_data);
       }
+    }
+    
+    var _dataLength = _data.length;
+
+    // Only do the data optimization on more than 5000 data points.
+    if (_dataLength > 2000) {
+      var _dataTime = _.pluck(_data, 'time');
+      var _dataSurvivalRate = _.pluck(_data, 'survival_rate');
+
+      var _dataTimeMax = d3.max(_dataTime);
+      var _dataTimeMin = d3.min(_dataTime);
+
+      var _dataSurvivalRateMax = d3.max(_dataSurvivalRate);
+      var _dataSurvivalRateeMin = d3.min(_dataSurvivalRate);
+
+      var timeThreshold = (_dataTimeMax - _dataTimeMin) / 200;
+      var survivalRateThreshold = (_dataSurvivalRateMax - _dataSurvivalRateeMin) / 200;
+      var averageThreshold = iViz.util.getHypotenuse(timeThreshold, survivalRateThreshold);
+      var lastDataPoint = {
+        x: 0,
+        y: 0
+      };
+      _data = _.filter(_data, function(dataItem, index) {
+        if (index == 0) {
+          lastDataPoint.x = dataItem.time;
+          lastDataPoint.y = dataItem.survival_rate;
+          return true;
+        }
+        var dataItemVal = iViz.util.getHypotenuse(dataItem.time - lastDataPoint.x, dataItem.survival_rate - lastDataPoint.y);
+        if (dataItemVal > averageThreshold) {
+          lastDataPoint.x = dataItem.time;
+          lastDataPoint.y = dataItem.survival_rate;
+          return true;
+        } else {
+          return false;
+        }
+      });
     }
 
     if (!_self.elem_.curves.hasOwnProperty(_curveIndex)) {
@@ -6984,15 +7031,6 @@ window.LogRankTest = (function(jStat) {
  */
 (function(iViz, kmEstimator, _) {
   iViz.data.SurvivalChartProxy = function(_data, _attrId) {
-    var datum_ = {
-      study_id: '',
-      patient_id: '',
-      patient_uid: '',
-      time: '', // num of months
-      status: '',
-      num_at_risk: -1,
-      survival_rate: 0
-    };
     var datumArr_ = [];
 
     // convert raw data
@@ -7010,7 +7048,15 @@ window.LogRankTest = (function(jStat) {
       if (!isNaN(_time) &&
         _status !== 'NaN' && _status !== 'NA' &&
         typeof _status !== 'undefined' && typeof _time !== 'undefined') {
-        var _datum = jQuery.extend(true, {}, datum_);
+        var _datum = {
+          study_id: '',
+          patient_id: '',
+          patient_uid: '',
+          time: '', // num of months
+          status: '',
+          num_at_risk: -1,
+          survival_rate: 0
+        };
         _datum.patient_uid = _dataObj.patient_uid;
         _datum.patient_id = iViz.getCaseIdUsingUID('patient', _dataObj.patient_uid);
         _datum.study_id = _dataObj.study_id;
@@ -8380,53 +8426,17 @@ window.LogRankTest = (function(jStat) {
                 self_.updateStats = true;
 
                 self_.$nextTick(function() {
-                  var saveCohort = false;
-
                   if (_.isObject(self_.stats.studies)) {
-                    var selectedCasesMap = {};
-                    _.each(self_.stats.studies, function(study){
-                      selectedCasesMap[study.id] = study;
-                    });
-
                     // When a user clicks copy, it will trigger saving the current virtual cohort and return the url 
                     // to the user. When a user want to see the cohort url, he/she needs to click Share button. 
                     // We always show the url to user but we don't need to same virtual cohort every time 
                     // if it is same with the previous saved cohort.
-                    if (_.isEmpty(previousSelectedCases)) {
-                      saveCohort = true;
-                    } else {
-                      _.every(selectedCasesMap, function(selectedCase){
-                        if(previousSelectedCases[selectedCase.id]){
-                          var previousCase = previousSelectedCases[selectedCase.id];
-                          if (previousCase.patients.length !== selectedCase.patients.length ||
-                            previousCase.samples.length !== selectedCase.samples.length) {
-                            saveCohort = true;
-                          } else if (previousCase.patients.length ===
-                            selectedCase.patients.length) {
-                            var differentPatients = _.difference(previousCase.patients,
-                              selectedCase.patients);
-                            if (differentPatients.length > 0) {
-                              saveCohort = true;
-                            }
-                          } else if (previousCase.samples.length ===
-                            selectedCase.samples.length) {
-                            var differentSamples = _.difference(previousCase.samples,
-                              selectedCase.samples);
-                            if (differentSamples.length > 0) {
-                              saveCohort = true;
-                            }
-                          }
-                        }
-                        return !saveCohort;
-                      });
-                    }
+                    var currentSelectedCases = JSON.stringify(self_.stats.studies) + JSON.stringify(self_.stats);
 
-                    if (saveCohort) {
+                    if (currentSelectedCases !== previousSelectedCases) {
                       vcSession.events.saveCohort(self_.stats,
                         cohortName, cohortDescription || '')
                         .done(function (response) {
-                          var deepCopySelectedCases = JSON.parse(
-                            JSON.stringify(self_.stats.studies));
                           self_.savedVC = response;
                           tooltip.find('.cohort-link').html(
                             '<a class="virtual-study-link" href="' + window.cbioURL +
@@ -8435,9 +8445,7 @@ window.LogRankTest = (function(jStat) {
                             window.cbioURL + 'study?id=' + self_.savedVC.id + '</a>');
                           tooltip.find('.saving').css('display', 'none');
                           tooltip.find('.cohort-link').css('display', 'block');
-                          _.each(deepCopySelectedCases, function(study){
-                            previousSelectedCases[study.id] = study;
-                          });
+                          previousSelectedCases = currentSelectedCases;
                         })
                         .fail(function () {
                           tooltip.find('.failedMessage').html(

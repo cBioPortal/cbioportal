@@ -39,7 +39,8 @@ import org.mskcc.cbio.portal.web_api.*;
 import org.apache.commons.lang.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.cbioportal.model.virtualstudy.VirtualStudy;
+import org.cbioportal.model.virtualstudy.VirtualStudySamples;
 import org.owasp.validator.html.PolicyException;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -683,18 +684,18 @@ class CohortDetails {
                 CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(inputCohortId);
                 // is virtual study
                 if (cancerStudy == null) {
-                    Cohort virtualCohort = sessionServiceUtil.getVirtualCohortData(inputCohortId);
-                    if (virtualCohort != null && virtualCohort.getCohortStudyCasesMap().size() > 0) {
-                        for (CohortStudyCasesMap cohortStudyCasesMap : virtualCohort.getCohortStudyCasesMap()) {
-                            if (studySampleMap.containsKey(cohortStudyCasesMap.getStudyID())) {
-                                String _sharedStudyId = cohortStudyCasesMap.getStudyID();
+                		VirtualStudy virtualCohort = sessionServiceUtil.getVirtualStudyData(inputCohortId);
+                    if (virtualCohort != null && virtualCohort.getData().getStudies().size() > 0) {
+                        for (VirtualStudySamples cohortStudyCasesMap : virtualCohort.getData().getStudies()) {
+                            if (studySampleMap.containsKey(cohortStudyCasesMap.getId())) {
+                                String _sharedStudyId = cohortStudyCasesMap.getId();
                                 if (studySampleMap.get(_sharedStudyId).size() != 0) { // original entry does not contain all samples
                                     Set<String> mergedSet = mergeSets(studySampleMap.get(_sharedStudyId), cohortStudyCasesMap.getSamples());
-                                    studySampleMap.put(cohortStudyCasesMap.getStudyID(), mergedSet);
+                                    studySampleMap.put(cohortStudyCasesMap.getId(), mergedSet);
                                 } // otherwise keep the value as empty set
                                 //create new entry/key
                             } else {
-                                studySampleMap.put(cohortStudyCasesMap.getStudyID(), cohortStudyCasesMap.getSamples());
+                                studySampleMap.put(cohortStudyCasesMap.getId(), cohortStudyCasesMap.getSamples());
                             }
                         }
                     }

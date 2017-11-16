@@ -1,6 +1,7 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class SampleList implements Serializable {
     
@@ -13,7 +14,8 @@ public class SampleList implements Serializable {
     private String name;
     private String description;
     private Integer sampleCount;
-
+    private List<String> sampleIds;
+    
     public Integer getListId() {
         return listId;
     }
@@ -85,4 +87,12 @@ public class SampleList implements Serializable {
     public void setSampleCount(Integer sampleCount) {
         this.sampleCount = sampleCount;
     }
+
+	public List<String> getSampleIds() {
+		return sampleIds;
+	}
+
+	public void setSampleIds(List<String> sampleIds) {
+		this.sampleIds = sampleIds;
+	}
 }

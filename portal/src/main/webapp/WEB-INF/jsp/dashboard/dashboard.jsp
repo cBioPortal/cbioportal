@@ -327,11 +327,11 @@
                                     response = JSON.parse(response); 
                                 }
                                 $("#show_study_details").css('display','block');
-                                $("#study_name").html(response['data']['studyName']);
+                                $("#study_name").html(response['data']['name']);
                                 $("#study_desc").html(response['data']['description']);
                                 //$("#submit_button").css('display','none');
                                 $("#cancer_study_list").val(cohortIdsList[0]);
-                                var studyName = response['data']['studyName'];
+                                var studyName = response['data']['name'];
                                 document.title = studyName?studyName:'Summary';
                             });
                         }

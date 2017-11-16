@@ -48,7 +48,6 @@ window.onReactAppReady(function() {
 <div id="reactRoot" class="hidden"></div>
 
 <%@ page import="java.util.Map" %>
-<%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 
 <%
     // we have session service running AND this was a post, 

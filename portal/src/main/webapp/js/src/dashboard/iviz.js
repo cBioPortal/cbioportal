@@ -318,14 +318,14 @@ window.QueryByGeneUtil = (function() {
     toMainPage: function(studyId, selectedCases) {
       var _arr = [];
       _.each(selectedCases, function(_obj) {
-        var _studyId = _obj.studyID;
+        var _studyId = _obj.id;
         _.each(_obj.samples, function(_sampleId) {
           _arr.push(_studyId + ":" + _sampleId);
         });
       });
       submitForm(window.cbioURL + 'index.do', {
         'cancer_study_id': studyId? studyId : 'all',
-        'cancer_study_list': selectedCases.map(function(x) {return x.studyID}),
+        'cancer_study_list': selectedCases.map(function(x) {return x.id}),
         'case_ids': _arr.join('+'),
         'case_set_id': -1
       });
@@ -334,7 +334,7 @@ window.QueryByGeneUtil = (function() {
                                       selectedGenes, mutationProfileId, cnaProfileId) {
       var _arr = [];
       _.each(selectedCases, function(_obj) {
-        var _studyId = _obj.studyID;
+        var _studyId = _obj.id;
         _.each(_obj.samples, function(_sampleId) {
           _arr.push(_studyId + ":" + _sampleId);
         });
@@ -358,13 +358,13 @@ window.QueryByGeneUtil = (function() {
     toMultiStudiesQueryPage: function(_vcId, _selectedCases, _selectedGenes) {
       var _arr = [];
       _.each(_selectedCases, function(_obj) {
-        var _studyId = _obj.studyID;
+        var _studyId = _obj.id;
         _.each(_obj.samples, function(_sampleId) {
           _arr.push(_studyId + ":" + _sampleId);
         });
       });
       submitForm(window.cbioURL + 'index.do', {
-        cancer_study_list: _selectedCases.map(function(x) {return x.studyID}),
+        cancer_study_list: _selectedCases.map(function(x) {return x.id}),
         cancer_study_id: 'all',
         gene_list: _selectedGenes,
         case_set_id: -1,
@@ -797,8 +797,8 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         $.when(window.iviz.datamanager.getClinicalData(_attrIds, (_type === 'patient')))
           .then(function() {
             _def.resolve();
-          }, function(error) {
-            _def.reject(error);
+          }, function() {
+            _def.reject();
           });
       }
       return _def.promise();
@@ -884,8 +884,8 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           });
 
           def.resolve();
-        }, function(error) {
-            def.reject(error);
+        }, function() {
+          def.reject();
         });
       return def.promise();
     },
@@ -1207,15 +1207,15 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
       if (_self.cohorts_.length === 1) { // to query single study
         if (QueryByGeneTextArea.isEmpty()) {
-          QueryByGeneUtil.toMainPage(_self.cohorts_[0], _self.stat().selectedCases);
+          QueryByGeneUtil.toMainPage(_self.cohorts_[0], _self.stat().studies);
         } else {
           QueryByGeneTextArea.validateGenes(this.decideSubmitSingleCohort, false);
         }
       } else { // query multiple studies
         if (QueryByGeneTextArea.isEmpty()) {
-          QueryByGeneUtil.toMainPage(undefined, _self.stat().selectedCases);
+          QueryByGeneUtil.toMainPage(undefined, _self.stat().studies);
         } else {
-          QueryByGeneUtil.toMultiStudiesQueryPage(undefined, _self.stat().selectedCases, QueryByGeneTextArea.getGenes());
+          QueryByGeneUtil.toMultiStudiesQueryPage(undefined, _self.stat().studies, QueryByGeneTextArea.getGenes());
         }
       }
     },
@@ -1223,7 +1223,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       // if all genes are valid, submit, otherwise show a notification
       if (allValid) {
         var _self = this;
-        QueryByGeneUtil.toQueryPageSingleCohort(window.cohortIdsList[0], iViz.stat().selectedCases,
+        QueryByGeneUtil.toQueryPageSingleCohort(window.cohortIdsList[0], iViz.stat().studies,
           QueryByGeneTextArea.getGenes(), window.mutationProfileId,
           window.cnaProfileId);
       } else {
@@ -1239,7 +1239,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var self = this;
 
       // extract and reformat selected cases
-      var _selectedCases = [];
+      var _studies = [];
       var _selectedStudyCasesMap = {};
       var _sampleData = data_.groups.sample.data;
 
@@ -1247,18 +1247,15 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         var _caseDataObj = _sampleData[sampleUID];
         if (!_selectedStudyCasesMap[_caseDataObj.study_id]) {
           _selectedStudyCasesMap[_caseDataObj.study_id] = {};
-          _selectedStudyCasesMap[_caseDataObj.study_id].studyID = _caseDataObj.study_id;
+          _selectedStudyCasesMap[_caseDataObj.study_id].id = _caseDataObj.study_id;
           _selectedStudyCasesMap[_caseDataObj.study_id].samples = [];
-          _selectedStudyCasesMap[_caseDataObj.study_id].patients = [];
         }
         _selectedStudyCasesMap[_caseDataObj.study_id].samples.push(_caseDataObj.sample_id);
-        var temp = self.getPatientUIDs(sampleUID);
-        _selectedStudyCasesMap[_caseDataObj.study_id].patients.push(data_.groups.patient.data[temp[0]].patient_id);
       });
       $.each(_selectedStudyCasesMap, function(key, val) {
-        _selectedCases.push(val);
+        _studies.push(val);
       });
-      _result.filterspatients = [];
+      _result.filters.patients = [];
       _result.filters.samples = [];
       _.each(vm_.groups, function(group) {
         var filters_ = [];
@@ -1285,7 +1282,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           _result.filters.samples = array;
         }
       });
-      _result.selectedCases = _selectedCases;
+      _result.studies = _studies;
       return _result;
     },
 
@@ -1302,10 +1299,10 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     applyVC: function(_vc) {
       var _selectedSamples = [];
       var _selectedPatients = [];
-      _.each(_.pluck(_vc.selectedCases, 'samples'), function(_arr) {
+      _.each(_.pluck(_vc.studies, 'samples'), function(_arr) {
         _selectedSamples = _selectedSamples.concat(_arr);
       });
-      _.each(_.pluck(_vc.selectedCases, 'patients'), function(_arr) {
+      _.each(_.pluck(_vc.studies, 'patients'), function(_arr) {
         _selectedPatients = _selectedPatients.concat(_arr);
       });
       iViz.init(data_, _selectedSamples, _selectedPatients);
@@ -8180,8 +8177,8 @@ window.LogRankTest = (function(jStat) {
                   self_.$nextTick(function() {
                     var _selectedSamplesNum = 0;
                     var _selectedPatientsNum = 0;
-                    if (_.isObject(self_.stats.selectedCases)) {
-                      _.each(self_.stats.selectedCases, function(studyCasesMap) {
+                    if (_.isObject(self_.stats.studies)) {
+                      _.each(self_.stats.studies, function(studyCasesMap) {
                         _selectedSamplesNum += studyCasesMap.samples.length;
                         _selectedPatientsNum += studyCasesMap.patients.length;
                       });
@@ -8238,7 +8235,7 @@ window.LogRankTest = (function(jStat) {
               self_.$nextTick(function() {
                 // If user hasn't specific description only.
                 if (!tooltip.find('.cohort-description').val()) {
-                  $.when(vcSession.utils.generateCohortDescription(self_.stats.selectedCases))
+                  $.when(vcSession.utils.generateCohortDescription(self_.stats.studies))
                     .then(function(_desp) {
                       // If user hasn't specific description only.
                       if (!tooltip.find('.cohort-description').val()) {
@@ -8292,14 +8289,6 @@ window.LogRankTest = (function(jStat) {
     '<div class="share-cohort-btn">' +
     '<i class="fa fa-share-alt" alt="Share Virtual Study"></i></div></div>',
     props: {
-      selectedPatientsNum: {
-        type: Number,
-        default: 0
-      },
-      selectedSamplesNum: {
-        type: Number,
-        default: 0
-      },
       stats: {
         type: Object
       },
@@ -8393,10 +8382,10 @@ window.LogRankTest = (function(jStat) {
                 self_.$nextTick(function() {
                   var saveCohort = false;
 
-                  if (_.isObject(self_.stats.selectedCases)) {
+                  if (_.isObject(self_.stats.studies)) {
                     var selectedCasesMap = {};
-                    _.each(self_.stats.selectedCases, function(study){
-                      selectedCasesMap[study.studyID] = study;
+                    _.each(self_.stats.studies, function(study){
+                      selectedCasesMap[study.id] = study;
                     });
 
                     // When a user clicks copy, it will trigger saving the current virtual cohort and return the url 
@@ -8407,8 +8396,8 @@ window.LogRankTest = (function(jStat) {
                       saveCohort = true;
                     } else {
                       _.every(selectedCasesMap, function(selectedCase){
-                        if(previousSelectedCases[selectedCase.studyID]){
-                          var previousCase = previousSelectedCases[selectedCase.studyID];
+                        if(previousSelectedCases[selectedCase.id]){
+                          var previousCase = previousSelectedCases[selectedCase.id];
                           if (previousCase.patients.length !== selectedCase.patients.length ||
                             previousCase.samples.length !== selectedCase.samples.length) {
                             saveCohort = true;
@@ -8433,20 +8422,11 @@ window.LogRankTest = (function(jStat) {
                     }
 
                     if (saveCohort) {
-                      var _selectedSamplesNum = 0;
-                      var _selectedPatientsNum = 0;
-                      _.each(self_.stats.selectedCases, function (studyCasesMap) {
-                        _selectedSamplesNum += studyCasesMap.samples.length;
-                        _selectedPatientsNum += studyCasesMap.patients.length;
-                      });
-                      self_.selectedSamplesNum = _selectedSamplesNum;
-                      self_.selectedPatientsNum = _selectedPatientsNum;
-
                       vcSession.events.saveCohort(self_.stats,
                         cohortName, cohortDescription || '')
                         .done(function (response) {
                           var deepCopySelectedCases = JSON.parse(
-                            JSON.stringify(self_.stats.selectedCases));
+                            JSON.stringify(self_.stats.studies));
                           self_.savedVC = response;
                           tooltip.find('.cohort-link').html(
                             '<a class="virtual-study-link" href="' + window.cbioURL +
@@ -8456,7 +8436,7 @@ window.LogRankTest = (function(jStat) {
                           tooltip.find('.saving').css('display', 'none');
                           tooltip.find('.cohort-link').css('display', 'block');
                           _.each(deepCopySelectedCases, function(study){
-                            previousSelectedCases[study.studyID] = study;
+                            previousSelectedCases[study.id] = study;
                           });
                         })
                         .fail(function () {

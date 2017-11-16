@@ -63,6 +63,7 @@
 <%@ page import="org.codehaus.jackson.JsonParser" %>
 <%@ page import="org.codehaus.jackson.JsonFactory" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoMutation" %>
 
 <%
     //Security Instance
@@ -155,6 +156,7 @@
     //needed for data manager
 </script>
 <script type="text/javascript" src="js/lib/oql/oql-parser.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/api/HotspotSet.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/api/cbioportal-datamanager.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/oql/oqlfilter.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
@@ -185,7 +187,14 @@
                                                                 case_ids_key: '<%=sampleIdsKey%>',
                                                                 case_set_name: '<%=sampleSetName%>',
                                                                 case_set_description: '<%=sampleSetDescription%>'
-                                                            });
+                                                            }, <%=GlobalProperties.enableDriverAnnotations()%>,
+                                                            <%=GlobalProperties.showBinaryCustomDriverAnnotation()%>,
+                                                            <%=DaoMutation.hasDriverAnnotations(request.getParameter(QueryBuilder.CANCER_STUDY_ID))%>,
+                                                            <%=DaoMutation.numTiers(request.getParameter(QueryBuilder.CANCER_STUDY_ID))%>,
+                                                            '<%=GlobalProperties.enableOncoKBandHotspots()%>',
+                                                            <%=GlobalProperties.showTiersCustomDriverAnnotation()%>,
+                                                            <%=GlobalProperties.enableTiers()%>,
+                                                            <%=GlobalProperties.hidePassengerMutations()%>);
     })();
 </script>
 

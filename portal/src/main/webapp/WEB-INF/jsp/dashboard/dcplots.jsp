@@ -54,7 +54,7 @@
          :class="{'show-loading': showScreenLoad}"
          class="chart-loader" style="top: 30%; left: 30%; display: none;"><img
         src="images/ajax-loader.gif" alt="loading"></div>
-    <div id="main-header" style="display: none" :class="{show:!isloading}">
+    <div id="main-header" style="display: none" :class="{show:!isloading}" v-if="!failedToInit.status">
         <div id="iviz-header-left">
             <div class="iviz-cohort-component" style="float: left; margin-right: 10px;">
                 <session-component :show-save-button="showSaveButton" :show-manage-button="showManageButton"
@@ -71,8 +71,8 @@
           </span>
             </div>
             <span id="iviz-header-left-patient-select" class="iviz-header-button"
-                  @click="openCases('patient')" class="number"
-                  role="button" tabindex="0" style="display: block;"><i class="fa fa-user"
+                  @click="openCases" class="number"
+                  role="button" tabindex="0" style="display: block;"><i class="fa fa-user-circle-o"
                                                                         aria-hidden="true"></i></span>
             <span id="iviz-header-left-case-download" class="iviz-header-button" @click="downloadCaseData()"
                   role="button"
@@ -109,7 +109,7 @@
             </div>
 
             <span class="breadcrumb_container"
-                  v-if="customfilter.patientIds.length>0||customfilter.sampleIds.length>0">
+                  v-if="customfilter.patientUids.length>0||customfilter.sampleUids.length>0">
           <span>{{customfilter.display_name}}</span>
           <i class="fa fa-times breadcrumb_remove"
              @click="clearAllCharts(true)"></i>
@@ -126,18 +126,19 @@
             </div>
         </div>
     </div>
-    <div :class="{'start-loading': showScreenLoad}">
+    <div :class="{'start-loading': showScreenLoad}" v-if="!failedToInit.status">
         <div class="grid" id="main-grid"
              :class="{loading:isloading}">
             <main-template :groups.sync="groups" :redrawgroups.sync="redrawgroups"
-                           :selectedpatients.sync="selectedpatients"
-                           :selectedsamples.sync="selectedsamples"
+                           :selectedpatient-uIDs.sync="selectedpatientUIDs"
+                           :selectedsample-uIDs.sync="selectedsampleUIDs"
                            :hasfilters.sync="hasfilters"
                            :customfilter.sync="customfilter"
                            :showed-survival-plot="showedSurvivalPlot"
                            :clear-all="clearAll"></main-template>
         </div>
     </div>
+    <error container-id="fail-to-init" v-if="failedToInit.status" :message="failedToInit.message"></error>
 
 </div>
 

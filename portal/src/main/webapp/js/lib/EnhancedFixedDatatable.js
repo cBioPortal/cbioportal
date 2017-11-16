@@ -5,37 +5,51 @@ var EnhancedFixedDataTable = (function() {
     var FileGrabber = React.createClass({displayName: "FileGrabber",
         // Saves table content to a text file
         saveFile: function() {
-            var formatData = this.props.content();
+            var _self = this;
+            _self.setState({saving: true});
 
-            var blob = new Blob([formatData], {type: 'text/plain'});
-            var fileName = this.props.downloadFileName ? this.props.downloadFileName : "data.txt";
+            setTimeout(function() {
+                var formatData = _self.props.content();
 
-            var downloadLink = document.createElement("a");
-            downloadLink.download = fileName;
-            downloadLink.innerHTML = "Download File";
-            if (window.webkitURL) {
-                // Chrome allows the link to be clicked
-                // without actually adding it to the DOM.
-                downloadLink.href = window.webkitURL.createObjectURL(blob);
+                var blob = new Blob([formatData], {type: 'text/plain'});
+                var fileName = _self.props.downloadFileName ? _self.props.downloadFileName : "data.txt";
+
+                var downloadLink = document.createElement("a");
+                downloadLink.download = fileName;
+                downloadLink.innerHTML = "Download File";
+                if (window.webkitURL) {
+                    // Chrome allows the link to be clicked
+                    // without actually adding it to the DOM.
+                    downloadLink.href = window.webkitURL.createObjectURL(blob);
+                }
+                else {
+                    // Firefox requires the link to be added to the DOM
+                    // before it can be clicked.
+                    downloadLink.href = window.URL.createObjectURL(blob);
+                    downloadLink.onclick = function(event) {
+                        document.body.removeChild(event.target);
+                    };
+                    downloadLink.style.display = "none";
+                    document.body.appendChild(downloadLink);
+                }
+
+                downloadLink.click();
+                _self.setState({saving: false});
+            }, 0);
+        },
+
+        getInitialState: function() {
+            return {
+                saving: false
             }
-            else {
-                // Firefox requires the link to be added to the DOM
-                // before it can be clicked.
-                downloadLink.href = window.URL.createObjectURL(blob);
-                downloadLink.onclick = function(event) {
-                    document.body.removeChild(event.target);
-                };
-                downloadLink.style.display = "none";
-                document.body.appendChild(downloadLink);
-            }
-
-            downloadLink.click();
         },
 
         render: function() {
             return (
                 React.createElement("button", {className: "btn btn-default", onClick: this.saveFile},
-                    "DATA")
+                    this.state.saving ? React.createElement("i", {className: "fa fa-spinner fa-spin"}) :
+                        React.createElement("span", null, "DATA")
+                )
             );
         }
     });
@@ -81,7 +95,7 @@ var EnhancedFixedDataTable = (function() {
                     // Error happened, disable Copy button notify the user.
                     ZeroClipboard.destroy();
                     self.notify({
-                        message: 'Copy button is not availble at this moment.',
+                        message: 'Copy button is not available at this moment.',
                         type: 'danger'
                     });
                     self.setState({show: false});
@@ -91,11 +105,18 @@ var EnhancedFixedDataTable = (function() {
 
         getInitialState: function() {
             var _show = true;
-            var _content = this.props.content();
 
-            // The current not official limitation is 1,000,000
-            // https://github.com/zeroclipboard/zeroclipboard/issues/529
-            if (!_.isString(_content) || _content.length > 1000000) {
+            // Only do precise calculation if the table matrix smaller than 100000
+            // This number is just an estimation
+            if (this.props.matrix < 100000) {
+                var _content = this.props.content();
+
+                // The current not official limitation is 1,000,000
+                // https://github.com/zeroclipboard/zeroclipboard/issues/529
+                if (!_.isString(_content) || _content.length > 1000000) {
+                    _show = false;
+                }
+            } else {
                 _show = false;
             }
 
@@ -124,7 +145,7 @@ var EnhancedFixedDataTable = (function() {
 
             // List fixed columns first
             cols = cols.sort(function(x, y) {
-                return (x.fixed === y.fixed)? 0 : x.fixed? -1 : 1;
+                return (x.fixed === y.fixed) ? 0 : x.fixed ? -1 : 1;
             });
 
             _.each(cols, function(e) {
@@ -149,19 +170,25 @@ var EnhancedFixedDataTable = (function() {
             }
 
             var content = this.prepareContent;
+            var numCols = _.isArray(this.props.cols) ? this.props.cols.length : 0;
+            var numRows = _.isArray(this.props.rows) ? this.props.rows.length : 0;
+
+            var matrix = numCols * numRows;
 
             return (
                 React.createElement("div", null,
                     React.createElement("div", {className: "EFDT-download-btn EFDT-top-btn"},
 
                         getData != "COPY" ? React.createElement(FileGrabber, {content: content,
-                            downloadFileName: this.props.downloadFileName}) :
+                                downloadFileName: this.props.downloadFileName}) :
                             React.createElement("div", null)
 
                     ),
                     React.createElement("div", {className: "EFDT-download-btn EFDT-top-btn"},
 
-                        getData != "DOWNLOAD" ? React.createElement(ClipboardGrabber, {content: content}) :
+                        getData != "DOWNLOAD" ? React.createElement(ClipboardGrabber, {
+                                matrix: matrix,
+                                content: content}) :
                             React.createElement("div", null)
 
                     )
@@ -176,7 +203,7 @@ var EnhancedFixedDataTable = (function() {
         render: function() {
             var label = this.props.label, qtipFlag = false, attr = this.props.attr;
             var studyId = this.props.arrs ? (this.props.arrs['study_id'] ?
-                this.props.arrs['study_id'] : window.cancerStudyId) : '';
+                    this.props.arrs['study_id'] : window.cancerStudyId) : '';
             var shortLabel = this.props.shortLabel;
             var className = this.props.className || '';
 
@@ -186,16 +213,16 @@ var EnhancedFixedDataTable = (function() {
 
             if (window.hasOwnProperty('cbio') && cbio.hasOwnProperty('util') &&
                 studyId) {
-                if (attr === 'CASE_ID') {
+                if (attr === 'case_id') {
                     shortLabel = React.createElement("a", {target: "_blank",
                         href: cbio.util.getLinkToSampleView(studyId, label)}, shortLabel)
-                } else if (attr === 'PATIENT_ID') {
+                } else if (attr === 'patient_id') {
                     shortLabel = React.createElement("a", {target: "_blank",
                         href: cbio.util.getLinkToPatientView(studyId, label)}, shortLabel)
                 }
             }
 
-            if (attr === 'COPY_NUMBER_ALTERATIONS' && !isNaN(label)) {
+            if (attr === 'copy_number_alterations' && !isNaN(label)) {
                 if (Number(label) < 0.01) {
                     shortLabel = '< 0.01';
                 } else {
@@ -592,7 +619,7 @@ var EnhancedFixedDataTable = (function() {
                         props.cols.map(function(col, index) {
                             var column;
                             var width = col.show ? (col.width ? col.width :
-                                (columnsWidth[col.name] ? columnsWidth[col.name] : 200)) : 0;
+                                    (columnsWidth[col.name] ? columnsWidth[col.name] : 200)) : 0;
 
                             if (props.groupHeader) {
                                 column = React.createElement(ColumnGroup, {
@@ -820,13 +847,19 @@ var EnhancedFixedDataTable = (function() {
                 if (sortBy === this.state.sortBy) {
                     sortDir = this.state.sortDir === SortTypes.ASC ? SortTypes.DESC : SortTypes.ASC;
                 } else {
-                    sortDir = SortTypes.DESC;
+                    sortDir = SortTypes.ASC;
                 }
             }
 
             filteredRows.sort(function(a, b) {
                 var sortVal = 0, aVal = a.row[sortBy], bVal = b.row[sortBy];
 
+                if (_.isUndefined(aVal)) {
+                    aVal = '';
+                }
+                if (_.isUndefined(bVal)) {
+                    bVal = '';
+                }
                 if (type === 'PERCENTAGE') {
                     aVal = aVal ? Number(aVal.replace('%', '')) : aVal;
                     bVal = bVal ? Number(bVal.replace('%', '')) : bVal;
@@ -839,13 +872,13 @@ var EnhancedFixedDataTable = (function() {
                         sortVal = -1;
                     }
 
-                    if (sortDir === SortTypes.ASC) {
+                    if (sortDir === SortTypes.DESC) {
                         sortVal = sortVal * -1;
                     }
                 } else {
-                    if (!isNaN(aVal)) {
+                    if (!isNaN(aVal) && aVal != '') {
                         sortVal = -1;
-                    } else if (!isNaN(bVal)) {
+                    } else if (!isNaN(bVal) && bVal != '') {
                         sortVal = 1;
                     }
                     else {
@@ -856,12 +889,19 @@ var EnhancedFixedDataTable = (function() {
                             sortVal = -1;
                         }
 
-                        if (sortDir === SortTypes.ASC) {
+                        if (sortDir === SortTypes.DESC) {
                             sortVal = sortVal * -1;
                         }
                     }
                 }
 
+                if (aVal == '') {
+                    sortVal = 1;
+                }
+
+                if (bVal == '') {
+                    sortVal = -1;
+                }
                 return sortVal;
             });
 
@@ -1024,7 +1064,7 @@ var EnhancedFixedDataTable = (function() {
             var colsDict = {};
             for (i = 0; i < attributes.length; i++) {
                 col = attributes[i];
-                col.attr_id = col.attr_id !== uniqueId ? col.attr_id.toUpperCase() : uniqueId;
+                col.attr_id = col.attr_id.toLowerCase();
                 newCol = {
                     displayName: col.display_name,
                     name: col.attr_id,
@@ -1053,13 +1093,18 @@ var EnhancedFixedDataTable = (function() {
             // Gets data rows from input
             for (i = 0; i < dataLength; i++) {
                 cell = data[i];
-                cell.attr_id = cell.attr_id.toUpperCase();
+                cell.attr_id = cell.attr_id.toLowerCase();
+
+                if (!colsDict.hasOwnProperty(cell.attr_id)) {
+                    continue;
+                }
+
                 if (!rowsDict[cell[uniqueId]]) {
                     rowsDict[cell[uniqueId]] = {};
                 }
 
                 //Clean up the input data
-                if (_.isUndefined(cell.attr_val)) {
+                if (_.isUndefined(cell.attr_val) || cell.attr_val === null) {
                     cell.attr_val = '';
                 }
 
@@ -1096,8 +1141,9 @@ var EnhancedFixedDataTable = (function() {
                 }));
             }
 
+            var _uniqueId = uniqueId.toLowerCase();
             _.each(rowsDict, function(item, i) {
-                rowsDict[i][uniqueId] = i;
+                rowsDict[i][_uniqueId] = i;
                 rows.push(rowsDict[i]);
             });
 
@@ -1155,8 +1201,8 @@ var EnhancedFixedDataTable = (function() {
                 filteredRows: null,
                 filterAll: "",
                 filters: filters,
-                sortBy: uniqueId,
-                sortDir: this.SortTypes.DESC,
+                sortBy: this.props.sortBy ? this.props.sortBy.toLowerCase() : _uniqueId,
+                sortDir: this.SortTypes.ASC,
                 goToColumn: null,
                 filterTimer: 0,
                 shortLabels: shortLabels,
@@ -1212,6 +1258,14 @@ var EnhancedFixedDataTable = (function() {
             if (this.props.groupHeader) {
                 this.registerSliders();
             }
+        },
+
+        // Expose the current sorting settings
+        getCurrentSort: function() {
+            return {
+                sortBy: this.state.sortBy,
+                sortDir: this.state.sortDir
+            };
         },
 
         // Sets default properties

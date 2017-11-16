@@ -32,16 +32,11 @@
 
 package org.cbioportal.weblegacy;
 
-import java.util.List;
-import org.cbioportal.persistence.mybatis.StructuralVariantMapper;
-import org.cbioportal.service.StructuralVariantService;
-import org.cbioportal.web.config.CustomObjectMapper;
+import org.mskcc.cbio.portal.service.StructuralVariantService;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 

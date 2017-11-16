@@ -1,12 +1,6 @@
 package org.cbioportal.web.error;
 
-import org.cbioportal.service.exception.CancerTypeNotFoundException;
-import org.cbioportal.service.exception.GeneNotFoundException;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
-import org.cbioportal.service.exception.PatientNotFoundException;
-import org.cbioportal.service.exception.SampleListNotFoundException;
-import org.cbioportal.service.exception.SampleNotFoundException;
-import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.service.exception.*;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,10 +49,10 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(GeneticProfileNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleGeneticProfileNotFound(GeneticProfileNotFoundException ex) {
+    @ExceptionHandler(MolecularProfileNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleMolecularProfileNotFound(MolecularProfileNotFoundException ex) {
 
-        return new ResponseEntity<>(new ErrorResponse("Genetic profile not found: " + ex.getGeneticProfileId()),
+        return new ResponseEntity<>(new ErrorResponse("Molecular profile not found: " + ex.getMolecularProfileId()),
                 HttpStatus.NOT_FOUND);
     }
 
@@ -76,10 +70,31 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(GenesetNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGenesetNotFound(GenesetNotFoundException ex) {
+
+        return new ResponseEntity<>(new ErrorResponse("Gene set not found: " + ex.getGenesetId()),
+                HttpStatus.NOT_FOUND);
+    }
+    
     @ExceptionHandler(SampleListNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleSampleListNotFound(SampleListNotFoundException ex) {
 
         return new ResponseEntity<>(new ErrorResponse("Sample list not found: " + ex.getSampleListId()),
+            HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ClinicalAttributeNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleClinicalAttributeNotFound(ClinicalAttributeNotFoundException ex) {
+
+        return new ResponseEntity<>(new ErrorResponse("Clinical attribute not found in study " + ex.getStudyId() + 
+            ": " + ex.getClinicalAttributeId()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(GenePanelNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGenePanelNotFound(GenePanelNotFoundException ex) {
+
+        return new ResponseEntity<>(new ErrorResponse("Gene panel not found: " + ex.getGenePanelId()),
             HttpStatus.NOT_FOUND);
     }
 

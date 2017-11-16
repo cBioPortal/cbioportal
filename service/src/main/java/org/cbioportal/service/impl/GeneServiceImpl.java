@@ -40,10 +40,8 @@ import org.cbioportal.service.util.ChromosomeCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,6 +53,11 @@ public class GeneServiceImpl implements GeneService {
     private GeneRepository geneRepository;
     @Autowired
     private ChromosomeCalculator chromosomeCalculator;
+
+    @PostConstruct
+    public void init() {
+        getAllGenes(null, "SUMMARY", null, null, null, null);
+    }
 
     @Override
     public List<Gene> getAllGenes(String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy,
@@ -92,7 +95,9 @@ public class GeneServiceImpl implements GeneService {
     }
 
     @Override
-    public List<String> getAliasesOfGene(String geneId) {
+    public List<String> getAliasesOfGene(String geneId) throws GeneNotFoundException {
+        
+        getGene(geneId);
 
         if (isInteger(geneId)) {
             return geneRepository.getAliasesOfGeneByEntrezGeneId(Integer.valueOf(geneId));

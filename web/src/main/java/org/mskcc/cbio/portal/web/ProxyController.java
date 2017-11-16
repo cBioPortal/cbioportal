@@ -54,6 +54,11 @@ import java.util.Map;
 @RequestMapping("/proxy")
 public class ProxyController
 {
+	
+  private String hotspotsURL;
+  @Value("${hotspots.url:http://cancerhotspots.org/api/}")
+  public void setHotspotsURL(String property) { this.hotspotsURL = property; }
+  
   private String bitlyURL;
   @Value("${bitly.url}")
   public void setBitlyURL(String property) { this.bitlyURL = property; }
@@ -61,10 +66,6 @@ public class ProxyController
   private String sessionServiceURL;
   @Value("${session.service.url:''}") // default is empty string
   public void setSessionServiceURL(String property) { this.sessionServiceURL = property; }
-
-  private String pdbDatabaseURL;
-  @Value("${pdb.database.url}")
-  public void setPDBDatabaseURL(String property) { this.pdbDatabaseURL = property; }
 
   private String oncokbApiURL;
   @Value("${oncokb.api.url:http://oncokb.org/legacy-api/}")
@@ -92,13 +93,13 @@ public class ProxyController
   // Created by Hongxin
   @RequestMapping(value="/{path}")
   public @ResponseBody String getProxyURL(@PathVariable String path,
-                                          @RequestBody String body, HttpMethod method,
+                                          @RequestBody(required = false) String body, HttpMethod method,
                                           HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException
   {
       Map<String, String> pathToUrl = new HashMap<>();
       
       pathToUrl.put("bitly", bitlyURL);
-      pathToUrl.put("cancerHotSpots", "http://cancerhotspots.org/api/hotspots/single/");
+      pathToUrl.put("cancerHotSpots", hotspotsURL + "hotspots/single/");
       pathToUrl.put("3dHotspots", "http://3dhotspots.org/3d/api/hotspots/3d");
       pathToUrl.put("oncokbAccess", oncokbApiURL + "access");
       pathToUrl.put("oncokbSummary", oncokbApiURL + "summary.json");

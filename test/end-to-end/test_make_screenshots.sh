@@ -46,7 +46,9 @@ compare_image() {
 upload_image() {
     local png=${1}
 
-    curl -s -F "clbin=@$png" https://clbin.com
+    # curl -s -F "clbin=@$png" https://clbin.com
+    # clbin.com is down, using ptpb.pw instead
+    curl -F "c=@$png" https://ptpb.pw/ | grep url | cut -d' ' -f2
 }
 
 # Google URL shortener
@@ -68,13 +70,14 @@ echo "Running screenshot tests"
 for ((i=0; i < ${#config_screenshot_names[@]}; i++)); do
     name=${config_screenshot_names[$i]}
     url="${config_portal_url}${config_screenshot_urls[$i]}"
-	timeout_in_seconds=${config_screenshot_timeout[$i]}
     max_retries=${config_screenshot_retry[$i]}
 
     for browser in "${config_browsers[@]}"; do
         png="screenshots/${browser}/${name}.png"
         echo -e "Checking ${DIR}/${png} at $url..."
+
         retry=0
+        timeout_in_seconds=${config_screenshot_timeout[$i]}
         while [[ $retry -lt $max_retries ]]; do
             compare_image $config_python_selenium_container $config_selenium_hub_url \
                           $browser $url $png $timeout_in_seconds
@@ -128,6 +131,7 @@ if [[ $screenshot_error_count -gt 0 ]]; then
 		done
 	fi
 	exit 1
+	# clbin.com is down, using ptpb.pw instead
 else
     echo -e "${GREEN}SCREENSHOT TESTS SUCCEEDED${NC}"
     exit 0

@@ -32,15 +32,14 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import java.io.*;
-import java.util.*;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
-import org.mskcc.cbio.portal.model.GenePanel;
-import org.mskcc.cbio.portal.repository.GenePanelRepository;
-import org.cbioportal.model.*;
+import java.io.*;
 import joptsimple.*;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.util.SpringUtil;
+import java.util.*;
+import org.mskcc.cbio.portal.repository.GenePanelRepositoryLegacy;
 
 /**
  *
@@ -94,6 +93,7 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
             }
 
             setFile(genePanel_f);
+            SpringUtil.initDataSource();
             importData();
         } catch (RuntimeException e) {
             throw e;
@@ -103,8 +103,10 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
     }
 
     public void importData() throws Exception {
+        List<Integer> samplesToDelete = new ArrayList();
+        List<Integer> profilesToDelete = new ArrayList();
         ProgressMonitor.setCurrentMessage("Reading data from:  " + genePanelProfileMapFile.getAbsolutePath());
-        GenePanelRepository genePanelRepository = (GenePanelRepository)SpringUtil.getApplicationContext().getBean("genePanelRepository");
+        GenePanelRepositoryLegacy genePanelRepositoryLegacy = (GenePanelRepositoryLegacy)SpringUtil.getApplicationContext().getBean("genePanelRepositoryLegacy");
 
         FileReader reader =  new FileReader(genePanelProfileMapFile);
         BufferedReader buff = new BufferedReader(reader);
@@ -114,37 +116,42 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
             throw new RuntimeException("Missing SAMPLE_ID column in file " + genePanelProfileMapFile.getAbsolutePath());
         }
         profiles.remove((int)sampleIdIndex);
-        List<Integer> profileIds = getProfileIds(profiles, genePanelRepository);
+        List<Integer> profileIds = getProfileIds(profiles, genePanelRepositoryLegacy);
 
         // delete if the profile mapping are there already
         for (Integer id : profileIds) {
-            if(genePanelRepository.sampleProfileMappingExistsByProfile(id)) {
-                genePanelRepository.deleteSampleProfileMappingByProfile(id);
+            if(genePanelRepositoryLegacy.sampleProfileMappingExistsByProfile(id)) {
+                genePanelRepositoryLegacy.deleteSampleProfileMappingByProfile(id);
             }
         }
 
         String line;
+        CancerStudy cs = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
         while((line = buff.readLine()) != null) {
             List<String> data  = new LinkedList<>(Arrays.asList(line.split("\t")));
             String sampleId = data.get(sampleIdIndex);
-            Sample sample = genePanelRepository.getSampleByStableIdAndStudyId(sampleId, cancerStudyStableId);
+
+            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cs.getInternalId() ,sampleId);
 
             data.remove((int)sampleIdIndex);
             for (int i = 0; i < data.size(); i++) {
-                List<GenePanel> genePanelList = genePanelRepository.getGenePanelByStableId(data.get(i));
-                if (genePanelList != null && genePanelList.size() > 0) {
-                    GenePanel genePanel = genePanelList.get(0);
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("sampleId", sample.getInternalId());
-                    map.put("profileId", profileIds.get(i));
-                    map.put("panelId", genePanel.getInternalId());
-                    genePanelRepository.insertGenePanelSampleProfileMap(map);
+                GenePanel genePanel = DaoGenePanel.getGenePanelByStableId(data.get(i));             
+                if (genePanel != null) {
+                    if (DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), profileIds.get(i))) {
+                        samplesToDelete.add(sample.getInternalId());
+                        profilesToDelete.add(profileIds.get(i));                           
+                    }   
+                    DaoSampleProfile.addSampleProfile(sample.getInternalId(), profileIds.get(i), genePanel.getInternalId());
                 }
                 else {
                     ProgressMonitor.logWarning("No gene panel exists: " + data.get(i));
                 }
             }
         }
+        ProgressMonitor.setCurrentMessage("Deleting necessary records from sample_profile.");
+        DaoSampleProfile.deleteRecords(samplesToDelete, profilesToDelete);
+        ProgressMonitor.setCurrentMessage("Loading gene panel profile matrix data to database..");
+        MySQLbulkLoader.flushAll();
     }
 
     public List<String> getProfilesLine(BufferedReader buff) throws Exception {
@@ -158,13 +165,13 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
         return profiles;
     }
 
-    public List<Integer> getProfileIds(List<String> profiles, GenePanelRepository genePanelRepository) {
+    public List<Integer> getProfileIds(List<String> profiles, GenePanelRepositoryLegacy genePanelRepositoryLegacy) {
         List<Integer> geneticProfileIds = new LinkedList<>();
         for(String profile : profiles) {
             if (!profile.startsWith(cancerStudyStableId)) {
                 profile = cancerStudyStableId + "_" + profile;
             }
-            GeneticProfile geneticProfile = genePanelRepository.getGeneticProfileByStableId(profile);
+            GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(profile);
             if (geneticProfile != null) {
                 geneticProfileIds.add(geneticProfile.getGeneticProfileId());
             }

@@ -106,6 +106,7 @@ public class ShowData extends HttpServlet {
                 DownloadLink downloadLink = downloadLinkList.get(i);
                 PrintWriter writer = response.getWriter();
                 response.setContentType("text/plain");
+                response.setHeader("Content-Disposition", "attachment;filename=cBioPortal_data.txt");
                 String transposeStr = request.getParameter(
                     QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
                 boolean transpose = false;

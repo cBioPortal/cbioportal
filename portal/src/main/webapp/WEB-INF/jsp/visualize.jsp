@@ -33,6 +33,20 @@
 
 <%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
+
+<script type="text/javascript" src="js/src/modifyQuery.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
+<script>
+window.loadReactApp({ defaultRoute: 'results' });
+
+window.onReactAppReady(function() {
+    window.initModifyQueryComponent("modifyQueryButton", "querySelector");
+});
+    
+</script>
+
+<div id="reactRoot" class="hidden"></div>
+    
 <%@ page import="java.util.Map" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 
@@ -51,16 +65,16 @@
 <div class='main_smry'>
     <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>
     <div id='main_smry_info_div'>
-        <table style='margin-left:0px;width:40%;margin-top:-10px;margin-bottom:-5px;' >
+        <table style='margin-left:0px;margin-top:-10px;margin-bottom:-5px;' >
             <tr>
-                <td><div id='main_smry_modify_query_btn'><div></td>
+                <td>
+                    <button id="modifyQueryButton" class="btn btn-primary" style="display: none;">Modify Query</button>
+                </td>
                 <td><div id='main_smry_query_div' style='padding-left: 5px;'></div></td>
             </tr>
         </table>
     </div>
-    <div style="margin-left:5px;display:none;margin-top:-5px;" id="query_form_on_results_page">
-        <%@ include file="query_form.jsp" %>
-    </div>
+    <div id="querySelector" class="cbioportal-frontend" style="margin-top: 10px"></div>
 </div>
 
 <div id="tabs">
@@ -162,6 +176,11 @@
                     }
                 }
             }
+            
+            String[] geneList = ((String) request.getAttribute(QueryBuilder.GENE_LIST)).split("( )|(\\n)");
+            if (geneList.length <= 1) {
+                computeLogOddsRatio = false;
+            }
 
             // determine whether to show the cancerTypesSummaryTab
             // retrieve the cancerTypesMap and create an iterator for the values
@@ -234,8 +253,11 @@
                 out.println("<br>");
                 out.println("<div id='session-id'></div>");
                 out.println("<br>");
-                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>");
-                out.println("<div id='bitly'></div>");
+                if (GlobalProperties.getBitlyUser() != null) {
+	                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>");
+	                out.println("<div id='bitly'></div>");
+                }
+
             }
             out.println("</div>");
     %>
@@ -270,9 +292,8 @@
             + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
             out.println("</div>");
         } else if (showMutTab) { %>
-            <%@ include file="mutation_views.jsp" %>
             <%@ include file="mutation_details.jsp" %>
-        <%  } %>
+        <% } %>
 
         <% if (includeNetworks) { %>
             <%@ include file="networks.jsp" %>

@@ -40,7 +40,7 @@
 </head>
 
 <body>
-  <script src="http://code.jquery.com/jquery-1.12.1.min.js"></script>
+  <script src="https://code.jquery.com/jquery-1.12.1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
   <div class="container">
     <div class="header">
@@ -48,6 +48,7 @@
         <h1>cBioPortal validation report</h1>
         <p>Study directory:<br />test_data/study_quotes/</p>
         <p>For details, please see <a href='https://github.com/cbioportal/cbioportal/blob/master/docs/File-Formats.md'>the documentation on file formats supported by cBioPortal</a></p>
+        <p>cBioPortal version 1.5.1-SYSTEM-TEST</p>
       </div>
     </div>
 
@@ -99,7 +100,7 @@
           <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
           <a role="button" data-toggle="collapse" aria-expanded="true"
               aria-controls="collapse_2689738401393696111" href="#collapse_2689738401393696111">
-            <span class="badge">6</span>
+            <span class="badge">7</span>
             <h4 class="panel-title">General</h4>
           </a>
         </div>
@@ -142,6 +143,13 @@
                 <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
+                <td>Reading portal information from test_data/api_json_system_tests/genesets.json</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
                 <td>Validating case lists</td>
                 <td>&ndash;</td>
               </tr>
@@ -172,7 +180,7 @@
           <span class="header-icon"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></span>
           <a role="button" data-toggle="collapse" aria-expanded="true"
               aria-controls="collapse_-5095920511176882161" href="#collapse_-5095920511176882161">
-            <span class="badge">7</span>
+            <span class="badge">8</span>
             <h4 class="panel-title">brca_tcga_pub.maf</h4>
           </a>
         </div>
@@ -204,11 +212,18 @@
                 <td>Found quotation marks around field(s) in the first rows of the file. Fields and values surrounded by quotation marks might be incorrectly loaded (i.e. with the quotation marks included as part of the value)</td>
                 <td>quotation marks of type: [&#34;] </td>
               </tr>
+              <tr class="danger">
+                <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
+                <td>4, 5</td>
+                <td>6</td>
+                <td>The end position of this variant is not an integer</td>
+                <td>&#34;46707888, &#34;116247760&#34;</td>
+              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>7, 9, 14</td>
                 <td>&ndash;</td>
-                <td>Validation of line skipped due to cBioPortal&#39;s filtering. Filtered types: [Silent, Intron, 3&#39;UTR, 3&#39;Flank, 5&#39;UTR, 5&#39;Flank, IGR, RNA]</td>
+                <td>Line will not be loaded due to the variant classification filter. Filtered types: [Silent, Intron, 3&#39;UTR, 3&#39;Flank, 5&#39;UTR, 5&#39;Flank, IGR, RNA]</td>
                 <td>Silent</td>
               </tr>
               <tr class="danger">
@@ -236,7 +251,7 @@
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
-                <td>Read 15 lines. Lines with warning: 0. Lines with error: 1</td>
+                <td>Read 15 lines. Lines with warning: 0. Lines with error: 3</td>
                 <td>&ndash;</td>
               </tr>
             </tbody>

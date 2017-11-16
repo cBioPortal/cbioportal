@@ -5,7 +5,7 @@
     <parent>
         <artifactId>security</artifactId>
         <groupId>org.mskcc.cbio</groupId>
-        <version>1.5.1-SNAPSHOT</version>
+        <version>1.9.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -98,5 +98,18 @@
         <scope>provided</scope>
       </dependency>
     </dependencies>
-
+    <build>
+      <filters>
+        <filter>../../src/main/resources/portal.properties</filter>
+      </filters>
+      <resources>
+        <resource>
+          <directory>src/main/resources</directory>
+          <filtering>true</filtering>
+          <includes>
+            <include>applicationContext-security.xml</include>
+          </includes>
+        </resource>
+      </resources>
+    </build>
 </project>

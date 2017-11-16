@@ -1,8 +1,6 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
-
-public class Sample implements Serializable {
+public class Sample extends UniqueKeyBase {
 
     public enum SampleType {
 
@@ -50,6 +48,8 @@ public class Sample implements Serializable {
     private String typeOfCancerId;
     private Patient patient;
     private String cancerStudyIdentifier;
+    private Boolean sequenced;
+    private Boolean copyNumberSegmentPresent;
 
     public Integer getInternalId() {
         return internalId;
@@ -113,5 +113,21 @@ public class Sample implements Serializable {
 
     public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
         this.cancerStudyIdentifier = cancerStudyIdentifier;
+    }
+
+    public Boolean isSequenced() {
+        return sequenced;
+    }
+
+    public void setSequenced(Boolean sequenced) {
+        this.sequenced = sequenced;
+    }
+
+    public Boolean isCopyNumberSegmentPresent() {
+        return copyNumberSegmentPresent;
+    }
+
+    public void setCopyNumberSegmentPresent(Boolean copyNumberSegmentPresent) {
+        this.copyNumberSegmentPresent = copyNumberSegmentPresent;
     }
 }

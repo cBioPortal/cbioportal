@@ -101,8 +101,8 @@ cbio.util = (function() {
             }
             fetch_promise.then(function(data) {
                 def.resolve(deepCopyObject(data));
-            }, function() {
-                def.reject();
+            }, function(error) {
+                def.reject(error);
             });
             return def.promise();
         };
@@ -422,11 +422,11 @@ cbio.util = (function() {
     }
 
     function getLinkToPatientView(cancerStudyId, patientId) {
-        return "case.do?cancer_study_id=" + cancerStudyId + "&case_id=" + patientId;
+        return "case.do#/patient?studyId=" + cancerStudyId + "&caseId=" + patientId;
     }
 
     function getLinkToSampleView(cancerStudyId, sampleId) {
-        return "case.do?cancer_study_id=" + cancerStudyId + "&sample_id=" + sampleId;
+        return "case.do#/patient?studyId=" + cancerStudyId + "&sampleId=" + sampleId;
     }
 
     /**
@@ -674,22 +674,28 @@ cbio.util = (function() {
             return a - b;
         });
 
+
+
         /* Then find a generous IQR. This is generous because if (values.length / 4) 
          * is not an int, then really you should average the two elements on either 
          * side to find q1.
          */
         var q1 = values[Math.floor((values.length / 4))];
         // Likewise for q3. 
-        var q3 = values[(Math.ceil((values.length * (3 / 4))) > values.length - 1 ? values.length - 1 : Math.ceil((values.length * (3 / 4))))];
+        var q3 = values[(Math.floor(values.length * (3 / 4)))];
         var iqr = q3 - q1;
+
         if (values[Math.ceil((values.length * (1 / 2)))] < 0.001) {
             smallDataFlag = true;
         }
         // Then find min and max values
         var maxValue, minValue;
-        if (q3 < 1) {
-            maxValue = Number((q3 + iqr * 1.5).toFixed(2));
-            minValue = Number((q1 - iqr * 1.5).toFixed(2));
+        if (0.001 <= q3 && q3 < 1) {
+            maxValue = Number((q3 + iqr * 1.5).toFixed(3));
+            minValue = Number((q1 - iqr * 1.5).toFixed(3));
+        } else if(q3 < 0.001){// get IQR for very small number(<0.001)
+            maxValue = Number((q3 + iqr * 1.5));
+            minValue = Number((q1 - iqr * 1.5));
         } else {
             maxValue = Math.ceil(q3 + iqr * 1.5);
             minValue = Math.floor(q1 - iqr * 1.5);
@@ -718,7 +724,7 @@ cbio.util = (function() {
             }
         }
 
-        return [minValue, maxValue, smallDataFlag];
+        return [minValue, maxValue, smallDataFlag, values, iqr];
     }
 
     function getDatahubStudiesList() {
@@ -749,7 +755,61 @@ cbio.util = (function() {
         });
         return def.promise();
     }
-    
+
+
+    function getDecimalExponents(data){
+        //Copy the values, rather than operating on references to existing values
+        if (!_.isArray(data) || data.length < 1) {//if data is not an array or is empty, return data
+            return data;
+        }
+
+        var values = [];
+        var minZeros = 0, maxZeros = 0;
+        var head, tail;
+        var expoents = [];
+
+        _.each(data, function(item) {
+            if (!isNaN(item)) {
+                values.push(Number(item));
+            }
+        });
+
+        // Then sort
+        values.sort(function(a, b) {
+            return a - b;
+        });
+
+        //make sure that min and max values are greater than 0.
+        for (head = 0; head < values.length; head++){
+            if (values[head] > 0) {
+                while (values[head] < 1) {
+                    values[head] *= 10;
+                    minZeros++;
+                }
+                break;
+            }
+        }
+
+        for (tail = values.length - 1; tail >= 0; tail--) {
+            if (values[tail] > 0) {
+                while (values[tail] < 1) {
+                    values[tail] *= 10;
+                    maxZeros++;
+                }
+                break;
+            }
+        }
+
+        if(head <= tail){
+            for(var i = maxZeros;i <= minZeros; i++){
+                expoents.push(-i);
+            }
+        }
+
+        return expoents;
+
+    }
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -777,7 +837,8 @@ cbio.util = (function() {
         findExtremes: findExtremes,
         deepCopyObject: deepCopyObject,
         makeCachedPromiseFunction: makeCachedPromiseFunction,
-        getDatahubStudiesList: getDatahubStudiesList
+        getDatahubStudiesList: getDatahubStudiesList,
+        getDecimalExponents: getDecimalExponents
     };
 
 })();

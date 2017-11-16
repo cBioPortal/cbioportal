@@ -1,32 +1,43 @@
 # Importing the Seed Database
 
-The next step is to populate your cBioPortal instance with all the required background data sets.  This includes, for example:  gene data, ID mappings, and network interactions.  Rather than importing each of these data sets individually, we have provided a simple "seed" database that you can import directly.
+The next step is to populate your cBioPortal instance with all the required background data sets. This includes for example gene data, ID mappings, and network interactions. Rather than importing each of these data sets individually, we have provided a simple "seed" database that you can import directly.
 
-## Download the cBioPortal Database
+## Download the cBioPortal Seed Database
 
-A cBioPortal seed database can be found on [the datahub page](https://github.com/cbioportal/datahub/blob/master/seedDB/README.md).
+A cBioPortal seed database for human can be found on [the datahub page](https://github.com/cBioPortal/datahub/blob/master/seedDB/README.md). If you are looking for mouse, check [this link](https://github.com/cBioPortal/datahub/blob/master/seedDB_mouse/README.md).
 
 After download, the files can be unzipped by entering the following command:
 
     gunzip *.sql.gz
 
-## Import the cBioPortal Database
+## Import the cBioPortal Seed Database
 
-*Important:*  Before importing, make sure that you have [followed the pre-build steps](Pre-Build-Steps.md) for creating the `cbioportal` database (see section "Create the cBioPortal MySQL Databases and User").
+**Important:** Before importing, make sure that you have [followed the pre-build steps](Pre-Build-Steps.md) for creating the `cbioportal` database (see section "Create the cBioPortal MySQL Databases and User").
 
-Then import the seed database via the `mysql` commands:
+1. Import the database schema:
 
-    > mysql --user=cbio_user --password=somepassword cbioportal  < cgds.sql
+    ```
+    mysql --user=cbio_user --password=somepassword cbioportal < cgds.sql
+    ```
 
-and:
+2. Import the main part of the seed database:
 
-    > mysql --user=cbio_user --password=somepassword cbioportal  < seed-cbioportal_no-pdb_hg19.sql
-    
-and (this command takes a bit longer to import PDB data that will enable the visualization of PDB structures in the mutation tab): 
+    ```
+    mysql --user=cbio_user --password=somepassword cbioportal < seed-cbioportal_RefGenome_vX.Y.Z.sql
+    ```
 
-    > mysql --user=cbio_user --password=somepassword cbioportal  < seed-cbioportal_only-pdb.sql
+    **Important:** Replace `seed-cbioportal_RefGenome_vX.Y.Z.sql` with the downloaded version of the seed database, such as `seed-cbioportal_hg19_v2.3.1.sql` or `seed-cbioportal_mm10_v2.3.1.sql`.
 
-:information_source: please be aware of the version of the seed DB. If it is different from what the cBioPortal system is expecting, the system will at some point ask you to run a migration step. The system will automatically give you a clear message (with instructions) about this (during startup or during data loading process) if a migration is needed. 
+3. (Human only) Import the Protein Data Bank (PDB) part of the seed database. This will enable the visualization of PDB structures in the mutation tab. Loading this file takes more time than loading the previous files, and is optional for users that do not require PDB structures.
+
+    ```
+    mysql --user=cbio_user --password=somepassword cbioportal < seed-cbioportal_hg19_vX.Y.Z_only-pdb.sql
+    ```
+    **Important:** Replace `seed-cbioportal_hg19_vX.Y.Z_only-pdb.sql` with the downloaded version of the PDB database, such as `seed-cbioportal_hg19_v2.3.1_only-pdb.sql`.
+
+**Important:** Please be aware of the version of the seed database. In the [README on datahub](https://github.com/cbioportal/datahub/blob/master/seedDB/README.md), we stated which version of cBioPortal is compatible with the current seed database.
+
+If the database is older than what cBioPortal is expecting, the system will ask you (during startup or data loading) to migrate the database to a newer version. The migration process is described [here](Updating-your-cBioPortal-installation.md#running-the-migration-script).
 
 ## Drug-target Data
 

@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.model;
 
-// Copied to org.cbioportal.model.GeneticProfile.GeneticAlterationType, if you alter this,
+// Copied to org.cbioportal.model.MolecularProfile.GeneticAlterationType, if you alter this,
 // don't forget to change the other one too
 public enum GeneticAlterationType {
     MUTATION_EXTENDED,
@@ -48,5 +48,6 @@ public enum GeneticAlterationType {
     PHOSPHORYLATION,
     PROTEIN_LEVEL,
     PROTEIN_ARRAY_PROTEIN_LEVEL,
-    PROTEIN_ARRAY_PHOSPHORYLATION;
+    PROTEIN_ARRAY_PHOSPHORYLATION,
+    GENESET_SCORE;
 };

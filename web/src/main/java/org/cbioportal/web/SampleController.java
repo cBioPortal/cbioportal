@@ -5,7 +5,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.SampleSortBy;
@@ -34,6 +36,9 @@ import java.util.List;
 @Api(tags = "Samples", description = " ")
 public class SampleController {
 
+    public static final int SAMPLE_MAX_PAGE_SIZE = 100000;
+    private static final String SAMPLE_DEFAULT_PAGE_SIZE = "100000";
+
     @Autowired
     private SampleService sampleService;
 
@@ -46,16 +51,16 @@ public class SampleController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
-        @Max(PagingConstants.MAX_PAGE_SIZE)
+        @Max(SAMPLE_MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
-        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
+        @RequestParam(defaultValue = SAMPLE_DEFAULT_PAGE_SIZE) Integer pageSize,
         @ApiParam("Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -76,7 +81,7 @@ public class SampleController {
         @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
         @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")
-        @PathVariable String sampleId) throws SampleNotFoundException {
+        @PathVariable String sampleId) throws SampleNotFoundException, StudyNotFoundException {
 
         return new ResponseEntity<>(sampleService.getSampleInStudy(studyId, sampleId), HttpStatus.OK);
     }
@@ -92,16 +97,17 @@ public class SampleController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
-        @Max(PagingConstants.MAX_PAGE_SIZE)
+        @Max(SAMPLE_MAX_PAGE_SIZE)
         @Min(PagingConstants.MIN_PAGE_SIZE)
-        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
+        @RequestParam(defaultValue = SAMPLE_DEFAULT_PAGE_SIZE) Integer pageSize,
         @ApiParam("Page number of the result list")
         @Min(PagingConstants.MIN_PAGE_NUMBER)
         @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException, 
+        StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -120,7 +126,7 @@ public class SampleController {
     @ApiOperation("Fetch samples by ID")
     public ResponseEntity<List<Sample>> fetchSamples(
         @ApiParam(required = true, value = "List of sample identifiers")
-        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+        @Size(min = 1, max = SAMPLE_MAX_PAGE_SIZE)
         @RequestBody List<SampleIdentifier> sampleIdentifiers,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {

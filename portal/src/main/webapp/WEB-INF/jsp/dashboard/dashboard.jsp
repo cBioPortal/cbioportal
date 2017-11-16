@@ -81,8 +81,8 @@
         out.print(cancerStudyViewError);
     } else {
 %>
-
 <jsp:include page="../global/header.jsp" flush="true" />
+<span class="studyContainer">
 
 <table width="100%" style="margin: 8px 2px 5px 2px">
     <tr>
@@ -229,12 +229,17 @@
     .study-view-header-first-row-td>* {
         float: left;
         margin-right: 5px;
+        margin-bottom: 10px;
     }
     #study-view-header-download-all-data {
         display: none;
     }
     #study-tabs>ul{
         margin-right: 7px;
+    }
+    
+    .legacy .fixedWidth .contentWidth {
+        width:1300px;
     }
 </style>
 
@@ -272,31 +277,61 @@
 <script src="js/src/download-util.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
+    var emailContact_ = '<%=GlobalProperties.getEmailContact()%>';
 
+    if (emailContact_) {
+        var span = $.parseHTML(emailContact_);
+        $(span).mailme(true);
+        emailContact_ = $(span).prop('outerHTML');
+    }
+    
     $('#study-tab-summary-a').click(function () {
         if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
             $("#study-tabs-loading-wait").css('display', 'none');
             if(_.isUndefined(window.iviz.datamanager)) {
                 window.iviz.datamanager = new DataManagerForIviz.init(window.cbioURL, studyCasesMap);
-                $.when(
-                    window.iviz.datamanager.initialSetup(),
-                    window.iviz.datamanager.getConfigs()
-                ).then(function(_data, configs) {
+                $.when(window.iviz.datamanager.getConfigs())
+                    .done(function(configs) {
+                        var opts = {};
+
+                        if (_.isObject(configs)) {
+                            opts = configs;
+                        }
+                        if (emailContact_) {
+                            opts.emailContact = emailContact_;
+                        }
+                        $.when(
+                            window.iviz.datamanager.initialSetup()
+                        ).done(function(_data) {
+                            initdcplots(_data, opts);
+                        }).fail(function(error) {
+                            iViz.vue.manage.getInstance().failedToInit.status = true;
+                            if (error) {
+                                iViz.vue.manage.getInstance().failedToInit.message = error
+                            }
+                            iViz.vue.manage.getInstance().isloading = false;
+                        });
+                    })
+                    .fail(function() {
+                        iViz.vue.manage.getInstance().failedToInit.status = true;
+                        iViz.vue.manage.getInstance().failedToInit.message = 'Failed to load study view configurations.';
+                        iViz.vue.manage.getInstance().isloading = false;
+                    });
+            } else {
+                $.when(window.iviz.datamanager.getConfigs()).done(function(configs){
                     var opts = {};
 
-                    if(_.isObject(configs)) {
+                    if (_.isObject(configs)) {
                         opts = configs;
                     }
-                    initdcplots(_data, opts);
-                });
-            }else {
-                $.when(window.iviz.datamanager.getConfigs()).then(function(configs){
-                    var opts = {};
-
-                    if(_.isObject(configs)) {
-                        opts = configs;
+                    if (emailContact_) {
+                        opts.emailContact = emailContact_;
                     }
                     initdcplots(window.iviz.datamanager.initialSetupResult, opts);
+                }).fail(function() {
+                    iViz.vue.manage.getInstance().failedToInit.status = true;
+                    iViz.vue.manage.getInstance().failedToInit.message = 'Failed to load study view configurations.';
+                    iViz.vue.manage.getInstance().isloading = false;
                 });
             }
             $('#study-tab-summary-a').addClass("tab-clicked");
@@ -312,12 +347,16 @@
 
             if(_.isUndefined(window.iviz.datamanager)) {
                 window.iviz.datamanager = new DataManagerForIviz.init(window.cbioURL, studyCasesMap);
-                $.when(window.iviz.datamanager.initialSetup()).then(function(_data){
+                $.when(window.iviz.datamanager.initialSetup()).done(function(_data){
                     StudyViewClinicalTabController.init(function() {
                         $("#clinical-data-table-div").css('display','inline-block');
                         $("#clinical-data-table-loading-wait").css('display', 'none');
                         $('#study-tab-clinical-a').addClass("tab-clicked");
                     });
+                }).fail(function() {
+                    $("#clinical-data-table-div").css('display','inline-block');
+                    $("#clinical-data-table-loading-wait").css('display', 'none');
+                    $('#study-tab-clinical-a').addClass("tab-clicked");
                 });
             }else {
                 StudyViewClinicalTabController.init(function() {
@@ -442,6 +481,8 @@
         });
     });
 </script>
-
+    
+    
+    </span>
 </body>
 </html>

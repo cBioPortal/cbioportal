@@ -17,7 +17,7 @@ public class DaoGeneticEntity {
     public static enum EntityTypes
     {
         GENE,
-        GENE_SET,
+        GENESET,
         PHOSPHOPROTEIN;
     }
     

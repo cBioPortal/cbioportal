@@ -30,9 +30,6 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%
-    String siteTitle = GlobalProperties.getTitle();
-%>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
@@ -45,36 +42,33 @@
 <script type="text/javascript" src="js/lib/showdown.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/showdown-github.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/url_based_content.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        
+<%
+    String siteTitle = GlobalProperties.getTitle() + "::FAQ";
+%>
+
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+
+<t:template title="<%= siteTitle %>" defaultRightColumn="false" fixedWidth="true" cssClass="newsPage">
+
+    <jsp:attribute name="head_area">
+        <script>
+        window.loadReactApp({ defaultRoute: 'blank' });
+        </script>
+    </jsp:attribute>
+
+    <jsp:attribute name="body_area">
+        <div>
+            <div style="float: right"><a href="https://github.com/cBioPortal/cbioportal/releases">Release Notes</a></div>
+            <h1>News</h1>
+        </div>
+        <div id="newsPage"></div>
+        <div id="reactRoot" class="hidden"></div>
+    </jsp:attribute>
 
 
-<% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::What's New"); %>
-<jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
-<div id="main">
-    <table cellspacing="2px">
-        <tr>
-            <td>
-                <div id="newsPage" class="markdown"></div>
-            </td>
-        </tr>
-    </table>
-</div>
-    </td>
-    <td width="172">
-	<jsp:include page="WEB-INF/jsp/global/right_column.jsp" flush="true" />
-    </td>
-  </tr>
-  <tr>
-    <td colspan="3">
-	<jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
-    </td>
-  </tr>
-</table>
-</center>
-</div>
-</form>
-<jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
-</body>
-</html>
+</t:template>
+
 
 
 <!-- Initialization script -->

@@ -47,6 +47,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.http.HttpServletRequest;
@@ -187,12 +189,11 @@ public class ProxyController
     }
     
   @RequestMapping(value="/session-service/{type}", method = RequestMethod.POST)
-  public @ResponseBody ResponseEntity<HashMap> addSessionService(@PathVariable String type, @RequestBody JSONObject body, HttpMethod method,
-                                                HttpServletRequest request, HttpServletResponse response)
+  public @ResponseBody Map addSessionService(@PathVariable String type, @RequestBody JSONObject body, HttpMethod method,
+                                                HttpServletRequest request, HttpServletResponse response) throws IOException
   {
 	  HttpEntity httpEntity = new HttpEntity<JSONObject>(body);
 	  if(type.equals("virtual_study")) {
-		try {
 			ObjectMapper mapper = new ObjectMapper();
 			  //JSON from file to Object
 			VirtualStudyData virtualStudyData = mapper.readValue(body.toString(), VirtualStudyData.class);
@@ -201,18 +202,20 @@ public class ProxyController
 				  virtualStudyData.setOwner(authentication.getName());
 				  httpEntity = new HttpEntity<VirtualStudyData>(virtualStudyData);
 			  }
-		} catch (IOException e) {
-			 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
 	  }
 	    // returns {"id":"5799648eef86c0e807a2e965"}
 	    // using HashMap because converter is MappingJackson2HttpMessageConverter (Jackson 2 is on classpath)
 	    // was String when default converter StringHttpMessageConverter was used
     	  	RestTemplate restTemplate = new RestTemplate();
-    	  	return restTemplate
-    	  			.exchange(sessionServiceURL + type, 
-    	  					  method, 
-    	  					  httpEntity, 
-    	  					  HashMap.class);
+    	  	
+    	    ResponseEntity<HashMap> responseEntity =
+    	    	      restTemplate
+    	    	      		  .exchange(sessionServiceURL + type, 
+    	    	      					method, 
+    	    	      					new HttpEntity<JSONObject>(body), 
+    	    	      					HashMap.class);
+
+    	    	return responseEntity.getBody();
+    	    	
   }
 }

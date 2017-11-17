@@ -2687,12 +2687,17 @@ window.DataManagerForIviz = (function($, _) {
     var initialSetup = function() {
       var _def = new $.Deferred();
       var self = this;
+      var vueInstance = iViz.vue.manage.getInstance();
+      vueInstance.increaseStudyViewSummaryPagePBStatus();
       $.when(self.getSampleLists()).done(function() {
+        vueInstance.increaseStudyViewSummaryPagePBStatus();
         $.when(self.getStudyToSampleToPatientMap(), self.getConfigs()).done(function(_studyToSampleToPatientMap, _configs) {
+          vueInstance.increaseStudyViewSummaryPagePBStatus();
           $.when(self.getGeneticProfiles(), self.getCaseLists(),
             self.getClinicalAttributesByStudy())
             .done(function(_geneticProfiles, _caseLists,
                            _clinicalAttributes) {
+              vueInstance.increaseStudyViewSummaryPagePBStatus();
               var _result = {};
               var _patientData = [];
               var _sampleAttributes = {};
@@ -3696,17 +3701,21 @@ window.DataManagerForIviz = (function($, _) {
               data.push(list);
             }
           });
-          $.ajax({
-            type: 'POST',
-            url: window.cbioURL + 'api/sample-lists/fetch?projection=DETAILED',
-            data: JSON.stringify(data),
-            dataType: 'json',
-            contentType: "application/json; charset=utf-8",
-          }).done(function(data) {
-            def.resolve(data);
-          }).fail(function() {
+          if (data.length === 0) {
             def.resolve();
-          });
+          } else {
+            $.ajax({
+              type: 'POST',
+              url: window.cbioURL + 'api/sample-lists/fetch?projection=DETAILED',
+              data: JSON.stringify(data),
+              dataType: 'json',
+              contentType: "application/json; charset=utf-8",
+            }).done(function(data) {
+              def.resolve(data);
+            }).fail(function() {
+              def.resolve();
+            });
+          }
         } else {
           def.reject();
         }
@@ -3775,42 +3784,54 @@ window.DataManagerForIviz = (function($, _) {
               fetch_promise.resolve([]);
             });
         }),
-      getCnaData: window.cbio.util.makeCachedPromiseFunction(
-        function(self, fetch_promise) {
-          var _ajaxCnaData = {};
-          var fetch_promises = [];
-          var _cnaProfiles = self.cnaProfileIdsMap;
-          var _studyCasesMap = self.getStudyCasesMap();
+      getCnaData: function(progressFunction) {
+        var _ajaxCnaData = {};
+        var fetch_promises = [];
+        var self = this;
+        var _cnaProfiles = self.cnaProfileIdsMap;
+        var _studyCasesMap = self.getStudyCasesMap();
+        var fetch_promise = new $.Deferred();
 
-          fetch_promises = fetch_promises.concat(_.map(_cnaProfiles,
-            function(_profileId, _studyId) {
-              var _def = new $.Deferred();
-              var _samples = _studyCasesMap[_studyId].samples;
-              var _data = {
-                cbio_genes_filter: true,
-                cna_profile: _profileId
-              };
-              if (_samples !== undefined) {
-                _data.sample_id = _samples.join(' ');
+        fetch_promises = fetch_promises.concat(_.map(_cnaProfiles,
+          function(_profileId, _studyId) {
+            var _def = new $.Deferred();
+            var _samples = _studyCasesMap[_studyId].samples;
+            var _data = {
+              cbio_genes_filter: true,
+              cna_profile: _profileId
+            };
+            if (_samples !== undefined) {
+              _data.sample_id = _samples.join(' ');
+            }
+            $.ajax({
+              method: 'POST',
+              url: self.portalUrl + 'cna.json?',
+              data: _data,
+              success: function(response) {
+                _ajaxCnaData[_studyId] = response;
+                _def.notify();
+                _def.resolve();
+              },
+              error: function() {
+                fetch_promise.reject();
               }
-              $.ajax({
-                method: 'POST',
-                url: self.portalUrl + 'cna.json?',
-                data: _data,
-                success: function(response) {
-                  _ajaxCnaData[_studyId] = response;
-                  _def.resolve();
-                },
-                error: function() {
-                  fetch_promise.reject();
-                }
-              });
-              return _def.promise();
-            }));
-          $.when.apply($, fetch_promises).then(function() {
+            });
+            return _def.promise();
+          }));
+        $.when.apply($, fetch_promises)
+          .done(function() {
             fetch_promise.resolve(_ajaxCnaData);
+          })
+          .fail(function() {
+            fetch_promise.reject();
+          })
+          .progress(function(data) {
+            if (_.isFunction(progressFunction)) {
+              progressFunction(data);
+            }
           });
-        }),
+        return fetch_promise.promise();
+      },
       getMutationCount: window.cbio.util.makeCachedPromiseFunction(
         function(self, fetch_promise) {
           var fetch_promises = [];
@@ -3852,46 +3873,56 @@ window.DataManagerForIviz = (function($, _) {
             });
           });
         }),
-      getMutData: window.cbio.util.makeCachedPromiseFunction(
-        function(self, fetch_promise) {
-          var fetch_promises = [];
-          var _mutDataStudyIdArr = [];
-          var _mutationProfiles = self.mutationProfileIdsMap;
-          var _studyCasesMap = self.getStudyCasesMap();
-          fetch_promises = fetch_promises.concat(_.map(_mutationProfiles,
-            function(_mutationProfileId, _studyId) {
-              var _def = new $.Deferred();
-              var _samples = _studyCasesMap[_studyId].samples;
-              var _data = {
-                cmd: 'get_smg',
-                mutation_profile: _mutationProfileId
-              };
-              if (_samples !== undefined) {
-                _data.case_list = _samples.join(' ');
+      getMutData: function(progressFunction) {
+        var fetch_promise = new $.Deferred();
+        var fetch_promises = [];
+        var _mutDataStudyIdArr = [];
+        var _mutationProfiles = this.mutationProfileIdsMap;
+        var _studyCasesMap = this.getStudyCasesMap();
+        var self = this;
+        fetch_promises = fetch_promises.concat(_.map(_mutationProfiles,
+          function(_mutationProfileId, _studyId) {
+            var _def = new $.Deferred();
+            var _samples = _studyCasesMap[_studyId].samples;
+            var _data = {
+              cmd: 'get_smg',
+              mutation_profile: _mutationProfileId
+            };
+            if (_samples !== undefined) {
+              _data.case_list = _samples.join(' ');
+            }
+            $.ajax({
+              method: 'POST',
+              url: self.portalUrl + 'mutations.json?',
+              data: _data,
+              success: function(response) {
+                _.each(response, function(element) {
+                  _.extend(element, {study_id: _studyId});
+                });
+                _mutDataStudyIdArr = _mutDataStudyIdArr.concat(response);
+                _def.notify();
+                _def.resolve();
+              },
+              error: function() {
+                fetch_promise.reject();
               }
-              $.ajax({
-                method: 'POST',
-                url: self.portalUrl + 'mutations.json?',
-                data: _data,
-                success: function(response) {
-                  _.each(response, function(element) {
-                    _.extend(element, {study_id: _studyId});
-                  });
-                  _mutDataStudyIdArr = _mutDataStudyIdArr.concat(response);
-                  _def.resolve();
-                },
-                error: function() {
-                  fetch_promise.reject();
-                }
-              });
-              return _def.promise();
-            }));
-          $.when.apply($, fetch_promises).then(function() {
+            });
+            return _def.promise();
+          }));
+        $.when.apply($, fetch_promises)
+          .done(function() {
             fetch_promise.resolve(_mutDataStudyIdArr);
-          }, function() {
+          })
+          .fail(function() {
             fetch_promise.reject();
+          })
+          .progress(function(data) {
+            if (_.isFunction(progressFunction)) {
+              progressFunction(data);
+            }
           });
-        }),
+        return fetch_promise.promise();
+      },
       getSampleClinicalData: function(attribute_ids) {
         return getSampleClinicalData(this, attribute_ids);
       },

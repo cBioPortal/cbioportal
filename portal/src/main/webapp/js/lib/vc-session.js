@@ -237,17 +237,10 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       if (name) {
         _virtualCohort.name = name;
       } else {
-        _virtualCohort.name = "Custom Cohort (" + new Date().toISOString().replace(/T/, ' ') + ")";
+        _virtualCohort.name = "Selected " + (cases.length > 1 ? "Studies" : "Study");
       }
-      if (description) {
-        _virtualCohort.description = description;
-        def.resolve(_virtualCohort);
-      } else {
-        $.when(generateCohortDescription_(cases)).done(function(_desp) {
-          _virtualCohort.description = _desp;
-          def.resolve(_virtualCohort);
-        });
-      }
+      _virtualCohort.description = description || '';
+      def.resolve(_virtualCohort);
       return def.promise();
     };
     var buildCaseListObject_ = function(selectedCases, cancerStudyID,

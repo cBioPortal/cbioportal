@@ -30,14 +30,12 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.json.simple.JSONValue" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.*" %>
-<%@ page import="java.util.List" %>
-<%@page import="java.util.Set"%>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="java.util.Set" %>
 <%
     request.setAttribute("standard-js-css", true);
     String isDemoMode = request.getParameter("demo");
@@ -257,12 +255,40 @@
         });
     }
 
-    $(document).ready(function () {
+    function attachCancerStudiesInfo(studies, name, description) {
+        var hasStudies = _.isArray(studies) && studies.length > 0;
+        name = name || '';
+        description = description || '';
+        $("#study_name").append(name);
+        if (hasStudies) {
+            var collapseStudyName = studies.map(function(study) {
+                // Remove html tags in study.description in case title of <a> not work 
+                return '<a href="' + window.cbioURL + 'study?id=' + study.id + '" title="' +
+                    study.description.replace(/(<([^>]+)>)/ig, '') + '" target="_blank">' +
+                    study.name + '</a>';
+            }).join("<br />");
+
+            description += '<span class="truncated"><br />' + collapseStudyName + '</span>';
+        }
+        $("#study_desc").append(description);
+        if (hasStudies) {
+            $("#show_study_details").css('display', 'block');
+
+            $('.truncated').hide()                       // Hide the text initially
+                .after('<i class="fa fa-plus-circle" aria-hidden="true"></i>') // Create toggle button
+                .next().on('click', function() {          // Attach behavior
+                $(this).toggleClass("fa-minus-circle")   // Swap the icon
+                    .prev().toggle();                    // Hide/show the text
+            });
+        }
+    }
+
+    $(document).ready(function() {
         //this is for testing, once done this should be commented/deleted
         //window.cbioURL = '';
         window.iviz = {};
         //commented for thesing
-        window.cbioURL = window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/",2)) + '/';
+        window.cbioURL = window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/", 2)) + '/';
         window.cbioResourceURL = 'js/src/dashboard/resources/';
         window.iviz.datamanager = new DataManagerForIviz.init(window.cbioURL, studyCasesMap);
 
@@ -326,40 +352,33 @@
                                 if (typeof response === 'string') {
                                     response = JSON.parse(response); 
                                 }
-                                $("#show_study_details").css('display','block');
-                                $("#study_name").html(response['data']['name']);
-                                $("#study_desc").html(response['data']['description']);
-                                //$("#submit_button").css('display','none');
+                                var _description = response['data']['description'] || '';
+                                var _studyName = response['data']['name'] || 'Selected Study';
+                                
+                                document.title = _studyName;
+
+                                // After fetching virtual study, we need to show all related studies name and description if the virtual study does not have descirption.
+                                if(!_description && _.isArray(response.data.studies) && response.data.studies.length > 0){
+                                    window.cbioportal_client.getStudies({study_ids: _.pluck(response.data.studies, 'id')})
+                                        .done(function(_cancerStudies) {
+                                            $("#show_study_details").css('display', 'block');
+                                            _description = 'Total ' + _cancerStudies.length + ' studies.';
+                                            attachCancerStudiesInfo(_cancerStudies, _studyName, _description);
+                                        });
+                                }else{
+                                    $("#study_name").html(_studyName);
+                                    $("#study_desc ").html(_description);
+                                }
                                 $("#cancer_study_list").val(cohortIdsList[0]);
-                                var studyName = response['data']['name'];
-                                document.title = studyName?studyName:'Summary';
                             });
                         }
                     }
                 } else if (cohortIdsList.length >= 2) {
-                    var study_name = 'Combined Studies';
-                    var study_description = 'Total ' + cohortIdsList.length + ' studies.';
-                    var collapse_study_name = _cancerStudies.map(function(study) { 
-                        // Remove html tags in study.description in case title of <a> not work 
-                        return '<a href="' + window.cbioURL + 'study?id=' + study.id + '" title="' + 
-                            study.description.replace(/(<([^>]+)>)/ig, '') + '" target="_blank">' + 
-                            study.name + '</a>'; }).join("<br />");
-                    
-                    study_description += '<span class="truncated"><br />' + collapse_study_name + '</span>';
-                    
-                    $("#show_study_details").css('display','block');
-                    $("#study_name").append(study_name);
-                    $("#study_desc ").append(study_description);
-
-                    $('.truncated').hide()                       // Hide the text initially
-                        .after('<i class="fa fa-plus-circle" aria-hidden="true"></i>') // Create toggle button
-                        .next().on('click', function(){          // Attach behavior
-                        $(this).toggleClass("fa-minus-circle")   // Swap the icon
-                            .prev().toggle();                    // Hide/show the text
-                    });
+                    var studyName = 'Selected Studies';
+                    var studyDescription = 'Total ' + cohortIdsList.length + ' studies.';
+                    attachCancerStudiesInfo(_cancerStudies, studyName, studyDescription);
                 }
                 $("#submit_button").click(function(){
-                    debugger;
                     iViz.submitForm(true);
                 });
 

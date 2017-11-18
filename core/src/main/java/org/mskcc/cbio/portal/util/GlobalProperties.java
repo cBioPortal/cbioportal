@@ -283,7 +283,7 @@ public class GlobalProperties {
 	public void setCivicUrl(String property) { civicUrl = parseUrl(property); }
 
 	private static String genomeNexusApiUrl;
-	@Value("${genomenexus.url:genomenexus.org}") // default
+	@Value("${genomenexus.url:v1.genomenexus.org}") // default
 	public void setGenomeNexusApiUrl(String property) { genomeNexusApiUrl = parseUrl(property); }
 
     private static String frontendUrl;

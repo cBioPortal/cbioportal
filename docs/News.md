@@ -1,15 +1,11 @@
 ## November 20, 2017
- *   You can now select multiple studies and view them on the study view page. [example: liver cancer studies](http://www.cbioportal.org/beta/study?id=liad_inserm_fr_2014%2Chcc_inserm_fr_2015%2Clihc_amc_prv%2Clihc_riken%2Clihc_tcga)
+ *   You can now select multiple studies and view them on the study view page. [example: liver cancer studies](http://www.cbioportal.org/study?id=liad_inserm_fr_2014%2Chcc_inserm_fr_2015%2Clihc_amc_prv%2Clihc_riken%2Clihc_tcga)
  
- ![image](https://user-images.githubusercontent.com/840895/33028810-de3b4b54-cde4-11e7-8818-5fbf7ada1338.png)
+ *   You can now bookmark or share your selected samples with the _share_ icon on the study view page. [example: a virtual study of breast tumors](http://www.cbioportal.org/study?id=5a12fd57498eb8b3d5605cd4)
  
- *   You can now bookmark or share your selected samples with the _share_ icon on the study view page. [example: a virtual study of breast tumors](http://www.cbioportal.org/beta/study?id=5a12fd57498eb8b3d5605cd4)
+ *   Cross-study query reimplemented: now you can view an OncoPrint of multiple studies. [example: querying NSCLC tumors from 5 studies](http://www.cbioportal.org/index.do?session_id=5a134ea6498eb8b3d5605cf9)
  
- ![image](https://user-images.githubusercontent.com/840895/33028563-47d6e6fa-cde4-11e7-81f8-db756e69c1e2.png)
- 
- *   Cross-study query reimplemented: now you can view an OncoPrint of multiple studies. [example: querying breast tumors from 10 studies](http://www.cbioportal.org/beta/index.do?session_id=5a12fdca498eb8b3d5605cd5&show_samples=false&clinicallist=CANCER_STUDY,CANCER_TYPE_DETAILED&#summary)
- 
- ![image](https://user-images.githubusercontent.com/840895/33028436-f74c0b16-cde3-11e7-8142-8bd7311dbd36.png)
+ ![image](https://user-images.githubusercontent.com/840895/33043462-8cba0b56-ce13-11e7-9cce-2bcb05b19f8f.png)
  
 ## October 17, 2017
  *   The fourth phase of the cBioPortal architectural upgrade is now complete: The _Mutual Exclusivity_ and _Cancer Type Summary_ tabs have been moved to the new architecture.

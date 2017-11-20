@@ -2742,9 +2742,31 @@ window.DataManagerForIviz = (function($, _) {
 
               _.each(_clinicalAttributes, function(attr) {
                 if (attr.is_patient_attribute === '0') {
-                  _sampleAttributes[attr.attr_id] = attr;
+                  if (_sampleAttributes[attr.attr_id]) {
+                    _sampleAttributes.study_ids.push.apply(_sampleAttributes.study_ids, attr.study_ids);
+                    if (attr.priority !== 1) {
+                      if (_sampleAttributes[attr.attr_id].priority > 1) {
+                        _sampleAttributes[attr.attr_id].priority = (_sampleAttributes[attr.attr_id].priority + attr.priority ) / 2;
+                      } else {
+                        _sampleAttributes[attr.attr_id].priority = attr.priority;
+                      }
+                    }
+                  } else {
+                    _sampleAttributes[attr.attr_id] = attr;
+                  }
                 } else {
-                  _patientAttributes[attr.attr_id] = attr;
+                  if (_patientAttributes[attr.attr_id]) {
+                    _patientAttributes.study_ids.push.apply(_patientAttributes.study_ids, attr.study_ids);
+                    if (attr.priority !== 1) {
+                      if (_patientAttributes[attr.attr_id].priority > 1) {
+                        _patientAttributes[attr.attr_id].priority = (_patientAttributes[attr.attr_id].priority + attr.priority ) / 2;
+                      } else {
+                        _patientAttributes[attr.attr_id].priority = attr.priority;
+                      }
+                    }
+                  } else {
+                    _patientAttributes[attr.attr_id] = attr;
+                  }
                 }
               });
 
@@ -2758,8 +2780,9 @@ window.DataManagerForIviz = (function($, _) {
                   datatype: 'STRING',
                   description: '',
                   display_name: '',
-                  priority: iViz.priorityManager.getDefaultPriority(data.attr_id)
-                };
+                  priority: iViz.priorityManager.getDefaultPriority(data.attr_id),
+                  study_ids: _allStudyIds
+              };
 
                 datum = _.extend(datum, data);
 
@@ -2806,7 +2829,6 @@ window.DataManagerForIviz = (function($, _) {
                 _metaObj.show = _metaObj.priority !== 0;
                 _metaObj.attrList = [_metaObj.attr_id];
                 _metaObj.datatype = content.util.normalizeDataType(_metaObj.datatype);
-                _metaObj.study_ids = _allStudyIds;
                 if (_metaObj.datatype === 'NUMBER') {
                   _metaObj.view_type = 'bar_chart';
                   _metaObj.layout = [-1, 2, 'h'];
@@ -2861,7 +2883,6 @@ window.DataManagerForIviz = (function($, _) {
                 _metaObj.show = _metaObj.priority !== 0;
                 _metaObj.attrList = [_metaObj.attr_id];
                 _metaObj.datatype = content.util.normalizeDataType(_metaObj.datatype);
-                _metaObj.study_ids = _allStudyIds;
                 if (_metaObj.datatype === 'NUMBER') {
                   _metaObj.view_type = 'bar_chart';
                   _metaObj.layout = [-1, 2, 'h'];
@@ -3541,7 +3562,7 @@ window.DataManagerForIviz = (function($, _) {
                   description: attribute.description,
                   display_name: attribute.displayName,
                   is_patient_attribute: attribute.patientAttribute ? "1" : "0",
-                  priority: attribute.priority
+                  priority: Number(attribute.priority)
                 });
                 attributes[attribute.studyId] = _attribute;
               });

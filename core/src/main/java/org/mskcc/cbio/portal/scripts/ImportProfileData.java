@@ -51,31 +51,36 @@ public class ImportProfileData extends ConsoleRunnable {
 
     public void run() {
         try {
-            String description = "Import 'profile' files that contain data matrices indexed by gene, case";
+            // Parse arguments
             // using a real options parser, helps avoid bugs
-
+            String description = "Import 'profile' files that contain data matrices indexed by gene, case";
             OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
             File dataFile = new File((String) options.valueOf("data"));
             File descriptorFile = new File((String) options.valueOf( "meta" ) );
             SpringUtil.initDataSource();
             ProgressMonitor.setCurrentMessage("Reading data from:  " + dataFile.getAbsolutePath());
+            // Load genetic profile and gene panel
             GeneticProfile geneticProfile = null;
             String genePanel = null;
-            Set<String> filteredMutations = GeneticProfileReader.getVariantClassificationFilter( descriptorFile );
             try {
                 geneticProfile = GeneticProfileReader.loadGeneticProfile( descriptorFile );
                 genePanel = GeneticProfileReader.loadGenePanelInformation( descriptorFile );
             } catch (java.io.FileNotFoundException e) {
                 throw new java.io.FileNotFoundException("Descriptor file '" + descriptorFile + "' not found.");
             }
+            
+            // Print profile report
             int numLines = FileUtil.getNumLines(dataFile);
             ProgressMonitor.setCurrentMessage(
                     " --> profile id:  " + geneticProfile.getGeneticProfileId() +
                     "\n --> profile name:  " + geneticProfile.getProfileName() +
                     "\n --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType().name());
             ProgressMonitor.setMaxValue(numLines);
+            
+            // Check genetic alteration type 
             if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED || 
                 geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_UNCALLED) {
+                Set<String> filteredMutations = GeneticProfileReader.getVariantClassificationFilter( descriptorFile );
                 ImportExtendedMutationData importer = new ImportExtendedMutationData(dataFile, geneticProfile.getGeneticProfileId(), genePanel, filteredMutations);
                 String swissprotIdType = geneticProfile.getOtherMetaDataField("swissprot_identifier");
                 if (swissprotIdType != null && swissprotIdType.equals("accession")) {
@@ -94,6 +99,9 @@ public class ImportProfileData extends ConsoleRunnable {
                 
                 ImportTabDelimData genericAssayProfileImporter = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(), geneticProfile.getGeneticProfileId(), genePanel);
                 genericAssayProfileImporter.importData(numLines);
+            } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.STRUCTURAL_VARIANT) {
+                ImportStructuralVariantData importer = new ImportStructuralVariantData(dataFile, geneticProfile.getGeneticProfileId(), genePanel);
+                importer.importData();
             } else {
                 ImportTabDelimData importer = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(), geneticProfile.getGeneticProfileId(), genePanel);
                 importer.importData(numLines);

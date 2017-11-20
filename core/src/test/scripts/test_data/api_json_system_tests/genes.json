@@ -1,5 +1,5 @@
 [
-{"_comment": "genes for data_mutations_extended.txt", 
+{"_comment": "genes for data_mutations_extended.txt",
  "entrez_gene_id":"3983", "hugo_gene_symbol":"ABLIM1"},
 {"entrez_gene_id":"80070", "hugo_gene_symbol":"ADAMTS20"},
 {"entrez_gene_id":"253559", "hugo_gene_symbol":"CADM2"},
@@ -71,6 +71,18 @@
 
 {"_comment": "extra genes for FUSION data",
  "entrez_gene_id":"2261", "hugo_gene_symbol":"FGFR3"},
+
+{"_comment": "genes for data_structural_variation.txt",
+ "entrez_gene_id":"57670", "hugo_gene_symbol":"KIAA1549"},
+{"entrez_gene_id":"673", "hugo_gene_symbol":"BRAF"},
+{"entrez_gene_id":"8031", "hugo_gene_symbol":"NCOA4"},
+{"entrez_gene_id":"5979", "hugo_gene_symbol":"RET"},
+{"entrez_gene_id":"27436", "hugo_gene_symbol":"EML4"},
+{"entrez_gene_id":"238", "hugo_gene_symbol":"ALK"},
+{"entrez_gene_id":"7113", "hugo_gene_symbol":"TMPRSS2"},
+{"entrez_gene_id":"2078", "hugo_gene_symbol":"ERG"},
+{"entrez_gene_id":"1956", "hugo_gene_symbol":"EGFR"},
+{"entrez_gene_id":"5774", "hugo_gene_symbol":"PTPN3"},
 
 {"_comment": "genes for mrna data data_expression_median",
  "entrez_gene_id":"90993", "hugo_gene_symbol":"CREB3L1"},

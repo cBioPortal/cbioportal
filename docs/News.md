@@ -1,8 +1,6 @@
 ## November 20, 2017
  *   You can now select multiple studies and view them on the study view page. [example: liver cancer studies](http://www.cbioportal.org/study?id=liad_inserm_fr_2014%2Chcc_inserm_fr_2015%2Clihc_amc_prv%2Clihc_riken%2Clihc_tcga)
- 
  *   You can now bookmark or share your selected samples with the _share_ icon on the study view page. [example: a virtual study of breast tumors](http://www.cbioportal.org/study?id=5a12fd57498eb8b3d5605cd4)
- 
  *   Cross-study query reimplemented: now you can view an OncoPrint of multiple studies. [example: querying NSCLC tumors from 5 studies](http://www.cbioportal.org/index.do?session_id=5a134ea6498eb8b3d5605cf9)
  
  ![image](https://user-images.githubusercontent.com/840895/33043462-8cba0b56-ce13-11e7-9cce-2bcb05b19f8f.png)

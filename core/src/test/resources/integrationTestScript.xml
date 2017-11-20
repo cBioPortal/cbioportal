@@ -129,6 +129,18 @@
                     <value>bulkload</value>
                     <value>--noprogress</value>
                 </list>
+                
+                <!-- data_structural_variants -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_structural_variants.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_structural_variants.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
                             
                 <!-- data_gistic_genes_amp -->
                 <list>

@@ -796,8 +796,8 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(len(record_list), 1)
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.WARNING)
-        self.assertEqual(record.line_number, 6)
-        self.assertTrue(record.cause.startswith('116983'))
+        self.assertEqual(record.line_number, 9)
+        self.assertIn('Duplicate', record.getMessage())
 
     def test_invalid_discrete_cna(self):
         """Check a discrete CNA file with values that should yield errors."""
@@ -1873,6 +1873,106 @@ class FusionValidationTestCase(PostClinicalDataFileTestCase):
 
         self.assertEqual(len(record_list), 1)
         self.assertIn("duplicate entry in fusion data", record_list[0].getMessage().lower())
+
+
+class StructuralVariantValidationTestCase(PostClinicalDataFileTestCase):
+    """Tests for the various validations of data in structural variant data files."""
+
+    def test_missing_columns(self):
+        """Test whether the exons are found in the transcript"""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_structural_variants_missing_columns.txt',
+                                    validateData.StructuralVariantValidator)
+        self.assertEqual(2, len(record_list))
+        record_iterator = iter(record_list)
+
+        # Expected ERROR message due to missing Ensembl transcript column
+        record = record_iterator.next()
+        self.assertEqual(logging.ERROR, record.levelno)
+        self.assertEqual(1, record.line_number)
+        self.assertEqual('Fusion event requires "Site1_Exon" and "Site2_Exon" columns', record.message)
+
+        # Expected ERROR message due to missing Exon column
+        record = record_iterator.next()
+        self.assertEqual(logging.ERROR, record.levelno)
+        self.assertEqual(1, record.line_number)
+        self.assertEqual('Fusion event requires "Site1_Ensembl_Transcript_Id" and "Site2_Ensembl_Transcript_Id" '
+                         'columns', record.message)
+
+    def test_missing_values(self):
+        """Test whether the exons are found in the transcript"""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_structural_variants_missing_values.txt',
+                                    validateData.StructuralVariantValidator)
+        self.assertEqual(4, len(record_list))
+        record_iterator = iter(record_list)
+
+        # Expected ERROR message due to missing Ensembl transcript column
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(2, record.line_number)
+        self.assertEqual(11, record.column_number)
+        self.assertIn("No Ensembl transcript ID found.", record.message)
+
+        # Expected ERROR message due to missing Exon column
+        record = record_iterator.next()
+        self.assertEqual(logging.ERROR, record.levelno)
+        self.assertEqual(3, record.line_number)
+        self.assertEqual(4, record.column_number)
+        self.assertIn("No Ensembl transcript ID found.", record.message)
+
+        # Expected ERROR message due to missing Ensembl transcript column
+        record = record_iterator.next()
+        self.assertEqual(logging.ERROR, record.levelno)
+        self.assertEqual(6, record.line_number)
+        self.assertEqual(5, record.column_number)
+        self.assertIn("No exon found.", record.message)
+
+        # Expected ERROR message due to missing Exon column
+        record = record_iterator.next()
+        self.assertEqual(logging.ERROR, record.levelno)
+        self.assertEqual(8, record.line_number)
+        self.assertEqual(12, record.column_number)
+        self.assertIn("No exon found.", record.message)
+
+    def test_transcript_not_in_genome_nexus(self):
+        """Test whether the transcripts are validated correctly by checking Genome Nexus"""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_structural_variants_transcript_not_in_genome_nexus.txt',
+                                    validateData.StructuralVariantValidator)
+
+        self.assertEqual(1, len(record_list))
+        record_iterator = iter(record_list)
+
+        # Expected ERROR message due to value "1500" in Site1_Exon in line 2
+        record = record_iterator.next()
+        self.assertEqual(logging.ERROR, record.levelno)
+        self.assertEqual("TEST_TRANSCRIPT", record.cause)
+        self.assertIn("Ensembl transcript not found in Genome Nexus.", record.getMessage())
+
+    def test_exon_not_in_transcript(self):
+        """Test whether the exons are found in the transcript"""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_structural_variants_exon_not_in_transcript.txt',
+                                    validateData.StructuralVariantValidator)
+
+        self.assertEqual(len(record_list), 2)
+        record_iterator = iter(record_list)
+
+        # Expected ERROR message due to value "1500" in Site1_Exon in line 2
+        record = record_iterator.next()
+        self.assertEqual(logging.ERROR, record.levelno)
+        self.assertEqual(2, record.line_number)
+        self.assertEqual("1500 not in ENST00000242365", record.cause)
+        self.assertIn("Exon is not found in rank of transcript", record.getMessage())
+
+        # Expected ERROR message due to value "2000" in Site2_Exon in line 4
+        record = record_iterator.next()
+        self.assertEqual(logging.ERROR, record.levelno)
+        self.assertEqual(4, record.line_number)
+        self.assertEqual("2000 not in ENST00000389048", record.cause)
+        self.assertIn("Exon is not found in rank of transcript", record.getMessage())
+
 
 class SegFileValidationTestCase(PostClinicalDataFileTestCase):
 

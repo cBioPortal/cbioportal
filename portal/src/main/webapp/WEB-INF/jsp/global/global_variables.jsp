@@ -111,12 +111,12 @@
     sampleSetName = sampleSetName.replaceAll("\"", "\\\"");
 
     //check if show co-expression tab
-//    if(!isVirtualStudy){
-//        GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdList[0]);
-//        if (final_gp != null) {
-//            showCoexpTab = true;
-//        }
-//    }        
+    if(!isVirtualStudy){
+        GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyId);
+        if (final_gp != null) {
+            showCoexpTab = true;
+        }
+    }        
     String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "" : GlobalProperties.getSessionServiceUrl();
 %>
 

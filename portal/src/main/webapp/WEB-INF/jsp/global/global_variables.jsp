@@ -185,16 +185,16 @@
                         response = JSON.parse(response);
                         def.resolve(response['data']['name']);
                     }).fail(function () {
-                        def.resolve([]);
+                        def.resolve('');
                     });                    
                 } else {
-                    def.resolve([]);
+                    def.resolve('');
                 }
             } else {
                 window.QuerySession.getCancerStudyNames().then(function (_studies) {
                     def.resolve(_studies[0]);
                 }).fail(function () {
-                    def.resolve([]);
+                    def.resolve('');
                 });
             }
             return def.promise();
@@ -221,7 +221,7 @@
                 sampleLength += cases.length;
             })
             var patientLength = 0;
-            $.each(studyPatientMap, function(studyId,cases){
+            $.each(studyPatientMap, function(studyId, cases) {
                 patientLength += cases.length;
             })
             var altered_samples_percentage = (100 * altered_samples.length / sampleLength).toFixed(1);
@@ -229,16 +229,21 @@
             $("#main_smry_stat_div").append(_stat_smry);
 
             // Query summary line to the left
-            var cohortDisplayName = "";
-            if (window.cohortIdsList.length > 1) {
-                cohortDisplayName = "Selected Studies";
-            } else {
-                cohortDisplayName = studyName;
-            }
-            var _query_smry = "<h3 style='font-size:110%;'><a onclick='goToStudySummary()' style='cursor:pointer;'>" + cohortDisplayName + "</a><br>" +
-                "<small>" + window.QuerySession.getSampleSetName() + " (<b>" + sample_ids.length + "</b> samples)" + " / " +
-                "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s") + "<br></small></h3>";
+            var cohortDisplayName = studyName || "";
+            var _query_smry = "<div><a onclick='goToStudySummary()' class='name'></a><br>" +
+                "<span class='description'></span><br></div>";
             $("#main_smry_query_div").append(_query_smry);
+
+            if (_.isArray(cohortIdsList) && cohortIdsList.length > 1) {
+                window.cbioportal_client.getStudies({study_ids: cohortIdsList})
+                    .done(function(studies) {
+                        cbio.util.showCombinedStudyNameAndDescription('#main_smry_query_div .name', '#main_smry_query_div .description', studies, cohortDisplayName, '');
+                    });
+            } else {
+                $("#main_smry_query_div .name").html(cohortDisplayName);
+                $("#main_smry_query_div .description").html(window.QuerySession.getSampleSetName() + " (<b>" + sample_ids.length + "</b> samples)" + " / "
+                    + "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length === 1 ? "" : "s"));
+            }
 
             // "Modify Query" button
             var _tmpVCinserted = false; // flag to indicate if tmp VC is inserted to jsTree

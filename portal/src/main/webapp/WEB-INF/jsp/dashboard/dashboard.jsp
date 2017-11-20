@@ -345,7 +345,7 @@
                     }
                 } else if (cohortIdsList.length >= 2) {
                     $("#show_study_details").css('display', 'block');
-                    cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, 'Combined Studies', '');
+                    cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, '', '');
                 }
                 $("#submit_button").click(function(){
                     iViz.submitForm(true);

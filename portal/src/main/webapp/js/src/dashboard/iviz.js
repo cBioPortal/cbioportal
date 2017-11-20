@@ -627,7 +627,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         charts[attrData.attr_id] = attrData;
       });
 
-      _.each(iviz.datamanager.sortByClinicalPriority(
+      _.each(iviz.datamanager.sortByNumOfStudies(
         data_.groups.patient.attr_meta.concat(data_.groups.sample.attr_meta))
         , function(attrData) {
           if (chartsCount < iViz.opts.numOfChartsLimit) {

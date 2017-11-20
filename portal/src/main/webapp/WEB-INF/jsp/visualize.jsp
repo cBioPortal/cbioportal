@@ -62,9 +62,9 @@ window.onReactAppReady(function() {
 <% } // end if isPost and we have session service running %>
 
 <div class='main_smry'>
-    <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>
+    <div id='main_smry_stat_div'></div>
     <div id='main_smry_info_div'>
-        <table style='margin-left:0px;margin-top:-10px;margin-bottom:-5px;' >
+        <table>
             <tr>
                 <td>
                     <button id="modifyQueryButton" class="btn btn-primary" style="display: none;">Modify Query</button>

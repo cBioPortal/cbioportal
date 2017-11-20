@@ -36,8 +36,8 @@ package org.mskcc.cbio.portal.model;
 // don't forget to change the other one too
 public enum GeneticAlterationType {
     MUTATION_EXTENDED,
+    STRUCTURAL_VARIATION,
     FUSION,
-    STRUCTURAL_VARIANT,
     COPY_NUMBER_ALTERATION,
     MICRO_RNA_EXPRESSION,
     MRNA_EXPRESSION,
@@ -49,5 +49,5 @@ public enum GeneticAlterationType {
     PROTEIN_LEVEL,
     PROTEIN_ARRAY_PROTEIN_LEVEL,
     PROTEIN_ARRAY_PHOSPHORYLATION,
-    GENESET_SCORE;
+    GENESET_SCORE,
 };

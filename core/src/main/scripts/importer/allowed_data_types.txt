@@ -1,9 +1,9 @@
-# Users, admins: DO NOT CHANGE THIS FILE! 
+# Users, admins: DO NOT CHANGE THIS FILE!
 # These are the combinations of GENETIC_ALTERATION_TYPE, DATATYPE and STABLE_ID that will
-# be allowed by the validator. Changing this file is not recommended by end users as parts of the 
+# be allowed by the validator. Changing this file is not recommended by end users as parts of the
 # cBioPortal code currently depend on some of these stable IDs to be exactly as they are specified
 # here. The validator will check if the users used the right combinations and can also warn them
-# when specific important combinations were found to be missing in their study directory. 
+# when specific important combinations were found to be missing in their study directory.
 GENETIC_ALTERATION_TYPE	DATATYPE	STABLE_ID
 COPY_NUMBER_ALTERATION	DISCRETE	cna
 COPY_NUMBER_ALTERATION	DISCRETE	cna_rae
@@ -36,3 +36,4 @@ PROTEIN_LEVEL	CONTINUOUS	protein_quantification
 PROTEIN_LEVEL	Z-SCORE	protein_quantification_zscores
 GENESET_SCORE	GSVA-SCORE	gsva_scores
 GENESET_SCORE	P-VALUE	gsva_pvalues
+STRUCTURAL_VARIATION	STRUCTURAL_VARIATION	structural_variation

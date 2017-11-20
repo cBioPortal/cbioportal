@@ -77,7 +77,8 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.MUTATION_SIGNIFICANCE:'MutationSignificanceValidator',
     cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX:'GenePanelMatrixValidator',
     cbioportal_common.MetaFileTypes.GSVA_SCORES:'GsvaScoreValidator',
-    cbioportal_common.MetaFileTypes.GSVA_PVALUES:'GsvaPvalueValidator'
+    cbioportal_common.MetaFileTypes.GSVA_PVALUES:'GsvaPvalueValidator',
+    cbioportal_common.MetaFileTypes.STRUCTURAL_VARIATION:'StructuralVariationValidator'
 }
 
 
@@ -782,9 +783,9 @@ class Validator(object):
                 extra={'line_number': self.line_number,
                        'cause': driver_annotation})
         return None
-    
+
     def checkDriverTiersColumnsValues(self, driver_tiers_value=None, driver_tiers_annotation=None):
-        """Ensures that there are no mutations with one multiclass column filled and 
+        """Ensures that there are no mutations with one multiclass column filled and
         the other empty.
         """
         if driver_tiers_value is None and driver_tiers_annotation is not None:
@@ -1108,7 +1109,7 @@ class MutationsExtendedValidator(Validator):
                               'Amino_Acid_Change needs to be present.',
                               extra={'line_number': self.line_number})
             num_errors += 1
-        
+
         # raise errors if the filter_annotations are found without the "filter" columns
         if 'cbp_driver_annotation' in self.cols and 'cbp_driver' not in self.cols:
             self.logger.error('Column cbp_driver_annotation '
@@ -1118,7 +1119,7 @@ class MutationsExtendedValidator(Validator):
             self.logger.error('Column cbp_driver_tiers_annotation '
                               'found without any cbp_driver_tiers '
                               'column.', extra={'column_number': self.cols.index('cbp_driver_tiers_annotation')})
-            
+
         # raise errors if the "filter" columns are found without the filter_annotations
         if 'cbp_driver' in self.cols and 'cbp_driver_annotation' not in self.cols:
             self.logger.error('Column cbp_driver '
@@ -1128,7 +1129,7 @@ class MutationsExtendedValidator(Validator):
             self.logger.error('Column cbp_driver_tiers '
                               'found without any cbp_driver_tiers_annotation '
                               'column.', extra={'column_number': self.cols.index('cbp_driver_tiers')})
-            
+
         return num_errors
 
     def checkLine(self, data):
@@ -1183,7 +1184,7 @@ class MutationsExtendedValidator(Validator):
                 entrez_id = None
         # validate hugo and entrez together:
         self.checkGeneIdentification(hugo_symbol, entrez_id)
-        
+
         # parse custom driver annotation values to validate them together
         driver_value = None
         driver_annotation = None
@@ -1353,10 +1354,10 @@ class MutationsExtendedValidator(Validator):
         is_silent = False
         variant_classification = data[self.cols.index('Variant_Classification')]
         if 'variant_classification_filter' in self.meta_dict:
-            self.SKIP_VARIANT_TYPES = [x.strip() 
-                                       for x 
+            self.SKIP_VARIANT_TYPES = [x.strip()
+                                       for x
                                        in self.meta_dict['variant_classification_filter'].split(',')]
-        
+
         hugo_symbol = data[self.cols.index('Hugo_Symbol')]
         entrez_id = '0'
         if 'Entrez_Gene_Id' in self.cols:
@@ -1455,7 +1456,7 @@ class MutationsExtendedValidator(Validator):
                 return True
         # if no reasons to return with a message were found, return valid
         return True
-    
+
     def checkStartPosition(self, value):
         """Check that the Start_Position value is an integer."""
         if value.isdigit() == False or (value.isdigit() and '.' in value):
@@ -1467,7 +1468,7 @@ class MutationsExtendedValidator(Validator):
                        'cause': value})
         # if no reasons to return with a message were found, return valid
         return True
-    
+
     def checkEndPosition(self, value):
         """Check that the End_Position value is an integer."""
         if value.isdigit() == False or (value.isdigit() and '.' in value):
@@ -1487,7 +1488,7 @@ class MutationsExtendedValidator(Validator):
             self.extra_exists = True
             return False
         return True
-    
+
     def checkDriverTiers(self, value):
         """Report the tiers in the cbp_driver_tiers column (skipping the empty values)."""
         if value not in self.NULL_DRIVER_TIERS_VALUES:
@@ -1504,7 +1505,7 @@ class MutationsExtendedValidator(Validator):
             self.extra_exists = True
             return False
         return True
-    
+
     def checkFilterAnnotation(self, value):
         """Check if the annotation values are smaller than 80 characters."""
         if len(value) > 80:
@@ -2358,6 +2359,52 @@ class FusionValidator(Validator):
                              self.fusion_entries[fusion_entry])})
         else:
             self.fusion_entries[fusion_entry] = self.line_number
+
+
+class StructuralVariationValidator(Validator):
+
+    """Basic validation for fusion data. Validates:
+
+    1. Required column headers
+    2. Gene IDs
+    3. If there is a second gene, also validate Gene IDs of second gene
+    """
+
+    ### If the Entrez Gene id present, the Hugo Symbol can be skipped
+    REQUIRED_HEADERS = [
+        'Sample_ID',
+        'Annotation', # For example: EML4-ALK
+        'Event_Info', # For example: Fusion
+        ]
+    REQUIRE_COLUMN_ORDER = False
+
+    ALLOW_BLANKS = True
+
+    def __init__(self, *args, ** kwargs):
+        super(StructuralVariationValidator, self).__init__(*args, **kwargs)
+        self.structural_variation_entries = {}
+
+    def checkLine(self, data):
+
+        super(StructuralVariationValidator, self).checkLine(data)
+
+        def check_presence(column_name, self, data):
+            column_value = None
+            if column_name in self.cols:
+                column_value = data[self.cols.index(column_name)].strip()
+                # Treat the empty string or 'NA' as a missing value
+                if column_value in ['', 'NA']:
+                    column_value = None
+            return column_value
+
+        # Parse Hugo Symbol and Entrez Gene Id and compare them
+        hugo_symbol = check_presence('Site1_Hugo_Symbol', self, data)
+        entrez_gene_id = check_presence('Site1_Entrez_Gene_Id', self, data)
+        self.checkGeneIdentification(hugo_symbol, entrez_gene_id)
+
+        hugo_symbol = check_presence('Site2_Hugo_Symbol', self, data)
+        entrez_gene_id = check_presence('Site2_Entrez_Gene_Id', self, data)
+        self.checkGeneIdentification(hugo_symbol, entrez_gene_id)
 
 class MutationSignificanceValidator(Validator):
 

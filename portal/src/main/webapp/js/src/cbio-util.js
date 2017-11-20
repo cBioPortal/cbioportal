@@ -810,6 +810,54 @@ cbio.util = (function() {
 
     }
 
+    /**
+     * Add cancer studies info within the combined study.
+     * 
+     * @param nameSelector - Any element selector can be accepted by jQuery
+     * @param descriptionSelector - Any element selector can be accepted by jQuery
+     * @param studies - List of cancer studies 
+     * @param name - The combined study name
+     * @param description - The combined study description
+     */
+    function showCombinedStudyNameAndDescription(nameSelector, descriptionSelector, studies, name, description) {
+        var hasStudies = _.isArray(studies) && studies.length > 0;
+        var twoMoreStudies = hasStudies && studies.length > 1;
+        name = name || (twoMoreStudies ? 'Combined Studies' : 'Selected Study');
+        description = description || '';
+        $(nameSelector).append(name);
+        if (hasStudies) {
+            if (description) {
+                description += ' ';
+            }
+            description += twoMoreStudies ?
+                ('This combined study contains samples from ' + studies.length + ' studies.') : '';
+            var collapseStudyName = studies.map(function(study) {
+                // Remove html tags in study.description in case title of <a> not work 
+                return '<a href="' + window.cbioURL + 'study?id=' + study.id + '" title="' +
+                    study.description.replace(/(<([^>]+)>)/ig, '') + '" target="_blank">' +
+                    study.name + '</a>';
+            }).join("<br />");
+
+            if (twoMoreStudies) {
+                description += '<span class="truncated"><br />' + collapseStudyName + '</span>';
+            } else {
+                description += '<span>' + collapseStudyName + '</span>';
+            }
+        }
+        $(descriptionSelector).append(description);
+        if (hasStudies) {
+            if (twoMoreStudies) {
+                var trncatedElm = $('.truncated').hide()                       // Hide the text initially
+                    .before('<i class="fa fa-plus-circle toggle-icon" aria-hidden="true"></i>'); /// Create toggle button
+                $(descriptionSelector).find('.toggle-icon')
+                    .on('click', function() {          // Attach behavior
+                        $(this).toggleClass("fa-minus-circle");   // Swap the icon
+                        $(trncatedElm).toggle();                    // Hide/show the text
+                    });
+            }
+        }
+    }
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -838,6 +886,7 @@ cbio.util = (function() {
         deepCopyObject: deepCopyObject,
         makeCachedPromiseFunction: makeCachedPromiseFunction,
         getDatahubStudiesList: getDatahubStudiesList,
+        showCombinedStudyNameAndDescription: showCombinedStudyNameAndDescription,
         getDecimalExponents: getDecimalExponents
     };
 

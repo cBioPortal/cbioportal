@@ -898,7 +898,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             _mutGeneMeta[_uniqueId] = {};
             _mutGeneMeta[_uniqueId].gene = _uniqueId;
             _mutGeneMeta[_uniqueId].num_muts = 1;
-            _mutGeneMeta[_uniqueId].case_uids = [_caseUIdIndex];
+            _mutGeneMeta[_uniqueId].case_ids = [_caseUIdIndex];
             _mutGeneMeta[_uniqueId].qval = (window.iviz.datamanager.getCancerStudyIds().length === 1 && _mutGeneDataObj.hasOwnProperty('qval')) ? _mutGeneDataObj.qval : null;
             _mutGeneMeta[_uniqueId].index = _mutGeneMetaIndex;
             if (data_.groups.sample.data[_caseUIdIndex].mutated_genes === undefined) {
@@ -909,7 +909,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             _mutGeneMetaIndex += 1;
           } else {
             _mutGeneMeta[_uniqueId].num_muts += 1;
-            _mutGeneMeta[_uniqueId].case_uids.push(_caseUIdIndex);
+            _mutGeneMeta[_uniqueId].case_ids.push(_caseUIdIndex);
             if (data_.groups.sample.data[_caseUIdIndex].mutated_genes === undefined) {
               data_.groups.sample.data[_caseUIdIndex].mutated_genes = [_mutGeneMeta[_uniqueId].index];
             } else {
@@ -918,6 +918,11 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           }
         });
       });
+
+      _.each(_mutGeneMeta, function(content) {
+        content.case_uids = iViz.util.unique(content.case_ids);
+      });
+      
       tableData_.mutated_genes = {};
       tableData_.mutated_genes.geneMeta = _mutGeneMeta;
       return tableData_.mutated_genes;
@@ -948,7 +953,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               _cnaMeta[_uniqueId].gene = _geneSymbol;
               _cnaMeta[_uniqueId].cna = _altType;
               _cnaMeta[_uniqueId].cytoband = _cnaDataPerStudy.cytoband[_index];
-              _cnaMeta[_uniqueId].case_uids = [_caseIdIndex];
+              _cnaMeta[_uniqueId].case_ids = [_caseIdIndex];
               if ((window.iviz.datamanager.getCancerStudyIds().length !== 1) || _cnaDataPerStudy.gistic[_index] === null) {
                 _cnaMeta[_uniqueId].qval = null;
               } else {
@@ -962,7 +967,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               }
               _cnaMetaIndex += 1;
             } else {
-              _cnaMeta[_uniqueId].case_uids.push(_caseIdIndex);
+              _cnaMeta[_uniqueId].case_ids.push(_caseIdIndex);
               if (data_.groups.sample.data[_caseIdIndex].cna_details === undefined) {
                 data_.groups.sample.data[_caseIdIndex].cna_details = [_cnaMeta[_uniqueId].index];
               } else {
@@ -972,6 +977,11 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           });
         });
       });
+
+      _.each(_cnaMeta, function(content) {
+        content.case_uids = iViz.util.unique(content.case_ids);
+      });
+      
       tableData_.cna_details = {};
       tableData_.cna_details.geneMeta = _cnaMeta;
       return tableData_.cna_details;
@@ -2375,15 +2385,36 @@ var util = (function(_, cbio) {
       return result;
     };
 
-    content.compare = function(arr1, arr2) {
-      if (arr1.length === arr2.length) {
-        for (var i = 0; i < arr1.length; i++) {
-          if (arr1[i] !== arr2[i]) {
-            return false;
-          }
+    /**
+     * Returns a copy of the array with values from array that are not present in the other array.
+     *
+     * @param {array} a Array, must already be sorted
+     * @param {array} b The other array, must already be sorted
+     * @return {array} The difference values
+     */
+    content.difference = function(a, b) {
+      var result = [];
+      var i = 0;
+      var j = 0;
+      var aL = a.length;
+      var bL = b.length;
+      while (i < aL && j < bL) {
+        if (a[i] < b[j]) {
+          result.push(a[i]);
+          ++i;
+        } else if (a[i] > b[j]) {
+          ++j;
+        } else {
+          ++i;
+          ++j;
         }
       }
-      return false;
+
+      return result;
+    };
+
+    content.compare = function(arr1, arr2) {
+      return JSON.stringify(arr1) === JSON.stringify(arr2);
     };
 
     content.getClinicalAttrTooltipContent = function(attribute) {
@@ -6379,7 +6410,7 @@ module.exports = {
                     }
                   }
                   if (_.isArray(_caseId)) {
-                    nonNaCases = nonNaCases.concat(_caseId);
+                    nonNaCases.push.apply(nonNaCases, _caseId);
                   } else {
                     nonNaCases.push(_caseId);
                   }
@@ -6401,7 +6432,7 @@ module.exports = {
             _allCases = iViz.util.intersection(_nonNaCases, _allCases);
           } else {
             _selectedCases =
-              _.pluck(this.invisibleDimension.top(Infinity), attrId);
+              _.pluck(this.invisibleDimension.top(Infinity), attrId).sort();
           }
         }
         if (_selectedCases.length === 0) {
@@ -6419,7 +6450,7 @@ module.exports = {
             name: 'Selected Patients'
           }, {
             id: 1,
-            caseIds: _.difference(
+            caseIds: iViz.util.difference(
               _allCases, _selectedCases),
             curveHex: '#2986e2',
             name: 'Unselected Patients'
@@ -7304,17 +7335,22 @@ window.LogRankTest = (function(jStat) {
                     if (includeMutationCount) {
                       selectedMap_[geneIndex].num_muts = 1;
                     }
-                    selectedMap_[geneIndex].case_uids = [caseId];
+                    selectedMap_[geneIndex].case_ids = [caseId];
                   } else {
                     if (includeMutationCount) {
                       selectedMap_[geneIndex].num_muts += 1;
                     }
-                    selectedMap_[geneIndex].case_uids.push(caseId);
+                    selectedMap_[geneIndex].case_ids.push(caseId);
                   }
                 });
               }
             }
           });
+          
+          _.each(selectedMap_, function(content) {
+            content.case_uids = iViz.util.unique(content.case_ids);
+          });
+          
           initReactTable(true, selectedMap_, selectedSamples);
         }
       } else {
@@ -7475,7 +7511,7 @@ window.LogRankTest = (function(jStat) {
           var freq = 0;
           datum.gene = item.gene;
           if (_selectedGenesMap === undefined) {
-            datum.case_uids = iViz.util.unique(item.case_uids);
+            datum.case_uids = item.case_uids;
             datum.cases = datum.case_uids.length;
             datum.uniqueId = index;
             if (typeof genePanelMap[item.gene] !== 'undefined') {
@@ -7500,8 +7536,7 @@ window.LogRankTest = (function(jStat) {
             if (_selectedGenesMap[item.index] === undefined) {
               return;
             }
-            datum.case_uids =
-              iViz.util.unique(_selectedGenesMap[item.index].case_uids);
+            datum.case_uids = _selectedGenesMap[item.index].case_uids;
             datum.cases = datum.case_uids.length;
             if (typeof genePanelMap[item.gene] !== 'undefined') {
               freq = iViz.util.calcFreq(datum.cases, genePanelMap[item.gene]["sample_num"]);

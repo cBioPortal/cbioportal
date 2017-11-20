@@ -44,12 +44,12 @@ public class MolecularDataMyBatisRepositoryTest {
         GeneMolecularAlteration molecularAlteration1 = result.get(0);
         Assert.assertEquals((Integer) 207, molecularAlteration1.getEntrezGeneId());
         String[] expected = {"-0.4674","-0.6270","-1.2266","-1.2479","-1.2262","0.6962","-0.3338","-0.1264","0.7559","-1.1267","-0.5893",
-        "-1.1546","-1.0027","-1.3157"};
+        "-1.1546","-1.0027","-1.3157",""};
         Assert.assertArrayEquals(expected, molecularAlteration1.getSplitValues());
         GeneMolecularAlteration molecularAlteration2 = result.get(1);
         Assert.assertEquals((Integer) 208, molecularAlteration2.getEntrezGeneId());
         String[] expected2 = {"1.4146","-0.0662","-0.8585","-1.6576","-0.3552","-0.8306","0.8102","0.1146","0.3498","0.0349","0.4927",
-                "-0.8665","-0.4754","-0.7221"};
+                "-0.8665","-0.4754","-0.7221",""};
         Assert.assertArrayEquals(expected2, molecularAlteration2.getSplitValues());
     }
 
@@ -70,12 +70,12 @@ public class MolecularDataMyBatisRepositoryTest {
         GenesetMolecularAlteration molecularAlteration1 = result.get(0);
         Assert.assertEquals(genesetId1, molecularAlteration1.getGenesetId());
         String[] expected = {"1.0106","-0.0662","-0.8585","-1.6576","-0.3552","-0.8306","0.8102","0.1106","0.3098","0.0309","0.0927",
-                "-0.8665","-0.0750","-0.7221"};
+                "-0.8665","-0.0750","-0.7221",""};
         Assert.assertArrayEquals(expected, molecularAlteration1.getSplitValues());
         GenesetMolecularAlteration molecularAlteration2 = result.get(1);
         Assert.assertEquals(genesetId2, molecularAlteration2.getGenesetId());
         String[] expected2 = {"-0.0670","-0.6270","-1.2266","-1.2079","-1.2262","0.6962","-0.3338","-0.1260","0.7559","-1.1267","-0.5893",
-                "-1.1506","-1.0027","-1.3157"};
+                "-1.1506","-1.0027","-1.3157",""};
         Assert.assertArrayEquals(expected2, molecularAlteration2.getSplitValues());
     }
 

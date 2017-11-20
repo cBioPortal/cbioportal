@@ -237,7 +237,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       if (name) {
         _virtualCohort.name = name;
       } else {
-        _virtualCohort.name = cases.length > 1 ? "Combined Studies" : "Selected Study";
+        _virtualCohort.name = cases.length > 1 ? "Combined Study" : "Selected Study";
       }
       _virtualCohort.description = description || '';
       def.resolve(_virtualCohort);

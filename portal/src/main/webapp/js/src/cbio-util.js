@@ -822,7 +822,7 @@ cbio.util = (function() {
     function showCombinedStudyNameAndDescription(nameSelector, descriptionSelector, studies, name, description) {
         var hasStudies = _.isArray(studies) && studies.length > 0;
         var twoMoreStudies = hasStudies && studies.length > 1;
-        name = name || (twoMoreStudies ? 'Combined Studies' : 'Selected Study');
+        name = name || (twoMoreStudies ? 'Combined Study' : 'Selected Study');
         description = description || '';
         $(nameSelector).append(name);
         if (hasStudies) {

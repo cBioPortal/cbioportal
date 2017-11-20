@@ -848,8 +848,8 @@ cbio.util = (function() {
         if (hasStudies) {
             if (twoMoreStudies) {
                 var trncatedElm = $('.truncated').hide()                       // Hide the text initially
-                    .before('<i class="fa fa-plus-circle toggle-icon" aria-hidden="true"></i>'); /// Create toggle button
-                $(descriptionSelector).find('.toggle-icon')
+                    .before('<i class="fa fa-plus-circle combined-study-title-toggle-icon" aria-hidden="true"></i>'); /// Create toggle button
+                $(descriptionSelector).find('.combined-study-title-toggle-icon')
                     .on('click', function() {          // Attach behavior
                         $(this).toggleClass("fa-minus-circle");   // Swap the icon
                         $(trncatedElm).toggle();                    // Hide/show the text

@@ -1,7 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.SampleList;
-import org.cbioportal.model.SampleListSampleCount;
+import org.cbioportal.model.SampleListToSampleId;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.StudyService;
@@ -38,13 +38,13 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
         sampleList.setListId(1);
         expectedSampleLists.add(sampleList);
         
-        List<SampleListSampleCount> expectedSampleListSampleCounts = new ArrayList<>();
-        SampleListSampleCount sampleListSampleCount = new SampleListSampleCount();
-        sampleListSampleCount.setSampleListId(1);
-        sampleListSampleCount.setSampleCount(10);
-        expectedSampleListSampleCounts.add(sampleListSampleCount);
+        List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
+        SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
+        sampleListSampleId.setSampleListId(1);
+        sampleListSampleId.setSampleId(SAMPLE_ID1);
+        expectedSampleListSampleIds.add(sampleListSampleId);
         
-        Mockito.when(sampleListRepository.getSampleCounts(Arrays.asList(1))).thenReturn(expectedSampleListSampleCounts);
+        Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
 
         Mockito.when(sampleListRepository.getAllSampleLists("DETAILED", PAGE_SIZE, PAGE_NUMBER, SORT,
             DIRECTION)).thenReturn(expectedSampleLists);
@@ -53,7 +53,7 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
             SORT, DIRECTION);
 
         Assert.assertEquals(expectedSampleLists, result);
-        Assert.assertEquals((Integer) 10, expectedSampleLists.get(0).getSampleCount());
+        Assert.assertEquals((Integer) 1, expectedSampleLists.get(0).getSampleCount());
     }
 
     @Test
@@ -84,17 +84,18 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
 
         Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(expectedSampleList);
 
-        List<SampleListSampleCount> expectedSampleListSampleCounts = new ArrayList<>();
-        SampleListSampleCount sampleListSampleCount = new SampleListSampleCount();
-        sampleListSampleCount.setSampleCount(10);
-        expectedSampleListSampleCounts.add(sampleListSampleCount);
-
-        Mockito.when(sampleListRepository.getSampleCounts(Arrays.asList(1))).thenReturn(expectedSampleListSampleCounts);
+        List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
+        SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
+        sampleListSampleId.setSampleListId(1);
+        sampleListSampleId.setSampleId(SAMPLE_ID1);
+        expectedSampleListSampleIds.add(sampleListSampleId);
         
+        Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
+
         SampleList result = sampleListService.getSampleList(SAMPLE_LIST_ID);
 
         Assert.assertEquals(expectedSampleList, result);
-        Assert.assertEquals((Integer) 10, result.getSampleCount());
+        Assert.assertEquals((Integer) 1, result.getSampleCount());
     }
 
     @Test
@@ -105,13 +106,13 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
         sampleList.setListId(1);
         expectedSampleLists.add(sampleList);
 
-        List<SampleListSampleCount> expectedSampleListSampleCounts = new ArrayList<>();
-        SampleListSampleCount sampleListSampleCount = new SampleListSampleCount();
-        sampleListSampleCount.setSampleListId(1);
-        sampleListSampleCount.setSampleCount(10);
-        expectedSampleListSampleCounts.add(sampleListSampleCount);
-
-        Mockito.when(sampleListRepository.getSampleCounts(Arrays.asList(1))).thenReturn(expectedSampleListSampleCounts);
+        List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
+        SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
+        sampleListSampleId.setSampleListId(1);
+        sampleListSampleId.setSampleId(SAMPLE_ID1);
+        expectedSampleListSampleIds.add(sampleListSampleId);
+        
+        Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
 
         Mockito.when(sampleListRepository.getAllSampleListsInStudy(STUDY_ID, "DETAILED", PAGE_SIZE, PAGE_NUMBER,
             SORT, DIRECTION)).thenReturn(expectedSampleLists);
@@ -120,7 +121,7 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
             PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedSampleLists, result);
-        Assert.assertEquals((Integer) 10, expectedSampleLists.get(0).getSampleCount());
+        Assert.assertEquals((Integer) 1, expectedSampleLists.get(0).getSampleCount());
     }
 
     @Test(expected = StudyNotFoundException.class)
@@ -157,12 +158,13 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
 
         Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(expectedSampleList);
 
-        List<SampleListSampleCount> expectedSampleListSampleCounts = new ArrayList<>();
-        SampleListSampleCount sampleListSampleCount = new SampleListSampleCount();
-        sampleListSampleCount.setSampleCount(10);
-        expectedSampleListSampleCounts.add(sampleListSampleCount);
-
-        Mockito.when(sampleListRepository.getSampleCounts(Arrays.asList(1))).thenReturn(expectedSampleListSampleCounts);
+        List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
+        SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
+        sampleListSampleId.setSampleListId(1);
+        sampleListSampleId.setSampleId(SAMPLE_ID1);
+        expectedSampleListSampleIds.add(sampleListSampleId);
+        
+        Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
 
         List<String> expectedSampleIds = new ArrayList<>();
         expectedSampleIds.add(SAMPLE_ID1);

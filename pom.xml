@@ -6,7 +6,7 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>Portal Master</name>
-  <version>1.9.1-SNAPSHOT</version>
+  <version>1.10.1-SNAPSHOT</version>
   <description>master maven module</description>
 
   <scm>
@@ -99,9 +99,7 @@
                         <available file="${basedir}/src/main/resources/portal.properties" />
                       </not>
                       <then>
-                        <copy
-                          file="${basedir}/src/main/resources/portal.properties.EXAMPLE"
-                          tofile="${basedir}/src/main/resources/portal.properties" />
+                        <copy file="${basedir}/src/main/resources/portal.properties.EXAMPLE" tofile="${basedir}/src/main/resources/portal.properties" />
                       </then>
                     </if>
                     <if>
@@ -109,9 +107,7 @@
                         <available file="${basedir}/src/main/resources/log4j.properties" />
                       </not>
                       <then>
-                        <copy
-                          file="${basedir}/src/main/resources/log4j.properties.EXAMPLE"
-                          tofile="${basedir}/src/main/resources/log4j.properties" />
+                        <copy file="${basedir}/src/main/resources/log4j.properties.EXAMPLE" tofile="${basedir}/src/main/resources/log4j.properties" />
                       </then>
                     </if>
                   </target>

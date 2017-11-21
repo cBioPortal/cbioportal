@@ -109,11 +109,11 @@ public final class DaoClinicalData {
     {
         if (MySQLbulkLoader.isBulkLoad()) {
             MySQLbulkLoader.getMySQLbulkLoader(tableName).insertRecord(Integer.toString(internalId),
-                                                                       attrId,
-                                                                       attrVal);
+                attrId,
+                attrVal);
             return 1;
         }
-        
+
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -126,14 +126,14 @@ public final class DaoClinicalData {
             pstmt.setString(3, attrVal);
             int toReturn = pstmt.executeUpdate();
 
-			if (tableName.equals(PATIENT_TABLE)) {
-				patientAttributes.put(attrId, attrId);
-			}
-			else {
-				sampleAttributes.put(attrId, attrId);
-			}	
+            if (tableName.equals(PATIENT_TABLE)) {
+                patientAttributes.put(attrId, attrId);
+            }
+            else {
+                sampleAttributes.put(attrId, attrId);
+            }
 
-			return toReturn;
+            return toReturn;
         }
         catch (SQLException e) {
             throw new DaoException(e);
@@ -151,9 +151,9 @@ public final class DaoClinicalData {
             return null;
         }
         return getDatum(internalCancerStudyId,
-                        table,
-                        DaoPatient.getPatientByCancerStudyAndPatientId(internalCancerStudyId, patientId).getInternalId(),
-                        attrId);
+            table,
+            DaoPatient.getPatientByCancerStudyAndPatientId(internalCancerStudyId, patientId).getInternalId(),
+            attrId);
     }
 
     private static int getInternalCancerStudyId(String cancerStudyId) throws DaoException
@@ -185,7 +185,7 @@ public final class DaoClinicalData {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
 
             pstmt = con.prepareStatement("SELECT * FROM " + table +
-                                         " WHERE INTERNAL_ID=? AND ATTR_ID=?");
+                " WHERE INTERNAL_ID=? AND ATTR_ID=?");
             pstmt.setInt(1, internalId);
             pstmt.setString(2, attrId);
 
@@ -205,12 +205,12 @@ public final class DaoClinicalData {
         }
     }
 
-	public static List<ClinicalData> getDataByPatientId(int cancerStudyId, String patientId) throws DaoException
+    public static List<ClinicalData> getDataByPatientId(int cancerStudyId, String patientId) throws DaoException
     {
         List<Integer> internalIds = new ArrayList<Integer>();
         internalIds.add(DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId).getInternalId());
-		return getDataByInternalIds(cancerStudyId, PATIENT_TABLE, internalIds);
-	}
+        return getDataByInternalIds(cancerStudyId, PATIENT_TABLE, internalIds);
+    }
 
     private static List<ClinicalData> getDataByInternalIds(int internalCancerStudyId, String table, List<Integer> internalIds) throws DaoException
     {
@@ -220,8 +220,8 @@ public final class DaoClinicalData {
 
         List<ClinicalData> clinicals = new ArrayList<ClinicalData>();
         String sql = ("SELECT * FROM " + table + " WHERE `INTERNAL_ID` IN " +
-                      "(" + generateIdsSql(internalIds) + ")");
-                      
+            "(" + generateIdsSql(internalIds) + ")");
+
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
             pstmt = con.prepareStatement(sql);
@@ -243,10 +243,10 @@ public final class DaoClinicalData {
     public static List<ClinicalData> getData(String cancerStudyId) throws DaoException
     {
         return getData(getInternalCancerStudyId(cancerStudyId));
-	}
+    }
     public static List<ClinicalData> getData(int cancerStudyId) throws DaoException
     {
-        
+
         return getDataByInternalIds(cancerStudyId, PATIENT_TABLE, getPatientIdsByCancerStudy(cancerStudyId));
     }
 
@@ -281,7 +281,7 @@ public final class DaoClinicalData {
             patientIdsInt.add(DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId).getInternalId());
         }
 
-            return getDataByInternalIds(cancerStudyId, PATIENT_TABLE, patientIdsInt);
+        return getDataByInternalIds(cancerStudyId, PATIENT_TABLE, patientIdsInt);
     }
 
     public static List<ClinicalData> getSampleAndPatientData(int cancerStudyId, Collection<String> sampleIds) throws DaoException
@@ -303,7 +303,7 @@ public final class DaoClinicalData {
             sampleIdsForPatient.add(sampleId);
         }
         List<ClinicalData> sampleClinicalData =  getDataByInternalIds(cancerStudyId, SAMPLE_TABLE, sampleIdsInt);
-        
+
         List<ClinicalData> patientClinicalData = getDataByInternalIds(cancerStudyId, PATIENT_TABLE, patientIdsInt);
         for (ClinicalData cd : patientClinicalData) {
             String stablePatientId = cd.getStableId();
@@ -314,10 +314,10 @@ public final class DaoClinicalData {
                 sampleClinicalData.add(cdSample);
             }
         }
-        
+
         return sampleClinicalData;
     }
-    
+
     public static List<ClinicalData> getSampleAndPatientData(int cancerStudyId, Collection<String> sampleIds, ClinicalAttribute attr) throws DaoException
     {
         List<Integer> sampleIdsInt = new ArrayList<Integer>();
@@ -337,7 +337,7 @@ public final class DaoClinicalData {
             sampleIdsForPatient.add(sampleId);
         }
         List<ClinicalData> sampleClinicalData =  getDataByInternalIds(cancerStudyId, SAMPLE_TABLE, sampleIdsInt, Collections.singletonList(attr.getAttrId()));
-        
+
         List<ClinicalData> patientClinicalData = getDataByInternalIds(cancerStudyId, PATIENT_TABLE, patientIdsInt, Collections.singletonList(attr.getAttrId()));
         for (ClinicalData cd : patientClinicalData) {
             String stablePatientId = cd.getStableId();
@@ -348,15 +348,18 @@ public final class DaoClinicalData {
                 sampleClinicalData.add(cdSample);
             }
         }
-        
+
         return sampleClinicalData;
     }
-    
+
     public static List<ClinicalData> getSampleData(int cancerStudyId, Collection<String> sampleIds, ClinicalAttribute attr) throws DaoException
     {
         List<Integer> sampleIdsInt = new ArrayList<Integer>();
         for (String sampleId : sampleIds) {
-            sampleIdsInt.add(DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId).getInternalId());
+            Sample _sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+            if (_sample != null) {
+                sampleIdsInt.add(_sample.getInternalId());
+            }
         }
         return getDataByInternalIds(cancerStudyId, SAMPLE_TABLE, sampleIdsInt, Collections.singletonList(attr.getAttrId()));
     }
@@ -378,7 +381,7 @@ public final class DaoClinicalData {
             patientIdsInt.add(DaoPatient.getPatientByCancerStudyAndPatientId(internalCancerStudyId, patientId).getInternalId());
         }
 
-		return getDataByInternalIds(internalCancerStudyId, PATIENT_TABLE, patientIdsInt, Collections.singletonList(attr.getAttrId()));
+        return getDataByInternalIds(internalCancerStudyId, PATIENT_TABLE, patientIdsInt, Collections.singletonList(attr.getAttrId()));
     }
 
     private static List<ClinicalData> getDataByInternalIds(int internalCancerStudyId, String table, List<Integer> internalIds, Collection<String> attributeIds) throws DaoException
@@ -390,8 +393,8 @@ public final class DaoClinicalData {
         List<ClinicalData> clinicals = new ArrayList<ClinicalData>();
 
         String sql = ("SELECT * FROM " + table + " WHERE `INTERNAL_ID` IN " +
-                      "(" + generateIdsSql(internalIds) + ") " +
-                      " AND ATTR_ID IN ('"+ StringUtils.join(attributeIds, "','")+"') ");
+            "(" + generateIdsSql(internalIds) + ") " +
+            " AND ATTR_ID IN ('"+ StringUtils.join(attributeIds, "','")+"') ");
 
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
@@ -404,13 +407,13 @@ public final class DaoClinicalData {
             throw new DaoException(e);
         }
         finally {
-                JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
         }
         return clinicals;
     }
 
     public static List<ClinicalData> getDataByAttributeIds(int internalCancerStudyId, Collection<String> attributeIds) throws DaoException {
-        
+
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -421,7 +424,7 @@ public final class DaoClinicalData {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
 
             pstmt = con.prepareStatement("SELECT * FROM clinical_patient WHERE" +
-                                         " ATTR_ID IN ('" + StringUtils.join(attributeIds, "','") +"') ");
+                " ATTR_ID IN ('" + StringUtils.join(attributeIds, "','") +"') ");
 
             List<Integer> patients = getPatientIdsByCancerStudy(internalCancerStudyId);
 
@@ -432,11 +435,11 @@ public final class DaoClinicalData {
                     clinicals.add(extract(PATIENT_TABLE, internalCancerStudyId, rs));
                 }
             }
-		}
-		catch (SQLException e) {
-			throw new DaoException(e);
         }
-		finally {
+        catch (SQLException e) {
+            throw new DaoException(e);
+        }
+        finally {
             JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
         }
 
@@ -446,10 +449,10 @@ public final class DaoClinicalData {
     private static ClinicalData extract(String table, int internalCancerStudyId, ResultSet rs) throws SQLException {
         // get 
         String stableId = getStableIdFromInternalId(table, rs.getInt("INTERNAL_ID"));
-		return new ClinicalData(internalCancerStudyId,
-								stableId,
-								rs.getString("ATTR_ID"),
-								rs.getString("ATTR_VALUE"));
+        return new ClinicalData(internalCancerStudyId,
+            stableId,
+            rs.getString("ATTR_ID"),
+            rs.getString("ATTR_VALUE"));
     }
 
     private static String getStableIdFromInternalId(String table, int internalId)
@@ -481,61 +484,61 @@ public final class DaoClinicalData {
         } finally {
             JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
         }
-		reCache();
+        reCache();
     }
 
-	/*********************************************************
-	 * Previous DaoClinicalData class methods (accessors only)
-	 *********************************************************/
-	
+    /*********************************************************
+     * Previous DaoClinicalData class methods (accessors only)
+     *********************************************************/
+
     /**
      * Returns the survival data for the given patientSet, NOT necessarily in the 
      * same order as the patientSet.
-     * 
+     *
      * @param cancerStudyId: the cancerstudy internal id
      * @param patientSet: set of patient ids
      * @return
      * @throws DaoException
      */
-	public static List<Patient> getSurvivalData(int cancerStudyId, Collection<String> patientSet) throws DaoException {
-            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
-            List<ClinicalData> data = getData(cancerStudyId, patientSet);
-            Map<String,Map<String,ClinicalData>> clinicalData = new LinkedHashMap<String,Map<String,ClinicalData>>();
-            for (ClinicalData cd : data) {
-                String patientId = cd.getStableId();
-                Map<String,ClinicalData> msc = clinicalData.get(cd.getStableId());
-                if (msc==null) {
-                    msc = new HashMap<String,ClinicalData>();
-                    clinicalData.put(patientId, msc);
-                }
-                msc.put(cd.getAttrId(), cd);
+    public static List<Patient> getSurvivalData(int cancerStudyId, Collection<String> patientSet) throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+        List<ClinicalData> data = getData(cancerStudyId, patientSet);
+        Map<String,Map<String,ClinicalData>> clinicalData = new LinkedHashMap<String,Map<String,ClinicalData>>();
+        for (ClinicalData cd : data) {
+            String patientId = cd.getStableId();
+            Map<String,ClinicalData> msc = clinicalData.get(cd.getStableId());
+            if (msc==null) {
+                msc = new HashMap<String,ClinicalData>();
+                clinicalData.put(patientId, msc);
             }
+            msc.put(cd.getAttrId(), cd);
+        }
 
-            ArrayList<Patient> toReturn = new ArrayList<Patient>();
-            for (Map.Entry<String,Map<String,ClinicalData>> entry : clinicalData.entrySet()) {
-                Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, entry.getKey());
-                toReturn.add(new Patient(cancerStudy, patient.getStableId(), patient.getInternalId(), entry.getValue()));
-            }
-            return toReturn;
-	}
+        ArrayList<Patient> toReturn = new ArrayList<Patient>();
+        for (Map.Entry<String,Map<String,ClinicalData>> entry : clinicalData.entrySet()) {
+            Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, entry.getKey());
+            toReturn.add(new Patient(cancerStudy, patient.getStableId(), patient.getInternalId(), entry.getValue()));
+        }
+        return toReturn;
+    }
 
-	/**************************************************************
-	 * Previous DaoClinicalFreeForm class methods (accessors only)
-	 *************************************************************/
+    /**************************************************************
+     * Previous DaoClinicalFreeForm class methods (accessors only)
+     *************************************************************/
 
-	public static List<ClinicalParameterMap> getDataSlice(int cancerStudyId, Collection<String> attributeIds) throws DaoException {
-		
+    public static List<ClinicalParameterMap> getDataSlice(int cancerStudyId, Collection<String> attributeIds) throws DaoException {
+
         Map<String,Map<String, String>> mapAttrStableIdValue = new HashMap<String,Map<String, String>>();
         for (ClinicalData cd : getDataByAttributeIds(cancerStudyId, attributeIds)) {
 
             String attrId = cd.getAttrId();
             String value = cd.getAttrVal();
             String stableId = cd.getStableId();
-                    
+
             if (value.isEmpty() || value.equals(ClinicalAttribute.NA)) {
                 continue;
             }
-                    
+
             Map<String, String> mapStableIdValue = mapAttrStableIdValue.get(attrId);
             if (mapStableIdValue == null) {
                 mapStableIdValue = new HashMap<String, String>();
@@ -543,42 +546,42 @@ public final class DaoClinicalData {
             }
             mapStableIdValue.put(stableId, value);
         }
-                
+
         List<ClinicalParameterMap> maps = new ArrayList<ClinicalParameterMap>();
         for (Map.Entry<String,Map<String, String>> entry : mapAttrStableIdValue.entrySet()) {
             maps.add(new ClinicalParameterMap(entry.getKey(), entry.getValue()));
         }
-                
+
         return maps;
-	}
-	
+    }
+
     public static HashSet<String> getDistinctParameters(int cancerStudyId) throws DaoException {
 
-		HashSet<String> toReturn = new HashSet<String>();
-		for (ClinicalData clinicalData : DaoClinicalData.getData(cancerStudyId)) {
-			toReturn.add(clinicalData.getAttrId());
-		}
+        HashSet<String> toReturn = new HashSet<String>();
+        for (ClinicalData clinicalData : DaoClinicalData.getData(cancerStudyId)) {
+            toReturn.add(clinicalData.getAttrId());
+        }
 
-		return toReturn;
-	}
-	public static HashSet<String> getAllPatients(int cancerStudyId) throws DaoException {
+        return toReturn;
+    }
+    public static HashSet<String> getAllPatients(int cancerStudyId) throws DaoException {
 
-		HashSet<String> toReturn = new HashSet<String>();
-		for (ClinicalData clinicalData : getData(cancerStudyId)) {
-			toReturn.add(clinicalData.getStableId());
-		}
+        HashSet<String> toReturn = new HashSet<String>();
+        for (ClinicalData clinicalData : getData(cancerStudyId)) {
+            toReturn.add(clinicalData.getStableId());
+        }
 
-		return toReturn;
-	}
-	public static List<ClinicalData> getDataByCancerStudy(int cancerStudyId) throws DaoException {
+        return toReturn;
+    }
+    public static List<ClinicalData> getDataByCancerStudy(int cancerStudyId) throws DaoException {
 
-		return DaoClinicalData.getData(cancerStudyId);
-	}
+        return DaoClinicalData.getData(cancerStudyId);
+    }
 
-	public static List<ClinicalData> getDataByPatientIds(int cancerStudyId, List<String> patientIds) throws DaoException {
+    public static List<ClinicalData> getDataByPatientIds(int cancerStudyId, List<String> patientIds) throws DaoException {
 
-		return DaoClinicalData.getData(cancerStudyId, patientIds);
-	}
+        return DaoClinicalData.getData(cancerStudyId, patientIds);
+    }
 
     public static List<Patient> getPatientsByAttribute(int cancerStudy, String paramName, String paramValue) throws DaoException
     {
@@ -591,8 +594,8 @@ public final class DaoClinicalData {
         List<Integer> ids = getIdsByAttribute(cancerStudy, paramName, paramValue, SAMPLE_TABLE);
         return InternalIdUtil.getSamplesById(ids);
     }
-        
-        
+
+
     private static List<Integer> getIdsByAttribute(int cancerStudyId, String paramName, String paramValue, String tableName) throws DaoException
     {
         Connection con = null;
@@ -602,7 +605,7 @@ public final class DaoClinicalData {
         try{
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
             pstmt = con.prepareStatement ("SELECT INTERNAL_ID FROM `" + tableName + "`"
-                                          + " WHERE ATTR_ID=? AND ATTR_VALUE=?");
+                + " WHERE ATTR_ID=? AND ATTR_VALUE=?");
             pstmt.setString(1, paramName);
             pstmt.setString(2, paramValue);
             rs = pstmt.executeQuery();
@@ -623,8 +626,8 @@ public final class DaoClinicalData {
     }
 
     // get cancerType from the clinical_sample table to determine whether we have multiple cancer types
-    // in one study
-    public static Map<String, List<String>> getCancerTypeInfo(int studyID) throws DaoException {
+    // for given samples
+    public static Map<String, Set<String>> getCancerTypeInfoBySamples(List<String> samplesList) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -632,40 +635,22 @@ public final class DaoClinicalData {
         try{
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
             pstmt = con.prepareStatement("select " +
-                    "distinct attr_value as attributeValue, " +
-                    "attr_id as attributeID " +
-                    "from clinical_sample " +
-                    "where attr_id in (?, ?) " +
-                    "and INTERNAL_ID in ( " +
-                    "   select INTERNAL_ID " +
-                    "   from sample " +
-                    "   where PATIENT_ID in ( " +
-                    "       select INTERNAL_ID " +
-                    "       from patient " +
-                    "       where CANCER_STUDY_ID = ? " +
-                    "       )" +
-                    "   )");
+                "distinct ATTR_VALUE as attributeValue, " +
+                "ATTR_ID as attributeID from clinical_sample " +
+                "where ATTR_ID in (?, ?) and INTERNAL_ID in (" +
+                "select INTERNAL_ID from sample where STABLE_ID in ('"
+                + StringUtils.join(samplesList,"','")+"'))");
             pstmt.setString(1, ClinicalAttribute.CANCER_TYPE);
             pstmt.setString(2, ClinicalAttribute.CANCER_TYPE_DETAILED);
-            pstmt.setInt(3, studyID);
             rs = pstmt.executeQuery();
 
             // create a map for the results
-            Map<String, List<String>> result = new LinkedHashMap<String, List<String>>();
-            String attributeValue, attributeID;
-            List<String> attributeValues;
+            Map<String, Set<String>> result = new LinkedHashMap<String, Set<String>>();
+            result.put( ClinicalAttribute.CANCER_TYPE, new HashSet<String>());
+            result.put( ClinicalAttribute.CANCER_TYPE_DETAILED, new HashSet<String>());
             while (rs.next())
             {
-                attributeValue = rs.getString("attributeValue");
-                attributeID = rs.getString("attributeID");
-                attributeValues = result.get(attributeID);
-                // if no attributeValues exists for the attributeID, add a new list
-                if(attributeValues==null){
-                    attributeValues = new ArrayList<String>();
-                    result.put(attributeID, attributeValues);
-                }
-                // add the attributeValue to the list
-                attributeValues.add(attributeValue);
+                result.get(rs.getString("attributeID")).add(rs.getString("attributeValue"));
             }
 
             return result;

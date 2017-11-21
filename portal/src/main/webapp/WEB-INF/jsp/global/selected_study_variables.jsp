@@ -7,7 +7,7 @@
 
 <%
     Boolean isVirtualStudy = (Boolean)request.getAttribute("is_virtual_study");
-    String cancerStudyId = (String)request.getParameter(QueryBuilder.CANCER_STUDY_ID);
+    String cancerStudyId = (String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
     String cancerStudyIdListStr = (String)request.getAttribute(QueryBuilder.CANCER_STUDY_LIST);
     
     TypeReference<HashMap<String,Set<String>>> typeRef = new TypeReference<HashMap<String,Set<String>>>() {};

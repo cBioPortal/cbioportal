@@ -42,6 +42,17 @@
         padding-left: 5px;
         padding-right: 0;
     }
+    .cohort-save-button {
+        float: left;
+        font-size: 1.1em !important;
+        background: 0 0;
+        font-weight: 400;
+        color: #555;
+        padding: 5px 10px !important;
+        border: 1px solid #a9a9a9;
+        border-radius: 5px;
+        line-height: 18px;
+    }
 </style>
 
 <!-- This loading is used to before all JS/CSS files loaded -->
@@ -56,20 +67,16 @@
         src="images/ajax-loader.gif" alt="loading"></div>
     <div id="main-header" style="display: none" :class="{show:!isloading}" v-if="!failedToInit.status">
         <div id="iviz-header-left">
-            <div class="iviz-cohort-component" style="float: left; margin-right: 10px;">
-                <session-component :show-save-button="showSaveButton" :show-manage-button="showManageButton"
-                                   :selected-patients-num="selectedPatientsNum"
-                                   :selected-samples-num="selectedSamplesNum"
-                                   :userid="userid" :stats="stats"
-                                   :update-stats.sync="updateStats"></session-component>
-            </div>
-
             <div class="iviz-header-left-case">
                 <span class="name" style="display: block;">Selected:</span>
                 <span class="content">
-            <span>{{ selectedSamplesNum }} samples / {{ selectedPatientsNum }} patients</span>
-          </span>
+                    <span>{{ selectedSamplesNum }} samples / {{ selectedPatientsNum }} patients</span>
+                </span>
             </div>
+            <save-virtual-study :show-save-button="showSaveButton" :stats="stats"
+                                :update-stats.sync="updateStats"></save-virtual-study>
+            <share-virtual-study :show-share-button="showShareButton" :stats="stats"
+                                 :update-stats.sync="updateStats"></share-virtual-study>
             <span id="iviz-header-left-patient-select" class="iviz-header-button"
                   @click="openCases" class="number"
                   role="button" tabindex="0" style="display: block;"><i class="fa fa-user-circle-o"
@@ -78,7 +85,7 @@
                   role="button"
                   tabindex="0"><i class="fa fa-download" alt="download"></i></span>
 
-            <span id="query-by-gene-span">
+            <span id="query-by-gene-span" style="padding: 0 !important;">
           <textarea id="query-by-gene-textarea" class="expand expandFocusOut" rows="1" cols="10"></textarea>
       </span>
             <span class="iviz-header-arrow">
@@ -127,8 +134,7 @@
         </div>
     </div>
     <div :class="{'start-loading': showScreenLoad}" v-if="!failedToInit.status">
-        <div class="grid" id="main-grid"
-             :class="{loading:isloading}">
+        <div class="grid" id="main-grid" v-show="!isloading">
             <main-template :groups.sync="groups" :redrawgroups.sync="redrawgroups"
                            :selectedpatient-uIDs.sync="selectedpatientUIDs"
                            :selectedsample-uIDs.sync="selectedsampleUIDs"
@@ -137,15 +143,14 @@
                            :showed-survival-plot="showedSurvivalPlot"
                            :clear-all="clearAll"></main-template>
         </div>
+        <progress-bar div-id="study-view-summary-page-pb" :status="studyViewSummaryPagePBStatus" v-show="isloading"></progress-bar>
     </div>
     <error container-id="fail-to-init" v-if="failedToInit.status" :message="failedToInit.message"></error>
-
 </div>
 
 <script>
     function initdcplots(data, opts) {
         iViz.init(data, opts);
-
         QueryByGeneTextArea.init('#query-by-gene-textarea', function(genes) {
             iViz.vue.manage.getInstance().$broadcast('gene-list-updated', genes);
         });

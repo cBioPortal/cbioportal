@@ -144,6 +144,10 @@ public class GlobalProperties {
     @Value("${session.service.url:}") // default is empty string
     public void setSessionServiceURL(String property) { sessionServiceURL = property; }
 
+    private static String frontendConfig;
+    @Value("${frontend.config:}") // default is empty string
+    public void setFrontendConfig(String property) { frontendConfig = property; }
+
     // properties for showing the right logo in the header_bar and default logo
     public static final String SKIN_RIGHT_LOGO = "skin.right_logo";
 
@@ -279,7 +283,7 @@ public class GlobalProperties {
 	public void setCivicUrl(String property) { civicUrl = parseUrl(property); }
 
 	private static String genomeNexusApiUrl;
-	@Value("${genomenexus.url:genomenexus.org}") // default
+	@Value("${genomenexus.url:v1.genomenexus.org}") // default
 	public void setGenomeNexusApiUrl(String property) { genomeNexusApiUrl = parseUrl(property); }
 
     private static String frontendUrl;
@@ -1058,26 +1062,40 @@ public class GlobalProperties {
 	String hidePassenger = properties.getProperty(HIDE_PASSENGER_MUTATIONS, "false");
 	return Boolean.parseBoolean(hidePassenger);
     }
+
+    public static String readFile(String fileName)
+    {
+        String result = new String();
+
+        if (fileName == null) {
+            result = null;
+        } else {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(ResourceUtils.getFile(fileName)));
+                for (String line = br.readLine(); line != null; line = br.readLine()) {
+                    line = line.trim();
+                    result = result + line;
+                }
+                br.close();
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException("File not found: ", e);
+            } catch (IOException e) {
+                throw new RuntimeException("Line not found: ", e);
+            }
+        }
+        return result;
+    }
+
+    public static String getFrontendConfig() {
+        if (frontendConfig.length() > 0) {
+            return readFile(frontendConfig);
+        } else {
+            return null;
+        }
+    }
     
     public static String getQuerySetsOfGenes() {
-	String result = new String();
-	String fileName = properties.getProperty(SETSOFGENES_LOCATION, null);
-	if (fileName == null) {
-	    result = null;
-	} else {
-	    try {
-		BufferedReader br = new BufferedReader(new FileReader(ResourceUtils.getFile(fileName)));
-		for (String line = br.readLine();line != null;line = br.readLine()) {
-		    line = line.trim();
-		    result = result + line;
-		}
-		br.close();
-	    } catch (FileNotFoundException e) {
-		throw new RuntimeException("File not found: ", e);
-	    } catch (IOException e) {
-		throw new RuntimeException("Line not found: ", e);
-	    }
-	}
-	return result;
+        String fileName = properties.getProperty(SETSOFGENES_LOCATION, null);
+        return readFile(fileName);
     }
 }

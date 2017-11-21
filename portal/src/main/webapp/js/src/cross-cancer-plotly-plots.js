@@ -517,12 +517,12 @@ var ccPlots = (function (Plotly, _, $) {
         init: function() {
             var tmp = setInterval(function () {timer();}, 1000);
             function timer() {
-                if (window.studies !== undefined) {
-                    
+                if (window.QuerySession.cancer_study_ids.length > 0) {
+
                     clearInterval(tmp);
 
-                    $.when(ccPlots.util.getGeneticProfiles_(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"))).then(function(_profiles) {
-                        
+                    $.when(ccPlots.util.getGeneticProfiles_(window.QuerySession.cancer_study_ids)).then(function(_profiles) {
+
                         // if no v2 profile (data) available, set profile selection to v1
                         if($("#cc_plots_profile_list option").length === 0) {
                             if (_.some(_.pluck(_profiles, "id"), function(_pid) { return _pid.indexOf("rna_seq_v2_mrna") !== -1; })) 
@@ -540,7 +540,7 @@ var ccPlots = (function (Plotly, _, $) {
                         $("#cc_plots_select_study_box").empty();
 
                         // data fetching
-                        $.when(fetchProfileData_(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"))).then(function(_d) {
+                        $.when(fetchProfileData_(window.QuerySession.cancer_study_ids)).then(function(_d) {
 
                             // -- init download buttons --
                             $("#cc_plots_svg_download").unbind();

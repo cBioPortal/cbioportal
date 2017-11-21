@@ -818,8 +818,8 @@ function DataManagerPresenter(dmInitCallBack)
 						self.cancerTypeList[sampleClinicalData[i].attr_val] = {cancerTypeDetailed: [], sampleIds: []};
 					var cancerType = self.cancerTypeList[sampleClinicalData[i].attr_val];
 					//a sample contains only one cancer_type, so refer to it:
-					sampleIdAndCancerTypeIdx[sampleClinicalData[i].sample] = cancerType;
-					cancerType.sampleIds.push(sampleClinicalData[i].sample);
+					sampleIdAndCancerTypeIdx[sampleClinicalData[i].uid] = cancerType;
+					cancerType.sampleIds.push(sampleClinicalData[i].uid);
 				}
 			}
 			for (var i = 0; i < sampleClinicalData.length; i++)
@@ -827,11 +827,11 @@ function DataManagerPresenter(dmInitCallBack)
 				if (sampleClinicalData[i].attr_id == "CANCER_TYPE_DETAILED")
 				{
 					//track cancer type detailed per cancer type:
-					var cancerType = sampleIdAndCancerTypeIdx[sampleClinicalData[i].sample];
+					var cancerType = sampleIdAndCancerTypeIdx[sampleClinicalData[i].uid];
                     if (!cbio.util.checkNullOrUndefined(cancerType) && "cancerTypeDetailed" in cancerType) {
                         if (!cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val])
                             cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val] = {sampleIds: []};
-                        cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val].sampleIds.push(sampleClinicalData[i].sample);
+                        cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val].sampleIds.push(sampleClinicalData[i].uid);
                     }
 				}
 			}
@@ -855,9 +855,9 @@ function DataManagerPresenter(dmInitCallBack)
 			
 			    for (var i = 0; i < genomicEventData.length; i++) {
 				//init alteration events, if not yet done
-				if (!self.sampleList[genomicEventData[i].sample])
-				    self.sampleList[genomicEventData[i].sample] = {alterationEvents: []};
-				self.sampleList[genomicEventData[i].sample].alterationEvents.push(genomicEventData[i]);
+				if (!self.sampleList[genomicEventData[i].uid])
+				    self.sampleList[genomicEventData[i].uid] = {alterationEvents: []};
+				self.sampleList[genomicEventData[i].uid].alterationEvents.push(genomicEventData[i]);
 
 			    }
 			console.log(new Date() + ": finished processing getOncoprintSampleGenomicEventData() data");

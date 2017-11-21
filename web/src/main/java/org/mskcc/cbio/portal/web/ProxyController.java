@@ -173,11 +173,10 @@ public class ProxyController
         }
      }
 
-  @RequestMapping(value="/bitly")
-  public @ResponseBody String getBitlyURL(@RequestBody String body, HttpMethod method,
-                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException
+  @RequestMapping(value="/bitly", method = RequestMethod.GET)
+  public @ResponseBody String getBitlyURL(HttpMethod method, HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException
   {
-      return respProxy(bitlyURL + request.getQueryString(), method, body, response);
+      return respProxy(bitlyURL + request.getQueryString(), method, null, response);
   }
 
     @RequestMapping(value = "/session-service/{type}/{key}", method = RequestMethod.GET)

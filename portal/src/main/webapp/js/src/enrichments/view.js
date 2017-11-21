@@ -556,10 +556,10 @@ var enrichmentsTabTable = function(plot_div, minionco_div, loading_div, profile_
         });
 
         $("#" + btn_id).click(function() {
-	    if (window.addGenesAndSubmitQuery) {
-		window.addGenesAndSubmitQuery(selected_genes);
+	    if (window.globalStores.queryStore.addGenesAndSubmit) {
+            window.globalStores.queryStore.addGenesAndSubmit(selected_genes);
 	    } else {
-		alert("Sorry, can't do that at this time.");
+            alert("Sorry, can't do that at this time.");
 	    }
         });
     }

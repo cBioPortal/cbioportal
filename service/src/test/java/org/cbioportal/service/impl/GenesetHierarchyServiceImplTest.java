@@ -56,7 +56,7 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
 
         MolecularProfile geneticProfile = new MolecularProfile();
         geneticProfile.setCancerStudyIdentifier(STUDY_ID);
-        geneticProfile.setDatatype("GSVA_SCORE");
+        geneticProfile.setDatatype("GSVA-SCORE");
         Mockito.when(geneticProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(geneticProfile);
         
         //stub for geneset scores:
@@ -74,7 +74,7 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
         //stubs for related p-values:
         MolecularProfile pvalueGeneticProfile = new MolecularProfile();
         pvalueGeneticProfile.setStableId(PVALUE_GENETIC_PROFILE_ID);
-        pvalueGeneticProfile.setDatatype("P_VALUE");
+        pvalueGeneticProfile.setDatatype("P-VALUE");
         Mockito.when(geneticProfileService.getMolecularProfilesReferringTo(MOLECULAR_PROFILE_ID))
             .thenReturn(Arrays.asList(pvalueGeneticProfile));
 

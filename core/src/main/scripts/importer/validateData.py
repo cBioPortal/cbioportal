@@ -2308,8 +2308,8 @@ class FusionValidator(Validator):
                 hugo_symbol = None
         if 'Entrez_Gene_Id' in self.cols:
             entrez_id = data[self.cols.index('Entrez_Gene_Id')].strip()
-            # treat the empty string or 0 as a missing value
-            if entrez_id == '':
+            # treat empty string, 0 or 'NA' as a missing value
+            if entrez_id in ['', '0', 'NA']:
                 entrez_id = None
         # validate hugo and entrez together:
         self.checkGeneIdentification(hugo_symbol, entrez_id)

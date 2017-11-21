@@ -31,7 +31,7 @@
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:applicationContext-security.xml classpath:applicationContext-business.xml classpath:applicationContext-core.xml</param-value>
+        <param-value>classpath:applicationContext-security.xml classpath:applicationContext-business.xml classpath:applicationContext-core.xml classpath:applicationContext-logging.xml</param-value>
     </context-param>
 
     <context-param>
@@ -177,7 +177,7 @@
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>classpath:applicationContext-web.xml</param-value>
+            <param-value>classpath:applicationContext-web.xml classpath:applicationContext-logging.xml</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>

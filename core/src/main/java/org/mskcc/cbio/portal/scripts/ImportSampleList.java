@@ -91,6 +91,7 @@ public class ImportSampleList extends ConsoleRunnable {
       ArrayList<String> sampleIDsList = new ArrayList<String>();
       String[] sampleIds = sampleListStr.split("\t");
       for (String sampleId : sampleIds) {
+         sampleId = StableIdUtil.getSampleId(sampleId);
          Sample s = DaoSample.getSampleByCancerStudyAndSampleId(theCancerStudy.getInternalId(), sampleId);
          if (s==null) {
              String warningMessage = "Error: could not find sample "+sampleId;

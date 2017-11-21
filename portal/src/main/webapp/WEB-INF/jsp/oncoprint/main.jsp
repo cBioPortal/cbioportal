@@ -117,13 +117,13 @@
                            <div class="checkbox"><label><input type="checkbox" name="hotspots" value="hotspots"> Hotspots <img id="colorby_hotspot_info" src="images/cancer-hotspots.svg" style="height:15px; width:15px; cursor:pointer;"/></label></div>
                            <div class="checkbox"><label><input type="checkbox" name="cbioportal" value="cbioportal"/> cBioPortal  >= <input type="text" id="cbioportal_threshold" style="width:35px;"/></label></div>
                            <div class="checkbox"><label><input type="checkbox" name="cosmic" value="cosmic"> COSMIC  >= <input type="text" id="cosmic_threshold" style="width:35px;"/></label></div>
-                           <% if (GlobalProperties.showBinaryCustomDriverAnnotation() && DaoMutation.hasDriverAnnotations(request.getParameter(QueryBuilder.CANCER_STUDY_ID))) { %>
+                           <% if (GlobalProperties.showBinaryCustomDriverAnnotation() && DaoMutation.hasDriverAnnotations(normalizedCancerStudyIdListStr)) { %>
                            <div class="checkbox"><label><input type="checkbox" name="driver_filter" value="driver_filter"/> <c:out value="${GlobalProperties.getBinaryCustomDriverAnnotationMenuLabel()}" /> <img id="colorby_driver_filter_info" src="images/driver.png" alt="driver filter" style="height:15px; width:15px; cursor:pointer;"/></label></div>
                            <% }
-                           if (GlobalProperties.showTiersCustomDriverAnnotation() && DaoMutation.numTiers(request.getParameter(QueryBuilder.CANCER_STUDY_ID)) > 0) { %>
+                           if (GlobalProperties.showTiersCustomDriverAnnotation() && DaoMutation.numTiers(normalizedCancerStudyIdListStr) > 0) { %>
                            <span class="caret"></span>&nbsp;&nbsp;<span>${GlobalProperties.getTiersCustomDriverAnnotationMenuLabel()}</span>&nbsp;<img id="colorby_driver_tiers_filter_info" src="images/driver_tiers.png" alt="driver tiers filter" style="height:15px; width:15px; cursor:pointer;"/>
                            <div id="tiers" style="margin-left: 30px;">
-                               <c:forEach var="tier" items="${DaoMutation.getTiers(requestScope[QueryBuilder.CANCER_STUDY_ID])}" varStatus="loop">
+                               <c:forEach var="tier" items="${DaoMutation.getTiers(normalizedCancerStudyIdListStr)}" varStatus="loop">
                                    <div class="checkbox"><label><input type="checkbox" name="driver_tiers_filter_${loop.index}" value="${fn:escapeXml(tier)}" /> <c:out value="${tier}" /></label></div>
                                </c:forEach>
                            </div>
@@ -155,11 +155,12 @@
                <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_mutation_color_dropdown" data-toggle="dropdown" style="background-color:#efefef;margin:0px">
                  <span>Download</span>&nbsp;<span class="caret"></span>
                </button>
-               <div class="dropdown-menu" style="padding: 10px 5px; width: 70px;min-width: 70px;">
-                    <button class='oncoprint-diagram-download' type='pdf' style='font-size:13px; cursor:pointer;width:50px;'>PDF</button> <br/>
-                    <button class='oncoprint-diagram-download' type='png' style='font-size:13px; cursor:pointer;width:50px;'>PNG</button> <br/>
-                    <button class='oncoprint-diagram-download' type='svg' style='font-size:13px; cursor:pointer;width:50px;'>SVG</button> <br/>
-                    <button class='oncoprint-sample-download'  type='txt' style='font-size:13px; cursor:pointer;width:50px;'>Sample order</button>
+               <div class="dropdown-menu" style="padding: 10px 5px; width: 120px;min-width: 70px;">
+                    <button class='oncoprint-diagram-download' type='pdf' style='font-size:13px; cursor:pointer;width:100px;'>PDF</button> <br/>
+                    <button class='oncoprint-diagram-download' type='png' style='font-size:13px; cursor:pointer;width:100px;'>PNG</button> <br/>
+                    <button class='oncoprint-diagram-download' type='svg' style='font-size:13px; cursor:pointer;width:100px;'>SVG</button> <br/>
+                    <button class='oncoprint-sample-download'  type='txt' style='font-size:13px; cursor:pointer;width:100px;'>Sample order</button>
+                    <button class='oncoprint-tabular-download'  type='tsv' style='font-size:13px; cursor:pointer;width:100px;'>Tab-separated values</button>
                </div>
             </div>
             

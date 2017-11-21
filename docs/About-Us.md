@@ -52,7 +52,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 ## Bilkent University
 * Ugur Dogrusoz
 * Istemi Bahceci
-* M. Furkan Sahin
+* Leonard Dervishi
 
 ## Weill Cornell Medicine
 * Alexandros Sigaras
@@ -75,6 +75,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Dong Li
 * James Xu
 * Peter Kok
+* M. Furkan Sahin
 
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided by:
 

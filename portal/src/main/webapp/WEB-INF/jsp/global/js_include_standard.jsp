@@ -65,6 +65,5 @@
 <script type="text/javascript" src="js/src/gene-symbol-validator.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <!-- iViz session integration libraries START-->
-<script type="text/javascript" src="js/lib/vc-session-vendor.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/vc-session.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <!-- iViz session integration libraries END-->

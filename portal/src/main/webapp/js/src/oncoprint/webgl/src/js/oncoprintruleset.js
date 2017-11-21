@@ -95,11 +95,22 @@ function objectValues(obj) {
 }
 
 var makeNAShapes = function(z) {
-    return [{
-	'type': 'rectangle',
-	'fill': 'rgba(224, 224, 224, 1)',
-	'z': z
-    }];
+    return [
+	{
+	    'type': 'rectangle',
+	    'fill': 'rgba(255,255,255,1)',
+	    'z':z
+	}, {
+	    'type': 'line',
+	    'stroke': 'rgba(190,190,190,1)',
+	    'stroke-width': '1',
+	    'x1': '0%',
+	    'x2': '100%',
+	    'y1':'50%',
+	    'y2':'50%',
+	    'z':z
+	}
+    ];
 };
 var NA_STRING = "na";
 var NA_LABEL = "N/A";

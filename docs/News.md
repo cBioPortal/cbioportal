@@ -1,3 +1,10 @@
+## November 20, 2017
+ *   You can now combine multiple studies and view them on the study summary page. [Example: liver cancer studies](http://www.cbioportal.org/study?id=liad_inserm_fr_2014%2Chcc_inserm_fr_2015%2Clihc_amc_prv%2Clihc_riken%2Clihc_tcga)
+ *   You can now bookmark or share your selected samples as virtual studies with the _share_ icon on the study summary page. [Example: a virtual study of breast tumors](http://www.cbioportal.org/study?id=5a12fd57498eb8b3d5605cd4)
+ *   Cross-study query reimplemented: Now you can view an OncoPrint of multiple studies. [Example: querying NSCLC tumors from 5 studies](http://www.cbioportal.org/index.do?session_id=5a135bee498eb8b3d5605d01)
+ 
+ ![image](https://user-images.githubusercontent.com/840895/33045546-3c8a636c-ce1b-11e7-9f52-7060c89a8dfd.png)
+ 
 ## October 17, 2017
  *   The fourth phase of the cBioPortal architectural upgrade is now complete: The _Mutual Exclusivity_ and _Cancer Type Summary_ tabs have been moved to the new architecture.
  *   Updated protein structure alignment data in Mutations tab are now retrieved from Genome Nexus via the [G2S web service](https://g2s.genomenexus.org/).

@@ -318,29 +318,30 @@ window.QueryByGeneUtil = (function() {
     toMainPage: function(studyId, selectedCases) {
       var _arr = [];
       _.each(selectedCases, function(_obj) {
-        var _studyId = _obj.studyID;
+        var _studyId = _obj.id;
         _.each(_obj.samples, function(_sampleId) {
-          _arr.push(_studyId + "|" + _sampleId);
+          _arr.push(_studyId + ":" + _sampleId);
         });
       });
       submitForm(window.cbioURL + 'index.do', {
-        'cancer_study_id': studyId,
-        'case_ids': _arr.join('+'),
-        'case_set_id': -1
+        cancer_study_list: selectedCases.map(function(x) {return x.id}),
+        cancer_study_id: 'all',
+        case_set_id: -1,
+        case_ids: _arr.join('+')
       });
     },
     toQueryPageSingleCohort: function(studyId, selectedCases,
                                       selectedGenes, mutationProfileId, cnaProfileId) {
       var _arr = [];
       _.each(selectedCases, function(_obj) {
-        var _studyId = _obj.studyID;
+        var _studyId = _obj.id;
         _.each(_obj.samples, function(_sampleId) {
-          _arr.push(_studyId + "|" + _sampleId);
+          _arr.push(_studyId + ":" + _sampleId);
         });
       });
       submitForm(window.cbioURL + 'index.do', {
-        cancer_study_id: studyId,
-        cancer_study_list: null,
+        cancer_study_list: selectedCases.map(function(x) {return x.id}),
+        cancer_study_id: 'all',
         case_ids: _arr.join('+'),
         case_set_id: -1,
         gene_set_choice: 'user-defined-list',
@@ -357,16 +358,16 @@ window.QueryByGeneUtil = (function() {
     toMultiStudiesQueryPage: function(_vcId, _selectedCases, _selectedGenes) {
       var _arr = [];
       _.each(_selectedCases, function(_obj) {
-        var _studyId = _obj.studyID;
+        var _studyId = _obj.id;
         _.each(_obj.samples, function(_sampleId) {
-          _arr.push(_studyId + "|" + _sampleId);
+          _arr.push(_studyId + ":" + _sampleId);
         });
       });
       submitForm(window.cbioURL + 'index.do', {
-        cancer_study_list: null,
-        cancer_study_id: _vcId,
+        cancer_study_list: _selectedCases.map(function(x) {return x.id}),
+        cancer_study_id: 'all',
         gene_list: _selectedGenes,
-        case_set_id: '-1',
+        case_set_id: -1,
         case_ids: _arr.join('+'),
         tab_index: 'tab_visualize',
         Action: 'Submit'
@@ -626,7 +627,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         charts[attrData.attr_id] = attrData;
       });
 
-      _.each(iviz.datamanager.sortByClinicalPriority(
+      _.each(iviz.datamanager.sortByNumOfStudies(
         data_.groups.patient.attr_meta.concat(data_.groups.sample.attr_meta))
         , function(attrData) {
           if (chartsCount < iViz.opts.numOfChartsLimit) {
@@ -682,10 +683,6 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         vm_.selectedpatientUIDs = _.pluck(data_.groups.patient.data, 'patient_uid');
         vm_.groups = groups;
         vm_.charts = charts;
-        vm_.$nextTick(function() {
-          _self.fetchCompleteData('patient');
-          _self.fetchCompleteData('sample');
-        });
       });
     }, // ---- close init function ----groups
     createGroupNdx: function(group) {
@@ -796,8 +793,8 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         $.when(window.iviz.datamanager.getClinicalData(_attrIds, (_type === 'patient')))
           .then(function() {
             _def.resolve();
-          }, function(error) {
-            _def.reject(error);
+          }, function() {
+            _def.reject();
           });
       }
       return _def.promise();
@@ -813,6 +810,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       $.when(
         window.iviz.datamanager.getClinicalData(attrIds, isPatientAttributes))
         .then(function(clinicalData) {
+          iViz.vue.manage.getInstance().increaseStudyViewSummaryPagePBStatus();
           var idType = isPatientAttributes ? 'patient_id' : 'sample_id';
           var type = isPatientAttributes ? 'patient' : 'sample';
           var attrsFromServer = {};
@@ -883,8 +881,8 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           });
 
           def.resolve();
-        }, function(error) {
-            def.reject(error);
+        }, function() {
+          def.reject();
         });
       return def.promise();
     },
@@ -900,7 +898,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             _mutGeneMeta[_uniqueId] = {};
             _mutGeneMeta[_uniqueId].gene = _uniqueId;
             _mutGeneMeta[_uniqueId].num_muts = 1;
-            _mutGeneMeta[_uniqueId].case_uids = [_caseUIdIndex];
+            _mutGeneMeta[_uniqueId].case_ids = [_caseUIdIndex];
             _mutGeneMeta[_uniqueId].qval = (window.iviz.datamanager.getCancerStudyIds().length === 1 && _mutGeneDataObj.hasOwnProperty('qval')) ? _mutGeneDataObj.qval : null;
             _mutGeneMeta[_uniqueId].index = _mutGeneMetaIndex;
             if (data_.groups.sample.data[_caseUIdIndex].mutated_genes === undefined) {
@@ -911,7 +909,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             _mutGeneMetaIndex += 1;
           } else {
             _mutGeneMeta[_uniqueId].num_muts += 1;
-            _mutGeneMeta[_uniqueId].case_uids.push(_caseUIdIndex);
+            _mutGeneMeta[_uniqueId].case_ids.push(_caseUIdIndex);
             if (data_.groups.sample.data[_caseUIdIndex].mutated_genes === undefined) {
               data_.groups.sample.data[_caseUIdIndex].mutated_genes = [_mutGeneMeta[_uniqueId].index];
             } else {
@@ -920,6 +918,11 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           }
         });
       });
+
+      _.each(_mutGeneMeta, function(content) {
+        content.case_uids = iViz.util.unique(content.case_ids);
+      });
+      
       tableData_.mutated_genes = {};
       tableData_.mutated_genes.geneMeta = _mutGeneMeta;
       return tableData_.mutated_genes;
@@ -950,7 +953,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               _cnaMeta[_uniqueId].gene = _geneSymbol;
               _cnaMeta[_uniqueId].cna = _altType;
               _cnaMeta[_uniqueId].cytoband = _cnaDataPerStudy.cytoband[_index];
-              _cnaMeta[_uniqueId].case_uids = [_caseIdIndex];
+              _cnaMeta[_uniqueId].case_ids = [_caseIdIndex];
               if ((window.iviz.datamanager.getCancerStudyIds().length !== 1) || _cnaDataPerStudy.gistic[_index] === null) {
                 _cnaMeta[_uniqueId].qval = null;
               } else {
@@ -964,7 +967,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               }
               _cnaMetaIndex += 1;
             } else {
-              _cnaMeta[_uniqueId].case_uids.push(_caseIdIndex);
+              _cnaMeta[_uniqueId].case_ids.push(_caseIdIndex);
               if (data_.groups.sample.data[_caseIdIndex].cna_details === undefined) {
                 data_.groups.sample.data[_caseIdIndex].cna_details = [_cnaMeta[_uniqueId].index];
               } else {
@@ -974,23 +977,28 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           });
         });
       });
+
+      _.each(_cnaMeta, function(content) {
+        content.case_uids = iViz.util.unique(content.case_ids);
+      });
+      
       tableData_.cna_details = {};
       tableData_.cna_details.geneMeta = _cnaMeta;
       return tableData_.cna_details;
     },
-    getTableData: function(attrId) {
+    getTableData: function(attrId, progressFunc) {
       var def = new $.Deferred();
       var self = this;
       if (tableData_[attrId] === undefined) {
         if (attrId === 'mutated_genes') {
-          $.when(window.iviz.datamanager.getMutData())
+          $.when(window.iviz.datamanager.getMutData(progressFunc))
             .then(function(_data) {
               def.resolve(self.extractMutationData(_data));
             }, function() {
               def.reject();
             });
         } else if (attrId === 'cna_details') {
-          $.when(window.iviz.datamanager.getCnaData())
+          $.when(window.iviz.datamanager.getCnaData(progressFunc))
             .then(function(_data) {
               def.resolve(self.extractCnaData(_data));
             }, function() {
@@ -1206,27 +1214,23 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
       if (_self.cohorts_.length === 1) { // to query single study
         if (QueryByGeneTextArea.isEmpty()) {
-          QueryByGeneUtil.toMainPage(_self.cohorts_[0], _self.stat().selectedCases);
+          QueryByGeneUtil.toMainPage(_self.cohorts_[0], _self.stat().studies);
         } else {
           QueryByGeneTextArea.validateGenes(this.decideSubmitSingleCohort, false);
         }
-      } else { // to query multiple studies, always generate a tmp VC and save to session service only. 
-        $.when(vcSession.utils.buildVCObject(_self.stat().filters, _self.stat().selectedCases, "Selected patients / samples", "")).done(function (_vc) {
-          vcSession.model.saveSessionWithoutWritingLocalStorage(_vc, function (_vcId) {
-            if (QueryByGeneTextArea.isEmpty()) {
-              QueryByGeneUtil.toMainPage(_vcId, _self.stat().selectedCases);
-            } else {
-              QueryByGeneUtil.toMultiStudiesQueryPage(_vcId, _self.stat().selectedCases, QueryByGeneTextArea.getGenes());
-            }
-          });
-        });
+      } else { // query multiple studies
+        if (QueryByGeneTextArea.isEmpty()) {
+          QueryByGeneUtil.toMainPage(undefined, _self.stat().studies);
+        } else {
+          QueryByGeneUtil.toMultiStudiesQueryPage(undefined, _self.stat().studies, QueryByGeneTextArea.getGenes());
+        }
       }
     },
     decideSubmitSingleCohort: function(allValid) {
       // if all genes are valid, submit, otherwise show a notification
       if (allValid) {
         var _self = this;
-        QueryByGeneUtil.toQueryPageSingleCohort(window.cohortIdsList[0], iViz.stat().selectedCases,
+        QueryByGeneUtil.toQueryPageSingleCohort(window.cohortIdsList[0], iViz.stat().studies,
           QueryByGeneTextArea.getGenes(), window.mutationProfileId,
           window.cnaProfileId);
       } else {
@@ -1242,7 +1246,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var self = this;
 
       // extract and reformat selected cases
-      var _selectedCases = [];
+      var _studies = [];
       var _selectedStudyCasesMap = {};
       var _sampleData = data_.groups.sample.data;
 
@@ -1250,18 +1254,15 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         var _caseDataObj = _sampleData[sampleUID];
         if (!_selectedStudyCasesMap[_caseDataObj.study_id]) {
           _selectedStudyCasesMap[_caseDataObj.study_id] = {};
-          _selectedStudyCasesMap[_caseDataObj.study_id].studyID = _caseDataObj.study_id;
+          _selectedStudyCasesMap[_caseDataObj.study_id].id = _caseDataObj.study_id;
           _selectedStudyCasesMap[_caseDataObj.study_id].samples = [];
-          _selectedStudyCasesMap[_caseDataObj.study_id].patients = [];
         }
         _selectedStudyCasesMap[_caseDataObj.study_id].samples.push(_caseDataObj.sample_id);
-        var temp = self.getPatientUIDs(sampleUID);
-        _selectedStudyCasesMap[_caseDataObj.study_id].patients.push(data_.groups.patient.data[temp[0]].patient_id);
       });
       $.each(_selectedStudyCasesMap, function(key, val) {
-        _selectedCases.push(val);
+        _studies.push(val);
       });
-      _result.filterspatients = [];
+      _result.filters.patients = [];
       _result.filters.samples = [];
       _.each(vm_.groups, function(group) {
         var filters_ = [];
@@ -1288,7 +1289,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           _result.filters.samples = array;
         }
       });
-      _result.selectedCases = _selectedCases;
+      _result.studies = _studies;
       return _result;
     },
 
@@ -1305,10 +1306,10 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     applyVC: function(_vc) {
       var _selectedSamples = [];
       var _selectedPatients = [];
-      _.each(_.pluck(_vc.selectedCases, 'samples'), function(_arr) {
+      _.each(_.pluck(_vc.studies, 'samples'), function(_arr) {
         _selectedSamples = _selectedSamples.concat(_arr);
       });
-      _.each(_.pluck(_vc.selectedCases, 'patients'), function(_arr) {
+      _.each(_.pluck(_vc.studies, 'patients'), function(_arr) {
         _selectedPatients = _selectedPatients.concat(_arr);
       });
       iViz.init(data_, _selectedSamples, _selectedPatients);
@@ -1319,7 +1320,6 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   window.cbio,
   window.QueryByGeneUtil,
   window.QueryByGeneTextArea);
-
 
 'use strict';
 (function(Vue, iViz, dc, _) {
@@ -1364,6 +1364,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             numOfSurvivalPlots: 0,
             showedSurvivalPlot: false,
             userMovedChart: false,
+            studyViewSummaryPagePBStatus: 0,
             failedToInit: {
               status: false,
               message: 'Failed to open the study.' + (iViz.opts.emailContact ? (' Please contact ' + iViz.opts.emailContact + '.') : '')
@@ -1413,6 +1414,11 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 this.selectedPatientsNum = newVal.length;
               }
             },
+            isloading: function() {
+              if (!this.isloading) {
+                this.studyViewSummaryPagePBStatus = 1;
+              }
+            },
             numOfSurvivalPlots: function(newVal) {
               if (!newVal || newVal <= 0) {
                 this.showedSurvivalPlot = false;
@@ -1436,6 +1442,15 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               this.failedToInit.message = message;
             }
           }, methods: {
+            increaseStudyViewSummaryPagePBStatus: function(text) {
+              if (this.studyViewSummaryPagePBStatus < 0.6) {
+                this.studyViewSummaryPagePBStatus += 0.2;
+              } else if (this.studyViewSummaryPagePBStatus < 1) {
+                this.studyViewSummaryPagePBStatus += (1 - this.studyViewSummaryPagePBStatus) / 4
+              } else {
+                this.studyViewSummaryPagePBStatus = 1;
+              }
+            },
             checkForDropDownCharts: function() {
               var showDropDown = false;
               _.each(this.charts, function(_chart) {
@@ -2332,6 +2347,9 @@ var util = (function(_, cbio) {
         case 'chartTableId':
           domId = 'table-' + attrId;
           break;
+        case 'progressBarId':
+          domId = attrId + '-pb';
+          break;
         }
       }
       // TODO: DOM id pool. Ideally id shouldn't be repeated
@@ -2367,15 +2385,36 @@ var util = (function(_, cbio) {
       return result;
     };
 
-    content.compare = function(arr1, arr2) {
-      if (arr1.length === arr2.length) {
-        for (var i = 0; i < arr1.length; i++) {
-          if (arr1[i] !== arr2[i]) {
-            return false;
-          }
+    /**
+     * Returns a copy of the array with values from array that are not present in the other array.
+     *
+     * @param {array} a Array, must already be sorted
+     * @param {array} b The other array, must already be sorted
+     * @return {array} The difference values
+     */
+    content.difference = function(a, b) {
+      var result = [];
+      var i = 0;
+      var j = 0;
+      var aL = a.length;
+      var bL = b.length;
+      while (i < aL && j < bL) {
+        if (a[i] < b[j]) {
+          result.push(a[i]);
+          ++i;
+        } else if (a[i] > b[j]) {
+          ++j;
+        } else {
+          ++i;
+          ++j;
         }
       }
-      return false;
+
+      return result;
+    };
+
+    content.compare = function(arr1, arr2) {
+      return JSON.stringify(arr1) === JSON.stringify(arr2);
     };
 
     content.getClinicalAttrTooltipContent = function(attribute) {
@@ -2553,6 +2592,10 @@ var util = (function(_, cbio) {
         break;
       }
       return message;
+    };
+    
+    content.getHypotenuse = function(a, b) {
+      return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
     };
 
     return content;
@@ -4987,7 +5030,7 @@ module.exports = {
       var groups = dcDimension.group().top(Infinity);
       var groupTypeId =
         data_.groupType === 'patient' ? 'patient_uid' : 'sample_uid';
-      var selectedCases = _.pluck(dcDimension.top(Infinity), groupTypeId);
+      var selectedCases = _.pluck(dcDimension.top(Infinity), groupTypeId).sort();
       var categories = [];
       var colorCounter = 0;
 
@@ -5008,7 +5051,7 @@ module.exports = {
             key: group.key,
             name: mapTickToCaseIds[group.key].range || mapTickToCaseIds[group.key].tick,
             color: color,
-            caseIds: _.intersection(selectedCases, mapTickToCaseIds[group.key].caseIds)
+            caseIds: iViz.util.intersection(selectedCases, mapTickToCaseIds[group.key].caseIds.sort())
           });
         }
       });
@@ -5297,9 +5340,6 @@ module.exports = {
     '<div v-if="failedToInit" class="error-panel" align="center" style="padding-top: 10%;">' +
     '<error v-if="failedToInit" :message="errorMessage"></error>' +
     '</div></div>' +
-    ' <div :class="{\'show-loading\': showLoad}" ' +
-    'class="chart-loader">' +
-    ' <img src="images/ajax-loader.gif" alt="loading"></div>' +
     '<span class="text-center chart-title-span" ' +
     'id="{{chartId}}-title">{{displayName}}</span>' +
     '</div>',
@@ -5331,8 +5371,7 @@ module.exports = {
         errorMessage: '',
         opts: {},
         numOfSurvivalCurveLimit: iViz.opts.numOfSurvivalCurveLimit || 20,
-        addingChart: false,
-        showLoad: true
+        addingChart: false
       };
     }, watch: {
       'attributes.filter': function(newVal) {
@@ -5399,7 +5438,7 @@ module.exports = {
         });
       },
       resetBarColor: function(exceptionAttrIds) {
-        if (!this.showLoad && !this.failedToInit &&
+        if (!this.failedToInit &&
           _.isArray(exceptionAttrIds) && exceptionAttrIds.indexOf(this.attributes.attr_id) === -1) {
           this.barChart.resetBarColor();
         }
@@ -5424,10 +5463,11 @@ module.exports = {
         var _dataIssue = false;
         var smallerOutlier = [];
         var greaterOutlier = [];
+        var dataMetaKeys = {}; // Fast index unique dataMeta instead of using _.unique
 
         this.data.meta = _.map(_.filter(_.pluck(
           _data, this.opts.attrId), function(d) {
-          if (iViz.util.strIsNa(d, true) || (isNaN(d) && !d.includes('>') && !d.includes('<'))) {
+          if (isNaN(d) && !(_.isString(d) && d.includes('>') && d.includes('<'))) {
             _self.data.hasNA = true;
             d = 'NA';
           }
@@ -5447,6 +5487,7 @@ module.exports = {
           } else {
             number = parseFloat(d);
           }
+          dataMetaKeys[number] = true;
           return number;
         });
 
@@ -5477,7 +5518,7 @@ module.exports = {
             // noGrouping is true when number of different values less than or equal to 5. 
             // In this case, the chart sets data value as ticks' value directly. 
             this.data.noGrouping = false;
-            if (_.unique(this.data.meta).length <= 5 && this.data.meta.length > 0) {// for data less than 6 points
+            if (Object.keys(dataMetaKeys).length <= 5 && this.data.meta.length > 0) {// for data less than 6 points
               this.data.noGrouping = true;
               this.data.uniqueSortedData = _.unique(findExtremeResult[3]);// use sorted value as ticks directly
             }
@@ -5496,7 +5537,6 @@ module.exports = {
           this.initChart(this.settings.showLogScale);
           this.updateShowSurvivalIcon();
         }
-        this.showLoad = false;
         this.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
       },
       mouseEnter: function() {
@@ -5537,7 +5577,6 @@ module.exports = {
     ready: function() {
       var _self = this;
       var _data = [];
-      this.showLoad = true;
       this.settings.width = window.iViz.styles.vars.barchart.width;
       this.settings.height = window.iViz.styles.vars.barchart.height;
 
@@ -5564,14 +5603,12 @@ module.exports = {
               } else { // _self.attributes.addChartBy === 'user'
                 _self.$dispatch('data-loaded', _self.attributes.group_id, _self.chartDivId);
               }
-              _self.showLoad = false;
               _self.errorMessage = iViz.util.getDataErrorMessage('noData');
               _self.failedToInit = true;
             } else {
               _self.processBarchartData(_mutationCountData);
             }
           }, function() {
-            _self.showLoad = false;
             _self.errorMessage = iViz.util.getDataErrorMessage('failedToLoadData');
             _self.failedToInit = true;
             _self.$dispatch('data-loaded', _self.attributes.group_id, _self.chartDivId);
@@ -5848,12 +5885,11 @@ module.exports = {
     ' :reset-btn-id="resetBtnId" :chart-ctrl="chartInst" ' +
     ':chart-id="chartId"' +
     ' :attributes="attributes" :filters.sync="attributes.filter"></chart-operations>' +
-    ' <div :class="{\'start-loading\': showLoad}" ' +
+    ' <div v-show="!showLoad" ' +
     'class="dc-chart dc-scatter-plot" align="center" ' +
-    'style="float:none !important;" id={{chartId}} ></div>' +
-    ' <div :class="{\'show-loading\': showLoad}" ' +
-    'class="chart-loader">' +
-    ' <img src="images/ajax-loader.gif" alt="loading"></div>' +
+    ':class="{\'show-loading-content\': showLoad}" id={{chartId}} ></div>' +
+    '<div v-show="showLoad" class="progress-bar-parent-div" :class="{\'show-loading-bar\': showLoad}" >' +
+    '<progress-bar :div-id="loadingBar.divId" :status="loadingBar.status" :opts="loadingBar.opts"></progress-bar></div>' +
     '<div v-if="failedToInit" class="error-panel" align="center">' +
     '<error-handle v-if="failedToInit" :error="error"></error-handle>' +
     '</div></div>',
@@ -5880,6 +5916,12 @@ module.exports = {
           failedToLoadData: false
         },
         failedToInit: false,
+        loadingBar :{
+          status: 0,
+          divId: iViz.util.getDefaultDomId('progressBarId', this.attributes.attr_id),
+          opts: {},
+          infinityInterval: null
+        },
         invisibleDimension: {}
       };
     },
@@ -5889,6 +5931,16 @@ module.exports = {
           this.invisibleDimension.filterAll();
         }
         this.$dispatch('update-filters', true);
+      },
+      showLoad: function(newVal) {
+        if (newVal) {
+          this.initialInfinityLoadingBar();
+        } else {
+          if (this.loadingBar.infinityInterval) { 
+            window.clearInterval(this.loadingBar.infinityInterval);
+            this.loadingBar.infinityInterval = null;
+          }
+        }
       }
     },
     events: {
@@ -5942,6 +5994,19 @@ module.exports = {
         this.showOperations = true;
       }, mouseLeave: function() {
         this.showOperations = false;
+      },
+      initialInfinityLoadingBar: function() {
+        var self = this;
+        self.loadingBar.opts = {
+          duration: 300,
+          step: function(state, bar) {
+            bar.setText('Loading...');
+          }
+        };
+        self.loadingBar.status = 0.5;
+        self.loadingBar.infinityInterval = setInterval(function() {
+          self.loadingBar.status += 0.5;
+        }, 800);
       },
       attachPlotlySelectedEvent: function() {
         var _self = this;
@@ -6154,12 +6219,11 @@ module.exports = {
     ':groupid="attributes.group_id" :reset-btn-id="resetBtnId" :chart-ctrl="chartInst" ' +
     ' :chart-id="chartId" ' +
     ':attributes="attributes"></chart-operations>' +
-    '<div :class="{\'start-loading\': showLoad}" ' +
-    'class="dc-chart dc-scatter-plot" align="center" ' +
-    'style="float:none !important;" id={{chartId}} ></div>' +
-    '<div :class="{\'show-loading\': showLoad}" ' +
-    'class="chart-loader">' +
-    '<img src="images/ajax-loader.gif" alt="loading"></div></div>',
+    '<div v-show="!showLoad" :class="{\'show-loading-content\': showLoad}"' +
+    'class="dc-chart dc-scatter-plot" align="center" id={{chartId}} ></div>' +
+    '<div v-show="showLoad" class="progress-bar-parent-div" :class="{\'show-loading-bar\': showLoad}">' +
+    '<progress-bar :div-id="loadingBar.divId" :status="loadingBar.status" :opts="loadingBar.opts"></progress-bar></div>' +
+    '</div>',
     props: [
       'ndx', 'attributes'
     ],
@@ -6183,6 +6247,12 @@ module.exports = {
         showingRainbowSurvival: false,
         groups: [],
         invisibleDimension: {},
+        loadingBar :{
+          status: 0,
+          divId: iViz.util.getDefaultDomId('progressBarId', this.attributes.attr_id),
+          opts: {},
+          infinityInterval: null
+        },
         mainDivQtip: ''
       };
     },
@@ -6194,6 +6264,16 @@ module.exports = {
           this.updatePlotGroups(this.hasFilters);
           this.updatePlot();
           this.$dispatch('remove-rainbow-survival');
+        }
+      },
+      showLoad: function(newVal) {
+        if (newVal) {
+          this.initialInfinityLoadingBar();
+        } else {
+          if (this.loadingBar.infinityInterval) {
+            window.clearInterval(this.loadingBar.infinityInterval);
+            this.loadingBar.infinityInterval = null;
+          }
         }
       }
     },
@@ -6259,8 +6339,8 @@ module.exports = {
         this.chartInst.update(
           groups ? groups : this.groups, this.chartId, this.attributes.attr_id);
         this.checkDownloadableStatus();
-        this.showLoad = false;
         this.updateQtipContent();
+        this.showLoad = false;
       },
       updatePlotGroups: function(hasFilters) {
         var _type = this.attributes.group_type;
@@ -6301,12 +6381,20 @@ module.exports = {
               var data_ = iViz.getGroupNdx(_groupId);
               var nonNaCases = [];
 
+              //Check whether case contains NA value on filtered attrs
+              var _attrs = {};
+              _.each(group.attrs, function(groupAttr) {
+                _.each(groupAttr.attrList, function(listItem) {
+                  _attrs[listItem] = 1;
+                })
+              });
+              _attrs = Object.keys(_attrs);
+
               _.each(data_, function(data) {
                 var hasNaWithinAttrs = false;
-
-                //Check whether case contains NA value on filtered attrs
-                _.some(_.flatten(_.pluck(group.attrs, 'attrList')), function(attr) {
-                  if (iViz.util.strIsNa(data[attr], false)) {
+                _.some(_attrs, function(attr) {
+                  // All data has been normalized to NA for different NA values
+                  if (data[attr] === 'NA') {
                     hasNaWithinAttrs = true;
                     return true;
                   }
@@ -6322,7 +6410,7 @@ module.exports = {
                     }
                   }
                   if (_.isArray(_caseId)) {
-                    nonNaCases = nonNaCases.concat(_caseId);
+                    nonNaCases.push.apply(nonNaCases, _caseId);
                   } else {
                     nonNaCases.push(_caseId);
                   }
@@ -6344,7 +6432,7 @@ module.exports = {
             _allCases = iViz.util.intersection(_nonNaCases, _allCases);
           } else {
             _selectedCases =
-              _.pluck(this.invisibleDimension.top(Infinity), attrId);
+              _.pluck(this.invisibleDimension.top(Infinity), attrId).sort();
           }
         }
         if (_selectedCases.length === 0) {
@@ -6362,7 +6450,7 @@ module.exports = {
             name: 'Selected Patients'
           }, {
             id: 1,
-            caseIds: _.difference(
+            caseIds: iViz.util.difference(
               _allCases, _selectedCases),
             curveHex: '#2986e2',
             name: 'Unselected Patients'
@@ -6452,6 +6540,19 @@ module.exports = {
         });
         self_.updateQtipContent();
       },
+      initialInfinityLoadingBar: function() {
+        var self = this;
+        self.loadingBar.opts = {
+          duration: 300,
+          step: function(state, bar) {
+            bar.setText('Loading...');
+          }
+        };
+        self.loadingBar.status = 0.5;
+        self.loadingBar.infinityInterval = setInterval(function() {
+          self.loadingBar.status += 0.5;
+        }, 300);
+      },
       checkDownloadableStatus: function() {
         if (this.chartInst.downloadIsEnabled()) {
           this.showDownloadIcon = true;
@@ -6462,7 +6563,6 @@ module.exports = {
     },
     ready: function() {
       var _self = this;
-      _self.showLoad = true;
       var attrId =
         this.attributes.group_type === 'patient' ? 'patient_uid' : 'sample_uid';
       this.invisibleDimension = this.ndx.dimension(function(d) {
@@ -6757,10 +6857,10 @@ window.LogRankTest = (function(jStat) {
     var _self = this;
     
     // Filter points with negative value 		
-    var _data = _.filter(data, function(point){
+    var _data = _.sortBy(_.filter(data, function(point) {
       return point.time >= 0 && point.survival_rate >= 0;
-    });
-    
+    }), 'time');
+
     // add an empty/zero point so the curve starts from zero time point
     if (_data !== null && _data.length !== 0) {
       if (_data[0].time !== 0) {
@@ -6770,6 +6870,43 @@ window.LogRankTest = (function(jStat) {
           time: 0
         }].concat(_data);
       }
+    }
+    
+    var _dataLength = _data.length;
+
+    // Only do the data optimization on more than 5000 data points.
+    if (_dataLength > 2000) {
+      var _dataTime = _.pluck(_data, 'time');
+      var _dataSurvivalRate = _.pluck(_data, 'survival_rate');
+
+      var _dataTimeMax = d3.max(_dataTime);
+      var _dataTimeMin = d3.min(_dataTime);
+
+      var _dataSurvivalRateMax = d3.max(_dataSurvivalRate);
+      var _dataSurvivalRateeMin = d3.min(_dataSurvivalRate);
+
+      var timeThreshold = (_dataTimeMax - _dataTimeMin) / 200;
+      var survivalRateThreshold = (_dataSurvivalRateMax - _dataSurvivalRateeMin) / 200;
+      var averageThreshold = iViz.util.getHypotenuse(timeThreshold, survivalRateThreshold);
+      var lastDataPoint = {
+        x: 0,
+        y: 0
+      };
+      _data = _.filter(_data, function(dataItem, index) {
+        if (index == 0) {
+          lastDataPoint.x = dataItem.time;
+          lastDataPoint.y = dataItem.survival_rate;
+          return true;
+        }
+        var dataItemVal = iViz.util.getHypotenuse(dataItem.time - lastDataPoint.x, dataItem.survival_rate - lastDataPoint.y);
+        if (dataItemVal > averageThreshold) {
+          lastDataPoint.x = dataItem.time;
+          lastDataPoint.y = dataItem.survival_rate;
+          return true;
+        } else {
+          return false;
+        }
+      });
     }
 
     if (!_self.elem_.curves.hasOwnProperty(_curveIndex)) {
@@ -6990,15 +7127,6 @@ window.LogRankTest = (function(jStat) {
  */
 (function(iViz, kmEstimator, _) {
   iViz.data.SurvivalChartProxy = function(_data, _attrId) {
-    var datum_ = {
-      study_id: '',
-      patient_id: '',
-      patient_uid: '',
-      time: '', // num of months
-      status: '',
-      num_at_risk: -1,
-      survival_rate: 0
-    };
     var datumArr_ = [];
 
     // convert raw data
@@ -7016,7 +7144,15 @@ window.LogRankTest = (function(jStat) {
       if (!isNaN(_time) &&
         _status !== 'NaN' && _status !== 'NA' &&
         typeof _status !== 'undefined' && typeof _time !== 'undefined') {
-        var _datum = jQuery.extend(true, {}, datum_);
+        var _datum = {
+          study_id: '',
+          patient_id: '',
+          patient_uid: '',
+          time: '', // num of months
+          status: '',
+          num_at_risk: -1,
+          survival_rate: 0
+        };
         _datum.patient_uid = _dataObj.patient_uid;
         _datum.patient_id = iViz.getCaseIdUsingUID('patient', _dataObj.patient_uid);
         _datum.study_id = _dataObj.study_id;
@@ -7199,17 +7335,22 @@ window.LogRankTest = (function(jStat) {
                     if (includeMutationCount) {
                       selectedMap_[geneIndex].num_muts = 1;
                     }
-                    selectedMap_[geneIndex].case_uids = [caseId];
+                    selectedMap_[geneIndex].case_ids = [caseId];
                   } else {
                     if (includeMutationCount) {
                       selectedMap_[geneIndex].num_muts += 1;
                     }
-                    selectedMap_[geneIndex].case_uids.push(caseId);
+                    selectedMap_[geneIndex].case_ids.push(caseId);
                   }
                 });
               }
             }
           });
+          
+          _.each(selectedMap_, function(content) {
+            content.case_uids = iViz.util.unique(content.case_ids);
+          });
+          
           initReactTable(true, selectedMap_, selectedSamples);
         }
       } else {
@@ -7370,7 +7511,7 @@ window.LogRankTest = (function(jStat) {
           var freq = 0;
           datum.gene = item.gene;
           if (_selectedGenesMap === undefined) {
-            datum.case_uids = iViz.util.unique(item.case_uids);
+            datum.case_uids = item.case_uids;
             datum.cases = datum.case_uids.length;
             datum.uniqueId = index;
             if (typeof genePanelMap[item.gene] !== 'undefined') {
@@ -7395,8 +7536,7 @@ window.LogRankTest = (function(jStat) {
             if (_selectedGenesMap[item.index] === undefined) {
               return;
             }
-            datum.case_uids =
-              iViz.util.unique(_selectedGenesMap[item.index].case_uids);
+            datum.case_uids = _selectedGenesMap[item.index].case_uids;
             datum.cases = datum.case_uids.length;
             if (typeof genePanelMap[item.gene] !== 'undefined') {
               freq = iViz.util.calcFreq(datum.cases, genePanelMap[item.gene]["sample_num"]);
@@ -7711,11 +7851,10 @@ window.LogRankTest = (function(jStat) {
     ':show-download-icon="!failedToInit"' +
     ':filters.sync="attributes.filter"> ' +
     '</chart-operations><div class="dc-chart dc-table-plot" ' +
-    ':class="{\'start-loading\': showLoad}" align="center" ' +
-    'style="float:none !important;" id={{chartId}} ></div>' +
-    '<div :class="{\'show-loading\': showLoad}" ' +
-    'class="chart-loader">' +
-    '<img src="images/ajax-loader.gif" alt="loading"></div>' +
+    'v-show="!showLoad" :class="{\'show-loading-bar\': showLoad}" ' +
+    'align="center" id={{chartId}} ></div>' +
+    '<div v-show="showLoad" class="progress-bar-parent-div" :class="{\'show-loading-bar\': showLoad}">' +
+    '<progress-bar :div-id="loadingBar.divId" :status="loadingBar.status" :opts="loadingBar.opts"></progress-bar></div>' +
     '<div :class="{\'error-init\': failedToInit}" ' +
     'style="display: none;">' +
     '<span class="content">Failed to load data, refresh the page may help</span></div></div>',
@@ -7724,7 +7863,7 @@ window.LogRankTest = (function(jStat) {
     ],
     data: function() {
       return {
-        chartDivId: 
+        chartDivId:
           iViz.util.getDefaultDomId('chartDivId', this.attributes.attr_id),
         resetBtnId:
           iViz.util.getDefaultDomId('resetBtnId', this.attributes.attr_id),
@@ -7737,13 +7876,22 @@ window.LogRankTest = (function(jStat) {
         showLoad: true,
         selectedRows: [],
         invisibleDimension: {},
-        isMutatedGeneCna: false,
+        isMutatedGeneCna: ['mutated_genes', 'cna_details']
+          .indexOf(this.attributes.attr_id) !== -1,
         classTableHeight: 'grid-item-h-2',
         madeSelection: false,
         showSurvivalIcon: false,
         genePanelMap: {},
         numOfSurvivalCurveLimit: iViz.opts.numOfSurvivalCurveLimit || 20,
-        dataLoaded: false
+        dataLoaded: false,
+        loadedStudies: 0,
+        totalNumOfStudies: 0,
+        loadingBar :{
+          status: 0,
+          divId: iViz.util.getDefaultDomId('progressBarId', this.attributes.attr_id),
+          opts: {},
+          infinityInterval: null
+        }
       };
     },
     watch: {
@@ -7753,6 +7901,19 @@ window.LogRankTest = (function(jStat) {
           this.selectedRows = [];
         }
         this.$dispatch('update-filters', true);
+      },
+      'loadedStudies': function() {
+        this.loadingBar.status = this.loadedStudies / (this.totalNumOfStudies || 1);
+      },
+      'showLoad': function(newVal) {
+        if (newVal) {
+          this.initialInfinityLoadingBar();
+        } else {
+          if (this.loadingBar.infinityInterval) {
+            window.clearInterval(this.loadingBar.infinityInterval);
+            this.loadingBar.infinityInterval = null;
+          }
+        }
       },
       'showedSurvivalPlot': function() {
         this.showRainbowSurvival();
@@ -7781,8 +7942,8 @@ window.LogRankTest = (function(jStat) {
               _.pluck(this.invisibleDimension.top(Infinity), attrId);
             this.chartInst.update(_selectedCases, this.selectedRows);
             this.setDisplayTitle(this.chartInst.getCases().length);
-            this.showLoad = false;
             this.showRainbowSurvival();
+            this.showLoad = false;
           }
         }
       },
@@ -7829,7 +7990,7 @@ window.LogRankTest = (function(jStat) {
         this.$dispatch('create-rainbow-survival', {
           attrId: this.attributes.attr_id,
           subtitle: ' (' + this.attributes.display_name + ')',
-          groups: groups,  
+          groups: groups,
           groupType: this.attributes.group_type
         });
       }
@@ -7869,7 +8030,7 @@ window.LogRankTest = (function(jStat) {
             filtersMap[filter] = true;
           }
         });
-        
+
         this.invisibleDimension.filterFunction(function(d) {
           return (filtersMap[d] !== undefined);
         });
@@ -7898,9 +8059,9 @@ window.LogRankTest = (function(jStat) {
           height: window.iViz.styles.vars.specialTables.height,
           chartId: this.chartId
         };
-        
+
         this.dataLoaded = true;
-        
+
         this.chartInst.init(this.attributes, opts, this.$root.selectedsampleUIDs,
           this.$root.selectedgenes, data, {
             addGeneClick: this.addGeneClick,
@@ -7915,8 +8076,8 @@ window.LogRankTest = (function(jStat) {
         if (_selectedCases.length > 0) {
           this.chartInst.update(_selectedCases, this.selectedRows);
           this.showRainbowSurvival();
-        } 
-        
+        }
+
         this.setDisplayTitle(this.chartInst.getCases().length);
         if (!this.isMutatedGeneCna &&
           Object.keys(this.attributes.keys).length <= 3) {
@@ -7935,17 +8096,25 @@ window.LogRankTest = (function(jStat) {
         } else {
           this.showSurvivalIcon = false;
         }
+      },
+      initialInfinityLoadingBar: function() {
+        var self = this;
+        self.loadingBar.opts = {
+          duration: 300,
+          step: function(state, bar) {
+            bar.setText('Loading...');
+          }
+        };
+        self.loadingBar.status = 0.5;
+        self.loadingBar.infinityInterval = setInterval(function() {
+          self.loadingBar.status += 0.5;
+        }, 800);
       }
     },
     ready: function() {
       var _self = this;
-      _self.showLoad = true;
       var callbacks = {};
       var attrId = this.attributes.attr_id;
-      
-      this.isMutatedGeneCna =
-        ['mutated_genes', 'cna_details']
-          .indexOf(_self.attributes.attr_id) !== -1;
 
       if (this.isMutatedGeneCna) {
         attrId = this.attributes.group_type === 'patient' ?
@@ -7958,37 +8127,54 @@ window.LogRankTest = (function(jStat) {
         }
         return d[attrId];
       });
-      
+
       callbacks.addGeneClick = this.addGeneClick;
       callbacks.submitClick = this.submitClick;
       _self.chartInst = new iViz.view.component.TableView();
       _self.chartInst.setDownloadDataTypes(['tsv']);
       if (_self.isMutatedGeneCna) {
-        $.when(iViz.getTableData(_self.attributes.attr_id))
-          .then(function(_tableData) {
-            $.when(window.iviz.datamanager.getGenePanelMap())
-              .then(function(_genePanelMap) {
-                // create gene panel map
-                this.dataLoaded = true;
-                _self.genePanelMap = _genePanelMap;
-                _self.processTableData(_tableData);
-              }, function() {
-                _self.genePanelMap = {};
-                _self.processTableData(_tableData);
-              });
-          }, function() {
-            _self.setDisplayTitle();
-            if (!_self.isMutatedGeneCna &&
-              Object.keys(_self.attributes.keys).length <= 3) {
-              _self.classTableHeight = 'grid-item-h-1';
-            }
-            _self.failedToInit = true;
-            _self.showLoad = false;
-          });
+        var progressBarText = '';
+        if (_self.attributes.attr_id === 'mutated_genes') {
+          _self.totalNumOfStudies = Object.keys(iviz.datamanager.mutationProfileIdsMap).length;
+          progressBarText = 'mutated genes (';
+        } else {
+          _self.totalNumOfStudies = Object.keys(iviz.datamanager.cnaProfileIdsMap).length;
+          progressBarText = 'copy number alteration genes (';
+        }
+
+        _self.loadingBar.opts = {
+          step: function(state, bar) {
+            bar.setText('Loading ' + progressBarText + Math.round(bar.value() * 100) + '%)');
+          }
+        };
+
+        $.when(iViz.getTableData(_self.attributes.attr_id, function() {
+          _self.loadedStudies++;
+        })).then(function(_tableData) {
+          $.when(window.iviz.datamanager.getGenePanelMap())
+            .then(function(_genePanelMap) {
+              // create gene panel map
+              this.dataLoaded = true;
+              _self.genePanelMap = _genePanelMap;
+              _self.processTableData(_tableData);
+            }, function() {
+              _self.genePanelMap = {};
+              _self.processTableData(_tableData);
+            });
+        }, function() {
+          _self.setDisplayTitle();
+          if (!_self.isMutatedGeneCna &&
+            Object.keys(_self.attributes.keys).length <= 3) {
+            _self.classTableHeight = 'grid-item-h-1';
+          }
+          _self.failedToInit = true;
+          _self.showLoad = false;
+          _self.initialInfinityLoadingBar();
+        });
       } else {
         _self.processTableData();
       }
-      
+
       this.showRainbowSurvival();
       this.$dispatch('data-loaded', this.attributes.group_id, this.chartDivId);
     }
@@ -8183,8 +8369,8 @@ window.LogRankTest = (function(jStat) {
                   self_.$nextTick(function() {
                     var _selectedSamplesNum = 0;
                     var _selectedPatientsNum = 0;
-                    if (_.isObject(self_.stats.selectedCases)) {
-                      _.each(self_.stats.selectedCases, function(studyCasesMap) {
+                    if (_.isObject(self_.stats.studies)) {
+                      _.each(self_.stats.studies, function(studyCasesMap) {
                         _selectedSamplesNum += studyCasesMap.samples.length;
                         _selectedPatientsNum += studyCasesMap.patients.length;
                       });
@@ -8241,7 +8427,7 @@ window.LogRankTest = (function(jStat) {
               self_.$nextTick(function() {
                 // If user hasn't specific description only.
                 if (!tooltip.find('.cohort-description').val()) {
-                  $.when(vcSession.utils.generateCohortDescription(self_.stats.selectedCases))
+                  $.when(vcSession.utils.generateCohortDescription(self_.stats.studies))
                     .then(function(_desp) {
                       // If user hasn't specific description only.
                       if (!tooltip.find('.cohort-description').val()) {
@@ -8295,14 +8481,6 @@ window.LogRankTest = (function(jStat) {
     '<div class="share-cohort-btn">' +
     '<i class="fa fa-share-alt" alt="Share Virtual Study"></i></div></div>',
     props: {
-      selectedPatientsNum: {
-        type: Number,
-        default: 0
-      },
-      selectedSamplesNum: {
-        type: Number,
-        default: 0
-      },
       stats: {
         type: Object
       },
@@ -8394,62 +8572,17 @@ window.LogRankTest = (function(jStat) {
                 self_.updateStats = true;
 
                 self_.$nextTick(function() {
-                  var saveCohort = false;
-
-                  if (_.isObject(self_.stats.selectedCases)) {
-                    var selectedCasesMap = {};
-                    _.each(self_.stats.selectedCases, function(study){
-                      selectedCasesMap[study.studyID] = study;
-                    });
-
+                  if (_.isObject(self_.stats.studies)) {
                     // When a user clicks copy, it will trigger saving the current virtual cohort and return the url 
                     // to the user. When a user want to see the cohort url, he/she needs to click Share button. 
                     // We always show the url to user but we don't need to same virtual cohort every time 
                     // if it is same with the previous saved cohort.
-                    if (_.isEmpty(previousSelectedCases)) {
-                      saveCohort = true;
-                    } else {
-                      _.every(selectedCasesMap, function(selectedCase){
-                        if(previousSelectedCases[selectedCase.studyID]){
-                          var previousCase = previousSelectedCases[selectedCase.studyID];
-                          if (previousCase.patients.length !== selectedCase.patients.length ||
-                            previousCase.samples.length !== selectedCase.samples.length) {
-                            saveCohort = true;
-                          } else if (previousCase.patients.length ===
-                            selectedCase.patients.length) {
-                            var differentPatients = _.difference(previousCase.patients,
-                              selectedCase.patients);
-                            if (differentPatients.length > 0) {
-                              saveCohort = true;
-                            }
-                          } else if (previousCase.samples.length ===
-                            selectedCase.samples.length) {
-                            var differentSamples = _.difference(previousCase.samples,
-                              selectedCase.samples);
-                            if (differentSamples.length > 0) {
-                              saveCohort = true;
-                            }
-                          }
-                        }
-                        return !saveCohort;
-                      });
-                    }
+                    var currentSelectedCases = JSON.stringify(self_.stats.studies) + JSON.stringify(self_.stats);
 
-                    if (saveCohort) {
-                      var _selectedSamplesNum = 0;
-                      var _selectedPatientsNum = 0;
-                      _.each(self_.stats.selectedCases, function (studyCasesMap) {
-                        _selectedSamplesNum += studyCasesMap.samples.length;
-                        _selectedPatientsNum += studyCasesMap.patients.length;
-                      });
-                      self_.selectedSamplesNum = _selectedSamplesNum;
-                      self_.selectedPatientsNum = _selectedPatientsNum;
-
+                    if (currentSelectedCases !== previousSelectedCases) {
                       vcSession.events.saveCohort(self_.stats,
                         cohortName, cohortDescription || '')
                         .done(function (response) {
-                          var deepCopySelectedCases = JSON.parse(
-                            JSON.stringify(self_.stats.selectedCases));
                           self_.savedVC = response;
                           tooltip.find('.cohort-link').html(
                             '<a class="virtual-study-link" href="' + window.cbioURL +
@@ -8458,9 +8591,7 @@ window.LogRankTest = (function(jStat) {
                             window.cbioURL + 'study?id=' + self_.savedVC.id + '</a>');
                           tooltip.find('.saving').css('display', 'none');
                           tooltip.find('.cohort-link').css('display', 'block');
-                          _.each(deepCopySelectedCases, function(study){
-                            previousSelectedCases[study.studyID] = study;
-                          });
+                          previousSelectedCases = currentSelectedCases;
                         })
                         .fail(function () {
                           tooltip.find('.failedMessage').html(
@@ -8505,3 +8636,74 @@ window.LogRankTest = (function(jStat) {
   });
 })(window.Vue,
   window.$ || window.jQuery, window.vcSession, window.iViz);
+
+
+/**
+ * @author Hongxin Zhang on 11/15/17.
+ */
+'use strict';
+(function(Vue, ProgressBar) {
+  Vue.component('progressBar', {
+    template:
+      '<div id="{{divId}}" class="study-view-progress-bar"></div>',
+    props: {
+      status: {
+        type: Number,
+        default: 0
+      },
+      divId: {
+        type: String
+      },
+      opts: {
+        default: function() {
+          return {};
+        },
+        type: Object
+      }
+    },
+    methods: {
+      initLine: function() {
+        var _self = this;
+        var opts = _.extend({
+          strokeWidth: 4,
+          easing: 'easeInOut',
+          duration: 1400,
+          color: '#2986e2',
+          trailColor: '#eee',
+          trailWidth: 1,
+          svgStyle: {width: '100%', height: '100%'},
+          text: {
+            style: {
+              // Text color.
+              // Default: same as stroke color (options.color)
+              color: '#000',
+              'text-align': 'center',
+              transform: null
+            },
+            autoStyleContainer: false
+          },
+          step: function(state, bar) {
+            bar.setText(Math.round(bar.value() * 100) + ' %');
+          }
+        }, _self.opts);
+        if (_self.bar) {
+          _self.bar.destroy();
+        }
+        _self.bar = new ProgressBar.Line('#' + _self.divId, opts);
+        _self.bar.animate(_self.status);
+      }
+    },
+    watch: {
+      'status': function(newVal) {
+        this.bar.animate(newVal);
+      },
+      'opts': function() {
+        this.initLine();
+      }
+    },
+    ready: function() {
+      this.initLine();
+    }
+  });
+})(window.Vue,
+  window.ProgressBar);

@@ -30,14 +30,12 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.json.simple.JSONValue" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.*" %>
-<%@ page import="java.util.List" %>
-<%@page import="java.util.Set"%>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="java.util.Set" %>
 <%
     request.setAttribute("standard-js-css", true);
     String isDemoMode = request.getParameter("demo");
@@ -256,13 +254,13 @@
             window.location.hash = '#cna';
         });
     }
-
-    $(document).ready(function () {
+    
+    $(document).ready(function() {
         //this is for testing, once done this should be commented/deleted
         //window.cbioURL = '';
         window.iviz = {};
         //commented for thesing
-        window.cbioURL = window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/",2)) + '/';
+        window.cbioURL = window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/", 2)) + '/';
         window.cbioResourceURL = 'js/src/dashboard/resources/';
         window.iviz.datamanager = new DataManagerForIviz.init(window.cbioURL, studyCasesMap);
 
@@ -274,93 +272,52 @@
             emailContact_ = $(span).prop('outerHTML');
         }
         
-        $.when(window.cbioportal_client.getStudies({ study_ids: cohortIdsList}), window.iviz.datamanager.getGeneticProfiles())
+        var studyIds = Object.keys(studyCasesMap);
+        $.when(window.cbioportal_client.getStudies({ study_ids: studyIds}), window.iviz.datamanager.getGeneticProfiles())
             .then(function(_cancerStudies, _geneticProfiles){
-                if(cohortIdsList.length === 1){
-                    if(_cancerStudies.length === 1){
-                        $("#show_study_details").css('display','block');
-                        var _cancerStudy = _cancerStudies[0]
-                        document.title = _cancerStudy.name
-                        $("#study_name").html(_cancerStudy.name);
-                        $("#cancer_study_id").val(_cancerStudy.id);
-                        $("#cancer_study_list").val(_cancerStudy.id);
-                        var _desc = _cancerStudy.description;
-                        if(_cancerStudy.pmid !== null){
-                            _desc += '&nbsp;<a href="http://www.ncbi.nlm.nih.gov/pubmed/'+_cancerStudy.pmid+'">PubMed</a>';
-                        }
-                        $("#study_desc").html(_desc);
-
-                        var _mutationProfiles = _.filter(_geneticProfiles, function (_profile) {
-                            return _profile.study_id + '_mutations' === _profile.id;
-                        });
-                        if(_mutationProfiles.length>0){
-                            appendMutationTab();
-                        }
-                        var _cnaProfiles = _.filter(_geneticProfiles, function (_profile) {
-                            return _profile.study_id + '_gistic' === _profile.id;
-                        });
-                        if(_cnaProfiles.length>0){
-                            appendCnaTab();
-                        }
-
-                        // TODO changed mutationProfileId to mutationProfileIds when mutations tab support multi-studies
-                        StudyViewParams.params = {
-                            studyId: _cancerStudy.id,
-                            mutationProfileId: _mutationProfiles.length>0?_mutationProfiles[0].id:'',
-                            hasMutSig: hasMutation,
-                            cnaProfileId: _cnaProfiles.length>0?_cnaProfiles[0].id:''
-                        };
-                        window.mutationProfileId = StudyViewParams.params.mutationProfileId ;
-                        window.cnaProfileId = StudyViewParams.params.cnaProfileId;
-                        window.case_set_id = -1;
-
-                    }else{
-                        // TODO : Right now we are just showing the cohort name and description for virtual cohort.
-                        // in future we the other visualizations support virtual cohort the update this to 
-                        // show submit button
-                        if (vcSession.URL !== undefined) {
-                            $.ajax({
-                                method: 'GET',
-                                url: vcSession.URL + '/' + cohortIdsList[0]
-                            }).done(function(response){
-                                if (typeof response === 'string') {
-                                    response = JSON.parse(response); 
-                                }
-                                $("#show_study_details").css('display','block');
-                                $("#study_name").html(response['data']['studyName']);
-                                $("#study_desc").html(response['data']['description']);
-                                //$("#submit_button").css('display','none');
-                                $("#cancer_study_list").val(cohortIdsList[0]);
-                                var studyName = response['data']['studyName'];
-                                document.title = studyName?studyName:'Summary';
-                            });
-                        }
-                    }
-                    $("#submit_button").click(function(){
-                        iViz.submitForm(true);
-                    });
-                } else if (cohortIdsList.length >= 2) {
-                    var study_name = 'Combined Studies';
-                    var study_description = 'Total ' + cohortIdsList.length + ' studies.';
-                    var collapse_study_name = _cancerStudies.map(function(study) { 
-                        // Remove html tags in study.description in case title of <a> not work 
-                        return '<a href="' + window.cbioURL + 'study?id=' + study.id + '" title="' + 
-                            study.description.replace(/(<([^>]+)>)/ig, '') + '" target="_blank">' + 
-                            study.name + '</a>'; }).join("<br />");
-                    
-                    study_description += '<span class="truncated"><br />' + collapse_study_name + '</span>';
-                    
-                    $("#show_study_details").css('display','block');
-                    $("#study_name").append(study_name);
-                    $("#study_desc ").append(study_description);
-
-                    $('.truncated').hide()                       // Hide the text initially
-                        .after('<i class="fa fa-plus-circle" aria-hidden="true"></i>') // Create toggle button
-                        .next().on('click', function(){          // Attach behavior
-                        $(this).toggleClass("fa-minus-circle")   // Swap the icon
-                            .prev().toggle();                    // Hide/show the text
-                    });
-                }
+            	 	$("#show_study_details").css('display', 'block');
+				if(cohortIdsList.length === 1 && (JSON.stringify(cohortIdsList) === JSON.stringify(studyIds))){
+					var _cancerStudy = _cancerStudies[0]
+					document.title = _cancerStudy.name
+					$("#study_name").html(_cancerStudy.name);
+					$("#cancer_study_id").val(_cancerStudy.id);
+					$("#cancer_study_list").val(_cancerStudy.id);
+					var _desc = _cancerStudy.description;
+					if(_cancerStudy.pmid !== null){
+					    _desc += '&nbsp;<a href="http://www.ncbi.nlm.nih.gov/pubmed/'+_cancerStudy.pmid+'">PubMed</a>';
+					}
+					$("#study_desc").html(_desc);
+					
+					var _mutationProfiles = _.filter(_geneticProfiles, function (_profile) {
+					    return _profile.study_id + '_mutations' === _profile.id;
+					});
+					if(_mutationProfiles.length>0){
+					    appendMutationTab();
+					}
+					var _cnaProfiles = _.filter(_geneticProfiles, function (_profile) {
+					    return _profile.study_id + '_gistic' === _profile.id;
+					});
+					if(_cnaProfiles.length>0){
+					    appendCnaTab();
+					}
+					
+					// TODO changed mutationProfileId to mutationProfileIds when mutations tab support multi-studies
+					StudyViewParams.params = {
+					    studyId: _cancerStudy.id,
+					    mutationProfileId: _mutationProfiles.length>0?_mutationProfiles[0].id:'',
+					    hasMutSig: hasMutation,
+					    cnaProfileId: _cnaProfiles.length>0?_cnaProfiles[0].id:''
+					};
+					window.mutationProfileId = StudyViewParams.params.mutationProfileId ;
+					window.cnaProfileId = StudyViewParams.params.cnaProfileId;
+					window.case_set_id = -1;
+				} else {
+					$("#show_study_details").css('display', 'block');
+                    cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, '', '');
+				}
+                $("#submit_button").click(function(){
+                    iViz.submitForm(true);
+                });
 
                 $("#study-tabs").tabs({disabled: true});
                 $('#study-tab-summary-a').click(function () {

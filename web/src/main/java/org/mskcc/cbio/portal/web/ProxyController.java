@@ -32,15 +32,24 @@
 
 package org.mskcc.cbio.portal.web;
 
+import org.cbioportal.model.virtualstudy.VirtualStudyData;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -164,40 +173,48 @@ public class ProxyController
         }
      }
 
-  @RequestMapping(value="/bitly")
-  public @ResponseBody String getBitlyURL(@RequestBody String body, HttpMethod method,
-                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException
+  @RequestMapping(value="/bitly", method = RequestMethod.GET)
+  public @ResponseBody String getBitlyURL(HttpMethod method, HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException
   {
-      return respProxy(bitlyURL + request.getQueryString(), method, body, response);
+      return respProxy(bitlyURL + request.getQueryString(), method, null, response);
   }
 
     @RequestMapping(value = "/session-service/{type}/{key}", method = RequestMethod.GET)
     public
     @ResponseBody
     String getSessionService(@PathVariable String type, @PathVariable String key,
-                             @RequestBody String body,  HttpMethod method,HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
-        System.out.println(sessionServiceURL + type + "/" + key);
-        return respProxy(sessionServiceURL + type + "/" + key, method, body, response);
+                             HttpMethod method,HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
+        return respProxy(sessionServiceURL + type + "/" + key, method, null, response);
     }
     
   @RequestMapping(value="/session-service/{type}", method = RequestMethod.POST)
   public @ResponseBody Map addSessionService(@PathVariable String type, @RequestBody JSONObject body, HttpMethod method,
-                                                HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
+                                                HttpServletRequest request, HttpServletResponse response) throws IOException
   {
-    RestTemplate restTemplate = new RestTemplate();
-    URI uri = new URI(sessionServiceURL + type);
+	  HttpEntity httpEntity = new HttpEntity<JSONObject>(body);
+	  if(type.equals("virtual_study")) {
+			ObjectMapper mapper = new ObjectMapper();
+			  //JSON from file to Object
+			VirtualStudyData virtualStudyData = mapper.readValue(body.toString(), VirtualStudyData.class);
+			  Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			  if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+				  virtualStudyData.setOwner(authentication.getName());
+				  httpEntity = new HttpEntity<VirtualStudyData>(virtualStudyData);
+			  }
+	  }
+	    // returns {"id":"5799648eef86c0e807a2e965"}
+	    // using HashMap because converter is MappingJackson2HttpMessageConverter (Jackson 2 is on classpath)
+	    // was String when default converter StringHttpMessageConverter was used
+    	  	RestTemplate restTemplate = new RestTemplate();
+    	  	
+    	    ResponseEntity<HashMap> responseEntity =
+    	    	      restTemplate
+    	    	      		  .exchange(sessionServiceURL + type, 
+    	    	      					method, 
+    	    	      					new HttpEntity<JSONObject>(body), 
+    	    	      					HashMap.class);
 
-      System.out.println(sessionServiceURL + type);
-    // returns {"id":"5799648eef86c0e807a2e965"}
-    // using HashMap because converter is MappingJackson2HttpMessageConverter (Jackson 2 is on classpath)
-    // was String when default converter StringHttpMessageConverter was used
-      try {
-          ResponseEntity<HashMap> responseEntity =
-              restTemplate.exchange(uri, method, new HttpEntity<JSONObject>(body), HashMap.class);
-          return responseEntity.getBody();
-      }catch (Exception exp){
-          System.out.println(exp);
-          return null;
-      }
+    	    	return responseEntity.getBody();
+    	    	
   }
 }

@@ -109,11 +109,6 @@
 <script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js"></script>
 
-<%-- TODO: workaround: cytoscape.js needs to be included before virtual cohort session libraries --%>
-<script type="text/javascript" src="js/lib/cytoscape_js/cytoscape.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
 <!-- iViz session integration libraries START-->
-<script type="text/javascript" src="js/lib/vc-session-vendor.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script>$.noConflict();</script>
 <script type="text/javascript" src="js/lib/vc-session.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <!-- iViz session integration libraries END-->

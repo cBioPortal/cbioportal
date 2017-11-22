@@ -117,7 +117,6 @@
             showCoexpTab = true;
         }
     }        
-    String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "" : GlobalProperties.getSessionServiceUrl();
 %>
 
 <!--Global Data Objects Manager-->
@@ -170,17 +169,13 @@
 <script>
 
     $(document).ready(function() {
-        window.sessionServiceUrl = '<%=sessionServiceUrl%>';
-        if(window.sessionServiceUrl) {
-            window.sessionServiceUrl = window.sessionServiceUrl.replace(/http(s)*:\/+/, '');
-        }
         var getCohortName = function(){
             var def = new $.Deferred();
             if (window.isVirtualStudy) {
                 if (window.cohortIdsList.length === 1) {
                     $.ajax({
                         method: 'GET',
-                        url: 'proxy/' + window.sessionServiceUrl + 'virtual_study/' + window.cohortIdsList[0]
+                        url: 'api-legacy/proxy/session-service/virtual_study/' + window.cohortIdsList[0]
                     }).done(function(response){
                         response = JSON.parse(response);
                         def.resolve(response['data']['name']);

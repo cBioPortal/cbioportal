@@ -34,11 +34,11 @@ package org.mskcc.cbio.portal.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cbioportal.model.virtualstudy.VirtualStudy;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.httpclient.HttpException;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.mskcc.cbio.portal.model.Cohort;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
@@ -122,27 +122,20 @@ public class SessionServiceUtil {
      * @param virtualStudyId
      * @return cohort object
      */
-    public Cohort getVirtualCohortData(String virtualStudyId) {
-        Cohort cohort = null;
+    public VirtualStudy getVirtualStudyData(String virtualStudyId) {
         if(GlobalProperties.getSessionServiceUrl() != null) {
-            String url = GlobalProperties.getSessionServiceUrl() + "virtual_cohort/";
-            RestTemplate restTemplate = new RestTemplate();
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode actualObj = null;
-
+            String url = GlobalProperties.getSessionServiceUrl() + "virtual_study/";
             try {
-                String result = restTemplate.getForObject(url + virtualStudyId, String.class);
-                actualObj = mapper.readTree(result);
-                cohort = mapper.convertValue(actualObj.get("data"), Cohort.class);
-                cohort.setVirtualCohort(true);
-                cohort.setId(virtualStudyId);
-            } catch (HttpStatusCodeException e) {
-                LOG.warn("SessionServiceUtil.getVirtualCohortData(): HttpStatusCodeException = '" + e.getStatusCode() + "'");
+            		return new RestTemplate().getForObject(url + virtualStudyId, VirtualStudy.class);
+            } catch (HttpStatusCodeException exception) {
+                LOG.warn("SessionServiceUtil.getVirtualCohortData(): HttpStatusCodeException = '" + exception.getStatusCode() + "'");
+                throw exception;
             }
-            catch (Exception e) {
-                LOG.warn("SessionServiceUtil.getVirtualCohortData(): Exception = '" + e.getMessage() + "'");
+            catch (Exception exception) {
+                LOG.warn("SessionServiceUtil.getVirtualCohortData(): Exception = '" + exception.getMessage() + "'");
+                throw exception;
             }
         }
-        return cohort;
+        return null;
     }
 }

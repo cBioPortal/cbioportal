@@ -70,6 +70,13 @@ window.DataManagerForIviz = (function($, _) {
   };
 
   content.init = function(_portalUrl, _study_cases_map) {
+    _study_cases_map = _study_cases_map || {};
+    _.map(_study_cases_map, function(item) {
+      if (_.isArray(item.samples)) {
+        item.samples.sort();
+      }
+    });
+    
     var initialSetup = function() {
       var _def = new $.Deferred();
       var self = this;
@@ -909,7 +916,7 @@ window.DataManagerForIviz = (function($, _) {
             .done(function(data) {
               _.each(data, function(list) {
                 self.data.sampleLists[list.studyId] = self.data.sampleLists[list.studyId] || {};
-                self.data.sampleLists[list.studyId][list.sampleListId] = list.sampleIds;
+                self.data.sampleLists[list.studyId][list.sampleListId] = list.sampleIds.sort();
               });
 
               _.each(self.getCancerStudyIds(), function(studyId) {
@@ -920,13 +927,13 @@ window.DataManagerForIviz = (function($, _) {
                 };
                 // Always check for all lists, the API call may fail partially
                 if (_.isArray(self.data.sampleLists[studyId][studyId + '_sequenced'])) {
-                  _responseStudyCaseList[studyId].sequencedSampleIds = self.data.sampleLists[studyId][studyId + '_sequenced'];
+                  _responseStudyCaseList[studyId].sequencedSampleIds = iViz.util.intersection(self.data.sampleLists[studyId][studyId + '_sequenced'], self.studyCasesMap[studyId].samples);
                 }
                 if (_.isArray(self.data.sampleLists[studyId][studyId + '_cna'])) {
-                  _responseStudyCaseList[studyId].cnaSampleIds = self.data.sampleLists[studyId][studyId + '_cna'];
+                  _responseStudyCaseList[studyId].cnaSampleIds = iViz.util.intersection(self.data.sampleLists[studyId][studyId + '_cna'], self.studyCasesMap[studyId].samples);
                 }
                 if (_.isArray(self.data.sampleLists[studyId][studyId + '_all'])) {
-                  _responseStudyCaseList[studyId].allSampleIds = self.data.sampleLists[studyId][studyId + '_all'];
+                  _responseStudyCaseList[studyId].allSampleIds = iViz.util.intersection(self.data.sampleLists[studyId][studyId + '_all'], self.studyCasesMap[studyId].samples);
                 }
               });
               fetch_promise.resolve(_responseStudyCaseList);
@@ -1078,12 +1085,18 @@ window.DataManagerForIviz = (function($, _) {
             .done(function(data) {
               _.each(data, function(list) {
                 self.data.sampleLists[list.studyId] = self.data.sampleLists[list.studyId] || {};
-                self.data.sampleLists[list.studyId][list.sampleListId] = list.sampleIds;
+                self.data.sampleLists[list.studyId][list.sampleListId] = list.sampleIds.sort();
               });
 
               _.each(self.getCancerStudyIds(), function(studyId) {
-                if (self.data.sampleLists[studyId].hasOwnProperty(studyId + '_all')) {
-                  self.studyCasesMap[studyId].samples = self.data.sampleLists[studyId][studyId + '_all'];
+                if(!self.studyCasesMap[studyId]) {
+                  self.studyCasesMap[studyId] = {};
+                }
+
+                if (!_.isArray(self.studyCasesMap[studyId].samples)) {
+                  self.studyCasesMap[studyId].samples =
+                    self.data.sampleLists[studyId].hasOwnProperty(studyId + '_all') ?
+                      self.data.sampleLists[studyId][studyId + '_all'] : [];
                 }
               });
               getSamplesCall()

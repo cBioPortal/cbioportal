@@ -1680,3 +1680,39 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 #content .dropdown-menu li.active a {
     color:#fff !important;
 }
+
+#main_smry_stat_div {
+    float: right;
+    margin-right: 15px;
+    margin-bottom: -5px;
+    width: 40%;
+    text-align: right;
+}
+
+#main_smry_info_div table {
+    margin-left: 0px;
+    margin-top: -10px;
+    margin-bottom: -5px;
+}
+
+#main_smry_info_div table td {
+    vertical-align: top;
+}
+
+#main_smry_query_div {
+    font-family: verdana, arial, sans-serif;
+}
+
+#main_smry_query_div a.name {
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#main_smry_query_div .description {
+    font-size: 12px;
+}
+
+.combined-study-title-toggle-icon {
+    cursor: pointer;
+}

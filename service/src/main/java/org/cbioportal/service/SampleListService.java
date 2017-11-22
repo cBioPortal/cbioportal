@@ -6,6 +6,7 @@ import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface SampleListService {
 
@@ -23,4 +24,6 @@ public interface SampleListService {
     BaseMeta getMetaSampleListsInStudy(String studyId) throws StudyNotFoundException;
 
     List<String> getAllSampleIdsInSampleList(String sampleListId) throws SampleListNotFoundException;
+
+	List<SampleList> fetchSampleLists(List<String> sampleListIds, String projection);
 }

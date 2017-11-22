@@ -2276,7 +2276,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	'getCancerStudyNames': makeCachedPromiseFunction(
 		function (self, fetch_promise) {
 		    self.getStudyNameMap().then(function(map) {
-			return self.getCancerStudyIds().map(function(id) { return map[id]; });
+			fetch_promise.resolve(self.getCancerStudyIds().map(function(id) { return map[id]; }));
+		    }).fail(function() {
+			fetch_promise.reject();
 		    });
 		}),
 	'getStudyNameMap': makeCachedPromiseFunction(

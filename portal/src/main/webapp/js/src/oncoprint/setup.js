@@ -646,10 +646,15 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		}
 	    },
 	    'getInitUsedClinicalAttrs': function() {
-		if (init_clinical_attrs === null) {
+		var attrs = (init_clinical_attrs || "").trim().split(",").map(decodeURIComponent);
+		if (attrs.indexOf("CANCER_STUDY") === -1 &&
+			QuerySession.getCancerStudyIds().length > 1) {
+		    attrs.push("CANCER_STUDY");
+		}
+		if (!attrs.length) {
 		    return null;
 		} else {
-		    return init_clinical_attrs.trim().split(",").map(decodeURIComponent);
+		    return attrs;
 		}
 	    },
 	    'getInitHeatmapTrackGroups': function() {
@@ -1750,6 +1755,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	};
 
 	(function setUpHeatmap() {
+	    if (QuerySession.getCancerStudyIds().length > 1) {
+		// hide for multiple studies
+		$(toolbar_selector + ' #oncoprint_diagram_heatmap_menu').hide();
+		return;
+	    }
 	    QuerySession.getHeatmapProfiles().then(function (profiles) {
 		// Make a copy to modify here
 		profiles = utils.deepCopyObject(profiles);

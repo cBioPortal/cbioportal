@@ -24,9 +24,11 @@ public abstract class MolecularAlteration implements Serializable {
      * @return list of values for all samples
      */
     public String[] getSplitValues() {
-    	if (splitValues == null) {
-    		splitValues = values.split(",");
-    	}
-    	return splitValues;
+        if (splitValues == null) {
+            // Use Integer.MIN_VALUE to return empty string for empty when
+            // trailing ,,,,
+            splitValues = values.split(",", Integer.MIN_VALUE);
+        }
+        return splitValues;
     }
 }

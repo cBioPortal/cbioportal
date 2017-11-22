@@ -2,10 +2,10 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 
-public class SampleListSampleCount implements Serializable {
+public class SampleListToSampleId implements Serializable {
     
     private Integer sampleListId;
-    private Integer sampleCount;
+    private String sampleId;
 
     public Integer getSampleListId() {
         return sampleListId;
@@ -15,11 +15,11 @@ public class SampleListSampleCount implements Serializable {
         this.sampleListId = sampleListId;
     }
 
-    public Integer getSampleCount() {
-        return sampleCount;
-    }
+	public String getSampleId() {
+		return sampleId;
+	}
 
-    public void setSampleCount(Integer sampleCount) {
-        this.sampleCount = sampleCount;
-    }
+	public void setSampleId(String sampleId) {
+		this.sampleId = sampleId;
+	}
 }

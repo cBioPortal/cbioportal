@@ -45,8 +45,8 @@ var StudyViewClinicalTabController = (function() {
             window.iviz.datamanager.getClinicalAttributesByStudy(),
             window.iviz.datamanager.getPatientClinicalData(),
             window.iviz.datamanager.getSampleClinicalData(),
-            window.iviz.datamanager.getStudyToSampleToPatientdMap())
-            .then(function(ca, pd, sd, map) {
+            window.iviz.datamanager.getStudyToSampleToPatientMap())
+            .done(function(ca, pd, sd, map) {
                 var attr = _.extend(ca);
                 var arr = _.extend(pd, sd);
                 var data = [];
@@ -134,7 +134,11 @@ var StudyViewClinicalTabController = (function() {
                 });
 
                 initTable(_.values(attr), data);
-
+            })
+            .fail(function() {
+                console.log('Failed');
+            })
+            .always(function() {
                 if (_.isFunction(callback)) {
                     callback();
                 }

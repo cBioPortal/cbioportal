@@ -14,13 +14,13 @@ On Ubuntu:  ```sudo apt-get install mysql-server```
 
 ## Java
 
-As of this writing, the cBioPortal can be compiled and run from Java 7.0 and above.  The software can be found and download from the [Oracle](http://www.oracle.com/us/technologies/java/overview/index.html) website.
+As of this writing, the cBioPortal can be compiled and run from Java 8.0 and above.  The software can be found and download from the [Oracle](http://www.oracle.com/us/technologies/java/overview/index.html) website.
 
 On Ubuntu:  ```sudo apt-get install default-jdk```
 
 ## Apache Tomcat
 
-As of this writing, the cBioPortal runs properly on Apache Tomcat version 6 and above.  The software can be found and downloaded from the [Apache Tomcat website](http://tomcat.apache.org).
+As of this writing, the cBioPortal runs properly on Apache Tomcat version 8 and above.  The software can be found and downloaded from the [Apache Tomcat website](http://tomcat.apache.org).
 
 On Ubuntu:  [See Recommended Installation Instructions](https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-8-on-ubuntu-14-04)
 

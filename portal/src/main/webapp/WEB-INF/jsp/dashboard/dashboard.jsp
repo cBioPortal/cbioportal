@@ -272,81 +272,49 @@
             emailContact_ = $(span).prop('outerHTML');
         }
         
-        $.when(window.cbioportal_client.getStudies({ study_ids: cohortIdsList}), window.iviz.datamanager.getGeneticProfiles())
+        var studyIds = Object.keys(studyCasesMap);
+        $.when(window.cbioportal_client.getStudies({ study_ids: studyIds}), window.iviz.datamanager.getGeneticProfiles())
             .then(function(_cancerStudies, _geneticProfiles){
-                if(cohortIdsList.length === 1){
-                     $("#show_study_details").css('display', 'block');
-                    if(_cancerStudies.length === 1){
-                        var _cancerStudy = _cancerStudies[0]
-                        document.title = _cancerStudy.name
-                        $("#study_name").html(_cancerStudy.name);
-                        $("#cancer_study_id").val(_cancerStudy.id);
-                        $("#cancer_study_list").val(_cancerStudy.id);
-                        var _desc = _cancerStudy.description;
-                        if(_cancerStudy.pmid !== null){
-                            _desc += '&nbsp;<a href="http://www.ncbi.nlm.nih.gov/pubmed/'+_cancerStudy.pmid+'">PubMed</a>';
-                        }
-                        $("#study_desc").html(_desc);
-
-                        var _mutationProfiles = _.filter(_geneticProfiles, function (_profile) {
-                            return _profile.study_id + '_mutations' === _profile.id;
-                        });
-                        if(_mutationProfiles.length>0){
-                            appendMutationTab();
-                        }
-                        var _cnaProfiles = _.filter(_geneticProfiles, function (_profile) {
-                            return _profile.study_id + '_gistic' === _profile.id;
-                        });
-                        if(_cnaProfiles.length>0){
-                            appendCnaTab();
-                        }
-
-                        // TODO changed mutationProfileId to mutationProfileIds when mutations tab support multi-studies
-                        StudyViewParams.params = {
-                            studyId: _cancerStudy.id,
-                            mutationProfileId: _mutationProfiles.length>0?_mutationProfiles[0].id:'',
-                            hasMutSig: hasMutation,
-                            cnaProfileId: _cnaProfiles.length>0?_cnaProfiles[0].id:''
-                        };
-                        window.mutationProfileId = StudyViewParams.params.mutationProfileId ;
-                        window.cnaProfileId = StudyViewParams.params.cnaProfileId;
-                        window.case_set_id = -1;
-
-                    }else{
-                        // TODO : Right now we are just showing the cohort name and description for virtual cohort.
-                        // in future we the other visualizations support virtual cohort the update this to 
-                        // show submit button
-                        if (vcSession.URL !== undefined) {
-                            $.ajax({
-                                method: 'GET',
-                                url: vcSession.URL + '/' + cohortIdsList[0]
-                            }).done(function(response){
-                                if (typeof response === 'string') {
-                                    response = JSON.parse(response); 
-                                }
-                                var _description = response['data']['description'] || '';
-                                var _studyName = response['data']['name'] || 'Selected Study';
-                                
-                                document.title = _studyName;
-
-                                // After fetching virtual study, we need to show all related studies name and description if the virtual study does not have descirption.
-                                if (!_description && _.isArray(response.data.studies) && response.data.studies.length > 0) {
-                                    window.cbioportal_client.getStudies({study_ids: _.pluck(response.data.studies, 'id')})
-                                        .done(function(_cancerStudies) {
-                                            cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, _studyName, _description);
-                                        });
-                                } else {
-                                    $("#study_name").html(_studyName);
-                                    $("#study_desc ").html(_description);
-                                }
-                                $("#cancer_study_list").val(cohortIdsList[0]);
-                            });
-                        }
-                    }
-                } else if (cohortIdsList.length >= 2) {
-                    $("#show_study_details").css('display', 'block');
+            	 	$("#show_study_details").css('display', 'block');
+				if(cohortIdsList.length === 1 && (JSON.stringify(cohortIdsList) === JSON.stringify(studyIds))){
+					var _cancerStudy = _cancerStudies[0]
+					document.title = _cancerStudy.name
+					$("#study_name").html(_cancerStudy.name);
+					$("#cancer_study_id").val(_cancerStudy.id);
+					$("#cancer_study_list").val(_cancerStudy.id);
+					var _desc = _cancerStudy.description;
+					if(_cancerStudy.pmid !== null){
+					    _desc += '&nbsp;<a href="http://www.ncbi.nlm.nih.gov/pubmed/'+_cancerStudy.pmid+'">PubMed</a>';
+					}
+					$("#study_desc").html(_desc);
+					
+					var _mutationProfiles = _.filter(_geneticProfiles, function (_profile) {
+					    return _profile.study_id + '_mutations' === _profile.id;
+					});
+					if(_mutationProfiles.length>0){
+					    appendMutationTab();
+					}
+					var _cnaProfiles = _.filter(_geneticProfiles, function (_profile) {
+					    return _profile.study_id + '_gistic' === _profile.id;
+					});
+					if(_cnaProfiles.length>0){
+					    appendCnaTab();
+					}
+					
+					// TODO changed mutationProfileId to mutationProfileIds when mutations tab support multi-studies
+					StudyViewParams.params = {
+					    studyId: _cancerStudy.id,
+					    mutationProfileId: _mutationProfiles.length>0?_mutationProfiles[0].id:'',
+					    hasMutSig: hasMutation,
+					    cnaProfileId: _cnaProfiles.length>0?_cnaProfiles[0].id:''
+					};
+					window.mutationProfileId = StudyViewParams.params.mutationProfileId ;
+					window.cnaProfileId = StudyViewParams.params.cnaProfileId;
+					window.case_set_id = -1;
+				} else {
+					$("#show_study_details").css('display', 'block');
                     cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, '', '');
-                }
+				}
                 $("#submit_button").click(function(){
                     iViz.submitForm(true);
                 });

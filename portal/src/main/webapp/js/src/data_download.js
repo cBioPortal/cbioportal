@@ -212,16 +212,16 @@ var DataDownloadTab = (function() {
                 _processedProfiles.push(_p);
             });
 
-            if( window.QuerySession.isVirtualStudy) {
-                _processedProfiles = [];
-                $.each(_.groupBy(profiles, function(_profile){ return _profile.genetic_alteration_type}), function(k,v){
-                    var _p = {name:_profileNames[k], profileIds:v.map(function(d) { return d.id; }).join(','), alterationType:k,fileName:k.toLowerCase()}
-                    _processedProfiles.push(_p);
-                });
-            }
+            // if(window.isVirtualStudy) {
+            //     _processedProfiles = [];
+            //     $.each(_.groupBy(profiles, function(_profile){ return _profile.genetic_alteration_type}), function(k,v){
+            //         var _p = {name:_profileNames[k], profileIds:v.map(function(d) { return d.id; }).join(','), alterationType:k,fileName:k.toLowerCase()}
+            //         _processedProfiles.push(_p);
+            //     });
+            // }
             
             // Hide download file links for multi-studies.
-            if (_processedProfiles.length > 1) {
+            if (QuerySession.getCancerStudyIds().length > 1) {
                 $('#data_download_tab_links_li_div').css('display','none');
                 $('#data_download_tab_text_areas').css('margin-top','10px');
             } else {
@@ -405,9 +405,10 @@ var DataDownloadTab = (function() {
 }());
 
 $(document).ready( function() {
-
+    
     //Sign up getting oncoprint data
     $.when(window.QuerySession.getOncoprintSampleGenomicEventData(), window.QuerySession.getAlteredSampleUIDs(), window.QuerySession.computeUIDMaps()).then(function(oncoprint_data, altered_sample_uids, uid_maps) {
+        
         DataDownloadTab.setOncoprintData(oncoprint_data);
         var alteredStudySampleMap = {};
         var studyIds = Object.keys(uid_maps['case_to_uid']);

@@ -1438,7 +1438,7 @@ class MutationsExtendedValidator(Validator):
                 return True
         # if no reasons to return with a message were found, return valid
         return True
-    
+
     def checkStartPosition(self, value):
         """Check that the Start_Position value is an integer."""
         if value.isdigit() == False or (value.isdigit() and '.' in value):
@@ -1450,7 +1450,7 @@ class MutationsExtendedValidator(Validator):
                        'cause': value})
         # if no reasons to return with a message were found, return valid
         return True
-    
+
     def checkEndPosition(self, value):
         """Check that the End_Position value is an integer."""
         if value.isdigit() == False or (value.isdigit() and '.' in value):
@@ -2392,17 +2392,31 @@ class ProteinLevelValidator(FeaturewiseFileValidator):
 
 class TimelineValidator(Validator):
 
-    REQUIRED_HEADERS = [
-        'PATIENT_ID',
-        'START_DATE',
-        'STOP_DATE',
-        'EVENT_TYPE']
-    REQUIRE_COLUMN_ORDER = True
+    REQUIRE_COLUMN_ORDER = False
     ALLOW_BLANKS = True
 
     def checkLine(self, data):
         super(TimelineValidator, self).checkLine(data)
         # TODO check the values
+
+    def checkHeader(self, cols):
+        """In time line data 2 types of headers are allowed:
+        - PATIENT_ID, START_DATE, STOP_DATE, EVENT_TYPE
+        - PATIENT_ID, START_DATE, EVENT_TYPE
+        """
+        super(TimelineValidator, self).checkHeader(cols)
+        num_errors = 0
+        REQUIRED_HEADER_OPTION1 = ['PATIENT_ID', 'START_DATE', 'STOP_DATE', 'EVENT_TYPE']
+        REQUIRED_HEADER_OPTION2 = ['PATIENT_ID', 'START_DATE', 'EVENT_TYPE']
+
+        if cols[0:4] != REQUIRED_HEADER_OPTION1 and cols[0:3] != REQUIRED_HEADER_OPTION2:
+            self.logger.error(
+                "Invalid header: expected '%s' or '%s'," % (REQUIRED_HEADER_OPTION1, REQUIRED_HEADER_OPTION2),
+                extra={'line_number': self.line_number,
+               'cause': "%s" % cols[0:4]})
+            num_errors += 1
+        return num_errors
+
 
 class CancerTypeValidator(Validator):
 

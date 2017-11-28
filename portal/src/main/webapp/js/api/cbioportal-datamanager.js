@@ -1005,6 +1005,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		var sample_id = receive_datum.sample_id;
 		var case_id = (sample_or_patient === "sample" ? sample_id : sample_to_patient_map[study_id][sample_id]);
 		var interim_datum = interim_data[gene][case_id];
+		if (!interim_datum) {
+			// if this case wasnt requested, dont create data for it
+			continue;
+		} 
 		interim_datum.na = false;
 		if (interim_datum.profile_data === null) {
 		    // set the initial value for this sample or patient

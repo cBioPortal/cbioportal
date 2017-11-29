@@ -67,7 +67,9 @@
     	function tabsUpdate() {
 	        if ($("#pancancer_study_summary").is(":visible")) {
 		    	if (tab_init === false) {
-                    window.renderCancerTypeSummary(document.getElementById('pancancer_study_summary'));
+                   window.onReactAppReady(function(){
+                                           window.renderCancerTypeSummary(document.getElementById('pancancer_study_summary'));
+                                       });
                     tab_init = true;
 		    		<%--var pancancerStudySummary = new PancancerStudySummary();--%>
                     <%--pancancerStudySummary.init();--%>

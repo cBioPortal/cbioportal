@@ -131,6 +131,32 @@
 <!-- Global variables : basic information about the main query -->
 <script type="text/javascript">
 
+    // these are new
+    window.molecularProfiles = '<%=geneticProfiles%>'.trim().split(/\s+/);
+    
+    window.caseSetProperties =  {
+        case_set_id: '<%=sampleSetId%>',
+        case_ids_key: '<%=sampleIdsKey%>',
+        case_set_name: '<%=sampleSetName%>',
+        case_set_description: '<%=sampleSetDescription%>'
+    };
+						    
+    window.serverData = {
+        zScoreThreshold:parseFloat('<%=zScoreThreshold%>'),
+        rppaScoreThreshold:parseFloat('<%=rppaScoreThreshold%>')
+    };
+    
+    window.theQuery = '<%=oql%>'.trim();
+    
+    window.studySampleObj = JSON.parse('<%=studySampleMapJson%>');
+    
+    window.studySampleListMap = (function(){
+        var ret = {};
+        ret[Object.keys(window.studySampleObj)[0]] = window.caseSetProperties.case_set_id;
+        return ret;
+    })(); 	    
+    // end these are new
+
     var patientSampleIdMap = {};
     window.PortalGlobals = {
         setPatientSampleIdMap: function(_patientSampleIdMap) {patientSampleIdMap = _patientSampleIdMap;},

@@ -267,10 +267,7 @@ window.onReactAppReady(function() {
             out.println("</div>");
     %>
 
-        <div class="section" id="summary">
-            <% //contents of fingerprint.jsp now come from attribute on request object %>
-            <%@ include file="oncoprint/main.jsp" %>
-        </div>
+
 
         <!-- if showCancerTypes is true, include cancer_types_summary.jsp -->
             <% if(showCancerTypesSummary) { %>

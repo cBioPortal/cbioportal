@@ -45,9 +45,10 @@ $(document).ready(function(){
 function setUpTabs() {
      // generate tabs for results page; set cookies to preserve
     // state of tabs when user navigates away from page and back
-    $('#tabs').tabs({cookie:{expires:1, name:("results-tab-" + 
-                    (typeof cancer_study_id_selected === 'undefined'? "" : cancer_study_id_selected))}});
-    $('#tabs').show();
+     var summaryIsDefault = (window.isVirtualStudy && QuerySession.getQueryGenes().length === 1);
+     var activeIndex = summaryIsDefault ? 1 : 0;
+     $('#tabs').tabs({ active:activeIndex});
+     $('#tabs').show();
 }
 
 /*

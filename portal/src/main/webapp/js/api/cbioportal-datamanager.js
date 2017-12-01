@@ -803,9 +803,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		window.cbioportal_client.getSampleClinicalData({study_id: [cancer_study_id], attribute_ids: attribute_ids, sample_ids: study_sample_map[cancer_study_id]})
 			.then(function (data) {
 			    var sample_data_by_attr_id = {};
+			    for (var i = 0; i<attribute_ids.length; i++) {
+				sample_data_by_attr_id[attribute_ids[i]] = [];
+			    }
 			    for (var i = 0; i < data.length; i++) {
 				var attr_id = data[i].attr_id;
-				sample_data_by_attr_id[attr_id] = sample_data_by_attr_id[attr_id] || [];
 				sample_data_by_attr_id[attr_id].push(data[i]);
 			    }
 			    for (var i = 0; i < attribute_ids.length; i++) {
@@ -824,9 +826,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		window.cbioportal_client.getPatientClinicalData({study_id: [cancer_study_id], attribute_ids: attribute_ids, patient_ids: study_patient_map[cancer_study_id]})
 			.then(function (data) {
 			    var patient_data_by_attr_id = {};
+			    for (var i = 0; i<attribute_ids.length; i++) {
+				patient_data_by_attr_id[attribute_ids[i]] = [];
+			    }
 			    for (var i = 0; i < data.length; i++) {
 				var attr_id = data[i].attr_id;
-				patient_data_by_attr_id[attr_id] = patient_data_by_attr_id[attr_id] || [];
 				patient_data_by_attr_id[attr_id].push(data[i]);
 			    }
 			    for (var i = 0; i < attribute_ids.length; i++) {

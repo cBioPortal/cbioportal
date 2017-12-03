@@ -18,6 +18,7 @@
             <list>
                 <value>file:///${PORTAL_HOME}/portal.properties</value>
                 <value>classpath:portal.properties</value>
+                <value>classpath:maven.properties</value>
             </list>
         </property>
     </bean>

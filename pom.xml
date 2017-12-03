@@ -423,6 +423,7 @@
         <filtering>true</filtering>
         <includes>
           <include>**/portal.properties</include>
+          <include>**/maven.properties</include>
         </includes>
       </resource>
       <resource>
@@ -430,6 +431,7 @@
         <filtering>false</filtering>
         <excludes>
           <exclude>**/portal.properties</exclude>
+          <exclude>**/maven.properties</exclude>
         </excludes>
       </resource>
     </resources>

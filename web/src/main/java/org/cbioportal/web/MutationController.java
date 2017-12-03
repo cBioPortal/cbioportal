@@ -91,7 +91,7 @@ public class MutationController {
 
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutations/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch mutations in a molecular profile by sample IDs")
+    @ApiOperation("Fetch mutations in a molecular profile")
     public ResponseEntity<List<Mutation>> fetchMutationsInMolecularProfile(
         @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
         @PathVariable String molecularProfileId,

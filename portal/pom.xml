@@ -197,6 +197,7 @@
                   <excludes>
                     <exclude>**/portal.properties.*</exclude>
                     <exclude>**/log4j.properties.*</exclude>
+                    <exclude>**/maven.properties.*</exclude>
                     <exclude>**/*.EXAMPLE</exclude>
                   </excludes>
                 </resource>
@@ -209,6 +210,7 @@
 
     <filters>
         <filter>../src/main/resources/portal.properties</filter>
+        <filter>../src/main/resources/maven.properties</filter>
     </filters>
     
     <!-- prevent some resources from getting into war -->

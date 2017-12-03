@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,8 +41,11 @@ public class MolecularDataServiceImpl implements MolecularDataService {
         throws MolecularProfileNotFoundException {
         
         validateMolecularProfile(molecularProfileId);
-        return fetchMolecularData(molecularProfileId, sampleListRepository.getAllSampleIdsInSampleList(sampleListId), 
-            entrezGeneIds, projection);
+        List<String> sampleIds = sampleListRepository.getAllSampleIdsInSampleList(sampleListId);
+        if (sampleIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return fetchMolecularData(molecularProfileId, sampleIds, entrezGeneIds, projection);
     }
 
     @Override

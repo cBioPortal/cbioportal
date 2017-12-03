@@ -451,6 +451,7 @@
                   <excludes>
                     <exclude>**/portal.properties.*</exclude>
                     <exclude>**/log4j.properties.*</exclude>
+                    <exclude>**/maven.properties.*</exclude>
                     <exclude>**/*.EXAMPLE</exclude>
                   </excludes>
                 </resource>
@@ -474,6 +475,7 @@
         <filtering>true</filtering>
         <includes>
             <include>**/portal.properties</include>
+            <include>**/maven.properties</include>
         </includes>
       </resource>
     </resources>

@@ -525,18 +525,6 @@ public class QueryBuilder extends HttpServlet {
         String studySampleMapString = mapper.writeValueAsString(studySampleMap);
         request.setAttribute("STUDY_SAMPLE_MAP", studySampleMapString);
 
-        ArrayList<DownloadLink> downloadLinkSet = new ArrayList<>();
-
-        for(GeneticProfile profile : geneticProfileMap.values()){
-            String _sampleIdsStr = StringUtils.join(studySampleMap.get(DaoCancerStudy.getCancerStudyByInternalId(profile.getCancerStudyId()).getCancerStudyStableId()), " ");
-            if (_sampleIdsStr != null && _sampleIdsStr.length() != 0) {
-                GetProfileData remoteCall =
-                    new GetProfileData(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), _sampleIdsStr);
-                DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), sampleIdsStr,
-                    remoteCall.getRawContent());
-                downloadLinkSet.add(downloadLink);
-            }
-        }
         // retrieve information about the cancer types
         List<String> samples = new ArrayList<>();
         for (List<String> samplesList : studySampleMap.values()) {
@@ -552,7 +540,6 @@ public class QueryBuilder extends HttpServlet {
         }
         request.setAttribute(HAS_CANCER_TYPES, showCancerTypesSummary);
 
-        request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
         String tabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
         if (tabIndex != null && tabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
             HashSet<String> geneticProfileIds = new HashSet<String>(geneticProfileMap.keySet());
@@ -568,6 +555,20 @@ public class QueryBuilder extends HttpServlet {
                 getServletContext().getRequestDispatcher("/WEB-INF/jsp/visualize.jsp");
             dispatcher.forward(request, response);
         } else if (tabIndex != null && tabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {
+            // include downloadable data in session
+            ArrayList<DownloadLink> downloadLinkSet = new ArrayList<>();
+            for(GeneticProfile profile : geneticProfileMap.values()){
+                String _sampleIdsStr = StringUtils.join(studySampleMap.get(DaoCancerStudy.getCancerStudyByInternalId(profile.getCancerStudyId()).getCancerStudyStableId()), " ");
+                if (_sampleIdsStr != null && _sampleIdsStr.length() != 0) {
+                    GetProfileData remoteCall =
+                        new GetProfileData(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), _sampleIdsStr);
+                    DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), sampleIdsStr,
+                        remoteCall.getRawContent());
+                    downloadLinkSet.add(downloadLink);
+                }
+            }
+            request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
+
             ShowData.showDataAtSpecifiedIndex(servletContext, request,
                 response, 0, xdebug);
         }

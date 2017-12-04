@@ -99,6 +99,7 @@
     <build>
       <filters>
         <filter>../../src/main/resources/portal.properties</filter>
+        <filter>../../src/main/resources/maven.properties</filter>
       </filters>
       <resources>
         <resource>

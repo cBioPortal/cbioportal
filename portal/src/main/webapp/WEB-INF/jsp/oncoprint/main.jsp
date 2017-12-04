@@ -43,14 +43,12 @@
     var showBinaryCustomDriverAnnotation = "<%=(boolean) GlobalProperties.showBinaryCustomDriverAnnotation()%>";
     var showTiersCustomDriverAnnotation = "<%=(boolean) GlobalProperties.showTiersCustomDriverAnnotation()%>";
     
-    //var hasDriverAnnotations = "<%=(boolean) DaoMutation.hasDriverAnnotations(request.getParameter(QueryBuilder.CANCER_STUDY_ID))%>" === "true";
-    //var customDriverTiers = "<%=String.join(",", DaoMutation.getTiers(request.getParameter(QueryBuilder.CANCER_STUDY_ID)))%>".split(",");
     window.onReactAppReady(function() {
         window.renderOncoprint($("#oncoprint")[0], {
             divId:"oncoprint-inner",
             customDriverMetadata: {
-                hasDriverAnnotations: false, //hasDriverAnnotations,
-                customDriverTiers: []//customDriverTiers
+                hasDriverAnnotations: false,
+                customDriverTiers: []
             }
         });
     });

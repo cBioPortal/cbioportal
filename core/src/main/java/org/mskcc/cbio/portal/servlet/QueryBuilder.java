@@ -47,6 +47,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import javax.servlet.*;
@@ -452,19 +453,30 @@ public class QueryBuilder extends HttpServlet {
             if (sampleSetId.equals("-1") && sampleIdsStr != null && sampleIdsStr.length() > 0) { //using user customized case list
                 studySampleMap = parseCaseIdsTextBoxStr(sampleIdsStr);
             } else { // using all cases (default)
-                for (String _cancerStudyId : inputStudySampleMap.keySet()) {
-                    ArrayList<SampleList> sampleSetList = GetSampleLists.getSampleLists(_cancerStudyId);
+                final Map<String,List<String>> studySampleMapConcurrent = new ConcurrentHashMap<>();
+
+                inputStudySampleMap.keySet().parallelStream().forEach((String _cancerStudyId) -> {
+                    ArrayList<SampleList> sampleSetList;
+
+					try {
+						sampleSetList = GetSampleLists.getSampleLists(_cancerStudyId);
+					} catch (DaoException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+
                     AnnotatedSampleSets annotatedSampleSets = new AnnotatedSampleSets(sampleSetList, dataTypePriority);
                     SampleList defaultSampleSet = annotatedSampleSets.getDefaultSampleList();
                     if (defaultSampleSet == null) {
-                        continue;
+                        return;
                     }
                     List<String> sampleList = defaultSampleSet.getSampleList();
                     if(inputStudySampleMap.get(_cancerStudyId).size()>0){
                         sampleList.retainAll(inputStudySampleMap.get(_cancerStudyId));
                     }
-                    studySampleMap.put(_cancerStudyId, sampleList);
-                }
+                    studySampleMapConcurrent.put(_cancerStudyId, sampleList);
+                });
+                studySampleMap = studySampleMapConcurrent;
             }
         }
 

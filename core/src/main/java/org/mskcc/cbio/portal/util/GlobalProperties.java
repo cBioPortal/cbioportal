@@ -1067,7 +1067,7 @@ public class GlobalProperties {
     {
         String result = new String();
 
-        if (fileName == null) {
+        if (fileName == null || fileName.trim().equals("")) {
             result = null;
         } else {
             try {

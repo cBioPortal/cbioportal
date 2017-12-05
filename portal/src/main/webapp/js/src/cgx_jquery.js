@@ -147,7 +147,7 @@ our bitly user name and bitly API key (user and key are
 stored in properties file)
  */
 function bitlyURL(fullURL){
-
+    
     /* 
         when testing locally use 127.0.0.1 instead of localhost
         in your browser location bar.

@@ -466,6 +466,7 @@ if (sessionError != null) {  %>
                 clearInterval(tmp);
                 var cc_plots_tab_init = false;
                 if ($("#cc-plots").is(":visible")) {
+                     
                     _cc_plots_gene_list = _cc_plots_gene_list;
                     _.each(window.ccQueriedGenes, function (_gene) {
                         $("#cc_plots_gene_list").append(

@@ -34,15 +34,8 @@
 <%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
 
-<script type="text/javascript" src="js/src/modifyQuery.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
 <script>
 window.loadReactApp({ defaultRoute: 'results' });
-
-window.onReactAppReady(function() {
-    window.initModifyQueryComponent("modifyQueryButton", "querySelector");
-});
-    
 </script>
 
 <div id="reactRoot" class="hidden"></div>
@@ -61,20 +54,10 @@ window.onReactAppReady(function() {
 </script>
 <% } // end if isPost and we have session service running %>
 
-<div class='main_smry'>
-    <div id='main_smry_stat_div'></div>
-    <div id='main_smry_info_div'>
-        <table>
-            <tr>
-                <td>
-                    <button id="modifyQueryButton" class="btn btn-primary" style="display: none;">Modify Query</button>
-                </td>
-                <td><div id='main_smry_query_div' style='padding-left: 5px;'></div></td>
-            </tr>
-        </table>
+    <div class='main_smry cbioportal-frontend'>
+        <div id='main_smry_info_div'></div>
+        <div id="querySelector" style="margin-top: 10px"></div>
     </div>
-    <div id="querySelector" class="cbioportal-frontend" style="margin-top: 10px"></div>
-</div>
 
 <div id="tabs">
     <ul>
@@ -271,7 +254,7 @@ window.onReactAppReady(function() {
             <% //contents of fingerprint.jsp now come from attribute on request object %>
             <%@ include file="oncoprint/main.jsp" %>
         </div>
-
+        
         <!-- if showCancerTypes is true, include cancer_types_summary.jsp -->
             <% if(showCancerTypesSummary) { %>
         <%@ include file="pancancer_study_summary.jsp"%>
@@ -509,7 +492,7 @@ window.onReactAppReady(function() {
         );
 
         //Move code related to expression tab from cross_cancer_results.jsp to here
-        window.ccQueriedGenes = window.QuerySession.getOQLQuery().match(/\S+/g) || [];
+        window.ccQueriedGenes = window.serverVars.theQuery.match(/\S+/g) || [];
         
         var _cc_plots_gene_list = "";
         var tmp = setInterval(function () {timer();}, 1000);
@@ -518,6 +501,7 @@ window.onReactAppReady(function() {
                 clearInterval(tmp);
                 var cc_plots_tab_init = false;
                 if ($("#cc-plots").is(":visible")) {
+                 
                     _cc_plots_gene_list = _cc_plots_gene_list;
                     _.each(window.ccQueriedGenes, function (_gene) {
                         $("#cc_plots_gene_list").append(
@@ -531,6 +515,7 @@ window.onReactAppReady(function() {
                 }
                 $("#tabs").bind("tabsactivate", function(event, ui) {
                     if (ui.newTab.text().trim().toLowerCase() === "expression") {
+                        window.fireQuerySession();
                         if (cc_plots_tab_init === false) {
                             _cc_plots_gene_list = _cc_plots_gene_list;
                             _.each(window.ccQueriedGenes, function (_gene) {

@@ -131,12 +131,42 @@
 <!-- Global variables : basic information about the main query -->
 <script type="text/javascript">
 
+    // these are new
+    
+    window.serverVars = {
+    
+        molecularProfiles : '<%=geneticProfiles%>'.trim().split(/\s+/),
+        caseSetProperties :  {
+                case_set_id: '<%=sampleSetId%>',
+                case_ids_key: '<%=sampleIdsKey%>',
+                case_set_name: '<%=sampleSetName%>',
+                case_set_description: '<%=sampleSetDescription%>'
+            },
+            
+
+        zScoreThreshold:parseFloat('<%=zScoreThreshold%>'),
+        rppaScoreThreshold:parseFloat('<%=rppaScoreThreshold%>'),
+        
+        theQuery : '<%=oql%>'.trim(),
+        studySampleObj : JSON.parse('<%=studySampleMapJson%>')
+       	
+    };
+    
+    window.serverVars.studySampleListMap = (function(){
+                                      var ret = {};
+                                      ret[Object.keys(window.serverVars.studySampleObj)[0]] = window.serverVars.caseSetProperties.case_set_id;
+                                      return ret;
+                                  })();
+                                  
+                                    
+    window.serverVars.cancerStudies = Object.keys(window.serverVars.studySampleObj);
+    
     var patientSampleIdMap = {};
     window.PortalGlobals = {
         setPatientSampleIdMap: function(_patientSampleIdMap) {patientSampleIdMap = _patientSampleIdMap;},
     };
 
-    (function setUpQuerySession() {
+    function setUpQuerySession() {
         var oql_html_conversion_vessel = document.createElement("div");
         oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
         var converted_oql = oql_html_conversion_vessel.textContent.trim();
@@ -161,174 +191,19 @@
                                                             <%=GlobalProperties.showTiersCustomDriverAnnotation()%>,
                                                             <%=GlobalProperties.enableTiers()%>,
                                                             <%=GlobalProperties.hidePassengerMutations()%>);
-    })();
-
-
-</script>
-
-<script>
-
-    $(document).ready(function() {
-        var getCohortName = function(){
-            var def = new $.Deferred();
-            if (window.isVirtualStudy) {
-                if (window.cohortIdsList.length === 1) {
-                    $.ajax({
-                        method: 'GET',
-                        url: 'api-legacy/proxy/session-service/virtual_study/' + window.cohortIdsList[0]
-                    }).done(function(response){
-                        response = JSON.parse(response);
-                        def.resolve(response['data']['name']);
-                    }).fail(function () {
-                        def.resolve('');
-                    });                    
-                } else {
-                    def.resolve('');
-                }
-            } else {
-                window.QuerySession.getCancerStudyNames().then(function (_studies) {
-                    def.resolve(_studies[0]);
-                }).fail(function () {
-                    def.resolve('');
-                });
-            }
-            return def.promise();
+    };
+    
+    var QuerySession_initialized = false
+    fireQuerySession = function(){
+        if (QuerySession_initialized === false) {
+                setUpQuerySession();
+                QuerySession_initialized = true;
         }
-        
-        window.goToStudySummary = function() {
-            // try to use formSubmit, it exists if the new frontend code has been loaded
-            // if not, just navigate in the standard way
-            var cohortsParam = window.cohortIdsList.join(",");
-            if (window.formSubmit) {
-                window.formSubmit("study", {id:cohortsParam}, "_blank", (cohortsParam.length > 1800 ? "post" : "get"));
-            } else {
-                window.open("study?id="+cohortsParam, "_blank");
-            }
-        };
-
-        $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getStudyPatientMap(), getCohortName()).then(function(altered_samples, studyPatientMap, studyName) {
-
-            // alteration statistics summary line to the right     
-            var sampleLength = 0;
-            var sample_ids = window.QuerySession.getSampleIds();
-            var altered_samples_percentage = (100 * altered_samples.length / sample_ids.length).toFixed(1);
-            $.each(window.QuerySession.getStudySampleMap(), function(studyId,cases){
-                sampleLength += cases.length;
-            })
-            var patientLength = 0;
-            $.each(studyPatientMap, function(studyId, cases) {
-                patientLength += cases.length;
-            })
-            var altered_samples_percentage = (100 * altered_samples.length / sampleLength).toFixed(1);
-            var _stat_smry = "<h3 style='color:#686868;font-size:14px;'>Gene Set / Pathway is altered in <b>" + altered_samples.length + " (" + altered_samples_percentage + "%)" + "</b> of queried samples</h3>";
-            $("#main_smry_stat_div").append(_stat_smry);
-
-            // Query summary line to the left
-            var cohortDisplayName = studyName || "";
-            var _query_smry = "<div><a onclick='goToStudySummary()' class='name'></a><br>" +
-                "<span class='description'></span><br></div>";
-            $("#main_smry_query_div").append(_query_smry);
-
-            if (_.isArray(cohortIdsList) && cohortIdsList.length > 1) {
-                window.cbioportal_client.getStudies({study_ids: cohortIdsList})
-                    .done(function(studies) {
-                        cbio.util.showCombinedStudyNameAndDescription('#main_smry_query_div .name', '#main_smry_query_div .description', studies, cohortDisplayName, '');
-                    });
-            } else {
-                $("#main_smry_query_div .name").html(cohortDisplayName);
-                $("#main_smry_query_div .description").html(window.QuerySession.getSampleSetName() + " (<b>" + sample_ids.length + "</b> samples)" + " / "
-                    + "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length === 1 ? "" : "s"));
-            }
-
-            // "Modify Query" button
-            var _tmpVCinserted = false; // flag to indicate if tmp VC is inserted to jsTree
-            var _modify_query_btn = "<button type='button' class='btn btn-primary' data-toggle='button' id='modify_query_btn'>Modify Query</button>";
-            $("#main_smry_modify_query_btn").append(_modify_query_btn);
-            $("#modify_query_btn").click(function () {
-                $("#query_form_on_results_page").toggle();
-                if($("#modify_query_btn").hasClass("active")) {
-                    $("#modify_query_btn").removeClass("active");
-                } else {
-                    $("#modify_query_btn").addClass("active");
-                }
-                //_setJsTreeSelection();
-                if (window.cohortIdsList.length === 1 && window.isVirtualStudy) { // check if this is a temporary cohort
-                    var _vcs = JSON.parse(localStorage.getItem('virtual-cohorts'));
-                    var _vcIds = _.pluck(_vcs, 'virtualCohortID');
-                    if (!_.contains(_vcIds, window.cohortIdsList[0])) { // is temporary cohort
-                        // insert node for temporary cohort and set selection
-                        if (!_tmpVCinserted) {
-                            var _treeLoadTimer = setInterval(inspectTree, 1000);
-                            function inspectTree() {
-                                var _elem = document.getElementsByClassName('jstree');
-                                if (_elem.length > 0) {
-                                    clearInterval(_treeLoadTimer);
-                                    if ($("#virtual-study-group").length === 0) {
-                                        $("#jstree").jstree().create_node($("#tissue_anchor"), {id: "virtual-study-group", text: "Virtual Study"}, "inside", null);
-                                    }
-                                    $('#jstree').jstree().create_node($("#virtual-study-group"), {
-                                        'id': window.cohortIdsList[0],
-                                        'text': studyName,
-                                        'li_attr': { description: "Temporary cohort from previous selection" }
-                                    }, "last", null);
-                                    $("#jstree").jstree("select_node", "#" + window.cohortIdsList[0]);
-                                    _tmpVCinserted = true;
-                                }
-                            }
-                        }
-                    }
-                }
-                _setJsTreeSelection();
-            });
-
-            function _setJsTreeSelection() {
-                var _timer = setInterval(inspectTreeSel, 1000);
-                function inspectTreeSel() {
-                    if (document.querySelector(".jstree-clicked") !== null) {
-                        var _elems = document.getElementsByClassName('jstree-clicked');
-                        if (_elems.length > 0) {
-                            clearInterval(_timer);
-                            _.each(window.cohortIdsList, function(_cid) {
-                                $("#jstree").jstree("select_node", "#" + _cid);
-                            });
-                            var treeDiv = document.getElementById('jstree');
-                            var topPos = _elems[0].offsetTop;
-                            var originalPos = treeDiv.offsetTop;
-                            treeDiv.scrollTop = topPos - originalPos;
-                        }
-                    }
-                }
-            }
-
-            $("#toggle_query_form").click(function(event) {
-                event.preventDefault();
-                $('#query_form_on_results_page').toggle();
-                //  Toggle the icons
-                $(".query-toggle").toggle();
-            });
-
-            //Oncoprint summary lines
-            $("#oncoprint_sample_set_description").append("Case Set: " + window.QuerySession.getSampleSetName()
-                + " "
-                + "("+patientLength + " patients / " + sampleLength + " samples)");
-            $("#oncoprint_sample_set_name").append("Case Set: "+ window.QuerySession.getSampleSetName());
-            if (patientLength !== sampleLength) {
-                $("#switchPatientSample").css("display", "inline-block");
-            }
-
-        });
-
-        $("#toggle_query_form").click(function(event) {
-            event.preventDefault();
-            $('#query_form_on_results_page').toggle();
-            //  Toggle the icons
-            $(".query-toggle").toggle();
-        });
-    });
+    }
+    
 
 
 </script>
-
 
 <%!
     public int countProfiles (ArrayList<GeneticProfile> profileList, GeneticAlterationType type) {

@@ -27,6 +27,7 @@ skin.documentation.markdown=true
 skin.documentation.faq=FAQ.md
 skin.documentation.about=About-Us.md
 skin.documentation.skin.news=News.md
+skin.documentation.oql=Onco-Query-Language.md
 
 # setting controlling the logos
 skin.right_logo=

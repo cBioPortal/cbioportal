@@ -197,6 +197,8 @@ public class GlobalProperties {
     public static final String DEFAULT_SKIN_ABOUT="About-Us.md";
     public static final String SKIN_NEWS="skin.documentation.news";
     public static final String DEFAULT_SKIN_NEWS="News.md";
+    public static final String SKIN_OQL="skin.documentation.oql";
+    public static final String DEFAULT_SKIN_OQL="Onco-Query-Language.md";
 
     public static final String SKIN_EXAMPLES_RIGHT_COLUMN_HTML="skin.examples_right_column_html";
     
@@ -463,6 +465,12 @@ public class GlobalProperties {
     {
         String newsHtml = properties.getProperty(SKIN_NEWS);
         return (newsHtml == null) ? DEFAULT_SKIN_NEWS : getContentString(newsHtml);
+    }
+    
+    public static String getOqlHtml()
+    {
+        String oqlHtml = properties.getProperty(SKIN_OQL);
+        return (oqlHtml == null) ? DEFAULT_SKIN_OQL : getContentString(oqlHtml);
     }
     // get custom News html or the default
     public static String getBaseUrl()

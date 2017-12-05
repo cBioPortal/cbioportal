@@ -29,8 +29,12 @@
  - You should have received a copy of the GNU Affero General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
+
 <div class='section cbioportal-frontend' id='mutation_details'>
-    <img src='images/ajax-loader.gif' alt='loading'/>
+    <jsp:include page="global/no_oql_warning.jsp" flush="true" />
+    <div id="mutation_details_inner">
+        <img src='images/ajax-loader.gif' alt='loading'/>
+    </div>
 </div>
 
 <script type="text/javascript">
@@ -70,7 +74,7 @@
                     }
                 }
                 props.samplesSpecification = samplesSpecification;
-                window.renderMutationsTab(mutationsTab[0], props);
+                window.renderMutationsTab(mutationsTab.find('#mutation_details_inner')[0], props);
                 return true;
             }
             return false;

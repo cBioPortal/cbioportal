@@ -159,9 +159,16 @@
         margin-top: -30px;
         float: right;
     }
+    #plots .no-oql-warning {
+        margin-left: 10px;
+        margin-top: 10px;
+    }
 </style>
 
 <div class="section" id="plots">
+    <div class="no-oql-warning">
+        <jsp:include page="global/no_oql_warning.jsp" flush="true" />
+    </div>
     <table>
         <tr>
             <td>

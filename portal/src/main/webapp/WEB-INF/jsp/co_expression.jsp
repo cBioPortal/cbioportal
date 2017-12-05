@@ -91,6 +91,7 @@
 </style>
 
 <div class="section" id="coexp">
+    <jsp:include page="global/no_oql_warning.jsp" flush="true" />
     <p>
         <div id='coexp-profile-selector-dropdown' style="margin-top:10px;"></div>
         This table lists the genes with the highest expression correlation with the query genes. Click on a row to see the corresponding correlation plot. 

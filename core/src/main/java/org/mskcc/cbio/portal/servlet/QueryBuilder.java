@@ -261,8 +261,7 @@ public class QueryBuilder extends HttpServlet {
 			        
 			    		//single regular study
 			        if(cancerStudy != null) {
-			        		httpServletRequest.setAttribute(CANCER_STUDY_ID, cancerStudy.getCancerStudyStableId());
-			        		httpServletRequest.setAttribute(CANCER_STUDY_LIST, null);
+			        		cancerStudyList = null;
 			        		if(addProfiles) {
 			        			cancerStudy.getGeneticProfiles();
 			        			geneticProfileIdSet = new HashSet<String>();
@@ -281,13 +280,11 @@ public class QueryBuilder extends HttpServlet {
 			        else {
 			        		_isVirtualStudy = true;
 			        		if (cancerStudyId != null && !cancerStudyId.equals("all")) {
-			        			httpServletRequest.setAttribute(CANCER_STUDY_ID, cancerStudyId);
-			        			httpServletRequest.setAttribute(CANCER_STUDY_LIST, null);
+			        			cancerStudyList = null;
 			        		} else {
 			        			if ((cancerStudyId == null || cancerStudyId.equals("all")) 
 			        			&& (cancerStudyList!= null && !cancerStudyList.equals("all"))) {
-			        				httpServletRequest.setAttribute(CANCER_STUDY_ID, "all");
-		                			httpServletRequest.setAttribute(CANCER_STUDY_LIST, cancerStudyList);
+			        				cancerStudyId = "all";
 			        			}
 			        		}
 			            
@@ -300,16 +297,16 @@ public class QueryBuilder extends HttpServlet {
 			        }
 	            }
             }
-            
-            if(httpServletRequest.getAttribute(CANCER_STUDY_ID) != null) {
+            httpServletRequest.setAttribute(CANCER_STUDY_ID, cancerStudyId);
+            httpServletRequest.setAttribute(CANCER_STUDY_LIST, cancerStudyList);
+			
+            if(cancerStudyId != null) {
             		CohortDetails cohortDetails;
-                if (httpServletRequest.getParameter(CANCER_STUDY_ID).equals("all")) { // multiple studies
-                    cohortDetails = new CohortDetails(
-                        httpServletRequest.getParameter(CANCER_STUDY_LIST).split(","), _isVirtualStudy
-                    );
+                if (cancerStudyId.equals("all") 
+                		&& cancerStudyList != null) { // multiple studies
+                    cohortDetails = new CohortDetails(cancerStudyList.split(","), _isVirtualStudy);
                 } else { // single study (can be VC here)
-                    cohortDetails = new CohortDetails(
-                        new String[]{httpServletRequest.getParameter(CANCER_STUDY_ID)}, _isVirtualStudy);
+                    cohortDetails = new CohortDetails(new String[]{cancerStudyId}, _isVirtualStudy);
                 }
                 
                 errorsExist = errorsExist || cohortDetails.getUnKnownStudies().size() > 0;

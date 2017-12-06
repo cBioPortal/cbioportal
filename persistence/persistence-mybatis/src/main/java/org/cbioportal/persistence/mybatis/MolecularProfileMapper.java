@@ -14,6 +14,8 @@ public interface MolecularProfileMapper {
 
     MolecularProfile getMolecularProfile(String molecularProfileId, String projection);
 
+    List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection);
+
 	List<MolecularProfile> getMolecularProfilesReferredBy(String referringMolecularProfileId, String projection);
 
 	List<MolecularProfile> getMolecularProfilesReferringTo(String referredMolecularProfileId, String projection);

@@ -300,8 +300,7 @@ public class QueryBuilder extends HttpServlet {
 	            }
             }
             
-            if(httpServletRequest.getParameter(CANCER_STUDY_ID) != null
-            		&& httpServletRequest.getParameter(CANCER_STUDY_LIST) != null) {
+            if(httpServletRequest.getAttribute(CANCER_STUDY_ID) != null) {
             		CohortDetails cohortDetails;
                 if (httpServletRequest.getParameter(CANCER_STUDY_ID).equals("all")) { // multiple studies
                     cohortDetails = new CohortDetails(

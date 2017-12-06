@@ -4,8 +4,17 @@ import java.io.Serializable;
 
 public class GeneMolecularAlteration extends MolecularAlteration implements Serializable {
     
+    private String molecularProfileId;
     private Integer entrezGeneId;
     private Gene gene;
+
+	public String getMolecularProfileId() {
+		return molecularProfileId;
+	}
+
+	public void setMolecularProfileId(String molecularProfileId) {
+		this.molecularProfileId = molecularProfileId;
+	}
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;

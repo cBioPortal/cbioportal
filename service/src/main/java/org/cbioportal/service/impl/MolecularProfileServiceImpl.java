@@ -49,6 +49,13 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
+	public List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection) {
+        
+        return molecularProfileRepository.getMolecularProfiles(molecularProfileIds, projection);
+	}
+
+    @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<MolecularProfile> getAllMolecularProfilesInStudy(String studyId, String projection, Integer pageSize,
                                                                  Integer pageNumber, String sortBy, String direction) 

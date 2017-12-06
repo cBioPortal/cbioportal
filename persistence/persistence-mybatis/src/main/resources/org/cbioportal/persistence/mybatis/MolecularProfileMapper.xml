@@ -65,6 +65,23 @@
         INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         WHERE genetic_profile.STABLE_ID = #{molecularProfileId}
     </select>
+
+    <select id="getMolecularProfiles" resultType="org.cbioportal.model.MolecularProfile">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM genetic_profile
+        INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <where>
+            <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
+                genetic_profile.STABLE_ID IN
+                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
     
     <select id="getMolecularProfilesReferredBy" resultType="org.cbioportal.model.MolecularProfile">
         SELECT

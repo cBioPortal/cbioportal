@@ -23,4 +23,11 @@ public interface MolecularDataService {
         throws MolecularProfileNotFoundException;
     
     Integer getNumberOfSamplesInMolecularProfile(String molecularProfileId);
+
+    List<GeneMolecularData> getMolecularDataInMultipleMolecularProfiles(List<String> molecularProfileIds, 
+                                                                        List<String> sampleIds, List<Integer> entrezGeneIds, 
+                                                                        String projection);
+
+	BaseMeta getMetaMolecularDataInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
+		                                                     List<Integer> entrezGeneIds);
 }

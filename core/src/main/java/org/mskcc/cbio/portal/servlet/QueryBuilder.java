@@ -300,12 +300,10 @@ public class QueryBuilder extends HttpServlet {
 			        }
 	            }
             }
-
-            // Dispatch to query result page
-            if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
-                CohortDetails cohortDetails;
-                if (httpServletRequest.getParameter(CANCER_STUDY_ID).equals("all") &&
-                    httpServletRequest.getParameter(CANCER_STUDY_LIST) != null) { // multiple studies
+            
+            if(httpServletRequest.getAttribute(CANCER_STUDY_ID) != null) {
+            		CohortDetails cohortDetails;
+                if (httpServletRequest.getParameter(CANCER_STUDY_ID).equals("all")) { // multiple studies
                     cohortDetails = new CohortDetails(
                         httpServletRequest.getParameter(CANCER_STUDY_LIST).split(","), _isVirtualStudy
                     );
@@ -313,20 +311,30 @@ public class QueryBuilder extends HttpServlet {
                     cohortDetails = new CohortDetails(
                         new String[]{httpServletRequest.getParameter(CANCER_STUDY_ID)}, _isVirtualStudy);
                 }
-                processData(cohortDetails, geneList, geneticProfileIdSet,
-                    httpServletRequest.getParameter(CASE_SET_ID),
-                    httpServletRequest.getParameter(CASE_IDS_KEY),
-                    httpServletRequest.getParameter(CASE_IDS),
-                    dataTypePriority, getServletContext(),
-                    httpServletRequest, httpServletResponse, xdebug);
-                // Dispatch to home page (main query form)
-            } else {
-                if (errorsExist) {
-                    httpServletRequest.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "Please fix the errors below.");
+                
+                errorsExist = errorsExist || cohortDetails.getUnKnownStudies().size() > 0;
+                // Dispatch to query result page
+                if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
+                    processData(cohortDetails, geneList, geneticProfileIdSet,
+                        httpServletRequest.getParameter(CASE_SET_ID),
+                        httpServletRequest.getParameter(CASE_IDS_KEY),
+                        httpServletRequest.getParameter(CASE_IDS),
+                        dataTypePriority, getServletContext(),
+                        httpServletRequest, httpServletResponse, xdebug);
+                    // Dispatch to home page (main query form)
+                } else {
+                    if (errorsExist) {
+                        httpServletRequest.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "Please fix the errors below.");
+                    }
+                    RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
+                    dispatcher.forward(httpServletRequest, httpServletResponse);
                 }
-                RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
-                dispatcher.forward(httpServletRequest, httpServletResponse);
+            } else {
+            	 	RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
+                 dispatcher.forward(httpServletRequest, httpServletResponse);
             }
+            
+
 
         } catch (RemoteException e) {
             xdebug.logMsg(this, "Got Remote Exception:  " + e.getMessage());
@@ -622,7 +630,7 @@ public class QueryBuilder extends HttpServlet {
     private boolean validateForm(String action, CohortDetails cohortDetails,
                                  HashSet<String> geneticProfileIdSet,
                                  String sampleSetId, String sampleIds,
-                                 HttpServletRequest httpServletRequest) throws DaoException, ProtocolException {
+                                 HttpServletRequest httpServletRequest) throws DaoException {
         boolean errorsExist = false;
         String tabIndex = httpServletRequest.getParameter(QueryBuilder.TAB_INDEX);
         if (action != null) {
@@ -727,6 +735,8 @@ class CohortDetails {
     private Map<String, Set<String>> studySampleMap = new HashMap<>(); // <cancer study Id: set of samples>
     private String cohortId;
     private Boolean isVirtualStudy = false;
+    
+    private Set<String> unKnownStudies = new HashSet<>();
 
     public CohortDetails(String[] inputCohortIds, Boolean _isVirtualStudy) {
         isVirtualStudy = _isVirtualStudy;
@@ -755,6 +765,8 @@ class CohortDetails {
                                 studySampleMap.put(cohortStudyCasesMap.getId(), cohortStudyCasesMap.getSamples());
                             }
                         }
+                    } else {
+                    		unKnownStudies.add(inputCohortId);
                     }
                     // is regular study
                 } else {
@@ -767,7 +779,7 @@ class CohortDetails {
         return studySampleMap;
     }
 
-    private static Set<String> mergeSets(Set<String> a, Set<String> b) {
+    private Set<String> mergeSets(Set<String> a, Set<String> b) {
         Set<String> resultSet = new HashSet<String>(a.size() + b.size());
         for (String i : a) { resultSet.add(i); }
         for (String i : b) { resultSet.add(i); }
@@ -780,6 +792,8 @@ class CohortDetails {
             try {
                 if (SpringUtil.getAccessControl().isAccessibleCancerStudy(studyId).size() > 0) {
                     resultMap.put(studyId, studySampleMap.get(studyId));
+                } else {
+                		unKnownStudies.add(studyId);
                 }
             } catch (DaoException e) {
                 return new HashMap<>();
@@ -812,5 +826,13 @@ class CohortDetails {
     public void setIsVirtualStudy(Boolean _isVirtualStudy) {
         this.isVirtualStudy = _isVirtualStudy;
     }
+
+	public Set<String> getUnKnownStudies() {
+		return unKnownStudies;
+	}
+
+	public void setUnKnownStudies(Set<String> unKnownStudies) {
+		this.unKnownStudies = unKnownStudies;
+	}
 
 }

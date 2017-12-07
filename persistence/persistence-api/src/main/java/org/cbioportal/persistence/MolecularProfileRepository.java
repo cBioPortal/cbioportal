@@ -14,6 +14,8 @@ public interface MolecularProfileRepository {
 
     MolecularProfile getMolecularProfile(String molecularProfileId);
 
+    List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection);
+
     List<MolecularProfile> getAllMolecularProfilesInStudy(String studyId, String projection, Integer pageSize,
                                                           Integer pageNumber, String sortBy, String direction);
 

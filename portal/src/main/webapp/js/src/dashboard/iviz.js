@@ -7926,8 +7926,10 @@ window.LogRankTest = (function(jStat) {
         }
       },
       'gene-list-updated': function(genes) {
-        genes = $.extend(true, [], genes);
-        this.chartInst.updateGenes(genes);
+        if(this.isMutatedGeneCna) {
+          genes = $.extend(true, [], genes);
+          this.chartInst.updateGenes(genes);
+        }
       },
       'update-special-charts': function() {
         // Do not update chart if the selection is made on itself

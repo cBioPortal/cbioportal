@@ -257,17 +257,17 @@ public class ImportCaisesClinicalXML extends ConsoleRunnable {
         
         node = patientNode.selectSingleNode("ClinicalStages/ClinicalStage/ClinStageT");
         if (node!=null) {
-            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "CLIN_T_Stage", node.getText()));
+            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "CLIN_T_STAGE", node.getText()));
         }
         
         node = patientNode.selectSingleNode("ClinicalStages/ClinicalStage/ClinStageN");
         if (node!=null) {
-            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "CLIN_N_Stage", node.getText()));
+            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "CLIN_N_STAGE", node.getText()));
         }
         
         node = patientNode.selectSingleNode("ClinicalStages/ClinicalStage/ClinStageM");
         if (node!=null) {
-            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "CLIN_M_Stage", node.getText()));
+            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "CLIN_M_STAGE", node.getText()));
         }
         
         node = patientNode.selectSingleNode("Pathologies/Pathology/PathHistology");

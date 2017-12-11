@@ -45,7 +45,7 @@ $(document).ready(function(){
 function setUpTabs() {
      // generate tabs for results page; set cookies to preserve
     // state of tabs when user navigates away from page and back
-     var summaryIsDefault = (window.isVirtualStudy && QuerySession.getQueryGenes().length === 1);
+     var summaryIsDefault = (window.isVirtualStudy && window.oql_parser.parse(serverVars.theQuery).length === 1);
      var activeIndex = summaryIsDefault ? 1 : 0;
      $('#tabs').tabs({ active:activeIndex});
      $('#tabs').show();

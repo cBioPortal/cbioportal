@@ -63,32 +63,8 @@
 <%@ page import="org.mskcc.cbio.portal.util.*" %>
 <%@ page import="org.mskcc.cbio.portal.dao.DaoMutation" %>
 
+<%@include file="server_vars.jsp"%>
 <%
-    //Security Instance
-    ServletXssUtil xssUtil = ServletXssUtil.getInstance();
-
-    //Info about Genetic Profiles
-    HashSet<String> geneticProfileIdSet = (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS);
-    String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
-    geneticProfiles = xssUtil.getCleanerInput(geneticProfiles.trim());
-
-    //Info about threshold settings
-    double zScoreThreshold = Double.parseDouble(String.valueOf(request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD)));
-    double rppaScoreThreshold = Double.parseDouble(String.valueOf(request.getAttribute(QueryBuilder.RPPA_SCORE_THRESHOLD)));
-
-    //Onco Query Language Parser Instance
-    String oql = request.getParameter(QueryBuilder.GENE_LIST);
-    if (request instanceof XssRequestWrapper) {
-        oql = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
-    }
-    oql = xssUtil.getCleanerInput(oql);
-
-    String studySampleMapJson = (String)request.getAttribute("STUDY_SAMPLE_MAP");
-    String sampleSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
-    String sampleSetName = request.getAttribute("case_set_name") != null ? (String) request.getAttribute("case_set_name") : "User-defined Patient List";
-    String sampleSetDescription = request.getAttribute("case_set_description") != null ? (String) request.getAttribute("case_set_description") : "User-defined Patient List.";
-    String sampleIdsKey = request.getAttribute(QueryBuilder.CASE_IDS_KEY) != null ? (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY) : "";
-
     Boolean showIGVtab = (Boolean) request.getAttribute("showIGVtab");
     Boolean has_mrna = (Boolean) request.getAttribute("hasMrna");
     Boolean has_methylation = (Boolean) request.getAttribute("hasMethylation");
@@ -106,9 +82,6 @@
     String siteTitle = GlobalProperties.getTitle();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
-
-    sampleSetName = sampleSetName.replaceAll("'", "\\'");
-    sampleSetName = sampleSetName.replaceAll("\"", "\\\"");
 
     //check if show co-expression tab
     if(!isVirtualStudy){
@@ -130,36 +103,6 @@
 
 <!-- Global variables : basic information about the main query -->
 <script type="text/javascript">
-
-    // these are new
-    
-    window.serverVars = {
-    
-        molecularProfiles : '<%=geneticProfiles%>'.trim().split(/\s+/),
-        caseSetProperties :  {
-                case_set_id: '<%=sampleSetId%>',
-                case_ids_key: '<%=sampleIdsKey%>',
-                case_set_name: '<%=sampleSetName%>',
-                case_set_description: '<%=sampleSetDescription%>'
-            },
-            
-
-        zScoreThreshold:parseFloat('<%=zScoreThreshold%>'),
-        rppaScoreThreshold:parseFloat('<%=rppaScoreThreshold%>'),
-        
-        theQuery : '<%=oql%>'.trim(),
-        studySampleObj : JSON.parse('<%=studySampleMapJson%>')
-       	
-    };
-    
-    window.serverVars.studySampleListMap = (function(){
-                                      var ret = {};
-                                      ret[Object.keys(window.serverVars.studySampleObj)[0]] = window.serverVars.caseSetProperties.case_set_id;
-                                      return ret;
-                                  })();
-                                  
-                                    
-    window.serverVars.cancerStudies = Object.keys(window.serverVars.studySampleObj);
     
     var patientSampleIdMap = {};
     window.PortalGlobals = {

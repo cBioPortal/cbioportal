@@ -32,18 +32,10 @@
     
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
-
-<!-- js files: -->
-<script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/underscore-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
-<script type="text/javascript" src="js/lib/showdown.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/showdown-github.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/url_based_content.js?<%=GlobalProperties.getAppVersion()%>"></script>
     
 <%
     String siteTitle = GlobalProperties.getTitle() + "::About Us";
+    String appVersion = GlobalProperties.getAppVersion();
 %>
 
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
@@ -51,6 +43,15 @@
 <t:template title="<%= siteTitle %>" defaultRightColumn="true" fixedWidth="true">
 
     <jsp:attribute name="head_area">
+        
+        <!-- js files: -->
+        <script type="text/javascript" src="js/lib/jquery.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/underscore-min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/backbone-min.js?${appVersion}"></script>
+
+        <script type="text/javascript" src="js/lib/showdown.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/showdown-github.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/src/url_based_content.js?${appVersion}"></script>
         <script>
         window.loadReactApp({ defaultRoute: 'blank' });
         </script>

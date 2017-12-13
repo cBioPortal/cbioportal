@@ -1,4 +1,5 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
 <%@ page import="java.util.HashSet" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>

@@ -37,7 +37,7 @@
 <%@ page import="java.net.URLEncoder" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-
+<%@include file="global/server_vars.jsp" %>
 <%
     String siteTitle = GlobalProperties.getTitle();
 

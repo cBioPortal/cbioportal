@@ -36,9 +36,6 @@
 <%@ page import="java.net.URLEncoder" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<%@include file="global/server_vars.jsp" %>
-    
-
 <%
     String siteTitle = GlobalProperties.getTitle();
 
@@ -62,6 +59,7 @@
 <t:template title="<%=siteTitle%>" cssClass="homePage" defaultRightColumn="true" twoColumn="true" fixedWidth="false">
 
     <jsp:attribute name="head_area">
+        <jsp:include page="global/server_vars.jsp"/>
         <script>
             window.selectedCancerStudyId = '${selectedCancerStudyId}';
             if (window.selectedCancerStudyId === "all") {

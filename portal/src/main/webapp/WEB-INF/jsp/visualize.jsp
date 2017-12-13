@@ -31,6 +31,8 @@
 --%>
 
 
+<jsp:include page="global/legacy_head.jsp" flush="true" />
+
 <%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
 

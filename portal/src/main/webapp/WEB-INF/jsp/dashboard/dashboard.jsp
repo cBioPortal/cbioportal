@@ -54,6 +54,10 @@
         out.print(cancerStudyViewError);
     } else {
 %>
+
+<jsp:include page="../global/legacy_head.jsp" flush="true" />
+
+
 <jsp:include page="../global/header.jsp" flush="true" />
 <span class="studyContainer">
 

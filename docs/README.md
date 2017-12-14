@@ -63,6 +63,4 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 
 ### 5.2 Datasets
 * [Downloads](Downloads.md)
-* [Data Examples](Data-Examples.md)
-* [Public Datasets](Public-datasets.md)
 

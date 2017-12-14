@@ -31,6 +31,8 @@
 
     sampleSetName = sampleSetName.replaceAll("'", "\\'");
     sampleSetName = sampleSetName.replaceAll("\"", "\\\"");
+    
+    Integer dataPriority = (Integer) request.getAttribute(QueryBuilder.DATA_PRIORITY);
 %>
 
 <script type="text/javascript">
@@ -63,6 +65,7 @@
 
         zScoreThreshold:jspToJs('<%=zScoreThreshold%>', parseFloat),
         rppaScoreThreshold:jspToJs('<%=rppaScoreThreshold%>', parseFloat),
+        dataPriority:jspToJs('<%=dataPriority%>', function(d) { return parseInt(d, 10); }),
         
         theQuery: jspToJs('<%=oql%>'.trim()) || "", 
         studySampleObj: jspToJs('<%=studySampleMapJson%>', JSON.parse)

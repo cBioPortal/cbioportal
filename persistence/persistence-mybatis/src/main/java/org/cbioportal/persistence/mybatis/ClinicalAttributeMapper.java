@@ -7,10 +7,10 @@ import java.util.List;
 
 public interface ClinicalAttributeMapper {
 
-    List<ClinicalAttribute> getAllClinicalAttributes(String studyId, String projection, Integer limit, Integer offset,
+    List<ClinicalAttribute> getClinicalAttributes(List<String> studyIds, String projection, Integer limit, Integer offset,
                                               String sortBy, String direction);
 
-    BaseMeta getMetaClinicalAttributes(String studyId);
+    BaseMeta getMetaClinicalAttributes(List<String> studyIds);
 
     ClinicalAttribute getClinicalAttribute(String studyId, String clinicalAttributeId, String projection);
 }

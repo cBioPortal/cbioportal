@@ -1,5 +1,19 @@
 This page describes the main properties within portal.properties.
 
+- [Database Settings](#database-settings)
+- [Segment File URL](#segment-file-url)
+- [Bitly API Username and Key](#bitly-api-username-and-key)
+- [Google Analytics](#google-analytics)
+- [Password Authentication](#password-authentication)
+- [CIViC integration](#civic-integration)
+- [OncoPrint](#oncoprint)
+- [Custom annotation of driver and passenger mutations](#custom-annotation-of-driver-and-passenger-mutations)
+	- [Enabling custom annotations in the OncoPrint](#enabling-custom-annotations-in-the-oncoprint)
+	- [Automatic selection of custom annotations](#automatic-selection-of-custom-annotations)
+	- [Automatic selection of OncoKB annotations](#automatic-selection-of-oncokb-annotations)
+	- [Automatic hiding of putative passenger mutations](#automatic-hiding-of-putative-passenger-mutations)
+- [Gene sets used for gene querying](#gene-sets-used-for-gene-querying)
+
 # Database Settings
 
 ```
@@ -61,6 +75,17 @@ authorization=true
 ```
 app.name should be set to the name of the portal instance referenced in the "AUTHORITY" column of the "AUTHORITIES" table.  See the [User Authorization](User-Authorization.md) for more information.
 
+# CIViC integration
+
+CIViC integration can be turned on or off with the following property (default: true):
+```
+show.civic=true|false
+```
+The CIViC API url is set to https://civic.genome.wustl.edu/api/ by default. It can be overridden using the following property:
+```
+civic.url=
+```
+
 # OncoPrint
 
 The default view in OncoPrint ("patient" or "sample") can be set with the following option. The default is "patient".
@@ -68,45 +93,41 @@ The default view in OncoPrint ("patient" or "sample") can be set with the follow
 oncoprint.defaultview=sample
 ```
 
-## Custom annotation of driver and passenger mutations
-cBioPortal allows for two different formats of custom annotation of driver and passenger mutations in the MAF files (see [file format documentation](File-Formats.md#extending-the-maf-format)). To enable the view of those annotations (just one or all both), you must specify a name for the label(s) that you want to enable (those labels appear in the oncoprint "Mutation color" menu):
+# Custom annotation of driver and passenger mutations
+cBioPortal supports 2 formats to add custom annotations for driver and passenger mutations. 
+1. **cbp_driver**: This will define whether a mutation is a driver or not.
+2. **cbp_driver_tiers**: This can be used to define multiple classes of driver mutations. 
+
+These data formats are described in the [cBioPortal MAF specifications](File-Formats.md#extending-the-maf-format). 
+
+#### Enabling custom annotations in the OncoPrint
+To enable functionality for one or both types of custom annotations, enter values for the following properties. These labels will appear in the OncoPrint's "Mutation color" menu.
 ```
 oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation
-oncoprint.custom_driver_annotation.tiers.menu_label=Custom tiers
+oncoprint.custom_driver_annotation.tiers.menu_label=Custom driver tiers
 ```
 
-By default, when at least one of the custom annotations is enabled in portal.properties and the required columns are present in MAF files, custom annotations are automatically selected, instead of OncoKB and Hotspots. If you wish to change this default behavior and have OncoKB and Hotspots as the default selected annotations, set this parameter to false:
+#### Automatic selection of custom annotations
+OncoKB and Hotspots are by default automatically selected as annotation source. To add automatic selection of custom driver or custom driver tiers annotations, set the respective property to `true`. Default is `false`.
 ```
- oncoprint.custom_driver_annotation.default=false
-```
-
-By default, when at least one of the custom annotations is enabled in portal.properties and the required columns are present in MAF files, custom annotations are automatically selected. You can change this behaviour and set the following properties to "false" to automatically unselect one or both custom driver/passenger mutations (by default, those properties are set to true):
-```
-oncoprint.custom_driver_annotation.default=false
-oncoprint.custom_driver_tiers_annotation.default=false
+oncoprint.custom_driver_annotation.default=true|false
+oncoprint.custom_driver_tiers_annotation.default=true|false
 ```
 
-Independently of the custom annotations, OncoKB and Hotspots are always automatically selected as annotation source. If you want to disable them, set the following property to false:
+#### Automatic selection of OncoKB annotations
+OncoKB and Hotspots are by default automatically selected as annotation source. To disable this, set the following property to `false`. To only select OncoKB and Hotspots when there are no custom driver mutation annotations, set this property to `custom`. Default is `true`.
 ```
-oncoprint.oncokb_hotspots.default=false
+oncoprint.oncokb_hotspots.default=true|false|custom
 ``` 
-However, you can also set the same property to "custom". This will automatically select OncoKB and Hotspots only if there are no custom annotation driver and passenger mutations:
+
+#### Automatic hiding of putative passenger mutations
+By default, the selection box to hide putative passenger mutations is unchecked. If you want to automatically hide Putative Passenger Mutations, set this property to `true`. Default is `false`.
 ```
-oncoprint.oncokb_hotspots.default=custom
+oncoprint.hide_passenger.default=true|false
 ```
 
-By default, the putative passenger mutations are not hidden. If you want to automatically hide Putative Passenger Mutations, set this property to true:
+# Gene sets used for gene querying
+To change the gene sets used for gene querying, create a JSON file and add gene sets in line with the format of [gene_lists.ts](https://github.com/cBioPortal/cbioportal-frontend/blob/master/src/shared/components/query/gene_lists.ts). The JSON file should contain a structure equal to the part after `const gene_lists = `. Set the path to this file (e.g. `file:/cbioportal/custom_gene_sets.json`) in the following property and restart Tomcat to apply the update.
 ```
-oncoprint.hide_passenger.default=true
-```
-
-# Civic integration
-
-Civic integration can be turned on or off with the following property (default: true):
-```
-show.civic=true|false
-```
-The Civic API url is set to https://civic.genome.wustl.edu/api/ by default. It can be overridden using the following property:
-```
-civic.url=
+querypage.setsofgenes.location=file:/<path>
 ```

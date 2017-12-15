@@ -19,6 +19,9 @@ public interface GenePanelRepository {
     List<GenePanelData> getGenePanelData(String molecularProfileId, String sampleListId);
 
     List<GenePanelData> fetchGenePanelData(String molecularProfileId, List<String> sampleIds);
+
+    List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds, 
+        List<String> sampleIds);
     
     List<GenePanelToGene> getGenesOfPanels(List<String> genePanelIds);
 }

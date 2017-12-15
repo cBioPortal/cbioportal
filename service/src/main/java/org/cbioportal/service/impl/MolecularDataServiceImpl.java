@@ -160,8 +160,8 @@ public class MolecularDataServiceImpl implements MolecularDataService {
             distinctMolecularProfileIds, "SUMMARY");
         Map<String, MolecularProfile> molecularProfileMapById = distinctMolecularProfiles.stream().collect(
             Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
-        Map<String, MolecularProfile> molecularProfileMapByStudyId = distinctMolecularProfiles.stream().collect(
-            Collectors.toMap(MolecularProfile::getCancerStudyIdentifier, Function.identity()));
+        Map<String, List<MolecularProfile>> molecularProfileMapByStudyId = distinctMolecularProfiles.stream().collect(
+            Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
         List<Sample> samples;
         if (sampleIds == null) {
             samples = sampleService.getSamplesByInternalIds(allInternalSampleIds);
@@ -184,19 +184,21 @@ public class MolecularDataServiceImpl implements MolecularDataService {
             Collectors.groupingBy(GeneMolecularAlteration::getMolecularProfileId));
         
         for (Sample sample : samples) {
-            String molecularProfileId = molecularProfileMapByStudyId.get(sample.getCancerStudyIdentifier()).getStableId();
-            int indexOfSampleId = internalSampleIdsMap.get(molecularProfileId).indexOf(sample.getInternalId());
-            if (indexOfSampleId != -1 && molecularAlterationsMap.containsKey(molecularProfileId)) {
-                for (GeneMolecularAlteration molecularAlteration : molecularAlterationsMap.get(molecularProfileId)) {
-                    GeneMolecularData molecularData = new GeneMolecularData();
-                    molecularData.setMolecularProfileId(molecularProfileId);
-                    molecularData.setSampleId(sample.getStableId());
-                    molecularData.setPatientId(sample.getPatientStableId());
-                    molecularData.setStudyId(sample.getCancerStudyIdentifier());
-                    molecularData.setEntrezGeneId(molecularAlteration.getEntrezGeneId());
-                    molecularData.setValue(molecularAlteration.getSplitValues()[indexOfSampleId]);
-                    molecularData.setGene(molecularAlteration.getGene());
-                    molecularDataList.add(molecularData);
+            for (MolecularProfile molecularProfile : molecularProfileMapByStudyId.get(sample.getCancerStudyIdentifier())) {
+                String molecularProfileId = molecularProfile.getStableId();
+                int indexOfSampleId = internalSampleIdsMap.get(molecularProfileId).indexOf(sample.getInternalId());
+                if (indexOfSampleId != -1 && molecularAlterationsMap.containsKey(molecularProfileId)) {
+                    for (GeneMolecularAlteration molecularAlteration : molecularAlterationsMap.get(molecularProfileId)) {
+                        GeneMolecularData molecularData = new GeneMolecularData();
+                        molecularData.setMolecularProfileId(molecularProfileId);
+                        molecularData.setSampleId(sample.getStableId());
+                        molecularData.setPatientId(sample.getPatientStableId());
+                        molecularData.setStudyId(sample.getCancerStudyIdentifier());
+                        molecularData.setEntrezGeneId(molecularAlteration.getEntrezGeneId());
+                        molecularData.setValue(molecularAlteration.getSplitValues()[indexOfSampleId]);
+                        molecularData.setGene(molecularAlteration.getGene());
+                        molecularDataList.add(molecularData);
+                    }
                 }
             }
         }

@@ -5,8 +5,10 @@ import org.cbioportal.model.VariantCount;
 import org.cbioportal.persistence.VariantCountRepository;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
+import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.VariantCountService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -15,11 +17,15 @@ import java.util.List;
 
 @Service
 public class VariantCountServiceImpl implements VariantCountService {
+
+    private static final String SEQUENCED_LIST_SUFFIX = "_sequenced";
     
     @Autowired
     private VariantCountRepository variantCountRepository;
     @Autowired
     private MutationService mutationService;
+    @Autowired
+    private SampleListService sampleListService;
     @Autowired
     private MolecularProfileService molecularProfileService;
     
@@ -28,10 +34,9 @@ public class VariantCountServiceImpl implements VariantCountService {
     public List<VariantCount> fetchVariantCounts(String molecularProfileId, List<Integer> entrezGeneIds, 
                                                  List<String> keywords) throws MolecularProfileNotFoundException {
 
-        validateMolecularProfile(molecularProfileId);
+        MolecularProfile molecularProfile = validateMolecularProfile(molecularProfileId);
         
-        Integer numberOfSamplesInMolecularProfile = mutationService.fetchMetaMutationsInMolecularProfile(
-            molecularProfileId, null, null).getSampleCount();
+        Integer numberOfSamplesInMolecularProfile = getNumberOfSamplesInMolecularProfile(molecularProfile);
         
         List<VariantCount> variantCounts = variantCountRepository.fetchVariantCounts(molecularProfileId, entrezGeneIds, 
             keywords);
@@ -39,7 +44,19 @@ public class VariantCountServiceImpl implements VariantCountService {
         return variantCounts;
     }
 
-    private void validateMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException {
+	private Integer getNumberOfSamplesInMolecularProfile(MolecularProfile molecularProfile)
+			throws MolecularProfileNotFoundException {
+
+		try {
+            return sampleListService.getSampleList(
+                molecularProfile.getCancerStudyIdentifier() + SEQUENCED_LIST_SUFFIX).getSampleCount();
+        } catch (SampleListNotFoundException ex) {
+            return mutationService.fetchMetaMutationsInMolecularProfile(molecularProfile.getStableId(), null, null)
+                .getSampleCount();
+        }
+	}
+
+    private MolecularProfile validateMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException {
 
         MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
 
@@ -48,5 +65,7 @@ public class VariantCountServiceImpl implements VariantCountService {
 
             throw new MolecularProfileNotFoundException(molecularProfileId);
         }
+
+        return molecularProfile;
     }
 }

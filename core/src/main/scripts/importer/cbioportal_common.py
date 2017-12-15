@@ -243,6 +243,7 @@ META_FIELD_MAP = {
         'profile_name': True,
         'profile_description': True,
         'data_filename': True,
+        'show_profile_in_analysis_tab': True,
         'geneset_def_version': True
     }
 }

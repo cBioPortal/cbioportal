@@ -21,4 +21,8 @@ public interface ClinicalAttributeService {
                                                      Integer pageNumber, String sortBy, String direction) throws StudyNotFoundException;
 
     BaseMeta getMetaClinicalAttributesInStudy(String studyId) throws StudyNotFoundException;
+
+	List<ClinicalAttribute> fetchClinicalAttributes(List<String> studyIds, String projection);
+
+	BaseMeta fetchMetaClinicalAttributes(List<String> studyIds);
 }

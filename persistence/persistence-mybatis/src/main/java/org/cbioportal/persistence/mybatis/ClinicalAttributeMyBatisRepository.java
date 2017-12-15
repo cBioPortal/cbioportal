@@ -8,6 +8,7 @@ import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -23,7 +24,7 @@ public class ClinicalAttributeMyBatisRepository implements ClinicalAttributeRepo
     public List<ClinicalAttribute> getAllClinicalAttributes(String projection, Integer pageSize, Integer pageNumber,
                                                             String sortBy, String direction) {
 
-        return clinicalAttributeMapper.getAllClinicalAttributes(null, projection, pageSize,
+        return clinicalAttributeMapper.getClinicalAttributes(null, projection, pageSize,
                 offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
@@ -45,13 +46,25 @@ public class ClinicalAttributeMyBatisRepository implements ClinicalAttributeRepo
                                                                    Integer pageNumber, String sortBy,
                                                                    String direction) {
 
-        return clinicalAttributeMapper.getAllClinicalAttributes(studyId, projection, pageSize,
+        return clinicalAttributeMapper.getClinicalAttributes(Arrays.asList(studyId), projection, pageSize,
                 offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
     public BaseMeta getMetaClinicalAttributesInStudy(String studyId) {
 
-        return clinicalAttributeMapper.getMetaClinicalAttributes(studyId);
+        return clinicalAttributeMapper.getMetaClinicalAttributes(Arrays.asList(studyId));
     }
+
+	@Override
+	public List<ClinicalAttribute> fetchClinicalAttributes(List<String> studyIds, String projection) {
+        
+        return clinicalAttributeMapper.getClinicalAttributes(studyIds, projection, 0, 0, null, null);
+	}
+
+	@Override
+	public BaseMeta fetchMetaClinicalAttributes(List<String> studyIds) {
+        
+        return clinicalAttributeMapper.getMetaClinicalAttributes(studyIds);
+	}
 }

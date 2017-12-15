@@ -18,4 +18,8 @@ public interface ClinicalAttributeRepository {
                                                             Integer pageNumber, String sortBy, String direction);
 
     BaseMeta getMetaClinicalAttributesInStudy(String studyId);
+
+    List<ClinicalAttribute> fetchClinicalAttributes(List<String> studyIds, String projection);
+    
+    BaseMeta fetchMetaClinicalAttributes(List<String> studyIds);
 }

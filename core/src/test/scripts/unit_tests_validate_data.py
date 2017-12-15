@@ -199,6 +199,18 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].line_number, 4)
         self.assertEqual(record_list[1].column_number, 6)
 
+    def test_lowercase_attribute(self):
+        """Test when attribute is in lower case."""
+        record_list = self.validate('data_clin_coldefs_lowercase_attribute.txt',
+                                    validateData.PatientClinicalValidator)
+        # expecting an debug message followed by the error, and rest 2 info messages
+        self.assertEqual(len(record_list), 4)
+        # error about the lowercase value of sausage column
+        self.assertEqual(record_list[1].levelno, logging.ERROR)
+        self.assertEqual(record_list[1].line_number, 5)
+        self.assertEqual(record_list[1].column_number, 6)
+        self.assertIn('Attribute name not in upper case', record_list[1].getMessage())
+
     def test_hardcoded_attributes(self):
 
         """Test requirements on the data type or level of some attributes."""
@@ -1312,6 +1324,31 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertIn("does not support values longer than 50 characters", record_list[0].getMessage().lower())
         self.assertEqual(record_list[0].levelno, logging.ERROR)
 
+    def test_validation_verification_status(self):
+
+        """Assert names are validated in data_mutations_vs.maf."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('mutations/data_mutations_vs.maf',
+                                    validateData.MutationsExtendedValidator,
+                                    extra_meta_fields={'swissprot_identifier': 'name'})
+
+        # we expect 2 errors:
+        self.assertEqual(len(record_list), 2)
+
+        record_iterator = iter(record_list)
+        # Validation Status error
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertEqual(record.line_number, 3)
+        self.assertEqual(record.cause, '---')
+        self.assertEqual(record.getMessage(), "Value in 'Validation_Status' not in MAF format")
+        # Verification status error
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertEqual(record.line_number, 4)
+        self.assertEqual(record.cause, 'Test')
+        self.assertEqual(record.getMessage(), "Value in 'Verification_Status' not in MAF format")
+
 class FusionValidationTestCase(PostClinicalDataFileTestCase):
 
     """Tests for the various validations of data in Fusion data files."""
@@ -1612,6 +1649,32 @@ class CaseListDirTestCase(PostClinicalDataFileTestCase):
         self.assertIn('multiple', record.getMessage().lower())
         self.assertTrue(record.cause.startswith('brca_tcga_pub_all'),
                         "Error is not about the id 'brca_tcga_pub_all'")
+
+    def test_duplicated_sample_id(self):
+        """Test if an warning is issued when one list has duplicate sample id"""
+        self.logger.setLevel(logging.WARNING)
+        validateData.processCaseListDirectory(
+            'test_data/case_lists_duplicated_sampleid',
+            'brca_tcga_pub',
+            self.logger)
+        record_list = self.get_log_records()
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertIn('duplicate', record.getMessage().lower())
+
+    def test_invalid_category(self):
+        """Test if an error is issued for an invalid case list category"""
+        self.logger.setLevel(logging.ERROR)
+        validateData.processCaseListDirectory(
+            'test_data/case_lists_invalid_category',
+            'brca_tcga_pub',
+            self.logger)
+        record_list = self.get_log_records()
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertIn('invalid', record.getMessage().lower())
 
     def test_missing_caselists(self):
         """Test if errors are issued if certain case lists are not defined."""

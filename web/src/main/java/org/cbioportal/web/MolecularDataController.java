@@ -103,11 +103,12 @@ public class MolecularDataController {
         }
     }
 
-    @RequestMapping(value = "molecular-data/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/molecular-data/fetch", method = RequestMethod.POST, 
     consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch molecular data")
     public ResponseEntity<List<GeneMolecularData>> fetchMolecularDataInMultipleMolecularProfiles(
-        @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs and Entrez Gene IDs")
+        @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs or List of Molecular" + 
+            "Profile IDs and Entrez Gene IDs")
         @Valid @RequestBody MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {

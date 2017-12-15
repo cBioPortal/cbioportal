@@ -12,6 +12,23 @@
             gene_panel.DESCRIPTION AS description
         </if>
     </sql>
+
+    <sql id="selectGenePanelData">
+        gene_panel.STABLE_ID AS genePanelId,
+        sample.STABLE_ID AS sampleId,
+        patient.STABLE_ID AS patientId,
+        cancer_study.CANCER_STUDY_IDENTIFIER AS studyId,
+        genetic_profile.STABLE_ID AS molecularProfileId
+    </sql>
+
+    <sql id="fromGenePanelData">
+        FROM sample_profile
+        INNER JOIN gene_panel ON sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
+        INNER JOIN genetic_profile ON sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN sample ON sample_profile.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    </sql>
     
     <select id="getAllGenePanels" resultType="org.cbioportal.model.GenePanel">
         SELECT
@@ -61,17 +78,8 @@
     
     <select id="getGenePanelDataBySampleListId" resultType="org.cbioportal.model.GenePanelData">
         SELECT
-        gene_panel.STABLE_ID AS genePanelId,
-        sample.STABLE_ID AS sampleId,
-        patient.STABLE_ID AS patientId,
-        cancer_study.CANCER_STUDY_IDENTIFIER AS studyId,
-        genetic_profile.STABLE_ID AS molecularProfileId
-        FROM sample_profile
-        INNER JOIN gene_panel ON sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
-        INNER JOIN genetic_profile ON sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN sample ON sample_profile.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <include refid="selectGenePanelData"/>
+        <include refid="fromGenePanelData"/>
         WHERE
         genetic_profile.STABLE_ID = #{molecularProfileId}
         AND sample_profile.SAMPLE_ID IN
@@ -84,17 +92,8 @@
 
     <select id="getGenePanelDataBySampleIds" resultType="org.cbioportal.model.GenePanelData">
         SELECT
-        gene_panel.STABLE_ID AS genePanelId,
-        sample.STABLE_ID AS sampleId,
-        patient.STABLE_ID AS patientId,
-        cancer_study.CANCER_STUDY_IDENTIFIER AS studyId,
-        genetic_profile.STABLE_ID AS molecularProfileId
-        FROM sample_profile
-        INNER JOIN gene_panel ON sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
-        INNER JOIN genetic_profile ON sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN sample ON sample_profile.SAMPLE_ID = sample.INTERNAL_ID
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <include refid="selectGenePanelData"/>
+        <include refid="fromGenePanelData"/>
         WHERE
         genetic_profile.STABLE_ID = #{molecularProfileId}
         <if test="sampleIds != null and !sampleIds.isEmpty()">
@@ -103,5 +102,25 @@
                 #{item}
             </foreach>
         </if>
+    </select>
+
+    <select id="fetchGenePanelDataInMultipleMolecularProfiles" resultType="org.cbioportal.model.GenePanelData">
+        SELECT
+        <include refid="selectGenePanelData"/>
+        <include refid="fromGenePanelData"/>
+        <where>
+            <if test="sampleIds != null">
+                (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
+                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                    (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
+                </foreach>
+            </if>
+            <if test="sampleIds == null">
+                genetic_profile.STABLE_ID IN
+                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
     </select>
 </mapper>

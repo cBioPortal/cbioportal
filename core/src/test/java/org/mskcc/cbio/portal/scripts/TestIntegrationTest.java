@@ -147,8 +147,14 @@ public class TestIntegrationTest {
             assertEquals(13, mutations.size());
 
             //===== Check FUSION data ========
-            // Are there fusion entries in mutation profile? true
-            assertEquals(mutations.get(12).getMutationEvent().getMutationType(), "Fusion");
+            // Are there 3 fusion entries in mutation profile? true
+            int countFusions = 0;
+            for (Mutation mutation : mutations) {
+                if (mutation.getMutationEvent().getMutationType().equals("Fusion")) {
+                    countFusions++;
+                }
+            }
+            assertEquals(countFusions, 3);
 
             // Is there a seperate fusion profile? -> false
             GeneticProfileMapperLegacy geneticProfileMapperLegacy = applicationContext.getBean(GeneticProfileMapperLegacy.class);

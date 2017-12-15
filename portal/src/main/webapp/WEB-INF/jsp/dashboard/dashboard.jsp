@@ -310,11 +310,12 @@
 					    studyId: _cancerStudy.id,
 					    mutationProfileId: _mutationProfiles.length>0?_mutationProfiles[0].id:'',
 					    hasMutSig: hasMutation,
+                        caseSetId: _cancerStudy.id + '_all',
 					    cnaProfileId: _cnaProfiles.length>0?_cnaProfiles[0].id:''
 					};
 					window.mutationProfileId = StudyViewParams.params.mutationProfileId ;
 					window.cnaProfileId = StudyViewParams.params.cnaProfileId;
-					window.case_set_id = -1;
+					window.case_set_id = StudyViewParams.params.caseSetId;
 				} else {
 					$("#show_study_details").css('display', 'block');
                     cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, '', '');

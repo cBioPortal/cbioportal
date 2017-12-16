@@ -24,4 +24,4 @@ Read our [Pull request merging
 policy](../CONTRIBUTING.md#pull-request-merging-policy). Request review from
 appropriate reviewers, or notify people or teams by adding the approprate at-tag
 here. You can look at who worked on related files recently by using
-`git blame <filename>`.
+`git blame <filename>`. Team tags begin with 'cBioPortal'.

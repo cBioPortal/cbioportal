@@ -21,13 +21,7 @@ here with e.g. [GifGrabber](http://www.gifgrabber.com/).
 
 # Notify reviewers
 Read our [Pull request merging
-policy](../CONTRIBUTING.md#pull-request-merging-policy). If you are part of the
-cBioPortal organization, notify the approprate team (remove inappropriate):
-
-@cBioPortal/frontend
-@cBioPortal/backend
-@cBioPortal/devops
-
-If you are not part of the cBioPortal organization look at who worked on the
-file before you. Please use `git blame <filename>` to determine that
-and notify them here:
+policy](../CONTRIBUTING.md#pull-request-merging-policy). Request review from
+appropriate reviewers, or notify people or teams by adding the approprate at-tag
+here. You can look at who worked on related files recently by using
+`git blame <filename>`. Team tags begin with 'cBioPortal'.

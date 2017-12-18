@@ -113,7 +113,9 @@
         }
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (ui.newTab.text().trim().toLowerCase() === "co-expression") {
+
                 if (coexp_tab_init === false) {
+                    fireQuerySession();
                     CoExpView.init();
                     coexp_tab_init = true;
                     $(window).trigger("resize");

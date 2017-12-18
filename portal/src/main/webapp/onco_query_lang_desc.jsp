@@ -34,18 +34,9 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
-<link rel="stylesheet" type="text/css" href="css/gfm.css"/>
-<!-- js files: -->
-<script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/underscore-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
-<script type="text/javascript" src="js/lib/showdown.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/showdown-github.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/url_based_content.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        
 <%
     String siteTitle = GlobalProperties.getTitle()+"::Onco Query Language (OQL) Instructions";
+    String appVersion = GlobalProperties.getAppVersion();
 %>
 
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
@@ -53,6 +44,16 @@
 <t:template title="<%= siteTitle %>" defaultRightColumn="false" fixedWidth="true" cssClass="newsPage">
 
     <jsp:attribute name="head_area">
+        <link rel="stylesheet" type="text/css" href="css/gfm.css"/>
+        <!-- js files: -->
+        <script type="text/javascript" src="js/lib/jquery.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/underscore-min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/backbone-min.js?${appVersion}"></script>
+
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.5/showdown.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/showdown-github.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/src/url_based_content.js?${appVersion}"></script>
+        
         <script>
         window.loadReactApp({ defaultRoute: 'blank' });
         </script>

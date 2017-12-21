@@ -30,14 +30,12 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ include file="global/selected_study_variables.jsp" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.SessionServiceRequestWrapper" %>
 <%@ page import="org.mskcc.cbio.portal.util.*" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<%@include file="global/server_vars.jsp" %>
 <%
     String siteTitle = GlobalProperties.getTitle();
 
@@ -56,13 +54,12 @@
     request.setAttribute("index.jsp", Boolean.TRUE);
     request.setAttribute("selectedCancerStudyId", selectedCancerStudyId);
     request.setAttribute("selectedSampleIds", selectedSampleIds);
-    //request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
-    //String userMessage = (String) request.getAttribute(QueryBuilder.USER_ERROR_MESSAGE);
 %>
 
 <t:template title="<%=siteTitle%>" cssClass="homePage" defaultRightColumn="true" twoColumn="true" fixedWidth="false">
 
     <jsp:attribute name="head_area">
+        <jsp:include page="global/server_vars.jsp"/>
         <script>
             window.selectedCancerStudyId = '${selectedCancerStudyId}';
             if (window.selectedCancerStudyId === "all") {

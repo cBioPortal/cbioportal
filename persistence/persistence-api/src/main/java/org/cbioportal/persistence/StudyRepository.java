@@ -13,4 +13,8 @@ public interface StudyRepository {
     BaseMeta getMetaStudies();
 
     CancerStudy getStudy(String studyId);
+
+    List<CancerStudy> fetchStudies(List<String> studyIds, String projection);
+    
+    BaseMeta fetchMetaStudies(List<String> studyIds);
 }

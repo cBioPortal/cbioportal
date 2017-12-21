@@ -155,7 +155,7 @@ public class MutationsJSON extends HttpServlet {
     	}
     }
     
-    private static int DEFAULT_THERSHOLD_NUM_SMGS = 500; // no limit if 0 or below
+    private static int DEFAULT_THRESHOLD_NUM_SMGS = 0; // no limit if 0 or below
     private void processGetSmgRequest(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
@@ -180,7 +180,7 @@ public class MutationsJSON extends HttpServlet {
                 
                 // get all recurrently mutation genes
                 smgs = mutationModelConverter.convertSignificantlyMutatedGeneToMap(
-                        mutationRepositoryLegacy.getSignificantlyMutatedGenes(profileId, null, selectedCaseList, 2, DEFAULT_THERSHOLD_NUM_SMGS));
+                        mutationRepositoryLegacy.getSignificantlyMutatedGenes(profileId, null, selectedCaseList, 2, DEFAULT_THRESHOLD_NUM_SMGS));
 
                 // get all cbio cancer genes
                 Set<Long> cbioCancerGeneIds = daoGeneOptimized.getEntrezGeneIds(

@@ -1,4 +1,5 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
 <%@ page import="java.util.HashSet" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
@@ -30,6 +31,8 @@
 
     sampleSetName = sampleSetName.replaceAll("'", "\\'");
     sampleSetName = sampleSetName.replaceAll("\"", "\\\"");
+    
+    Integer dataPriority = (Integer) request.getAttribute(QueryBuilder.DATA_PRIORITY);
 %>
 
 <script type="text/javascript">
@@ -62,6 +65,7 @@
 
         zScoreThreshold:jspToJs('<%=zScoreThreshold%>', parseFloat),
         rppaScoreThreshold:jspToJs('<%=rppaScoreThreshold%>', parseFloat),
+        dataPriority:jspToJs('<%=dataPriority%>', function(d) { return parseInt(d, 10); }),
         
         theQuery: jspToJs('<%=oql%>'.trim()) || "", 
         studySampleObj: jspToJs('<%=studySampleMapJson%>', JSON.parse)

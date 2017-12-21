@@ -22,4 +22,7 @@ public interface GenePanelService {
 
     List<GenePanelData> fetchGenePanelData(String molecularProfileId, List<String> sampleIds, 
                                            List<Integer> entrezGeneIds) throws MolecularProfileNotFoundException;
+
+    List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds, 
+        List<String> sampleIds, List<Integer> entrezGeneIds);
 }

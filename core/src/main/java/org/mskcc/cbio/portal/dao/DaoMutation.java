@@ -130,7 +130,24 @@ public final class DaoMutation {
         return 1;
     }
 
+    public static void updateStatistics () throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoMutation.class);
+            pstmt = con.prepareStatement(
+                "ANALYZE TABLE mutation;");
+            pstmt.execute();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+        }
+    }
+
     public static int calculateMutationCount (int profileId) throws DaoException {
+        updateStatistics();
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

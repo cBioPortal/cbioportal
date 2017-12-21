@@ -40,7 +40,7 @@ public class GenesetMyBatisRepository implements GenesetRepository {
 	@Override
 	public List<Geneset> fetchGenesets(List<String> genesetIds) {
 		
-		return genesetMapper.getGenesetsByGenesetIds(genesetIds, PersistenceConstants.SUMMARY_PROJECTION);
+		return genesetMapper.fetchGenesets(genesetIds);
 	}
 
 	@Override

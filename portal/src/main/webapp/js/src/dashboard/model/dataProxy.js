@@ -685,7 +685,7 @@ window.DataManagerForIviz = (function($, _) {
               var _data = {
                 study_id: item.studyId,
                 patient_id: item.patientId,
-                attr_id: item.clinicalAttributeId,
+                attr_id: item.clinicalAttributeId.toUpperCase(),
                 attr_val: item.value
               };
               self.data.clinical.patient[uniqueId] = _data;
@@ -756,7 +756,7 @@ window.DataManagerForIviz = (function($, _) {
               var _data = {
                 study_id: item.studyId,
                 sample_id: item.sampleId,
-                attr_id: item.clinicalAttributeId,
+                attr_id: item.clinicalAttributeId.toUpperCase(),
                 attr_val: item.value
               };
               self.data.clinical.patient[uniqueId] = _data;
@@ -944,6 +944,10 @@ window.DataManagerForIviz = (function($, _) {
               fetch_promise.reject(error);
             });
         }),
+      
+      // Server side uses uppercase clinical attribute ID as convention but the rule is not strictly followed yet.
+      // Manually convert all IDs in front-end to prevent any discrepancy between clinical meta and clinical sample/patient data
+      // In the refactoring effort, this needs to be verified again with backend team.
       getClinicalAttributesByStudy: window.cbio.util.makeCachedPromiseFunction(
         function(self, fetch_promise) {
           $.get(window.cbioURL + 'api/clinical-attributes?projection=SUMMARY&pageSize=100000&pageNumber=0&direction=ASC')
@@ -1004,7 +1008,9 @@ window.DataManagerForIviz = (function($, _) {
             $.ajax({
               type: 'POST',
               url: window.cbioURL + 'api/samples/fetch?projection=SUMMARY',
-              data: JSON.stringify(data),
+              data: JSON.stringify({
+                "sampleIdentifiers": data
+              }),
               dataType: 'json',
               contentType: "application/json; charset=utf-8",
             }).done(function(data) {

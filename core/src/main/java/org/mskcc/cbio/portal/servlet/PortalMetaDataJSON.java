@@ -87,8 +87,7 @@ public class PortalMetaDataJSON extends HttpServlet {
 	ArrayList<SampleList> caseSets = GetSampleLists.getSampleLists(cancerStudy.getCancerStudyStableId());
 	int numSamples = 0;
 	for (SampleList pl: caseSets) {
-		String suffix = pl.getStableId().substring(pl.getStableId().length()-4);
-		if (suffix.equals("_all")) {
+		if (pl.getStableId().endsWith("_all")) {
 			numSamples = pl.getSampleList().size();
 			break;
 		}

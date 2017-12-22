@@ -110,6 +110,7 @@ window.DataManagerForIviz = (function($, _) {
               var _sequencedCaseUIDs = [];
               var _allCaseUIDs = [];
               var _allStudyIds = self.getCancerStudyIds();
+              var ismskimpact = _allStudyIds.indexOf('mskimpact') !== -1;
 
               iViz.priorityManager.setDefaultClinicalAttrPriorities(_configs.priority);
 
@@ -190,12 +191,14 @@ window.DataManagerForIviz = (function($, _) {
               addAttr({
                 attr_id: 'sequenced',
                 display_name: 'With Mutation Data',
+                priority: ismskimpact ? 0 : iViz.priorityManager.getDefaultPriority('sequenced'),
                 description: 'If the sample has mutation data'
               }, 'sample');
 
               addAttr({
                 attr_id: 'has_cna_data',
                 display_name: 'With CNA Data',
+                priority: ismskimpact ? 0 : iViz.priorityManager.getDefaultPriority('has_cna_data'),
                 description: 'If the sample has CNA data'
               }, 'sample');
 

@@ -62,7 +62,8 @@
                 case_set_description: jspToJs('<%=sampleSetDescription%>')
             },
             
-
+        cohortIdsList : (cancerStudyIdList === 'null')? [cancerStudyId]: cancerStudyIdList.split(','),
+        isVirtualStudy : <%=isVirtualStudy%>,
         zScoreThreshold:jspToJs('<%=zScoreThreshold%>', parseFloat),
         rppaScoreThreshold:jspToJs('<%=rppaScoreThreshold%>', parseFloat),
         dataPriority:jspToJs('<%=dataPriority%>', function(d) { return parseInt(d, 10); }),

@@ -605,7 +605,7 @@ A more detailed example MAF can be found in [study_es_0](https://raw.githubuserc
 23. **Match_Norm_Validation_Allele2 (Optional)**: Secondary data from orthogonal technology.
 24. **Verification_Status (Optional)**: Second pass results from independent attempt using same methods as primary data source.
 25. **Validation_Status (Optional)**:  -- "Valid" or "Unknown".
-26. **Mutation_Status (Optional)**: Ideally "Somatic".
+26. **Mutation_Status (Optional)**: Ideally "Somatic", but "Germline" is also possible and will be displayed in mutations tab.
 27. **Sequencing_Phase (Optional)**: Indicates current sequencing phase.
 28. **Sequence_Source (Optional)**: Molecular assay type used to produce the analytes used for sequencing.
 29. **Validation_Method (Optional)**: The assay platforms used for the validation call.

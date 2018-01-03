@@ -14,7 +14,7 @@
             gene.LENGTH AS "${prefix}length"
         </if>
     </sql>
-
+    
     <select id="getGenes" resultType="org.cbioportal.model.Gene">
         SELECT
         <include refid="select">

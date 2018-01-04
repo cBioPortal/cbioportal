@@ -122,4 +122,42 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
         Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
         clinicalAttributeService.getMetaClinicalAttributesInStudy(STUDY_ID);
     }
+
+    @Test
+    public void getAllClinicalAttributesInStudiesBySampleIds() throws Exception {
+
+        List<ClinicalAttribute> expectedClinicalAttributeList = new ArrayList<>();
+        ClinicalAttribute clinicalAttribute = new ClinicalAttribute();
+        expectedClinicalAttributeList.add(clinicalAttribute);
+
+        List<String> sampleIds = new ArrayList<>();
+        List<String> studyIds = new ArrayList<>();
+        sampleIds.add(SAMPLE_ID1);
+        studyIds.add(STUDY_ID);
+
+        Mockito.when(clinicalAttributeRepository.getAllClinicalAttributesInStudiesBySampleIds(sampleIds, studyIds,
+                PROJECTION, SORT, DIRECTION)).thenReturn(expectedClinicalAttributeList);
+
+        List<ClinicalAttribute> result = clinicalAttributeService
+                .getAllClinicalAttributesInStudiesBySampleIds(sampleIds, studyIds, PROJECTION, SORT, DIRECTION);
+
+        Assert.assertEquals(expectedClinicalAttributeList, result);
+    }
+
+    @Test
+    public void getAllClinicalAttributesInStudiesBySampleListId() throws Exception {
+
+        List<ClinicalAttribute> expectedClinicalAttributeList = new ArrayList<>();
+        ClinicalAttribute clinicalAttribute = new ClinicalAttribute();
+        expectedClinicalAttributeList.add(clinicalAttribute);
+
+        Mockito.when(clinicalAttributeRepository.getAllClinicalAttributesInStudiesBySampleListId(SAMPLE_LIST_ID,
+                PROJECTION, SORT, DIRECTION)).thenReturn(expectedClinicalAttributeList);
+
+        List<ClinicalAttribute> result = clinicalAttributeService
+                .getAllClinicalAttributesInStudiesBySampleListId(SAMPLE_LIST_ID, PROJECTION, SORT, DIRECTION);
+
+        Assert.assertEquals(expectedClinicalAttributeList, result);
+    }
+
 }

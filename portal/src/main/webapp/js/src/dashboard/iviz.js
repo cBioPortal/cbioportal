@@ -8283,6 +8283,7 @@ window.LogRankTest = (function(jStat) {
     data: function() {
       return {
         caseSelection: '',
+        tooltip: '',
         casesIdsList: ''
       };
     },
@@ -8291,6 +8292,7 @@ window.LogRankTest = (function(jStat) {
       setCasesSelection: function() {
         var caseIds = this.casesIdsList.trim().split(/\n/);
         this.$dispatch('set-selected-cases', this.caseSelection, _.uniq(caseIds));
+        this.tooltip.qtip('api').hide();
       },
       updateCaseIds: function(type) {
         var cases = [];
@@ -8310,7 +8312,6 @@ window.LogRankTest = (function(jStat) {
       _customDialogQtip.position.target = $(window);
       _customDialogQtip.events = {
         show: function() {
-          var tooltip = $('.iviz-save-cohort-btn-qtip .qtip-content');
           self_.updateStats = true;
           self_.$nextTick(function() {
             self_.updateCaseIds('sample');
@@ -8318,7 +8319,7 @@ window.LogRankTest = (function(jStat) {
         }
       };
       _customDialogQtip.content.text = $('#iviz-case-select-custom-dialog');
-      $('#custom-case-input-button').qtip(_customDialogQtip);
+      self_.tooltip = $('#custom-case-input-button').qtip(_customDialogQtip);
     }
   });
 })(

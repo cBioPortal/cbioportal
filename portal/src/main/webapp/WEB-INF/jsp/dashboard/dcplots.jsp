@@ -97,9 +97,7 @@
         </div>
 
         <div id="iviz-header-right">
-            <div style="display: inline-flex">
-                <custom-case-input></custom-case-input>
-            </div>
+            <custom-case-input :stats="stats" :update-stats.sync="updateStats"></custom-case-input>
 
             <select id="iviz-add-chart" class="chosen-select"
                     v-select :charts="charts" v-if="showDropDown">

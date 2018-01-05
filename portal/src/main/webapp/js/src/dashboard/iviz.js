@@ -843,7 +843,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 _data[caseIndex] = _data[caseIndex] || {};
                 _data[caseIndex][_dataObj.attr_id] = _dataObj.attr_val;
               }
-              
+
               if (!selectedAttrMeta.keys
                   .hasOwnProperty(_dataObj.attr_val)) {
                 selectedAttrMeta.keys[_dataObj.attr_val] = 0;
@@ -936,7 +936,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       _.each(_mutGeneMeta, function(content) {
         content.case_uids = iViz.util.unique(content.case_ids);
       });
-      
+
       tableData_.mutated_genes = {};
       tableData_.mutated_genes.geneMeta = _mutGeneMeta;
       return tableData_.mutated_genes;
@@ -995,7 +995,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       _.each(_cnaMeta, function(content) {
         content.case_uids = iViz.util.unique(content.case_ids);
       });
-      
+
       tableData_.cna_details = {};
       tableData_.cna_details.geneMeta = _cnaMeta;
       return tableData_.cna_details;
@@ -1104,6 +1104,9 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       return Object.keys(this.getCasesMap(type));
     },
     getCaseIndex: function(type, study_id, case_id) {
+      if (!data_.groups.group_mapping.studyMap[study_id]) {
+        return undefined;
+      }
       if (type === 'sample') {
         return data_.groups.group_mapping.studyMap[study_id].sample_to_uid[case_id];
       }
@@ -1226,6 +1229,11 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       // Remove all hidden inputs
       $('#iviz-form input:not(:first)').remove();
 
+      // Had discussion whether we should get rid of _self.cohorts_ and always
+      // use _self.stat().studies which will make the code looks cleaner.
+      // But the major issue for using _self.stat() is the unnecessary calculation
+      // for studies without filters. Especially big combined studies.
+      // We decided to leave the code as it is for now. By Karthik and Hongxin
       if (_self.cohorts_.length === 1) { // to query single study
         if (QueryByGeneTextArea.isEmpty()) {
           QueryByGeneUtil.toMainPage(_self.cohorts_[0], vm_.hasfilters ? _self.stat().studies : undefined);
@@ -1270,10 +1278,14 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           _selectedStudyCasesMap[_caseDataObj.study_id] = {};
           _selectedStudyCasesMap[_caseDataObj.study_id].id = _caseDataObj.study_id;
           _selectedStudyCasesMap[_caseDataObj.study_id].samples = [];
+          _selectedStudyCasesMap[_caseDataObj.study_id].patients = {};
         }
         _selectedStudyCasesMap[_caseDataObj.study_id].samples.push(_caseDataObj.sample_id);
+        var _patientId = self.getPatientId(_caseDataObj.study_id, _caseDataObj.sample_id);
+        _selectedStudyCasesMap[_caseDataObj.study_id].patients[_patientId] = 1;
       });
       $.each(_selectedStudyCasesMap, function(key, val) {
+        val.patients = Object.keys(val.patients);
         _studies.push(val);
       });
       _result.filters.patients = [];
@@ -1606,7 +1618,21 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               var unmappedCaseIDs = [];
 
               _.each(selectedCases, function(id) {
-                var caseUIDs = iViz.getCaseUID(selectionType, id);
+                var caseUIDs = [];
+                var pair = id
+                  .split(':')
+                  .map(function(t) {
+                    return t.trim();
+                  });
+                if (pair.length == 2) {
+                  var caseId = iViz.getCaseIndex(selectionType, pair[0], pair[1]);
+                  if (caseId) {
+                    caseUIDs.push(caseId);
+                  }
+                } else {
+                  caseUIDs = iViz.getCaseUID(selectionType, id);
+                }
+
                 if (caseUIDs.length === 0) {
                   unmappedCaseIDs.push(id);
                 } else {
@@ -8208,7 +8234,7 @@ window.LogRankTest = (function(jStat) {
  * Created by kalletlak on 7/8/16.
  */
 'use strict';
-(function(Vue, dc, iViz, $) {
+(function(Vue, dc, iViz, _, $) {
   var headerCaseSelectCustomDialog = {
     // Since we're only creating one modal, give it an ID so we can style it
     id: 'iviz-case-select-custom-dialog',
@@ -8235,17 +8261,25 @@ window.LogRankTest = (function(jStat) {
     style: 'qtip-light qtip-rounded qtip-wide'
   };
   Vue.component('customCaseInput', {
-    template: '<input type="button" id="custom-case-input-button" ' +
+    template: '<div style="display: inline-flex"><input type="button" id="custom-case-input-button" ' +
     'class="iviz-header-button" value="Select cases by IDs"/>' +
     '<div class="iviz-hidden" id="iviz-case-select-custom-dialog">' +
-    '<b>Please input IDs (one per line)</b><textarea rows="20" cols="50" ' +
+    '<b>Please input IDs (one per line)</b></br><textarea rows="20" cols="50" ' +
     'id="iviz-case-select-custom-input" v-model="casesIdsList"></textarea>' +
     '<br/><label><input type="radio" v-model="caseSelection" ' +
-    'value="sample" checked>By sample ID</label><label><input type="radio" ' +
-    'v-model="caseSelection" value="patient">' +
-    'By patient ID</label><button type="button" @click="SetCasesSelection()" ' +
-    'style="float: right;">Select</button></div>',
-    props: [],
+    'value="sample" checked @click="updateCaseIds(\'sample\')">By sample ID</label><label><input type="radio" ' +
+    'v-model="caseSelection" value="patient" @click="updateCaseIds(\'patient\')">' +
+    'By patient ID</label><button type="button" @click="setCasesSelection()" ' +
+    'style="float: right;">Select</button></div></div>',
+    props: {
+      stats: {
+        type: Object
+      },
+      updateStats: {
+        type: Boolean,
+        default: false
+      }
+    },
     data: function() {
       return {
         caseSelection: '',
@@ -8254,15 +8288,35 @@ window.LogRankTest = (function(jStat) {
     },
     events: {},
     methods: {
-      SetCasesSelection: function() {
-        var caseIds = this.casesIdsList.trim().split(/\s+/);
+      setCasesSelection: function() {
+        var caseIds = this.casesIdsList.trim().split(/\n/);
         this.$dispatch('set-selected-cases', this.caseSelection, _.uniq(caseIds));
+      },
+      updateCaseIds: function(type) {
+        var cases = [];
+        _.each(this.stats.studies, function(t) {
+          var targetGroup = type === 'patient' ? t.patients : t.samples;
+          _.each(targetGroup, function(caseId) {
+            cases.push(t.id + ':' + caseId);
+          });
+        });
+        this.casesIdsList = cases.join('\n');
       }
     },
     ready: function() {
+      var self_ = this;
       var _customDialogQtip =
         $.extend(true, {}, headerCaseSelectCustomDialog);
       _customDialogQtip.position.target = $(window);
+      _customDialogQtip.events = {
+        show: function() {
+          var tooltip = $('.iviz-save-cohort-btn-qtip .qtip-content');
+          self_.updateStats = true;
+          self_.$nextTick(function() {
+            self_.updateCaseIds('sample');
+          });
+        }
+      };
       _customDialogQtip.content.text = $('#iviz-case-select-custom-dialog');
       $('#custom-case-input-button').qtip(_customDialogQtip);
     }
@@ -8271,6 +8325,7 @@ window.LogRankTest = (function(jStat) {
   window.Vue,
   window.dc,
   window.iViz,
+  window._,
   window.$ || window.jQuery
 );
 

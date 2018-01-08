@@ -29,4 +29,5 @@ public class BaseServiceImplTest {
     public static final Integer PROTEIN_POS_START = 1;
     public static final Integer PROTEIN_POS_END = 2;
     public static final String GENE_PANEL_ID = "gene_panel_id";
+    public static final Integer SAMPLE_INTERNAL_ID = 1;
 }

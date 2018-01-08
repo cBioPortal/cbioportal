@@ -5,6 +5,7 @@ import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.web.parameter.MolecularDataFilter;
+import org.cbioportal.web.parameter.MolecularDataMultipleStudyFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -25,6 +26,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -162,6 +164,42 @@ public class MolecularDataControllerTest {
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+    }
+
+    @Test
+    public void fetchMolecularDataInMultipleMolecularProfiles() throws Exception {
+
+        List<GeneMolecularData> geneMolecularDataList = createExampleMolecularData();
+
+        Mockito.when(molecularDataService.getMolecularDataInMultipleMolecularProfiles(Mockito.anyListOf(String.class),
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyString()))
+            .thenReturn(geneMolecularDataList);
+        
+        MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter = new MolecularDataMultipleStudyFilter();
+        molecularDataMultipleStudyFilter.setMolecularProfileIds(Arrays.asList(TEST_MOLECULAR_PROFILE_STABLE_ID_1, 
+            TEST_MOLECULAR_PROFILE_STABLE_ID_2));
+        molecularDataMultipleStudyFilter.setEntrezGeneIds(Arrays.asList(TEST_ENTREZ_GENE_ID_1, TEST_ENTREZ_GENE_ID_2));
+        
+        mockMvc.perform(MockMvcRequestBuilders
+            .post("/molecular-data/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(molecularDataMultipleStudyFilter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId")
+                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
+                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene").doesNotExist());
     }
     
     private List<GeneMolecularData> createExampleMolecularData() {

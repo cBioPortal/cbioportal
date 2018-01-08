@@ -1146,18 +1146,34 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         }
         _selectedCasesMap[_caseDataObj.study_id].push(_caseDataObj.patient_id);
       });
+
+      var _study_id = Object.keys(_selectedCasesMap)[0];
+      var _selectedCaseIds = _selectedCasesMap[_study_id].sort();
+      var _url = '';
+
       if (Object.keys(_selectedCasesMap).length === 1) {
-        var _study_id = Object.keys(_selectedCasesMap)[0];
-        var _selectedCaseIds = _selectedCasesMap[_study_id].sort();
-        var _url = window.cbioURL + 'case.do#/patient?studyId=' +
-          _study_id + '&caseId=' + _selectedCaseIds[0] +
-          '&navCaseIds=' + _selectedCaseIds.join(',');
-        window.open(_url);
+        _url = window.cbioURL +
+               'case.do#/patient?studyId=' +
+                _study_id +
+                '&caseId=' +
+                _selectedCaseIds[0] +
+                '&navCaseIds=' +
+                _selectedCaseIds.join(',');
       } else {
-        new Notification().createNotification(
-          'This feature is not available to Virtual Cohort(s) for now!',
-          {message_type: 'info'});
+        var studyPatientString = _.map(_selectedCasesMap, function (patientIds, studyId) {
+          return _.map(patientIds, function(patientId,index){
+            return studyId+":"+patientId;
+          });
+        }).join(',');
+        _url = window.cbioURL +
+               'case.do#/patient?studyId=' +
+               _study_id +
+               '&caseId=' +
+               _selectedCaseIds[0] +
+               '&navCaseIds=' +
+               studyPatientString;
       }
+      window.open(_url);
     },
     downloadCaseData: function() {
       var sampleUIds_ = vm_.selectedsampleUIDs;

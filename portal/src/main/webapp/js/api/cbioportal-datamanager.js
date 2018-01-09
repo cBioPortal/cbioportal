@@ -1957,6 +1957,91 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    });
 	    return fetch_promise.promise();
 	}),
+	'getUnsequencedSamplesBasedOnSequencedSampleList': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+		    var sample_list_ids = self.getCancerStudyIds().map(function(cancer_study_id) {
+			return cancer_study_id + "_sequenced";
+		    });
+		    var sample_ids = self.getSampleIds();
+		    window.cbioportal_client.getSampleLists({'sample_list_ids':sample_list_ids}).then(function(sample_lists) {
+			fetch_promise.resolve(sample_lists.reduce(function(map, next) {
+			    var sequenced_samples = next.sample_ids.reduce(function(map, next) { map[next] = true; return map;}, {});
+			    var unsequenced_samples = sample_ids.reduce(function(map, next) {
+				if (!sequenced_samples[next]) {
+				    map[next] = true;
+				}
+				return map;
+			    }, {});
+			    map[next.study_id] = unsequenced_samples;
+			    return map;
+			}, {}));
+		    }).fail(function() {
+			fetch_promise.reject();
+		    });
+		}),
+	'getUnsequencedPatientsBasedOnSequencedSampleList': makeCachedPromiseFunction(
+		function(self, fetch_promise) {
+		    var sample_list_ids = self.getCancerStudyIds().map(function(cancer_study_id) {
+			return cancer_study_id + "_sequenced";
+		    });
+		    $.when(self.getPatientIds(), self.getPatientSampleIdMap(), window.cbioportal_client.getSampleLists({'sample_list_ids':sample_list_ids})).then(function(patient_ids, sample_to_patient, sample_lists) {
+			fetch_promise.resolve(sample_lists.reduce(function(map, next) {
+			    var sequenced_patients = next.sample_ids.reduce(function(map, next) {
+				var patient = sample_to_patient[next];
+				if (typeof patient !== "undefined") {
+				    map[patient] = true;
+				}
+				return map;
+			    }, {});
+			    var unsequenced_patients = patient_ids.reduce(function(map, next) {
+				if (!sequenced_patients[next]) {
+				    map[next] = true;
+				}
+				return map;
+			    }, {});
+			    map[next.study_id] = unsequenced_patients;
+			    return map;
+			}, {}));
+		    }).fail(function() {
+			fetch_promise.reject();
+		    });
+	    }),
+	    'getUnsequencedSampleUIDsBasedOnSequencedSampleList': makeCachedPromiseFunction(
+		    function(self, fetch_promise) {
+			$.when(self.getUnsequencedSamplesBasedOnSequencedSampleList(), self.getCaseUIDMap())
+				.then(function(unsequenced_samples, case_uid_map) {
+				    var ret = [];
+				    var studies = Object.keys(unsequenced_samples);
+				    for (var i=0; i<studies.length; i++) {
+					var study_uid_map = case_uid_map[studies[i]];
+					var unsequenced_sample_uids = Object.keys(unsequenced_samples[studies[i]]);
+					for (var j=0; j<unsequenced_sample_uids.length; j++) {
+					    ret.push(study_uid_map[unsequenced_sample_uids[j]]);
+					}
+				    }
+				    fetch_promise.resolve(ret);
+				}).fail(function() {
+				    fetch_promise.reject();
+				});
+		    }),
+	    'getUnsequencedPatientUIDsBasedOnSequencedSampleList': makeCachedPromiseFunction(
+		    function(self, fetch_promise) {
+			$.when(self.getUnsequencedPatientsBasedOnSequencedSampleList(), self.getCaseUIDMap())
+				.then(function(unsequenced_patients, case_uid_map) {
+				    var ret = [];
+				    var studies = Object.keys(unsequenced_patients);
+				    for (var i=0; i<studies.length; i++) {
+					var study_uid_map = case_uid_map[studies[i]];
+					var unsequenced_patient_uids = Object.keys(unsequenced_patients[studies[i]]);
+					for (var j=0; j<unsequenced_patient_uids.length; j++) {
+					    ret.push(study_uid_map[unsequenced_patient_uids[j]]);
+					}
+				    }
+				    fetch_promise.resolve(ret);
+				}).fail(function() {
+				    fetch_promise.reject();
+				});
+		    }),
 	'getMutualAlterationCounts': makeCachedPromiseFunctionWithSessionFilterOption(
 		function (self, fetch_promise, use_session_filters) {
 	    self.getAlteredSampleSetsByGene(use_session_filters).then(function (altered_samples_by_gene) {

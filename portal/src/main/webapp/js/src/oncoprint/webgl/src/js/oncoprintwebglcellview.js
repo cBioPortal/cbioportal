@@ -551,6 +551,9 @@ var OncoprintWebGLCellView = (function () {
 	for (var i=0; i<id_and_first_vertex.length; i++) {
 	    var num_to_add = (i === id_and_first_vertex.length - 1 ? num_items : id_and_first_vertex[i+1][1]) - id_and_first_vertex[i][1];
 	    var column = id_to_index[id_and_first_vertex[i][0]];
+	    if (typeof column === "undefined") {
+		column = -1000; // render offscreen if vertex not supposed to be visible
+	    }
 	    for (var j=0; j<num_to_add; j++) {
 		vertex_column_array.push(column);
 	    }

@@ -120,7 +120,7 @@ var tooltip_utils = {
 		popup.document.body.appendChild(div);
 		
 		$('<h3 style="text-align:center;">'+gene_panel_id+'</h3><br>').appendTo(div);
-		$(genes.join("<br>")).appendTo(div);
+		$('<span>'+genes.join("<br>")+'</span>').appendTo(div);
 	    });
 	}));
 	return anchor;

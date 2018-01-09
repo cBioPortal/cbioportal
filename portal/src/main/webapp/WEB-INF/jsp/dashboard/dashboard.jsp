@@ -61,11 +61,6 @@
     <tr>
         <td class="study-view-header-first-row-td">
             <b><u id="study_name"></u></b>
-            <form method="post" action="index.do">
-                <input type="hidden" id="cancer_study_id" name="cancer_study_id">
-                <input type="hidden" id="cancer_study_list">
-                <input type="button" id="submit_button" value="Query this study" class="btn btn-primary btn-xs">
-            </form>
             <form id="study-view-header-download-all-data" method="get" action="">
                 <input type="hidden" name="raw" value="ture">
                 <button class="btn btn-default btn-xs">Download data</button>
@@ -280,8 +275,6 @@
 					var _cancerStudy = _cancerStudies[0]
 					document.title = _cancerStudy.name
 					$("#study_name").html(_cancerStudy.name);
-					$("#cancer_study_id").val(_cancerStudy.id);
-					$("#cancer_study_list").val(_cancerStudy.id);
 					var _desc = _cancerStudy.description;
 					if(_cancerStudy.pmid !== null){
 					    _desc += '&nbsp;<a href="http://www.ncbi.nlm.nih.gov/pubmed/'+_cancerStudy.pmid+'">PubMed</a>';
@@ -306,11 +299,12 @@
 					    studyId: _cancerStudy.id,
 					    mutationProfileId: _mutationProfiles.length>0?_mutationProfiles[0].id:'',
 					    hasMutSig: hasMutation,
+                        caseSetId: _cancerStudy.id + '_all',
 					    cnaProfileId: _cnaProfiles.length>0?_cnaProfiles[0].id:''
 					};
 					window.mutationProfileId = StudyViewParams.params.mutationProfileId ;
 					window.cnaProfileId = StudyViewParams.params.cnaProfileId;
-					window.case_set_id = -1;
+					window.case_set_id = StudyViewParams.params.caseSetId;
 				} else {
 					$("#show_study_details").css('display', 'block');
                     cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, '', '');

@@ -1063,7 +1063,8 @@ class MutationsExtendedValidator(Validator):
         'cbp_driver': 'checkDriver',
         'cbp_driver_tiers': 'checkDriverTiers',
         'cbp_driver_annotation': 'checkFilterAnnotation',
-        'cbp_driver_tiers_annotation': 'checkFilterAnnotation'
+        'cbp_driver_tiers_annotation': 'checkFilterAnnotation',
+        'Mutation_Status': 'checkMutationStatus'
     }
 
     def __init__(self, *args, **kwargs):
@@ -1505,6 +1506,16 @@ class MutationsExtendedValidator(Validator):
             self.extra = 'cbp_driver_annotation and cbp_driver_tiers_annotation columns do not support annotations longer than 80 characters'
             self.extra_exists = True
             return False
+        return True
+
+    def checkMutationStatus(self, value):
+        """Check values in mutation status column."""
+        if value.lower() in ['loh', 'none', 'wildtype']:
+            self.logger.info('Mutation will not be loaded due to value in Mutation_Status',
+                                extra={'line_number': self.line_number, 'cause': value})
+        if value.lower() not in ['none', 'germline', 'somatic', 'loh', 'post-transcriptional modification', 'unknown', 'wildtype'] and value != '':
+            self.logger.warning('Mutation_Status value is not in MAF format',
+                                extra={'line_number': self.line_number, 'cause': value})
         return True
 
 class ClinicalValidator(Validator):

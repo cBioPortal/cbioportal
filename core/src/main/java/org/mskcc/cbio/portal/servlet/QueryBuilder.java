@@ -290,11 +290,13 @@ public class QueryBuilder extends HttpServlet {
 			            
 			        }
 			        httpServletRequest.setAttribute(IS_VIRTUAL_STUDY, _isVirtualStudy);
-			        httpServletRequest.setAttribute(CASE_SET_ID, httpServletRequest.getParameter(CASE_SET_ID));
-			        if (httpServletRequest.getParameter(CASE_SET_ID).equals("-1")) {
-			            httpServletRequest.setAttribute(CASE_IDS,
-			                (httpServletRequest.getParameter(CASE_IDS)).replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t"));
-			        }
+                    if(httpServletRequest.getParameter(CASE_SET_ID) != null) {
+                        httpServletRequest.setAttribute(CASE_SET_ID, httpServletRequest.getParameter(CASE_SET_ID));
+                        if (httpServletRequest.getParameter(CASE_SET_ID).equals("-1")) {
+                            httpServletRequest.setAttribute(CASE_IDS,
+                                (httpServletRequest.getParameter(CASE_IDS)).replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t"));
+                        }
+                    }
 	            }
             }
             httpServletRequest.setAttribute(CANCER_STUDY_ID, cancerStudyId);

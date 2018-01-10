@@ -54,7 +54,7 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
     @Test(expected = StudyNotFoundException.class)
     public void getStudyNotFound() throws Exception {
 
-        Mockito.when(studyRepository.getStudy(STUDY_ID)).thenReturn(null);
+        Mockito.when(studyRepository.getStudy(STUDY_ID, "DETAILED")).thenReturn(null);
 
         studyService.getStudy(STUDY_ID);
     }
@@ -64,7 +64,7 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
 
         CancerStudy expectedCancerStudy = new CancerStudy();
 
-        Mockito.when(studyRepository.getStudy(STUDY_ID)).thenReturn(expectedCancerStudy);
+        Mockito.when(studyRepository.getStudy(STUDY_ID, "DETAILED")).thenReturn(expectedCancerStudy);
 
         CancerStudy result = studyService.getStudy(STUDY_ID);
 

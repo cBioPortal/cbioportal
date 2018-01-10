@@ -95,6 +95,7 @@ public class TestDaoGeneticProfile {
 		geneticProfile.setStableId("test");
 		geneticProfile.setGeneticAlterationType(GeneticAlterationType.FUSION);
 		geneticProfile.setDatatype("test");
+		geneticProfile.setReferenceGenomeId(1);
 		DaoGeneticProfile.addGeneticProfile(geneticProfile);
 		
 		GeneticProfile readGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId("test");

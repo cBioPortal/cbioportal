@@ -132,6 +132,7 @@ public class GeneticProfileReader {
         // Get ID
         GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfile.getStableId());
         geneticProfile.setGeneticProfileId(gp.getGeneticProfileId());
+        geneticProfile.setReferenceGenomeId(gp.getReferenceGenomeId());
         return geneticProfile;
     }
 
@@ -226,6 +227,13 @@ public class GeneticProfileReader {
         String profileDescription = properties.getProperty("profile_description");
         String geneticAlterationTypeString = properties.getProperty("genetic_alteration_type");
         String datatype = properties.getProperty("datatype");
+        String genomeBuild = properties.getProperty("reference_genome_id");
+        int referenceGenomeId = 1;
+        if (genomeBuild != null && !genomeBuild.isEmpty()) {
+            referenceGenomeId = DaoReferenceGenome.getReferenceGenomeByName(genomeBuild);
+        }
+
+        
         if (profileName == null) {
             profileName = geneticAlterationTypeString;
         }
@@ -255,6 +263,7 @@ public class GeneticProfileReader {
         geneticProfile.setShowProfileInAnalysisTab(showProfileInAnalysisTab);
         geneticProfile.setTargetLine(properties.getProperty("target_line"));
         geneticProfile.setOtherMetadataFields(properties);
+        geneticProfile.setReferenceGenomeId(referenceGenomeId);
         return geneticProfile;
     }
 

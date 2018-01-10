@@ -328,7 +328,7 @@ public class ImportExtendedMutationData{
                     entriesSkipped++;
                     continue;
                 }
-
+                
                 // skip the record if a gene was expected but not identified
                 if (gene == null) {
                     ProgressMonitor.logWarning(
@@ -359,7 +359,7 @@ public class ImportExtendedMutationData{
                     mutation.setLinkXVar(linkXVar);
                     mutation.setLinkPdb(linkPdb);
                     mutation.setLinkMsa(linkMsa);
-                    mutation.setNcbiBuild(record.getNcbiBuild());
+                    mutation.setNcbiBuild(record.getNcbiBuild().toString().equals("NA")? "GRCh37": record.getNcbiBuild());
                     mutation.setStrand(record.getStrand());
                     mutation.setVariantType(record.getVariantType());
                     mutation.setAllele(record.getTumorSeqAllele1(), record.getTumorSeqAllele2(), record.getReferenceAllele());

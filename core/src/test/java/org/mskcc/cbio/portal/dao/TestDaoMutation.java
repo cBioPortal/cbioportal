@@ -62,11 +62,11 @@ public class TestDaoMutation {
 	public void setUp() throws DaoException {
 		int studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
 		ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
-		geneticProfileId = list.get(0).getGeneticProfileId();
+		geneticProfileId = list.get(4).getGeneticProfileId();
 		
 		sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SB-01").getInternalId();
 		
-        gene = new CanonicalGene(321, "BLAH");
+        gene = new CanonicalGene(672, "BRCA1");
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         daoGeneOptimized.addGene(gene);
 	}
@@ -101,7 +101,7 @@ public class TestDaoMutation {
 		mutation.setLinkXVar("link1");
 		mutation.setLinkPdb("link2");
 		mutation.setLinkMsa("link3");
-		mutation.setNcbiBuild("37/hg19");
+		mutation.setNcbiBuild("GRCh37");
 		mutation.setStrand("+");
 		mutation.setVariantType("Consolidated");
 		mutation.setReferenceAllele("ATGC");
@@ -142,7 +142,7 @@ public class TestDaoMutation {
 		if( MySQLbulkLoader.isBulkLoad()){
             MySQLbulkLoader.flushAll();
 		}
-		ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(geneticProfileId, 1, 321);
+		ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(geneticProfileId, 1, 672);
 		validateMutation(mutationList.get(0));
 
 		//  Test the getGenesInProfile method
@@ -151,15 +151,15 @@ public class TestDaoMutation {
 
 		ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>(geneSet);
 		CanonicalGene gene = geneList.get(0);
-		assertEquals (321, gene.getEntrezGeneId());
-		assertEquals ("BLAH", gene.getHugoGeneSymbolAllCaps());
+		assertEquals (672, gene.getEntrezGeneId());
+		assertEquals ("BRCA1", gene.getHugoGeneSymbolAllCaps());
 
 	}
 
 	private void validateMutation(ExtendedMutation mutation) {
 		assertEquals (geneticProfileId, mutation.getGeneticProfileId());
 		assertEquals (sampleId, mutation.getSampleId());
-		assertEquals (321, mutation.getEntrezGeneId());
+		assertEquals (672, mutation.getEntrezGeneId());
 		assertEquals ("validated", mutation.getValidationStatus());
 		assertEquals ("somatic", mutation.getMutationStatus());
 		assertEquals ("missense", mutation.getMutationType());
@@ -174,7 +174,7 @@ public class TestDaoMutation {
 		assertEquals ("link1", mutation.getLinkXVar());
 		assertEquals ("link2", mutation.getLinkPdb());
 		assertEquals ("link3", mutation.getLinkMsa());
-		assertEquals ("37/hg19", mutation.getNcbiBuild());
+		assertEquals ("GRCh37", mutation.getNcbiBuild());
 		assertEquals ("+", mutation.getStrand());
 		assertEquals ("Consolidated", mutation.getVariantType());
 		assertEquals ("ATGC", mutation.getReferenceAllele());

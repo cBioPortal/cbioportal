@@ -75,6 +75,7 @@ public class TestImportExtendedMutationData {
 		geneticProfile.setStableId("test");
 		geneticProfile.setGeneticAlterationType(GeneticAlterationType.MUTATION_EXTENDED);
 		geneticProfile.setDatatype("test");
+		geneticProfile.setReferenceGenomeId(1);
 		DaoGeneticProfile.addGeneticProfile(geneticProfile);
 		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("test").getGeneticProfileId();
 

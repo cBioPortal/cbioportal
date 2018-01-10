@@ -14,6 +14,17 @@
             gene.LENGTH AS "${prefix}length"
         </if>
     </sql>
+
+    <sql id="selectRefGene">
+        gene.ENTREZ_GENE_ID AS "${prefix}entrezGeneId",
+        gene.HUGO_GENE_SYMBOL AS "${prefix}hugoGeneSymbol"
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            gene.TYPE AS "${prefix}type",
+            reference_genome_gene.cytoband AS "${prefix}cytoband",
+            reference_genome_gene.exonic_length AS "${prefix}length"
+        </if>
+    </sql>
     
     <select id="getGenes" resultType="org.cbioportal.model.Gene">
         SELECT

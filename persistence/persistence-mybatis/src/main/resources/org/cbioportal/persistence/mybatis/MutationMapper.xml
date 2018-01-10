@@ -20,6 +20,7 @@
             mutation.NORMAL_ALT_COUNT AS normalAltCount,
             mutation.NORMAL_REF_COUNT AS normalRefCount,
             mutation.AMINO_ACID_CHANGE AS aminoAcidChange,
+            mutation_event.CHR as chromosome,
             mutation_event.START_POSITION AS startPosition,
             mutation_event.END_POSITION AS endPosition,
             mutation_event.REFERENCE_ALLELE AS referenceAllele,
@@ -31,7 +32,7 @@
             mutation_event.LINK_XVAR AS linkXvar,
             mutation_event.LINK_PDB AS linkPdb,
             mutation_event.LINK_MSA AS linkMsa,
-            mutation_event.NCBI_BUILD AS ncbiBuild,
+            reference_genome.BUILD_NAME AS ncbiBuild,
             mutation_event.VARIANT_TYPE AS variantType,
             mutation_event.ONCOTATOR_REFSEQ_MRNA_ID AS oncotatorRefseqMrnaId,
             mutation_event.ONCOTATOR_PROTEIN_POS_START AS oncotatorProteinPosStart,
@@ -44,7 +45,7 @@
         </if>
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
+            <include refid="org.cbioportal.persistence.mybatis.GeneMapper.selectRefGene">
                 <property name="prefix" value="gene."/>
             </include>
         </if>
@@ -135,9 +136,12 @@
         <include refid="from"/>
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+            INNER JOIN reference_genome on mutation_event.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         </if>
         <if test="projection == 'DETAILED'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            INNER JOIN reference_genome_gene on reference_genome_gene.REFERENCE_GENOME_ID = mutation_event.REFERENCE_GENOME_ID
+                        AND reference_genome_gene.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         </if>
         <include refid="whereBySampleListId"/>
         <if test="sortBy != null and projection != 'ID'">
@@ -165,9 +169,11 @@
         <include refid="from"/>
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+            INNER JOIN reference_genome on mutation_event.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         </if>
         <if test="projection == 'DETAILED'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            INNER JOIN reference_genome_gene on reference_genome_gene.REFERENCE_GENOME_ID = mutation_event.REFERENCE_GENOME_ID
         </if>
         <include refid="whereInMultipleMolecularProfiles"/>
         <if test="sortBy != null and projection != 'ID'">
@@ -195,9 +201,12 @@
         <include refid="from"/>
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+            INNER JOIN reference_genome on mutation_event.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         </if>
         <if test="projection == 'DETAILED'">
             INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+            INNER JOIN reference_genome_gene on reference_genome_gene.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID 
+                        and reference_genome_gene.REFERENCE_GENOME_ID = mutation_event.REFERENCE_GENOME_ID
         </if>
         <include refid="where"/>
         <if test="sortBy != null and projection != 'ID'">

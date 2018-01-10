@@ -120,10 +120,10 @@ OncoKB and Hotspots are by default automatically selected as annotation source. 
 oncoprint.oncokb_hotspots.default=true|false|custom
 ``` 
 
-#### Automatic hiding of putative passenger mutations
-By default, the selection box to hide putative passenger mutations is unchecked. If you want to automatically hide Putative Passenger Mutations, set this property to `true`. Default is `false`.
+#### Automatic hiding of variants of unknown significance (VUS)
+By default, the selection box to hide VUS mutations is unchecked. If you want to automatically hide VUS, set this property to `true`. Default is `false`.
 ```
-oncoprint.hide_passenger.default=true|false
+oncoprint.hide_vus.default=true|false
 ```
 
 # Gene sets used for gene querying

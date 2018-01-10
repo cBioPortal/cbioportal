@@ -27,6 +27,12 @@ window.legacySupportFrontendConfig = {
     skinRightNavExamplesHTML : '<%=GlobalProperties.getExamplesRightColumnHtml()%>',
     skinRightNavWhatsNewBlurb : '<%=GlobalProperties.getRightNavWhatsNewBlurb()%>',
     userEmailAddress : '<%=GlobalProperties.getAuthenticatedUserName()%>',
+    oncoprintCustomDriverAnnotationBinaryMenuLabel: '<%=GlobalProperties.getBinaryCustomDriverAnnotationMenuLabel()%>',
+    oncoprintCustomDriverAnnotationTiersMenuLabel: '<%=GlobalProperties.getTiersCustomDriverAnnotationMenuLabel()%>',
+    oncoprintCustomDriverAnnotationDefault:'<%=GlobalProperties.enableDriverAnnotations()%>' !== "false", // true unless "false"
+    oncoprintCustomDriverTiersAnnotationDefault:'<%=GlobalProperties.enableTiers()%>' !== "false", // true unless "false"
+    oncoprintOncoKbHotspotsDefault:{"true":undefined, "false":"disable", "custom":"custom"}['<%=GlobalProperties.enableOncoKBandHotspots()%>'],
+    oncoprintHideVUSDefault:'<%=GlobalProperties.hidePassengerMutations()%>' === "true", // false unless "true"
     priorityStudies : {}
 }
 

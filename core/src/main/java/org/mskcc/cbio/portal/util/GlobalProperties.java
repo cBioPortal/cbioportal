@@ -283,7 +283,7 @@ public class GlobalProperties {
     public static final String ENABLE_DRIVER_ANNOTATIONS = "oncoprint.custom_driver_annotation.default";
     public static final String ENABLE_TIERS = "oncoprint.custom_driver_tiers_annotation.default";
     public static final String ENABLE_ONCOKB_AND_HOTSPOTS_ANNOTATIONS = "oncoprint.oncokb_hotspots.default";
-    public static final String HIDE_PASSENGER_MUTATIONS = "oncoprint.hide_passenger.default";
+    public static final String HIDE_PASSENGER_MUTATIONS = "oncoprint.hide_vus.default";
 
 	private static String civicUrl;
 	@Value("${civic.url:https://civic.genome.wustl.edu/api/}") // default

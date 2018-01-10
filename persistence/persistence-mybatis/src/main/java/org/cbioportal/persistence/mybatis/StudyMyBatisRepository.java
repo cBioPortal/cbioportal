@@ -32,7 +32,7 @@ public class StudyMyBatisRepository implements StudyRepository {
     }
 
     @Override
-    public CancerStudy getStudy(String studyId) {
-        return studyMapper.getStudy(studyId, PersistenceConstants.DETAILED_PROJECTION);
+    public CancerStudy getStudy(String studyId, String projection) {
+        return studyMapper.getStudy(studyId, projection);
     }
 }

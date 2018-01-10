@@ -12,5 +12,5 @@ public interface StudyRepository {
 
     BaseMeta getMetaStudies();
 
-    CancerStudy getStudy(String studyId);
+    CancerStudy getStudy(String studyId, String projection);
 }

@@ -13,6 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -254,6 +255,23 @@ public class SampleMyBatisRepositoryTest {
     }
 
     @Test
+    public void getAllSamplesOfPatientsInStudy() throws Exception {
+
+        List<Sample> result = sampleMyBatisRepository.getAllSamplesOfPatientsInStudy("study_tcga_pub", 
+            Arrays.asList("TCGA-A1-A0SB", "TCGA-A1-A0SE"), "SUMMARY");
+
+        Assert.assertEquals(3, result.size());
+        Sample sample = result.get(0);
+        Assert.assertEquals((Integer) 1, sample.getInternalId());
+        Assert.assertEquals("TCGA-A1-A0SB-01", sample.getStableId());
+        Assert.assertEquals(Sample.SampleType.PRIMARY_SOLID_TUMOR, sample.getSampleType());
+        Assert.assertEquals((Integer) 1, sample.getPatientId());
+        Assert.assertEquals("TCGA-A1-A0SB", sample.getPatientStableId());
+        Assert.assertEquals("brca", sample.getTypeOfCancerId());
+        Assert.assertNull(sample.getPatient());
+    }
+
+    @Test
     public void fetchSamples() throws Exception {
 
         List<String> studyIds = new ArrayList<>();
@@ -271,6 +289,24 @@ public class SampleMyBatisRepositoryTest {
     }
 
     @Test
+    public void fetchSamplesBySampleListId() throws Exception {
+
+        List<String> sampleListIds = new ArrayList<>();
+        sampleListIds.add("study_tcga_pub_all");
+        sampleListIds.add("study_tcga_pub_acgh");
+
+        List<Sample> result = sampleMyBatisRepository.fetchSamples(sampleListIds, "SUMMARY");
+
+        Assert.assertEquals(14, result.size());
+        Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getStableId());
+        Assert.assertEquals("TCGA-A1-A0SD-01", result.get(1).getStableId());
+        Assert.assertEquals("TCGA-A1-A0SE-01", result.get(2).getStableId());
+        Assert.assertEquals("TCGA-A1-A0SF-01", result.get(3).getStableId());
+        Assert.assertEquals("TCGA-A1-A0SG-01", result.get(4).getStableId());
+        Assert.assertEquals("TCGA-A1-A0SH-01", result.get(5).getStableId());
+    }
+
+    @Test
     public void fetchMetaSamples() throws Exception {
 
         List<String> studyIds = new ArrayList<>();
@@ -284,4 +320,26 @@ public class SampleMyBatisRepositoryTest {
 
         Assert.assertEquals((Integer) 2, result.getTotalCount());
     }
+
+    @Test
+    public void fetchMetaSamplesBySampleListId() throws Exception {
+
+        List<String> sampleListIds = new ArrayList<>();
+        sampleListIds.add("study_tcga_pub_all");
+        sampleListIds.add("study_tcga_pub_acgh");
+
+        BaseMeta result = sampleMyBatisRepository.fetchMetaSamples(sampleListIds);
+
+        Assert.assertEquals((Integer) 14, result.getTotalCount());
+    }
+
+    @Test
+    public void getSamplesByInternalIds() throws Exception {
+
+        List<Sample> result = sampleMyBatisRepository.getSamplesByInternalIds(Arrays.asList(1, 2));
+
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getStableId());
+        Assert.assertEquals("TCGA-A1-A0SD-01", result.get(1).getStableId());
+     }
 }

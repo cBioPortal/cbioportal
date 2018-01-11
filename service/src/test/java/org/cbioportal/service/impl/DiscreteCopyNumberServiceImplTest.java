@@ -1,6 +1,5 @@
 package org.cbioportal.service.impl;
 
-import junit.framework.Assert;
 import org.cbioportal.model.CopyNumberCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
@@ -12,6 +11,7 @@ import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -246,12 +246,21 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(expectedCopyNumberSampleCountByGeneList, result);
     }
 
-    private void createMolecularProfile() throws MolecularProfileNotFoundException {
+    @Test
+    public void getPatientCountByGeneAndAlterationAndPatientIds() throws Exception {
         
-        MolecularProfile molecularProfile = new MolecularProfile();
-        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
-        molecularProfile.setDatatype("DISCRETE");
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
+        List<CopyNumberCountByGene> expectedCopyNumberSampleCountByGeneList = new ArrayList<>();
+        expectedCopyNumberSampleCountByGeneList.add(new CopyNumberCountByGene());
+
+        Mockito.when(discreteCopyNumberRepository.getPatientCountByGeneAndAlterationAndPatientIds(MOLECULAR_PROFILE_ID, 
+            null, Arrays.asList(ENTREZ_GENE_ID), Arrays.asList(-2)))
+            .thenReturn(expectedCopyNumberSampleCountByGeneList);
+        
+        List<CopyNumberCountByGene> result = discreteCopyNumberService
+            .getPatientCountByGeneAndAlterationAndPatientIds(MOLECULAR_PROFILE_ID, null, Arrays.asList(ENTREZ_GENE_ID), 
+                Arrays.asList(-2));
+        
+        Assert.assertEquals(expectedCopyNumberSampleCountByGeneList, result);
     }
 
     @Test
@@ -284,5 +293,13 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals((Integer) (-2), copyNumberCount.getAlteration());
         Assert.assertEquals((Integer) 2, copyNumberCount.getNumberOfSamples());
         Assert.assertEquals((Integer) 1, copyNumberCount.getNumberOfSamplesWithAlterationInGene());
+    }
+
+    private void createMolecularProfile() throws MolecularProfileNotFoundException {
+        
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+        molecularProfile.setDatatype("DISCRETE");
+        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
     }
 }

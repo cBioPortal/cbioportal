@@ -139,7 +139,6 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
             patientIds, entrezGeneIds, alterations);
     }
 
-
     @Override
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<CopyNumberCount> fetchCopyNumberCounts(String molecularProfileId, List<Integer> entrezGeneIds,

@@ -92,6 +92,8 @@ public class GenesetDataServiceImpl implements GenesetDataService {
                     GenesetMolecularData genesetData = new GenesetMolecularData();
                     genesetData.setMolecularProfileId(molecularProfileId);
                     genesetData.setSampleId(sample.getStableId());
+                    genesetData.setPatientId(sample.getPatientStableId());
+                    genesetData.setStudyId(sample.getCancerStudyIdentifier());
                     genesetData.setGenesetId(genesetAlteration.getGenesetId());
                     genesetData.setValue(genesetAlteration.getSplitValues()[indexOfSampleId]);
                     genesetDataList.add(genesetData);

@@ -62,7 +62,6 @@
                 case_set_description: jspToJs('<%=sampleSetDescription%>')
             },
             
-        cohortIdsList : (cancerStudyIdList === 'null')? [cancerStudyId]: cancerStudyIdList.split(','),
         zScoreThreshold:jspToJs('<%=zScoreThreshold%>', parseFloat),
         rppaScoreThreshold:jspToJs('<%=rppaScoreThreshold%>', parseFloat),
         dataPriority:jspToJs('<%=dataPriority%>', function(d) { return parseInt(d, 10); }),
@@ -72,6 +71,13 @@
        	
     };
     
+    // yes "null" will be string
+    if (window.cancerStudyIdList && window.cancerStudyIdList !== "null") { 
+        window.serverVars.cohortIdsList = cancerStudyIdList.split(',');
+    } else if (window.cancerStudyId) {
+         window.serverVars.cohortIdsList = [cancerStudyId];
+    } 
+
     if (window.serverVars.studySampleObj) {
         window.serverVars.studySampleListMap = (function(){
                                           var ret = {};

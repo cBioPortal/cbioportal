@@ -180,4 +180,28 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
         Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(null);
         sampleListService.getAllSampleIdsInSampleList(SAMPLE_LIST_ID);
     }
+
+    @Test
+    public void fetchSampleLists() throws Exception {
+
+        List<SampleList> expectedSampleLists = new ArrayList<>();
+        SampleList sampleList = new SampleList();
+        sampleList.setListId(1);
+        expectedSampleLists.add(sampleList);
+        
+        List<SampleListToSampleId> expectedSampleListSampleIds = new ArrayList<>();
+        SampleListToSampleId sampleListSampleId = new SampleListToSampleId();
+        sampleListSampleId.setSampleListId(1);
+        sampleListSampleId.setSampleId(SAMPLE_ID1);
+        expectedSampleListSampleIds.add(sampleListSampleId);
+        
+        Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1))).thenReturn(expectedSampleListSampleIds);
+
+        Mockito.when(sampleListRepository.getSampleLists(Arrays.asList(SAMPLE_LIST_ID), "DETAILED")).thenReturn(expectedSampleLists);
+
+        List<SampleList> result = sampleListService.fetchSampleLists(Arrays.asList(SAMPLE_LIST_ID), "DETAILED");
+
+        Assert.assertEquals(expectedSampleLists, result);
+        Assert.assertEquals((Integer) 1, expectedSampleLists.get(0).getSampleCount());
+    }
 }

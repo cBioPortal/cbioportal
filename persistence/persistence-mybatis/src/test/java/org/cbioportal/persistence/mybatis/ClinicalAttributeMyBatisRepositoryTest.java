@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -153,5 +153,32 @@ public class ClinicalAttributeMyBatisRepositoryTest {
         BaseMeta result = clinicalAttributeMyBatisRepository.getMetaClinicalAttributesInStudy("study_tcga_pub");
 
         Assert.assertEquals((Integer) 14, result.getTotalCount());
+    }
+
+    @Test
+    public void fetchClinicalAttributes() throws Exception {
+
+        List<ClinicalAttribute> result = clinicalAttributeMyBatisRepository.fetchClinicalAttributes(
+            Arrays.asList("acc_tcga", "study_tcga_pub"), "SUMMARY");
+
+        Assert.assertEquals(28, result.size());
+        ClinicalAttribute clinicalAttribute = result.get(0);
+        Assert.assertEquals("RETROSPECTIVE_COLLECTION", clinicalAttribute.getAttrId());
+        Assert.assertEquals("acc_tcga", clinicalAttribute.getCancerStudyIdentifier());
+        Assert.assertEquals((Integer) 2, clinicalAttribute.getCancerStudyId());
+        Assert.assertEquals("STRING", clinicalAttribute.getDatatype());
+        Assert.assertEquals("Text indicator for the time frame of tissue procurement,indicating that the tissue was " +
+            "obtained and stored prior to the initiation of the project.", clinicalAttribute.getDescription());
+        Assert.assertEquals("Tissue Retrospective Collection Indicator", clinicalAttribute.getDisplayName());
+        Assert.assertEquals("1", clinicalAttribute.getPriority());
+        Assert.assertEquals(true, clinicalAttribute.getPatientAttribute());
+    }
+
+    public void fetchMetaClinicalAttributes() throws Exception {
+
+        BaseMeta result = clinicalAttributeMyBatisRepository.fetchMetaClinicalAttributes(Arrays.asList("acc_tcga", 
+            "study_tcga_pub"));
+
+        Assert.assertEquals((Integer) 28, result.getTotalCount());
     }
 }

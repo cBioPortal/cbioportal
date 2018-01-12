@@ -65,10 +65,10 @@ baseURL = baseURL.replace("https://", "").replace("http://", "");
 
 window.frontendConfig = JSON.parse('<%=GlobalProperties.getFrontendConfig()%>');
 if (window.frontendConfig) {
-    for (var prop in legacySupportFrontendConfig) {
+    for (var prop in window.legacySupportFrontendConfig) {
         // use old property if none is defined in frontendConfig
         if (!window.frontendConfig.hasOwnProperty(prop)) {
-            window.frontendConfig[legacySupportFrontendConfig[prop]];
+            window.frontendConfig[prop] = window.legacySupportFrontendConfig[prop];
         }
     }
 } else {

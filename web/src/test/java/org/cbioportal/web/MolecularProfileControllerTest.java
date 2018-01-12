@@ -6,6 +6,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.cbioportal.web.parameter.MolecularProfileFilter;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,8 +24,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -65,6 +67,8 @@ public class MolecularProfileControllerTest {
     @Autowired
     private MolecularProfileService molecularProfileService;
     private MockMvc mockMvc;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Bean
     public MolecularProfileService molecularProfileService() {
@@ -238,6 +242,47 @@ public class MolecularProfileControllerTest {
                 .param("projection", "META"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+    }
+
+    @Test
+    public void fetchMolecularProfiles() throws Exception {
+
+        List<MolecularProfile> molecularProfileList = createExampleMolecularProfiles();
+
+        Mockito.when(molecularProfileService.getMolecularProfilesInStudies(Mockito.anyListOf(String.class), 
+            Mockito.anyString())).thenReturn(molecularProfileList);
+        
+        MolecularProfileFilter molecularProfileFilter = new MolecularProfileFilter();
+        molecularProfileFilter.setStudyIds(Arrays.asList(TEST_STUDY_IDENTIFIER_1, TEST_STUDY_IDENTIFIER_2));
+        
+        mockMvc.perform(MockMvcRequestBuilders
+            .post("/molecular-profiles/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(molecularProfileFilter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularAlterationType")
+                    .value(TEST_MOLECULAR_ALTERATION_TYPE_1.toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].showProfileInAnalysisTab")
+                    .value(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_IDENTIFIER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularAlterationType")
+                    .value(TEST_MOLECULAR_ALTERATION_TYPE_2.toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].showProfileInAnalysisTab")
+                    .value(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_2));
     }
 
     private List<MolecularProfile> createExampleMolecularProfiles() {

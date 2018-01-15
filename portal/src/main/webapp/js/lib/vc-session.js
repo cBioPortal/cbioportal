@@ -199,11 +199,6 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       studies: ''
     };
 
-    var studies_ = {
-      id: '',
-      samples: []
-    };
-
     var generateUUID_ = function() {
       var _d = new Date().getTime();
       if (window.performance && typeof window.performance.now === 'function') {
@@ -233,7 +228,13 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       var def = new $.Deferred();
       var _virtualCohort = $.extend(true, {}, virtualCohort_);
       _virtualCohort.filters = filters;
-      _virtualCohort.studies = cases;
+      
+      _virtualCohort.studies = cases.map(function(studyObj) {
+        return {
+          id: studyObj.id,
+          samples: studyObj.samples
+        };
+      });
       if (name) {
         _virtualCohort.name = name;
       } else {
@@ -242,15 +243,6 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       _virtualCohort.description = description || '';
       def.resolve(_virtualCohort);
       return def.promise();
-    };
-    var buildCaseListObject_ = function(selectedCases, cancerStudyID,
-                                        sampleID) {
-      var _selectedCases = selectedCases;
-      var _studies = $.extend(true, {}, studies_);
-      _studies.id = cancerStudyID;
-      _studies.samples.push(sampleID);
-      _selectedCases.push(_studies);
-      return _selectedCases;
     };
 
     var generateCohortDescription_ = function(_cases) {
@@ -269,8 +261,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       setVirtualCohorts: setVirtualCohorts_,
       getVirtualCohorts: getVirtualCohorts_,
       generateUUID: generateUUID_,
-      generateCohortDescription: generateCohortDescription_,
-      buildCaseListObject: buildCaseListObject_
+      generateCohortDescription: generateCohortDescription_
     };
   })();
 })(window.vcSession,

@@ -14,10 +14,18 @@ public interface MolecularProfileRepository {
 
     MolecularProfile getMolecularProfile(String molecularProfileId);
 
+    List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection);
+
+    BaseMeta getMetaMolecularProfiles(List<String> molecularProfileIds);
+
     List<MolecularProfile> getAllMolecularProfilesInStudy(String studyId, String projection, Integer pageSize,
                                                           Integer pageNumber, String sortBy, String direction);
 
     BaseMeta getMetaMolecularProfilesInStudy(String studyId);
+
+    List<MolecularProfile> getMolecularProfilesInStudies(List<String> studyIds, String projection);
+    
+    BaseMeta getMetaMolecularProfilesInStudies(List<String> studyIds);
 
 	List<MolecularProfile> getMolecularProfilesReferredBy(String referringMolecularProfileId);
 

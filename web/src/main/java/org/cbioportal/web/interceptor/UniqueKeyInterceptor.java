@@ -8,6 +8,7 @@ import org.cbioportal.model.FractionGenomeAltered;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.MolecularData;
 import org.cbioportal.model.MrnaPercentile;
+import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
@@ -91,6 +92,13 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
                         mrnaPercentile.getStudyId()));
                     mrnaPercentile.setUniquePatientKey(calculateBase64(mrnaPercentile.getPatientId(), 
                         mrnaPercentile.getStudyId()));
+                } else if (object instanceof MutationCount) {
+                    
+                    MutationCount mutationCount = (MutationCount) object;
+                    mutationCount.setUniqueSampleKey(calculateBase64(mutationCount.getSampleId(), 
+                        mutationCount.getStudyId()));
+                    mutationCount.setUniquePatientKey(calculateBase64(mutationCount.getPatientId(), 
+                        mutationCount.getStudyId()));
                 } else if (object instanceof MutationSpectrum) {
                     
                     MutationSpectrum mutationSpectrum = (MutationSpectrum) object;

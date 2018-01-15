@@ -1011,7 +1011,9 @@ window.DataManagerForIviz = (function($, _) {
             $.ajax({
               type: 'POST',
               url: window.cbioURL + 'api/samples/fetch?projection=SUMMARY',
-              data: JSON.stringify(data),
+              data: JSON.stringify({
+                "sampleIdentifiers": data
+              }),
               dataType: 'json',
               contentType: "application/json; charset=utf-8",
             }).done(function(data) {

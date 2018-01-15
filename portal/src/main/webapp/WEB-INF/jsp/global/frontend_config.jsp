@@ -27,6 +27,12 @@ window.legacySupportFrontendConfig = {
     skinRightNavExamplesHTML : '<%=GlobalProperties.getExamplesRightColumnHtml()%>',
     skinRightNavWhatsNewBlurb : '<%=GlobalProperties.getRightNavWhatsNewBlurb()%>',
     userEmailAddress : '<%=GlobalProperties.getAuthenticatedUserName()%>',
+    oncoprintCustomDriverAnnotationBinaryMenuLabel: '<%=GlobalProperties.getBinaryCustomDriverAnnotationMenuLabel()%>',
+    oncoprintCustomDriverAnnotationTiersMenuLabel: '<%=GlobalProperties.getTiersCustomDriverAnnotationMenuLabel()%>',
+    oncoprintCustomDriverAnnotationDefault:'<%=GlobalProperties.enableDriverAnnotations()%>' !== "false", // true unless "false"
+    oncoprintCustomDriverTiersAnnotationDefault:'<%=GlobalProperties.enableTiers()%>' !== "false", // true unless "false"
+    oncoprintOncoKbHotspotsDefault:{"true":undefined, "false":"disable", "custom":"custom"}['<%=GlobalProperties.enableOncoKBandHotspots()%>'],
+    oncoprintHideVUSDefault:'<%=GlobalProperties.hidePassengerMutations()%>' === "true", // false unless "true"
     priorityStudies : {}
 }
 
@@ -59,10 +65,10 @@ baseURL = baseURL.replace("https://", "").replace("http://", "");
 
 window.frontendConfig = JSON.parse('<%=GlobalProperties.getFrontendConfig()%>');
 if (window.frontendConfig) {
-    for (var prop in legacySupportFrontendConfig) {
+    for (var prop in window.legacySupportFrontendConfig) {
         // use old property if none is defined in frontendConfig
         if (!window.frontendConfig.hasOwnProperty(prop)) {
-            window.frontendConfig[legacySupportFrontendConfig[prop]];
+            window.frontendConfig[prop] = window.legacySupportFrontendConfig[prop];
         }
     }
 } else {

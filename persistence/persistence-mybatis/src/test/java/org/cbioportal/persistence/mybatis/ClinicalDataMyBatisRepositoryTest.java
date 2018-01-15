@@ -287,6 +287,35 @@ public class ClinicalDataMyBatisRepositoryTest {
     }
 
     @Test
+    public void fetchAllClinicalDataInStudy() throws Exception {
+
+        List<String> sampleIds = new ArrayList<>();
+        sampleIds.add("TCGA-A1-A0SB-01");
+        sampleIds.add("TCGA-A1-A0SD-01");
+        List<ClinicalData> result = clinicalDataMyBatisRepository.fetchAllClinicalDataInStudy("study_tcga_pub", sampleIds, null,
+                PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE, "SUMMARY");
+
+        Assert.assertEquals(6, result.size());
+        ClinicalData data = result.get(0);
+        Assert.assertEquals("DAYS_TO_COLLECTION", data.getAttrId());
+        Assert.assertEquals("276", data.getAttrValue());
+        Assert.assertEquals((Integer) 1, data.getInternalId());
+        Assert.assertNull(data.getClinicalAttribute());
+    }
+
+    @Test
+    public void fetchMetaClinicalDataInStudy() throws Exception {
+
+        List<String> sampleIds = new ArrayList<>();
+        sampleIds.add("TCGA-A1-A0SB-01");
+        sampleIds.add("TCGA-A1-A0SD-01");
+        BaseMeta result = clinicalDataMyBatisRepository.fetchMetaClinicalDataInStudy("study_tcga_pub", sampleIds, null,
+                PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE);
+
+        Assert.assertEquals((Integer) 6, result.getTotalCount());
+    }
+
+    @Test
     public void fetchClinicalDataNullAttributeSummaryProjection() throws Exception {
 
         List<String> studyIds = new ArrayList<>();

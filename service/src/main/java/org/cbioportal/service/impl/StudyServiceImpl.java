@@ -42,4 +42,18 @@ public class StudyServiceImpl implements StudyService {
 
         return cancerStudy;
     }
+
+    @Override
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
+	public List<CancerStudy> fetchStudies(List<String> studyIds, String projection) {
+        
+        return studyRepository.fetchStudies(studyIds, projection);
+	}
+
+    @Override
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
+	public BaseMeta fetchMetaStudies(List<String> studyIds) {
+        
+        return studyRepository.fetchMetaStudies(studyIds);
+	}
 }

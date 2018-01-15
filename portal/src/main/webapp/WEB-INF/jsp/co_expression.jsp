@@ -105,7 +105,8 @@
 <script>
     $(document).ready( function() {
         var coexp_tab_init = false;
-        if ($("#coexp").is(":visible")) {
+        if ($("#coexp").is(":visible")) {     
+            fireQuerySession();
             CoExpView.init();
             coexp_tab_init = true;
         } else {
@@ -113,7 +114,9 @@
         }
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (ui.newTab.text().trim().toLowerCase() === "co-expression") {
+
                 if (coexp_tab_init === false) {
+                    fireQuerySession();
                     CoExpView.init();
                     coexp_tab_init = true;
                     $(window).trigger("resize");

@@ -121,11 +121,25 @@ public class SampleServiceImpl implements SampleService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#sampleListIds, 'List<SampleListId>', 'read')")
+	public List<Sample> fetchSamples(List<String> sampleListIds, String projection) {
+        
+        return sampleRepository.fetchSamples(sampleListIds, projection);
+	}
+
+    @Override
     @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     public BaseMeta fetchMetaSamples(List<String> studyIds, List<String> sampleIds) {
 
         return sampleRepository.fetchMetaSamples(studyIds, sampleIds);
     }
+
+    @Override
+    @PreAuthorize("hasPermission(#sampleListIds, 'List<SampleListId>', 'read')")
+	public BaseMeta fetchMetaSamples(List<String> sampleListIds) {
+        
+        return sampleRepository.fetchMetaSamples(sampleListIds);
+	}
 
     // this is not secured as it is only used interally by other services which have
     // already had permissions checked

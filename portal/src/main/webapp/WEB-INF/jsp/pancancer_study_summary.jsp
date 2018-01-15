@@ -52,6 +52,7 @@
 
 <!-- Initialization script -->
 <script>
+
 	// This is for the moustache-like templates
 	// prevents collisions with JSP tags
 	_.templateSettings = {

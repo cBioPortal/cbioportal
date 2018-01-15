@@ -326,6 +326,14 @@ CREATE TABLE `genetic_profile_samples` (
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
 );
 
+CREATE TABLE `reference_genome_profile` (
+    `GENETIC_PROFILE_ID` int(11) NOT NULL,
+    `REFERENCE_GENOME_ID` int(4) NOT NULL,
+    PRIMARY KEY (`GENETIC_PROFILE_ID`,`REFERENCE_GENOME_ID`),
+    FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE CASCADE
+);
+
 -- --------------------------------------------------------
 CREATE TABLE `gene_panel` (
   `INTERNAL_ID` int(11) NOT NULL auto_increment,

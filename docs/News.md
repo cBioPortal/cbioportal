@@ -1,3 +1,6 @@
+## January 15, 2018
+ *   The fifth phase of the cBioPortal architectural upgrade is now complete: The OncoPrint and Survival tabs have been moved to the new architecture.
+
 ## November 20, 2017
  *   You can now combine multiple studies and view them on the study summary page. [Example: liver cancer studies](http://www.cbioportal.org/study?id=liad_inserm_fr_2014%2Chcc_inserm_fr_2015%2Clihc_amc_prv%2Clihc_riken%2Clihc_tcga)
  *   You can now bookmark or share your selected samples as virtual studies with the _share_ icon on the study summary page. [Example: a virtual study of breast tumors](http://www.cbioportal.org/study?id=5a12fd57498eb8b3d5605cd4)

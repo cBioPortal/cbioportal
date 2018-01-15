@@ -105,9 +105,9 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>com.github.cbioportal</groupId>
+                  <groupId>com.github.adamabeshouse</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
-                  <version>2936a5146ededca19da92d076d13033bd8ab649c</version>
+                  <version>f8b0b22d80ec3ee4e2f4f26eeb756f246141469b</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>

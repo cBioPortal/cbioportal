@@ -15,12 +15,12 @@ hub:
   links:
     - cbioportal
 firefox:
-  image: selenium/node-firefox:2.53.0
+  image: selenium/node-firefox:3.8.1
   links:
     - hub
     - cbioportal
 chrome:
-  image: selenium/node-chrome:2.53.0
+  image: selenium/node-chrome:3.8.1
   links:
     - hub
     - cbioportal

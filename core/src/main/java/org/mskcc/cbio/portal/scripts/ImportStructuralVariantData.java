@@ -53,6 +53,7 @@ public class ImportStructuralVariantData {
     public static final String SITE2_POSITION = "Site2_Position";
     public static final String SITE2_DESCRIPTION = "Site2_Description";
     public static final String SITE2_EFFECT_ON_FRAME = "Site2_Effect_On_Frame";
+    public static final String NCBI_BUILD = "NCBI_Build";
     public static final String DNA_SUPPORT = "DNA_Support";
     public static final String RNA_SUPPORT = "RNA_Support";
     public static final String NORMAL_READ_COUNT = "Normal_Read_Count";
@@ -72,10 +73,14 @@ public class ImportStructuralVariantData {
     public static final String LENGTH = "Length";
     public static final String COMMENTS = "Comments";
     public static final String EXTERNAL_ANNOTATION = "External_Annotation";
+    public static final String DRIVER_FILTER = "cbp_driver";
+    public static final String DRIVER_FILTER_ANNOTATION = "cbp_driver_annotation";
+    public static final String DRIVER_TIERS_FILTER = "cbp_driver_tiers";
+    public static final String DRIVER_TIERS_FILTER_ANNOTATION = "cbp_driver_tiers_annotation";
 
     // Other constants
     public static final String PROTEIN_CHANGE_FUSION = "FUSION";
-    
+
     // Initialize variables
     private File structuralVariantFile;
     private int geneticProfileId;
@@ -107,10 +112,7 @@ public class ImportStructuralVariantData {
             this.columnIndexMap.put(headerParts[i].toLowerCase(), i);
         }
 
-        // Retrieve largest StructuralVariant Internal ID
-        long largestInternalId = DaoStructuralVariant.getLargestInternalId();
-
-        // Genetic profile is read in first?
+        // Genetic profile is read in first
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
         String line = new String();
         while ((line = buf.readLine()) != null) {
@@ -119,9 +121,8 @@ public class ImportStructuralVariantData {
             if( !line.startsWith("#") && line.trim().length() > 0) {
                 String parts[] = line.split("\t", -1);
                 StructuralVariant structuralVariant = new StructuralVariant();
-                
+
                 structuralVariant.setGeneticProfileId(geneticProfileId);
-                structuralVariant.setInternalId(++largestInternalId);
                 structuralVariant.setSampleId(TabDelimitedFileUtil.getPartString(getColumnIndex(Sample_ID), parts));
                 structuralVariant.setSite1EntrezGeneId(TabDelimitedFileUtil.getPartLong(getColumnIndex(SITE1_ENTREZ_GENE_ID), parts));
                 structuralVariant.setSite1HugoSymbol(TabDelimitedFileUtil.getPartString(getColumnIndex(SITE1_HUGO_SYMBOL), parts));
@@ -138,6 +139,7 @@ public class ImportStructuralVariantData {
                 structuralVariant.setSite2Position(TabDelimitedFileUtil.getPartInt(getColumnIndex(SITE2_POSITION), parts));
                 structuralVariant.setSite2Description(TabDelimitedFileUtil.getPartString(getColumnIndex(SITE2_DESCRIPTION), parts));
                 structuralVariant.setSite2EffectOnFrame(TabDelimitedFileUtil.getPartString(getColumnIndex(SITE2_EFFECT_ON_FRAME), parts));
+                structuralVariant.setNcbiBuild(TabDelimitedFileUtil.getPartString(getColumnIndex(NCBI_BUILD), parts));
                 structuralVariant.setDnaSupport(TabDelimitedFileUtil.getPartString(getColumnIndex(DNA_SUPPORT), parts));
                 structuralVariant.setRnaSupport(TabDelimitedFileUtil.getPartString(getColumnIndex(RNA_SUPPORT), parts));
                 structuralVariant.setNormalReadCount(TabDelimitedFileUtil.getPartInt(getColumnIndex(NORMAL_READ_COUNT), parts));
@@ -157,6 +159,10 @@ public class ImportStructuralVariantData {
                 structuralVariant.setLength(TabDelimitedFileUtil.getPartInt(getColumnIndex(LENGTH), parts));
                 structuralVariant.setComments(TabDelimitedFileUtil.getPartString(getColumnIndex(COMMENTS), parts));
                 structuralVariant.setExternalAnnotation(TabDelimitedFileUtil.getPartString(getColumnIndex(EXTERNAL_ANNOTATION), parts));
+                structuralVariant.setDriverFilter(TabDelimitedFileUtil.getPartString(getColumnIndex(DRIVER_FILTER), parts));
+                structuralVariant.setDriverFilterAnn(TabDelimitedFileUtil.getPartString(getColumnIndex(DRIVER_FILTER_ANNOTATION), parts));
+                structuralVariant.setDriverTiersFilter(TabDelimitedFileUtil.getPartString(getColumnIndex(DRIVER_TIERS_FILTER), parts));
+                structuralVariant.setDriverTiersFilterAnn(TabDelimitedFileUtil.getPartString(getColumnIndex(DRIVER_TIERS_FILTER_ANNOTATION), parts));
 
                 // get sample
                 Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(
@@ -169,9 +175,9 @@ public class ImportStructuralVariantData {
                 } else {
                     // Set sample internal id
                     structuralVariant.setSampleIdInternal(sample.getInternalId());
-                    
+
                     // The current structural variant model, the input file always contains 2 genes, so in this implementation both are required.
-                    
+
                     //  Assume we are dealing with Entrez Gene Ids
                     String site1HugoSymbol = structuralVariant.getSite1HugoSymbol();
                     String site2HugoSymbol = structuralVariant.getSite2HugoSymbol();
@@ -232,15 +238,11 @@ public class ImportStructuralVariantData {
             }
         }
         buf.close();
-        if( MySQLbulkLoader.isBulkLoad()) {
-            MySQLbulkLoader.flushAll();
-        }
+        MySQLbulkLoader.flushAll();
     }
-
 
     private int getColumnIndex(String colName) {
         Integer index = this.columnIndexMap.get(colName.toLowerCase());
-
         if (index == null) {
             index = -1;
         }

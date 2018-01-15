@@ -396,11 +396,11 @@ CREATE TABLE `reference_genome` (
     UNIQUE INDEX `BUILD_NAME_UNIQUE` (`BUILD_NAME` ASC)
 );
 
-INSERT INTO `reference_genome` 
+INSERT INTO `reference_genome`
 VALUES (1, 'human', 'hg19', 'GRCh37', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01');
-INSERT INTO `reference_genome` 
+INSERT INTO `reference_genome`
 VALUES (2, 'human', 'hg38', 'GRCh38', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips', '2013-12-01');
-INSERT INTO `reference_genome` 
+INSERT INTO `reference_genome`
 VALUES (3, 'mouse', 'mm10', 'GRCm38', NULL, 'http://hgdownload.cse.ucsc.edu//goldenPath/mm10/bigZips', '2012-01-01');
 
 CREATE TABLE `reference_genome_gene` (
@@ -418,12 +418,12 @@ CREATE TABLE `reference_genome_gene` (
 );
 
 INSERT INTO reference_genome_gene (ENTREZ_GENE_ID, CYTOBAND, EXONIC_LENGTH, CHR, REFERENCE_GENOME_ID)
-(SELECT 
-	ENTREZ_GENE_ID, 
-	CYTOBAND, 
+(SELECT
+	ENTREZ_GENE_ID,
+	CYTOBAND,
 	LENGTH,
     SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(gene.CYTOBAND,IF(LOCATE('p', gene.CYTOBAND), 'p', 'q'), 1),'q',1),'cen',1),
-	1 
+	1
 FROM `gene`);
 
 UPDATE info SET DB_SCHEMA_VERSION="2.4.1";
@@ -440,10 +440,10 @@ CREATE TABLE `fraction_genome_altered` (
   FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
 );
 
-INSERT INTO `fraction_genome_altered` SELECT cancer_study.`CANCER_STUDY_ID`, `SAMPLE_ID`, IF((SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2 
-WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) IS NULL, 0, 
-(SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2 WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` AND 
-ABS(c2.`SEGMENT_MEAN`) >= 0.2) / SUM(`END`-`START`)) AS `VALUE` FROM `copy_number_seg` AS c1, cancer_study WHERE 
+INSERT INTO `fraction_genome_altered` SELECT cancer_study.`CANCER_STUDY_ID`, `SAMPLE_ID`, IF((SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2
+WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) IS NULL, 0,
+(SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2 WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` AND
+ABS(c2.`SEGMENT_MEAN`) >= 0.2) / SUM(`END`-`START`)) AS `VALUE` FROM `copy_number_seg` AS c1, cancer_study WHERE
 c1.`CANCER_STUDY_ID` = cancer_study.`CANCER_STUDY_ID` GROUP BY cancer_study.`CANCER_STUDY_ID`, `SAMPLE_ID` HAVING SUM(`END`-`START`) > 0;
 
 UPDATE info SET DB_SCHEMA_VERSION="2.5.0";
@@ -454,3 +454,56 @@ ALTER TABLE gistic_to_gene DROP FOREIGN KEY gistic_to_gene_ibfk_2;
 ALTER TABLE gistic_to_gene ADD CONSTRAINT `gistic_to_gene_ibfk_2` FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE;
 
 UPDATE info SET DB_SCHEMA_VERSION="2.6.0";
+
+##version: 2.7.0
+-- Previous structural_variant was never used, so recreate it
+DROP TABLE IF EXISTS structural_variant;
+CREATE TABLE `structural_variant` (
+  `INTERNAL_ID` int(11) NOT NULL auto_increment,
+  `GENETIC_PROFILE_ID` int(11) NOT NULL,
+  `SAMPLE_ID` int(11) NOT NULL,
+  `SITE1_ENTREZ_GENE_ID` int(11) NOT NULL,
+  `SITE1_ENSEMBL_TRANSCRIPT_ID` varchar(25),
+  `SITE1_EXON` int(4),
+  `SITE1_CHROMOSOME` varchar(5),
+  `SITE1_POSITION` int(11),
+  `SITE1_DESCRIPTION` varchar(255),
+  `SITE2_ENTREZ_GENE_ID` int(11),
+  `SITE2_ENSEMBL_TRANSCRIPT_ID` varchar(25),
+  `SITE2_EXON` int(4),
+  `SITE2_CHROMOSOME` varchar(5),
+  `SITE2_POSITION` int(11),
+  `SITE2_DESCRIPTION` varchar(255),
+  `SITE2_EFFECT_ON_FRAME` varchar(25),
+  `NCBI_BUILD` varchar(10),
+  `DNA_SUPPORT` varchar(3),
+  `RNA_SUPPORT` varchar(3),
+  `NORMAL_READ_COUNT` int(11),
+  `TUMOR_READ_COUNT` int(11),
+  `NORMAL_VARIANT_COUNT` int(11),
+  `TUMOR_VARIANT_COUNT` int(11),
+  `NORMAL_PAIRED_END_READ_COUNT` int(11),
+  `TUMOR_PAIRED_END_READ_COUNT` int(11),
+  `NORMAL_SPLIT_READ_COUNT` int(11),
+  `TUMOR_SPLIT_READ_COUNT` int(11),
+  `ANNOTATION` varchar(255),
+  `BREAKPOINT_TYPE` varchar(25),
+  `CENTER` varchar(25),
+  `CONNECTION_TYPE` varchar(25),
+  `EVENT_INFO` varchar(255),
+  `CLASS` varchar(25),
+  `LENGTH` int(11),
+  `COMMENTS` varchar(255),
+  `EXTERNAL_ANNOTATION` varchar(80),
+  `DRIVER_FILTER` VARCHAR(20),
+  `DRIVER_FILTER_ANNOTATION` VARCHAR(80),
+  `DRIVER_TIERS_FILTER` VARCHAR(50),
+  `DRIVER_TIERS_FILTER_ANNOTATION` VARCHAR(80),
+  PRIMARY KEY (`INTERNAL_ID`),
+  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`SITE1_ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`SITE2_ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
+);
+
+UPDATE info SET DB_SCHEMA_VERSION="2.7.0";

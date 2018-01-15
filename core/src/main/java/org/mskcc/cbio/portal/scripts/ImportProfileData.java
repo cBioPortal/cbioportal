@@ -91,7 +91,7 @@ public class ImportProfileData extends ConsoleRunnable {
             } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.FUSION) {
                 ImportFusionData importer = new ImportFusionData(dataFile, geneticProfile.getGeneticProfileId(), genePanel);
                 importer.importData();
-            } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.STRUCTURAL_VARIATION) {
+            } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.STRUCTURAL_VARIANT) {
                 ImportStructuralVariantData importer = new ImportStructuralVariantData(dataFile, geneticProfile.getGeneticProfileId(), genePanel);
                 importer.importData();
             } else {

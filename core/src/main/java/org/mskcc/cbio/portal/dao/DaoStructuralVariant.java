@@ -38,29 +38,55 @@ public class DaoStructuralVariant {
      * @return number of records successfully added
      * @throws DaoException 
      */
-    
-    public static long getLargestInternalId() throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoMutation.class);
-            pstmt = con.prepareStatement("SELECT MAX(`INTERNAL_ID`) FROM `structural_variant`");
-            rs = pstmt.executeQuery();
-            return rs.next() ? rs.getLong(1) : 0;
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
-        }
-    }
-    
+
     public static void addStructuralVariantToBulkLoader(StructuralVariant structuralVariant) throws DaoException {
-        
+        MySQLbulkLoader bl =  MySQLbulkLoader.getMySQLbulkLoader("structural_variant");
+        String[] fieldNames = new String[]{
+                                            "GENETIC_PROFILE_ID",
+                                            "SAMPLE_ID",
+                                            "SITE1_ENTREZ_GENE_ID",
+                                            "SITE1_ENSEMBL_TRANSCRIPT_ID",
+                                            "SITE1_EXON",
+                                            "SITE1_CHROMOSOME",
+                                            "SITE1_POSITION",
+                                            "SITE1_DESCRIPTION",
+                                            "SITE2_ENTREZ_GENE_ID",
+                                            "SITE2_ENSEMBL_TRANSCRIPT_ID",
+                                            "SITE2_EXON",
+                                            "SITE2_CHROMOSOME",
+                                            "SITE2_POSITION",
+                                            "SITE2_DESCRIPTION",
+                                            "SITE2_EFFECT_ON_FRAME",
+                                            "NCBI_BUILD",
+                                            "DNA_SUPPORT",
+                                            "RNA_SUPPORT",
+                                            "NORMAL_READ_COUNT",
+                                            "TUMOR_READ_COUNT",
+                                            "NORMAL_VARIANT_COUNT",
+                                            "TUMOR_VARIANT_COUNT",
+                                            "NORMAL_PAIRED_END_READ_COUNT",
+                                            "TUMOR_PAIRED_END_READ_COUNT",
+                                            "NORMAL_SPLIT_READ_COUNT",
+                                            "TUMOR_SPLIT_READ_COUNT",
+                                            "ANNOTATION",
+                                            "BREAKPOINT_TYPE",
+                                            "CENTER",
+                                            "CONNECTION_TYPE",
+                                            "EVENT_INFO",
+                                            "CLASS",
+                                            "LENGTH",
+                                            "COMMENTS",
+                                            "EXTERNAL_ANNOTATION",
+                                            "DRIVER_FILTER",
+                                            "DRIVER_FILTER_ANNOTATION",
+                                            "DRIVER_TIERS_FILTER",
+                                            "DRIVER_TIERS_FILTER_ANNOTATION",
+                                            };
+        bl.setFieldNames(fieldNames );
+
         // write to the temp file maintained by the MySQLbulkLoader
-        MySQLbulkLoader.getMySQLbulkLoader("structural_variant").insertRecord(
+        bl.insertRecord(
            Integer.toString(structuralVariant.getGeneticProfileId()),
-           Long.toString(structuralVariant.getInternalId()),
            Integer.toString(structuralVariant.getSampleIdInternal()),
            Long.toString(structuralVariant.getSite1EntrezGeneId()),
            structuralVariant.getSite1EnsemblTranscriptId(),
@@ -75,6 +101,7 @@ public class DaoStructuralVariant {
            Integer.toString(structuralVariant.getSite2Position()),
            structuralVariant.getSite2Description(),
            structuralVariant.getSite2EffectOnFrame(),
+           structuralVariant.getNcbiBuild(),
            structuralVariant.getDnaSupport(),
            structuralVariant.getRnaSupport(),
            Integer.toString(structuralVariant.getNormalReadCount()),
@@ -93,7 +120,11 @@ public class DaoStructuralVariant {
            structuralVariant.getVariantClass(),
            Integer.toString(structuralVariant.getLength()),
            structuralVariant.getComments(),
-           structuralVariant.getExternalAnnotation());
+           structuralVariant.getExternalAnnotation(),
+           structuralVariant.getDriverFilter(),
+           structuralVariant.getDriverFilterAnn(),
+           structuralVariant.getDriverTiersFilter(),
+           structuralVariant.getDriverTiersFilterAnn());
     }
 }
 

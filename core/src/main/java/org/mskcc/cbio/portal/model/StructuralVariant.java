@@ -25,9 +25,9 @@ package org.mskcc.cbio.portal.model;
 
 public class StructuralVariant {
 
-    private Integer geneticProfileId;
-    private Long internalId;
-    private Integer sampleIdInternal;
+    private int geneticProfileId;
+    private long structuralVariantId;
+    private int sampleIdInternal;
     private String sampleId;
     private Long site1EntrezGeneId;
     private String site1HugoSymbol;
@@ -44,6 +44,7 @@ public class StructuralVariant {
     private Integer site2Position;
     private String site2Description;
     private String site2EffectOnFrame;
+    private String ncbiBuild;
     private String dnaSupport;
     private String rnaSupport;
     private Integer normalReadCount;
@@ -63,23 +64,27 @@ public class StructuralVariant {
     private Integer length;
     private String comments;
     private String externalAnnotation;
+    private String driverFilter;
+    private String driverFilterAnn;
+    private String driverTiersFilter;
+    private String driverTiersFilterAnn;
 
-    public Integer getGeneticProfileId() {
+    public int getGeneticProfileId() {
         return geneticProfileId;
     }
-    public void setGeneticProfileId(Integer geneticProfileId) {
+    public void setGeneticProfileId(int geneticProfileId) {
         this.geneticProfileId = geneticProfileId;
     }
-    public Long getInternalId() {
-        return internalId;
+    public long getStructuralVariantId() {
+        return structuralVariantId;
     }
-    public void setInternalId(Long internalId) {
-        this.internalId = internalId;
+    public void setStructuralVariantId(long structuralVariantId) {
+        this.structuralVariantId = structuralVariantId;
     }
-    public Integer getSampleIdInternal() {
+    public int getSampleIdInternal() {
         return sampleIdInternal;
     }
-    public void setSampleIdInternal(Integer sampleId) {
+    public void setSampleIdInternal(int sampleId) {
         this.sampleIdInternal = sampleId;
     }
     public String getSampleId() {
@@ -177,6 +182,12 @@ public class StructuralVariant {
     }
     public void setSite2EffectOnFrame(String site2EffectOnFrame) {
         this.site2EffectOnFrame = site2EffectOnFrame;
+    }
+    public String getNcbiBuild() {
+        return ncbiBuild;
+    }
+    public void setNcbiBuild(String ncbiBuild) {
+        this.ncbiBuild = ncbiBuild;
     }
     public String getDnaSupport() {
         return dnaSupport;
@@ -291,5 +302,29 @@ public class StructuralVariant {
     }
     public void setExternalAnnotation(String externalAnnotation) {
         this.externalAnnotation = externalAnnotation;
+    }
+    public String getDriverFilter() {
+        return driverFilter;
+    }
+    public void setDriverFilter(String driverFilter) {
+        this.driverFilter = driverFilter;
+    }
+    public String getDriverFilterAnn() {
+        return driverFilterAnn;
+    }
+    public void setDriverFilterAnn(String driverFilterAnn) {
+        this.driverFilterAnn = driverFilterAnn;
+    }
+    public String getDriverTiersFilter() {
+        return driverTiersFilter;
+    }
+    public void setDriverTiersFilter(String driverTiersFilter) {
+        this.driverTiersFilter = driverTiersFilter;
+    }
+    public String getDriverTiersFilterAnn() {
+        return driverTiersFilterAnn;
+    }
+    public void setDriverTiersFilterAnn(String driverTiersFilterAnn) {
+        this.driverTiersFilterAnn = driverTiersFilterAnn;
     }
 }

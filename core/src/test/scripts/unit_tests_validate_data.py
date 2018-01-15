@@ -660,8 +660,8 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(len(record_list), 1)
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.WARNING)
-        self.assertEqual(record.line_number, 6)
-        self.assertTrue(record.cause.startswith('116983'))
+        self.assertEqual(record.line_number, 9)
+        self.assertIn('Duplicate', record.getMessage())
 
     def test_invalid_discrete_cna(self):
         """Check a discrete CNA file with values that should yield errors."""

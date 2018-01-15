@@ -1089,9 +1089,15 @@ public class GlobalProperties {
                 }
                 br.close();
             } catch (FileNotFoundException e) {
-                throw new RuntimeException("File not found: ", e);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("frontend config file not found: " + e.getMessage());
+                }
+                return null;
             } catch (IOException e) {
-                throw new RuntimeException("Line not found: ", e);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Error reading frontend config file: " + e.getMessage());
+                }
+                return null;
             }
         }
         return result;

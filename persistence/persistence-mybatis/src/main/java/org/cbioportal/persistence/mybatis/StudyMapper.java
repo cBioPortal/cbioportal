@@ -7,9 +7,10 @@ import java.util.List;
 
 public interface StudyMapper {
 
-    List<CancerStudy> getAllStudies(String projection, Integer limit, Integer offset, String sortBy, String direction);
+    List<CancerStudy> getStudies(List<String> studyIds, String projection, Integer limit, Integer offset, String sortBy, 
+        String direction);
 
-    BaseMeta getMetaStudies();
+    BaseMeta getMetaStudies(List<String> studyIds);
 
     CancerStudy getStudy(String studyId, String projection);
 }

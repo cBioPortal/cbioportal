@@ -30,26 +30,54 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
+
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <%
-    String siteTitle = GlobalProperties.getTitle();
+    String siteTitle = GlobalProperties.getTitle()+"::Onco Query Language (OQL) Instructions";
+    String appVersion = GlobalProperties.getAppVersion();
 %>
 
-<head>
-<link href="css/cancergenomics.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/style.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-</head>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Onco Query Language (OQL) Instructions"); %>
-<body>
+<t:template title="<%= siteTitle %>" defaultRightColumn="false" fixedWidth="true" cssClass="newsPage">
 
-    <div id="instructions">
-    <div class="markdown">
-            <p><%@ include file="content/onco_spec_lang_desc.html" %></p>
-    </div>
-    <jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
-    </div>
-</body>
-</html>
+    <jsp:attribute name="head_area">
+        <link rel="stylesheet" type="text/css" href="css/gfm.css"/>
+        <!-- js files: -->
+        <script type="text/javascript" src="js/lib/jquery.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/underscore-min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/backbone-min.js?${appVersion}"></script>
+
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.5/showdown.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/showdown-github.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/src/url_based_content.js?${appVersion}"></script>
+        
+        <script>
+        window.loadReactApp({ defaultRoute: 'blank' });
+        </script>
+    </jsp:attribute>
+
+    <jsp:attribute name="body_area">
+        <div id="oqlSpec" class="markdown-body"></div>
+        <div id="reactRoot" class="hidden"></div>
+    </jsp:attribute>
+
+
+</t:template>
+
+
+
+<!-- Initialization script -->
+<script>
+    $(document).ready( function() {
+        // retrieve link for News and generate the page
+        var oqlLink = '<%= GlobalProperties.getOqlHtml()%>';
+        var baseUrl = '<%= GlobalProperties.getBaseUrl()%>';
+        var markdownDocumentation = '<%= GlobalProperties.isMarkdownDocumentation()%>';
+        var generatePage = new GeneratePage(baseUrl, oqlLink, markdownDocumentation, "#oqlSpec");
+        generatePage.init();
+    });
+</script>
+

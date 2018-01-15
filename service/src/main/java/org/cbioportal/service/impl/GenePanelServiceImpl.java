@@ -88,6 +88,18 @@ public class GenePanelServiceImpl implements GenePanelService {
         return genePanelDataList;
     }
 
+    @Override
+    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
+	public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds,
+			List<String> sampleIds, List<Integer> entrezGeneIds) {
+        
+        List<GenePanelData> genePanelDataList = genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(
+            molecularProfileIds, sampleIds);
+        assignGenesOfPanels(genePanelDataList, entrezGeneIds);
+        
+        return genePanelDataList;
+	}
+
     private void assignGenesOfPanels(List<GenePanelData> genePanelDataList, List<Integer> entrezGeneIds) {
         
         List<GenePanelToGene> genePanelToGeneList = genePanelRepository.getGenesOfPanels(genePanelDataList.stream()

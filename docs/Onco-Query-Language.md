@@ -147,7 +147,7 @@ Submit this query and note how many samples have alterations in multiple of thes
 
 ![image of rb oncoprint](images/OQL/rb_query_oncoprint.png)
 
-http://www.cbioportal.org/index.do?session_id=59c16a64498e5df2e2957f19&show_samples=false&
+<http://www.cbioportal.org/index.do?session_id=59c16a64498e5df2e2957f19&show_samples=false&>
 
 
 ### Greater Insight with OQL
@@ -162,11 +162,11 @@ Examine the updated OncoPrint:
 
 ![image of modified rb oncoprint](images/OQL/rb_query_oncoprint_modified.png)
 
-http://www.cbioportal.org/index.do?session_id=59c16ab4498e5df2e2957f1f&show_samples=false&
+<http://www.cbioportal.org/index.do?session_id=59c16ab4498e5df2e2957f1f&show_samples=false&>
 
 This shows that alterations in these genes are almost entirely mutually-exclusive -- no cases are altered in all three genes and only six are altered in two genes. This supports the theory that the tumor has selected for these events.
 
 
 
 ## Questions? Feedback?
-Please share any questions or feedback on OQL with us: http://groups.google.com/group/cbioportal
+Please share any questions or feedback on OQL with us: <http://groups.google.com/group/cbioportal>

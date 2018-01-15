@@ -55,12 +55,7 @@
     		if ($("#mutex").is(":visible")) {
 	    		if (tab_init === false) {
                     window.onReactAppReady(function(){
-                        window.renderMutExTab(document.getElementById('mutex'), {
-                            studyId: QuerySession.getCancerStudyIds()[0],
-                            genes:QuerySession.getQueryGenes(),
-                            samples:QuerySession.getSampleIds(),
-                            oqlQuery:QuerySession.oql_query
-                        });
+                        window.renderMutExTab(document.getElementById('mutex'));
                     });
                     tab_init = true;
                 } 

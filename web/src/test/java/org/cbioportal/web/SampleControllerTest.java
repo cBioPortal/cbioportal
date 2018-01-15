@@ -1,13 +1,12 @@
 package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.cbioportal.model.CancerStudy;
-import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.cbioportal.web.parameter.SampleFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -215,6 +214,7 @@ public class SampleControllerTest {
         Mockito.when(sampleService.fetchSamples(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
             Mockito.anyString())).thenReturn(sampleList);
 
+        SampleFilter sampleFilter = new SampleFilter();
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
         SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
         sampleIdentifier1.setStudyId(TEST_CANCER_STUDY_IDENTIFIER_1);
@@ -224,11 +224,12 @@ public class SampleControllerTest {
         sampleIdentifier2.setStudyId(TEST_CANCER_STUDY_IDENTIFIER_1);
         sampleIdentifier2.setSampleId(TEST_STABLE_ID_2);
         sampleIdentifiers.add(sampleIdentifier2);
+        sampleFilter.setSampleIdentifiers(sampleIdentifiers);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/samples/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(sampleIdentifiers)))
+            .content(objectMapper.writeValueAsString(sampleFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
@@ -261,6 +262,7 @@ public class SampleControllerTest {
         Mockito.when(sampleService.fetchMetaSamples(Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class))).thenReturn(baseMeta);
 
+        SampleFilter sampleFilter = new SampleFilter();
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
         SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
         sampleIdentifier1.setStudyId(TEST_CANCER_STUDY_IDENTIFIER_1);
@@ -270,11 +272,12 @@ public class SampleControllerTest {
         sampleIdentifier2.setStudyId(TEST_CANCER_STUDY_IDENTIFIER_1);
         sampleIdentifier2.setSampleId(TEST_STABLE_ID_2);
         sampleIdentifiers.add(sampleIdentifier2);
+        sampleFilter.setSampleIdentifiers(sampleIdentifiers);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/samples/fetch")
             .param("projection", "META")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(sampleIdentifiers)))
+            .content(objectMapper.writeValueAsString(sampleFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }

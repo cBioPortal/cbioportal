@@ -5,15 +5,18 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
+import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.GenePanelDataFilter;
+import org.cbioportal.web.parameter.GenePanelMultipleStudyFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.cbioportal.web.parameter.sort.GenePanelSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.ArrayList;
 import java.util.List;
 
 @PublicApi
@@ -101,5 +105,41 @@ public class GenePanelController {
         }
 
         return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/gene-panel-data/fetch", method = RequestMethod.POST, 
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch gene panel data")
+    public ResponseEntity<List<GenePanelData>> fetchGenePanelDataInMultipleMolecularProfiles(
+        @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs or List of Molecular" + 
+            "Profile IDs and Entrez Gene IDs")
+        @Valid @RequestBody GenePanelMultipleStudyFilter genePanelMultipleStudyFilter) {
+        
+        List<GenePanelData> genePanelDataList;
+        if (genePanelMultipleStudyFilter.getMolecularProfileIds() != null) {
+            genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
+                genePanelMultipleStudyFilter.getMolecularProfileIds(), null, 
+                genePanelMultipleStudyFilter.getEntrezGeneIds());
+        } else {
+
+            List<String> molecularProfileIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            extractMolecularProfileAndSampleIds(genePanelMultipleStudyFilter, molecularProfileIds, sampleIds);
+            genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds,
+                sampleIds, genePanelMultipleStudyFilter.getEntrezGeneIds());
+        }
+
+        return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
+    }
+
+    private void extractMolecularProfileAndSampleIds(GenePanelMultipleStudyFilter genePanelMultipleStudyFilter,
+                                                     List<String> molecularProfileIds, List<String> sampleIds) {
+        
+        for (SampleMolecularIdentifier sampleMolecularIdentifier :
+            genePanelMultipleStudyFilter.getSampleMolecularIdentifiers()) {
+
+            molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
+            sampleIds.add(sampleMolecularIdentifier.getSampleId());
+        }
     }
 }

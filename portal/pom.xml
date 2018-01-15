@@ -4,7 +4,7 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.10.3-SNAPSHOT</version>
+    <version>1.11.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>cbioportal</artifactId>
@@ -107,7 +107,7 @@
                 <artifactItem>
                   <groupId>com.github.cbioportal</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
-                  <version>009de8581293ea94e8aa5d22d0d3c025b59ceb96</version>
+                  <version>01987369daf51d4a0bababa16f861e72a08c20b0</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>
@@ -197,6 +197,7 @@
                   <excludes>
                     <exclude>**/portal.properties.*</exclude>
                     <exclude>**/log4j.properties.*</exclude>
+                    <exclude>**/maven.properties.*</exclude>
                     <exclude>**/*.EXAMPLE</exclude>
                   </excludes>
                 </resource>
@@ -209,6 +210,7 @@
 
     <filters>
         <filter>../src/main/resources/portal.properties</filter>
+        <filter>../src/main/resources/maven.properties</filter>
     </filters>
     
     <!-- prevent some resources from getting into war -->

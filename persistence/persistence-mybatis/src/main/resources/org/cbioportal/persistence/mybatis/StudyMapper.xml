@@ -52,10 +52,8 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            ,
-            COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_all') THEN 1 ELSE NULL END) AS allSampleCount
-        </if>
+        ,
+        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_all') THEN 1 ELSE NULL END) AS allSampleCount
         <if test="projection == 'DETAILED'">
             <include refid="selectDetailed"/>
         </if>
@@ -99,10 +97,8 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            ,
-            COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_all') THEN 1 ELSE NULL END) AS allSampleCount
-        </if>
+        ,
+        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_all') THEN 1 ELSE NULL END) AS allSampleCount
         <if test="projection == 'DETAILED'">
             <include refid="selectDetailed"/>
         </if>

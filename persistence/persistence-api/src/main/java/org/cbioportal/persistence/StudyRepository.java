@@ -12,7 +12,7 @@ public interface StudyRepository {
 
     BaseMeta getMetaStudies();
 
-    CancerStudy getStudy(String studyId, String projection);
+    CancerStudy getStudy(String studyId);
 
     List<CancerStudy> fetchStudies(List<String> studyIds, String projection);
     

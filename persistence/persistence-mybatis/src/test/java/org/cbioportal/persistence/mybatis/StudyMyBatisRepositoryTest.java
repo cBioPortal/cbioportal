@@ -137,7 +137,7 @@ public class StudyMyBatisRepositoryTest {
     @Test
     public void getStudyNullResult() throws Exception {
 
-        CancerStudy result = studyMyBatisRepository.getStudy("invalid_study", "DETAILED");
+        CancerStudy result = studyMyBatisRepository.getStudy("invalid_study");
 
         Assert.assertNull(result);
     }
@@ -145,7 +145,7 @@ public class StudyMyBatisRepositoryTest {
     @Test
     public void getStudy() throws Exception {
 
-        CancerStudy result = studyMyBatisRepository.getStudy("study_tcga_pub", "DETAILED");
+        CancerStudy result = studyMyBatisRepository.getStudy("study_tcga_pub");
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));

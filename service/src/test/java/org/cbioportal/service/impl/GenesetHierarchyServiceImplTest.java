@@ -14,6 +14,7 @@ import org.cbioportal.service.GenesetService;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,8 +22,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import junit.framework.Assert;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
@@ -172,8 +171,8 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(1, result.get(2).getGenesets().size());
         Geneset geneset = result.get(2).getGenesets().get(0);
         Assert.assertEquals(GENESET_ID1, geneset.getGenesetId());
-        Assert.assertEquals(0.470, geneset.getRepresentativeScore());
-        Assert.assertEquals(0.0219, geneset.getRepresentativePvalue());
+        Assert.assertEquals((Double) 0.470, geneset.getRepresentativeScore());
+        Assert.assertEquals((Double) 0.0219, geneset.getRepresentativePvalue());
 
         //90th percentile, with thresholds abs_score=0.3 and p-value=0.05:
         result = genesetHierarchyService.fetchGenesetHierarchyInfo(MOLECULAR_PROFILE_ID, 90, 0.3, 0.05,
@@ -192,12 +191,12 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(1, result.get(3).getGenesets().size());
         geneset = result.get(2).getGenesets().get(0);
         Assert.assertEquals(GENESET_ID1, geneset.getGenesetId());
-        Assert.assertEquals(0.499, geneset.getRepresentativeScore());
-        Assert.assertEquals(0.0359, geneset.getRepresentativePvalue());
+        Assert.assertEquals((Double) 0.499, geneset.getRepresentativeScore());
+        Assert.assertEquals((Double) 0.0359, geneset.getRepresentativePvalue());
         geneset = result.get(2).getGenesets().get(1);
         Assert.assertEquals(GENESET_ID2, geneset.getGenesetId());
-        Assert.assertEquals(-0.35, geneset.getRepresentativeScore());
-        Assert.assertEquals(0.046, geneset.getRepresentativePvalue());
+        Assert.assertEquals((Double) (-0.35), geneset.getRepresentativeScore());
+        Assert.assertEquals((Double) 0.046, geneset.getRepresentativePvalue());
         //last one is also GENESET_ID2:
         Assert.assertEquals(geneset, result.get(3).getGenesets().get(0));
 
@@ -217,8 +216,8 @@ public class GenesetHierarchyServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(1, result.get(3).getGenesets().size());
         geneset = result.get(2).getGenesets().get(0);
         Assert.assertEquals(GENESET_ID2, geneset.getGenesetId());
-        Assert.assertEquals(0.12, geneset.getRepresentativeScore());
-        Assert.assertEquals(0.0019, geneset.getRepresentativePvalue());
+        Assert.assertEquals((Double) 0.12, geneset.getRepresentativeScore());
+        Assert.assertEquals((Double) 0.0019, geneset.getRepresentativePvalue());
         //last one is also GENESET_ID2:
         Assert.assertEquals(geneset, result.get(3).getGenesets().get(0));
     }

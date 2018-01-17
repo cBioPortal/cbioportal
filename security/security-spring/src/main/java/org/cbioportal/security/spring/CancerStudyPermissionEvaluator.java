@@ -146,7 +146,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             if (targetId.toString().equalsIgnoreCase(ALL_CANCER_STUDIES_ID)) {
                 return true;
             }
-            CancerStudy cancerStudy = studyRepository.getStudy(targetId.toString());
+            CancerStudy cancerStudy = studyRepository.getStudy(targetId.toString(), "ID");
             if (cancerStudy == null) { 
                 return false;
             }
@@ -223,13 +223,13 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             cancerStudy = ((MolecularProfile) targetDomainObject).getCancerStudy(); 
             if (cancerStudy == null) {
                 // cancer study was not included so get it
-                cancerStudy = studyRepository.getStudy(((MolecularProfile) targetDomainObject).getCancerStudyIdentifier());
+                cancerStudy = studyRepository.getStudy(((MolecularProfile) targetDomainObject).getCancerStudyIdentifier(), "ID");
             }
         } else if (targetDomainObject instanceof SampleList) {
             cancerStudy = ((SampleList) targetDomainObject).getCancerStudy();
             if (cancerStudy == null) {
                 // cancer study was not included so get it
-                cancerStudy = studyRepository.getStudy(((SampleList) targetDomainObject).getCancerStudyIdentifier());
+                cancerStudy = studyRepository.getStudy(((SampleList) targetDomainObject).getCancerStudyIdentifier(), "ID");
             }
         } else { 
             if (log.isDebugEnabled()) {

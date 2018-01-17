@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.CosmicCountMapper">
-    <cache size="50000"/>
+    <cache size="50000" readOnly="true"/>
 
     <select id="getCosmicCountsByKeywords" resultType="org.cbioportal.model.CosmicMutation">
         SELECT

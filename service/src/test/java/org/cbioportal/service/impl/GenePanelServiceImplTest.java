@@ -174,4 +174,35 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(1, result.get(0).getEntrezGeneIds().size());
         Assert.assertEquals(ENTREZ_GENE_ID, result.get(0).getEntrezGeneIds().get(0));
     }
+
+    @Test
+    public void fetchGenePanelDataInMultipleMolecularProfiles() throws Exception {
+
+        List<GenePanelData> expectedGenePanelDataList = new ArrayList<>();
+        GenePanelData genePanelData = new GenePanelData();
+        genePanelData.setGenePanelId(GENE_PANEL_ID);
+        expectedGenePanelDataList.add(genePanelData);
+        List<GenePanelToGene> expectedGenePanelToGeneList = new ArrayList<>();
+        GenePanelToGene genePanelToGene = new GenePanelToGene();
+        genePanelToGene.setGenePanelId(GENE_PANEL_ID);
+        genePanelToGene.setEntrezGeneId(ENTREZ_GENE_ID);
+        expectedGenePanelToGeneList.add(genePanelToGene);
+
+        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(new MolecularProfile());
+
+        Mockito.when(genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(
+            Arrays.asList(MOLECULAR_PROFILE_ID), Arrays.asList(SAMPLE_ID1, SAMPLE_ID2))).thenReturn(expectedGenePanelDataList);
+
+        Mockito.when(genePanelRepository.getGenesOfPanels(Arrays.asList(GENE_PANEL_ID)))
+            .thenReturn(expectedGenePanelToGeneList);
+
+        List<GenePanelData> result = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
+            Arrays.asList(MOLECULAR_PROFILE_ID), Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), Arrays.asList(ENTREZ_GENE_ID));
+
+        Assert.assertEquals(expectedGenePanelDataList, result);
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals(genePanelData, result.get(0));
+        Assert.assertEquals(1, result.get(0).getEntrezGeneIds().size());
+        Assert.assertEquals(ENTREZ_GENE_ID, result.get(0).getEntrezGeneIds().get(0));
+    }
 }

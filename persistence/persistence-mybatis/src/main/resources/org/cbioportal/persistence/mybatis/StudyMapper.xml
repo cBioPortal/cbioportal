@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.StudyMapper">
-    <cache/>
+    <cache readOnly="true"/>
 
     <sql id="select">
         cancer_study.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
@@ -47,17 +47,27 @@
         </if>
     </sql>
 
-    <select id="getAllStudies" resultType="org.cbioportal.model.CancerStudy">
+    <select id="getStudies" resultType="org.cbioportal.model.CancerStudy">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        ,
-        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_all') THEN 1 ELSE NULL END) AS allSampleCount
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_all') THEN 1 ELSE NULL END) AS allSampleCount
+        </if>
         <if test="projection == 'DETAILED'">
             <include refid="selectDetailed"/>
         </if>
         <include refid="from"/>
+        <where>
+            <if test="studyIds != null and !studyIds.isEmpty()">
+                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
         GROUP BY cancer_study.CANCER_STUDY_ID
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
@@ -74,6 +84,14 @@
         SELECT
         COUNT(*) AS totalCount
         FROM cancer_study
+        <where>
+            <if test="list != null and !list.isEmpty()">
+                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
     </select>
 
     <select id="getStudy" resultType="org.cbioportal.model.CancerStudy">
@@ -81,8 +99,10 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        ,
-        COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_all') THEN 1 ELSE NULL END) AS allSampleCount
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            ,
+            COUNT(CASE WHEN sample_list.STABLE_ID = CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER,'_all') THEN 1 ELSE NULL END) AS allSampleCount
+        </if>
         <if test="projection == 'DETAILED'">
             <include refid="selectDetailed"/>
         </if>

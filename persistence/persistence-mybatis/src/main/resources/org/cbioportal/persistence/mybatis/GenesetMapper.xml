@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.GenesetMapper">
-    <cache/>
+    <cache readOnly="true"/>
 
     <sql id="select">
         geneset.ID AS "${prefix}internalId",
@@ -44,14 +44,14 @@
         WHERE geneset.EXTERNAL_ID = #{genesetId}
     </select>
     
-    <select id="getGenesetsByGenesetIds" resultType="org.cbioportal.model.Geneset">
+    <select id="fetchGenesets" resultType="org.cbioportal.model.Geneset">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
         FROM geneset
         WHERE geneset.EXTERNAL_ID IN
-        <foreach item="item" collection="genesetIds" open="(" separator="," close=")">
+        <foreach item="item" collection="list" open="(" separator="," close=")">
             #{item}
         </foreach>
         ORDER BY geneset.EXTERNAL_ID ASC

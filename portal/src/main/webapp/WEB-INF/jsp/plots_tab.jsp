@@ -208,10 +208,14 @@
     	//function that will listen to tab changes and init this one when applicable:
     	function tabsUpdate() {
 	        if ($("#plots").is(":visible")) {
-		    	if (tab_init === false) {
-		        	plotsTab.init();
-		            tab_init = true;
-		        }
+	            
+		        if (tab_init === false) {
+		            fireQuerySession();
+                    plotsTab.init();
+                    tab_init = true;
+                } 
+		        
+		        
 		        $(window).trigger("resize");
 	    	}
     	}

@@ -71,8 +71,12 @@ public class GlobalProperties {
 	public static final String BROAD_BAM_CHECKING_URL = "broad.bam.checking.url";
 	public static final String IGV_BAM_LINKING = "igv.bam.linking";
 	public static final String IGV_BAM_LINKING_STUDIES = "igv.bam.linking.studies";
-    public static final String AUTHENTICATE = "authenticate";
-    public static final String AUTHORIZATION = "authorization";
+    private static String authenticate;
+    @Value("${authenticate:false}") // default is false
+    public void setAuthenticate(String property) { authenticate = property; }
+    private static String authorization;
+    @Value("${authorization:false}") // default is false
+    public void setAuthorization(String property) { authorization = property; }
     public static final String FILTER_GROUPS_BY_APPNAME = "filter_groups_by_appname";
     public static final String INCLUDE_NETWORKS = "include_networks";
     public static final String GOOGLE_ANALYTICS_PROFILE_ID = "google_analytics_profile_id";
@@ -103,8 +107,9 @@ public class GlobalProperties {
     public static final String SKIN_RIGHT_NAV_SHOW_DATA_SETS = "skin.right_nav.show_data_sets";
     public static final String SKIN_RIGHT_NAV_SHOW_EXAMPLES = "skin.right_nav.show_examples";
     public static final String SKIN_RIGHT_NAV_SHOW_TESTIMONIALS = "skin.right_nav.show_testimonials";
-    public static final String SKIN_AUTHORIZATION_MESSAGE = "skin.authorization_message";
-    public static final String DEFAULT_AUTHORIZATION_MESSAGE = "Access to this portal is only available to authorized users.";
+    private static String skinAuthorizationMessage;
+    @Value("${skin.authorization_message:Access to this portal is only available to authorized users.}")
+    public void setSkinAuthorizationMessage(String property) { skinAuthorizationMessage = property; }
     public static final String SKIN_EXAMPLE_STUDY_QUERIES = "skin.example_study_queries";
     public static final String DEFAULT_SKIN_EXAMPLE_STUDY_QUERIES =
             "tcga provisional\n" +
@@ -196,6 +201,8 @@ public class GlobalProperties {
     public static final String DEFAULT_SKIN_ABOUT="About-Us.md";
     public static final String SKIN_NEWS="skin.documentation.news";
     public static final String DEFAULT_SKIN_NEWS="News.md";
+    public static final String SKIN_OQL="skin.documentation.oql";
+    public static final String DEFAULT_SKIN_OQL="Onco-Query-Language.md";
 
     public static final String SKIN_EXAMPLES_RIGHT_COLUMN_HTML="skin.examples_right_column_html";
     
@@ -275,7 +282,7 @@ public class GlobalProperties {
     public static final String ENABLE_DRIVER_ANNOTATIONS = "oncoprint.custom_driver_annotation.default";
     public static final String ENABLE_TIERS = "oncoprint.custom_driver_tiers_annotation.default";
     public static final String ENABLE_ONCOKB_AND_HOTSPOTS_ANNOTATIONS = "oncoprint.oncokb_hotspots.default";
-    public static final String HIDE_PASSENGER_MUTATIONS = "oncoprint.hide_passenger.default";
+    public static final String HIDE_PASSENGER_MUTATIONS = "oncoprint.hide_vus.default";
 
 	private static String civicUrl;
 	@Value("${civic.url:https://civic.genome.wustl.edu/api/}") // default
@@ -395,13 +402,12 @@ public class GlobalProperties {
 
     public static boolean usersMustAuthenticate()
     {
-        String prop = properties.getProperty(AUTHENTICATE);
-        return (!prop.isEmpty() && !prop.equals("false"));
+        return (!authenticate.isEmpty() && !authenticate.equals("false"));
     }
 
     public static String authenticationMethod()
     {
-        return properties.getProperty(AUTHENTICATE);
+        return authenticate;
     }
 
     /**
@@ -419,7 +425,7 @@ public class GlobalProperties {
         }
     }
 	public static boolean usersMustBeAuthorized() {
-        return Boolean.parseBoolean(properties.getProperty(AUTHORIZATION));
+        return Boolean.parseBoolean(authorization);
 	}
 
     public static String getAppName()
@@ -462,6 +468,12 @@ public class GlobalProperties {
     {
         String newsHtml = properties.getProperty(SKIN_NEWS);
         return (newsHtml == null) ? DEFAULT_SKIN_NEWS : getContentString(newsHtml);
+    }
+    
+    public static String getOqlHtml()
+    {
+        String oqlHtml = properties.getProperty(SKIN_OQL);
+        return (oqlHtml == null) ? DEFAULT_SKIN_OQL : getContentString(oqlHtml);
     }
     // get custom News html or the default
     public static String getBaseUrl()
@@ -651,8 +663,7 @@ public class GlobalProperties {
 
     public static String getAuthorizationMessage()
     {
-        String authMessage = properties.getProperty(SKIN_AUTHORIZATION_MESSAGE);
-        return authMessage == null ? DEFAULT_AUTHORIZATION_MESSAGE : authMessage;
+        return skinAuthorizationMessage;
     }
 
     public static String getExampleStudyQueries() {
@@ -1066,7 +1077,7 @@ public class GlobalProperties {
     {
         String result = new String();
 
-        if (fileName == null) {
+        if (fileName == null || fileName.trim().equals("")) {
             result = null;
         } else {
             try {
@@ -1077,9 +1088,15 @@ public class GlobalProperties {
                 }
                 br.close();
             } catch (FileNotFoundException e) {
-                throw new RuntimeException("File not found: ", e);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("frontend config file not found: " + e.getMessage());
+                }
+                return null;
             } catch (IOException e) {
-                throw new RuntimeException("Line not found: ", e);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Error reading frontend config file: " + e.getMessage());
+                }
+                return null;
             }
         }
         return result;

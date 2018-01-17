@@ -10,14 +10,13 @@ import org.cbioportal.persistence.GenesetRepository;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GenesetNotFoundException;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import junit.framework.Assert;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GenesetServiceImplTest extends BaseServiceImplTest {

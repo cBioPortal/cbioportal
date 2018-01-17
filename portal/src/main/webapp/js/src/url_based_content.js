@@ -181,7 +181,7 @@ function ServicePresenter(baseURL, markdownDocumentation){
 
     // convert markdown to html using the showdown library
     function markdown2html(markdownPage){
-        var converter = new showdown.Converter({extensions: ['github']}),
+        var converter = new showdown.Converter({extensions: ['github'], tables:true}),
             text      = markdownPage,
             html      = converter.makeHtml(text);
         return html;

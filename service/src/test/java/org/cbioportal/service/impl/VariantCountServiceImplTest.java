@@ -1,6 +1,5 @@
 package org.cbioportal.service.impl;
 
-import junit.framework.Assert;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.model.VariantCount;
@@ -9,6 +8,7 @@ import org.cbioportal.persistence.VariantCountRepository;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.SampleListService;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

@@ -14,6 +14,7 @@ import org.cbioportal.service.GenesetService;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,8 +22,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import junit.framework.Assert;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
@@ -139,7 +138,7 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
 
         Assert.assertEquals(1, result.size());
         Assert.assertEquals(1, result.get(0).getEntrezGeneId().intValue());
-        Assert.assertEquals(1.0, result.get(0).getCorrelationValue());
+        Assert.assertEquals((Double) 1.0, result.get(0).getCorrelationValue());
 
         result = genesetCorrelationService.fetchCorrelatedGenes(GENESET_ID1, MOLECULAR_PROFILE_ID,
                 Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), -1.0);
@@ -147,9 +146,9 @@ public class GenesetCorrelationServiceImplTest extends BaseServiceImplTest {
         //now we expect both genes to return, since correlation threshold is at -1.0 (just a dummy threshold for testing):
         Assert.assertEquals(2, result.size());
         Assert.assertEquals(1, result.get(0).getEntrezGeneId().intValue());
-        Assert.assertEquals(1.0, result.get(0).getCorrelationValue());
+        Assert.assertEquals((Double) 1.0, result.get(0).getCorrelationValue());
         Assert.assertEquals(2, result.get(1).getEntrezGeneId().intValue());
-        Assert.assertEquals(-1.0, result.get(1).getCorrelationValue());
+        Assert.assertEquals((Double) (-1.0), result.get(1).getCorrelationValue());
 
         //test when 1 of the samples does not have data:
         result = genesetCorrelationService.fetchCorrelatedGenes(GENESET_ID1, MOLECULAR_PROFILE_ID,

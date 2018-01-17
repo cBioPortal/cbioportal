@@ -1,11 +1,11 @@
 package org.cbioportal.service.impl;
 
-import junit.framework.Assert;
 import org.cbioportal.model.CopyNumberSeg;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.SampleNotFoundException;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

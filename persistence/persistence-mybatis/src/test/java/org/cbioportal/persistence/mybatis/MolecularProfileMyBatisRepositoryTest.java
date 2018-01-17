@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -170,6 +171,27 @@ public class MolecularProfileMyBatisRepositoryTest {
     }
 
     @Test
+    public void getMolecularProfiles() throws Exception {
+
+        List<MolecularProfile> result = molecularProfileMyBatisRepository.getMolecularProfiles(Arrays.asList(
+            "study_tcga_pub_gistic", "study_tcga_pub_mrna"), "SUMMARY");
+
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals("study_tcga_pub_gistic", result.get(0).getStableId());
+        Assert.assertEquals("study_tcga_pub_mrna", result.get(1).getStableId());
+    }
+
+    @Test
+    public void getMetaMolecularProfilesById() throws Exception {
+
+        BaseMeta result = molecularProfileMyBatisRepository.getMetaMolecularProfiles(Arrays.asList(
+            "study_tcga_pub_gistic", "study_tcga_pub_mrna"));
+
+        Assert.assertEquals((Integer) 2, result.getTotalCount());
+    }
+
+
+    @Test
     public void getAllMolecularProfilesInStudySummaryProjection() throws Exception {
 
         List<MolecularProfile> result = molecularProfileMyBatisRepository
@@ -198,5 +220,36 @@ public class MolecularProfileMyBatisRepositoryTest {
         BaseMeta result = molecularProfileMyBatisRepository.getMetaMolecularProfilesInStudy("study_tcga_pub");
 
         Assert.assertEquals((Integer) 7, result.getTotalCount());
+    }
+
+    @Test
+    public void getMolecularProfilesInStudies() throws Exception {
+
+        List<MolecularProfile> result = molecularProfileMyBatisRepository
+            .getMolecularProfilesInStudies(Arrays.asList("study_tcga_pub", "acc_tcga"), "SUMMARY");
+
+        Assert.assertEquals(8, result.size());
+        MolecularProfile molecularProfile = result.get(0);
+        Assert.assertEquals((Integer) 8, molecularProfile.getMolecularProfileId());
+        Assert.assertEquals("acc_tcga_mutations", molecularProfile.getStableId());
+        Assert.assertEquals((Integer) 2, molecularProfile.getCancerStudyId());
+        Assert.assertEquals("acc_tcga", molecularProfile.getCancerStudyIdentifier());
+        Assert.assertEquals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED,
+                molecularProfile.getMolecularAlterationType());
+        Assert.assertEquals("MAF", molecularProfile.getDatatype());
+        Assert.assertEquals("Mutations", molecularProfile.getName());
+        Assert.assertEquals("Mutation data from whole exome sequencing.",
+                molecularProfile.getDescription());
+        Assert.assertEquals(true, molecularProfile.getShowProfileInAnalysisTab());
+        Assert.assertNull(molecularProfile.getCancerStudy());
+    }
+
+    @Test
+    public void getMetaMolecularProfilesInStudies() throws Exception {
+
+        BaseMeta result = molecularProfileMyBatisRepository.getMetaMolecularProfilesInStudies(
+            Arrays.asList("study_tcga_pub", "acc_tcga"));
+
+        Assert.assertEquals((Integer) 8, result.getTotalCount());
     }
 }

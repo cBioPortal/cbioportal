@@ -296,6 +296,19 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals(1, result.size());
         Assert.assertEquals((Integer) 4, result.get(0).getCount());
     }
+
+    @Test
+    public void getPatientCountByEntrezGeneIds() throws Exception {
+
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        entrezGeneIds.add(208);
+        
+        List<MutationCountByGene> result = mutationMyBatisRepository.getPatientCountByEntrezGeneIdsAndSampleIds(
+            "acc_tcga_mutations", null, entrezGeneIds);
+        
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals((Integer) 1, result.get(0).getCount());
+    }
     
     @Test
     public void getMutationCountsInMolecularProfileBySampleListId() throws Exception {

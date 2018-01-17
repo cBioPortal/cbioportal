@@ -209,7 +209,7 @@ oncoprint.defaultview=patient
 # oncoprint.custom_driver_annotation.default=true
 # oncoprint.custom_driver_tiers_annotation.default=true
 # oncoprint.oncokb_hotspots.default=custom
-# oncoprint.hide_passenger.default=false
+# oncoprint.hide_vus.default=false
 
 # Custom gene sets
 # querypage.setsofgenes.location=file:/<path>

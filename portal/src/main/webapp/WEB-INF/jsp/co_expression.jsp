@@ -105,7 +105,8 @@
 <script>
     $(document).ready( function() {
         var coexp_tab_init = false;
-        if ($("#coexp").is(":visible")) {
+        if ($("#coexp").is(":visible")) {     
+            fireQuerySession();
             CoExpView.init();
             coexp_tab_init = true;
         } else {

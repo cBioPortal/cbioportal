@@ -35,7 +35,7 @@ public class StudyServiceImpl implements StudyService {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public CancerStudy getStudy(String studyId) throws StudyNotFoundException {
 
-        CancerStudy cancerStudy = studyRepository.getStudy(studyId);
+        CancerStudy cancerStudy = studyRepository.getStudy(studyId, "DETAILED");
         if (cancerStudy == null) {
             throw new StudyNotFoundException(studyId);
         }

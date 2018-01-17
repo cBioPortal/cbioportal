@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -126,20 +127,35 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
     @Test
     public void getAllClinicalAttributesInStudiesBySampleIds() throws Exception {
 
-        List<ClinicalAttribute> expectedClinicalAttributeList = new ArrayList<>();
-        ClinicalAttribute clinicalAttribute = new ClinicalAttribute();
-        expectedClinicalAttributeList.add(clinicalAttribute);
-
         List<String> sampleIds = new ArrayList<>();
         List<String> studyIds = new ArrayList<>();
         sampleIds.add(SAMPLE_ID1);
         studyIds.add(STUDY_ID);
+
+        List<ClinicalAttribute> expectedClinicalAttributeList = new ArrayList<>();
+        ClinicalAttribute clinicalAttribute = new ClinicalAttribute();
+        expectedClinicalAttributeList.add(clinicalAttribute);
 
         Mockito.when(clinicalAttributeRepository.getAllClinicalAttributesInStudiesBySampleIds(sampleIds, studyIds,
                 PROJECTION, SORT, DIRECTION)).thenReturn(expectedClinicalAttributeList);
 
         List<ClinicalAttribute> result = clinicalAttributeService
                 .getAllClinicalAttributesInStudiesBySampleIds(sampleIds, studyIds, PROJECTION, SORT, DIRECTION);
+
+        Assert.assertEquals(expectedClinicalAttributeList, result);
+    }
+
+    @Test
+    public void fetchClinicalAttributes() throws Exception {
+
+        List<ClinicalAttribute> expectedClinicalAttributeList = new ArrayList<>();
+        ClinicalAttribute clinicalAttribute = new ClinicalAttribute();
+        expectedClinicalAttributeList.add(clinicalAttribute);
+
+        Mockito.when(clinicalAttributeRepository.fetchClinicalAttributes(Arrays.asList(STUDY_ID), PROJECTION))
+            .thenReturn(expectedClinicalAttributeList);
+
+        List<ClinicalAttribute> result = clinicalAttributeService.fetchClinicalAttributes(Arrays.asList(STUDY_ID), PROJECTION);
 
         Assert.assertEquals(expectedClinicalAttributeList, result);
     }
@@ -160,4 +176,13 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(expectedClinicalAttributeList, result);
     }
 
+    @Test
+    public void fetchMetaClinicalAttributes() throws Exception {
+
+        BaseMeta expectedBaseMeta = new BaseMeta();
+        Mockito.when(clinicalAttributeRepository.fetchMetaClinicalAttributes(Arrays.asList(STUDY_ID))).thenReturn(expectedBaseMeta);
+        BaseMeta result = clinicalAttributeService.fetchMetaClinicalAttributes(Arrays.asList(STUDY_ID));
+
+        Assert.assertEquals(expectedBaseMeta, result);
+    }
 }

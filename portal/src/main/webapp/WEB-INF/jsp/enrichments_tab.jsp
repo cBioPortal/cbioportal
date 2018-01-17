@@ -92,36 +92,43 @@
 
 <script>
 
-    $(document).ready(function(){
-         var enrichments_tab_init = false;
-        $("#tabs").bind("tabsactivate", function(event, ui) {
-                        $(window).trigger("resize");
-                      
-                        if ($("#" + enrichmentsTabSettings.ids.main_div).is(":visible") && enrichments_tab_init === false) {
-                             enrichments_tab_init = true;
-                             fireQuerySession();
-                            
-                             $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples()).then(function(altered_samples, unaltered_samples) {
-                                    var caseListObj = {};
-                                 
-                                    $.each(altered_samples, function(_index, _sampleId) {
-                                        caseListObj[_sampleId] = "altered";
-                                    });
-                                    $.each(unaltered_samples, function(_index, _sampleId) {
-                                        caseListObj[_sampleId] = "unaltered";
-                                    });                         
-                                    enrichmentsTab.init(caseListObj);
-                                
-                                    $(window).trigger("resize");
-                            });
-                            $(window).trigger("resize");
-                        } 
-                      
-                      
-                                            
-                        
-                    });
+$(document).ready(function(){
+    var enrichments_tab_init = false;
     
+     var initEnrichments = function(){
+            enrichments_tab_init = true;
+            fireQuerySession();
+    
+            $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples()).then(function(altered_samples, unaltered_samples) {
+                var caseListObj = {};
+            
+                $.each(altered_samples, function(_index, _sampleId) {
+                    caseListObj[_sampleId] = "altered";
+                });
+                $.each(unaltered_samples, function(_index, _sampleId) {
+                    caseListObj[_sampleId] = "unaltered";
+                });                         
+                enrichmentsTab.init(caseListObj);
+            
+                $(window).trigger("resize");
+            });
+    
+            $(window).trigger("resize");
+    
+     }
+    
+    if ($("#" + enrichmentsTabSettings.ids.main_div).is(":visible") && enrichments_tab_init === false) {
+        initEnrichments();
+    } 
+
+    $("#tabs").bind("tabsactivate", function(event, ui) {
+        $(window).trigger("resize");
+    
+        if ($("#" + enrichmentsTabSettings.ids.main_div).is(":visible") && enrichments_tab_init === false) {
+            initEnrichments();
+        } 
     });
+
+});
 
 </script>

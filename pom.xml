@@ -6,7 +6,7 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>Portal Master</name>
-  <version>1.10.1</version>
+  <version>1.11.1-SNAPSHOT</version>
   <description>master maven module</description>
 
   <scm>
@@ -423,6 +423,7 @@
         <filtering>true</filtering>
         <includes>
           <include>**/portal.properties</include>
+          <include>**/maven.properties</include>
         </includes>
       </resource>
       <resource>
@@ -430,6 +431,7 @@
         <filtering>false</filtering>
         <excludes>
           <exclude>**/portal.properties</exclude>
+          <exclude>**/maven.properties</exclude>
         </excludes>
       </resource>
     </resources>

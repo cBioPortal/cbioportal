@@ -14,4 +14,8 @@ public interface StudyService {
     BaseMeta getMetaStudies();
 
     CancerStudy getStudy(String studyId) throws StudyNotFoundException;
+
+	List<CancerStudy> fetchStudies(List<String> studyIds, String projection);
+
+	BaseMeta fetchMetaStudies(List<String> studyIds);
 }

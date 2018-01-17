@@ -74,4 +74,18 @@ public class ClinicalAttributeServiceImpl implements ClinicalAttributeService {
 
         return clinicalAttributeRepository.getMetaClinicalAttributesInStudy(studyId);
     }
+
+    @Override
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
+	public List<ClinicalAttribute> fetchClinicalAttributes(List<String> studyIds, String projection) {
+        
+        return clinicalAttributeRepository.fetchClinicalAttributes(studyIds, projection);
+	}
+
+    @Override
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
+	public BaseMeta fetchMetaClinicalAttributes(List<String> studyIds) {
+        
+        return clinicalAttributeRepository.fetchMetaClinicalAttributes(studyIds);
+	}
 }

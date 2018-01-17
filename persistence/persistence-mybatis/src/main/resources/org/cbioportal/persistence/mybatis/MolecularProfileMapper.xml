@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.MolecularProfileMapper">
-    <cache/>
+    <cache readOnly="true"/>
 
     <sql id="select">
         genetic_profile.GENETIC_PROFILE_ID AS "${prefix}molecularProfileId",
@@ -25,15 +25,18 @@
         </if>
     </sql>
 
-    <select id="getAllMolecularProfiles" resultType="org.cbioportal.model.MolecularProfile">
+    <select id="getAllMolecularProfilesInStudies" resultType="org.cbioportal.model.MolecularProfile">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
         FROM genetic_profile
         INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        <if test="studyId != null">
-            WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        <if test="studyIds != null">
+            WHERE cancer_study.CANCER_STUDY_IDENTIFIER IN
+            <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
         </if>
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
@@ -46,13 +49,16 @@
         </if>
     </select>
 
-    <select id="getMetaMolecularProfiles" resultType="org.cbioportal.model.meta.BaseMeta">
+    <select id="getMetaMolecularProfilesInStudies" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
         FROM genetic_profile
-        <if test="_parameter != null">
+        <if test="list != null">
             INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-            WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+            WHERE cancer_study.CANCER_STUDY_IDENTIFIER IN
+            <foreach item="item" collection="list" open="(" separator="," close=")">
+                #{item}
+            </foreach>
         </if>
     </select>
     
@@ -64,6 +70,37 @@
         FROM genetic_profile
         INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         WHERE genetic_profile.STABLE_ID = #{molecularProfileId}
+    </select>
+
+    <select id="getMolecularProfiles" resultType="org.cbioportal.model.MolecularProfile">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM genetic_profile
+        INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <where>
+            <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
+                genetic_profile.STABLE_ID IN
+                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getMetaMolecularProfiles" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        FROM genetic_profile
+        <where>
+            <if test="list != null and !list.isEmpty()">
+                genetic_profile.STABLE_ID IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
     </select>
     
     <select id="getMolecularProfilesReferredBy" resultType="org.cbioportal.model.MolecularProfile">

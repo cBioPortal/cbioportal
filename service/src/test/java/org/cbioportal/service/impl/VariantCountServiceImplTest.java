@@ -1,12 +1,14 @@
 package org.cbioportal.service.impl;
 
-import junit.framework.Assert;
 import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.SampleList;
 import org.cbioportal.model.VariantCount;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.VariantCountRepository;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
+import org.cbioportal.service.SampleListService;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -30,11 +32,14 @@ public class VariantCountServiceImplTest extends BaseServiceImplTest {
     private MutationService mutationService;
     @Mock
     private MolecularProfileService molecularProfileService;
+    @Mock
+    private SampleListService sampleListService;
     
     @Test
     public void fetchVariantCounts() throws Exception {
 
         MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setCancerStudyIdentifier(STUDY_ID);
         molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
 
@@ -42,6 +47,10 @@ public class VariantCountServiceImplTest extends BaseServiceImplTest {
         mutationMeta.setSampleCount(5);
         Mockito.when(mutationService.fetchMetaMutationsInMolecularProfile(MOLECULAR_PROFILE_ID, null, null))
             .thenReturn(mutationMeta);
+
+        SampleList sampleList = new SampleList();
+        sampleList.setSampleCount(5);
+        Mockito.when(sampleListService.getSampleList(STUDY_ID + "_sequenced")).thenReturn(sampleList);
         
         List<VariantCount> expectedVariantCounts = new ArrayList<>();
         VariantCount variantCount = new VariantCount();

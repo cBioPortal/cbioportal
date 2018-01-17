@@ -16,15 +16,23 @@ public interface MolecularProfileService {
 
     MolecularProfile getMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException;
 
+    List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection);
+
+    BaseMeta getMetaMolecularProfiles(List<String> molecularProfileIds);
+
     List<MolecularProfile> getAllMolecularProfilesInStudy(String studyId, String projection, Integer pageSize,
                                                           Integer pageNumber, String sortBy, String direction) 
         throws StudyNotFoundException;
 
     BaseMeta getMetaMolecularProfilesInStudy(String studyId) throws StudyNotFoundException;
 
-	List<MolecularProfile> getMolecularProfilesReferredBy(String referringMolecularProfileId) 
+    List<MolecularProfile> getMolecularProfilesInStudies(List<String> studyIds, String projection);
+
+    BaseMeta getMetaMolecularProfilesInStudies(List<String> studyIds);
+
+    List<MolecularProfile> getMolecularProfilesReferredBy(String referringMolecularProfileId) 
         throws MolecularProfileNotFoundException;
-	
-	List<MolecularProfile> getMolecularProfilesReferringTo(String referredMolecularProfileId) 
+
+    List<MolecularProfile> getMolecularProfilesReferringTo(String referredMolecularProfileId) 
         throws MolecularProfileNotFoundException;
 }

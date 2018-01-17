@@ -120,7 +120,7 @@ var tooltip_utils = {
 		popup.document.body.appendChild(div);
 		
 		$('<h3 style="text-align:center;">'+gene_panel_id+'</h3><br>').appendTo(div);
-		$(genes.join("<br>")).appendTo(div);
+		$('<span>'+genes.join("<br>")+'</span>').appendTo(div);
 	    });
 	}));
 	return anchor;
@@ -2102,7 +2102,6 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    var colorby_cbioportal_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cbioportal"]');
 		    var colorby_cosmic_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cosmic"]');
 		    var colorby_oncokb_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="oncokb"]');
-		    var colorby_binary_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="driver_filter"]');
 		    var colorby_binary_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="driver_filter"]');
 		    var colorby_multi_values_checkboxes = {};
 		    for (var value in getTiersMap()) {

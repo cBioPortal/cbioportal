@@ -73,110 +73,121 @@
 <script type="text/javascript" src="js/lib/d3.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
-    $(document).ready( function() {
+    
     	//whether this tab has already been initialized or not:
     	var tab_init = false;
     	//function that will listen to tab changes and init this one when applicable:
     	function tabsUpdate() {
     		if ($("#network").is(":visible")) {
 	    		if (tab_init === false) {
-		        	showNetwork();
+    	    		fireQuerySession();
+    	    		
+    	
+    	    		
+    	    		 var networkParams = {
+                                <%=QueryBuilder.GENE_LIST%>:window.QuerySession.getQueryGenes().join(" "),
+                                 <%=QueryBuilder.GENETIC_PROFILE_IDS%>:window.QuerySession.getGeneticProfileIds().join(" "),
+                                 <%=QueryBuilder.CANCER_STUDY_ID%>:window.QuerySession.getCancerStudyIds()[0],
+                                 <%=QueryBuilder.CASE_IDS_KEY%>:window.QuerySession.getCaseIdsKey(),
+                                 <%=QueryBuilder.CASE_SET_ID%>:window.QuerySession.getCaseSetId(),
+                                 <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
+                                 heat_map:$("#heat_map").html(), // don't send'
+                                 xdebug:'<%=useXDebug%>',
+                                 netsrc:'<%=netSrc%>', 
+                                 linkers:'<%=nLinker%>',
+                                 netsize:'<%=netSize%>',
+                                 diffusion:'<%=diffusion%>',
+                                };
+    	    		
+		        	showNetwork(networkParams);
 		            tab_init = true;
 		        }
 		        $(window).trigger("resize");
 	    	}
     	}
         //this is for the scenario where the tab is open by default (as part of URL >> #tab_name at the end of URL):
-    	tabsUpdate();
-        //this is for the scenario where the user navigates to this tab:
-        $("#tabs").bind("tabsactivate", function(event, ui) {
-        	tabsUpdate();
-        });
-    });
+        
+        $(document).ready(function(){
+                tabsUpdate();
+                //this is for the scenario where the user navigates to this tab:
+                $("#tabs").bind("tabsactivate", function(event, ui) {
+                	tabsUpdate();
+                });
+         });
+
+        
+    	
+        
+        
+
+   // var genomicData = {};
+    // Send genomic data query again
+   // var geneDataQuery = {
+   //     cancer_study_id: window.serverVars.cancerStudies[0],
+   //     genes: window.QuerySession.getQueryGenes().join(" "),
+   //     geneticProfileIds: window.QuerySession.getGeneticProfileIds(),
+   //     z_score_threshold: <%=zScoreThreshold%>,
+   //     rppa_score_threshold: <%=rppaScoreThreshold%>
+   // };
+
+    // show messages in graphml
+    function showNetworkMessage(graphml, divNetMsg) {
+        var msgbegin = "<!--messages begin:";
+        var ix1 = graphml.indexOf(msgbegin);
+        if (ix1==-1) {
+            $(divNetMsg).hide();
+        } else {
+            ix1 += msgbegin.length;
+            var ix2 = graphml.indexOf("messages end-->",ix1);
+            var msgs = $.trim(graphml.substring(ix1,ix2));
+            if (msgs) {
+                $(divNetMsg).append(msgs.replace(/\n/g,"<br/>\n"));
+            }
+        }
+    }
+
+    function showXDebug(graphml) {
+        if (<%=useXDebug%>) {
+            var xdebugsbegin = "<!--xdebug messages begin:";
+            var ix1 = xdebugsbegin.length+graphml.indexOf(xdebugsbegin);
+            var ix2 = graphml.indexOf("xdebug messages end-->",ix1);
+            var xdebugmsgs = $.trim(graphml.substring(ix1,ix2));
+            $("#cytoscapeweb").css('height','70%');
+            $("#vis_content").append("\n<div id='network_xdebug'>"
+                +xdebugmsgs.replace(/\n/g,"<br/>\n")+"</div>");
+        }
+    }
+
+    var showNetwork = function(networkParams) {
+
+        // get the graphml data from the server
+        $.post("network.do",
+            networkParams,
+            function(graphml){
+                var gml2jsonConverter = new GraphMLToJSon(graphml);
+                var json = gml2jsonConverter.toJSON();
+                window.networkGraphJSON = json;
 
 
 
-
-			var genomicData = {};
-			// Send genomic data query again
-		    var geneDataQuery = {
-                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-		        genes: window.QuerySession.getQueryGenes().join(" "),
-		        geneticProfileIds: window.QuerySession.getGeneticProfileIds(),
-		        z_score_threshold: <%=zScoreThreshold%>,
-		        rppa_score_threshold: <%=rppaScoreThreshold%>
-		    };
-
-            // show messages in graphml
-            function showNetworkMessage(graphml, divNetMsg) {
-                var msgbegin = "<!--messages begin:";
-                var ix1 = graphml.indexOf(msgbegin);
-                if (ix1==-1) {
-                    $(divNetMsg).hide();
-                } else {
-                    ix1 += msgbegin.length;
-                    var ix2 = graphml.indexOf("messages end-->",ix1);
-                    var msgs = $.trim(graphml.substring(ix1,ix2));
-                    if (msgs) {
-                        $(divNetMsg).append(msgs.replace(/\n/g,"<br/>\n"));
-                    }
+                if (typeof graphml !== "string")
+                {
+                  if (window.ActiveXObject) { // IE
+                          graphml = (new XMLSerializer()).serializeToString(graphml);
+                  } else { // Other browsers
+                          graphml = (new XMLSerializer()).serializeToString(graphml);
+                  }
                 }
-            }
 
-            function showXDebug(graphml) {
-                if (<%=useXDebug%>) {
-                    var xdebugsbegin = "<!--xdebug messages begin:";
-                    var ix1 = xdebugsbegin.length+graphml.indexOf(xdebugsbegin);
-                    var ix2 = graphml.indexOf("xdebug messages end-->",ix1);
-                    var xdebugmsgs = $.trim(graphml.substring(ix1,ix2));
-                    $("#cytoscapeweb").css('height','70%');
-                    $("#vis_content").append("\n<div id='network_xdebug'>"
-                        +xdebugmsgs.replace(/\n/g,"<br/>\n")+"</div>");
-                }
-            }
+                //show debug message !
+                showXDebug(graphml);
+                showNetworkMessage(graphml, "#network #netmsg");
 
-            var showNetwork = function() {
-                var networkParams = {
-                    <%=QueryBuilder.GENE_LIST%>:window.QuerySession.getQueryGenes().join(" "),
-                     <%=QueryBuilder.GENETIC_PROFILE_IDS%>:window.QuerySession.getGeneticProfileIds().join(" "),
-                     <%=QueryBuilder.CANCER_STUDY_ID%>:window.QuerySession.getCancerStudyIds()[0],
-                     <%=QueryBuilder.CASE_IDS_KEY%>:window.QuerySession.getCaseIdsKey(),
-                     <%=QueryBuilder.CASE_SET_ID%>:window.QuerySession.getCaseSetId(),
-                     <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
-                     heat_map:$("#heat_map").html(),
-                     xdebug:'<%=useXDebug%>',
-                     netsrc:'<%=netSrc%>',
-                     linkers:'<%=nLinker%>',
-                     netsize:'<%=netSize%>',
-                     diffusion:'<%=diffusion%>',
-                    };
-                // get the graphml data from the server
-                $.post("network.do",
-                    networkParams,
-                    function(graphml){
-                        var gml2jsonConverter = new GraphMLToJSon(graphml);
-                        var json = gml2jsonConverter.toJSON();
-                        window.networkGraphJSON = json;
-
-
-
-                        if (typeof graphml !== "string")
-                        {
-                          if (window.ActiveXObject) { // IE
-                                  graphml = (new XMLSerializer()).serializeToString(graphml);
-                          } else { // Other browsers
-                                  graphml = (new XMLSerializer()).serializeToString(graphml);
-                          }
-                        }
-
-                        //show debug message !
-                        showXDebug(graphml);
-                        showNetworkMessage(graphml, "#network #netmsg");
-
-                        // when the data is available call send2cytoscapeweb
-                        //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-                    });
-            }
+                // when the data is available call send2cytoscapeweb
+                //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+            });
+    }
+            
 
         </script>
 

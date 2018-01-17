@@ -51,7 +51,7 @@ import static org.hamcrest.CoreMatchers.*;
 
 public class TestGlobalProperties {
 	public final String DB_VERSION = "db.version";
-    public final String PROPERTIES_FILENAME = "portal.properties";
+    public final String PROPERTIES_FILENAME = "maven.properties";
 
     @Test
     public void testVersionsMatch() throws Exception {

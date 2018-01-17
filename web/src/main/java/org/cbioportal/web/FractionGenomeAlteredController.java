@@ -40,7 +40,7 @@ public class FractionGenomeAlteredController {
         @PathVariable String studyId,
         @ApiParam(required = true, value = "List of Sample IDs/Sample List ID")
         @Valid @RequestBody FractionGenomeAlteredFilter fractionGenomeAlteredFilter,
-        @ApiParam(required = true, value = "Cutoff")
+        @ApiParam("Cutoff")
         @RequestParam(defaultValue = "0.2") Double cutoff) {
 
         List<FractionGenomeAltered> fractionGenomeAlteredList;

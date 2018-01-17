@@ -150,7 +150,7 @@ The first four rows of the clinical data file contain tab-delimited metadata abo
     If later chart can fit into the first matrix, then its priority will be promoted.
     
     Please see [here](Study-View.md) for more detailed information about how study view utilize priority and how the layout is calculated based on priority.
- 
+- Row 5: **The attribute name for the database**: This name should be in upper case.
     
 
 #### Example metadata rows
@@ -414,6 +414,7 @@ The expression metadata file should contain the following fields:
 
 #### Supported stable_id values for MRNA_EXPRESSION
 For historical reasons, cBioPortal expects the `stable_id` to be one of those listed in the following static set.
+The stable_id for continuous RNA-seq data has two options: `rna_seq_mrna` or `rna_seq_v2_mrna`. These options were added to distinguish between two different TCGA pipelines, which perform different types of normalization (see [RNASeq](https://wiki.nci.nih.gov/display/TCGA/RNASeq) and [RNASeq version 2](https://wiki.nci.nih.gov/display/tcga/rnaseq+version+2)). However, for custom datasets either one of these `stable_id` can be chosen.
 
 <table>
 <thead>
@@ -777,22 +778,21 @@ RET<TAB>5979<TAB>center.edu<TAB>SAMPLE_ID_3<TAB>Fusion<TAB>unknown<TAB>yes<TAB>u
 
 ## Case Lists
 
-There should be 1 or more case lists associated with each cancer study. You should provide **at least one case list which contains all sample ids** (the importer can generate this for your if you set the attribute *add_global_case_list* to 'true' in the [Study metadata](#cancer-study). 
+There should be 1 or more case lists associated with each cancer study. You should provide **at least one case list which contains all sample ids** (the importer can generate this for your if you set the attribute `add_global_case_list` to `true` in the [Study metadata](#cancer-study).
 
-When **not** using the *add_global_case_list* attribute in [Study metadata](#cancer-study), or if you want to add custom case lists:
-- the case list files should be placed in a sub-directory called "case_lists" which exists alongside all the other cancer study data. 
+When **not** using the `add_global_case_list` attribute in [Study metadata](#cancer-study), or if you want to add custom case lists:
+- the case list files should be placed in a sub-directory called `case_lists` which exists alongside all the other cancer study data.
 
 The case list file should contain the following fields:
 
 1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
-2. **stable_id**: it must contain the cancer_study_identifier followed by an underscore. Typically, after this a relevant suffix, e.g., "_custom", is added. There are some naming rules to follow if you want the case list to be selected automatically in the query UI base on the selected sample profiles. See subsection below.
+2. **stable_id**: it must contain the cancer_study_identifier followed by an underscore. Typically, after this a relevant suffix, e.g., `_custom`, is added. There are some naming rules to follow if you want the case list to be selected automatically in the query UI base on the selected sample profiles. See subsection below.
 3. **case_list_name**: A name for the patient list, e.g., "All Tumors".
 4. **case_list_description**: A description of the patient list, e.g., "All tumor samples (825 samples).".
 5. **case_list_ids**: A tab-delimited list of sample ids from the dataset.
 6. **case_list_category**: Optional *alternative* way of linking your case list to a specific molecular profile. E.g. setting this to `all_cases_with_cna_data` will signal to the portal that this is the list of samples to be associated with CNA data in *some* of the analysis. 
 
 #### Example
-
 An example case list file would be:
 ```
 cancer_study_identifier: brca_tcga_pub
@@ -802,22 +802,41 @@ case_list_description: Custom subset of samples (825 samples)
 case_list_ids: SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>SAMPLE_ID_3<TAB>...
 ```
 
-**Attention**: In order for sample counts to propagate to the data sets widget on the home page and the table on the [Data Sets](http://www.cbioportal.org/public-portal/data_sets.jsp) page, the following case list suffixes need to be used in the stable_id property. This is also needed for correct statistics in the Study view page when calculating the frequency of CNA and of mutations per gene in the respective summary tables.
+#### Case list stable id suffixes
+In order for sample counts to propagate to the data sets widget on the home page and the table on the [Data Sets](http://www.cbioportal.org/public-portal/data_sets.jsp) page, the following case list suffixes need to be used in the stable_id property (e.g. `brca_tcga_pub_sequenced`). This is also needed for correct statistics in the Study view page when calculating the frequency of CNA and of mutations per gene in the respective summary tables.
 
-_TODO: add missing data types to this list and clear up how exactly these relate to genetic profiles, especially if there are multiple for the same data type – do the stable_id fields of case lists correspond to those of profiles?_
+* **Sequenced**: `_sequenced` . When only a mutation profile is selected on the query page, this is the default case list.
+* **CNA**: `_acgh`. When only a CNA profile is selected on the query page, this is the default case list.
+* **CNA**: `_cna`.
+* **Sequenced and CNA**: `_cnaseq`. When a mutation and CNA genetic profile are selected on the query page, this is the default case list.
+* **mRNA (microarray)**: `_mrna`. When only a mRNA (microarray) profile is selected on the query page, this is the default case list.
+* **mRNA (RNA-Seq)**: `_rna_seq_mrna`. When only a mRNA (RNA-Seq) profile is selected on the query page, this is the default case list.
+* **mRNA (RNA-SeqV2)**: `_rna_seq_v2_mrna`. When only a mRNA (RNA-SeqV2) profile is selected on the query page, this is the default case list.
+* **mRNA normal**: `_normal_mrna`. Used for the datasets page to calculate the number of normal samples.
+* **mRNA normal**: `_microrna`. Used for the datasets page to calculate the number of microRNA samples.
+* **Methylation (HM27)**: `_methylation_hm27`.
+* **RPPA**: `_rppa`. When only a RPPA profile is selected on the query page, this is the default case list.
+* **Sequenced, CNA and mRNA**: `_3way_complete` When a mutation, CNA and mRNA profile are selected on the query page, this is the default case list.
+* **All**: `_all`. If you are not using *add_global_case_list* attribute in [Study metadata](#cancer-study), you need to add this case list.
 
-* **Sequenced Samples**: "_sequenced" (e.g. "brca_tcga_pub_sequenced").
-* **CNA Patients**: "_cna". Warning: the size of this list is used to determine the percentage of genes with CNA in the study view. If this case list is not given, the system will assume that *all* samples have been sequenced and will calculate the frequency accordingly.
-* **mRNA (RNA-SeqV2)**: "_rna_seq_v2_mrna".
-* **mRNA (microarray)**: "_mrna".
-* **Methylation (HM27)**: "_methylation_hm27".
-* **RPPA**: "_rppa".
-* **Complete**: "_3way_complete" (mRNA, CNA, & sequencing). 
+#### Study view table calculations based on case lists
+This `_sequenced` and `_cna` lists are used to determine the percentage of samples with mutations and CNA in tables on the Study View. If these case list are not given, the system will assume that *all* samples have been sequenced / CNA measured and will calculate the frequency accordingly.
 
-Finally, if you are not using *add_global_case_list* attribute in [Study metadata](#cancer-study), you need to generate the "All samples" case list as well and give it the following stable_id:
-
-* **All Samples**: "_all" (e.g. "brca_tcga_pub_all").
-
+#### Case list categories
+These are the valid case lists categories for `case_list_category: ` in the meta file.
+- `all_cases_in_study`
+- `all_cases_with_mutation_data`
+- `all_cases_with_cna_data`
+- `all_cases_with_log2_cna_data`
+- `all_cases_with_methylation_data`
+- `all_cases_with_mrna_array_data`
+- `all_cases_with_mrna_rnaseq_data`
+- `all_cases_with_rppa_data`
+- `all_cases_with_microrna_data`
+- `all_cases_with_mutation_and_cna_data`
+- `all_cases_with_mutation_and_cna_and_mrna_data`
+- `all_cases_with_gsva_data`
+- `other`
 
 ## Timeline Data
 The timeline data is a representation of the various events that occur during the course of treatment for a patient from initial diagnosis. In cBioPortal timeline data is represented as one or more tracks in the patient view. Each main track is based on an event type, such as "Specimen", "Imaging", "Lab_test", etc.
@@ -1114,6 +1133,7 @@ source_stable_id: Stable id of the genetic profile (in this same study) that was
 profile_name: A name describing the analysis.
 profile_description: A description of the data processing done.
 data_filename: <your GSVA score datafile>
+show_profile_in_analysis_tab: true
 geneset_def_version: Version of the gene set definition this calculation was based on. 
 ```
 
@@ -1127,6 +1147,7 @@ source_stable_id: rna_seq_mrna
 profile_name: GSVA scores on oncogenic signatures gene sets
 profile_description: GSVA scores on oncogenic signatures gene sets using mRNA expression data calculated with GSVA version x with parameters x and y.
 data_filename: data_gsva_scores.txt
+show_profile_in_analysis_tab: true
 geneset_def_version: 1
 ```
 

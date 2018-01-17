@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.MutationMapper">
-    <cache size="100000"/>
+    <cache size="100000" readOnly="true"/>
 
     <sql id="select">
         genetic_profile.STABLE_ID AS molecularProfileId,
@@ -263,10 +263,14 @@
         SELECT
             genetic_profile.STABLE_ID AS molecularProfileId,
             sample.STABLE_ID AS sampleId,
+            patient.STABLE_ID AS patientId,
+            cancer_study.CANCER_STUDY_IDENTIFIER as studyId,
             mutation_count.MUTATION_COUNT AS mutationCount
         FROM mutation_count
             INNER JOIN genetic_profile ON mutation_count.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
             INNER JOIN sample ON mutation_count.SAMPLE_ID = sample.INTERNAL_ID
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         WHERE genetic_profile.STABLE_ID = #{molecularProfileId}
               AND mutation_count.SAMPLE_ID IN
                   (
@@ -280,10 +284,14 @@
         SELECT
         genetic_profile.STABLE_ID AS molecularProfileId,
         sample.STABLE_ID AS sampleId,
+        patient.STABLE_ID AS patientId,
+        cancer_study.CANCER_STUDY_IDENTIFIER as studyId,
         mutation_count.MUTATION_COUNT AS mutationCount
         FROM mutation_count
         INNER JOIN genetic_profile ON mutation_count.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON mutation_count.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         WHERE genetic_profile.STABLE_ID = #{molecularProfileId}
         <if test="sampleIds != null and !sampleIds.isEmpty()">
             AND sample.STABLE_ID IN

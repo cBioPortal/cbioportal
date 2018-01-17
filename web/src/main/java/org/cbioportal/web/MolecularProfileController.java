@@ -4,12 +4,14 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.cbioportal.web.parameter.MolecularProfileFilter;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.sort.MolecularProfileSortBy;
@@ -20,11 +22,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.List;
@@ -107,6 +110,44 @@ public class MolecularProfileController {
             return new ResponseEntity<>(
                 molecularProfileService.getAllMolecularProfilesInStudy(studyId, projection.name(), pageSize, pageNumber,
                     sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
+        }
+    }
+
+    @RequestMapping(value = "/molecular-profiles/fetch", method = RequestMethod.POST, 
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch molecular profiles")
+    public ResponseEntity<List<MolecularProfile>> fetchMolecularProfiles(
+        @ApiParam(required = true, value = "List of Molecular Profile IDs or List of Study IDs")
+        @Valid @RequestBody MolecularProfileFilter molecularProfileFilter,
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) {
+
+        if (projection == Projection.META) {
+            HttpHeaders responseHeaders = new HttpHeaders();
+            BaseMeta baseMeta;
+
+            if (molecularProfileFilter.getStudyIds() != null) {
+                baseMeta = molecularProfileService.getMetaMolecularProfilesInStudies(
+                    molecularProfileFilter.getStudyIds());
+            } else {
+                baseMeta = molecularProfileService.getMetaMolecularProfiles(
+                    molecularProfileFilter.getMolecularProfileIds());
+            }
+
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, baseMeta.getTotalCount().toString());
+            return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
+        } else {
+            List<MolecularProfile> molecularProfiles;
+
+            if (molecularProfileFilter.getStudyIds() != null) {
+                molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(
+                    molecularProfileFilter.getStudyIds(), projection.name());
+            } else {
+                molecularProfiles = molecularProfileService.getMolecularProfiles(
+                    molecularProfileFilter.getMolecularProfileIds(), projection.name());
+            }
+
+            return new ResponseEntity<>(molecularProfiles, HttpStatus.OK);
         }
     }
 }

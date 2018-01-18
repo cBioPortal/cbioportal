@@ -3,8 +3,8 @@ package org.mskcc.cbio.portal.web.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.cbioportal.model.virtualstudy.VirtualStudyData;
 import org.cbioportal.weblegacy.mixin.VirtualStudyDataMixin;
+import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudyData;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package org.cbioportal.model.virtualstudy;
+package org.mskcc.cbio.portal.model.virtualstudy;
 
 public class VirtualStudy {
 

@@ -216,7 +216,7 @@ function getSessionServiceBookmark(fullURL, sessionJSON, callback) {
         var bookmark = null;
         $.ajax({
             type: 'POST',
-            url: 'api-legacy/proxy/session-service/main_session',
+            url: 'api/session/main_session',
             dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify(sessionJSON)

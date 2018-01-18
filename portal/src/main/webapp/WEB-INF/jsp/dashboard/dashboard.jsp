@@ -30,6 +30,9 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
+<%@page import="org.springframework.security.authentication.AnonymousAuthenticationToken"%>
+<%@page import="org.springframework.security.core.context.SecurityContextHolder"%>
+<%@page import="org.springframework.security.core.Authentication"%>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.json.simple.JSONValue" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
@@ -50,6 +53,12 @@
     String studySampleMap = (String)request.getAttribute(CancerStudyView.STUDY_SAMPLE_MAP);
     String cancerStudyViewError = (String)request.getAttribute(CancerStudyView.ERROR);
 
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    boolean showSaveButton = false;
+    if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+    		showSaveButton = true;
+	}
+    
     if (cancerStudyViewError!=null) {
         out.print(cancerStudyViewError);
     } else {
@@ -212,6 +221,7 @@
 <script type="text/javascript">
     var username = $('#header_bar_table span').text()||'';
     var studyCasesMap = '<%=studySampleMap%>';
+    var showSaveButton = <%=showSaveButton%>;
     studyCasesMapTemp = JSON.parse(studyCasesMap);
     studyCasesMap = {};
     _.each(studyCasesMapTemp,function(casesList,studyId){
@@ -402,7 +412,7 @@
 
                 // This is used to indicate how to disable two buttons. By default, they are set to true.
                 if(vcSession.URL !== undefined) {
-                    iViz.vue.manage.getInstance().showSaveButton=false;
+                    iViz.vue.manage.getInstance().showSaveButton=showSaveButton;
                     iViz.vue.manage.getInstance().showShareButton=true;
                     iViz.vue.manage.getInstance().showManageButton=true;
                     if(username !== '') {

@@ -39,8 +39,8 @@ import org.mskcc.cbio.portal.web_api.*;
 import org.apache.commons.lang.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cbioportal.model.virtualstudy.VirtualStudy;
-import org.cbioportal.model.virtualstudy.VirtualStudySamples;
+import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudy;
+import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudySamples;
 import org.owasp.validator.html.PolicyException;
 
 import org.springframework.security.core.userdetails.UserDetails;

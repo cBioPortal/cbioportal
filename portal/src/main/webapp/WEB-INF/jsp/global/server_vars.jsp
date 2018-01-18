@@ -66,7 +66,7 @@
         rppaScoreThreshold:jspToJs('<%=rppaScoreThreshold%>', parseFloat),
         dataPriority:jspToJs('<%=dataPriority%>', function(d) { return parseInt(d, 10); }),
         
-        theQuery: jspToJs('<%=oql%>'.trim()) || "", 
+        theQuery: decodeURIComponent(jspToJs('<%=oql%>'.trim()) || ""), 
         studySampleObj: jspToJs('<%=studySampleMapJson%>', JSON.parse)
        	
     };

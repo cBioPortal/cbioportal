@@ -13,9 +13,9 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.cbioportal.model.virtualstudy.VirtualStudy;
-import org.cbioportal.model.virtualstudy.VirtualStudyData;
 import org.json.simple.JSONObject;
+import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudy;
+import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudyData;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;

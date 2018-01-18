@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.web;
 
-import org.cbioportal.model.virtualstudy.VirtualStudyData;
+import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudyData;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;

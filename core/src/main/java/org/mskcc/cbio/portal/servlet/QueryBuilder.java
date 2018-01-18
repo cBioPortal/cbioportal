@@ -40,6 +40,7 @@ import org.apache.commons.lang.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudy;
+import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudyData;
 import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudySamples;
 import org.owasp.validator.html.PolicyException;
 
@@ -304,18 +305,64 @@ public class QueryBuilder extends HttpServlet {
             httpServletRequest.setAttribute(CANCER_STUDY_LIST, cancerStudyList);
 			
             if(cancerStudyId != null) {
-            		CohortDetails cohortDetails;
-                if (cancerStudyId.equals("all") 
-                		&& cancerStudyList != null) { // multiple studies
-                    cohortDetails = new CohortDetails(cancerStudyList.split(","), _isVirtualStudy);
-                } else { // single study (can be VC here)
-                    cohortDetails = new CohortDetails(new String[]{cancerStudyId}, _isVirtualStudy);
-                }
+            		String queriedStudies = cancerStudyId;
+            		if (cancerStudyId.equals("all") 
+                    		&& cancerStudyList != null) {
+            			queriedStudies = cancerStudyList;
+            		}
+            		
+            		Set<String> inputCohortIds = new HashSet<>(Arrays.asList(queriedStudies.split(",")));
+            		Set<VirtualStudy> studies = getStudies(inputCohortIds);
+            		Set<String> unKnownStudies = new HashSet<>();
+            		
+                if(studies.isEmpty()) {
+                		unKnownStudies = inputCohortIds;
+            		} else {
+            	        unKnownStudies =  studies
+            	        		.stream()
+            	        		.filter(obj -> {
+            	        			if(inputCohortIds.contains(obj.getId())) {
+            	        				for (VirtualStudySamples _study : obj.getData().getStudies()) {
+            	        					try {
+            	        						if (accessControl.isAccessibleCancerStudy(_study.getId()).size() != 1)
+            	        							return true;
+            	        					} catch (Exception e) {
+            	        						return true;
+            	        					}
+            	        				}
+            	        				return false;
+            	        			} else {
+            	        				return true;
+            	        			}
+            	        		})
+            	        		.map(obj -> obj.getId())
+            	        		.collect(Collectors.toSet());
+            		}
                 
-                errorsExist = errorsExist || cohortDetails.getUnKnownStudies().size() > 0;
+                errorsExist = errorsExist || unKnownStudies.size() > 0;
                 // Dispatch to query result page
                 if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
-                    processData(cohortDetails, geneList, geneticProfileIdSet,
+                	
+	                	Map<String, Set<String>> studySampleMap = new HashMap<>();
+	                	
+	                	studies
+	                		.stream()
+	                		.forEach(obj -> {
+	                		for (VirtualStudySamples cohortStudyCasesMap : obj.getData().getStudies()) {
+	                            if (studySampleMap.containsKey(cohortStudyCasesMap.getId())) {
+	                                String _sharedStudyId = cohortStudyCasesMap.getId();
+	                                if (studySampleMap.get(_sharedStudyId).size() != 0) { // original entry does not contain all samples
+	                                    Set<String> mergedSet = mergeSets(studySampleMap.get(_sharedStudyId), cohortStudyCasesMap.getSamples());
+	                                    studySampleMap.put(cohortStudyCasesMap.getId(), mergedSet);
+	                                } // otherwise keep the value as empty set
+	                                //create new entry/key
+	                            } else {
+	                                studySampleMap.put(cohortStudyCasesMap.getId(), cohortStudyCasesMap.getSamples());
+	                            }
+	                        }
+	                	});
+                	
+                    processData(studySampleMap, geneList, geneticProfileIdSet,
                         httpServletRequest.getParameter(CASE_SET_ID),
                         httpServletRequest.getParameter(CASE_IDS_KEY),
                         httpServletRequest.getParameter(CASE_IDS),
@@ -404,7 +451,7 @@ public class QueryBuilder extends HttpServlet {
      * process a good request
      *
      */
-    private void processData(CohortDetails cohortDetails,
+    private void processData(Map<String, Set<String>> studySampleMap1,
                              String geneList,
                              HashSet<String> geneticProfileIdSet,
                              String sampleSetId,
@@ -425,10 +472,11 @@ public class QueryBuilder extends HttpServlet {
         Boolean hasMethylation = false;
         Boolean hasCopyNo = false;
         Boolean hasSurvival = false;
-
+        
         // retrieve samples
-        Map<String, Set<String>> inputStudySampleMap = cohortDetails.getStudySampleMap();
-        if (inputStudySampleMap.keySet().size() == 1 && !cohortDetails.getIsVirtualStudy()) { // single study
+        Map<String, Set<String>> inputStudySampleMap = studySampleMap1;
+        String singleStudyId = (String) request.getAttribute(CANCER_STUDY_ID);
+        if (inputStudySampleMap.keySet().size() == 1 && inputStudySampleMap.containsKey(singleStudyId)) { // single study
             String _cancerStudyId = inputStudySampleMap.keySet().iterator().next();
             if (!sampleSetId.equals("-1")) {
                 for (SampleList sampleSet : GetSampleLists.getSampleLists(_cancerStudyId)) {
@@ -502,7 +550,7 @@ public class QueryBuilder extends HttpServlet {
                 if (profileId != null && profileId.length() != 0)
                     geneticProfileMap.put(profileId, GeneticProfileUtil.getProfile(profileId, geneticProfileList));
             }
-            if (cohortDetails.getIsVirtualStudy()) {
+            if (inputStudySampleMap.size()>1) {
                 HashMap<String, GeneticProfile> defaultGeneticProfileSet = null;
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet = new CategorizedGeneticProfileSet(
                     geneticProfileList);
@@ -520,7 +568,6 @@ public class QueryBuilder extends HttpServlet {
                             defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationAndCopyNumberMap();
                     }
                 } else {
-                    System.out.println("data priority is null");
                     defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationAndCopyNumberMap();
                 }
                 // geneticProfileMap.putAll(defaultGeneticProfileSet);
@@ -627,7 +674,8 @@ public class QueryBuilder extends HttpServlet {
      * validate the portal web input form.
      * @throws ProtocolException
      */
-    private boolean validateForm(String action, CohortDetails cohortDetails,
+    private boolean validateForm(String action,
+    		                         Map<String, Set<String>> studySampleMap1,
                                  HashSet<String> geneticProfileIdSet,
                                  String sampleSetId, String sampleIds,
                                  HttpServletRequest httpServletRequest) throws DaoException {
@@ -636,7 +684,7 @@ public class QueryBuilder extends HttpServlet {
         if (action != null) {
             if (action.equals(ACTION_SUBMIT)) {
 
-                if (cohortDetails.getStudySampleMap().keySet().size() == 0) {
+                if (studySampleMap1.keySet().size() == 0) {
                     httpServletRequest.setAttribute(STEP1_ERROR_MSG,
                         //"You are not authorized to view the cancer study with id: '" +
                         //		cohortDetails.getCohortId() + "'. ");
@@ -650,7 +698,7 @@ public class QueryBuilder extends HttpServlet {
                     }
                 }
 
-                if(!cohortDetails.getIsVirtualStudy()) {
+                if(studySampleMap1.keySet().size() == 1) {
 
                     if (geneticProfileIdSet.size() == 0) {
                         if (tabIndex == null || tabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {
@@ -679,7 +727,7 @@ public class QueryBuilder extends HttpServlet {
                         else
                         {
                             List<String> invalidSamples = SampleSetUtil.validateSampleSet(
-                                cohortDetails.getStudySampleMap().keySet().iterator().next(), sampleIds);
+                            		studySampleMap1.keySet().iterator().next(), sampleIds);
 
                             String sampleSetErrMsg = "Invalid samples(s) for the selected cancer study:";
 
@@ -728,111 +776,42 @@ public class QueryBuilder extends HttpServlet {
         }
         return counter;
     }
-}
-
-class CohortDetails {
-
-    private Map<String, Set<String>> studySampleMap = new HashMap<>(); // <cancer study Id: set of samples>
-    private String cohortId;
-    private Boolean isVirtualStudy = false;
     
-    private Set<String> unKnownStudies = new HashSet<>();
-
-    public CohortDetails(String[] inputCohortIds, Boolean _isVirtualStudy) {
-        isVirtualStudy = _isVirtualStudy;
-        studySampleMap = filterStudySampleMap(getInputStudySampleMap(inputCohortIds));
-    }
-
-    private Map<String, Set<String>> getInputStudySampleMap(String[] inputCohortIds) {
-        Map<String, Set<String>> studySampleMap = new HashMap<>();
-        SessionServiceUtil sessionServiceUtil = new SessionServiceUtil();
-        for (String inputCohortId: inputCohortIds) {
-            try {
-                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(inputCohortId);
-                // is virtual study
-                if (cancerStudy == null) {
-                		VirtualStudy virtualCohort = sessionServiceUtil.getVirtualStudyData(inputCohortId);
-                    if (virtualCohort != null && virtualCohort.getData().getStudies().size() > 0) {
-                        for (VirtualStudySamples cohortStudyCasesMap : virtualCohort.getData().getStudies()) {
-                            if (studySampleMap.containsKey(cohortStudyCasesMap.getId())) {
-                                String _sharedStudyId = cohortStudyCasesMap.getId();
-                                if (studySampleMap.get(_sharedStudyId).size() != 0) { // original entry does not contain all samples
-                                    Set<String> mergedSet = mergeSets(studySampleMap.get(_sharedStudyId), cohortStudyCasesMap.getSamples());
-                                    studySampleMap.put(cohortStudyCasesMap.getId(), mergedSet);
-                                } // otherwise keep the value as empty set
-                                //create new entry/key
-                            } else {
-                                studySampleMap.put(cohortStudyCasesMap.getId(), cohortStudyCasesMap.getSamples());
-                            }
-                        }
-                    } else {
-                    		unKnownStudies.add(inputCohortId);
-                    }
-                    // is regular study
-                } else {
-                    studySampleMap.put(cancerStudy.getCancerStudyStableId(), new HashSet<String>());
-                }
-            } catch (DaoException e) {
-                e.printStackTrace();
-            }
-        }
-        return studySampleMap;
-    }
-
+    private Set<VirtualStudy> getStudies(Set<String> inputCohortIds) throws DaoException {
+         Set<VirtualStudy> studies = new HashSet<>();
+         SessionServiceUtil sessionServiceUtil = new SessionServiceUtil();
+         for (String inputCohortId: inputCohortIds) {
+             try {
+                 CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(inputCohortId);
+                 // is virtual study
+                 if (cancerStudy == null) {
+                 		VirtualStudy virtualCohort = sessionServiceUtil.getVirtualStudyData(inputCohortId);
+                     if (virtualCohort != null && virtualCohort.getData().getStudies().size() > 0) {
+                     		studies.add(virtualCohort);
+                     }
+                     // is regular study
+                 } else {
+ 	                	VirtualStudy study = new VirtualStudy();
+ 	            		VirtualStudySamples studySamples = new VirtualStudySamples();
+ 	            		studySamples.setId(inputCohortId);
+ 	            		studySamples.setSamples(new HashSet<>());
+ 	            		VirtualStudyData studyData = new VirtualStudyData();
+ 	            		studyData.setStudies(Collections.singleton(studySamples));
+ 	            		study.setId(cancerStudy.getCancerStudyStableId());
+ 	            		study.setData(studyData);
+ 	            		studies.add(study);
+                 }
+             } catch (DaoException e) {
+            	 	throw e;
+             }
+         }
+         return studies;
+     }
+    
     private Set<String> mergeSets(Set<String> a, Set<String> b) {
         Set<String> resultSet = new HashSet<String>(a.size() + b.size());
         for (String i : a) { resultSet.add(i); }
         for (String i : b) { resultSet.add(i); }
         return resultSet;
     }
-
-    private Map<String, Set<String>> filterStudySampleMap(Map<String, Set<String>> studySampleMap) {
-        Map<String, Set<String>> resultMap = new HashMap<>();
-        for (String studyId : studySampleMap.keySet()) {
-            try {
-                if (SpringUtil.getAccessControl().isAccessibleCancerStudy(studyId).size() > 0) {
-                    resultMap.put(studyId, studySampleMap.get(studyId));
-                } else {
-                		unKnownStudies.add(studyId);
-                }
-            } catch (DaoException e) {
-                return new HashMap<>();
-            }
-
-        }
-        return resultMap;
-    }
-
-    public Map<String, Set<String>> getStudySampleMap() {
-        return studySampleMap;
-    }
-
-    public void setStudySampleMap(Map<String, Set<String>> studySampleMap) {
-        this.studySampleMap = studySampleMap;
-    }
-
-    public String getCohortId() {
-        return cohortId;
-    }
-
-    public void setCohortId(String cohortId) {
-        this.cohortId = cohortId;
-    }
-
-    public Boolean getIsVirtualStudy() {
-        return isVirtualStudy;
-    }
-
-    public void setIsVirtualStudy(Boolean _isVirtualStudy) {
-        this.isVirtualStudy = _isVirtualStudy;
-    }
-
-	public Set<String> getUnKnownStudies() {
-		return unKnownStudies;
-	}
-
-	public void setUnKnownStudies(Set<String> unKnownStudies) {
-		this.unKnownStudies = unKnownStudies;
-	}
-
 }

@@ -8380,10 +8380,6 @@ window.LogRankTest = (function(jStat) {
     '<div class="save-cohort-btn">' +
     '<i class="fa fa-floppy-o" alt="Save Virtual Study"></i></div></div>',
     props: {
-      selectedPatientsNum: {
-        type: Number,
-        default: 0
-      },
       selectedSamplesNum: {
         type: Number,
         default: 0
@@ -8456,18 +8452,15 @@ window.LogRankTest = (function(jStat) {
                   self_.updateStats = true;
                   self_.$nextTick(function() {
                     var _selectedSamplesNum = 0;
-                    var _selectedPatientsNum = 0;
                     if (_.isObject(self_.stats.studies)) {
                       _.each(self_.stats.studies, function(studyCasesMap) {
                         _selectedSamplesNum += studyCasesMap.samples.length;
-                        _selectedPatientsNum += studyCasesMap.patients.length;
                       });
                       self_.selectedSamplesNum = _selectedSamplesNum;
-                      self_.selectedPatientsNum = _selectedPatientsNum;
                     }
 
                     vcSession.events.saveCohort(self_.stats,
-                      cohortName, cohortDescription || '')
+                      cohortName, cohortDescription || '', true)
                       .done(function(response) {
                         self_.savedVC = response;
                         tooltip.find('.savedMessage').html(

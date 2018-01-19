@@ -10,6 +10,9 @@ If you would like to know how to setup a private instance of the portal and/or g
 
 If you are interested in coordinating the development of new features, please contact cbioportal@cbio.mskcc.org.
 
+## Talk to us about development and deployment
+[![Join the chat at https://gitter.im/cBioPortal/public-chat](https://badges.gitter.im/cBioPortal/public-chat.svg)](https://gitter.im/cBioPortal/public-chat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Test status
 [![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=master)](https://travis-ci.org/cBioPortal/cbioportal)
 

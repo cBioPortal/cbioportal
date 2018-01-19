@@ -115,7 +115,7 @@ public class Sample extends UniqueKeyBase {
         this.cancerStudyIdentifier = cancerStudyIdentifier;
     }
 
-    public Boolean isSequenced() {
+    public Boolean getSequenced() {
         return sequenced;
     }
 
@@ -123,7 +123,7 @@ public class Sample extends UniqueKeyBase {
         this.sequenced = sequenced;
     }
 
-    public Boolean isCopyNumberSegmentPresent() {
+    public Boolean getCopyNumberSegmentPresent() {
         return copyNumberSegmentPresent;
     }
 

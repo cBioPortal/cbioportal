@@ -42,6 +42,8 @@ public class GenePanelControllerTest {
     private static final int TEST_INTERNAL_ID_1 = 1;
     private static final String TEST_DESCRIPTION_1 = "test_description_1";
     private static final String TEST_SAMPLE_ID_1 = "test_sample_id_1";
+    private static final String TEST_PATIENT_ID_1 = "test_patient_id_1";
+    private static final String TEST_STUDY_ID_1 = "test_study_id_1";
     private static final String TEST_MOLECULAR_PROFILE_ID_1 = "test_molecular_profile_id_1";
     private static final int TEST_ENTREZ_GENE_ID_1 = 100;
     private static final String TEST_HUGO_GENE_SYMBOL_1 = "test_hugo_gene_symbol_1";
@@ -51,6 +53,8 @@ public class GenePanelControllerTest {
     private static final int TEST_INTERNAL_ID_2 = 2;
     private static final String TEST_DESCRIPTION_2 = "test_description_2";
     private static final String TEST_SAMPLE_ID_2 = "test_sample_id_2";
+    private static final String TEST_PATIENT_ID_2 = "test_patient_id_2";
+    private static final String TEST_STUDY_ID_2 = "test_study_id_2";
     private static final String TEST_MOLECULAR_PROFILE_ID_2 = "test_molecular_profile_id_2";
     private static final int TEST_ENTREZ_GENE_ID_3 = 300;
     private static final String TEST_HUGO_GENE_SYMBOL_3 = "test_hugo_gene_symbol_3";
@@ -233,13 +237,19 @@ public class GenePanelControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_MOLECULAR_PROFILE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].genePanelId").value(TEST_GENE_PANEL_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneIds[0]").value(TEST_ENTREZ_GENE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneIds[1]").value(TEST_ENTREZ_GENE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sequenced").value(true))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].wholeExomeSequenced").value(false))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_MOLECULAR_PROFILE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genePanelId").value(TEST_GENE_PANEL_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneIds[0]").value(TEST_ENTREZ_GENE_ID_3))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneIds[1]").value(TEST_ENTREZ_GENE_ID_4));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genePanelId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_3))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").value(TEST_PATIENT_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sequenced").value(true))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].wholeExomeSequenced").value(true));
     }
 
     @Test
@@ -266,13 +276,19 @@ public class GenePanelControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_MOLECULAR_PROFILE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].genePanelId").value(TEST_GENE_PANEL_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneIds[0]").value(TEST_ENTREZ_GENE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneIds[1]").value(TEST_ENTREZ_GENE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sequenced").value(true))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].wholeExomeSequenced").value(false))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_MOLECULAR_PROFILE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genePanelId").value(TEST_GENE_PANEL_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneIds[0]").value(TEST_ENTREZ_GENE_ID_3))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneIds[1]").value(TEST_ENTREZ_GENE_ID_4));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].genePanelId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_3))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").value(TEST_PATIENT_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sequenced").value(true))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].wholeExomeSequenced").value(true));
     }
 
     private List<GenePanelData> createExampleGenePanelData() {
@@ -282,13 +298,20 @@ public class GenePanelControllerTest {
         genePanelData1.setGenePanelId(TEST_GENE_PANEL_ID_1);
         genePanelData1.setSampleId(TEST_SAMPLE_ID_1);
         genePanelData1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_ID_1);
-        genePanelData1.setEntrezGeneIds(Arrays.asList(TEST_ENTREZ_GENE_ID_1, TEST_ENTREZ_GENE_ID_2));
+        genePanelData1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
+        genePanelData1.setPatientId(TEST_PATIENT_ID_1);
+        genePanelData1.setStudyId(TEST_STUDY_ID_1);
+        genePanelData1.setSequenced(true);
+        genePanelData1.setWholeExomeSequenced(false);
         genePanelDataList.add(genePanelData1);
         GenePanelData genePanelData2 = new GenePanelData();
-        genePanelData2.setGenePanelId(TEST_GENE_PANEL_ID_2);
         genePanelData2.setSampleId(TEST_SAMPLE_ID_2);
         genePanelData2.setMolecularProfileId(TEST_MOLECULAR_PROFILE_ID_2);
-        genePanelData2.setEntrezGeneIds(Arrays.asList(TEST_ENTREZ_GENE_ID_3, TEST_ENTREZ_GENE_ID_4));
+        genePanelData2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_3);
+        genePanelData2.setPatientId(TEST_PATIENT_ID_2);
+        genePanelData2.setStudyId(TEST_STUDY_ID_2);
+        genePanelData2.setSequenced(true);
+        genePanelData2.setWholeExomeSequenced(true);
         genePanelDataList.add(genePanelData2);
         return genePanelDataList;
     }

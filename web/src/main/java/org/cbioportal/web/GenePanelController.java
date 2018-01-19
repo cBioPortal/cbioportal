@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
-import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;

@@ -76,7 +76,7 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
         genesetGeneticAlterationList.add(genesetGeneticAlteration);
 
         List<Integer> entrezGeneIds = new ArrayList<>();
-        entrezGeneIds.add(ENTREZ_GENE_ID);
+        entrezGeneIds.add(ENTREZ_GENE_ID_1);
         Mockito.when(geneticDataRepository.getGenesetMolecularAlterations(MOLECULAR_PROFILE_ID, Arrays.asList(GENESET_ID1, GENESET_ID2), "SUMMARY"))
             .thenReturn(genesetGeneticAlterationList);
     }

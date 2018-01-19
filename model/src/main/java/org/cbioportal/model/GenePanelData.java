@@ -1,7 +1,5 @@
 package org.cbioportal.model;
 
-import java.util.List;
-
 public class GenePanelData extends UniqueKeyBase {
     
     private String molecularProfileId;
@@ -9,7 +7,9 @@ public class GenePanelData extends UniqueKeyBase {
     private String patientId;
     private String studyId;
     private String genePanelId;
-    private List<Integer> entrezGeneIds;
+    private Integer entrezGeneId;
+    private Boolean sequenced;
+    private Boolean wholeExomeSequenced;
 
     public String getMolecularProfileId() {
         return molecularProfileId;
@@ -51,11 +51,27 @@ public class GenePanelData extends UniqueKeyBase {
         this.genePanelId = genePanelId;
     }
 
-    public List<Integer> getEntrezGeneIds() {
-        return entrezGeneIds;
-    }
+	public Integer getEntrezGeneId() {
+		return entrezGeneId;
+	}
 
-    public void setEntrezGeneIds(List<Integer> entrezGeneIds) {
-        this.entrezGeneIds = entrezGeneIds;
-    }
+	public void setEntrezGeneId(Integer entrezGeneId) {
+		this.entrezGeneId = entrezGeneId;
+	}
+
+	public Boolean getSequenced() {
+		return sequenced;
+	}
+
+	public void setSequenced(Boolean sequenced) {
+		this.sequenced = sequenced;
+	}
+
+	public Boolean getWholeExomeSequenced() {
+		return wholeExomeSequenced;
+	}
+
+	public void setWholeExomeSequenced(Boolean wholeExomeSequenced) {
+		this.wholeExomeSequenced = wholeExomeSequenced;
+	}
 }

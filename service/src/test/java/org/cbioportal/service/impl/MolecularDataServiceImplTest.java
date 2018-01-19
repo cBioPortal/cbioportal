@@ -60,12 +60,12 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
         List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
         GeneMolecularAlteration molecularAlteration = new GeneMolecularAlteration();
-        molecularAlteration.setEntrezGeneId(ENTREZ_GENE_ID);
+        molecularAlteration.setEntrezGeneId(ENTREZ_GENE_ID_1);
         molecularAlteration.setValues("0.4674,-0.3456");
         molecularAlterationList.add(molecularAlteration);
 
         List<Integer> entrezGeneIds = new ArrayList<>();
-        entrezGeneIds.add(ENTREZ_GENE_ID);
+        entrezGeneIds.add(ENTREZ_GENE_ID_1);
         Mockito.when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, 
             PROJECTION)).thenReturn(molecularAlterationList);
 
@@ -74,7 +74,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
         Assert.assertEquals(1, result.size());
         GeneMolecularData molecularData = result.get(0);
-        Assert.assertEquals(ENTREZ_GENE_ID, molecularData.getEntrezGeneId());
+        Assert.assertEquals(ENTREZ_GENE_ID_1, molecularData.getEntrezGeneId());
         Assert.assertEquals(MOLECULAR_PROFILE_ID, molecularData.getMolecularProfileId());
         Assert.assertEquals(SAMPLE_ID1, molecularData.getSampleId());
         Assert.assertEquals("0.4674", molecularData.getValue());
@@ -104,12 +104,12 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
         List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
         GeneMolecularAlteration molecularAlteration = new GeneMolecularAlteration();
-        molecularAlteration.setEntrezGeneId(ENTREZ_GENE_ID);
+        molecularAlteration.setEntrezGeneId(ENTREZ_GENE_ID_1);
         molecularAlteration.setValues("0.4674,-0.3456");
         molecularAlterationList.add(molecularAlteration);
 
         List<Integer> entrezGeneIds = new ArrayList<>();
-        entrezGeneIds.add(ENTREZ_GENE_ID);
+        entrezGeneIds.add(ENTREZ_GENE_ID_1);
         Mockito.when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, "ID"))
             .thenReturn(molecularAlterationList);
 
@@ -131,12 +131,12 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
         List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
         GeneMolecularAlteration molecularAlteration = new GeneMolecularAlteration();
-        molecularAlteration.setEntrezGeneId(ENTREZ_GENE_ID);
+        molecularAlteration.setEntrezGeneId(ENTREZ_GENE_ID_1);
         molecularAlteration.setValues("0.4674,-0.3456");
         molecularAlterationList.add(molecularAlteration);
 
         List<Integer> entrezGeneIds = new ArrayList<>();
-        entrezGeneIds.add(ENTREZ_GENE_ID);
+        entrezGeneIds.add(ENTREZ_GENE_ID_1);
         Mockito.when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, 
             PROJECTION)).thenReturn(molecularAlterationList);
         
@@ -160,12 +160,12 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
         Assert.assertEquals(2, result.size());
         GeneMolecularData molecularData1 = result.get(0);
-        Assert.assertEquals(ENTREZ_GENE_ID, molecularData1.getEntrezGeneId());
+        Assert.assertEquals(ENTREZ_GENE_ID_1, molecularData1.getEntrezGeneId());
         Assert.assertEquals(MOLECULAR_PROFILE_ID, molecularData1.getMolecularProfileId());
         Assert.assertEquals(SAMPLE_ID1, molecularData1.getSampleId());
         Assert.assertEquals("0.4674", molecularData1.getValue());
         GeneMolecularData molecularData2 = result.get(1);
-        Assert.assertEquals(ENTREZ_GENE_ID, molecularData2.getEntrezGeneId());
+        Assert.assertEquals(ENTREZ_GENE_ID_1, molecularData2.getEntrezGeneId());
         Assert.assertEquals(MOLECULAR_PROFILE_ID, molecularData2.getMolecularProfileId());
         Assert.assertEquals("sample_id_2", molecularData2.getSampleId());
         Assert.assertEquals("-0.3456", molecularData2.getValue());
@@ -183,12 +183,12 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
         List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
         GeneMolecularAlteration molecularAlteration = new GeneMolecularAlteration();
-        molecularAlteration.setEntrezGeneId(ENTREZ_GENE_ID);
+        molecularAlteration.setEntrezGeneId(ENTREZ_GENE_ID_1);
         molecularAlteration.setValues("0.4674,-0.3456");
         molecularAlterationList.add(molecularAlteration);
 
         List<Integer> entrezGeneIds = new ArrayList<>();
-        entrezGeneIds.add(ENTREZ_GENE_ID);
+        entrezGeneIds.add(ENTREZ_GENE_ID_1);
         Mockito.when(molecularDataRepository.getGeneMolecularAlterations(MOLECULAR_PROFILE_ID, entrezGeneIds, "ID"))
             .thenReturn(molecularAlterationList);
 

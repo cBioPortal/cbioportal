@@ -110,13 +110,10 @@
     };
 
     function setUpQuerySession() {
-        var oql_html_conversion_vessel = document.createElement("div");
-        oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
-        var converted_oql = oql_html_conversion_vessel.textContent.trim();
         var studySampleObj = JSON.parse('<%=studySampleMapJson%>');
         var studyIdsList = Object.keys(studySampleObj);
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
-                                                            converted_oql,
+                                                            decodeURIComponent('<%=oql%>'.trim()),
 							    studyIdsList,
 							    studySampleObj,
 							    parseFloat('<%=zScoreThreshold%>'),

@@ -803,9 +803,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		window.cbioportal_client.getSampleClinicalData({study_id: [cancer_study_id], attribute_ids: attribute_ids, sample_ids: study_sample_map[cancer_study_id]})
 			.then(function (data) {
 			    var sample_data_by_attr_id = {};
+			    for (var i = 0; i<attribute_ids.length; i++) {
+				sample_data_by_attr_id[attribute_ids[i]] = [];
+			    }
 			    for (var i = 0; i < data.length; i++) {
 				var attr_id = data[i].attr_id;
-				sample_data_by_attr_id[attr_id] = sample_data_by_attr_id[attr_id] || [];
 				sample_data_by_attr_id[attr_id].push(data[i]);
 			    }
 			    for (var i = 0; i < attribute_ids.length; i++) {
@@ -824,9 +826,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		window.cbioportal_client.getPatientClinicalData({study_id: [cancer_study_id], attribute_ids: attribute_ids, patient_ids: study_patient_map[cancer_study_id]})
 			.then(function (data) {
 			    var patient_data_by_attr_id = {};
+			    for (var i = 0; i<attribute_ids.length; i++) {
+				patient_data_by_attr_id[attribute_ids[i]] = [];
+			    }
 			    for (var i = 0; i < data.length; i++) {
 				var attr_id = data[i].attr_id;
-				patient_data_by_attr_id[attr_id] = patient_data_by_attr_id[attr_id] || [];
 				patient_data_by_attr_id[attr_id].push(data[i]);
 			    }
 			    for (var i = 0; i < attribute_ids.length; i++) {
@@ -1005,6 +1009,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		var sample_id = receive_datum.sample_id;
 		var case_id = (sample_or_patient === "sample" ? sample_id : sample_to_patient_map[study_id][sample_id]);
 		var interim_datum = interim_data[gene][case_id];
+		if (!interim_datum) {
+			// if this case wasnt requested, dont create data for it
+			continue;
+		} 
 		interim_datum.na = false;
 		if (interim_datum.profile_data === null) {
 		    // set the initial value for this sample or patient

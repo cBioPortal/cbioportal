@@ -70,6 +70,13 @@ window.DataManagerForIviz = (function($, _) {
   };
 
   content.init = function(_portalUrl, _study_cases_map) {
+    _study_cases_map = _study_cases_map || {};
+    _.map(_study_cases_map, function(item) {
+      if (_.isArray(item.samples)) {
+        item.samples.sort();
+      }
+    });
+
     var initialSetup = function() {
       var _def = new $.Deferred();
       var self = this;
@@ -82,7 +89,7 @@ window.DataManagerForIviz = (function($, _) {
           $.when(self.getGeneticProfiles(), self.getCaseLists(),
             self.getClinicalAttributesByStudy())
             .done(function(_geneticProfiles, _caseLists,
-                           _clinicalAttributes) {
+              _clinicalAttributes) {
               vueInstance.increaseStudyViewSummaryPagePBStatus();
               var _result = {};
               var _patientData = [];
@@ -103,6 +110,7 @@ window.DataManagerForIviz = (function($, _) {
               var _sequencedCaseUIDs = [];
               var _allCaseUIDs = [];
               var _allStudyIds = self.getCancerStudyIds();
+              var ismskimpact = _allStudyIds.indexOf('mskimpact') !== -1;
 
               iViz.priorityManager.setDefaultClinicalAttrPriorities(_configs.priority);
 
@@ -168,7 +176,7 @@ window.DataManagerForIviz = (function($, _) {
                   display_name: '',
                   priority: iViz.priorityManager.getDefaultPriority(data.attr_id),
                   study_ids: _allStudyIds
-              };
+                };
 
                 datum = _.extend(datum, data);
 
@@ -183,12 +191,14 @@ window.DataManagerForIviz = (function($, _) {
               addAttr({
                 attr_id: 'sequenced',
                 display_name: 'With Mutation Data',
+                priority: ismskimpact ? 0 : iViz.priorityManager.getDefaultPriority('sequenced'),
                 description: 'If the sample has mutation data'
               }, 'sample');
 
               addAttr({
                 attr_id: 'has_cna_data',
                 display_name: 'With CNA Data',
+                priority: ismskimpact ? 0 : iViz.priorityManager.getDefaultPriority('has_cna_data'),
                 description: 'If the sample has CNA data'
               }, 'sample');
 
@@ -678,7 +688,7 @@ window.DataManagerForIviz = (function($, _) {
               var _data = {
                 study_id: item.studyId,
                 patient_id: item.patientId,
-                attr_id: item.clinicalAttributeId,
+                attr_id: item.clinicalAttributeId.toUpperCase(),
                 attr_val: item.value
               };
               self.data.clinical.patient[uniqueId] = _data;
@@ -749,7 +759,7 @@ window.DataManagerForIviz = (function($, _) {
               var _data = {
                 study_id: item.studyId,
                 sample_id: item.sampleId,
-                attr_id: item.clinicalAttributeId,
+                attr_id: item.clinicalAttributeId.toUpperCase(),
                 attr_val: item.value
               };
               self.data.clinical.patient[uniqueId] = _data;
@@ -900,16 +910,18 @@ window.DataManagerForIviz = (function($, _) {
           var _sampleLists = [];
 
           _.each(self.getCancerStudyIds(), function(studyId) {
+            var neededList = [];
             _.each(['all', 'sequenced', 'cna'], function(type) {
-              _sampleLists.push(studyId + '_' + type);
-            })
+              neededList.push(studyId + '_' + type);
+            });
+            _sampleLists.push.apply(_sampleLists, _.intersection(self.data.sampleLists.lists[studyId] || [], neededList));
           });
 
           self.getSampleListsData(_sampleLists)
             .done(function(data) {
               _.each(data, function(list) {
                 self.data.sampleLists[list.studyId] = self.data.sampleLists[list.studyId] || {};
-                self.data.sampleLists[list.studyId][list.sampleListId] = list.sampleIds;
+                self.data.sampleLists[list.studyId][list.sampleListId] = list.sampleIds.sort();
               });
 
               _.each(self.getCancerStudyIds(), function(studyId) {
@@ -920,13 +932,13 @@ window.DataManagerForIviz = (function($, _) {
                 };
                 // Always check for all lists, the API call may fail partially
                 if (_.isArray(self.data.sampleLists[studyId][studyId + '_sequenced'])) {
-                  _responseStudyCaseList[studyId].sequencedSampleIds = self.data.sampleLists[studyId][studyId + '_sequenced'];
+                  _responseStudyCaseList[studyId].sequencedSampleIds = iViz.util.intersection(self.data.sampleLists[studyId][studyId + '_sequenced'], self.studyCasesMap[studyId].samples);
                 }
                 if (_.isArray(self.data.sampleLists[studyId][studyId + '_cna'])) {
-                  _responseStudyCaseList[studyId].cnaSampleIds = self.data.sampleLists[studyId][studyId + '_cna'];
+                  _responseStudyCaseList[studyId].cnaSampleIds = iViz.util.intersection(self.data.sampleLists[studyId][studyId + '_cna'], self.studyCasesMap[studyId].samples);
                 }
                 if (_.isArray(self.data.sampleLists[studyId][studyId + '_all'])) {
-                  _responseStudyCaseList[studyId].allSampleIds = self.data.sampleLists[studyId][studyId + '_all'];
+                  _responseStudyCaseList[studyId].allSampleIds = iViz.util.intersection(self.data.sampleLists[studyId][studyId + '_all'], self.studyCasesMap[studyId].samples);
                 }
               });
               fetch_promise.resolve(_responseStudyCaseList);
@@ -935,6 +947,10 @@ window.DataManagerForIviz = (function($, _) {
               fetch_promise.reject(error);
             });
         }),
+      
+      // Server side uses uppercase clinical attribute ID as convention but the rule is not strictly followed yet.
+      // Manually convert all IDs in front-end to prevent any discrepancy between clinical meta and clinical sample/patient data
+      // In the refactoring effort, this needs to be verified again with backend team.
       getClinicalAttributesByStudy: window.cbio.util.makeCachedPromiseFunction(
         function(self, fetch_promise) {
           $.get(window.cbioURL + 'api/clinical-attributes?projection=SUMMARY&pageSize=100000&pageNumber=0&direction=ASC')
@@ -995,7 +1011,9 @@ window.DataManagerForIviz = (function($, _) {
             $.ajax({
               type: 'POST',
               url: window.cbioURL + 'api/samples/fetch?projection=SUMMARY',
-              data: JSON.stringify(data),
+              data: JSON.stringify({
+                "sampleIdentifiers": data
+              }),
               dataType: 'json',
               contentType: "application/json; charset=utf-8",
             }).done(function(data) {
@@ -1070,7 +1088,10 @@ window.DataManagerForIviz = (function($, _) {
           _.each(self.getCancerStudyIds(), function(studyId) {
             self.data.sampleLists[studyId] = self.data.sampleLists[studyId] || {};
             if (!_.isArray(self.studyCasesMap[studyId].samples)) {
-              _sampleLists.push(studyId + '_all');
+              var _existLists = self.data.sampleLists.lists[studyId] || [];
+              if (_existLists.indexOf(studyId + '_all') !== -1) {
+                _sampleLists.push(studyId + '_all');
+              }
             }
           });
 
@@ -1078,12 +1099,18 @@ window.DataManagerForIviz = (function($, _) {
             .done(function(data) {
               _.each(data, function(list) {
                 self.data.sampleLists[list.studyId] = self.data.sampleLists[list.studyId] || {};
-                self.data.sampleLists[list.studyId][list.sampleListId] = list.sampleIds;
+                self.data.sampleLists[list.studyId][list.sampleListId] = list.sampleIds.sort();
               });
 
               _.each(self.getCancerStudyIds(), function(studyId) {
-                if (self.data.sampleLists[studyId].hasOwnProperty(studyId + '_all')) {
-                  self.studyCasesMap[studyId].samples = self.data.sampleLists[studyId][studyId + '_all'];
+                if (!self.studyCasesMap[studyId]) {
+                  self.studyCasesMap[studyId] = {};
+                }
+
+                if (!_.isArray(self.studyCasesMap[studyId].samples)) {
+                  self.studyCasesMap[studyId].samples =
+                    self.data.sampleLists[studyId].hasOwnProperty(studyId + '_all') ?
+                      self.data.sampleLists[studyId][studyId + '_all'] : [];
                 }
               });
               getSamplesCall()

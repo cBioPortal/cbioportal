@@ -23,7 +23,11 @@ public interface SampleRepository {
     
     List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection);
 
+    List<Sample> fetchSamples(List<String> sampleListIds, String projection);
+
     BaseMeta fetchMetaSamples(List<String> studyIds, List<String> sampleIds);
+
+    BaseMeta fetchMetaSamples(List<String> sampleListIds);
 
     List<Sample> getSamplesByInternalIds(List<Integer> internalIds);
 }

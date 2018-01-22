@@ -212,16 +212,16 @@ var DataDownloadTab = (function() {
                 _processedProfiles.push(_p);
             });
 
-            if( window.QuerySession.isVirtualStudy) {
-                _processedProfiles = [];
-                $.each(_.groupBy(profiles, function(_profile){ return _profile.genetic_alteration_type}), function(k,v){
-                    var _p = {name:_profileNames[k], profileIds:v.map(function(d) { return d.id; }).join(','), alterationType:k,fileName:k.toLowerCase()}
-                    _processedProfiles.push(_p);
-                });
-            }
+            // if(window.isVirtualStudy) {
+            //     _processedProfiles = [];
+            //     $.each(_.groupBy(profiles, function(_profile){ return _profile.genetic_alteration_type}), function(k,v){
+            //         var _p = {name:_profileNames[k], profileIds:v.map(function(d) { return d.id; }).join(','), alterationType:k,fileName:k.toLowerCase()}
+            //         _processedProfiles.push(_p);
+            //     });
+            // }
             
             // Hide download file links for multi-studies.
-            if (_processedProfiles.length > 1) {
+            if (QuerySession.getCancerStudyIds().length > 1) {
                 $('#data_download_tab_links_li_div').css('display','none');
                 $('#data_download_tab_text_areas').css('margin-top','10px');
             } else {
@@ -404,63 +404,94 @@ var DataDownloadTab = (function() {
 
 }());
 
-$(document).ready( function() {
 
-    //Sign up getting oncoprint data
-    $.when(window.QuerySession.getOncoprintSampleGenomicEventData(), window.QuerySession.getAlteredSampleUIDs(), window.QuerySession.computeUIDMaps()).then(function(oncoprint_data, altered_sample_uids, uid_maps) {
-        DataDownloadTab.setOncoprintData(oncoprint_data);
-        var alteredStudySampleMap = {};
-        var studyIds = Object.keys(uid_maps['case_to_uid']);
-        function getMappedStudyId(case_id, case_uid) {
-            for (var i=0; i<studyIds.length; i++) {
-                if(uid_maps['case_to_uid'][studyIds[i]][case_id] === case_uid)
-                    return studyIds[i];
-            }
-            return '';
-        }
+var initializeDownload = function(){
+    
+        downloadInit = true;    
+    
+        //Sign up getting oncoprint data
+        $.when(window.QuerySession.getOncoprintSampleGenomicEventData(), window.QuerySession.getAlteredSampleUIDs(), window.QuerySession.computeUIDMaps()).then(function(oncoprint_data, altered_sample_uids, uid_maps) {
 
-        for (var i=0; i<altered_sample_uids.length; i++) {
-            var sampleid = uid_maps['uid_to_case'][altered_sample_uids[i]];
-            var studyId = getMappedStudyId(sampleid, altered_sample_uids[i]);
-            if(!alteredStudySampleMap[studyId]) {
-                alteredStudySampleMap[studyId] = {}
+            DataDownloadTab.setOncoprintData(oncoprint_data);
+            var alteredStudySampleMap = {};
+            var studyIds = Object.keys(uid_maps['case_to_uid']);
+            function getMappedStudyId(case_id, case_uid) {
+                for (var i=0; i<studyIds.length; i++) {
+                    if(uid_maps['case_to_uid'][studyIds[i]][case_id] === case_uid)
+                        return studyIds[i];
+                }
+                return '';
             }
-            alteredStudySampleMap[studyId][sampleid]=true
-        }
-        DataDownloadTab.setUIDMaps(uid_maps);
-        DataDownloadTab.setAlteredStudySampleMap(alteredStudySampleMap);
-        var downloadDataModel = {};
-        var geneObject = window.QuerySession.getQueryGenes().reduce(function(result, item) {
-            result[item.toUpperCase()] = {'profile_data': 'NA'};
-            return result;
-        }, {});
-        $.when(window.QuerySession.getStudySampleMap()).then(function(studySampleMap){
-            $.each(studySampleMap, function(studyId,sampleIds){
-                downloadDataModel[studyId]={};
-                $.each(sampleIds, function(key,sampleId){
-                    downloadDataModel[studyId][sampleId]=geneObject
+
+            for (var i=0; i<altered_sample_uids.length; i++) {
+                var sampleid = uid_maps['uid_to_case'][altered_sample_uids[i]];
+                var studyId = getMappedStudyId(sampleid, altered_sample_uids[i]);
+                if(!alteredStudySampleMap[studyId]) {
+                    alteredStudySampleMap[studyId] = {}
+                }
+                alteredStudySampleMap[studyId][sampleid]=true
+            }
+            DataDownloadTab.setUIDMaps(uid_maps);
+            DataDownloadTab.setAlteredStudySampleMap(alteredStudySampleMap);
+            var downloadDataModel = {};
+            var geneObject = window.QuerySession.getQueryGenes().reduce(function(result, item) {
+                result[item.toUpperCase()] = {'profile_data': 'NA'};
+                return result;
+            }, {});
+            $.when(window.QuerySession.getStudySampleMap()).then(function(studySampleMap){
+                $.each(studySampleMap, function(studyId,sampleIds){
+                    downloadDataModel[studyId]={};
+                    $.each(sampleIds, function(key,sampleId){
+                        downloadDataModel[studyId][sampleId]=geneObject
+                    });
                 });
+                getGeneticProfileCallback(downloadDataModel);
             });
-            getGeneticProfileCallback(downloadDataModel);
-        });
 
-        function getGeneticProfileCallback(result) {
-            DataDownloadTab.setDownloadModelObject(result);
-            //DataDownloadTab.init();
-            //Bind tab clicking event listener
-            $("#tabs").bind("tabsactivate", function(event, ui) {
-                if (ui.newTab.text().trim().toLowerCase() === "download") {
+            function getGeneticProfileCallback(result) {
+                DataDownloadTab.setDownloadModelObject(result);
+                //DataDownloadTab.init();
+                //Bind tab clicking event listener
+                $("#tabs").bind("tabsactivate", function(event, ui) {
+                    if (ui.newTab.text().trim().toLowerCase() === "download") {
+                        if (!DataDownloadTab.isRendered()) {
+                            DataDownloadTab.init();
+                        }
+                    }
+                });
+                if ($("#data_download").is(":visible")) {
                     if (!DataDownloadTab.isRendered()) {
                         DataDownloadTab.init();
                     }
                 }
-            });
-            if ($("#data_download").is(":visible")) {
-                if (!DataDownloadTab.isRendered()) {
-                    DataDownloadTab.init();
-                }
+            }
+        });
+    
+};
+
+
+
+var downloadInit = false;
+
+$(document).ready(function(){
+    if ($("#data_download").is(":visible")) {
+        if (downloadInit === false) {
+            fireQuerySession();
+            initializeDownload();
+        }
+    }
+
+    $("#tabs").bind("tabsactivate", function(event, ui) {
+        if ($("#data_download").is(":visible")) {
+            if (downloadInit === false) {
+                fireQuerySession();
+                initializeDownload();
             }
         }
     });
+    
+    
 });
+
+
 

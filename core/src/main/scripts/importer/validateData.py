@@ -1155,7 +1155,6 @@ class MutationsExtendedValidator(Validator):
                 checking_function = getattr(
                     self,
                     self.CHECK_FUNCTION_MAP[col_name])
-                # FIXME: remove the 'data' argument, it's spaghetti
                 if not checking_function(value):
                     self.printDataInvalidStatement(value, col_index)
                 elif self.extra_exists or self.extra:
@@ -1275,14 +1274,26 @@ class MutationsExtendedValidator(Validator):
     def checkVerificationStatus(self, value):
         # if value is not blank, then it should be one of these:
         if self.checkNotBlank(value) and value.lower() not in ('verified', 'unknown', 'na'):
-            return False
+            # Giving only warning instead of error because not used in front end.
+            self.logger.warning(
+                "Value in 'Verification_Status' not in MAF format",
+                extra={'line_number': self.line_number,
+                       'cause':value})
+            # return without error (just warning above)
+            return True
         return True
 
     def checkValidationStatus(self, value):
         # if value is not blank, then it should be one of these:
         if self.checkNotBlank(value) and value.lower() not in ('untested', 'inconclusive',
                                  'valid', 'invalid', 'na', 'redacted', 'unknown'):
-            return False
+            # Giving only warning instead of error because front end can handle unofficial values.
+            self.logger.warning(
+                "Value in 'Validation_Status' not in MAF format",
+                extra={'line_number': self.line_number,
+                       'cause':value})
+            # return without error (just warning above)
+            return True
         return True
 
     def check_t_alt_count(self, value):
@@ -1773,10 +1784,13 @@ class ClinicalValidator(Validator):
             self.attr_defs = missing_attr_defs
 
         for col_index, col_name in enumerate(self.cols):
+            # Front end can have issues with lower case attribute names as discussed
+            # in https://github.com/cBioPortal/cbioportal/issues/3518
             if not col_name.isupper():
-                self.logger.warning(
-                    "Clinical attribute name not in all caps",
+                self.logger.error(
+                    "Attribute name not in upper case.",
                     extra={'line_number': self.line_number,
+                           'column_number': col_index + 1,
                            'cause': col_name})
             # do not check the special ID columns as attributes,
             # just parse them with the correct data type
@@ -3100,14 +3114,52 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
         else:
             stableid_files[stable_id] = case
 
-        sampleIds = meta_dictionary['case_list_ids']
-        sampleIds = set([x.strip() for x in sampleIds.split('\t')])
-        for value in sampleIds:
+        if 'case_list_category' in meta_dictionary:
+            # Valid case list categories
+            VALID_CATEGORIES = ['all_cases_in_study',
+                                'all_cases_with_mutation_data',
+                                'all_cases_with_cna_data',
+                                'all_cases_with_log2_cna_data',
+                                'all_cases_with_methylation_data',
+                                'all_cases_with_mrna_array_data',
+                                'all_cases_with_mrna_rnaseq_data',
+                                'all_cases_with_rppa_data',
+                                'all_cases_with_microrna_data',
+                                'all_cases_with_mutation_and_cna_data',
+                                'all_cases_with_mutation_and_cna_and_mrna_data',
+                                'all_cases_with_gsva_data',
+                                'other']
+
+            # If the case list category is invalid, the importer will crash.
+            if meta_dictionary['case_list_category'] not in VALID_CATEGORIES:
+                logger.error('Invalid case list category',
+                               extra={'filename_': case,
+                               'cause': meta_dictionary['case_list_category']})
+
+        # Check for any duplicate sample IDs
+        sample_ids = [x.strip() for x in meta_dictionary['case_list_ids'].split('\t')]
+        seen_sample_ids = set()
+        dupl_sample_ids = set()
+        for sample_id in sample_ids:
+            if sample_id not in seen_sample_ids:
+                seen_sample_ids.add(sample_id)
+            else:
+                dupl_sample_ids.add(sample_id)
+        # Duplicate samples IDs are removed by the importer, therefore this is
+        # only a warning.
+        if len(dupl_sample_ids) > 0:
+            logger.warning('Duplicate Sample ID in case list',
+                           extra={'filename_': case,
+                           'cause': ', '.join(dupl_sample_ids)})
+
+        for value in seen_sample_ids:
+            # Compare case list sample ids with clinical file
             if value not in DEFINED_SAMPLE_IDS:
                 logger.error(
                     'Sample id not defined in clinical file',
                     extra={'filename_': case,
                            'cause': value})
+            # Check if there are white spaces in the sample id
             if ' ' in value:
                 logger.error(
                     'White space in sample id is not supported',

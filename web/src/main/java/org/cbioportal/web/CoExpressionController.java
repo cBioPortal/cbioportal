@@ -43,7 +43,7 @@ public class CoExpressionController {
         @Valid @RequestBody CoExpressionFilter coExpressionFilter,
         @ApiParam(required = true, value = "Entrez Gene ID")
         @RequestParam Integer entrezGeneId,
-        @ApiParam(required = true, value = "Threshold")
+        @ApiParam("Threshold")
         @RequestParam(defaultValue = "0.3") Double threshold) throws MolecularProfileNotFoundException {
 
         List<CoExpression> coExpressionList;

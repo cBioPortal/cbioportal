@@ -1,2 +1,5 @@
-SAMPLE_ID	study_es_0_mutations
+SAMPLE_ID	mutations
 TCGA-A1-A0SB-01	example_gene_panel_stable_id
+TEST-A2B8-01	example_gene_panel_stable_id
+TEST-A2FF-01	example_gene_panel_stable_id
+TCGA-GI-A2C8-01	example_gene_panel_stable_id

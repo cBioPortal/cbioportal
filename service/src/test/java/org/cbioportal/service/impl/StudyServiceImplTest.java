@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -54,7 +55,7 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
     @Test(expected = StudyNotFoundException.class)
     public void getStudyNotFound() throws Exception {
 
-        Mockito.when(studyRepository.getStudy(STUDY_ID)).thenReturn(null);
+        Mockito.when(studyRepository.getStudy(STUDY_ID, "DETAILED")).thenReturn(null);
 
         studyService.getStudy(STUDY_ID);
     }
@@ -64,10 +65,37 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
 
         CancerStudy expectedCancerStudy = new CancerStudy();
 
-        Mockito.when(studyRepository.getStudy(STUDY_ID)).thenReturn(expectedCancerStudy);
+        Mockito.when(studyRepository.getStudy(STUDY_ID, "DETAILED")).thenReturn(expectedCancerStudy);
 
         CancerStudy result = studyService.getStudy(STUDY_ID);
 
         Assert.assertEquals(expectedCancerStudy, result);
+    }
+
+    @Test
+    public void fetchStudies() throws Exception {
+
+        List<CancerStudy> expectedCancerStudyList = new ArrayList<>();
+        CancerStudy cancerStudy = new CancerStudy();
+        expectedCancerStudyList.add(cancerStudy);
+
+        Mockito.when(studyRepository.fetchStudies(Arrays.asList(STUDY_ID), PROJECTION))
+                .thenReturn(expectedCancerStudyList);
+
+        List<CancerStudy> result = studyService.fetchStudies(Arrays.asList(STUDY_ID), PROJECTION);
+
+        Assert.assertEquals(expectedCancerStudyList, result);
+    }
+
+    @Test
+    public void fetchMetaStudies() throws Exception {
+
+        BaseMeta expectedBaseMeta = new BaseMeta();
+
+        Mockito.when(studyRepository.fetchMetaStudies(Arrays.asList(STUDY_ID))).thenReturn(expectedBaseMeta);
+
+        BaseMeta result = studyService.fetchMetaStudies(Arrays.asList(STUDY_ID));
+
+        Assert.assertEquals(expectedBaseMeta, result);
     }
 }

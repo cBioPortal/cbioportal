@@ -226,25 +226,19 @@ public class ImportCaisesClinicalXML extends ConsoleRunnable {
                 new ClinicalAttribute("CLIN_N_STAGE", "Clinical N stage", "Clinical N stage", "STRING", true, "1", cancerStudyId),
                 new ClinicalAttribute("CLIN_M_STAGE", "Clinical M stage", "Clinical M stage", "STRING", true, "1", cancerStudyId),
                 new ClinicalAttribute("HISTOLOGY", "Histology", "Histology", "STRING", true, "1", cancerStudyId),
-                new ClinicalAttribute("PATH_RESULT", "Pathology result", "Pathology result", "STRING", true, "1", cancerStudyId),
                 new ClinicalAttribute("PATH_T_STAGE", "Pathology T stage", "Pathology T stage", "STRING", true, "1", cancerStudyId),
                 new ClinicalAttribute("PATH_N_STAGE", "Pathology N stage", "Pathology N stage", "STRING", true, "1", cancerStudyId),
                 new ClinicalAttribute("PATH_M_STAGE", "Pathology M stage", "Pathology M stage", "STRING", true, "1", cancerStudyId),
                 new ClinicalAttribute("GLEASON_SCORE_1", "Gleason score 1", "Gleason score 1", "Number", true, "1", cancerStudyId),
                 new ClinicalAttribute("GLEASON_SCORE_2", "Gleason score 2", "Gleason score 2", "Number", true, "1", cancerStudyId),
                 new ClinicalAttribute("GLEASON_SCORE", "Gleason score", "Gleason score", "Number", true, "1", cancerStudyId),
-                new ClinicalAttribute("TUMOR_SITE", "Tumor site", "Tumor site", "STRING", false, "1", cancerStudyId),
-                new ClinicalAttribute("PROC_INSTRUMENT", "Procedure instrument", "Procedure instrument", "STRING", false, "1", cancerStudyId)
+                new ClinicalAttribute("TUMOR_SITE", "Tumor site", "Tumor site", "STRING", false, "1", cancerStudyId)
         );
     }
     
     private static List<ClinicalData> parsePatientClinicalData(
             Node patientNode, String patientId, int cancerStudyId) {
         List<ClinicalData> clinicalData = new ArrayList<ClinicalData>();
-//        Node node = patientNode.selectSingleNode("PtProtocolStudyId");
-//        if (node!=null) {
-//            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "PATIENT_ID", node.getText()));
-//        }
         
         Node node = patientNode.selectSingleNode("PtRace");
         if (node!=null) {
@@ -263,27 +257,22 @@ public class ImportCaisesClinicalXML extends ConsoleRunnable {
         
         node = patientNode.selectSingleNode("ClinicalStages/ClinicalStage/ClinStageT");
         if (node!=null) {
-            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "CLIN_T_Stage", node.getText()));
+            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "CLIN_T_STAGE", node.getText()));
         }
         
         node = patientNode.selectSingleNode("ClinicalStages/ClinicalStage/ClinStageN");
         if (node!=null) {
-            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "CLIN_N_Stage", node.getText()));
+            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "CLIN_N_STAGE", node.getText()));
         }
         
         node = patientNode.selectSingleNode("ClinicalStages/ClinicalStage/ClinStageM");
         if (node!=null) {
-            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "CLIN_M_Stage", node.getText()));
+            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "CLIN_M_STAGE", node.getText()));
         }
         
         node = patientNode.selectSingleNode("Pathologies/Pathology/PathHistology");
         if (node!=null) {
             clinicalData.add(new ClinicalData(cancerStudyId, patientId, "HISTOLOGY", node.getText()));
-        }
-        
-        node = patientNode.selectSingleNode("Pathologies/Pathology/PathResult");
-        if (node!=null) {
-            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "PATH_RESULT", node.getText()));
         }
         
         node = patientNode.selectSingleNode("Pathologies/Pathology/PathologyStageGrades/PathologyStageGrade/PathStageT");

@@ -461,6 +461,19 @@ public class QueryBuilder extends HttpServlet {
             if (sampleSetId.equals("-1") && sampleIdsStr != null && sampleIdsStr.length() > 0) { //using user customized case list
                 studySampleMap = parseCaseIdsTextBoxStr(sampleIdsStr);
             } else { // using all cases (default)
+            	// predefinedCaseSetIds is used in multi-study query and is mapped to dataTypePriority if it is not set
+        		// "0" indicates Cases with both mutations and copy number alterations data
+        		// "1" indicates Cases with mutations data
+        		// "2" indicates Cases with copy number alterations data
+            	    List<String> predefinedCaseSetIds = Arrays.asList("0", "1", "2");
+            	    
+            	    if(predefinedCaseSetIds.contains(sampleSetId)) {
+            	    	    dataTypePriority = Integer.parseInt(predefinedCaseSetIds.get(predefinedCaseSetIds.indexOf(sampleSetId)));
+            		}
+            	    
+            	    final Integer caseListTypePriority = dataTypePriority;
+            	    
+            	    
                 final Map<String,List<String>> studySampleMapConcurrent = new ConcurrentHashMap<>();
 
                 inputStudySampleMap.keySet().parallelStream().forEach((String _cancerStudyId) -> {
@@ -473,7 +486,7 @@ public class QueryBuilder extends HttpServlet {
                         return;
                     }
 
-                    AnnotatedSampleSets annotatedSampleSets = new AnnotatedSampleSets(sampleSetList, dataTypePriority);
+                    AnnotatedSampleSets annotatedSampleSets = new AnnotatedSampleSets(sampleSetList, caseListTypePriority);
                     SampleList defaultSampleSet = annotatedSampleSets.getDefaultSampleList();
                     if (defaultSampleSet == null) {
                         return;

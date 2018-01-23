@@ -171,39 +171,43 @@ public class CancerStudyView extends HttpServlet {
             LOG.info("CancerStudyView.validate: Query initiated by user: " + ud.getUsername() + " : Study(s): "
                 + inputStudyMap.keySet());
         }
+        
+        Set<String> knowIds = studies
+                .stream()
+                .map(obj -> obj.getId())
+                .collect(Collectors.toSet());
 
-        Set<String> unKnownStudies = new HashSet<>();
+        //add unknow input ids
+        Set<String> unKnownIds = inputStudyMap
+                .keySet()
+                .stream()
+                .filter(id -> !knowIds.contains(id))
+                .collect(Collectors.toSet());
         
-        if(studies.isEmpty()) {
-        		unKnownStudies = inputStudyMap.keySet();
-        	
-        } else {
-            unKnownStudies =  studies
-	        		.stream()
-	        		.filter(obj -> {
-	        			if(inputStudyMap.containsKey(obj.getId())) {
-	        				for (VirtualStudySamples _study : obj.getData().getStudies()) {
-	        					try {
-	        						if (accessControl.isAccessibleCancerStudy(_study.getId()).size() != 1)
-	        							return true;
-	        					} catch (Exception e) {
-	        						return true;
-	        					}
-	        				}
-	        				return false;
-	        			} else {
-	        				return true;
-	        			}
-	        		})
-	        		.map(obj -> obj.getId())
-	        		.collect(Collectors.toSet());
-        }
+        //add unauthorized ids
+        unKnownIds.addAll(studies
+                .stream()
+                .filter(obj -> {
+                    if(inputStudyMap.containsKey(obj.getId())) {
+                        for (VirtualStudySamples _study : obj.getData().getStudies()) {
+                            try {
+                                if (accessControl.isAccessibleCancerStudy(_study.getId()).size() != 1)
+                                    return true;
+                            } catch (Exception e) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    } else {
+                        return true;
+                    }
+                })
+                .map(obj -> obj.getId())
+                .collect(Collectors.toSet()));
         
-
-        
-        if(unKnownStudies.size() > 0) {
+        if(unKnownIds.size() > 0) {
         		request.setAttribute(ERROR, "Unknown/Unauthorized studies in: "
-                + StringUtils.join(unKnownStudies, ",") + ".");
+                + StringUtils.join(unKnownIds, ",") + ".");
         		return false;
         }
         

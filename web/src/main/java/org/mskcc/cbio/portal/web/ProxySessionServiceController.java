@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,7 +63,7 @@ public class ProxySessionServiceController {
             
             if(type.equals(SessionType.virtual_study)) {
                 ObjectMapper mapper = new ObjectMapper()
-                		.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 
                 String virtualStudyStr = mapper.writeValueAsString(responseEntity.getBody());
                 
@@ -71,7 +72,7 @@ public class ProxySessionServiceController {
             }
             return responseEntity.getBody();
         } catch (Exception exception) {
-        	exception.printStackTrace();
+            exception.printStackTrace();
             String errorMessage = "Unexpected error: " + exception.getMessage();
             response.sendError(503, errorMessage);
         }
@@ -80,13 +81,13 @@ public class ProxySessionServiceController {
     
     @RequestMapping(value = "/virtual_study", method = RequestMethod.GET)
     public @ResponseBody List<VirtualStudy> getUserStudies() {
-    	
         List<VirtualStudy> virtualStudies = new ArrayList<>();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<VirtualStudy[]> responseEntity = restTemplate.getForEntity(
-                    sessionServiceURL + "virtual_study/query?field=data.users&value=" + authentication.getName(),
+                    sessionServiceURL + "virtual_study/query?field=data.users&value=" + 
+                    ((UserDetails)authentication.getPrincipal()).getUsername(),
                     VirtualStudy[].class);
             virtualStudies = Arrays.asList(responseEntity.getBody());
         }
@@ -95,30 +96,31 @@ public class ProxySessionServiceController {
     }
     
     @RequestMapping(value = "/{type}", method = RequestMethod.POST)
-    public @ResponseBody Map addSessionService(
-            @PathVariable SessionType                type, 
-            @RequestBody  JSONObject                 body) throws IOException {
+    public @ResponseBody Map addSessionService(@PathVariable SessionType type,
+                                               @RequestBody  JSONObject  body) throws IOException {
         
         return addSession(type, Optional.empty(), body);
 
     }
     
     @RequestMapping(value = "/virtual_study/save", method = RequestMethod.POST)
-    public @ResponseBody Map addUserSavedVirtualStudy(
-            @RequestBody  JSONObject                 body) throws IOException {
+    public @ResponseBody Map addUserSavedVirtualStudy(@RequestBody  JSONObject body) throws IOException {
         
         return addSession(SessionType.virtual_study, Optional.of(SessionOperation.save), body);
 
     }
 
     @RequestMapping(value = "/virtual_study/{id}", method = RequestMethod.PUT)
-    public void addUsertoVirtualStudy(@PathVariable String id, 
-                                    HttpServletResponse    response) throws IOException {
+    public void addUsertoVirtualStudy(@PathVariable String   id, 
+                                      HttpServletResponse    response) throws IOException {
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-            updateVirutalStudyUser(id, authentication.getName(), Operation.delete, response);
+                updateVirutalStudyUser(id,
+                                       ((UserDetails)authentication.getPrincipal()).getUsername(),
+                                       Operation.add,
+                                       response);
         } else {
             response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value());
         }
@@ -132,18 +134,21 @@ public class ProxySessionServiceController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-            updateVirutalStudyUser(id, authentication.getName(), Operation.delete, response);
+            updateVirutalStudyUser(id,
+                                   ((UserDetails)authentication.getPrincipal()).getUsername(),
+                                   Operation.delete,
+                                   response);
         } else {
             response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value());
         }
         
     }
     
-	private Map addSession(SessionType type, 
-			               Optional<SessionOperation> operation,
-			               JSONObject body) throws IOException, JsonParseException, JsonMappingException {
-		
-		HttpEntity httpEntity = new HttpEntity<JSONObject>(body);
+    private Map addSession(SessionType type, 
+                           Optional<SessionOperation> operation,
+                           JSONObject body) throws IOException, JsonParseException, JsonMappingException {
+        
+        HttpEntity httpEntity = new HttpEntity<JSONObject>(body);
         if (type.equals(SessionType.virtual_study)) {
             ObjectMapper mapper = new ObjectMapper();
             // JSON from file to Object
@@ -152,9 +157,10 @@ public class ProxySessionServiceController {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             
             if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-                virtualStudyData.setOwner(authentication.getName());
+                    String userName = ((UserDetails)authentication.getPrincipal()).getUsername();
+                virtualStudyData.setOwner(userName);
                 if(operation.isPresent() && operation.get().equals(SessionOperation.save)) {
-                    virtualStudyData.setUsers(Collections.singleton(authentication.getName()));
+                    virtualStudyData.setUsers(Collections.singleton(userName));
                 }
             }
             httpEntity = new HttpEntity<VirtualStudyData>(virtualStudyData);
@@ -169,17 +175,17 @@ public class ProxySessionServiceController {
                 HashMap.class);
 
         return responseEntity.getBody();
-	}
+    }
     
     
     private void updateVirutalStudyUser(String              id,
                                         String              user,
                                         Operation           operation,
                                         HttpServletResponse response) throws IOException {
-    	
+        
         try {
             ObjectMapper mapper = new ObjectMapper()
-            		                       .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+                                           .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
             String virtualStudyStr = mapper
                     .writeValueAsString(getSessionService(SessionType.virtual_study, id, response));
             VirtualStudy virtualStudy = mapper.readValue(virtualStudyStr, VirtualStudy.class);
@@ -187,9 +193,11 @@ public class ProxySessionServiceController {
             switch (operation) {
                 case add: {
                     users.add(user);
+                    break;
                 }
                 case delete: {
                     users.remove(user);
+                    break;
                 }
             }
             virtualStudy.getData().setUsers(users);

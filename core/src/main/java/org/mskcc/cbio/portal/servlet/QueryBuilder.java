@@ -456,7 +456,7 @@ public class QueryBuilder extends HttpServlet {
      * process a good request
      *
      */
-    private void processData(Map<String, Set<String>> studySampleMap1,
+    private void processData(Map<String, Set<String>> inputStudySampleMap,
                              String geneList,
                              HashSet<String> geneticProfileIdSet,
                              String sampleSetId,
@@ -478,8 +478,6 @@ public class QueryBuilder extends HttpServlet {
         Boolean hasCopyNo = false;
         Boolean hasSurvival = false;
         
-        // retrieve samples
-        Map<String, Set<String>> inputStudySampleMap = studySampleMap1;
         String singleStudyId = (String) request.getAttribute(CANCER_STUDY_ID);
         if (inputStudySampleMap.keySet().size() == 1 && inputStudySampleMap.containsKey(singleStudyId)) { // single study
             String _cancerStudyId = inputStudySampleMap.keySet().iterator().next();
@@ -794,9 +792,9 @@ public class QueryBuilder extends HttpServlet {
                 CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(inputCohortId);
                 // is virtual study
                 if (cancerStudy == null) {
-                    VirtualStudy virtualCohort = sessionServiceUtil.getVirtualStudyData(inputCohortId);
-                    if (virtualCohort != null && virtualCohort.getData().getStudies().size() > 0) {
-                        studies.add(virtualCohort);
+                    VirtualStudy virtualStudy = sessionServiceUtil.getVirtualStudyData(inputCohortId);
+                    if (virtualStudy != null && virtualStudy.getData().getStudies().size() > 0) {
+                        studies.add(virtualStudy);
                     }
                     // is regular study
                 } else {

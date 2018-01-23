@@ -284,19 +284,19 @@
         var studyIds = Object.keys(studyCasesMap);
 
         var getVirtualStudies = function(){
-        		var _def = new $.Deferred();
-        		if (vcSession.URL !== undefined) {
-                  $.ajax({
-                      method: 'GET',
-                      url: vcSession.URL
-                  }).done(function(response){
-                	  	_def.resolve(response)
-                  });
-            } else {
-            		_def.resolve([])
-			}
+        	    var _def = new $.Deferred();
+        	    if (vcSession.URL !== undefined) {
+        	    	    $.ajax({
+        	    	    	    method: 'GET',
+        	    	    	    url: vcSession.URL
+        	    	    	}).done(function(response){
+        	    	    		_def.resolve(response)
+        	    	    	});
+        	    	} else {
+        	    		_def.resolve([])
+        	    	}
         		return _def.promise();
-        }
+        	}
         $.when(window.cbioportal_client.getStudies({ study_ids: studyIds}), window.iviz.datamanager.getGeneticProfiles(),getVirtualStudies())
             .then(function(_cancerStudies, _geneticProfiles,virtualStudies){
 				if(cohortIdsList.length === 1 ) {

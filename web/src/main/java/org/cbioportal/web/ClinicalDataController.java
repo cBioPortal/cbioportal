@@ -44,8 +44,8 @@ import java.util.List;
 @Api(tags = "Clinical Data", description = " ")
 public class ClinicalDataController {
 
-    public static final int CLINICAL_DATA_MAX_PAGE_SIZE = 100000;
-    private static final String CLINICAL_DATA_DEFAULT_PAGE_SIZE = "100000";
+    public static final int CLINICAL_DATA_MAX_PAGE_SIZE = 10000000;
+    private static final String CLINICAL_DATA_DEFAULT_PAGE_SIZE = "10000000";
 
     @Autowired
     private ClinicalDataService clinicalDataService;

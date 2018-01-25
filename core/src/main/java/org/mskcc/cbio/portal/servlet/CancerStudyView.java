@@ -112,9 +112,7 @@ public class CancerStudyView extends HttpServlet {
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
 
         try {
-            boolean isSuccess = buildResponse(request);
-
-            if (isSuccess) {
+            if (buildResponse(request)) {
                 RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/dashboard/dashboard.jsp");
                 dispatcher.forward(request, response);

@@ -46,7 +46,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
             mutationCountByGeneList = mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(molecularProfileId, 
                 allIds, null);
             mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileId, alteredIds, null, null, 
-                "ID", null, null, null, null);
+                false, "ID", null, null, null, null);
         } else {
             mutationCountByGeneList = mutationService.getPatientCountByEntrezGeneIdsAndSampleIds(molecularProfileId,
                 allIds, null);
@@ -54,8 +54,8 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
             List<Sample> sampleList = sampleService.getAllSamplesOfPatientsInStudy(
                 molecularProfile.getCancerStudyIdentifier(), alteredIds, "ID");
             mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileId,
-                sampleList.stream().map(Sample::getStableId).collect(Collectors.toList()), null, null, "ID", null, null,
-                null, null);
+                sampleList.stream().map(Sample::getStableId).collect(Collectors.toList()), null, null, false, "ID", 
+                null, null, null, null);
         }
 
         return alterationEnrichmentUtil.createAlterationEnrichments(alteredIds.size(), unalteredIds.size(),

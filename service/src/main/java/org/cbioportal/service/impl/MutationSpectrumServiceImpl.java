@@ -26,7 +26,7 @@ public class MutationSpectrumServiceImpl implements MutationSpectrumService {
         throws MolecularProfileNotFoundException {
 
         List<Mutation> mutations = mutationService.getMutationsInMolecularProfileBySampleListId(molecularProfileId, 
-            sampleListId, null, true, "SUMMARY", null, null, null, null);
+            sampleListId, null, true, false, "SUMMARY", null, null, null, null);
         
         return createMutationSpectrums(molecularProfileId, mutations);
     }
@@ -37,7 +37,7 @@ public class MutationSpectrumServiceImpl implements MutationSpectrumService {
         throws MolecularProfileNotFoundException {
         
         List<Mutation> mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileId, sampleIds, null, 
-            true, "SUMMARY", null, null, null, null);
+            true, false, "SUMMARY", null, null, null, null);
         
         return createMutationSpectrums(molecularProfileId, mutations);
     }

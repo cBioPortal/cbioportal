@@ -244,124 +244,129 @@ public class QueryBuilder extends HttpServlet {
             
             //this is a common case for most of the requests from study view when the there is only one study
             if (cancerStudyId != null && cancerStudyId.equals("all") && cancerStudyList != null && cancerStudyList.split(",").length == 1) {
-            		cancerStudyId = cancerStudyList.split(",")[0];
-            		addProfiles = true;
+                cancerStudyId = cancerStudyList.split(",")[0];
+                addProfiles = true;
             }
 
             //redirect requests with cancerStudyId="all" and cancerStudyList="all" to home page
             // handle different possible scenarios in https://github.com/cBioPortal/cbioportal/issues/3431
-            if (!(cancerStudyId != null 
-            		&& cancerStudyId.equals("all") 
-            		&& cancerStudyList != null 
-            		&& cancerStudyList.equals("all") )) {
-            	
-	            if (cancerStudyId != null || cancerStudyList != null) {
-			    		CancerStudy cancerStudy = null;
-			    		if(cancerStudyId != null) {
-			    			cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
-			    		}
-			        
-			    		//single regular study
-			        if(cancerStudy != null) {
-			        		cancerStudyList = null;
-			        		if(addProfiles) {
-			        			cancerStudy.getGeneticProfiles();
-			        			geneticProfileIdSet = new HashSet<String>();
-			        			GeneticProfile cnaProfile      = cancerStudy.getCopyNumberAlterationProfile(true);
-			        			GeneticProfile mutationProfile =  cancerStudy.getMutationProfile();
-			        			if(cnaProfile != null) {
-			        				geneticProfileIdSet.add(cnaProfile.getStableId());
-			        			}
-			        			if(mutationProfile != null) {
-			        				geneticProfileIdSet.add(mutationProfile.getStableId());
-			        			}
-			        			 httpServletRequest.setAttribute(GENETIC_PROFILE_IDS, geneticProfileIdSet);
-			        		}
-			        } 
-			        //multiple and virtual study
-			        else {
-			        		_isVirtualStudy = true;
-			        		if (cancerStudyId != null && !cancerStudyId.equals("all")) {
-			        			cancerStudyList = null;
-			        		} else {
-			        			if ((cancerStudyId == null || cancerStudyId.equals("all")) 
-			        			&& (cancerStudyList!= null && !cancerStudyList.equals("all"))) {
-			        				cancerStudyId = "all";
-			        			}
-			        		}
-			            
-			        }
-			        httpServletRequest.setAttribute(IS_VIRTUAL_STUDY, _isVirtualStudy);
-                    if(httpServletRequest.getParameter(CASE_SET_ID) != null) {
-                        httpServletRequest.setAttribute(CASE_SET_ID, httpServletRequest.getParameter(CASE_SET_ID));
-                        if (httpServletRequest.getParameter(CASE_SET_ID).equals("-1")) {
-                            httpServletRequest.setAttribute(CASE_IDS,
-                                (httpServletRequest.getParameter(CASE_IDS)).replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t"));
-                        }
+            if (!(cancerStudyId != null
+                    && cancerStudyId.equals("all") 
+                    && cancerStudyList != null 
+                    && cancerStudyList.equals("all") )) {
+                
+                if (cancerStudyId != null || cancerStudyList != null) {
+                    CancerStudy cancerStudy = null;
+                    if(cancerStudyId != null) {
+                        cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
                     }
-	            }
+                    
+                        //single regular study
+                    if(cancerStudy != null) {
+                        cancerStudyList = null;
+                        if(addProfiles) {
+                            cancerStudy.getGeneticProfiles();
+                            geneticProfileIdSet = new HashSet<String>();
+                            GeneticProfile cnaProfile      = cancerStudy.getCopyNumberAlterationProfile(true);
+                            GeneticProfile mutationProfile =  cancerStudy.getMutationProfile();
+                            if(cnaProfile != null) {
+                                geneticProfileIdSet.add(cnaProfile.getStableId());
+                            }
+                            if(mutationProfile != null) {
+                                geneticProfileIdSet.add(mutationProfile.getStableId());
+                            }
+                            httpServletRequest.setAttribute(GENETIC_PROFILE_IDS, geneticProfileIdSet);
+                        }
+                    } 
+                    //multiple and virtual study
+                    else {
+                        _isVirtualStudy = true;
+                        if (cancerStudyId != null && !cancerStudyId.equals("all")) {
+                            cancerStudyList = null;
+                        } else {
+                            if ((cancerStudyId == null || cancerStudyId.equals("all")) 
+                            && (cancerStudyList!= null && !cancerStudyList.equals("all"))) {
+                                cancerStudyId = "all";
+                            }
+                        }
+                        
+                    }
+                    httpServletRequest.setAttribute(IS_VIRTUAL_STUDY, _isVirtualStudy);
+                    if(httpServletRequest.getParameter(CASE_SET_ID) != null) {
+                    	    httpServletRequest.setAttribute(CASE_SET_ID, httpServletRequest.getParameter(CASE_SET_ID));
+                    	    if (httpServletRequest.getParameter(CASE_SET_ID).equals("-1")) {
+                                httpServletRequest
+                                    .setAttribute(CASE_IDS,httpServletRequest
+                                                                .getParameter(CASE_IDS)
+                                                                .replaceAll("\\\\n", "\n")
+                                                                .replaceAll("\\\\t", "\t"));
+                            }
+                    	
+                    }
+                }
             }
             httpServletRequest.setAttribute(CANCER_STUDY_ID, cancerStudyId);
             httpServletRequest.setAttribute(CANCER_STUDY_LIST, cancerStudyList);
-			
+            
             if(cancerStudyId != null) {
-            		String queriedStudies = cancerStudyId;
-            		if (cancerStudyId.equals("all") 
-                    		&& cancerStudyList != null) {
-            			queriedStudies = cancerStudyList;
-            		}
-            		
-            		Set<String> inputCohortIds = new HashSet<>(Arrays.asList(queriedStudies.split(",")));
-            		Set<VirtualStudy> studies = getStudies(inputCohortIds);
-            		Set<String> unKnownStudies = new HashSet<>();
-            		
+                String queriedStudies = cancerStudyId;
+                if (cancerStudyId.equals("all") 
+                    && cancerStudyList != null) {
+                    queriedStudies = cancerStudyList;
+                }
+                    
+                Set<String> inputCohortIds = new HashSet<>(Arrays.asList(queriedStudies.split(",")));
+                Set<VirtualStudy> studies = getStudies(inputCohortIds);
+                Set<String> unKnownStudies = new HashSet<>();
+                    
                 if(studies.isEmpty()) {
-                		unKnownStudies = inputCohortIds;
-            		} else {
-            	        unKnownStudies =  studies
-            	        		.stream()
-            	        		.filter(obj -> {
-            	        			if(inputCohortIds.contains(obj.getId())) {
-            	        				for (VirtualStudySamples _study : obj.getData().getStudies()) {
-            	        					try {
-            	        						if (accessControl.isAccessibleCancerStudy(_study.getId()).size() != 1)
-            	        							return true;
-            	        					} catch (Exception e) {
-            	        						return true;
-            	        					}
-            	        				}
-            	        				return false;
-            	        			} else {
-            	        				return true;
-            	        			}
-            	        		})
-            	        		.map(obj -> obj.getId())
-            	        		.collect(Collectors.toSet());
-            		}
+                    unKnownStudies = inputCohortIds;
+                } else {
+                    unKnownStudies =  
+                            studies
+                                .stream()
+                                .filter(obj -> {
+                                    if(inputCohortIds.contains(obj.getId())) {
+                                        for (VirtualStudySamples _study : obj.getData().getStudies()) {
+                                            try {
+                                                if (accessControl.isAccessibleCancerStudy(_study.getId()).size() != 1)
+                                                   return true;
+                                            } catch (Exception e) {
+                                                return true;
+                                            }
+                                        }
+                                            return false;
+                                        } else {
+                                            return true;
+                                        }
+                                })
+                                .map(obj -> obj.getId())
+                                .collect(Collectors.toSet());
+                }
                 
                 errorsExist = errorsExist || unKnownStudies.size() > 0;
                 // Dispatch to query result page
                 if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
-                	
-	                	Map<String, Set<String>> studySampleMap = new HashMap<>();
-	                	
-	                	studies
-	                		.stream()
-	                		.forEach(obj -> {
-	                		for (VirtualStudySamples cohortStudyCasesMap : obj.getData().getStudies()) {
-	                            if (studySampleMap.containsKey(cohortStudyCasesMap.getId())) {
-	                                String _sharedStudyId = cohortStudyCasesMap.getId();
-	                                if (studySampleMap.get(_sharedStudyId).size() != 0) { // original entry does not contain all samples
-	                                    Set<String> mergedSet = mergeSets(studySampleMap.get(_sharedStudyId), cohortStudyCasesMap.getSamples());
-	                                    studySampleMap.put(cohortStudyCasesMap.getId(), mergedSet);
-	                                } // otherwise keep the value as empty set
-	                                //create new entry/key
-	                            } else {
-	                                studySampleMap.put(cohortStudyCasesMap.getId(), cohortStudyCasesMap.getSamples());
-	                            }
-	                        }
-	                	});
-                	
+                    
+                        Map<String, Set<String>> studySampleMap = new HashMap<>();
+                        
+                        studies
+                            .stream()
+                            .forEach(obj -> {
+                                for (VirtualStudySamples cohortStudyCasesMap : obj.getData().getStudies()) {
+                                    if (studySampleMap.containsKey(cohortStudyCasesMap.getId())) {
+                                        String _sharedStudyId = cohortStudyCasesMap.getId();
+                                        if (studySampleMap.get(_sharedStudyId).size() != 0) { // original entry does not contain all samples
+                                            Set<String> mergedSet = mergeSets(studySampleMap.get(_sharedStudyId), cohortStudyCasesMap.getSamples());
+                                            studySampleMap.put(cohortStudyCasesMap.getId(), mergedSet);
+                                        } // otherwise keep the value as empty set
+                                        //create new entry/key
+                                    } else {
+                                        studySampleMap.put(cohortStudyCasesMap.getId(), cohortStudyCasesMap.getSamples());
+                                    }
+                                }
+                            });
+                    
                     processData(studySampleMap, geneList, geneticProfileIdSet,
                         httpServletRequest.getParameter(CASE_SET_ID),
                         httpServletRequest.getParameter(CASE_IDS_KEY),
@@ -377,8 +382,8 @@ public class QueryBuilder extends HttpServlet {
                     dispatcher.forward(httpServletRequest, httpServletResponse);
                 }
             } else {
-            	 	RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
-                 dispatcher.forward(httpServletRequest, httpServletResponse);
+                RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
+                dispatcher.forward(httpServletRequest, httpServletResponse);
             }
             
 
@@ -500,9 +505,11 @@ public class QueryBuilder extends HttpServlet {
                 redirectStudyUnavailable(request, response);
             }
             if (sampleIdsKey == null) {
-            		String sampleIds = studySampleMap.values().stream()
-            		        .flatMap(List::stream)
-            		        .collect(Collectors.joining("\n"));
+                    String sampleIds = studySampleMap
+                                            .values()
+                                            .stream()
+                                            .flatMap(List::stream)
+                                            .collect(Collectors.joining("\n"));
                 sampleIdsKey = SampleSetUtil.shortenSampleIds(sampleIds);
             }
         } else { // multiple studies OR single virtual study
@@ -514,9 +521,9 @@ public class QueryBuilder extends HttpServlet {
                 inputStudySampleMap.keySet().parallelStream().forEach((String _cancerStudyId) -> {
                     ArrayList<SampleList> sampleSetList;
 
-					try {
-						sampleSetList = GetSampleLists.getSampleLists(_cancerStudyId);
-					} catch (DaoException e) {
+                    try {
+                        sampleSetList = GetSampleLists.getSampleLists(_cancerStudyId);
+                    } catch (DaoException e) {
                         e.printStackTrace();
                         return;
                     }
@@ -550,7 +557,7 @@ public class QueryBuilder extends HttpServlet {
                 if (profileId != null && profileId.length() != 0)
                     geneticProfileMap.put(profileId, GeneticProfileUtil.getProfile(profileId, geneticProfileList));
             }
-            if (inputStudySampleMap.size()>1) {
+            if (inputStudySampleMap.size()>1 || !inputStudySampleMap.containsKey(singleStudyId)) {
                 HashMap<String, GeneticProfile> defaultGeneticProfileSet = null;
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet = new CategorizedGeneticProfileSet(
                     geneticProfileList);
@@ -675,7 +682,7 @@ public class QueryBuilder extends HttpServlet {
      * @throws ProtocolException
      */
     private boolean validateForm(String action,
-    		                         Map<String, Set<String>> studySampleMap1,
+                                 Map<String, Set<String>> studySampleMap,
                                  HashSet<String> geneticProfileIdSet,
                                  String sampleSetId, String sampleIds,
                                  HttpServletRequest httpServletRequest) throws DaoException {
@@ -684,10 +691,10 @@ public class QueryBuilder extends HttpServlet {
         if (action != null) {
             if (action.equals(ACTION_SUBMIT)) {
 
-                if (studySampleMap1.keySet().size() == 0) {
+                if (studySampleMap.keySet().size() == 0) {
                     httpServletRequest.setAttribute(STEP1_ERROR_MSG,
                         //"You are not authorized to view the cancer study with id: '" +
-                        //		cohortDetails.getCohortId() + "'. ");
+                        //cohortDetails.getCohortId() + "'. ");
                         "You are not authorized to view the cancer study."); //TODO: how to specify the Id(s) here?
                     errorsExist = true;
                 }
@@ -698,7 +705,7 @@ public class QueryBuilder extends HttpServlet {
                     }
                 }
 
-                if(studySampleMap1.keySet().size() == 1) {
+                if(studySampleMap.keySet().size() == 1) {
 
                     if (geneticProfileIdSet.size() == 0) {
                         if (tabIndex == null || tabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {
@@ -726,8 +733,10 @@ public class QueryBuilder extends HttpServlet {
                         }
                         else
                         {
-                            List<String> invalidSamples = SampleSetUtil.validateSampleSet(
-                            		studySampleMap1.keySet().iterator().next(), sampleIds);
+                            List<String> invalidSamples = SampleSetUtil
+                                                            .validateSampleSet(
+                                                            		studySampleMap.keySet().iterator().next(),
+                                                            		sampleIds);
 
                             String sampleSetErrMsg = "Invalid samples(s) for the selected cancer study:";
 
@@ -778,35 +787,35 @@ public class QueryBuilder extends HttpServlet {
     }
     
     private Set<VirtualStudy> getStudies(Set<String> inputCohortIds) throws DaoException {
-         Set<VirtualStudy> studies = new HashSet<>();
-         SessionServiceUtil sessionServiceUtil = new SessionServiceUtil();
-         for (String inputCohortId: inputCohortIds) {
-             try {
-                 CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(inputCohortId);
-                 // is virtual study
-                 if (cancerStudy == null) {
-                 		VirtualStudy virtualCohort = sessionServiceUtil.getVirtualStudyData(inputCohortId);
-                     if (virtualCohort != null && virtualCohort.getData().getStudies().size() > 0) {
-                     		studies.add(virtualCohort);
-                     }
-                     // is regular study
-                 } else {
- 	                	VirtualStudy study = new VirtualStudy();
- 	            		VirtualStudySamples studySamples = new VirtualStudySamples();
- 	            		studySamples.setId(inputCohortId);
- 	            		studySamples.setSamples(new HashSet<>());
- 	            		VirtualStudyData studyData = new VirtualStudyData();
- 	            		studyData.setStudies(Collections.singleton(studySamples));
- 	            		study.setId(cancerStudy.getCancerStudyStableId());
- 	            		study.setData(studyData);
- 	            		studies.add(study);
-                 }
-             } catch (DaoException e) {
-            	 	throw e;
-             }
-         }
-         return studies;
-     }
+        Set<VirtualStudy> studies = new HashSet<>();
+        SessionServiceUtil sessionServiceUtil = new SessionServiceUtil();
+        for (String inputCohortId: inputCohortIds) {
+            try {
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(inputCohortId);
+                // is virtual study
+                if (cancerStudy == null) {
+                    VirtualStudy virtualCohort = sessionServiceUtil.getVirtualStudyData(inputCohortId);
+                    if (virtualCohort != null && virtualCohort.getData().getStudies().size() > 0) {
+                        studies.add(virtualCohort);
+                    }
+                    // is regular study
+                } else {
+                    VirtualStudy study = new VirtualStudy();
+                    VirtualStudySamples studySamples = new VirtualStudySamples();
+                    studySamples.setId(inputCohortId);
+                    studySamples.setSamples(new HashSet<>());
+                    VirtualStudyData studyData = new VirtualStudyData();
+                    studyData.setStudies(Collections.singleton(studySamples));
+                    study.setId(cancerStudy.getCancerStudyStableId());
+                    study.setData(studyData);
+                    studies.add(study);
+                }
+            } catch (DaoException e) {
+                throw e;
+            }
+        }
+        return studies;
+    }
     
     private Set<String> mergeSets(Set<String> a, Set<String> b) {
         Set<String> resultSet = new HashSet<String>(a.size() + b.size());

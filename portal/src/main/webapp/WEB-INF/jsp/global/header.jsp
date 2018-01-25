@@ -54,7 +54,7 @@
             window.cbioURL =  window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf("/",2))+'/';
             <%String sessionServiceUrl = (GlobalProperties.getSessionServiceUrl() == null) ? "" : GlobalProperties.getSessionServiceUrl();%>
             <%if(!sessionServiceUrl.equals("")){%>
-            		vcSession.URL ='api/session/virtual_study';
+            		vcSession.URL ='api-legacy/proxy/session/virtual_study';
             <%}%>
         });
     </script>

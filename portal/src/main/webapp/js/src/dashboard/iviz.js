@@ -1692,11 +1692,6 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               }
             }
           }, ready: function() {
-            this.$watch('showVCList', function() {
-              if (_.isObject(iViz.session)) {
-                this.virtualCohorts = iViz.session.utils.getVirtualCohorts();
-              }
-            });
             $('#iviz-header-left-patient-select').qtip({
               content: {text: 'View the selected patients.'},
               style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
@@ -8374,7 +8369,7 @@ window.LogRankTest = (function(jStat) {
 'use strict';
 (function(Vue, $, vcSession, iViz) {
   Vue.component('saveVirtualStudy', {
-    template: 
+    template:
     '<div v-if="showSaveButton" class="save-virtual-study">' +
     '<div class="save-cohort-btn">' +
     '<i class="fa fa-floppy-o" alt="Save Virtual Study"></i></div></div>',
@@ -8411,7 +8406,7 @@ window.LogRankTest = (function(jStat) {
           this.createQtip();
         }
       }
-    }, 
+    },
     methods: {
       saveCohort: function() {
         var _self = this;
@@ -8468,6 +8463,11 @@ window.LogRankTest = (function(jStat) {
                           '<a class="left-space" href="' +
                           window.cbioURL + 'study?id=' +
                           self_.savedVC.id + '">view</a>');
+                        tooltip.find('.savedMessage').find('a').click(function(event) {
+                          event.preventDefault();
+                          window.open(window.cbioURL + 'study?id=' +
+                            self_.savedVC.id);
+                        });
                       })
                       .fail(function() {
                         tooltip.find('.savedMessage').html(
@@ -8661,7 +8661,7 @@ window.LogRankTest = (function(jStat) {
 
                     if (currentSelectedCases !== previousSelectedCases) {
                       vcSession.events.saveCohort(self_.stats,
-                        cohortName, cohortDescription || '')
+                        cohortName, cohortDescription || '', false)
                         .done(function (response) {
                           self_.savedVC = response;
                           tooltip.find('.cohort-link').html(

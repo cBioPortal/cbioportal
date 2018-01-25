@@ -9,11 +9,11 @@ window.vcSession = window.vcSession ? window.vcSession : {};
   }
   vcSession.events = (function() {
     return {
-      saveCohort: function(stats, name, description) {
+      saveCohort: function(stats, name, description, addToUserStudies = false) {
         var def = new $.Deferred();
         $.when(vcSession.utils.buildVCObject(stats.filters, stats.studies,
           name, description)).done(function(_virtualCohort) {
-          vcSession.model.saveSession(_virtualCohort)
+          vcSession.model.saveSession(_virtualCohort, addToUserStudies)
             .done(function(response) {
               def.resolve(response);
             })
@@ -97,11 +97,12 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     };
 
     return {
-      saveSession: function(virtualCohort) {
+      saveSession: function(virtualCohort, addToUserStudies) {
         var def = new $.Deferred();
+        var url = addToUserStudies ? vcSession.URL+"/save" : vcSession.URL;
         $.ajax({
           type: 'POST',
-          url: vcSession.URL,
+          url: url,
           contentType: 'application/json;charset=UTF-8',
           data: JSON.stringify(virtualCohort)
         }).done(function(response) {

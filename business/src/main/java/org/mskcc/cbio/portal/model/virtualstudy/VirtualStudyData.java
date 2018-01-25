@@ -64,7 +64,6 @@ public class VirtualStudyData {
 
 	public void setOwner(String owner) {
 		this.owner = owner;
-		this.users = owner.equals("anonymous") ? new HashSet<>() : Collections.singleton(owner);
 	}
 
 	public Set<String> getOrigin() {

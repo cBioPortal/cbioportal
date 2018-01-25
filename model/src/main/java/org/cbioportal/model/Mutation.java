@@ -34,6 +34,8 @@ public class Mutation extends Alteration implements Serializable {
     private String driverFilterAnnotation;
     private String driverTiersFilter;
     private String driverTiersFilterAnnotation;
+    private Boolean sequenced;
+    private Boolean wildType;
     
     public String getCenter() {
         return center;
@@ -266,4 +268,20 @@ public class Mutation extends Alteration implements Serializable {
     public void setDriverTiersFilterAnnotation(String driverTiersFilterAnnotation) {
         this.driverTiersFilterAnnotation = driverTiersFilterAnnotation;
     }
+
+	public Boolean getSequenced() {
+		return sequenced;
+	}
+
+	public void setSequenced(Boolean sequenced) {
+		this.sequenced = sequenced;
+	}
+
+	public Boolean getWildType() {
+		return wildType;
+	}
+
+	public void setWildType(Boolean wildType) {
+		this.wildType = wildType;
+	}
 }

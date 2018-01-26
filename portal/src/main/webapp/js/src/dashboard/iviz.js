@@ -357,7 +357,7 @@ window.QueryByGeneUtil = (function() {
         case_ids: _arr.join('+'),
         case_set_id: -1,
         gene_set_choice: 'user-defined-list',
-        gene_list: selectedGenes,
+        gene_list: encodeURIComponent(selectedGenes),
         Z_SCORE_THRESHOLD: 2.0,
         genetic_profile_ids_PROFILE_MUTATION_EXTENDED: mutationProfileId,
         genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION: cnaProfileId,
@@ -380,7 +380,7 @@ window.QueryByGeneUtil = (function() {
           return x.id
         }),
         cancer_study_id: 'all',
-        gene_list: _selectedGenes,
+        gene_list: encodeURIComponent(_selectedGenes),
         case_set_id: -1,
         case_ids: _arr.join('+'),
         tab_index: 'tab_visualize',

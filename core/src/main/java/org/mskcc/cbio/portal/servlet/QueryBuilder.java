@@ -46,6 +46,7 @@ import org.owasp.validator.html.PolicyException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.*;
+import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -426,6 +427,7 @@ public class QueryBuilder extends HttpServlet {
         Boolean hasCopyNo = false;
         Boolean hasSurvival = false;
 
+	String decodedGeneList = URLDecoder.decode(geneList, "UTF-8");
         // retrieve samples
         Map<String, Set<String>> inputStudySampleMap = cohortDetails.getStudySampleMap();
         if (inputStudySampleMap.keySet().size() == 1 && !cohortDetails.getIsVirtualStudy()) { // single study
@@ -581,8 +583,8 @@ public class QueryBuilder extends HttpServlet {
                 String _sampleIdsStr = StringUtils.join(studySampleMap.get(DaoCancerStudy.getCancerStudyByInternalId(profile.getCancerStudyId()).getCancerStudyStableId()), " ");
                 if (_sampleIdsStr != null && _sampleIdsStr.length() != 0) {
                     GetProfileData remoteCall =
-                        new GetProfileData(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), _sampleIdsStr);
-                    DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), sampleIdsStr,
+                        new GetProfileData(profile, new ArrayList<>(Arrays.asList(decodedGeneList.split("( )|(\\n)"))), _sampleIdsStr);
+                    DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(decodedGeneList.split("( )|(\\n)"))), sampleIdsStr,
                         remoteCall.getRawContent());
                     downloadLinkSet.add(downloadLink);
                 }

@@ -113,7 +113,7 @@
         var studySampleObj = JSON.parse('<%=studySampleMapJson%>');
         var studyIdsList = Object.keys(studySampleObj);
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
-                                                            decodeURIComponent('<%=oql%>'.trim()),
+                                                            window.serverVars.theQuery,
 							    studyIdsList,
 							    studySampleObj,
 							    parseFloat('<%=zScoreThreshold%>'),

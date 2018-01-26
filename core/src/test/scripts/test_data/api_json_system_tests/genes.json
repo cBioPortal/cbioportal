@@ -13,6 +13,10 @@
 {"entrez_gene_id":"27334", "hugo_gene_symbol":"P2RY10"},
 {"entrez_gene_id":"9780", "hugo_gene_symbol":"PIEZO1"},
 {"entrez_gene_id":"388946", "hugo_gene_symbol":"TMEM247"},
+{"entrez_gene_id":"675", "hugo_gene_symbol":"BRCA2"},
+{"entrez_gene_id":"7157", "hugo_gene_symbol":"TP53"},
+{"entrez_gene_id":"672", "hugo_gene_symbol":"BRCA1"},
+{"entrez_gene_id":"472", "hugo_gene_symbol":"ATM"},
 
 {"_comment": "additional genes for CNA data",
  "entrez_gene_id":"2073", "hugo_gene_symbol":"ERCC5"},

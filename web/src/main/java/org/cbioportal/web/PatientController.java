@@ -4,10 +4,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Patient;
+import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
+import org.cbioportal.web.interceptor.UniqueKeyInterceptor;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.PatientSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +24,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @PublicApi
@@ -34,6 +37,8 @@ import java.util.List;
 @Validated
 @Api(tags = "Patients", description = " ")
 public class PatientController {
+
+    private static final Base64.Decoder BASE64_DECODER = Base64.getDecoder();
 
     @Autowired
     private PatientService patientService;
@@ -87,27 +92,51 @@ public class PatientController {
     @ApiOperation("Fetch patients by ID")
     public ResponseEntity<List<Patient>> fetchPatients(
         @ApiParam(required = true, value = "List of patient identifiers")
-        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-        @RequestBody List<PatientIdentifier> patientIdentifiers,
+        @Valid @RequestBody PatientFilter patientFilter,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         List<String> studyIds = new ArrayList<>();
         List<String> patientIds = new ArrayList<>();
 
-        for (PatientIdentifier patientIdentifier : patientIdentifiers) {
-            studyIds.add(patientIdentifier.getStudyId());
-            patientIds.add(patientIdentifier.getPatientId());
-        }
-
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
+            if (patientFilter.getPatientIdentifiers() != null) {
+                extractStudyAndPatientIds(patientFilter, studyIds, patientIds);
+            } else {
+                extractUniquePatientKeys(patientFilter, studyIds, patientIds);
+            }
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, patientService.fetchMetaPatients(studyIds, patientIds)
                 .getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
+            if (patientFilter.getPatientIdentifiers() != null) {
+                extractStudyAndPatientIds(patientFilter, studyIds, patientIds);
+            } else {
+                extractUniquePatientKeys(patientFilter, studyIds, patientIds);
+            }
             return new ResponseEntity<>(
                 patientService.fetchPatients(studyIds, patientIds, projection.name()), HttpStatus.OK);
+        }
+    }
+
+    private void extractStudyAndPatientIds(PatientFilter patientFilter, List<String> studyIds, List<String> patientIds) {
+        
+        for (PatientIdentifier patientIdentifier : patientFilter.getPatientIdentifiers()) {
+            studyIds.add(patientIdentifier.getStudyId());
+            patientIds.add(patientIdentifier.getPatientId());
+        }
+    }
+
+    private void extractUniquePatientKeys(PatientFilter patientFilter, List<String> studyIds, List<String> patientIds) {
+
+        for (String uniquePatientKey : patientFilter.getUniquePatientKeys()) {
+            String uniquePatientId = new String(BASE64_DECODER.decode(uniquePatientKey));
+            String[] patientAndStudyId = uniquePatientId.split(UniqueKeyInterceptor.DELIMITER);
+            if (patientAndStudyId.length == 2) {
+                patientIds.add(patientAndStudyId[0]);
+                studyIds.add(patientAndStudyId[1]);
+            }
         }
     }
 }

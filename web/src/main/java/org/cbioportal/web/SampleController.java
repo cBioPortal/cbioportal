@@ -10,6 +10,7 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
+import org.cbioportal.web.interceptor.UniqueKeyInterceptor;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.SampleSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @PublicApi
@@ -36,6 +37,8 @@ import java.util.List;
 @Validated
 @Api(tags = "Samples", description = " ")
 public class SampleController {
+
+    private static final Base64.Decoder BASE64_DECODER = Base64.getDecoder();
 
     public static final int SAMPLE_MAX_PAGE_SIZE = 100000;
     private static final String SAMPLE_DEFAULT_PAGE_SIZE = "100000";
@@ -131,6 +134,9 @@ public class SampleController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             BaseMeta baseMeta;
@@ -138,12 +144,13 @@ public class SampleController {
             if (sampleFilter.getSampleListIds() != null) {
                 baseMeta = sampleService.fetchMetaSamples(sampleFilter.getSampleListIds());
             } else {
-                List<String> studyIds = new ArrayList<>();
-                List<String> sampleIds = new ArrayList<>();
-                extractStudyAndSampleIds(sampleFilter, studyIds, sampleIds);
+                if (sampleFilter.getSampleIdentifiers() != null) {
+                    extractStudyAndSampleIds(sampleFilter, studyIds, sampleIds);
+                } else {
+                    extractUniqueSampleKeys(sampleFilter, studyIds, sampleIds);
+                }
                 baseMeta = sampleService.fetchMetaSamples(studyIds, sampleIds);
             }
-            
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, baseMeta.getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
@@ -151,10 +158,12 @@ public class SampleController {
 
             if (sampleFilter.getSampleListIds() != null) {
                 samples = sampleService.fetchSamples(sampleFilter.getSampleListIds(), projection.name());
-            } else {
-                List<String> studyIds = new ArrayList<>();
-                List<String> sampleIds = new ArrayList<>();
-                extractStudyAndSampleIds(sampleFilter, studyIds, sampleIds);
+            } else { 
+                if (sampleFilter.getSampleIdentifiers() != null) {
+                    extractStudyAndSampleIds(sampleFilter, studyIds, sampleIds);
+                } else {
+                    extractUniqueSampleKeys(sampleFilter, studyIds, sampleIds);
+                }
                 samples = sampleService.fetchSamples(studyIds, sampleIds, projection.name());
             }
 
@@ -164,11 +173,21 @@ public class SampleController {
 
     private void extractStudyAndSampleIds(SampleFilter sampleFilter, List<String> studyIds, List<String> sampleIds) {
         
-        for (SampleIdentifier sampleMolecularIdentifier : 
-            sampleFilter.getSampleIdentifiers()) {
+        for (SampleIdentifier sampleIdentifier : sampleFilter.getSampleIdentifiers()) {
+            studyIds.add(sampleIdentifier.getStudyId());
+            sampleIds.add(sampleIdentifier.getSampleId());
+        }
+    }
 
-            studyIds.add(sampleMolecularIdentifier.getStudyId());
-            sampleIds.add(sampleMolecularIdentifier.getSampleId());
+    private void extractUniqueSampleKeys(SampleFilter sampleFilter, List<String> studyIds, List<String> sampleIds) {
+
+        for (String uniqueSampleKey : sampleFilter.getUniqueSampleKeys()) {
+            String uniqueSampleId = new String(BASE64_DECODER.decode(uniqueSampleKey));
+            String[] sampleAndStudyId = uniqueSampleId.split(UniqueKeyInterceptor.DELIMITER);
+            if (sampleAndStudyId.length == 2) {
+                sampleIds.add(sampleAndStudyId[0]);
+                studyIds.add(sampleAndStudyId[1]);
+            }
         }
     }
 }

@@ -27,7 +27,7 @@ import java.util.List;
 public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvice {
 
     private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder().withoutPadding();
-    private static final String DELIMITER = ":";
+    public static final String DELIMITER = ":";
 
     @Override
     protected void beforeBodyWriteInternal(MappingJacksonValue mappingJacksonValue, MediaType mediaType, 

@@ -40,8 +40,8 @@ public class SampleController {
 
     private static final Base64.Decoder BASE64_DECODER = Base64.getDecoder();
 
-    public static final int SAMPLE_MAX_PAGE_SIZE = 100000;
-    private static final String SAMPLE_DEFAULT_PAGE_SIZE = "100000";
+    public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
+    private static final String SAMPLE_DEFAULT_PAGE_SIZE = "10000000";
 
     @Autowired
     private SampleService sampleService;

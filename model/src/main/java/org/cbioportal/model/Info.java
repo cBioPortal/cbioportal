@@ -1,10 +1,13 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
 public class Info implements Serializable {
     
+    @NotNull
     private String portalVersion;
+    @NotNull
     private String dbVersion;
 
     public String getPortalVersion() {

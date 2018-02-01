@@ -23,26 +23,6 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     private CopyNumberSegmentMyBatisRepository copyNumberSegmentMyBatisRepository;
 
     @Test
-    public void getCopyNumberSegmentsInSampleInStudyIdProjection() throws Exception {
-
-        List<CopyNumberSeg> result = copyNumberSegmentMyBatisRepository.getCopyNumberSegmentsInSampleInStudy(
-            "study_tcga_pub", "TCGA-A1-A0SB-01", "ID", null, null, null, null);
-
-        Assert.assertEquals(2, result.size());
-        CopyNumberSeg copyNumberSeg = result.get(0);
-        Assert.assertEquals((Integer) 50236594, copyNumberSeg.getSegId());
-        Assert.assertEquals((Integer) 1, copyNumberSeg.getCancerStudyId());
-        Assert.assertEquals("study_tcga_pub", copyNumberSeg.getCancerStudyIdentifier());
-        Assert.assertEquals((Integer) 1, copyNumberSeg.getSampleId());
-        Assert.assertEquals("TCGA-A1-A0SB-01", copyNumberSeg.getSampleStableId());
-        Assert.assertEquals("1", copyNumberSeg.getChr());
-        Assert.assertEquals((Integer) 324556, copyNumberSeg.getStart());
-        Assert.assertEquals((Integer) 180057677, copyNumberSeg.getEnd());
-        Assert.assertNull(copyNumberSeg.getNumProbes());
-        Assert.assertNull(copyNumberSeg.getSegmentMean());
-    }
-
-    @Test
     public void getCopyNumberSegmentsInSampleInStudySummaryProjection() throws Exception {
 
         List<CopyNumberSeg> result = copyNumberSegmentMyBatisRepository.getCopyNumberSegmentsInSampleInStudy(

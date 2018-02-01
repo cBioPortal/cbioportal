@@ -37,7 +37,7 @@ public class InfoControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/info")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.portalVersion").value("test_portal_version"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.dbVersion").value("test_db_version"));
     }

@@ -1,11 +1,14 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
 public class GisticToGene implements Serializable {
     
     private Long gisticRoiId;
+    @NotNull
     private Integer entrezGeneId;
+    @NotNull
     private String hugoGeneSymbol;
 
     public Long getGisticRoiId() {

@@ -8,14 +8,11 @@
         gistic.GISTIC_ROI_ID AS gisticRoiId,
         cancer_study.CANCER_STUDY_IDENTIFIER AS cancerStudyId,
         gistic.CHROMOSOME AS chromosome,
-        gistic.CYTOBAND AS cytoband
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            ,
-            gistic.WIDE_PEAK_START AS widePeakStart,
-            gistic.WIDE_PEAK_END AS widePeakEnd,
-            gistic.Q_VALUE AS qValue,
-            gistic.AMP AS amp
-        </if>
+        gistic.CYTOBAND AS cytoband,
+        gistic.WIDE_PEAK_START AS widePeakStart,
+        gistic.WIDE_PEAK_END AS widePeakEnd,
+        gistic.Q_VALUE AS qValue,
+        gistic.AMP AS amp
     </sql>
 
     <sql id="from">

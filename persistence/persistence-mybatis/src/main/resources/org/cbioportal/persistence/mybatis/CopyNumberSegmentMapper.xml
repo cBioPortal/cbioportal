@@ -13,12 +13,9 @@
         sample.STABLE_ID AS sampleStableId,
         copy_number_seg.CHR AS chr,
         copy_number_seg.START AS start,
-        copy_number_seg.END AS end
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            ,
-            copy_number_seg.NUM_PROBES AS numProbes,
-            copy_number_seg.SEGMENT_MEAN AS segmentMean
-        </if>
+        copy_number_seg.END AS end,
+        copy_number_seg.NUM_PROBES AS numProbes,
+        copy_number_seg.SEGMENT_MEAN AS segmentMean
     </sql>
 
     <sql id="from">

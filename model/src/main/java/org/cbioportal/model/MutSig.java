@@ -2,17 +2,25 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
 
 public class MutSig implements Serializable {
     
     private Integer cancerStudyId;
+    @NotNull
     private String cancerStudyIdentifier;
+    @NotNull
     private Integer entrezGeneId;
+    @NotNull
     private String hugoGeneSymbol;
+    @NotNull
     private Integer rank;
     private Integer numbasescovered;
+    @NotNull
     private Integer nummutations;
+    @NotNull
     private BigDecimal pValue;
+    @NotNull
     private BigDecimal qValue;
 
     public Integer getCancerStudyId() {

@@ -6,15 +6,15 @@
 
     <sql id="select">
         clinical_attribute_meta.ATTR_ID AS "${prefix}attrId",
-        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier",
+        clinical_attribute_meta.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+        clinical_attribute_meta.PATIENT_ATTRIBUTE AS "${prefix}patientAttribute",
+        clinical_attribute_meta.DISPLAY_NAME AS "${prefix}displayName"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            clinical_attribute_meta.DISPLAY_NAME AS "${prefix}displayName",
             clinical_attribute_meta.DESCRIPTION AS "${prefix}description",
             clinical_attribute_meta.DATATYPE AS "${prefix}datatype",
-            clinical_attribute_meta.PATIENT_ATTRIBUTE AS "${prefix}patientAttribute",
-            clinical_attribute_meta.PRIORITY AS "${prefix}priority",
-            clinical_attribute_meta.CANCER_STUDY_ID AS "${prefix}cancerStudyId"
+            clinical_attribute_meta.PRIORITY AS "${prefix}priority"
         </if>
     </sql>
     

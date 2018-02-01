@@ -123,7 +123,7 @@ public class DiscreteCopyNumberController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get counts of specific genes and alterations within a CNA molecular profile")
     public ResponseEntity<List<CopyNumberCount>> fetchCopyNumberCounts(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_gistic")
         @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "List of copy number count identifiers")
         @Size(min = 1, max = COPY_NUMBER_COUNT_MAX_PAGE_SIZE)

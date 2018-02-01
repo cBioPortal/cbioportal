@@ -30,5 +30,4 @@ public class ClinicalAttributeFilter {
     public void setSampleListId(String sampleListId) {
         this.sampleListId = sampleListId;
     }
-
 }

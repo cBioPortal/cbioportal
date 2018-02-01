@@ -1,10 +1,13 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
 public class Gene implements Serializable {
 
+    @NotNull
     private Integer entrezGeneId;
+    @NotNull
     private String hugoGeneSymbol;
     private String type;
     private String cytoband;

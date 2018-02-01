@@ -120,7 +120,7 @@ public class StructuralVariantControllerTest {
     private void testFullResponse(ResultActions resultActions) throws Exception {
         resultActions
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(3)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].breakpointType").value("PRECISE"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].annotation").value("n/a"))
@@ -218,7 +218,7 @@ public class StructuralVariantControllerTest {
     private void testEmptyResponse(ResultActions resultActions) throws Exception {
         resultActions
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0)))
                 ;
     }

@@ -1,13 +1,19 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
 public class CopyNumberCount implements Serializable {
     
+    @NotNull
     private String molecularProfileId;
+    @NotNull
     private Integer entrezGeneId;
+    @NotNull
     private Integer alteration;
+    @NotNull
     private Integer numberOfSamples;
+    @NotNull
     private Integer numberOfSamplesWithAlterationInGene;
 
     public String getMolecularProfileId() {

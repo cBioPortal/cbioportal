@@ -6,11 +6,11 @@
 
     <sql id="select">
         genetic_profile.GENETIC_PROFILE_ID AS "${prefix}molecularProfileId",
-        genetic_profile.STABLE_ID AS "${prefix}stableId"
+        genetic_profile.STABLE_ID AS "${prefix}stableId",
+        genetic_profile.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            genetic_profile.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
-            cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier",
             genetic_profile.GENETIC_ALTERATION_TYPE AS "${prefix}molecularAlterationType",
             genetic_profile.DATATYPE AS "${prefix}datatype",
             genetic_profile.NAME AS "${prefix}name",

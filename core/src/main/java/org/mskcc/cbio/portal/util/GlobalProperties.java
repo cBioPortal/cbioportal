@@ -129,8 +129,6 @@ public class GlobalProperties {
             "TCGA working groups directly.";
 
     public static final String PATIENT_VIEW_PLACEHOLDER = "patient_view_placeholder";
-    public static final String PATIENT_VIEW_GENOMIC_OVERVIEW_CNA_CUTOFF = "patient_view_genomic_overview_cna_cutoff";
-    public static final double[] DEFAULT_GENOMIC_OVERVIEW_CNA_CUTOFF = new double[]{0.2,1.5};
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL = "digitalslidearchive.iframe.url";
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
 
@@ -578,17 +576,6 @@ public class GlobalProperties {
     public static boolean showPlaceholderInPatientView()
     {
         return Boolean.parseBoolean(properties.getProperty(PATIENT_VIEW_PLACEHOLDER));
-    }
-
-    public static double[] getPatientViewGenomicOverviewCnaCutoff()
-    {
-        String cutoff = properties.getProperty(PATIENT_VIEW_GENOMIC_OVERVIEW_CNA_CUTOFF);
-        if (cutoff==null) {
-            return DEFAULT_GENOMIC_OVERVIEW_CNA_CUTOFF;
-        }
-
-        String[] strs = cutoff.split(",");
-        return new double[]{Double.parseDouble(strs[0]), Double.parseDouble(strs[1])};
     }
 
     public static boolean showNewsTab()

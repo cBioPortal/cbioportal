@@ -7,12 +7,16 @@ import java.util.List;
 
 public interface MolecularProfileMapper {
 
-    List<MolecularProfile> getAllMolecularProfiles(String studyId, String projection, Integer limit, Integer offset,
+    List<MolecularProfile> getAllMolecularProfilesInStudies(List<String> studyIds, String projection, Integer limit, Integer offset,
                                                    String sortBy, String direction);
 
-    BaseMeta getMetaMolecularProfiles(String studyId);
+    BaseMeta getMetaMolecularProfilesInStudies(List<String> studyIds);
 
     MolecularProfile getMolecularProfile(String molecularProfileId, String projection);
+
+    List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection);
+
+    BaseMeta getMetaMolecularProfiles(List<String> molecularProfileIds);
 
 	List<MolecularProfile> getMolecularProfilesReferredBy(String referringMolecularProfileId, String projection);
 

@@ -6,7 +6,7 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>Portal Master</name>
-  <version>1.10.3-SNAPSHOT</version>
+  <version>1.11.3-SNAPSHOT</version>
   <description>master maven module</description>
 
   <scm>
@@ -296,7 +296,7 @@
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.44</version>
+      <version>5.1.16</version>
     </dependency>
     <!-- slf4j -->
     <dependency>
@@ -423,6 +423,7 @@
         <filtering>true</filtering>
         <includes>
           <include>**/portal.properties</include>
+          <include>**/maven.properties</include>
         </includes>
       </resource>
       <resource>
@@ -430,6 +431,7 @@
         <filtering>false</filtering>
         <excludes>
           <exclude>**/portal.properties</exclude>
+          <exclude>**/maven.properties</exclude>
         </excludes>
       </resource>
     </resources>

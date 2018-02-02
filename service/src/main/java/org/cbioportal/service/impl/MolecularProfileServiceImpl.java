@@ -49,6 +49,20 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     }
 
     @Override
+    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
+	public List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection) {
+        
+        return molecularProfileRepository.getMolecularProfiles(molecularProfileIds, projection);
+    }
+    
+    @Override
+    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
+	public BaseMeta getMetaMolecularProfiles(List<String> molecularProfileIds) {
+        
+        return molecularProfileRepository.getMetaMolecularProfiles(molecularProfileIds);
+	}
+
+    @Override
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<MolecularProfile> getAllMolecularProfilesInStudy(String studyId, String projection, Integer pageSize,
                                                                  Integer pageNumber, String sortBy, String direction) 
@@ -68,6 +82,20 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
         
         return molecularProfileRepository.getMetaMolecularProfilesInStudy(studyId);
     }
+
+    @Override
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
+	public List<MolecularProfile> getMolecularProfilesInStudies(List<String> studyIds, String projection) {
+        
+        return molecularProfileRepository.getMolecularProfilesInStudies(studyIds, projection);
+	}
+
+    @Override
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
+	public BaseMeta getMetaMolecularProfilesInStudies(List<String> studyIds) {
+        
+        return molecularProfileRepository.getMetaMolecularProfilesInStudies(studyIds);
+	}
 
 	@Override
 	public List<MolecularProfile> getMolecularProfilesReferredBy(String referringMolecularProfileId) 

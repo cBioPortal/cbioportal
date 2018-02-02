@@ -112,9 +112,8 @@ public class GlobalProperties {
     public void setSkinAuthorizationMessage(String property) { skinAuthorizationMessage = property; }
     public static final String SKIN_EXAMPLE_STUDY_QUERIES = "skin.example_study_queries";
     public static final String DEFAULT_SKIN_EXAMPLE_STUDY_QUERIES =
-            "tcga\n" +
+            "tcga provisional\n" +
             "tcga -provisional\n" +
-            "tcga -moratorium\n" +
             "tcga OR icgc\n" +
             "-\"cell line\"\n" +
             "prostate mskcc\n" +
@@ -202,6 +201,8 @@ public class GlobalProperties {
     public static final String DEFAULT_SKIN_ABOUT="About-Us.md";
     public static final String SKIN_NEWS="skin.documentation.news";
     public static final String DEFAULT_SKIN_NEWS="News.md";
+    public static final String SKIN_OQL="skin.documentation.oql";
+    public static final String DEFAULT_SKIN_OQL="Onco-Query-Language.md";
 
     public static final String SKIN_EXAMPLES_RIGHT_COLUMN_HTML="skin.examples_right_column_html";
     
@@ -281,7 +282,7 @@ public class GlobalProperties {
     public static final String ENABLE_DRIVER_ANNOTATIONS = "oncoprint.custom_driver_annotation.default";
     public static final String ENABLE_TIERS = "oncoprint.custom_driver_tiers_annotation.default";
     public static final String ENABLE_ONCOKB_AND_HOTSPOTS_ANNOTATIONS = "oncoprint.oncokb_hotspots.default";
-    public static final String HIDE_PASSENGER_MUTATIONS = "oncoprint.hide_passenger.default";
+    public static final String HIDE_PASSENGER_MUTATIONS = "oncoprint.hide_vus.default";
 
 	private static String civicUrl;
 	@Value("${civic.url:https://civic.genome.wustl.edu/api/}") // default
@@ -467,6 +468,12 @@ public class GlobalProperties {
     {
         String newsHtml = properties.getProperty(SKIN_NEWS);
         return (newsHtml == null) ? DEFAULT_SKIN_NEWS : getContentString(newsHtml);
+    }
+    
+    public static String getOqlHtml()
+    {
+        String oqlHtml = properties.getProperty(SKIN_OQL);
+        return (oqlHtml == null) ? DEFAULT_SKIN_OQL : getContentString(oqlHtml);
     }
     // get custom News html or the default
     public static String getBaseUrl()
@@ -1081,9 +1088,15 @@ public class GlobalProperties {
                 }
                 br.close();
             } catch (FileNotFoundException e) {
-                throw new RuntimeException("File not found: ", e);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("frontend config file not found: " + e.getMessage());
+                }
+                return null;
             } catch (IOException e) {
-                throw new RuntimeException("Line not found: ", e);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Error reading frontend config file: " + e.getMessage());
+                }
+                return null;
             }
         }
         return result;

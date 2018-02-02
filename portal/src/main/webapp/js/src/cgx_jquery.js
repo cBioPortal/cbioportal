@@ -45,8 +45,18 @@ $(document).ready(function(){
 function setUpTabs() {
      // generate tabs for results page; set cookies to preserve
     // state of tabs when user navigates away from page and back
-     var summaryIsDefault = (window.isVirtualStudy && QuerySession.getQueryGenes().length === 1);
-     var activeIndex = summaryIsDefault ? 1 : 0;
+
+    var matchedIndex = null;
+    var matches = window.location.hash.match(/#([^&]*)/);
+    if (matches && matches.length > 1) {
+        var term = matches[1];
+        var tabs = $("#tabs > ul li a").map(function(i,a){ return $(a).attr("href").replace(/#/,'') }).toArray();
+        matchedIndex = _.findIndex(tabs, function(str){return term===str});
+    }
+     var activeIndex = (matchedIndex === -1) ? null : matchedIndex;
+
+     var summaryIsDefault = (window.isVirtualStudy && window.oql_parser.parse(serverVars.theQuery).length === 1);
+     activeIndex = (activeIndex !== null) ? activeIndex : (summaryIsDefault ? 1 : 0);
      $('#tabs').tabs({ active:activeIndex});
      $('#tabs').show();
 }

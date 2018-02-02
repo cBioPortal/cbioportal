@@ -8324,20 +8324,23 @@ window.LogRankTest = (function(jStat) {
       clearCaseIds: function() {
         this.casesIdsList = '';
       },
+      getCaseIdsList: function(type) {
+        var cases = [];
+        _.each(this.stats.studies, function(t) {
+          var targetGroup = type === 'patient' ? t.patients : t.samples;
+          _.each(targetGroup, function(caseId) {
+            cases.push(t.id + ':' + caseId);
+          });
+        });
+        return cases.join('\n');;
+      },
       updateCaseIds: function(type) {
         this.updateStats = true;
         this.$nextTick(function() {
           if (!type) {
             type = this.caseSelection;
           }
-          var cases = [];
-          _.each(this.stats.studies, function(t) {
-            var targetGroup = type === 'patient' ? t.patients : t.samples;
-            _.each(targetGroup, function(caseId) {
-              cases.push(t.id + ':' + caseId);
-            });
-          });
-          this.casesIdsList = cases.join('\n');
+          this.casesIdsList = this.getCaseIdsList(type)
         });
       }
     },

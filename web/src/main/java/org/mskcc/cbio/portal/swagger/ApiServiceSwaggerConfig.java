@@ -8,10 +8,12 @@ import springfox.documentation.spring.web.plugins.Docket;
 import java.util.Collections;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
+@PropertySource("classpath:springfox.properties")
 public class ApiServiceSwaggerConfig {
 
     @Bean

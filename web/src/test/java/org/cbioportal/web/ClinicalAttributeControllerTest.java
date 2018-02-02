@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +55,8 @@ public class ClinicalAttributeControllerTest {
     @Autowired
     private ClinicalAttributeService clinicalAttributeService;
     private MockMvc mockMvc;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Bean
     public ClinicalAttributeService clinicalAttributeService() {
@@ -203,6 +205,43 @@ public class ClinicalAttributeControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.patientAttribute").value(TEST_PATIENT_ATTRIBUTE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(TEST_DESCRIPTION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$.priority").value(TEST_PRIORITY_1));
+    }
+
+    @Test
+    public void fetchClinicalAttributes() throws Exception {
+
+        List<ClinicalAttribute> clinicalAttributes = createExampleClinicalAttributes();
+
+        Mockito.when(clinicalAttributeService.fetchClinicalAttributes(Mockito.anyListOf(String.class), Mockito.anyString()))
+            .thenReturn(clinicalAttributes);
+
+        List<String> studyIds = new ArrayList<>();
+        studyIds.add("study_id_1");
+        studyIds.add("study_id_2");
+        
+        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-attributes/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(studyIds)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].displayName").value(TEST_DISPLAY_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientAttribute").value(TEST_PATIENT_ATTRIBUTE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].priority").value(TEST_PRIORITY_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].displayName").value(TEST_DISPLAY_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientAttribute").value(TEST_PATIENT_ATTRIBUTE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].priority").value(TEST_PRIORITY_2));
     }
     
     private List<ClinicalAttribute> createExampleClinicalAttributes() {

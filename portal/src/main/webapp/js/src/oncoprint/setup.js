@@ -2103,7 +2103,6 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    var colorby_cosmic_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="cosmic"]');
 		    var colorby_oncokb_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="oncokb"]');
 		    var colorby_binary_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="driver_filter"]');
-		    var colorby_binary_checkbox = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name="driver_filter"]');
 		    var colorby_multi_values_checkboxes = {};
 		    for (var value in getTiersMap()) {
 			colorby_multi_values_checkboxes[value] = $('#oncoprint_diagram_mutation_color').find('input[type="checkbox"][name='+value+']');

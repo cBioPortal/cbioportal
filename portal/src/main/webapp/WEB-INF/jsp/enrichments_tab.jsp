@@ -91,40 +91,44 @@
 </style>
 
 <script>
-    $(document).ready( function() {
 
-        $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples()).then(function(altered_samples, unaltered_samples) {
-            var caseListObj = {};
-            $.each(altered_samples, function(_index, _sampleId) {
-                caseListObj[_sampleId] = "altered";
-            });
-            $.each(unaltered_samples, function(_index, _sampleId) {
-                caseListObj[_sampleId] = "unaltered";
-            });
-
-            var enrichments_tab_init = false;
-            $(window).trigger("resize");
-            if ($("#" + enrichmentsTabSettings.ids.main_div).is(":visible")) {
+$(document).ready(function(){
+    var enrichments_tab_init = false;
+    
+     var initEnrichments = function(){
+            enrichments_tab_init = true;
+            fireQuerySession();
+    
+            $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples()).then(function(altered_samples, unaltered_samples) {
+                var caseListObj = {};
+            
+                $.each(altered_samples, function(_index, _sampleId) {
+                    caseListObj[_sampleId] = "altered";
+                });
+                $.each(unaltered_samples, function(_index, _sampleId) {
+                    caseListObj[_sampleId] = "unaltered";
+                });                         
                 enrichmentsTab.init(caseListObj);
-                enrichments_tab_init = true;
+            
                 $(window).trigger("resize");
-            } else {
-                $(window).trigger("resize");
-            }
-            $("#tabs").bind("tabsactivate", function(event, ui) {
-                $(window).trigger("resize");
-                if (ui.newTab.text().trim().toLowerCase().indexOf("enrichments") !== -1) {
-                    $(window).trigger("resize");
-                    if (enrichments_tab_init === false) {
-                        enrichmentsTab.init(caseListObj);
-                        enrichments_tab_init = true;
-                        $(window).trigger("resize");
-                    } else {
-                        $(window).trigger("resize");
-                    }
-                }
             });
+    
+            $(window).trigger("resize");
+    
+     }
+    
+    if ($("#" + enrichmentsTabSettings.ids.main_div).is(":visible") && enrichments_tab_init === false) {
+        initEnrichments();
+    } 
 
-        });
+    $("#tabs").bind("tabsactivate", function(event, ui) {
+        $(window).trigger("resize");
+    
+        if ($("#" + enrichmentsTabSettings.ids.main_div).is(":visible") && enrichments_tab_init === false) {
+            initEnrichments();
+        } 
     });
+
+});
+
 </script>

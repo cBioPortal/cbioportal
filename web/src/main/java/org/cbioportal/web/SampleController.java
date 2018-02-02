@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
@@ -36,8 +37,8 @@ import java.util.List;
 @Api(tags = "Samples", description = " ")
 public class SampleController {
 
-    public static final int SAMPLE_MAX_PAGE_SIZE = 100000;
-    private static final String SAMPLE_DEFAULT_PAGE_SIZE = "100000";
+    public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
+    private static final String SAMPLE_DEFAULT_PAGE_SIZE = "10000000";
 
     @Autowired
     private SampleService sampleService;
@@ -126,27 +127,48 @@ public class SampleController {
     @ApiOperation("Fetch samples by ID")
     public ResponseEntity<List<Sample>> fetchSamples(
         @ApiParam(required = true, value = "List of sample identifiers")
-        @Size(min = 1, max = SAMPLE_MAX_PAGE_SIZE)
-        @RequestBody List<SampleIdentifier> sampleIdentifiers,
+        @Valid @RequestBody SampleFilter sampleFilter,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
-        List<String> studyIds = new ArrayList<>();
-        List<String> sampleIds = new ArrayList<>();
-
-        for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
-            studyIds.add(sampleIdentifier.getStudyId());
-            sampleIds.add(sampleIdentifier.getSampleId());
-        }
-
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, sampleService.fetchMetaSamples(studyIds, sampleIds)
-                .getTotalCount().toString());
+            BaseMeta baseMeta;
+
+            if (sampleFilter.getSampleListIds() != null) {
+                baseMeta = sampleService.fetchMetaSamples(sampleFilter.getSampleListIds());
+            } else {
+                List<String> studyIds = new ArrayList<>();
+                List<String> sampleIds = new ArrayList<>();
+                extractStudyAndSampleIds(sampleFilter, studyIds, sampleIds);
+                baseMeta = sampleService.fetchMetaSamples(studyIds, sampleIds);
+            }
+            
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, baseMeta.getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(
-                sampleService.fetchSamples(studyIds, sampleIds, projection.name()), HttpStatus.OK);
+            List<Sample> samples;
+
+            if (sampleFilter.getSampleListIds() != null) {
+                samples = sampleService.fetchSamples(sampleFilter.getSampleListIds(), projection.name());
+            } else {
+                List<String> studyIds = new ArrayList<>();
+                List<String> sampleIds = new ArrayList<>();
+                extractStudyAndSampleIds(sampleFilter, studyIds, sampleIds);
+                samples = sampleService.fetchSamples(studyIds, sampleIds, projection.name());
+            }
+
+            return new ResponseEntity<>(samples, HttpStatus.OK);
+        }
+    }
+
+    private void extractStudyAndSampleIds(SampleFilter sampleFilter, List<String> studyIds, List<String> sampleIds) {
+        
+        for (SampleIdentifier sampleMolecularIdentifier : 
+            sampleFilter.getSampleIdentifiers()) {
+
+            studyIds.add(sampleMolecularIdentifier.getStudyId());
+            sampleIds.add(sampleMolecularIdentifier.getSampleId());
         }
     }
 }

@@ -20,5 +20,8 @@ public interface GenePanelMapper {
 
     List<GenePanelData> getGenePanelDataBySampleIds(String molecularProfileId, List<String> sampleIds);
 
+    List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds,
+                                                                      List<String> sampleIds);
+
     List<GenePanelToGene> getGenesOfPanels(List<String> genePanelIds);
 }

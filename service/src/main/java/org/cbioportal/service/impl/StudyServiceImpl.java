@@ -35,11 +35,25 @@ public class StudyServiceImpl implements StudyService {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public CancerStudy getStudy(String studyId) throws StudyNotFoundException {
 
-        CancerStudy cancerStudy = studyRepository.getStudy(studyId);
+        CancerStudy cancerStudy = studyRepository.getStudy(studyId, "DETAILED");
         if (cancerStudy == null) {
             throw new StudyNotFoundException(studyId);
         }
 
         return cancerStudy;
     }
+
+    @Override
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
+	public List<CancerStudy> fetchStudies(List<String> studyIds, String projection) {
+        
+        return studyRepository.fetchStudies(studyIds, projection);
+	}
+
+    @Override
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
+	public BaseMeta fetchMetaStudies(List<String> studyIds) {
+        
+        return studyRepository.fetchMetaStudies(studyIds);
+	}
 }

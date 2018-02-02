@@ -7,7 +7,7 @@ import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
+import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -22,14 +22,14 @@ public class MolecularProfileMyBatisRepository implements MolecularProfileReposi
     public List<MolecularProfile> getAllMolecularProfiles(String projection, Integer pageSize, Integer pageNumber,
                                                           String sortBy, String direction) {
 
-        return molecularProfileMapper.getAllMolecularProfiles(null, projection, pageSize,
+        return molecularProfileMapper.getAllMolecularProfilesInStudies(null, projection, pageSize,
                 offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
     public BaseMeta getMetaMolecularProfiles() {
 
-        return molecularProfileMapper.getMetaMolecularProfiles(null);
+        return molecularProfileMapper.getMetaMolecularProfilesInStudies(null);
     }
 
     @Override
@@ -38,18 +38,42 @@ public class MolecularProfileMyBatisRepository implements MolecularProfileReposi
     }
 
     @Override
+	public List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection) {
+        
+        return molecularProfileMapper.getMolecularProfiles(molecularProfileIds, projection);
+    }
+    
+    @Override
+	public BaseMeta getMetaMolecularProfiles(List<String> molecularProfileIds) {
+        
+        return molecularProfileMapper.getMetaMolecularProfiles(molecularProfileIds);
+	}
+
+    @Override
     public List<MolecularProfile> getAllMolecularProfilesInStudy(String studyId, String projection, Integer pageSize,
                                                                  Integer pageNumber, String sortBy, String direction) {
 
-        return molecularProfileMapper.getAllMolecularProfiles(studyId, projection, pageSize,
+        return molecularProfileMapper.getAllMolecularProfilesInStudies(Arrays.asList(studyId), projection, pageSize,
                 offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
     public BaseMeta getMetaMolecularProfilesInStudy(String studyId) {
 
-        return molecularProfileMapper.getMetaMolecularProfiles(studyId);
+        return molecularProfileMapper.getMetaMolecularProfilesInStudies(Arrays.asList(studyId));
     }
+
+	@Override
+	public List<MolecularProfile> getMolecularProfilesInStudies(List<String> studyIds, String projection) {
+        
+        return molecularProfileMapper.getAllMolecularProfilesInStudies(studyIds, projection, 0, 0, null, null);
+	}
+
+	@Override
+	public BaseMeta getMetaMolecularProfilesInStudies(List<String> studyIds) {
+        
+        return molecularProfileMapper.getMetaMolecularProfilesInStudies(studyIds);
+	}
 
 	@Override
 	public List<MolecularProfile> getMolecularProfilesReferredBy(String referringMolecularProfileId) {

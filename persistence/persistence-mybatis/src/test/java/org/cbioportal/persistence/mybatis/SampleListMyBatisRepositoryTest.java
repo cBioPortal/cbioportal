@@ -155,6 +155,25 @@ public class SampleListMyBatisRepositoryTest {
     }
 
     @Test
+    public void getSampleLists() throws Exception {
+
+        List<SampleList> result = sampleListMyBatisRepository.getSampleLists(Arrays.asList("study_tcga_pub_all", 
+            "study_tcga_pub_acgh"), "SUMMARY");
+
+        Assert.assertEquals(2, result.size());
+        SampleList sampleList = result.get(0);
+        Assert.assertEquals((Integer) 2, sampleList.getListId());
+        Assert.assertEquals("study_tcga_pub_acgh", sampleList.getStableId());
+        Assert.assertEquals((Integer) 1, sampleList.getCancerStudyId());
+        Assert.assertEquals("study_tcga_pub", sampleList.getCancerStudyIdentifier());
+        Assert.assertEquals("other", sampleList.getCategory());
+        Assert.assertEquals("Tumors aCGH", sampleList.getName());
+        Assert.assertEquals("All tumors with aCGH data",
+            sampleList.getDescription());
+        Assert.assertNull(sampleList.getCancerStudy());
+    }
+
+    @Test
     public void getAllSampleListsInStudySummaryProjection() throws Exception {
 
         List<SampleList> result = sampleListMyBatisRepository.getAllSampleListsInStudy("study_tcga_pub",

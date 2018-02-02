@@ -15,7 +15,7 @@ public class MutationMultipleStudyFilter {
     private List<Integer> entrezGeneIds;
 
     @AssertTrue
-    private boolean isEitherSampleListIdOrSampleIdsPresent() {
+    private boolean isEitherMolecularProfileIdsOrSampleMolecularIdentifiersPresent() {
         return molecularProfileIds != null ^ sampleMolecularIdentifiers != null;
     }
 

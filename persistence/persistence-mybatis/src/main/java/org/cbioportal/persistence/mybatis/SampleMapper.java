@@ -10,7 +10,11 @@ public interface SampleMapper {
     List<Sample> getSamples(List<String> studyIds, String patientId, List<String> sampleIds, String projection, 
                             Integer limit, Integer offset, String sortBy, String direction);
 
+    List<Sample> getSamplesBySampleListIds(List<String> sampleListIds, String projection);
+
     BaseMeta getMetaSamples(List<String> studyIds, String patientId, List<String> sampleIds);
+
+    BaseMeta getMetaSamplesBySampleListIds(List<String> sampleListIds);
 
     Sample getSample(String studyId, String sampleId, String projection);
 

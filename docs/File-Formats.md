@@ -602,7 +602,7 @@ The extended MAF format recognized by the portal has:
 23. **Match_Norm_Validation_Allele2<sup>1</sup> (Optional)**: Secondary data from orthogonal technology.
 24. **Verification_Status<sup>1</sup> (Optional)**: Second pass results from independent attempt using same methods as primary data source. "Verified", "Unknown" or "NA".
 25. **Validation_Status (Optional)**: Second pass results from orthogonal technology. "Valid", "Invalid", "Untested", "Inconclusive", "Redacted", "Unknown" or "NA".
-26. **Mutation_Status (Optional)**: Ideally "Somatic".
+26. **Mutation_Status (Optional)**: "Somatic" or "Germline" are supported by the UI in Mutations tab. "None", "LOH" and "Wildtype" will not be loaded. Other values will be displayed as text.
 27. **Sequencing_Phase<sup>1</sup> (Optional)**: Indicates current sequencing phase.
 28. **Sequence_Source<sup>1</sup> (Optional)**: Molecular assay type used to produce the analytes used for sequencing.
 29. **Validation_Method<sup>1</sup> (Optional)**: The assay platforms used for the validation call.

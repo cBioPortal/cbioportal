@@ -44,7 +44,9 @@ public class InternalIdUtil
         List<String> sampleIds = new ArrayList<String>();
         for (Integer internalSampleId : internalSampleIds) {
             Sample s = DaoSample.getSampleById(internalSampleId);
-            sampleIds.add(s.getStableId());
+            if (s != null) {
+                sampleIds.add(s.getStableId());
+            }
         }
         return sampleIds;
     }

@@ -57,6 +57,7 @@ public class CnaJSON extends HttpServlet {
     public static final String GET_CNA_FRACTION_CMD = "get_cna_fraction";
     public static final String CNA_EVENT_ID = "cna_id";
     public static final String CBIO_GENES_FILTER = "cbio_genes_filter";//Only get cna events from Cbio Cancer genes
+    private static final double FRACTION_GENOME_ALTERED_CUTOFF = 0.2;
     
     // class which process access control to cancer studies
     private AccessControl accessControl;
@@ -243,8 +244,8 @@ public class CnaJSON extends HttpServlet {
 					} else {
 						sampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudy.getInternalId());
 					}
-					fraction = DaoCopyNumberSegment.getCopyNumberActeredFraction(sampleIds, cancerStudy.getInternalId(),
-							GlobalProperties.getPatientViewGenomicOverviewCnaCutoff()[0]);
+                    fraction = DaoCopyNumberSegment.getCopyNumberActeredFraction(sampleIds, cancerStudy.getInternalId(), 
+                        FRACTION_GENOME_ALTERED_CUTOFF);
 				}
 			}
         } catch (DaoException ex) {

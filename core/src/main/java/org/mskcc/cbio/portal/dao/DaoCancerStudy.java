@@ -539,6 +539,7 @@ public final class DaoCancerStudy {
                 "DELETE FROM mut_sig WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM protein_array_data WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM protein_array_cancer_study WHERE CANCER_STUDY_ID=?",
+                "DELETE FROM fraction_genome_altered WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM cancer_study WHERE CANCER_STUDY_ID=?;"
                 };
         Connection con = null;

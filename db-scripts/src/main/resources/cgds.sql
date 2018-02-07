@@ -85,6 +85,7 @@ DROP TABLE IF EXISTS `gene_alias`;
 DROP TABLE IF EXISTS `geneset_gene`;
 DROP TABLE IF EXISTS `reference_genome_gene`;
 DROP TABLE IF EXISTS `gene`;
+DROP TABLE IF EXISTS `fraction_genome_altered`;
 DROP TABLE IF EXISTS `sample_list_list`;
 DROP TABLE IF EXISTS `sample_list`;
 DROP TABLE IF EXISTS `sample`;
@@ -98,7 +99,6 @@ DROP TABLE IF EXISTS `geneset_hierarchy_node`;
 DROP TABLE IF EXISTS `geneset`;
 DROP TABLE IF EXISTS `genetic_entity`;
 DROP TABLE IF EXISTS `reference_genome`;
-DROP TABLE IF EXISTS `fraction_genome_altered`;
 
 -- --------------------------------------------------------
 CREATE TABLE `type_of_cancer` (
@@ -324,14 +324,6 @@ CREATE TABLE `genetic_profile_samples` (
   `ORDERED_SAMPLE_LIST` longtext NOT NULL,
   UNIQUE (`GENETIC_PROFILE_ID`),
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
-);
-
-CREATE TABLE `reference_genome_profile` (
-    `GENETIC_PROFILE_ID` int(11) NOT NULL,
-    `REFERENCE_GENOME_ID` int(4) NOT NULL,
-    PRIMARY KEY (`GENETIC_PROFILE_ID`,`REFERENCE_GENOME_ID`),
-    FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
-    FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------

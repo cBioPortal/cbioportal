@@ -238,7 +238,7 @@ skin.documentation.news=News.md
 cBioPortal can use pages stored in (a subdirectory of) your content directory as news/faq/about page. For example, if your news page is called myNews.md and stored in content/myFolder, use 
 
 ```
-skin.documentation.baseurl=
+skin.documentation.baseurl=/
 skin.documentation.news=myFolder/myNews.md
 ```
 

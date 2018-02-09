@@ -123,7 +123,18 @@ public class GenePanelServiceImpl implements GenePanelService {
         Map<String, MolecularProfile> molecularProfileMap = molecularProfileService.getMolecularProfiles(
             molecularProfileIds, "SUMMARY").stream().collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
         List<String> studyIds = new ArrayList<>();
-        molecularProfileIds.forEach(m -> studyIds.add(molecularProfileMap.get(m).getCancerStudyIdentifier()));
+        List<String> copyMolecularProfileIds = new ArrayList<>(molecularProfileIds);
+        
+        for (int i = 0; i < copyMolecularProfileIds.size(); i++) {
+            String molecularProfileId = copyMolecularProfileIds.get(i);
+            if (molecularProfileMap.containsKey(molecularProfileId)) {
+                studyIds.add(molecularProfileMap.get(molecularProfileId).getCancerStudyIdentifier());
+            } else {
+                molecularProfileIds.remove(i);
+                sampleIds.remove(i);
+            }
+        }
+
         List<Sample> samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
 
         List<GenePanelToGene> genePanelToGeneList = genePanelRepository.getGenesOfPanels(genePanelDataList.stream()

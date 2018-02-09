@@ -114,31 +114,18 @@ public class GenePanelController {
             "Profile IDs and Entrez Gene IDs")
         @Valid @RequestBody GenePanelMultipleStudyFilter genePanelMultipleStudyFilter) {
         
-        List<GenePanelData> genePanelDataList;
-        if (genePanelMultipleStudyFilter.getMolecularProfileIds() != null) {
-            genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
-                genePanelMultipleStudyFilter.getMolecularProfileIds(), null, 
-                genePanelMultipleStudyFilter.getEntrezGeneIds());
-        } else {
+        List<String> molecularProfileIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
 
-            List<String> molecularProfileIds = new ArrayList<>();
-            List<String> sampleIds = new ArrayList<>();
-            extractMolecularProfileAndSampleIds(genePanelMultipleStudyFilter, molecularProfileIds, sampleIds);
-            genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds,
-                sampleIds, genePanelMultipleStudyFilter.getEntrezGeneIds());
-        }
-
-        return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
-    }
-
-    private void extractMolecularProfileAndSampleIds(GenePanelMultipleStudyFilter genePanelMultipleStudyFilter,
-                                                     List<String> molecularProfileIds, List<String> sampleIds) {
-        
         for (SampleMolecularIdentifier sampleMolecularIdentifier :
             genePanelMultipleStudyFilter.getSampleMolecularIdentifiers()) {
 
             molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
             sampleIds.add(sampleMolecularIdentifier.getSampleId());
         }
+        List<GenePanelData> genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
+            molecularProfileIds, sampleIds, genePanelMultipleStudyFilter.getEntrezGeneIds());
+
+        return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
     }
 }

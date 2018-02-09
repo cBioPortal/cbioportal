@@ -59,6 +59,8 @@
 <t:template title="<%=siteTitle%>" cssClass="homePage" defaultRightColumn="true" twoColumn="true" fixedWidth="false">
 
     <jsp:attribute name="head_area">
+        <!-- Include selected_study_variables in the new front-end framework and makre sure rest of legacy still working -->
+        <jsp:include page="global/selected_study_variables.jsp"/>
         <jsp:include page="global/server_vars.jsp"/>
         <script>
             window.selectedCancerStudyId = '${selectedCancerStudyId}';

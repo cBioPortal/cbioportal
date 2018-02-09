@@ -6,7 +6,6 @@ import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 
 import java.util.List;
-import java.util.Map;
 
 public interface SampleListService {
 

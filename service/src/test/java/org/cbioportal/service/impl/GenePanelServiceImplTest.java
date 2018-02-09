@@ -349,21 +349,21 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
             "ID")).thenReturn(genes);
 
         Mockito.when(molecularProfileService.getMolecularProfiles(
-            Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID), "SUMMARY")).thenReturn(molecularProfiles);
+            Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, "invalid_profile"), "SUMMARY")).thenReturn(molecularProfiles);
 
         Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID, STUDY_ID), 
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), "ID")).thenReturn(samples);
         
         Mockito.when(genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(
-            Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID), Arrays.asList(SAMPLE_ID1, SAMPLE_ID2)))
+            Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, "invalid_profile"), Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3)))
             .thenReturn(genePanelDataList);
 
         Mockito.when(genePanelRepository.getGenesOfPanels(Arrays.asList(GENE_PANEL_ID)))
             .thenReturn(genePanelToGeneList);
         
         List<GenePanelData> result = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
-            Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID), Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 
-            Arrays.asList(ENTREZ_GENE_ID_1, 3));
+            new ArrayList<>(Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, "invalid_profile")), 
+            new ArrayList<>(Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3)), Arrays.asList(ENTREZ_GENE_ID_1, 3));
         
         Assert.assertEquals(2, result.size());
         GenePanelData resultGenePanelData1 = result.get(0);

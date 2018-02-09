@@ -3,7 +3,6 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.StudyRepository;
-import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

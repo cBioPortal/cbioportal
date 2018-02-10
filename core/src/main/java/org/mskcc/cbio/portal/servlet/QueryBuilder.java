@@ -326,6 +326,13 @@ public class QueryBuilder extends HttpServlet {
                     if (errorsExist) {
                         httpServletRequest.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "Please fix the errors below.");
                     }
+                    if(cancerStudyId.equals("all") && _isVirtualStudy && cohortDetails != null) {
+                        List<String> studies = new ArrayList<>();
+                        for(Map.Entry<String, Set<String>> map : cohortDetails.getStudySampleMap().entrySet()) {
+                            studies.add(map.getKey());
+                        }
+                        httpServletRequest.setAttribute(CANCER_STUDY_LIST, StringUtils.join(studies, ","));
+                    }
                     RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
                     dispatcher.forward(httpServletRequest, httpServletResponse);
                 }

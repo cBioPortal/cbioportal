@@ -729,27 +729,11 @@ cbio.util = (function() {
 
     function getDatahubStudiesList() {
         var DATAHUB_GIT_URL =
-            'https://api.github.com/repos/cBioPortal/datahub/contents/public';
+            'proxy/download.cbioportal.org/study_list.json';
         var def = new $.Deferred();
 
         $.getJSON(DATAHUB_GIT_URL, function(data) {
-            var studies = {};
-            if (_.isArray(data)) {
-                _.each(data, function(fileInfo) {
-                    if (_.isObject(fileInfo) &&
-                        fileInfo.type === 'file' &&
-                        _.isString(fileInfo.name)) {
-                        var fileName = fileInfo.name.split('.tar.gz');
-                        if (fileName.length > 0) {
-                            studies[fileName[0]] = {
-                                name: fileName[0],
-                                htmlURL: fileInfo.html_url
-                            };
-                        }
-                    }
-                })
-            }
-            def.resolve(studies);
+            def.resolve(data);
         }).fail(function(error) {
             def.reject(error);
         });

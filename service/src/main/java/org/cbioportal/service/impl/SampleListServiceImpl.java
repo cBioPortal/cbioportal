@@ -13,8 +13,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,8 +31,10 @@ public class SampleListServiceImpl implements SampleListService {
     public List<SampleList> getAllSampleLists(String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                               String direction) {
 
-        List<SampleList> sampleLists = sampleListRepository.getAllSampleLists(projection, pageSize, pageNumber, sortBy,
+        List<SampleList> sampleListsFromRepo = sampleListRepository.getAllSampleLists(projection, pageSize, pageNumber, sortBy,
             direction);
+        // copy the list before returning so @PostFilter doesn't taint the list stored in the mybatis second-level cache
+        List<SampleList> sampleLists = new ArrayList<SampleList>(sampleListsFromRepo);
         
         if(projection.equals("DETAILED")) {
             addSampleIds(sampleLists);

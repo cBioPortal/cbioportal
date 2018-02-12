@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @Service
 public class ClinicalAttributeServiceImpl implements ClinicalAttributeService {
@@ -27,8 +28,10 @@ public class ClinicalAttributeServiceImpl implements ClinicalAttributeService {
     public List<ClinicalAttribute> getAllClinicalAttributes(String projection, Integer pageSize, Integer pageNumber,
                                                             String sortBy, String direction) {
 
-        return clinicalAttributeRepository.getAllClinicalAttributes(projection, pageSize, pageNumber, sortBy,
-                direction);
+        List<ClinicalAttribute> clinicalAttributes = clinicalAttributeRepository.getAllClinicalAttributes(projection, pageSize, pageNumber, sortBy,
+                                                                                                          direction);
+        // copy the list before returning so @PostFilter doesn't taint the list stored in the mybatis second-level cache
+        return new ArrayList<ClinicalAttribute>(clinicalAttributes);
     }
 
     @Override

@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @Service
 public class MolecularProfileServiceImpl implements MolecularProfileService {
@@ -27,7 +28,9 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     public List<MolecularProfile> getAllMolecularProfiles(String projection, Integer pageSize, Integer pageNumber,
                                                           String sortBy, String direction) {
 
-        return molecularProfileRepository.getAllMolecularProfiles(projection, pageSize, pageNumber, sortBy, direction);
+        List<MolecularProfile> molecularProfiles = molecularProfileRepository.getAllMolecularProfiles(projection, pageSize, pageNumber, sortBy, direction);
+        // copy the list before returning so @PostFilter doesn't taint the list stored in the mybatis second-level cache
+        return new ArrayList<MolecularProfile>(molecularProfiles);
     }
 
     @Override

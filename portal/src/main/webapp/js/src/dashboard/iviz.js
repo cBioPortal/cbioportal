@@ -7947,7 +7947,11 @@ window.LogRankTest = (function(jStat) {
           divId: iViz.util.getDefaultDomId('progressBarId', this.attributes.attr_id),
           opts: {},
           infinityInterval: null
-        }
+        },
+        // this is used to set dc invisibleDimension filters
+        // In case of MutatedGeneCna plot this would be case uids
+        // and for other talbe charts this would be row uid
+        chartFilters:[]
       };
     },
     watch: {
@@ -7955,6 +7959,7 @@ window.LogRankTest = (function(jStat) {
         if (newVal.length === 0) {
           this.invisibleDimension.filterAll();
           this.selectedRows = [];
+          this.chartFilters = [];
         }
         this.$dispatch('update-filters', true);
       },
@@ -8016,7 +8021,7 @@ window.LogRankTest = (function(jStat) {
               this.invisibleDimension.filterAll();
             } else {
               var filtersMap = {};
-              _.each(this.attributes.filter, function(filter) {
+              _.each(this.chartFilters, function(filter) {
                 if (filtersMap[filter] === undefined) {
                   filtersMap[filter] = true;
                 }
@@ -8068,22 +8073,24 @@ window.LogRankTest = (function(jStat) {
 
         if (this.isMutatedGeneCna) {
           this.selectedRows = _.union(this.selectedRows, selectedRowsUids);
+          this.attributes.filter.push(selectedRowsUids.join(','))
           _.each(_selectedRowData, function(item) {
             var casesIds = item.case_uids.split(',');
             selectedSamplesUnion = selectedSamplesUnion.concat(casesIds);
           });
-          if (this.attributes.filter.length === 0) {
-            this.attributes.filter = selectedSamplesUnion.sort();
+          if(this.chartFilters.length === 0) {
+            this.chartFilters = selectedSamplesUnion.sort();
           } else {
-            this.attributes.filter =
-              iViz.util.intersection(this.attributes.filter, selectedSamplesUnion.sort());
+            this.chartFilters =
+              iViz.util.intersection(this.chartFilters, selectedSamplesUnion.sort());
           }
         } else {
           this.selectedRows = selectedRowsUids;
           this.attributes.filter = this.selectedRows;
+          this.chartFilters = this.selectedRows
         }
         var filtersMap = {};
-        _.each(this.attributes.filter, function(filter) {
+        _.each(this.chartFilters, function(filter) {
           if (filtersMap[filter] === undefined) {
             filtersMap[filter] = true;
           }
@@ -8280,11 +8287,15 @@ window.LogRankTest = (function(jStat) {
     template: '<div style="display: inline-flex"><input type="button" id="custom-case-input-button" ' +
     'class="iviz-header-button" value="Select cases by IDs"/>' +
     '<div class="iviz-hidden" id="iviz-case-select-custom-dialog">' +
-    '<b>Please input IDs (one per line)</b></br><textarea rows="20" cols="50" ' +
+    '<b>Please input IDs (one per line)</b></br>' +
+    '<span @click="updateCaseIds()" ' +
+    'style="text-decoration: underline;cursor: pointer">' +
+    'Use selected samples/patients</span><br/><br/>' +
+    '<textarea rows="20" cols="50" ' +
     'id="iviz-case-select-custom-input" v-model="casesIdsList"></textarea>' +
     '<br/><label><input type="radio" v-model="caseSelection" ' +
-    'value="sample" checked @click="updateCaseIds(\'sample\')">By sample ID</label><label><input type="radio" ' +
-    'v-model="caseSelection" value="patient" @click="updateCaseIds(\'patient\')">' +
+    'value="sample" checked @click="clearCaseIds(\'sample\')">By sample ID</label><label><input type="radio" ' +
+    'v-model="caseSelection" value="patient" @click="clearCaseIds(\'patient\')">' +
     'By patient ID</label><button type="button" @click="setCasesSelection()" ' +
     'style="float: right;">Select</button></div></div>',
     props: {
@@ -8310,7 +8321,10 @@ window.LogRankTest = (function(jStat) {
         this.$dispatch('set-selected-cases', this.caseSelection, _.uniq(caseIds));
         this.tooltip.qtip('api').hide();
       },
-      updateCaseIds: function(type) {
+      clearCaseIds: function() {
+        this.casesIdsList = '';
+      },
+      getCaseIdsList: function(type) {
         var cases = [];
         _.each(this.stats.studies, function(t) {
           var targetGroup = type === 'patient' ? t.patients : t.samples;
@@ -8318,7 +8332,16 @@ window.LogRankTest = (function(jStat) {
             cases.push(t.id + ':' + caseId);
           });
         });
-        this.casesIdsList = cases.join('\n');
+        return cases.join('\n');;
+      },
+      updateCaseIds: function(type) {
+        this.updateStats = true;
+        this.$nextTick(function() {
+          if (!type) {
+            type = this.caseSelection;
+          }
+          this.casesIdsList = this.getCaseIdsList(type)
+        });
       }
     },
     ready: function() {
@@ -8326,15 +8349,12 @@ window.LogRankTest = (function(jStat) {
       var _customDialogQtip =
         $.extend(true, {}, headerCaseSelectCustomDialog);
       _customDialogQtip.position.target = $(window);
+      _customDialogQtip.content.text = $('#iviz-case-select-custom-dialog');
       _customDialogQtip.events = {
-        show: function() {
-          self_.updateStats = true;
-          self_.$nextTick(function() {
-            self_.updateCaseIds('sample');
-          });
+        hide: function() {
+          self_.casesIdsList = '';
         }
       };
-      _customDialogQtip.content.text = $('#iviz-case-select-custom-dialog');
       self_.tooltip = $('#custom-case-input-button').qtip(_customDialogQtip);
     }
   });

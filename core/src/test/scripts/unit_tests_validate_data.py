@@ -1349,6 +1349,55 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.cause, 'Test')
         self.assertEqual(record.getMessage(), "Value in 'Verification_Status' not in MAF format")
 
+    def test_validation_ms(self):
+
+        """Test if warning is given when Mutation_Status column in mutation
+        file contains other than allowed values from MAF format or Wildtype."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('mutations/data_mutations_ms.maf',
+                                    validateData.MutationsExtendedValidator,
+                                    extra_meta_fields={'swissprot_identifier': 'name'})
+        # we expect 1 warning
+        self.assertEqual(len(record_list), 1)
+
+        # Check warning message
+        self.assertEqual(record_list[0].levelno, logging.WARNING)
+        self.assertEqual(record_list[0].line_number, 3)
+        self.assertEqual(record_list[0].cause, 'test')
+        self.assertEqual(record_list[0].getMessage(), "Mutation_Status value is not in MAF format")
+
+    def test_mutation_not_loaded_ms(self):
+
+        """Test if info message is given when Mutation_Status columns have either
+        LOH, None or Wildtype. In these cases the mutation is not loaded in cBioPortal."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate('mutations/data_mutations_not_loaded_ms.maf',
+                                    validateData.MutationsExtendedValidator,
+                                    extra_meta_fields={'swissprot_identifier': 'name'})
+
+        # We expect 5 info messages, 3 from not loaded mutations and 2 general lines
+        self.assertEqual(len(record_list), 5)
+        record_iterator = iter(record_list)
+        # Expected info message due to value "None" in Mutation_Status
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.INFO)
+        self.assertEqual(record.line_number, 3)
+        self.assertEqual(record.cause, 'None')
+        self.assertEqual(record.getMessage(), "Mutation will not be loaded due to value in Mutation_Status")
+        # Expected info message due to value "loh" in Mutation_Status
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.INFO)
+        self.assertEqual(record.line_number, 5)
+        self.assertEqual(record.cause, 'loh')
+        self.assertEqual(record.getMessage(), "Mutation will not be loaded due to value in Mutation_Status")
+        # Expected info message due to value "Wildtype" in Mutation_Status
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.INFO)
+        self.assertEqual(record.line_number, 9)
+        self.assertEqual(record.cause, 'Wildtype')
+        self.assertEqual(record.getMessage(), "Mutation will not be loaded due to value in Mutation_Status")
+
+
 class FusionValidationTestCase(PostClinicalDataFileTestCase):
 
     """Tests for the various validations of data in Fusion data files."""

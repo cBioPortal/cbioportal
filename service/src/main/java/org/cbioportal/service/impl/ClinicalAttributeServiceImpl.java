@@ -8,11 +8,13 @@ import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.ClinicalAttributeNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @Service
 public class ClinicalAttributeServiceImpl implements ClinicalAttributeService {
@@ -21,14 +23,18 @@ public class ClinicalAttributeServiceImpl implements ClinicalAttributeService {
     private ClinicalAttributeRepository clinicalAttributeRepository;
     @Autowired
     private StudyService studyService;
+    @Value("${authenticate:false}")
+    private String AUTHENTICATE;
 
     @Override
     @PostFilter("hasPermission(filterObject.cancerStudyIdentifier, 'CancerStudy', 'read')")
     public List<ClinicalAttribute> getAllClinicalAttributes(String projection, Integer pageSize, Integer pageNumber,
                                                             String sortBy, String direction) {
 
-        return clinicalAttributeRepository.getAllClinicalAttributes(projection, pageSize, pageNumber, sortBy,
-                direction);
+        List<ClinicalAttribute> clinicalAttributes = clinicalAttributeRepository.getAllClinicalAttributes(projection, pageSize, pageNumber, sortBy,
+                                                                                                          direction);
+        // copy the list before returning so @PostFilter doesn't taint the list stored in the mybatis second-level cache
+        return (!AUTHENTICATE.equals("false")) ? new ArrayList<ClinicalAttribute>(clinicalAttributes) : clinicalAttributes;
     }
 
     @Override

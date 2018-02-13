@@ -451,9 +451,9 @@
 
                 if(cohortIdsList.length === 1) {
                     window.cbio.util.getDatahubStudiesList()
-                        .then(function(data) {
-                            if(_.isObject(data) && data.hasOwnProperty(cohortIdsList[0])) {
-                                $('#study-view-header-download-all-data').attr('action', data[cohortIdsList[0]].htmlURL);
+                        .then(function(studies) {
+                            if(_.isArray(studies) && studies.indexOf(cohortIdsList[0]) > -1) {
+                                $('#study-view-header-download-all-data').attr('action', 'http://download.cbioportal.org/' + cohortIdsList[0] + '.tar.gz');
                                 $('#study-view-header-download-all-data').css('display', 'block');
                                 $('#study-view-header-download-all-data>button').qtip({
                                     content: {text: 'Download all genomic and clinical data files of this study.'},

@@ -326,6 +326,17 @@ public class QueryBuilder extends HttpServlet {
                     if (errorsExist) {
                         httpServletRequest.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "Please fix the errors below.");
                     }
+                    
+                    // Returning the list of physical studies for the shared virtual study.
+                    // This is needed for the new front-end structure and keep the same behavior as result's page
+                    // TODO: Modify the logic to distinguish shared virtual study and saved virtual study.
+                    if(cohortDetails != null) {
+                        List<String> studies = new ArrayList<>();
+                        for(Map.Entry<String, Set<String>> map : cohortDetails.getStudySampleMap().entrySet()) {
+                            studies.add(map.getKey());
+                        }
+                        httpServletRequest.setAttribute(CANCER_STUDY_LIST, StringUtils.join(studies, ","));
+                    }
                     RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
                     dispatcher.forward(httpServletRequest, httpServletResponse);
                 }

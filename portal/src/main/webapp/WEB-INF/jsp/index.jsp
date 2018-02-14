@@ -43,7 +43,7 @@
         (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 
     String selectedSampleIds =
-        (String) request.getParameter(QueryBuilder.CASE_IDS);
+        (String) request.getAttribute(QueryBuilder.CASE_IDS);
     if (siteTitle == null) {
         siteTitle = "cBioPortal for Cancer Genomics";
     }

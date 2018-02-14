@@ -1361,19 +1361,24 @@ class MutationsExtendedValidator(Validator):
         entrez_id = '0'
         if 'Entrez_Gene_Id' in self.cols:
             entrez_id = data[self.cols.index('Entrez_Gene_Id')]
-        if hugo_symbol == 'Unknown' and entrez_id == '0' and variant_classification != 'IGR':
-            # the MAF specification documents the use of Unknown and 0 here
-            # for intergenic mutations, and since the Variant_Classification
-            # column is often invalid, cBioPortal interprets this combination
-            # (or just the symbol if the Entrez column is absent) as such,
-            # but with a warning:
-            self.logger.warning(
-                "Gene specification for this mutation implies "
-                "intergenic even though Variant_Classification is "
-                "not 'IGR'; this variant will be filtered out",
-                extra={'line_number': self.line_number,
-                       'cause': "Gene symbol 'Unknown', Entrez gene id 0"})
+        if hugo_symbol == 'Unknown' and entrez_id == '0':
             is_silent = True
+            if variant_classification == 'IGR':
+                self.logger.info("This variant (Gene symbol 'Unknown', Entrez gene ID 0) will be filtered out",
+                                 extra={'line_number': self.line_number,
+                                        'cause': variant_classification})
+            else:
+                # the MAF specification documents the use of Unknown and 0 here
+                # for intergenic mutations, and since the Variant_Classification
+                # column is often invalid, cBioPortal interprets this combination
+                # (or just the symbol if the Entrez column is absent) as such,
+                # but with a warning:
+                self.logger.warning(
+                                    "Gene specification (Gene symbol 'Unknown', Entrez gene ID 0) for this variant "
+                                    "implies intergenic even though Variant_Classification is "
+                                    "not 'IGR'; this variant will be filtered out",
+                                    extra={'line_number': self.line_number,
+                                           'cause': variant_classification})
         elif variant_classification in self.SKIP_VARIANT_TYPES:
             self.logger.info("Line will not be loaded due to the variant "
                              "classification filter. Filtered types: [%s]",

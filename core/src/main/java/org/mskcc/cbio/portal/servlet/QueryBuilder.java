@@ -46,6 +46,7 @@ import org.owasp.validator.html.PolicyException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.*;
+import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -325,6 +326,17 @@ public class QueryBuilder extends HttpServlet {
                     if (errorsExist) {
                         httpServletRequest.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "Please fix the errors below.");
                     }
+                    
+                    // Returning the list of physical studies for the shared virtual study.
+                    // This is needed for the new front-end structure and keep the same behavior as result's page
+                    // TODO: Modify the logic to distinguish shared virtual study and saved virtual study.
+                    if(cohortDetails != null) {
+                        List<String> studies = new ArrayList<>();
+                        for(Map.Entry<String, Set<String>> map : cohortDetails.getStudySampleMap().entrySet()) {
+                            studies.add(map.getKey());
+                        }
+                        httpServletRequest.setAttribute(CANCER_STUDY_LIST, StringUtils.join(studies, ","));
+                    }
                     RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
                     dispatcher.forward(httpServletRequest, httpServletResponse);
                 }
@@ -425,6 +437,7 @@ public class QueryBuilder extends HttpServlet {
         Boolean hasCopyNo = false;
         Boolean hasSurvival = false;
 
+	String decodedGeneList = URLDecoder.decode(geneList, "UTF-8");
         // retrieve samples
         Map<String, Set<String>> inputStudySampleMap = cohortDetails.getStudySampleMap();
         if (inputStudySampleMap.keySet().size() == 1 && !cohortDetails.getIsVirtualStudy()) { // single study
@@ -580,8 +593,8 @@ public class QueryBuilder extends HttpServlet {
                 String _sampleIdsStr = StringUtils.join(studySampleMap.get(DaoCancerStudy.getCancerStudyByInternalId(profile.getCancerStudyId()).getCancerStudyStableId()), " ");
                 if (_sampleIdsStr != null && _sampleIdsStr.length() != 0) {
                     GetProfileData remoteCall =
-                        new GetProfileData(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), _sampleIdsStr);
-                    DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), sampleIdsStr,
+                        new GetProfileData(profile, new ArrayList<>(Arrays.asList(decodedGeneList.split("( )|(\\n)"))), _sampleIdsStr);
+                    DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(decodedGeneList.split("( )|(\\n)"))), sampleIdsStr,
                         remoteCall.getRawContent());
                     downloadLinkSet.add(downloadLink);
                 }

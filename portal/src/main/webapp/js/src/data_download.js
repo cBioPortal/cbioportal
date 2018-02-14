@@ -253,7 +253,7 @@ var DataDownloadTab = (function() {
                 "case_ids_key=" + window.QuerySession.getCaseIdsKey() + "&" +
                 "case_set_id=" + window.QuerySession.getCaseSetId() + "&" +
                 "case_ids=" + _sample_ids_str + "&" +
-                "gene_list=" + window.QuerySession.getQueryGenes().join(" ") + "&" +
+                "gene_list=" + encodeURIComponent(window.QuerySession.getQueryGenes().join(" ")) + "&" +
                 "tab_index=tab_download";
             $("#data_download_redirect_home_page").append(
                 "<a href='" + _link + "' target='_blank' style='margin-left:20px;'>Click to download data with other genetic profiles ...</a>");

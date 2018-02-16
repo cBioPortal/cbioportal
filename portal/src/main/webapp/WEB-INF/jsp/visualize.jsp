@@ -13,6 +13,7 @@
  - Center has been advised of the possibility of such damage.
  --%>
 
+<%@page import="java.net.URLDecoder"%>
 <%--
  - This file is part of cBioPortal.
  -
@@ -173,7 +174,7 @@ window.loadReactApp({ defaultRoute: 'results' });
                 // hacky but consistent with how currently being done
                 showMutTab = true;
             }
-            String[] geneList = ((String) request.getAttribute(QueryBuilder.GENE_LIST)).split("( )|(\\n)");
+            String[] geneList = URLDecoder.decode((String) request.getAttribute(QueryBuilder.GENE_LIST), "UTF-8").split("( )|(\\n)");
             if (geneList.length <= 1) {
                 computeLogOddsRatio = false;
             }
@@ -494,7 +495,7 @@ window.loadReactApp({ defaultRoute: 'results' });
         );
 
         //Move code related to expression tab from cross_cancer_results.jsp to here
-        window.ccQueriedGenes = window.serverVars.theQuery.match(/\S+/g) || [];
+        window.ccQueriedGenes = OQL.genes(window.serverVars.theQuery);
         
         var _cc_plots_gene_list = "";
         var tmp = setInterval(function () {timer();}, 1000);

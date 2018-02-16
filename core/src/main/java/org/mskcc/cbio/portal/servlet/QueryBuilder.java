@@ -47,6 +47,7 @@ import org.owasp.validator.html.PolicyException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.*;
+import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -378,6 +379,27 @@ public class QueryBuilder extends HttpServlet {
                     if (errorsExist) {
                         httpServletRequest.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "Please fix the errors below.");
                     }
+
+                    // Returning the list of physical studies for the shared virtual study.
+                    // This is needed for the new front-end structure and keep the same behavior as result's page
+                    // TODO: Modify the logic to distinguish shared virtual study and saved virtual study.
+                    
+                    // NOTICE: he cohortDetails is no longer available after merging to virtual-study.
+                    // Need to update the logic here.
+//                    if (cohortDetails != null) {
+//                        List<String> studies = new ArrayList<>();
+//                        Set<String> samples = new HashSet<>();
+//                        for (Map.Entry<String, Set<String>> map : cohortDetails.getStudySampleMap().entrySet()) {
+//                            studies.add(map.getKey());
+//                            for (String sample : map.getValue()) {
+//                                samples.add(map.getKey() + ":" + sample);
+//                            }
+//                        }
+//                        httpServletRequest.setAttribute(CANCER_STUDY_LIST, StringUtils.join(studies, ","));
+//                        if (httpServletRequest.getAttribute(CASE_IDS) == null) {
+//                            httpServletRequest.setAttribute(CASE_IDS, StringUtils.join(samples, "+"));
+//                        }
+//                    }
                     RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
                     dispatcher.forward(httpServletRequest, httpServletResponse);
                 }
@@ -477,7 +499,7 @@ public class QueryBuilder extends HttpServlet {
         Boolean hasMethylation = false;
         Boolean hasCopyNo = false;
         Boolean hasSurvival = false;
-        
+        String decodedGeneList = URLDecoder.decode(geneList, "UTF-8");
         String singleStudyId = (String) request.getAttribute(CANCER_STUDY_ID);
         if (inputStudySampleMap.keySet().size() == 1 && inputStudySampleMap.containsKey(singleStudyId)) { // single study
             String _cancerStudyId = inputStudySampleMap.keySet().iterator().next();
@@ -633,8 +655,8 @@ public class QueryBuilder extends HttpServlet {
                 String _sampleIdsStr = StringUtils.join(studySampleMap.get(DaoCancerStudy.getCancerStudyByInternalId(profile.getCancerStudyId()).getCancerStudyStableId()), " ");
                 if (_sampleIdsStr != null && _sampleIdsStr.length() != 0) {
                     GetProfileData remoteCall =
-                        new GetProfileData(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), _sampleIdsStr);
-                    DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(geneList.split("( )|(\\n)"))), sampleIdsStr,
+                        new GetProfileData(profile, new ArrayList<>(Arrays.asList(decodedGeneList.split("( )|(\\n)"))), _sampleIdsStr);
+                    DownloadLink downloadLink = new DownloadLink(profile, new ArrayList<>(Arrays.asList(decodedGeneList.split("( )|(\\n)"))), sampleIdsStr,
                         remoteCall.getRawContent());
                     downloadLinkSet.add(downloadLink);
                 }

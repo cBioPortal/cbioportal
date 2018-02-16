@@ -55,6 +55,11 @@
         molecularProfiles = undefined;
     }
     
+    var oql_html_conversion_vessel = document.createElement("div");
+    oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
+    var html_decoded_oql = oql_html_conversion_vessel.textContent.trim();
+    var uri_and_html_decoded_oql = decodeURIComponent(html_decoded_oql);
+    
     window.serverVars = {
     
         molecularProfiles : molecularProfiles,
@@ -69,7 +74,7 @@
         rppaScoreThreshold:jspToJs('<%=rppaScoreThreshold%>', parseFloat),
         dataPriority:jspToJs('<%=dataPriority%>', function(d) { return parseInt(d, 10); }),
         
-        theQuery: decodeURIComponent(jspToJs('<%=oql%>'.trim()) || ""), 
+        theQuery: decodeURIComponent(jspToJs(uri_and_html_decoded_oql) || ""), 
         genesetIds: jspToJs('<%=genesetIds%>'.trim()) || "",
         studySampleObj: jspToJs('<%=studySampleMapJson%>', JSON.parse)
        	

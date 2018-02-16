@@ -112,9 +112,8 @@ public class GlobalProperties {
     public void setSkinAuthorizationMessage(String property) { skinAuthorizationMessage = property; }
     public static final String SKIN_EXAMPLE_STUDY_QUERIES = "skin.example_study_queries";
     public static final String DEFAULT_SKIN_EXAMPLE_STUDY_QUERIES =
-            "tcga\n" +
+            "tcga provisional\n" +
             "tcga -provisional\n" +
-            "tcga -moratorium\n" +
             "tcga OR icgc\n" +
             "-\"cell line\"\n" +
             "prostate mskcc\n" +

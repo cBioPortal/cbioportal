@@ -104,6 +104,9 @@ function GeneValidator(geneAreaId, geneModel){
                         $("#iviz-header-left-1").attr("disabled", true);
                     }
                 }
+                if (allValid) {
+                  $("#iviz-header-left-1").attr("disabled", false);
+                }
             })
             .fail(function(xhr,  textStatus, errorThrown){
                 addNotification("There was a problem: "+errorThrown, "danger");
@@ -357,7 +360,7 @@ window.QueryByGeneUtil = (function() {
         case_ids: _arr.join('+'),
         case_set_id: -1,
         gene_set_choice: 'user-defined-list',
-        gene_list: selectedGenes,
+        gene_list: encodeURIComponent(selectedGenes),
         Z_SCORE_THRESHOLD: 2.0,
         genetic_profile_ids_PROFILE_MUTATION_EXTENDED: mutationProfileId,
         genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION: cnaProfileId,
@@ -379,7 +382,7 @@ window.QueryByGeneUtil = (function() {
           return x.id
         }),
         cancer_study_id: 'all',
-        gene_list: _selectedGenes,
+        gene_list: encodeURIComponent(_selectedGenes),
         case_set_id: -1,
         case_ids: _arr.join('+'),
         tab_index: 'tab_visualize',
@@ -1570,6 +1573,14 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                     self_.$nextTick(function() {
                       $('#iviz-add-chart').trigger('chosen:updated');
                       self_.showScreenLoad = false;
+                      $.notify({
+                        // options
+                        message: 'Chart has been added at the bottom of the page.'
+                      },{
+                        // settings
+                        type: 'info',
+                        delay: '1000'
+                      });
                     });
                   });
                 } else {
@@ -2648,6 +2659,15 @@ var util = (function(_, cbio) {
       return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
     };
 
+    content.isAgeClinicalAttr = function(attrId) {
+      var isRelated = false;
+      if (attrId) {
+        var result = attrId.match(/(^AGE$)|(^AGE_.*)|(.*_AGE_.*)|(.*_AGE&)/);
+        isRelated = _.isArray(result) && result.length > 0;
+      }
+      return isRelated;
+    };
+
     return content;
   })();
 })(window._, window.cbio);
@@ -3483,7 +3503,7 @@ module.exports = {
 'use strict';
 (function(Vue, iViz, dc, $, _) {
   Vue.component('chartOperations', {
-    template: '<div class="chart-header">' +
+    template: '<div class="chart-header" id="{{chartId}}-chart-header">' +
     '<div class="chart-title" ' +
     ':class="[showOperations?chartTitleActive:chartTitle]" ' +
     'v-if="hasChartTitle">' +
@@ -3502,18 +3522,18 @@ module.exports = {
     'id="{{chartId}}-description-icon"' +
     'aria-hidden="true"></i>' +
     '<i v-if="showTableIcon && chartInitialed" class="fa fa-table icon hover" ' +
-    'aria-hidden="true" @click="changeView()"></i>' +
+    'aria-hidden="true" @click="changeView()" alt="Convert pie chart to table"></i>' +
     '<i v-if="showPieIcon && chartInitialed"" class="fa fa-pie-chart icon hover" ' +
-    'aria-hidden="true" @click="changeView()"></i>' +
-    '<img v-if="showSurvivalIcon && chartInitialed"" src="images/survival_icon.svg" ' +
-    'class="icon hover" @click="getRainbowSurvival" alt="Survival Analysis"/>' +
+    'aria-hidden="true" @click="changeView()" alt="Convert table to pie chart"></i>' +
+    '<div class="dc-survival-icon" style="float: left;"><img v-if="showSurvivalIcon && chartInitialed" src="images/survival_icon.svg" ' +
+    'class="icon hover" @click="getRainbowSurvival" alt="Survival Analysis"/></div>' +
     '<div v-if="showDownloadIcon && chartInitialed"" id="{{chartId}}-download-icon-wrapper" class="download">' +
     '<i class="fa fa-download icon hover" alt="download" ' +
     'id="{{chartId}}-download"></i>' +
     '</div>' +
-    '<i class="fa fa-arrows dc-chart-drag icon" aria-hidden="true"></i>' +
-    '<div style="float:right"><i class="fa fa-times dc-chart-pointer icon" ' +
-    '@click="close()"></i></div>' +
+    '<i class="fa fa-arrows dc-chart-drag icon" aria-hidden="true" alt="Move chart"></i>' +
+    '<div style="float:right"><i class="fa fa-times dc-remove-chart-icon icon" ' +
+    '@click="close()" alt="Delete chart"></i></div>' +
     '</div>' +
     '</div>',
     props: {
@@ -3565,6 +3585,13 @@ module.exports = {
         chartTitleActive: 'chart-title-active chart-title-active-' + 3,
         logChecked: true,
         hasFilters: false,
+        titleIconQtipOpts: {
+          style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
+          show: {event: 'mouseover', delay: 0},
+          hide: {fixed: true, delay: 300, event: 'mouseout'},
+          position: {my: 'bottom left', at: 'top right', viewport: $(window)},
+          content: {}
+        },
         titleTooltip: {
           content: _.isObject(this.attributes) ?
             iViz.util.getClinicalAttrTooltipContent(this.attributes) : ''
@@ -3613,9 +3640,34 @@ module.exports = {
           self_.$dispatch('closeChart');
         });
       },
+      updateChartTypeIconTooltip: function() {
+        $('#' + this.chartId + '-chart-header .fa-table').qtip('destroy', true);
+        $('#' + this.chartId + '-chart-header .fa-pie-chart').qtip('destroy', true);
+
+        if (this.showTableIcon) {
+          this.$nextTick(function() {
+            $('#' + this.chartId + '-chart-header .fa-table').qtip($.extend(true, this.titleIconQtipOpts, {
+              content: {
+                text: 'Convert pie chart to table'
+              }
+            }));
+          });
+        }
+
+        if (this.showPieIcon) {
+          this.$nextTick(function() {
+            $('#' + this.chartId + '-chart-header .fa-pie-chart').qtip($.extend(true, this.titleIconQtipOpts, {
+              content: {
+                text: 'Convert table to pie chart'
+              }
+            }));
+          });
+        }
+      },
       changeView: function() {
         this.showTableIcon = !this.showTableIcon;
         this.showPieIcon = !this.showPieIcon;
+        this.updateChartTypeIconTooltip();
         this.$dispatch('toTableView');
       },
       getRainbowSurvival: function() {
@@ -3624,7 +3676,7 @@ module.exports = {
       hasTitleTooltip: function() {
         return _.isObject(this.attributes) ?
           (['survival'].indexOf(this.attributes.view_type) === -1 &&
-          _.isObject(this.titleTooltip) && this.titleTooltip.content) : false;
+            _.isObject(this.titleTooltip) && this.titleTooltip.content) : false;
       }
     },
     ready: function() {
@@ -3651,15 +3703,31 @@ module.exports = {
         });
       }
 
-      $('#' + this.chartId + '-download-icon-wrapper').qtip({
-        style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
-        show: {event: 'mouseover', delay: 0},
-        hide: {fixed: true, delay: 300, event: 'mouseout'},
-        position: {my: 'bottom left', at: 'top right', viewport: $(window)},
+      $('#' + this.chartId + '-download-icon-wrapper').qtip($.extend(true, this.titleIconQtipOpts, {
         content: {
           text: 'Download'
         }
-      });
+      }));
+
+      $('#' + this.chartId + '-chart-header .dc-chart-drag').qtip($.extend(true, this.titleIconQtipOpts, {
+        content: {
+          text: 'Move chart'
+        }
+      }));
+
+      $('#' + this.chartId + '-chart-header .dc-remove-chart-icon').qtip($.extend(true, this.titleIconQtipOpts, {
+        content: {
+          text: 'Delete chart'
+        }
+      }));
+
+      $('#' + this.chartId + '-chart-header .dc-survival-icon').qtip($.extend(true, this.titleIconQtipOpts, {
+        content: {
+          text: 'Survival Analysis'
+        }
+      }));
+
+      this.updateChartTypeIconTooltip();
 
       $('#' + this.chartId + '-download').qtip({
         id: '#' + this.chartId + '-download-qtip',
@@ -4311,6 +4379,7 @@ module.exports = {
         columnMaxWidth: 300,
         columnSorting: false,
         tableType: 'pieLabel',
+        elementId: targetId + '-table',
         selectedRows: selectedRows,
         rowClickFunc: pieLabelClick
       }, opts);
@@ -4592,7 +4661,7 @@ module.exports = {
 
     var chartInst_;// DC chart instance.
     var opts_ = {};// Chart configuration options
-    var data_ = {};// Chart related data. Such as attr_id.
+    var data_ = {};// Chart related data. Such as attrId.
     var colors_;
     var ndx_;
     var dcDimension;
@@ -4653,6 +4722,9 @@ module.exports = {
               val = opts_.xDomain[opts_.xDomain.length - 2];
             } else if (d[data_.attrId] > opts_.xDomain[opts_.xDomain.length - 2] && !data_.hasNA) {
               val = opts_.xDomain[opts_.xDomain.length - 1];
+            } else if (iViz.util.isAgeClinicalAttr(data_.attrId) && (opts_.xDomain.length >= 2 && opts_.xDomain[1] === 18) && d[data_.attrId] <= 20) {
+              val = Math.ceil((d[data_.attrId] - opts_.startPoint) / opts_.gutter) *
+                opts_.gutter + opts_.startPoint + opts_.gutter / 2;
             } else {
               // minus half of separateDistance to make the margin values
               // always map to the left side. Thus for any value x, it is in the
@@ -4809,6 +4881,7 @@ module.exports = {
       opts_ = _.extend({}, opts);
       data_ = data;
       opts_ = _.extend(opts_, iViz.util.barChart.getDcConfig({
+        attrId: opts.attrId,
         min: data_.min,
         max: data_.max,
         meta: data_.meta,
@@ -5354,6 +5427,47 @@ module.exports = {
         if (config.emptyMappingVal !== '') {
           config.xDomain.push(config.emptyMappingVal);
         }
+
+        if (iViz.util.isAgeClinicalAttr(data.attrId)) {
+          // Toning the range when the domains cover 18 and the gutter is under 4
+          if (config.xDomain.indexOf(18) === -1 && config.gutter <= 4 && config.gutter >= 2 && config.xDomain[0] < 18 && config.xDomain[config.xDomain.length - 1] > 18) {
+            var _closestIndex = -1;
+            var _closestDistance = 0;
+            _.each(config.xDomain, function(domain, index) {
+              // _diff should be always a integer in this range
+              var _diff = Math.abs(18 - domain);
+              if (_closestDistance === 0 || _diff < _closestDistance) {
+                _closestDistance = _diff;
+                _closestIndex = index;
+              }
+            });
+            if (_closestIndex > -1) {
+              config.xDomain = _.map(config.xDomain, function(domain) {
+                return domain + _closestDistance;
+              });
+              config.xDomain.unshift(config.xDomain[0] - config.gutter);
+            }
+            if (config.emptyMappingVal !== '') {
+              config.emptyMappingVal = config.xDomain[config.xDomain.length - 1];
+              if (config.xDomain.length >= 2) {
+                config.maxVal = config.xDomain[config.xDomain.length - 2];
+              }
+            } else {
+              config.maxVal = config.xDomain[config.xDomain.length - 1];
+            }
+            config.startPoint = config.xDomain[0];
+          }
+
+          // If the lowest group is 10~20, change the range to 10~18 and 18~30
+          if (config.xDomain[0] === 10 && config.xDomain[1] === 20) {
+            config.xDomain[1] = 18;
+          }
+
+          // if it happens the first sticker is 18, then we keep that group as well.
+          if (config.xDomain[0] === 18) {
+            config.xDomain.unshift(18 - config.gutter);
+          }
+        }
       }
       return config;
     };
@@ -5511,13 +5625,13 @@ module.exports = {
       processBarchartData: function(_data) {
         var _self = this;
         var _dataIssue = false;
-        var smallerOutlier = [];
-        var greaterOutlier = [];
+        var smallerOutlier = {};
+        var greaterOutlier = {};
         var dataMetaKeys = {}; // Fast index unique dataMeta instead of using _.unique
 
         this.data.meta = _.map(_.filter(_.pluck(
           _data, this.opts.attrId), function(d) {
-          if (isNaN(d) && !(_.isString(d) && d.includes('>') && d.includes('<'))) {
+          if (isNaN(d) && !(_.isString(d) && (d.includes('>') || d.includes('<')))) {
             _self.data.hasNA = true;
             d = 'NA';
           }
@@ -5528,9 +5642,9 @@ module.exports = {
           var greaterOutlierPattern = new RegExp('^>|(<=?)$');
           if (isNaN(d)) {
             if (smallerOutlierPattern.test(number)) {
-              smallerOutlier.push(number.replace(/[^0-9.]/g, ''));
+              smallerOutlier[number.replace(/[^0-9.]/g, '')] = 1;
             } else if (greaterOutlierPattern.test(number)) {
-              greaterOutlier.push(number.replace(/[^0-9.]/g, ''));
+              greaterOutlier[number.replace(/[^0-9.]/g, '')] = 1;
             } else {
               _dataIssue = true;
             }
@@ -5540,6 +5654,9 @@ module.exports = {
           dataMetaKeys[number] = true;
           return number;
         });
+
+        smallerOutlier = Object.keys(smallerOutlier);
+        greaterOutlier = Object.keys(greaterOutlier);
 
         if (_dataIssue) {
           this.errorMessage = iViz.util.getDataErrorMessage('dataInvalid');
@@ -5562,7 +5679,11 @@ module.exports = {
             this.data.max = _.min(greaterOutlier);
           } else {
             var findExtremeResult = cbio.util.findExtremes(this.data.meta);
-            this.data.min = findExtremeResult[0];
+            if (iViz.util.isAgeClinicalAttr(this.attributes.attr_id) && _.min(this.data.meta) < 18 && (findExtremeResult[1] - findExtremeResult[0]) / 2 > 18) {
+              this.data.min = 18;
+            } else {
+              this.data.min = findExtremeResult[0];
+            }
             this.data.max = findExtremeResult[1];
 
             // noGrouping is true when number of different values less than or equal to 5. 
@@ -7447,6 +7568,7 @@ window.LogRankTest = (function(jStat) {
         autoColumnWidth: false,
         columnMaxWidth: 300,
         columnSorting: false,
+        elementId: chartId_ + '-table',
         sortBy: 'cases',
         selectedRows: selectedRows,
         rowClickFunc: function(data, selected) {
@@ -7941,7 +8063,11 @@ window.LogRankTest = (function(jStat) {
           divId: iViz.util.getDefaultDomId('progressBarId', this.attributes.attr_id),
           opts: {},
           infinityInterval: null
-        }
+        },
+        // this is used to set dc invisibleDimension filters
+        // In case of MutatedGeneCna plot this would be case uids
+        // and for other talbe charts this would be row uid
+        chartFilters:[]
       };
     },
     watch: {
@@ -7949,6 +8075,7 @@ window.LogRankTest = (function(jStat) {
         if (newVal.length === 0) {
           this.invisibleDimension.filterAll();
           this.selectedRows = [];
+          this.chartFilters = [];
         }
         this.$dispatch('update-filters', true);
       },
@@ -8010,7 +8137,7 @@ window.LogRankTest = (function(jStat) {
               this.invisibleDimension.filterAll();
             } else {
               var filtersMap = {};
-              _.each(this.attributes.filter, function(filter) {
+              _.each(this.chartFilters, function(filter) {
                 if (filtersMap[filter] === undefined) {
                   filtersMap[filter] = true;
                 }
@@ -8062,22 +8189,24 @@ window.LogRankTest = (function(jStat) {
 
         if (this.isMutatedGeneCna) {
           this.selectedRows = _.union(this.selectedRows, selectedRowsUids);
+          this.attributes.filter.push(selectedRowsUids.join(','))
           _.each(_selectedRowData, function(item) {
             var casesIds = item.case_uids.split(',');
             selectedSamplesUnion = selectedSamplesUnion.concat(casesIds);
           });
-          if (this.attributes.filter.length === 0) {
-            this.attributes.filter = selectedSamplesUnion.sort();
+          if(this.chartFilters.length === 0) {
+            this.chartFilters = selectedSamplesUnion.sort();
           } else {
-            this.attributes.filter =
-              iViz.util.intersection(this.attributes.filter, selectedSamplesUnion.sort());
+            this.chartFilters =
+              iViz.util.intersection(this.chartFilters, selectedSamplesUnion.sort());
           }
         } else {
           this.selectedRows = selectedRowsUids;
           this.attributes.filter = this.selectedRows;
+          this.chartFilters = this.selectedRows
         }
         var filtersMap = {};
-        _.each(this.attributes.filter, function(filter) {
+        _.each(this.chartFilters, function(filter) {
           if (filtersMap[filter] === undefined) {
             filtersMap[filter] = true;
           }
@@ -8274,11 +8403,15 @@ window.LogRankTest = (function(jStat) {
     template: '<div style="display: inline-flex"><input type="button" id="custom-case-input-button" ' +
     'class="iviz-header-button" value="Select cases by IDs"/>' +
     '<div class="iviz-hidden" id="iviz-case-select-custom-dialog">' +
-    '<b>Please input IDs (one per line)</b></br><textarea rows="20" cols="50" ' +
+    '<b>Please input IDs (one per line)</b></br>' +
+    '<span @click="updateCaseIds()" ' +
+    'style="text-decoration: underline;cursor: pointer">' +
+    'Use selected samples/patients</span><br/><br/>' +
+    '<textarea rows="20" cols="50" ' +
     'id="iviz-case-select-custom-input" v-model="casesIdsList"></textarea>' +
     '<br/><label><input type="radio" v-model="caseSelection" ' +
-    'value="sample" checked @click="updateCaseIds(\'sample\')">By sample ID</label><label><input type="radio" ' +
-    'v-model="caseSelection" value="patient" @click="updateCaseIds(\'patient\')">' +
+    'value="sample" checked @click="clearCaseIds(\'sample\')">By sample ID</label><label><input type="radio" ' +
+    'v-model="caseSelection" value="patient" @click="clearCaseIds(\'patient\')">' +
     'By patient ID</label><button type="button" @click="setCasesSelection()" ' +
     'style="float: right;">Select</button></div></div>',
     props: {
@@ -8304,7 +8437,10 @@ window.LogRankTest = (function(jStat) {
         this.$dispatch('set-selected-cases', this.caseSelection, _.uniq(caseIds));
         this.tooltip.qtip('api').hide();
       },
-      updateCaseIds: function(type) {
+      clearCaseIds: function() {
+        this.casesIdsList = '';
+      },
+      getCaseIdsList: function(type) {
         var cases = [];
         _.each(this.stats.studies, function(t) {
           var targetGroup = type === 'patient' ? t.patients : t.samples;
@@ -8312,7 +8448,16 @@ window.LogRankTest = (function(jStat) {
             cases.push(t.id + ':' + caseId);
           });
         });
-        this.casesIdsList = cases.join('\n');
+        return cases.join('\n');;
+      },
+      updateCaseIds: function(type) {
+        this.updateStats = true;
+        this.$nextTick(function() {
+          if (!type) {
+            type = this.caseSelection;
+          }
+          this.casesIdsList = this.getCaseIdsList(type)
+        });
       }
     },
     ready: function() {
@@ -8320,15 +8465,12 @@ window.LogRankTest = (function(jStat) {
       var _customDialogQtip =
         $.extend(true, {}, headerCaseSelectCustomDialog);
       _customDialogQtip.position.target = $(window);
+      _customDialogQtip.content.text = $('#iviz-case-select-custom-dialog');
       _customDialogQtip.events = {
-        show: function() {
-          self_.updateStats = true;
-          self_.$nextTick(function() {
-            self_.updateCaseIds('sample');
-          });
+        hide: function() {
+          self_.casesIdsList = '';
         }
       };
-      _customDialogQtip.content.text = $('#iviz-case-select-custom-dialog');
       self_.tooltip = $('#custom-case-input-button').qtip(_customDialogQtip);
     }
   });

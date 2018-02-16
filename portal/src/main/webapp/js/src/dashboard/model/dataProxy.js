@@ -1447,14 +1447,14 @@ window.DataManagerForIviz = (function($, _) {
       ),
       updateGenePanelMap: function(_map, _selectedSampleIds) {
         var _self = this;
-        if (typeof _selectedSampleIds === 'undefined') {
-          return _map;
+        if (_selectedSampleIds) {
+          _selectedSampleIds = _selectedSampleIds.sort();
         }
-        // update panel sample count map
-        _selectedSampleIds = _selectedSampleIds.sort();
+        
         _.each(Object.keys(_self.panelSampleMap), function(_panelId) {
           _self.panelSampleMap[_panelId].sel_samples =
-            content.util.intersection(_self.panelSampleMap[_panelId].samples, _selectedSampleIds);
+          _selectedSampleIds !== undefined ? 
+            content.util.intersection(_self.panelSampleMap[_panelId].samples, _selectedSampleIds) : _self.panelSampleMap[_panelId].samples;
         });
         _.each(Object.keys(_map), function(_gene) {
           var _sampleNumPerGene = 0;

@@ -447,8 +447,6 @@
                 if(vcSession.URL !== undefined) {
                     iViz.vue.manage.getInstance().showShareButton=showShareButton;
                     iViz.vue.manage.getInstance().showVirtualStudyButton=showVirtualStudyButton;
-                    iViz.vue.manage.getInstance().showShareButton=true;
-                    iViz.vue.manage.getInstance().showManageButton=true;
                     if(username !== '') {
                         iViz.vue.manage.getInstance().loadUserSpecificCohorts = true;
                     }

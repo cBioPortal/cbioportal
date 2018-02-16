@@ -54,9 +54,11 @@
     String cancerStudyViewError = (String)request.getAttribute(CancerStudyView.ERROR);
 
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    boolean showSaveButton = false;
+    boolean showShareButton = true;
+    boolean showVirtualStudyButton = false;
     if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-    		showSaveButton = true;
+        showShareButton = false;
+        showVirtualStudyButton= true;
 	}
     
     if (cancerStudyViewError!=null) {
@@ -221,7 +223,8 @@
 <script type="text/javascript">
     var username = $('#header_bar_table span').text()||'';
     var studyCasesMap = '<%=studySampleMap%>';
-    var showSaveButton = <%=showSaveButton%>;
+    var showShareButton = <%=showShareButton%>;
+    var showVirtualStudyButton = <%=showVirtualStudyButton%>;
     studyCasesMapTemp = JSON.parse(studyCasesMap);
     studyCasesMap = {};
     _.each(studyCasesMapTemp,function(casesList,studyId){
@@ -442,7 +445,8 @@
 
                 // This is used to indicate how to disable two buttons. By default, they are set to true.
                 if(vcSession.URL !== undefined) {
-                    iViz.vue.manage.getInstance().showSaveButton=showSaveButton;
+                    iViz.vue.manage.getInstance().showShareButton=showShareButton;
+                    iViz.vue.manage.getInstance().showVirtualStudyButton=showVirtualStudyButton;
                     iViz.vue.manage.getInstance().showShareButton=true;
                     iViz.vue.manage.getInstance().showManageButton=true;
                     if(username !== '') {

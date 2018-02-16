@@ -105,9 +105,9 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>com.github.cbioportal</groupId>
+                  <groupId>com.github.kalletlak</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
-                  <version>1.11.2</version>
+                  <version>rc-save-virtual-study-SNAPSHOT</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>

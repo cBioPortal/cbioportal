@@ -300,6 +300,22 @@
         	    	}
         		return _def.promise();
         	}
+
+        var getVirtualStudy = function(id){
+            var _def = new $.Deferred();
+            if (vcSession.URL !== undefined) {
+                $.ajax({
+                    method: 'GET',
+                    url: vcSession.URL+'/'+id
+                }).done(function(response){
+                    _def.resolve(response)
+                });
+            } else {
+                _def.resolve([])
+            }
+            return _def.promise();
+        }
+        
         $.when(window.cbioportal_client.getStudies({ study_ids: studyIds}), window.iviz.datamanager.getGeneticProfiles(),getVirtualStudies())
             .then(function(_cancerStudies, _geneticProfiles,virtualStudies){
 				if(cohortIdsList.length === 1 ) {
@@ -348,8 +364,17 @@
                         	 	$("#cancer_study_list").val(cohortIdsList[0]);
                         	 	document.title = name;
                          } else {
-                        	 	$("#show_study_details").css('display', 'block');
-                        	 	cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, '', '');
+                        	   $.when(getVirtualStudy(cohortIdsList[0])).then(function(vs){
+                        		    var name = vs['data']['name'];
+                        		    $("#show_study_details").css('display','block');
+                        		    $("#study_name").html(name);
+                        		    $("#study_desc").html(vs['data']['description']);
+                        		    $("#cancer_study_list").val(cohortIdsList[0]);
+                        		    document.title = name;
+                        		}).fail(function() {
+                        		    $("#show_study_details").css('display', 'block');
+                        		    cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, '', '');
+                        		});
         					}
         				}
 				} else {

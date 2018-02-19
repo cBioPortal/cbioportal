@@ -445,3 +445,10 @@ ABS(c2.`SEGMENT_MEAN`) >= 0.2) / SUM(`END`-`START`)) AS `VALUE` FROM `copy_numbe
 c1.`CANCER_STUDY_ID` = cancer_study.`CANCER_STUDY_ID` GROUP BY cancer_study.`CANCER_STUDY_ID`, `SAMPLE_ID` HAVING SUM(`END`-`START`) > 0;
 
 UPDATE info SET DB_SCHEMA_VERSION="2.5.0";
+
+##version 2.6.0
+-- modify fkc for gistic_to_gene
+ALTER TABLE gistic_to_gene DROP FOREIGN KEY gistic_to_gene_ibfk_2;
+ALTER TABLE gistic_to_gene ADD CONSTRAINT `gistic_to_gene_ibfk_2` FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE;
+
+UPDATE info SET DB_SCHEMA_VERSION="2.6.0";

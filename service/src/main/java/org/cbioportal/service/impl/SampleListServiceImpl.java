@@ -9,12 +9,14 @@ import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,14 +26,18 @@ public class SampleListServiceImpl implements SampleListService {
     private SampleListRepository sampleListRepository;
     @Autowired
     private StudyService studyService;
+    @Value("${authenticate:false}")
+    private String AUTHENTICATE;
 
     @Override
     @PostFilter("hasPermission(filterObject, 'read')")
     public List<SampleList> getAllSampleLists(String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                               String direction) {
 
-        List<SampleList> sampleLists = sampleListRepository.getAllSampleLists(projection, pageSize, pageNumber, sortBy,
+        List<SampleList> sampleListsFromRepo = sampleListRepository.getAllSampleLists(projection, pageSize, pageNumber, sortBy,
             direction);
+        // copy the list before returning so @PostFilter doesn't taint the list stored in the mybatis second-level cache
+        List<SampleList> sampleLists = (AUTHENTICATE.equals("false")) ? sampleListsFromRepo : new ArrayList<SampleList>(sampleListsFromRepo);
         
         if(projection.equals("DETAILED")) {
             addSampleIds(sampleLists);

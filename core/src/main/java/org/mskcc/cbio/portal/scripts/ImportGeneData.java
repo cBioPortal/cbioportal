@@ -35,6 +35,7 @@ package org.mskcc.cbio.portal.scripts;
 import com.mysql.jdbc.StringUtils;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ReferenceGenome;
 import org.mskcc.cbio.portal.model.ReferenceGenomeGene;
 import org.mskcc.cbio.portal.util.*;
 
@@ -259,24 +260,33 @@ public class ImportGeneData extends ConsoleRunnable {
         }
         ProgressMonitor.logWarning(sb.toString());
     }
-
     /**
      * This method imports the gene lengths of a General Transfer Format (gtf) file. This file contains different genetic features from genes (CDS, exons, introns...) in each line.
-         * All features of a single gene contain the same Ensembl ID. Therefore, this method uses the Ensembl IDs to differentiate between different genes. All the features with the same 
+     * All features of a single gene contain the same Ensembl ID. Therefore, this method uses the Ensembl IDs to differentiate between different genes. All the features with the same 
      * Ensembl ID are in consecutive lines. This method uses the gene symbol to retrieve the Entrez ID, but different Ensembl IDs can share the same symbol. If these Ensembl IDs are
      * located in different chromosomes, the method uses the length of the Ensembl ID according to the cytoband from the gene saved in the database. In the case multiple Ensembl IDs
      * with the same symbol are on the same chromosome or no cytoband information is available, the length of the last Ensembl ID is taken.
-     * 
-     * @param geneFile
+     *
+     * @param geneFile gene information file
+     * @throws IOException
+     * @throws DaoException
+     */
+    @Deprecated
+    public static void importGeneLength(File geneFile, String genomeBuild, boolean hasGenes) throws IOException, DaoException{
+            importGeneLength(geneFile, genomeBuild, ReferenceGenome.HOMO_SAPIENS, hasGenes);
+    }
+    /**
+     * @param geneFile gene information file
+     * @param species the different kinds of organisms
      * @throws IOException
      * @throws DaoException
      */
     
-    public static void importGeneLength(File geneFile, String genomeBuild, boolean hasGenes) throws IOException, DaoException {
+    public static void importGeneLength(File geneFile, String genomeBuild, String species, boolean hasGenes) throws IOException, DaoException {
         //Set the variables needed for the method
         FileReader reader = new FileReader(geneFile);
         BufferedReader buf = new BufferedReader(reader);
-        int referenceGenomeId = DaoReferenceGenome.getReferenceGenomeIdByName(genomeBuild);
+        int referenceGenomeId = DaoReferenceGenome.getReferenceGenomeIdByName(genomeBuild, species);
         String line;
         ProgressMonitor.setCurrentMessage("\nUpdating gene lengths... \n"); //Display a message in the console
         boolean geneUpdated = false;
@@ -502,8 +512,8 @@ public class ImportGeneData extends ConsoleRunnable {
                         parser.accepts( "microrna", "microrna file" ).withRequiredArg().describedAs( "microrna.txt" ).ofType( String.class );
                         parser.accepts( "gtf", "gtf file for calculating and storing gene lengths" ).withRequiredArg().describedAs( "gencode.<version>.annotation.gtf" ).ofType( String.class );
                         parser.accepts( "genome-build", "genome build eg GRCh38" ).withRequiredArg().describedAs( "genome build" ).ofType( String.class );
-        
-                        String progName = "importGenes";
+                        parser.accepts( "species", "different kinds of organisms eg. humna").withRequiredArg().describedAs( "species" ).ofType( String.class );
+                    String progName = "importGenes";
                         OptionSet options = null;
                         try {
                                 options = parser.parse( args );
@@ -553,15 +563,19 @@ public class ImportGeneData extends ConsoleRunnable {
                 
                 if(options.has("gtf")) {
                     File lociFile = new File((String) options.valueOf("gtf"));
+                    String species = ReferenceGenome.HOMO_SAPIENS;
+                    if (options.has("species")) {
+                        species = (String)options.valueOf("species");
+                    }
                     System.out.println("Reading loci data from:  " + lociFile.getAbsolutePath());
                     numLines = FileUtil.getNumLines(lociFile);
                     System.out.println(" --> total number of lines:  " + numLines);
                     ProgressMonitor.setMaxValue(numLines);
                     ImportGeneData.importGeneLength(lociFile, (String)options.valueOf("genome-build"), 
-                                        options.has("genes"));
+                                        species, options.has("genes"));
                 }
                 MySQLbulkLoader.flushAll();
-            System.err.println("Done. Restart tomcat to make sure the cache is replaced with the new data.");
+                System.err.println("Done. Restart tomcat to make sure the cache is replaced with the new data.");
 
                 }
                 catch (RuntimeException e) {

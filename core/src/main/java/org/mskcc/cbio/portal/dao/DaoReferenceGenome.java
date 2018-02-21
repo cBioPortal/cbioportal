@@ -229,18 +229,34 @@ public final class DaoReferenceGenome {
     public static ReferenceGenome getReferenceGenomeByGenomeName(String genomeName) throws DaoException {
         return byGenomeName.get(genomeName);
     }
-    
+
     /**
      * Retrieve reference genome of interest by genome name or genome assembly name
      * @param name   Name of Reference Genome or Genome Assembly
      * @throws DaoException Database Error.
      */
-
+    @Deprecated
     public static int getReferenceGenomeIdByName(String name) throws DaoException {
+        return getReferenceGenomeIdByName(name, ReferenceGenome.HOMO_SAPIENS);
+    }
+    
+    /**
+     * Retrieve reference genome of interest by genome name or genome assembly name
+     * @param name   Name of Reference Genome or Genome Assembly
+     * @param species genetic species               
+     * @throws DaoException Database Error.
+     */
+    public static int getReferenceGenomeIdByName(String name, String species) throws DaoException {
         try {
             return genomeInternalIds.get(name);
         } catch (java.lang.NullPointerException exp) {
-            return genomeInternalIds.get("GRCh37"); // NCBI_BUILD field was an optional in the past
+            if (species.equals(ReferenceGenome.HOMO_SAPIENS)) {
+                return genomeInternalIds.get(ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_BUILD);
+            } else if (species.equals(ReferenceGenome.MUS_MUSCULUS))  {
+                return genomeInternalIds.get(ReferenceGenome.MUS_MUSCULUS_DEFAULT_GENOME_BUILD); // NCBI_BUILD field was an optional in the past
+            } else {
+                throw new DaoException("Species not supproted yet");
+            }
         }
     }
 

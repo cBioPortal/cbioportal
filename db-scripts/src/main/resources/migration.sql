@@ -397,11 +397,11 @@ CREATE TABLE `reference_genome` (
 );
 
 INSERT INTO `reference_genome` 
-VALUES (1, 'human', 'hg19', 'GRCh37', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01');
+VALUES (1, 'human', 'hg19', 'GRCh37', 2897310462, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01');
 INSERT INTO `reference_genome` 
-VALUES (2, 'human', 'hg38', 'GRCh38', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips', '2013-12-01');
+VALUES (2, 'human', 'hg38', 'GRCh38', 3049315783, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips', '2013-12-01');
 INSERT INTO `reference_genome` 
-VALUES (3, 'mouse', 'mm10', 'GRCm38', NULL, 'http://hgdownload.cse.ucsc.edu//goldenPath/mm10/bigZips', '2012-01-01');
+VALUES (3, 'mouse', 'mm10', 'GRCm38', 2652783500, 'http://hgdownload.cse.ucsc.edu//goldenPath/mm10/bigZips', '2012-01-01');
 
 CREATE TABLE `reference_genome_gene` (
     `ENTREZ_GENE_ID` int(11) NOT NULL,

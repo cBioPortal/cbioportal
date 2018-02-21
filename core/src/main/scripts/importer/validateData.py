@@ -255,8 +255,8 @@ class PortalInstance(object):
                         self.entrez_set.add(entrez_id)
         #Set defaults for genome version and species
         self.species = 'human'
-        self.ncbi_build = ['37','GRCh37']
-        self.genome_build = 'hg19'
+        self.genome_build = {'human': {'hg19':['37','GRCh37']}}
+        self.genome_name = ['hg19']
 
     def load_genome_info(self, properties_filename):
         """Retrieves the species and genome information from portal.properties."""
@@ -268,11 +268,23 @@ class PortalInstance(object):
                 sp_line = line.split('=', 1)
                 if sp_line[0] == 'species':
                     self.species = sp_line[1]
-                elif sp_line[0] == 'genome.build':
-                    self.ncbi_build = sp_line[1].split(",")
                 elif sp_line[0] == 'genome.name':
-                    self.genome_build = sp_line[1]
-
+                    if ',' in sp_line[1]:
+                        self.genome_name = [sp_line[1]]
+                    else:
+                        self.genome_name = sp_line[1].split(',')
+                elif sp_line[0] == 'genome.build':
+                    if ',' in sp_line[1]:
+                        genome_build = sp_line[1].split(",")
+                    else:
+                        genome_build = [sp_line[1]]
+                    self.genome_build = {self.species: {} }
+                    for name, build in zip(self.genome_name, genome_build):
+                        if name in self.genome_build.keys():
+                            self.genome_build[self.species][name].append(build)
+                        else:
+                            self.genome_build[self.species][name] = [build]
+                
 class Validator(object):
 
     """Abstract validator class for tab-delimited data files.
@@ -1250,7 +1262,7 @@ class MutationsExtendedValidator(Validator):
 
 
     def checkNCBIbuild(self, value):
-        return value in (self.portal.ncbi_build)
+        return value in (self.portal.genome_build[self.portal.species].values()[0])
 
     def checkMatchedNormSampleBarcode(self, value):
         if value != '':
@@ -3007,7 +3019,7 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode):
     for filename in filenames:
 
         meta_dictionary = cbioportal_common.parse_metadata_file(
-            filename, logger, study_id, portal_instance.genome_build)
+            filename, logger, study_id, portal_instance.genome_build[portal_instance.species].keys()[0])
         meta_file_type = meta_dictionary['meta_file_type']
         if meta_file_type is None:
             continue

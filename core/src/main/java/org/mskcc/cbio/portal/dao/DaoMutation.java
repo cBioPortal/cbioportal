@@ -46,6 +46,7 @@ import java.util.regex.*;
  */
 public final class DaoMutation {
     public static final String NAN = "NaN";
+    
 
     public static int addMutation(ExtendedMutation mutation, boolean newMutationEvent) throws DaoException {
         if (!MySQLbulkLoader.isBulkLoad()) {
@@ -98,10 +99,17 @@ public final class DaoMutation {
         // use this code if bulk loading
         // write to the temp file maintained by the MySQLbulkLoader
         String keyword = MutationKeywordUtils.guessOncotatorMutationKeyword(event.getProteinChange(), event.getMutationType());
+        String genomeBuild = event.getNcbiBuild();
+        String species = ReferenceGenome.HOMO_SAPIENS;
+        if (genomeBuild != null) {
+            if (genomeBuild.contains(ReferenceGenome.MUS_MUSCULUS_DEFAULT_GENOME_BUILD_PREFIX)) {
+                species = ReferenceGenome.MUS_MUSCULUS;
+            }
+        }
         MySQLbulkLoader.getMySQLbulkLoader("mutation_event").insertRecord(
                 Long.toString(event.getMutationEventId()),
                 Long.toString(event.getGene().getEntrezGeneId()),
-                Integer.toString(DaoReferenceGenome.getReferenceGenomeIdByName(event.getNcbiBuild())),
+                Integer.toString(DaoReferenceGenome.getReferenceGenomeIdByName(genomeBuild, species)),
                 event.getChr(),
                 Long.toString(event.getStartPosition()),
                 Long.toString(event.getEndPosition()),

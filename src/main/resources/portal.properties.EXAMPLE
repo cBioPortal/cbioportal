@@ -196,8 +196,8 @@ priority_studies=
 
 # species and genomic information
 species=human
-genome.build=37,hg19,GRCh37,GRCh38
-genome.name=hg
+genome.name=hg19,hg19,hg38
+genome.build=37,GRCh37,GRCh38
 
 # default view in oncoprint (sample, patient (default))
 oncoprint.defaultview=patient

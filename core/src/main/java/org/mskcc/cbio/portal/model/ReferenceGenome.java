@@ -35,7 +35,13 @@ public class ReferenceGenome {
     private long genomeSize; //non-N bases
     private String url;
     private Date releaseDate;
-
+    public static String HOMO_SAPIENS = "human";
+    public static String MUS_MUSCULUS = "mouse";
+    public static String HOMO_SAPIENS_DEFAULT_GENOME_BUILD = "GRCh37";
+    public static String MUS_MUSCULUS_DEFAULT_GENOME_BUILD = "GRCm38";
+    public static String HOMO_SAPIENS_DEFAULT_GENOME_BUILD_PREFIX = "GRCh";
+    public static String MUS_MUSCULUS_DEFAULT_GENOME_BUILD_PREFIX = "GRCm";
+    
     /**
      * Constructor.
      * @param genomeName        Name of the reference genome.

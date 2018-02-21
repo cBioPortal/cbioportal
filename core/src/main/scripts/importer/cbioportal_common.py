@@ -716,10 +716,10 @@ def parse_metadata_file(filename,
 
     # type-specific validations
     if meta_file_type in (MetaFileTypes.SEG, MetaFileTypes.GISTIC_GENES):
-        if genome_name is not None and meta_dictionary['reference_genome_id'] != genome_name:
+        if genome_name and meta_dictionary['reference_genome_id'] not in genome_name:
             logger.error(
                 'Reference_genome_id is not %s',
-                genome_name,
+                str(genome_name),
                 extra={'filename_': filename,
                        'cause': meta_dictionary['reference_genome_id']})
             #meta_file_type = None

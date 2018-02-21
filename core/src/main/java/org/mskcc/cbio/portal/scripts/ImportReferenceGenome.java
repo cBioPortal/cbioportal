@@ -74,7 +74,7 @@ public class ImportReferenceGenome extends ConsoleRunnable {
                 }
                 
                 if (!StringUtils.isNullOrEmpty(releaseDate)) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
                     referenceGenome.setReleaseDate(sdf.parse(releaseDate));
                     
                 }

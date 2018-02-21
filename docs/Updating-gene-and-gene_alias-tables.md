@@ -46,7 +46,10 @@ After downloading, go to your downloads directory, decompress the file and add i
 ```
 **IMPORTANT NOTE**: 
 1. The **reference_genome** table needs to be populated before updating the **gene** table. Further details can be found in [this document](import-reference-genome.md). 
-2. Loading genes only to the **reference_genome_gene** table without updating the **gene** table, please use the following command:
+2. use **--species** option if you import genes from other kinds of organisms other than homo species
+3. use the **gene** table if you query information such as hugo symbols, types of the gene 
+4. use **reference_genome_gene** table if you query information such as chromosome, cytoband, exonic length, or the start or end of the gene
+5. Load genes only to the **reference_genome_gene** table without updating the **gene** table, please use the following command:
 ```
 ./importGenes.pl --gtf <gencode.v27.annotation.gtf> --genome-build <GRCh38>
 

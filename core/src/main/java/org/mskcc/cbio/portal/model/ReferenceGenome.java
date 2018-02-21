@@ -17,6 +17,7 @@
 
 package org.mskcc.cbio.portal.model;
 
+import java.math.BigInteger;
 import java.util.Date;
 import org.mskcc.cbio.portal.util.*;
 
@@ -26,18 +27,28 @@ import org.mskcc.cbio.portal.util.*;
  * @author Kelsey Zhu
  */
 public class ReferenceGenome {
-    /**
-     * NO_SUCH_STUDY Internal ID has not been assigned yet.
-     */
 
     private int referenceGenomeId; // assigned by DB, auto increment sequence number
     private String genomeName;
     private String species;
     private String buildName; //genome assembly name
-    private long genomeSize; //effective genome size
+    private long genomeSize; //non-N bases
     private String url;
     private Date releaseDate;
 
+
+    /**
+     * Constructor.
+     * @param genomeName        Name of the reference genome.
+     * @param species           Species of the reference genome.
+     * @param buildName         Name of genome assembly      
+     */
+    public ReferenceGenome(String genomeName, String species, String buildName) {
+        super();
+        this.genomeName = genomeName;
+        this.species = species;
+        this.buildName = buildName;
+    }
 
     /**
      * Constructor.
@@ -48,13 +59,17 @@ public class ReferenceGenome {
      * @param url               URL to download reference genome
      * @param releaseDate       Date genome assembly released            
      */
-    public ReferenceGenome(String genomeName, String species, String buildName) {
+    public ReferenceGenome(String genomeName, String species, String buildName, 
+                           Long genomeSize, String url, Date releaseDate) {
         super();
         this.genomeName = genomeName;
         this.species = species;
         this.buildName = buildName;
+        this.genomeSize = genomeSize;
+        this.url = url;
+        this.releaseDate = releaseDate;
     }
-
+    
     public void setReferenceGenomeId(int referenceGenomeId) {
         this.referenceGenomeId = referenceGenomeId;
     }

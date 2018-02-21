@@ -42,7 +42,7 @@ After downloading, go to your downloads directory, decompress the file and add i
 6- To import gene data type the following commands when in the folder `<your_cbioportal_dir>/core/src/main/scripts`:
 ```
  export PORTAL_HOME=<your_cbioportal_dir>
-./importGenes.pl --genes <ncbi_species.gene_info> --gtf <gencode.v25.annotation.gtf>
+./importGenes.pl --genes <ncbi_species.gene_info> --gtf <gencode.v25.annotation.gtf> --genome-build <GRCh37>
 ```
 
 7- :warning: Check the `gene` and `gene_alias` tables to verify that they are filled correctly.

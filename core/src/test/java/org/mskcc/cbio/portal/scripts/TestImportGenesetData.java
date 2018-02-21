@@ -73,7 +73,7 @@ public class TestImportGenesetData {
         assertEquals("http://www.broadinstitute.org/gsea/msigdb/cards/GCNP_SHH_UP_EARLY.V1_UP", geneset.getRefLink());
         
         // Test warning message
-        assertEquals(5, skippedGenes);
+        assertEquals(1, skippedGenes);
         
         // Test database entries supplementary file
         geneset = DaoGeneset.getGenesetByExternalId("UNITTEST_GENESET2");

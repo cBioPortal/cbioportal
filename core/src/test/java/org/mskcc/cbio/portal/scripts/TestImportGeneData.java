@@ -42,6 +42,7 @@ import java.io.File;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.omg.CORBA.IMP_LIMIT;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -62,11 +63,12 @@ public class TestImportGeneData {
      * in genes_test.txt. The file genes_test.txt contains real data.
      */
     public void testImportGeneData() throws Exception {
+        
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         ProgressMonitor.setConsoleMode(false);
 	
         File file = new File("src/test/resources/supp-genes.txt");
-
+        
         ImportGeneData.importSuppGeneData(file);
         
         file = new File("src/test/resources/genes_test.txt");
@@ -79,6 +81,8 @@ public class TestImportGeneData {
 
         gene = daoGene.getGene("ABCA3");
         assertEquals(21, gene.getEntrezGeneId());
+        
+        
     }
     
     @Test
@@ -101,7 +105,7 @@ public class TestImportGeneData {
         testImportGeneData();
         
         File file = new File("src/test/resources/gene-length_test.txt");
-        ImportGeneData.importGeneLength(file);
+        ImportGeneData.importGeneLength(file, "GRCh37");
         CanonicalGene gene = daoGene.getNonAmbiguousGene("ABCA4", "chr1", false);
         assertEquals(372,gene.getLength());
 

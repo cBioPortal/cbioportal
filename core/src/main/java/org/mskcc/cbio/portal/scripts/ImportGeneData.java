@@ -32,8 +32,10 @@
 
 package org.mskcc.cbio.portal.scripts;
 
+import com.mysql.jdbc.StringUtils;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ReferenceGenomeGene;
 import org.mskcc.cbio.portal.util.*;
 
 import joptsimple.OptionException;
@@ -62,6 +64,7 @@ public class ImportGeneData extends ConsoleRunnable {
         try (FileReader reader = new FileReader(geneFile)) {
             BufferedReader buf = new BufferedReader(reader);
             String line;
+            
             while ((line = buf.readLine()) != null) {
                 ProgressMonitor.incrementCurValue();
                 ConsoleUtil.showProgress();
@@ -269,10 +272,11 @@ public class ImportGeneData extends ConsoleRunnable {
      * @throws DaoException
      */
     
-    public static void importGeneLength(File geneFile) throws IOException, DaoException {
+    public static void importGeneLength(File geneFile, String genomeBuild) throws IOException, DaoException {
         //Set the variables needed for the method
         FileReader reader = new FileReader(geneFile);
         BufferedReader buf = new BufferedReader(reader);
+        int referenceGenomeId = DaoReferenceGenome.getInstance().getReferenceGenomeByName(genomeBuild);
         String line;
         ProgressMonitor.setCurrentMessage("\nUpdating gene lengths... \n"); //Display a message in the console
         boolean geneUpdated = false;
@@ -332,7 +336,7 @@ public class ImportGeneData extends ConsoleRunnable {
                     }   
                     /// If there is a switch
                     else {
-                        geneUpdated = updateLength(previousSymbol, previousChrom, loci);
+                        geneUpdated = updateLength(previousSymbol, previousChrom, loci, referenceGenomeId);
                         if (geneUpdated) {
                                 nrGenesUpdated++;
                         }
@@ -350,7 +354,7 @@ public class ImportGeneData extends ConsoleRunnable {
       
         /// Write the last gene
         /// First check if the gene exists in the database
-        geneUpdated = updateLength(previousSymbol, previousChrom, loci);
+        geneUpdated = updateLength(previousSymbol, previousChrom, loci,  referenceGenomeId);
         if (geneUpdated) {
                 nrGenesUpdated++;
         }
@@ -372,7 +376,7 @@ public class ImportGeneData extends ConsoleRunnable {
      * @throws IOException
      * @throws DaoException
      */
-    public static boolean updateLength(String symbol, String chromosome, List<long[]> loci) throws IOException, DaoException {
+    public static boolean updateLength(String symbol, String chromosome, List<long[]> loci, int refreneceGenomeId) throws IOException, DaoException {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         boolean lengthUpdated = false;
         /// Check if the gene is in the database
@@ -381,14 +385,14 @@ public class ImportGeneData extends ConsoleRunnable {
         /// If it's not in the database, don't add it
         if (!(gene==null)) {
                 /// Calc length
-            int length = calculateGeneLength(loci);
+            long[] exonic = calculateGeneLength(loci);
             
             /// Obtain cytoband
                 String cytoband = gene.getCytoband();
                 
                 /// If there is no cytoband in the database, just write it (can also be an overwrite)
                 if (cytoband == null) {
-                        gene.setLength(length);
+                        gene.setLength((int)exonic[2]);
                         daoGeneOptimized.updateGene(gene);
                         lengthUpdated = true;
                 }
@@ -397,8 +401,22 @@ public class ImportGeneData extends ConsoleRunnable {
                 else {
                 String cbChr = "chr"+cytoband.split("p|q")[0];
                 if (cbChr.equals(chromosome)) { //Update the length only if the chromosome matches
-                        gene.setLength(length);
+                        gene.setLength((int)exonic[2]);
                         daoGeneOptimized.updateGene(gene);
+                        
+                        // update reference genome gene
+                        DaoReferenceGenomeGene daoReferenceGenomeGene = DaoReferenceGenomeGene.getInstance();
+                        
+                        ReferenceGenomeGene refGene = daoReferenceGenomeGene.getGene(gene.getEntrezGeneId(), refreneceGenomeId);
+                        if (refGene == null) {
+                            refGene = new ReferenceGenomeGene(gene.getEntrezGeneId(), refreneceGenomeId);
+                        }
+                        refGene.setChr(chromosome.replace("chr", ""));
+                        refGene.setCytoband(cytoband);
+                        refGene.setExonicLength((int) exonic[2]);
+                        refGene.setStart(exonic[0]);
+                        refGene.setEnd(exonic[1]);
+                        daoReferenceGenomeGene.addOrUpdateGene(refGene);
                         lengthUpdated = true;
                 }
                 else {
@@ -417,7 +435,7 @@ public class ImportGeneData extends ConsoleRunnable {
      * @param loci
      * @return
      */
-    public static int calculateGeneLength(List<long[]> loci) {
+    public static long[] calculateGeneLength(List<long[]> loci) {
         long min = Long.MAX_VALUE, max=-1;
         for (long[] l : loci) {
             if (l[0]<min) {
@@ -435,7 +453,7 @@ public class ImportGeneData extends ConsoleRunnable {
             bitSet.set((int)(l[0]-min), ((int)(l[1]-min)));
         }
         
-        return bitSet.cardinality();
+        return new long[]{min, max, bitSet.cardinality()};
     }
     
     static void importSuppGeneData(File suppGeneFile) throws IOException, DaoException {
@@ -465,7 +483,7 @@ public class ImportGeneData extends ConsoleRunnable {
         reader.close(); 
     }
 
-        @Override
+    @Override
     public void run() {
                 try {
                         SpringUtil.initDataSource();
@@ -479,6 +497,7 @@ public class ImportGeneData extends ConsoleRunnable {
                         parser.accepts( "supp-genes", "alternative genes file" ).withRequiredArg().describedAs( "supp-genes.txt" ).ofType( String.class );
                         parser.accepts( "microrna", "microrna file" ).withRequiredArg().describedAs( "microrna.txt" ).ofType( String.class );
                         parser.accepts( "gtf", "gtf file for calculating and storing gene lengths" ).withRequiredArg().describedAs( "gencode.<version>.annotation.gtf" ).ofType( String.class );
+                        parser.accepts( "genome-build", "genome build eg GRCh38" ).withRequiredArg().describedAs( "genome build" ).ofType( String.class );
         
                         String progName = "importGenes";
                         OptionSet options = null;
@@ -497,17 +516,18 @@ public class ImportGeneData extends ConsoleRunnable {
                 
                 File geneFile;
                 int numLines;
-                        if(options.has("genes")) {
-                                geneFile = new File((String) options.valueOf("genes"));
-                        
-                        System.out.println("Reading gene data from:  " + geneFile.getAbsolutePath());
-                        numLines = FileUtil.getNumLines(geneFile);
-                        System.out.println(" --> total number of lines:  " + numLines);
-                        ProgressMonitor.setMaxValue(numLines);
-                        MySQLbulkLoader.bulkLoadOn();
-                        ImportGeneData.importData(geneFile);
-                        MySQLbulkLoader.flushAll(); //Gene and gene_alias should be updated before calculating gene length (gtf)!
-                        }
+
+                if(options.has("genes")) {
+                    geneFile = new File((String) options.valueOf("genes"));
+                
+                    System.out.println("Reading gene data from:  " + geneFile.getAbsolutePath());
+                    numLines = FileUtil.getNumLines(geneFile);
+                    System.out.println(" --> total number of lines:  " + numLines);
+                    ProgressMonitor.setMaxValue(numLines);
+                    MySQLbulkLoader.bulkLoadOn();
+                    ImportGeneData.importData(geneFile);
+                    MySQLbulkLoader.flushAll(); //Gene and gene_alias should be updated before calculating gene length (gtf)!
+                }
                 
                 if(options.has("supp-genes")) {
                     File suppGeneFile = new File((String) options.valueOf("genes"));
@@ -533,7 +553,7 @@ public class ImportGeneData extends ConsoleRunnable {
                     numLines = FileUtil.getNumLines(lociFile);
                     System.out.println(" --> total number of lines:  " + numLines);
                     ProgressMonitor.setMaxValue(numLines);
-                    ImportGeneData.importGeneLength(lociFile);
+                    ImportGeneData.importGeneLength(lociFile, (String)options.valueOf("genome-build"));
                 }
                 MySQLbulkLoader.flushAll();
             System.err.println("Done. Restart tomcat to make sure the cache is replaced with the new data.");

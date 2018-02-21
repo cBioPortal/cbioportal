@@ -1102,22 +1102,25 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         with a warning when Variant_Classification!='IGR'
         """
         # set level according to this test case:
-        self.logger.setLevel(logging.WARNING)
+        self.logger.setLevel(logging.INFO)
         record_list = self.validate('mutations/data_mutations_silent_alternative.maf',
                                     validateData.MutationsExtendedValidator,
                                     extra_meta_fields={
                                             'swissprot_identifier': 'name'})
-        # we expect 1 ERROR and 2 WARNINGs :
-        self.assertEqual(len(record_list), 3)
+        # we expect 1 ERROR, 2 WARNINGs and 5 INFO:
+        self.assertEqual(len(record_list), 8)
 
         # ERROR should be something like: "No Entrez id or gene symbol provided for gene"
-        self.assertIn("no entrez gene id or gene symbol provided", record_list[0].getMessage().lower())
-        self.assertEqual(record_list[0].levelno, logging.ERROR)
+        self.assertIn("no entrez gene id or gene symbol provided", record_list[1].getMessage().lower())
+        self.assertEqual(record_list[1].levelno, logging.ERROR)
         # WARNING should be something like: "Gene specification for this mutation implies intergenic..."
-        self.assertIn("implies intergenic", record_list[1].getMessage().lower())
-        self.assertEqual(record_list[1].levelno, logging.WARNING)
         self.assertIn("implies intergenic", record_list[2].getMessage().lower())
         self.assertEqual(record_list[2].levelno, logging.WARNING)
+        self.assertIn("implies intergenic", record_list[3].getMessage().lower())
+        self.assertEqual(record_list[3].levelno, logging.WARNING)
+        # INFO should be: "this variant (gene symbol 'unknown', entrez gene id 0) will be filtered out"
+        self.assertIn("this variant (gene symbol 'unknown', entrez gene id 0) will be filtered out", record_list[4].getMessage().lower())
+        self.assertEqual(record_list[4].levelno, logging.INFO)
 
     def test_customized_variants_skipped(self):
         

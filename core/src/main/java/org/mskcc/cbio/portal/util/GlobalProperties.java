@@ -285,7 +285,7 @@ public class GlobalProperties {
     public static final String HIDE_PASSENGER_MUTATIONS = "oncoprint.hide_vus.default";
 
 	private static String civicUrl;
-	@Value("${civic.url:https://civic.genome.wustl.edu/api/}") // default
+	@Value("${civic.url:https://civicdb.org/api/}") // default
 	public void setCivicUrl(String property) { civicUrl = parseUrl(property); }
 
 	private static String genomeNexusApiUrl;

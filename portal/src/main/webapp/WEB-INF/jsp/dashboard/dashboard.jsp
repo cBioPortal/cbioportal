@@ -59,7 +59,7 @@
     if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
         showShareButton = false;
         showVirtualStudyButton= true;
-	}
+    }
     
     if (cancerStudyViewError!=null) {
         out.print(cancerStudyViewError);
@@ -288,18 +288,18 @@
 
         var getVirtualStudies = function(){
         	    var _def = new $.Deferred();
-        	    if (vcSession.URL !== undefined) {
-        	    	    $.ajax({
-        	    	    	    method: 'GET',
-        	    	    	    url: vcSession.URL
-        	    	    	}).done(function(response){
-        	    	    		_def.resolve(response)
-        	    	    	});
-        	    	} else {
-        	    		_def.resolve([])
-        	    	}
-        		return _def.promise();
-        	}
+             if (vcSession.URL !== undefined) {
+                 $.ajax({
+                     method: 'GET',
+                     url: vcSession.URL
+                 }).done(function(response){
+                     _def.resolve(response)
+                 });
+             } else {
+                 _def.resolve([])
+             }
+             return _def.promise();
+        }
 
         var getVirtualStudy = function(id){
             var _def = new $.Deferred();
@@ -316,71 +316,95 @@
             return _def.promise();
         }
         
+        var getPhysicalStudies = function(){
+            var def = new $.Deferred();
+            $.get(window.cbioURL + '/api/studies')
+            .done(function(response) {
+                def.resolve(response);
+            })
+            .fail(function(error) {
+                def.reject(error);
+            });
+            return def.promise();
+        }
+        
+        var getSelectableStudyIds = function() {
+            var def = new $.Deferred();
+            $.when(getPhysicalStudies(), getVirtualStudies()).then(function(physicalStudies, virtualStudies) {
+                var physicalStudyIds = _.pluck(physicalStudies,'studyId');
+                var virtualStudyIds = _.pluck(virtualStudies,'id');
+                def.resolve( physicalStudyIds.concat(virtualStudyIds))
+            }).fail(function(error) {
+                def.reject(error);
+            });
+            return def.promise();
+        }
+        
         $.when(window.cbioportal_client.getStudies({ study_ids: studyIds}), window.iviz.datamanager.getGeneticProfiles(),getVirtualStudies())
             .then(function(_cancerStudies, _geneticProfiles,virtualStudies){
-				if(cohortIdsList.length === 1 ) {
-					if(JSON.stringify(cohortIdsList) === JSON.stringify(studyIds)) {
-        					$("#show_study_details").css('display', 'block');
-			        		var _cancerStudy = _cancerStudies[0]
-						document.title = _cancerStudy.name
-						$("#study_name").html(_cancerStudy.name);
-						var _desc = _cancerStudy.description;
-						if(_cancerStudy.pmid !== null){
-						    _desc += '&nbsp;<a href="http://www.ncbi.nlm.nih.gov/pubmed/'+_cancerStudy.pmid+'">PubMed</a>';
-						}
-						$("#study_desc").html(_desc);
-						
-						var _mutationProfiles = _.filter(_geneticProfiles, function (_profile) {
-						    return _profile.study_id + '_mutations' === _profile.id;
-						});
-						if(_mutationProfiles.length>0){
-						    appendMutationTab();
-						}
-						var _cnaProfiles = _.filter(_geneticProfiles, function (_profile) {
-						    return _profile.study_id + '_gistic' === _profile.id;
-						});
-						if(_cnaProfiles.length>0){
-						    appendCnaTab();
-						}
-						
-						// TODO changed mutationProfileId to mutationProfileIds when mutations tab support multi-studies
-						StudyViewParams.params = {
-						    studyId: _cancerStudy.id,
-						    mutationProfileId: _mutationProfiles.length>0?_mutationProfiles[0].id:'',
-						    hasMutSig: hasMutation,
-						    caseSetId: _cancerStudy.id + '_all',
-						    cnaProfileId: _cnaProfiles.length>0?_cnaProfiles[0].id:''
-						};
-						window.mutationProfileId = StudyViewParams.params.mutationProfileId ;
-						window.cnaProfileId = StudyViewParams.params.cnaProfileId;
-						window.case_set_id = StudyViewParams.params.caseSetId;
-        				} else {
-        					var response = _.findWhere(virtualStudies, {id: cohortIdsList[0]})
+                if(cohortIdsList.length === 1 ) {
+                    if(JSON.stringify(cohortIdsList) === JSON.stringify(studyIds)) {
+                            $("#show_study_details").css('display', 'block');
+                            var _cancerStudy = _cancerStudies[0]
+                        document.title = _cancerStudy.name
+                        $("#study_name").html(_cancerStudy.name);
+                        var _desc = _cancerStudy.description;
+                        if(_cancerStudy.pmid !== null){
+                            _desc += '&nbsp;<a href="http://www.ncbi.nlm.nih.gov/pubmed/'+_cancerStudy.pmid+'">PubMed</a>';
+                        }
+                        $("#study_desc").html(_desc);
+                        
+                        var _mutationProfiles = _.filter(_geneticProfiles, function (_profile) {
+                            return _profile.study_id + '_mutations' === _profile.id;
+                        });
+                        if(_mutationProfiles.length>0){
+                            appendMutationTab();
+                        }
+                        var _cnaProfiles = _.filter(_geneticProfiles, function (_profile) {
+                            return _profile.study_id + '_gistic' === _profile.id;
+                        });
+                        if(_cnaProfiles.length>0){
+                            appendCnaTab();
+                        }
+                        
+                        // TODO changed mutationProfileId to mutationProfileIds when mutations tab support multi-studies
+                        StudyViewParams.params = {
+                            studyId: _cancerStudy.id,
+                            mutationProfileId: _mutationProfiles.length>0?_mutationProfiles[0].id:'',
+                            hasMutSig: hasMutation,
+                            caseSetId: _cancerStudy.id + '_all',
+                            cnaProfileId: _cnaProfiles.length>0?_cnaProfiles[0].id:''
+                        };
+                        window.mutationProfileId = StudyViewParams.params.mutationProfileId ;
+                        window.cnaProfileId = StudyViewParams.params.cnaProfileId;
+                        window.case_set_id = StudyViewParams.params.caseSetId;
+                        } else {
+                            var response = _.findWhere(virtualStudies, {id: cohortIdsList[0]})
                          if (response !== undefined) {
-                        	 	var name = response['data']['name'];
-                        	 	$("#show_study_details").css('display','block');
-                        	 	$("#study_name").html(name);
-                        	 	$("#study_desc").html(response['data']['description']);
-                        	 	$("#cancer_study_list").val(cohortIdsList[0]);
-                        	 	document.title = name;
+                                 var name = response['data']['name'];
+                                 $("#show_study_details").css('display','block');
+                                 $("#study_name").html(name);
+                                 $("#study_desc").html(response['data']['description']);
+                                 $("#cancer_study_list").val(cohortIdsList[0]);
+                                 document.title = name;
                          } else {
-                        	   $.when(getVirtualStudy(cohortIdsList[0])).then(function(vs){
-                        		    var name = vs['data']['name'];
-                        		    $("#show_study_details").css('display','block');
-                        		    $("#study_name").html(name);
-                        		    $("#study_desc").html(vs['data']['description']);
-                        		    $("#cancer_study_list").val(cohortIdsList[0]);
-                        		    document.title = name;
-                        		}).fail(function() {
-                        		    $("#show_study_details").css('display', 'block');
-                        		    cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, '', '');
-                        		});
-        					}
-        				}
-				} else {
-					$("#show_study_details").css('display', 'block');
+                               $.when(getVirtualStudy(cohortIdsList[0])).then(function(vs){
+                                    var name = vs['data']['name'];
+                                    $("#show_study_details").css('display','block');
+                                    $("#study_name").html(name);
+                                    $("#study_desc").html(vs['data']['description']);
+                                    $("#cancer_study_list").val(cohortIdsList[0]);
+                                    document.title = name;
+                                }).fail(function() {
+                                    $("#show_study_details").css('display', 'block');
+                                    cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, '', '');
+                                });
+                            }
+                        }
+                } else {
+                    $("#show_study_details").css('display', 'block');
                     cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, '', '');
-				}
+                }
                 $("#submit_button").click(function(){
                     iViz.submitForm(true);
                 });
@@ -390,8 +414,8 @@
                     if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
                         $("#study-tabs-loading-wait").css('display', 'none');
                         if(!_.isObject(window.iviz.datamanager.initialSetupResult)) {
-                            $.when(window.iviz.datamanager.getConfigs())
-                                .done(function(configs) {
+                            $.when(window.iviz.datamanager.getConfigs(), getSelectableStudyIds())
+                                .done(function(configs, selectableIds) {
                                     var opts = {};
 
                                     if (_.isObject(configs)) {
@@ -403,7 +427,7 @@
                                     $.when(
                                         window.iviz.datamanager.initialSetup()
                                     ).done(function(_data) {
-                                        initdcplots(_data, opts);
+                                        initdcplots(_data, opts, selectableIds);
                                     }).fail(function(error) {
                                         iViz.vue.manage.getInstance().failedToInit.status = true;
                                         if (error) {
@@ -418,7 +442,7 @@
                                     iViz.vue.manage.getInstance().isloading = false;
                                 });
                         }else {
-                            $.when(window.iviz.datamanager.getConfigs()).done(function(configs){
+                            $.when(window.iviz.datamanager.getConfigs(), getSelectableStudyIds()).done(function(configs, selectableIds){
                                 var opts = {};
 
                                 if (_.isObject(configs)) {
@@ -427,7 +451,7 @@
                                 if (emailContact_) {
                                     opts.emailContact = emailContact_;
                                 }
-                                initdcplots(window.iviz.datamanager.initialSetupResult, opts);
+                                initdcplots(window.iviz.datamanager.initialSetupResult, opts, selectableIds);
                             }).fail(function() {
                                 iViz.vue.manage.getInstance().failedToInit.status = true;
                                 iViz.vue.manage.getInstance().failedToInit.message = 'Failed to load study view configurations.';

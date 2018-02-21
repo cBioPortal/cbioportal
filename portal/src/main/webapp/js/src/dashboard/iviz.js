@@ -39,7 +39,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     return {
       saveSession: function(virtualCohort, addToUserStudies) {
         var def = new $.Deferred();
-        var url = addToUserStudies ? vcSession.URL+"/save" : vcSession.URL;
+        var url = window.cbioURL+'api-legacy/proxy/session/virtual_study'+ (addToUserStudies ? '/save' : '');
         $.ajax({
           type: 'POST',
           url: url,
@@ -724,8 +724,9 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         selectableIdsSet[id] = true;
       });
 
-      for (var id in window.cohortIdsList) {
-        if(selectableIdsSet[id]){
+      var cohortIds = window.cohortIdsList;
+      for (var i = 0; i < cohortIds.length; i++) {
+        if(selectableIdsSet[cohortIds[i]]){
           includeCases = false;
           break;
         }

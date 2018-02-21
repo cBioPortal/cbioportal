@@ -40,16 +40,16 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
 
         List<String> allIds = new ArrayList<>(alteredIds);
         allIds.addAll(unalteredIds);
-        List<CopyNumberCountByGene> copyNumberCountByGeneList;
+        List<CopyNumberCountByGene> copyNumberCountByGeneListFromRepo;
         List<DiscreteCopyNumberData> discreteCopyNumberDataList;
         
         if (enrichmentType.equals("SAMPLE")) {
-            copyNumberCountByGeneList = discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(
+            copyNumberCountByGeneListFromRepo = discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(
                 molecularProfileId, allIds, null, null);
             discreteCopyNumberDataList = discreteCopyNumberService
                 .fetchDiscreteCopyNumbersInMolecularProfile(molecularProfileId, alteredIds, null, alterationTypes, "ID");
         } else {
-            copyNumberCountByGeneList = discreteCopyNumberService.getPatientCountByGeneAndAlterationAndPatientIds(
+            copyNumberCountByGeneListFromRepo = discreteCopyNumberService.getPatientCountByGeneAndAlterationAndPatientIds(
                 molecularProfileId, allIds, null, null);
             MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
             List<Sample> sampleList = sampleService.getAllSamplesOfPatientsInStudy(
@@ -59,6 +59,8 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                     sampleList.stream().map(Sample::getStableId).collect(Collectors.toList()), null, alterationTypes, 
                     "ID");
         }
+        List<CopyNumberCountByGene> copyNumberCountByGeneList =
+            new ArrayList<CopyNumberCountByGene>(copyNumberCountByGeneListFromRepo);
         copyNumberCountByGeneList.removeIf(m -> !alterationTypes.contains(m.getAlteration()));
 
         return alterationEnrichmentUtil.createAlterationEnrichments(alteredIds.size(), unalteredIds.size(),

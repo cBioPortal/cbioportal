@@ -149,7 +149,7 @@
     function initdcplots(data, opts) {
         iViz.init(data, opts);
         QueryByGeneTextArea.init('#query-by-gene-textarea', function(genes) {
-            iViz.vue.manage.getInstance().$broadcast('gene-list-updated', genes);
+            iViz.vue.manage.getInstance().$broadcast('gene-list-updated', genes, selectableIds);
         });
     }
 </script>

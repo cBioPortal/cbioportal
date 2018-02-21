@@ -288,31 +288,23 @@
 
         var getVirtualStudies = function(){
         	    var _def = new $.Deferred();
-             if (vcSession.URL !== undefined) {
-                 $.ajax({
-                     method: 'GET',
-                     url: vcSession.URL
-                 }).done(function(response){
-                     _def.resolve(response)
-                 });
-             } else {
-                 _def.resolve([])
-             }
+             $.ajax({
+                 method: 'GET',
+                 url: window.cbioURL+'api-legacy/proxy/session/virtual_study'
+             }).done(function(response){
+                 _def.resolve(response)
+             });
              return _def.promise();
         }
 
         var getVirtualStudy = function(id){
             var _def = new $.Deferred();
-            if (vcSession.URL !== undefined) {
-                $.ajax({
-                    method: 'GET',
-                    url: vcSession.URL+'/'+id
-                }).done(function(response){
-                    _def.resolve(response)
-                });
-            } else {
-                _def.resolve([])
-            }
+            $.ajax({
+                method: 'GET',
+                url: window.cbioURL+'api-legacy/proxy/session/virtual_study/'+id
+            }).done(function(response){
+                _def.resolve(response)
+            });
             return _def.promise();
         }
         
@@ -493,7 +485,7 @@
                 iViz.vue.manage.init();
 
                 // This is used to indicate how to disable two buttons. By default, they are set to true.
-                if(vcSession.URL !== undefined) {
+                if(window.sessionServiceAvailable) {
                     iViz.vue.manage.getInstance().showShareButton=showShareButton;
                     iViz.vue.manage.getInstance().showVirtualStudyButton=showVirtualStudyButton;
                     if(username !== '') {

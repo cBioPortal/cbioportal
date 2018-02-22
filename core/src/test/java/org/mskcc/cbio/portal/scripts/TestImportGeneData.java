@@ -105,7 +105,7 @@ public class TestImportGeneData {
         testImportGeneData();
         
         File file = new File("src/test/resources/gene-length_test.txt");
-        ImportGeneData.importGeneLength(file, "GRCh37");
+        ImportGeneData.importGeneLength(file, "GRCh37", true);
         CanonicalGene gene = daoGene.getNonAmbiguousGene("ABCA4", "chr1", false);
         assertEquals(372,gene.getLength());
 

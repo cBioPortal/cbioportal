@@ -272,7 +272,7 @@ public class ImportGeneData extends ConsoleRunnable {
      * @throws DaoException
      */
     
-    public static void importGeneLength(File geneFile, String genomeBuild) throws IOException, DaoException {
+    public static void importGeneLength(File geneFile, String genomeBuild, boolean hasGenes) throws IOException, DaoException {
         //Set the variables needed for the method
         FileReader reader = new FileReader(geneFile);
         BufferedReader buf = new BufferedReader(reader);
@@ -336,7 +336,7 @@ public class ImportGeneData extends ConsoleRunnable {
                     }   
                     /// If there is a switch
                     else {
-                        geneUpdated = updateLength(previousSymbol, previousChrom, loci, referenceGenomeId);
+                        geneUpdated = updateLength(previousSymbol, previousChrom, loci, referenceGenomeId, hasGenes);
                         if (geneUpdated) {
                                 nrGenesUpdated++;
                         }
@@ -354,7 +354,7 @@ public class ImportGeneData extends ConsoleRunnable {
       
         /// Write the last gene
         /// First check if the gene exists in the database
-        geneUpdated = updateLength(previousSymbol, previousChrom, loci,  referenceGenomeId);
+        geneUpdated = updateLength(previousSymbol, previousChrom, loci,  referenceGenomeId, hasGenes);
         if (geneUpdated) {
                 nrGenesUpdated++;
         }
@@ -376,7 +376,7 @@ public class ImportGeneData extends ConsoleRunnable {
      * @throws IOException
      * @throws DaoException
      */
-    public static boolean updateLength(String symbol, String chromosome, List<long[]> loci, int refreneceGenomeId) throws IOException, DaoException {
+    public static boolean updateLength(String symbol, String chromosome, List<long[]> loci, int refreneceGenomeId, boolean hasGenes) throws IOException, DaoException {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         boolean lengthUpdated = false;
         /// Check if the gene is in the database
@@ -392,32 +392,36 @@ public class ImportGeneData extends ConsoleRunnable {
                 
                 /// If there is no cytoband in the database, just write it (can also be an overwrite)
                 if (cytoband == null) {
-                        gene.setLength((int)exonic[2]);
+                    if (hasGenes) {
+                        gene.setLength((int) exonic[2]);
                         daoGeneOptimized.updateGene(gene);
                         lengthUpdated = true;
+                    }
                 }
                 
                 /// If there is a cytoband in database, check if cytoband-chr matches input-chr
                 else {
                 String cbChr = "chr"+cytoband.split("p|q")[0];
                 if (cbChr.equals(chromosome)) { //Update the length only if the chromosome matches
-                        gene.setLength((int)exonic[2]);
+                    if (hasGenes) {
+                        gene.setLength((int) exonic[2]);
                         daoGeneOptimized.updateGene(gene);
+                    }
                         
-                        // update reference genome gene
-                        DaoReferenceGenomeGene daoReferenceGenomeGene = DaoReferenceGenomeGene.getInstance();
-                        
-                        ReferenceGenomeGene refGene = daoReferenceGenomeGene.getGene(gene.getEntrezGeneId(), refreneceGenomeId);
-                        if (refGene == null) {
-                            refGene = new ReferenceGenomeGene(gene.getEntrezGeneId(), refreneceGenomeId);
-                        }
-                        refGene.setChr(chromosome.replace("chr", ""));
-                        refGene.setCytoband(cytoband);
-                        refGene.setExonicLength((int) exonic[2]);
-                        refGene.setStart(exonic[0]);
-                        refGene.setEnd(exonic[1]);
-                        daoReferenceGenomeGene.addOrUpdateGene(refGene);
-                        lengthUpdated = true;
+                    // update reference genome gene
+                    DaoReferenceGenomeGene daoReferenceGenomeGene = DaoReferenceGenomeGene.getInstance();
+                    
+                    ReferenceGenomeGene refGene = daoReferenceGenomeGene.getGene(gene.getEntrezGeneId(), refreneceGenomeId);
+                    if (refGene == null) {
+                        refGene = new ReferenceGenomeGene(gene.getEntrezGeneId(), refreneceGenomeId);
+                    }
+                    refGene.setChr(chromosome.replace("chr", ""));
+                    refGene.setCytoband(cytoband);
+                    refGene.setExonicLength((int) exonic[2]);
+                    refGene.setStart(exonic[0]);
+                    refGene.setEnd(exonic[1]);
+                    daoReferenceGenomeGene.addOrUpdateGene(refGene);
+                    lengthUpdated = true;
                 }
                 else {
                         ProgressMonitor.logWarning("Cytoband does not match, gene not saved (likely another version of gene in gtf has correct chr and is saved)");
@@ -553,7 +557,8 @@ public class ImportGeneData extends ConsoleRunnable {
                     numLines = FileUtil.getNumLines(lociFile);
                     System.out.println(" --> total number of lines:  " + numLines);
                     ProgressMonitor.setMaxValue(numLines);
-                    ImportGeneData.importGeneLength(lociFile, (String)options.valueOf("genome-build"));
+                    ImportGeneData.importGeneLength(lociFile, (String)options.valueOf("genome-build"), 
+                                        options.has("genes"));
                 }
                 MySQLbulkLoader.flushAll();
             System.err.println("Done. Restart tomcat to make sure the cache is replaced with the new data.");

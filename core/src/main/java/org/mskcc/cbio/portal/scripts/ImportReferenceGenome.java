@@ -121,7 +121,7 @@ public class ImportReferenceGenome extends ConsoleRunnable {
             // using a real options parser, helps avoid bugs
             OptionParser parser = new OptionParser();
             OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
-            parser.accepts( "references", "reference genome file" ).withRequiredArg().describedAs("reference_genomes.txt").ofType( String.class );
+            parser.accepts( "ref-genome", "reference genome file" ).withRequiredArg().describedAs("reference_genomes.txt").ofType( String.class );
 
             String progName = "importReferenceGenomes";
             OptionSet options = null;
@@ -140,8 +140,8 @@ public class ImportReferenceGenome extends ConsoleRunnable {
 
             File referenceGenomeFile;
             int numLines;
-            if(options.has("references")) {
-                File referenceFile = new File((String) options.valueOf("references"));
+            if(options.has("ref-genome")) {
+                File referenceFile = new File((String) options.valueOf("ref-genome"));
 
                 System.out.println("Reading reference genome from:  " + referenceFile.getAbsolutePath());
                 numLines = FileUtil.getNumLines(referenceFile);

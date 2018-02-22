@@ -44,6 +44,13 @@ After downloading, go to your downloads directory, decompress the file and add i
  export PORTAL_HOME=<your_cbioportal_dir>
 ./importGenes.pl --genes <ncbi_species.gene_info> --gtf <gencode.v25.annotation.gtf> --genome-build <GRCh37>
 ```
+**IMPORTANT NOTE**: 
+1. The **reference_genome** table needs to be populated before updating the **gene** table. Further details can be found in [this document](import-reference-genome.md). 
+2. Loading genes only to the **reference_genome_gene** table without updating the **gene** table, please use the following command:
+```
+./importGenes.pl --gtf <gencode.v27.annotation.gtf> --genome-build <GRCh38>
+
+```
 
 7- :warning: Check the `gene` and `gene_alias` tables to verify that they are filled correctly.
 ```sql

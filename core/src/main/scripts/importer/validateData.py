@@ -2372,6 +2372,27 @@ class GenePanelMatrixValidator(Validator):
     # TODO check that sample ids are references in clincal data file
     # TODO check that referenced gene panel stable id is valid
 
+    def __init__(self, *args, **kwargs):
+        """Initialize a GenePanelMatrixValidator with the given parameters."""
+        super(GenePanelMatrixValidator, self).__init__(*args, **kwargs)
+        self.gene_panel_sample_ids = {}
+
+    def checkLine(self, data):
+        super(GenePanelMatrixValidator, self).checkLine(data)
+
+        # Checking sample ID occurs twice in gene panel matrix
+        # Importer will crash so return an error
+        sample_id = data[self.cols.index('SAMPLE_ID')]
+        if sample_id in self.gene_panel_sample_ids:
+            self.logger.error(
+                'Duplicated Sample ID.',
+                extra={'line_number': self.line_number,
+                'cause': '%s (already defined on line %d)'
+                         % (sample_id,
+                            self.gene_panel_sample_ids[sample_id])})
+        else:
+            self.gene_panel_sample_ids[sample_id] = self.line_number
+
 class ProteinLevelValidator(FeaturewiseFileValidator):
 
     REQUIRED_HEADERS = ['Composite.Element.REF']

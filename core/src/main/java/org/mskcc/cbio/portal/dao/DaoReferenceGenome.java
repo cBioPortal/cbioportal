@@ -59,7 +59,7 @@ public class DaoReferenceGenome {
             if (!overwrite) {
                 throw new DaoException("Reference Genome " + referenceGenome.getBuildName() + "is already imported.");
             } else {
-                deleteRecord(existing.getReferenceGenomeId());
+                updateReferenceGenome(referenceGenome);
             }
         }
         Connection con = null;
@@ -105,30 +105,6 @@ public class DaoReferenceGenome {
             con = JdbcUtil.getDbConnection(DaoReferenceGenome.class);
             JdbcUtil.disableForeignKeyCheck(con);
             pstmt = con.prepareStatement("TRUNCATE TABLE reference_genome");
-            pstmt.executeUpdate();
-            JdbcUtil.enableForeignKeyCheck(con);
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoReferenceGenome.class, con, pstmt, rs);
-        }
-    }
-
-    /**
-     * Delete Reference Genome by internal ID
-     * @param referenceGenomeId internal ID of reference genome
-     * @throws DaoException Database Error.
-     */
-    public void deleteRecord(int referenceGenomeId) throws DaoException {
-
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoReferenceGenome.class);
-            JdbcUtil.disableForeignKeyCheck(con);
-            pstmt = con.prepareStatement("DELETE FROM reference_genome WHERE reference_genome_id = ?");
-            pstmt.setInt(1, referenceGenomeId);
             pstmt.executeUpdate();
             JdbcUtil.enableForeignKeyCheck(con);
         } catch (SQLException e) {

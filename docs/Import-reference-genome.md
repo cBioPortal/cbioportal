@@ -5,9 +5,9 @@ This manual is intended to guide you to load new reference genome(s) to the data
 A digital nucleic acid sequence database assembled by scientists as a representative example of a species' set of genes. Reference genomes can be accessed online using dedicated browsers such as Ensembl or UCSC Genome Browser. 
 
 ### Why does reference genomes matter?
-Raw reads from the sequencer are often aligned to the reference genome of the tissue sample. Use the same reference genome used the alignment help us accurately identify the chromosomal location of the gene and the position of cyto-genetic bands within a chromosome. 
+Raw reads from sample tissue are often aligned to a particular reference genome. Choose the same reference genome used by the alignment help us accurately identify the chromosomal location of the gene and the position of cyto-genetic bands within a chromosome. 
 
-## Steps to load reference genome(s) to the database
+## How to load reference genome(s) to the database?
 
 ##1. prepare a tab delimited txt file with the following fields:
 1. species: the name of organic species e.g human

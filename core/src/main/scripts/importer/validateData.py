@@ -1541,27 +1541,23 @@ class ClinicalValidator(Validator):
                       'datatype',
                       'priority')
 
-    # Attributes required to have certain properties because of hard-coded use.
-    # Note: the 'when_wrong' property (found in some attributes like METASTATIC_SITE),
-    # can be set to WARNING to indicate that only a WARNING should be given
-    # if this attribute is found in the "wrong" file (e.g. a PATIENT attribute found
-    # in a SAMPLE file or vice-versa).
+    # Only a core set of attributes must be either specific in the patient or sample clinical data.
     PREDEFINED_ATTRIBUTES = {
         'AGE': {
             'is_patient_attribute': '1',
             'datatype': 'NUMBER'
         },
         'CANCER_TYPE': {
-            'is_patient_attribute': '0',
+            'is_patient_attribute': '1',
             'datatype': 'STRING'
         },
         'CANCER_TYPE_DETAILED': {
-            'is_patient_attribute': '0',
+            'is_patient_attribute': '1',
             'datatype': 'STRING'
         },
-        'DETAILED_CANCER_TYPE': {
-            'is_patient_attribute': '0',
-            'datatype': 'STRING'
+        'DERIVED_NORMALIZED_CASE_TYPE': {
+        },
+        'DERIVED_SAMPLE_LOCATION': {
         },
         'DFS_STATUS': {
             'is_patient_attribute': '1',
@@ -1572,38 +1568,27 @@ class ClinicalValidator(Validator):
             'datatype': 'NUMBER'
         },
         'DRIVER_MUTATIONS': {
-            'is_patient_attribute': '0'
         },
         'ERG_FUSION_ACGH': {
-            'is_patient_attribute': '0'
         },
         'ETS_RAF_SPINK1_STATUS': {
-            'is_patient_attribute': '0'
         },
         'GENDER': {
             'is_patient_attribute': '1',
             'datatype': 'STRING'
         },
         'GLEASON_SCORE': {
-            'is_patient_attribute': '0',
-            'when_wrong': 'WARNING'
-        },
-        'GLEASON_SCORE_1': {
-            'is_patient_attribute': '0'
-        },
-        'GLEASON_SCORE_2': {
-            'is_patient_attribute': '0'
         },
         'HISTOLOGY': {
-            'is_patient_attribute': '0'
+            'is_patient_attribute': '1'
         },
         'KNOWN_MOLECULAR_CLASSIFIER': {
-            'is_patient_attribute': '0'
+            'is_patient_attribute': '1'
         },
         'METASTATIC_SITE': {
-            'is_patient_attribute': '0',
             'datatype': 'STRING',
-            'when_wrong': 'WARNING'
+        },
+        'MOUSE_STRAIN': {
         },
         'OS_STATUS': {
             'is_patient_attribute': '1',
@@ -1622,12 +1607,9 @@ class ClinicalValidator(Validator):
             'datatype': 'STRING'
         },
         'PRIMARY_SITE': {
-            'is_patient_attribute': '0',
             'datatype': 'STRING',
-            'when_wrong': 'WARNING'
         },
         'SAMPLE_CLASS': {
-            'is_patient_attribute': '0',
             'datatype': 'STRING'
         },
         'SAMPLE_DISPLAY_NAME': {
@@ -1635,44 +1617,33 @@ class ClinicalValidator(Validator):
             'datatype': 'STRING'
         },
         'SAMPLE_TYPE': {
-            'is_patient_attribute': '0',
             'datatype': 'STRING'
         },
         'SERUM_PSA': {
-            'is_patient_attribute': '0'
         },
         'SEX': {
             'is_patient_attribute': '1',
             'datatype': 'STRING'
         },
         'TMPRSS2_ERG_FUSION_STATUS': {
-            'is_patient_attribute': '0'
         },
         'TUMOR_GRADE': {
-            'is_patient_attribute': '0'
         },
         'TUMOR_SITE': {
-            'is_patient_attribute': '0',
             'datatype': 'STRING',
-            'when_wrong': 'WARNING'
         },
         'TUMOR_STAGE_2009': {
-            'is_patient_attribute': '0'
         },
         'TUMOR_TISSUE_SITE': {
             'is_patient_attribute': '0',
             'datatype': 'STRING',
-            'when_wrong': 'WARNING'
         },
         'TUMOR_TYPE': {
             'is_patient_attribute': '0',
             'datatype': 'STRING'
         },
-        'TYPE_OF_CANCER': {
-            'is_patient_attribute': '0',
-            'datatype': 'STRING'
-        },
     }
+
 
     def __init__(self, *args, **kwargs):
         """Initialize the instance attributes of the data file validator."""
@@ -1820,26 +1791,14 @@ class ClinicalValidator(Validator):
             if col_name in self.PREDEFINED_ATTRIBUTES:
                 for attr_property in self.PREDEFINED_ATTRIBUTES[col_name]:
                     if attr_property == 'is_patient_attribute':
-                        expected_level = \
-                            self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
+                        expected_level = self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
                         if self.PROP_IS_PATIENT_ATTRIBUTE != expected_level:
-                            # check if only warning should be given:
-                            if ('when_wrong' in self.PREDEFINED_ATTRIBUTES[col_name] and
-                            self.PREDEFINED_ATTRIBUTES[col_name]['when_wrong'] == 'WARNING'):
-                                self.logger.warning(
-                                    'Attribute expected to be a %s-level attribute. Some *minor* details will be '
-                                    'missing in patient/sample view for this study',
-                                    {'0': 'sample', '1': 'patient'}[expected_level],
-                                    extra={'line_number': self.line_number,
-                                           'column_number': col_index + 1,
-                                           'cause': col_name})
-                            else:
-                                self.logger.error(
-                                    'Attribute must be a %s-level attribute',
-                                    {'0': 'sample', '1': 'patient'}[expected_level],
-                                    extra={'line_number': self.line_number,
-                                           'column_number': col_index + 1,
-                                           'cause': col_name})
+                            self.logger.error(
+                                'Attribute must to be a %s-level attribute',
+                                {'0': 'sample', '1': 'patient'}[expected_level],
+                                extra={'line_number': self.line_number,
+                                       'column_number': col_index + 1,
+                                       'cause': col_name})
                     # check pre-header datatype property:
                     if attr_property == 'datatype':
                         # check pre-header metadata if applicable -- if these were

@@ -77,9 +77,9 @@ script:
           -Dfinal.war.name=cbioportal \
           -Ddb.user=cbio_user \
           -Ddb.password=cbio_pass \
-          -Ddb.portal_db_name=public_test \
-          -Ddb.connection_string=jdbc:mysql://sm4sa6ozhn5ya6.cuooweljyhix.us-east-1.rds.amazonaws.com:3306/ \
-          -Ddb.host=sm4sa6ozhn5ya6.cuooweljyhix.us-east-1.rds.amazonaws.com \
+          -Ddb.portal_db_name=cgds_test \
+          -Ddb.connection_string=jdbc:mysql://pughlabdb.cobap3rgryeo.us-east-1.rds.amazonaws.com:3306/ \
+          -Ddb.host=pughlabdb.cobap3rgryeo.us-east-1.rds.amazonaws.com \
           clean install
   fi
 - |

@@ -16,7 +16,6 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -79,7 +78,6 @@ public class GenePanelServiceImpl implements GenePanelService {
     }
     
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<GenePanelData> getGenePanelData(String molecularProfileId, String sampleListId, 
                                                 List<Integer> entrezGeneIds) throws MolecularProfileNotFoundException {
 
@@ -93,7 +91,6 @@ public class GenePanelServiceImpl implements GenePanelService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<GenePanelData> fetchGenePanelData(String molecularProfileId, List<String> sampleIds, 
                                                   List<Integer> entrezGeneIds) throws MolecularProfileNotFoundException {
 
@@ -106,7 +103,6 @@ public class GenePanelServiceImpl implements GenePanelService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
 	public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds,
 			List<String> sampleIds, List<Integer> entrezGeneIds) {
         

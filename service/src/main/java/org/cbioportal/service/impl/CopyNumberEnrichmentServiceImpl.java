@@ -12,7 +12,6 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
     private AlterationEnrichmentUtil alterationEnrichmentUtil;
     
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<AlterationEnrichment> getCopyNumberEnrichments(String molecularProfileId, List<String> alteredIds,
                                                                List<String> unalteredIds, List<Integer> alterationTypes, 
                                                                String enrichmentType)

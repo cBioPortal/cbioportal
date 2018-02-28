@@ -8,9 +8,9 @@ import org.cbioportal.service.PatientService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
-import org.cbioportal.web.interceptor.UniqueKeyInterceptor;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.PatientSortBy;
+import org.cbioportal.web.util.UniqueKeyExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,11 +23,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 @PublicApi
@@ -36,11 +36,13 @@ import java.util.List;
 @Api(tags = "Patients", description = " ")
 public class PatientController {
 
-    private static final Base64.Decoder BASE64_DECODER = Base64.getDecoder();
-
     @Autowired
     private PatientService patientService;
 
+    @Autowired
+    private UniqueKeyExtractor uniqueKeyExtractor;
+
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/patients", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all patients in a study")
@@ -73,6 +75,7 @@ public class PatientController {
         }
     }
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get a patient in a study")
@@ -85,6 +88,7 @@ public class PatientController {
         return new ResponseEntity<>(patientService.getPatientInStudy(studyId, patientId), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#patientFilter, 'PatientFilter', 'read')")
     @RequestMapping(value = "/patients/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch patients by ID")
@@ -102,7 +106,7 @@ public class PatientController {
             if (patientFilter.getPatientIdentifiers() != null) {
                 extractStudyAndPatientIds(patientFilter, studyIds, patientIds);
             } else {
-                extractUniquePatientKeys(patientFilter, studyIds, patientIds);
+                uniqueKeyExtractor.extractUniqueKeys(patientFilter.getUniquePatientKeys(), studyIds, patientIds);
             }
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, patientService.fetchMetaPatients(studyIds, patientIds)
                 .getTotalCount().toString());
@@ -111,7 +115,7 @@ public class PatientController {
             if (patientFilter.getPatientIdentifiers() != null) {
                 extractStudyAndPatientIds(patientFilter, studyIds, patientIds);
             } else {
-                extractUniquePatientKeys(patientFilter, studyIds, patientIds);
+                uniqueKeyExtractor.extractUniqueKeys(patientFilter.getUniquePatientKeys(), studyIds, patientIds);
             }
             return new ResponseEntity<>(
                 patientService.fetchPatients(studyIds, patientIds, projection.name()), HttpStatus.OK);
@@ -123,18 +127,6 @@ public class PatientController {
         for (PatientIdentifier patientIdentifier : patientFilter.getPatientIdentifiers()) {
             studyIds.add(patientIdentifier.getStudyId());
             patientIds.add(patientIdentifier.getPatientId());
-        }
-    }
-
-    private void extractUniquePatientKeys(PatientFilter patientFilter, List<String> studyIds, List<String> patientIds) {
-
-        for (String uniquePatientKey : patientFilter.getUniquePatientKeys()) {
-            String uniquePatientId = new String(BASE64_DECODER.decode(uniquePatientKey));
-            String[] patientAndStudyId = uniquePatientId.split(UniqueKeyInterceptor.DELIMITER);
-            if (patientAndStudyId.length == 2) {
-                patientIds.add(patientAndStudyId[0]);
-                studyIds.add(patientAndStudyId[1]);
-            }
         }
     }
 }

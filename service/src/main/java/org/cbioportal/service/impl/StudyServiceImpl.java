@@ -8,7 +8,6 @@ import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,7 +37,6 @@ public class StudyServiceImpl implements StudyService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public CancerStudy getStudy(String studyId) throws StudyNotFoundException {
 
         CancerStudy cancerStudy = studyRepository.getStudy(studyId, "DETAILED");
@@ -50,14 +48,12 @@ public class StudyServiceImpl implements StudyService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
 	public List<CancerStudy> fetchStudies(List<String> studyIds, String projection) {
         
         return studyRepository.fetchStudies(studyIds, projection);
 	}
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
 	public BaseMeta fetchMetaStudies(List<String> studyIds) {
         
         return studyRepository.fetchMetaStudies(studyIds);

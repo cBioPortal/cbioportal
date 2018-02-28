@@ -3,8 +3,9 @@ package org.cbioportal.web.parameter;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.io.Serializable;
 
-public class PatientFilter {
+public class PatientFilter implements Serializable {
     
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<PatientIdentifier> patientIdentifiers;

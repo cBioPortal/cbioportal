@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,7 +33,8 @@ public class GenesetDataController {
 
 	@Autowired
     private GenesetDataService genesetDataService;
-    
+
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")    
     @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/geneset-genetic-data/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch gene set \"genetic data\" items (gene set scores) by profile Id, gene set ids and sample ids")

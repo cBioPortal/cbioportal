@@ -11,7 +11,6 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +28,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     private SampleService sampleService;
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId, String attributeId, 
                                                                 String projection, Integer pageSize, Integer pageNumber,
                                                                 String sortBy, String direction)
@@ -42,7 +40,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaSampleClinicalData(String studyId, String sampleId, String attributeId)
         throws SampleNotFoundException, StudyNotFoundException {
 
@@ -52,7 +49,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<ClinicalData> getAllClinicalDataOfPatientInStudy(String studyId, String patientId, String attributeId, 
                                                                  String projection, Integer pageSize, 
                                                                  Integer pageNumber, String sortBy, String direction)
@@ -65,7 +61,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaPatientClinicalData(String studyId, String patientId, String attributeId)
         throws PatientNotFoundException, StudyNotFoundException {
 
@@ -75,7 +70,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<ClinicalData> getAllClinicalDataInStudy(String studyId, String attributeId, String clinicalDataType, 
                                                         String projection, Integer pageSize, Integer pageNumber,
                                                         String sortBy, String direction) throws StudyNotFoundException {
@@ -87,7 +81,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaAllClinicalData(String studyId, String attributeId, String clinicalDataType) 
         throws StudyNotFoundException {
 
@@ -117,7 +110,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     public List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds, 
                                                 String clinicalDataType, String projection) {
 
@@ -125,7 +117,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     public BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds, 
                                           String clinicalDataType) {
 

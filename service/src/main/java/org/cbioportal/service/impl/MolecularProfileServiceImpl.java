@@ -10,7 +10,6 @@ import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,7 +42,6 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public MolecularProfile getMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException {
 
         MolecularProfile molecularProfile = molecularProfileRepository.getMolecularProfile(molecularProfileId);
@@ -55,21 +53,18 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
 	public List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection) {
         
         return molecularProfileRepository.getMolecularProfiles(molecularProfileIds, projection);
     }
     
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
 	public BaseMeta getMetaMolecularProfiles(List<String> molecularProfileIds) {
         
         return molecularProfileRepository.getMetaMolecularProfiles(molecularProfileIds);
 	}
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<MolecularProfile> getAllMolecularProfilesInStudy(String studyId, String projection, Integer pageSize,
                                                                  Integer pageNumber, String sortBy, String direction) 
         throws StudyNotFoundException {
@@ -81,7 +76,6 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaMolecularProfilesInStudy(String studyId) throws StudyNotFoundException {
 
         studyService.getStudy(studyId);
@@ -90,14 +84,12 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
 	public List<MolecularProfile> getMolecularProfilesInStudies(List<String> studyIds, String projection) {
         
         return molecularProfileRepository.getMolecularProfilesInStudies(studyIds, projection);
 	}
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
 	public BaseMeta getMetaMolecularProfilesInStudies(List<String> studyIds) {
         
         return molecularProfileRepository.getMetaMolecularProfilesInStudies(studyIds);

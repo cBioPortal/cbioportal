@@ -38,6 +38,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,6 +52,19 @@ import org.cbioportal.persistence.SampleRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.SecurityRepository;
 import org.cbioportal.persistence.StudyRepository;
+import org.cbioportal.web.parameter.ClinicalAttributeFilter;
+import org.cbioportal.web.parameter.ClinicalDataMultiStudyFilter;
+import org.cbioportal.web.parameter.ClinicalDataIdentifier;
+import org.cbioportal.web.parameter.GenePanelMultipleStudyFilter;
+import org.cbioportal.web.parameter.SampleMolecularIdentifier;
+import org.cbioportal.web.parameter.MolecularDataMultipleStudyFilter;
+import org.cbioportal.web.parameter.MolecularProfileFilter;
+import org.cbioportal.web.parameter.MutationMultipleStudyFilter;
+import org.cbioportal.web.parameter.PatientFilter;
+import org.cbioportal.web.parameter.PatientIdentifier;
+import org.cbioportal.web.parameter.SampleFilter;
+import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.web.util.UniqueKeyExtractor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -83,6 +98,9 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
     @Autowired
     private SampleListRepository sampleListRepository;
+
+    @Autowired
+    private UniqueKeyExtractor uniqueKeyExtractor;
 
     @Value("${app.name:}")
     private String APP_NAME;
@@ -123,6 +141,9 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
      *   'SampleList',
      *   'List<CancerStudyId>', 
      *   'List<MolecularProfileId>', 
+     *   'MolecularDataMultipleStudyFilter',
+     *   'MolecularProfileFilter',
+     *   'MutationMultipleStudyFilter',
      *   or 'List<SampleListId>'
      * @param permission
      */
@@ -151,45 +172,77 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 return false;
             }
             return hasPermission(authentication, cancerStudy, permission);
-        } else if ("MolecularProfile".equals(targetType) || "GeneticProfile".equals(targetType)) {
+        }
+        else if ("MolecularProfile".equals(targetType) || "GeneticProfile".equals(targetType)) {
             MolecularProfile molecularProfile = molecularProfileRepository.getMolecularProfile(targetId.toString());
             if (molecularProfile == null) {
                 return false;
             }
             return hasPermission(authentication, molecularProfile, permission);
-        } else if ("SampleList".equals(targetType)) {
+        }
+        else if ("SampleList".equals(targetType)) {
             SampleList sampleList = sampleListRepository.getSampleList(targetId.toString());
             if (sampleList == null) {
                 return false;
             }
             return hasPermission(authentication, sampleList, permission);
-        }  else if ("List<CancerStudyId>".equals(targetType)) {
-            List<String> studyIds = (List<String>) targetId;
-            for (String studyId : studyIds) {
-                if (!hasPermission(authentication, studyId, "CancerStudy", permission)) {
-                    return false;
-                }
+        }
+        else if ("List<SampleListId>".equals(targetType)) {
+            return hasAccessToSampleLists(authentication, (List<String>) targetId, permission);
+        }
+        else if ("List<CancerStudyId>".equals(targetType)) {
+            return hasAccessToCancerStudies(authentication, (List<String>)targetId, permission);
+        }
+        else if ("List<MolecularProfileId>".equals(targetType) || "List<GeneticProfileId>".equals(targetType)) {
+            return hasAccessToMolecularProfiles(authentication, (List<String>)targetId, permission);
+        }
+        else if ("ClinicalAttributeFilter".equals(targetType)) {
+            return hasAccessToCancerStudies(authentication, (ClinicalAttributeFilter)targetId, permission);
+        }
+        else if ("ClinicalDataMultiStudyFilter".equals(targetType)) {
+            return hasAccessToCancerStudies(authentication, (ClinicalDataMultiStudyFilter)targetId, permission);
+        }
+        else if ("GenePanelMultipleStudyFilter".equals(targetType)) {
+            GenePanelMultipleStudyFilter genePanelMultipleStudyFilter = (GenePanelMultipleStudyFilter)targetId;
+            return hasAccessToCancerStudiesBySampleMolecularIdentifier(authentication, genePanelMultipleStudyFilter.getSampleMolecularIdentifiers(), permission);
+        }
+        else if ("MolecularDataMultipleStudyFilter".equals(targetType)) {
+            MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter = (MolecularDataMultipleStudyFilter)targetId;
+            if (molecularDataMultipleStudyFilter.getMolecularProfileIds() != null) {
+                return hasAccessToMolecularProfiles(authentication, molecularDataMultipleStudyFilter.getMolecularProfileIds(), permission);
             }
-            return true;
-        } else if ("List<MolecularProfileId>".equals(targetType) || "List<GeneticProfileId>".equals(targetType)) {
-            List<String> molecularProfileIds = (List<String>) targetId;
-            for (String molecularProfileId : molecularProfileIds) {
-                MolecularProfile molecularProfile = molecularProfileRepository.getMolecularProfile(molecularProfileId);
-                if (molecularProfile == null || !hasPermission(authentication, molecularProfile, permission)) {
-                    return false;
-                }
+            else {
+                return hasAccessToCancerStudiesBySampleMolecularIdentifier(authentication, molecularDataMultipleStudyFilter.getSampleMolecularIdentifiers(), permission);
             }
-            return true;
-        } else if ("List<SampleListId>".equals(targetType)) {
-            List<String> sampleListIds = (List<String>) targetId;
-            for (String sampleListId : sampleListIds) {
-                SampleList sampleList = sampleListRepository.getSampleList(sampleListId);
-                if (sampleList == null || !hasPermission(authentication, sampleList, permission)) {
-                    return false;
-                }
+        }
+        else if ("MolecularProfileFilter".equals(targetType)) {
+            MolecularProfileFilter molecularProfileFilter = (MolecularProfileFilter)targetId;
+            if (molecularProfileFilter.getStudyIds() != null) {
+                return hasAccessToCancerStudies(authentication, molecularProfileFilter.getStudyIds(), permission);
             }
-            return true;
-        } else {
+            else {
+                return hasAccessToMolecularProfiles(authentication, molecularProfileFilter.getMolecularProfileIds(), permission);
+            }
+        }
+        else if ("MutationMultipleStudyFilter".equals(targetType)) {
+            MutationMultipleStudyFilter mutationMultipleStudyFilter = (MutationMultipleStudyFilter)targetId;
+            if (mutationMultipleStudyFilter.getMolecularProfileIds() != null) {
+                return hasAccessToMolecularProfiles(authentication, mutationMultipleStudyFilter.getMolecularProfileIds(), permission);
+            }
+            else {
+                return hasAccessToCancerStudiesBySampleMolecularIdentifier(authentication, mutationMultipleStudyFilter.getSampleMolecularIdentifiers(), permission);
+            }
+        }
+        else if ("PatientFilter".equals(targetType)) {
+            return hasAccessToCancerStudies(authentication, (PatientFilter)targetId, permission);
+        }
+        else if ("SampleFilter".equals(targetType)) {
+            return hasAccessToCancerStudies(authentication, (SampleFilter)targetId, permission);
+        }
+        else if ("List<SampleIdentifier>".equals(targetType)) {
+            return hasAccessToCancerStudiesBySampleIdentifier(authentication, (List<SampleIdentifier>)targetId, permission);
+        }
+        else {
             if (log.isDebugEnabled()) {
                 log.debug("hasPermission(), unknown targetType '" + targetType + "'");
             }
@@ -262,6 +315,120 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         }
     }
 
+    private boolean hasAccessToCancerStudies(Authentication authentication, ClinicalAttributeFilter clinicalAttributeFilter, Object permission)
+    {
+        String sampleListId = clinicalAttributeFilter.getSampleListId();
+        if (sampleListId != null) {
+            SampleList sampleList = sampleListRepository.getSampleList(sampleListId);
+            if (sampleList == null || !hasPermission(authentication, sampleList, permission)) {
+                return false;
+            }
+            return true;
+        }
+        else {
+            // use hashset as this list can be populated with many duplicate values
+            Set<String> studyIds = new HashSet<String>();
+            for (SampleIdentifier identifier : clinicalAttributeFilter.getSampleIdentifiers()) {
+                studyIds.add(identifier.getStudyId());
+            }
+            return hasAccessToCancerStudies(authentication, studyIds, permission);
+        }
+    }
+
+    private boolean hasAccessToCancerStudiesBySampleMolecularIdentifier(Authentication authentication, List<SampleMolecularIdentifier> sampleMolecularIdentifiers, Object permission)
+    {
+        // use hashset as this list can be populated with many duplicate values
+        Set<String> molecularProfileIds = new HashSet<String>();
+        for (SampleMolecularIdentifier sampleMolecularIdentifier : sampleMolecularIdentifiers) {
+            molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
+        }
+        return hasAccessToMolecularProfiles(authentication, molecularProfileIds, permission);
+    }
+
+    private boolean hasAccessToCancerStudies(Authentication authentication, ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter, Object permission)
+    {
+        // use hashset as this list can be populated with many duplicate values
+        Set<String> studyIds = new HashSet<String>();
+        for (ClinicalDataIdentifier identifier : clinicalDataMultiStudyFilter.getIdentifiers()) {
+            studyIds.add(identifier.getStudyId());
+        }
+        return hasAccessToCancerStudies(authentication, studyIds, permission);
+    }
+
+    private boolean hasAccessToCancerStudies(Authentication authentication, PatientFilter patientFilter, Object permission)
+    {
+        // use hashset as this list can be populated with many duplicate values
+        Set<String> studyIds = new HashSet<String>();
+        if (patientFilter.getPatientIdentifiers() != null) {
+            for (PatientIdentifier patientIdentifier : patientFilter.getPatientIdentifiers()) {
+                studyIds.add(patientIdentifier.getStudyId());
+            }
+        }
+        else {
+            uniqueKeyExtractor.extractUniqueKeys(patientFilter.getUniquePatientKeys(), studyIds);
+        }
+        return hasAccessToCancerStudies(authentication, studyIds, permission);
+    }
+
+    private boolean hasAccessToCancerStudies(Authentication authentication, SampleFilter sampleFilter, Object permission)
+    {
+        if (sampleFilter.getSampleListIds() != null) {
+            return hasAccessToSampleLists(authentication, sampleFilter.getSampleListIds(), permission);
+        }
+        else if (sampleFilter.getSampleIdentifiers() != null) {
+            return hasAccessToCancerStudiesBySampleIdentifier(authentication, sampleFilter.getSampleIdentifiers(), permission);
+        }
+        else {
+            // use hashset as this list can be populated with many duplicate values
+            Set<String> studyIds = new HashSet<String>();
+            uniqueKeyExtractor.extractUniqueKeys(sampleFilter.getUniqueSampleKeys(), studyIds);
+            return hasAccessToCancerStudies(authentication, studyIds, permission);
+        }
+    }
+
+    private boolean hasAccessToCancerStudiesBySampleIdentifier(Authentication authentication, List<SampleIdentifier> sampleIdentifiers, Object permission)
+    {
+        // use hashset as this list can be populated with many duplicate values
+        Set<String> studyIds = new HashSet<String>();
+        for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
+            studyIds.add(sampleIdentifier.getStudyId());
+        }
+        return hasAccessToCancerStudies(authentication, studyIds, permission);
+    }
+
+    private boolean hasAccessToCancerStudies(Authentication authentication, Collection<String> studyIds, Object permission)
+    {
+        for (String studyId : studyIds) {
+            if (!hasPermission(authentication, studyId, "CancerStudy", permission)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean hasAccessToMolecularProfiles(Authentication authentication, Collection<String> molecularProfileIds, Object permission)
+    {
+        List<String> profileIds = (molecularProfileIds instanceof List) ?
+            (List<String>)molecularProfileIds : new ArrayList<String>(molecularProfileIds);
+        for (MolecularProfile molecularProfile : molecularProfileRepository.getMolecularProfiles(profileIds, "SUMMARY")) {
+            if (molecularProfile == null || !hasPermission(authentication, molecularProfile, permission)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean hasAccessToSampleLists(Authentication authentication, List<String> sampleListIds, Object permission)
+    {
+        for (String sampleListId : sampleListIds) {
+            SampleList sampleList = sampleListRepository.getSampleList(sampleListId);
+            if (sampleList == null || !hasPermission(authentication, sampleList, permission)) {
+                return false;
+            }
+        }
+        return true;
+    }
+     
     /**
      * Helper function to determine if given user has access to given cancer study.
      *

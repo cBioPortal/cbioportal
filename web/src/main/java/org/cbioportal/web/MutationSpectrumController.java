@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -31,6 +32,7 @@ public class MutationSpectrumController {
     @Autowired
     private MutationSpectrumService mutationSpectrumService;
 
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutation-spectrums/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)

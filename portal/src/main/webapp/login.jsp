@@ -165,7 +165,8 @@
                 <% } else if (authenticationMethod.equals("googleplus")) { %>
                   <p>
                     <button onclick="window.location = 'auth/google'" style="padding: 0; border:none; background: none" >
-                      <IMG alt="Google+" src="images/login/googleplus_signin.png"  />
+                        <!-- we need alt != "Google+" because otherwise it gets hidden by Ad Block Plus chrome plugin -->
+                      <IMG alt="cBioPortal Google+ Log-in" src="images/login/googleplus_signin.png"  />
                     </button>
                   </p>
                 </fieldset>

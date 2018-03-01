@@ -31,7 +31,8 @@
     String sampleSetName = request.getAttribute("case_set_name") != null ? (String) request.getAttribute("case_set_name") : "User-defined Patient List";
     String sampleSetDescription = request.getAttribute("case_set_description") != null ? (String) request.getAttribute("case_set_description") : "User-defined Patient List.";
     String sampleIdsKey = request.getAttribute(QueryBuilder.CASE_IDS_KEY) != null ? (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY) : "";
-
+    String caseIds = (String) request.getAttribute(QueryBuilder.CASE_IDS);
+    
     sampleSetName = sampleSetName.replaceAll("'", "\\'");
     sampleSetName = sampleSetName.replaceAll("\"", "\\\"");
     
@@ -76,6 +77,7 @@
         
         theQuery: decodeURIComponent(jspToJs(uri_and_html_decoded_oql) || ""), 
         genesetIds: jspToJs('<%=genesetIds%>'.trim()) || "",
+        caseIds: jspToJs('<%=caseIds%>'),
         studySampleObj: jspToJs('<%=studySampleMapJson%>', JSON.parse)
        	
     };

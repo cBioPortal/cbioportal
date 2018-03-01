@@ -1,7 +1,6 @@
 package org.mskcc.cbio.portal.web;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,7 +33,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,7 +49,7 @@ public class ProxySessionServiceController {
     public @ResponseBody Object getSessionService(
             @PathVariable SessionType type, 
             @PathVariable String      id,
-            HttpServletResponse       response) throws URISyntaxException, IOException {
+            HttpServletResponse       response) throws IOException {
         
         try {
             RestTemplate restTemplate = new RestTemplate();
@@ -72,9 +70,7 @@ public class ProxySessionServiceController {
             }
             return responseEntity.getBody();
         } catch (Exception exception) {
-            exception.printStackTrace();
-            String errorMessage = "Unexpected error: " + exception.getMessage();
-            response.sendError(503, errorMessage);
+            response.sendError(HttpStatus.NOT_FOUND.value());
         }
         return null;
     }

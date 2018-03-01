@@ -47,7 +47,6 @@ public class VirtualStudyData {
 
 	public void setStudies(Set<VirtualStudySamples> studies) {
 		this.studies = studies;
-		this.origin = this.studies.stream().map(map -> map.getId()).collect(Collectors.toSet());
 	}
 
 	public VirtualStudyFilters getFilters() {
@@ -67,6 +66,9 @@ public class VirtualStudyData {
 	}
 
 	public Set<String> getOrigin() {
+		if(origin == null || origin.size() == 0) {
+		    return studies.stream().map(map -> map.getId()).collect(Collectors.toSet());
+		}
 		return origin;
 	}
 

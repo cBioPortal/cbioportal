@@ -63,7 +63,3 @@
 <script type="text/javascript" src="js/src/cbio-stat.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/download-util.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/gene-symbol-validator.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
-<!-- iViz session integration libraries START-->
-<script type="text/javascript" src="js/lib/vc-session.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<!-- iViz session integration libraries END-->

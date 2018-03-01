@@ -42,8 +42,6 @@
     String selectedCancerStudyId =
         (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 
-    String selectedSampleIds =
-        (String) request.getAttribute(QueryBuilder.CASE_IDS);
     if (siteTitle == null) {
         siteTitle = "cBioPortal for Cancer Genomics";
     }
@@ -53,7 +51,6 @@
 <%
     request.setAttribute("index.jsp", Boolean.TRUE);
     request.setAttribute("selectedCancerStudyId", selectedCancerStudyId);
-    request.setAttribute("selectedSampleIds", selectedSampleIds);
 %>
 
 <t:template title="<%=siteTitle%>" cssClass="homePage" defaultRightColumn="true" twoColumn="true" fixedWidth="false">
@@ -68,8 +65,6 @@
                 // This means no study selected
                 window.selectedCancerStudyId = "";
             }
-
-            window.selectedSampleIds = '${selectedSampleIds}'.replace(/\|/g,':').replace(/\+/g, '\n');
 
             window.loadReactApp({ defaultRoute: 'home' });
         </script>

@@ -287,25 +287,27 @@
         var studyIds = Object.keys(studyCasesMap);
 
         var getVirtualStudies = function(){
-        	    var _def = new $.Deferred();
-             $.ajax({
-                 method: 'GET',
-                 url: window.cbioURL+'api-legacy/proxy/session/virtual_study'
-             }).done(function(response){
-                 _def.resolve(response)
-             });
-             return _def.promise();
+        	    var def = new $.Deferred();
+        	    $.get(window.cbioURL+'api-legacy/proxy/session/virtual_study')
+            .done(function(response){
+                def.resolve(response)
+            })
+            .fail(function(error) {
+                def.reject(error);
+            });
+            return def.promise();
         }
 
         var getVirtualStudy = function(id){
-            var _def = new $.Deferred();
-            $.ajax({
-                method: 'GET',
-                url: window.cbioURL+'api-legacy/proxy/session/virtual_study/'+id
-            }).done(function(response){
-                _def.resolve(response)
+            var def = new $.Deferred();
+            $.get(window.cbioURL+'api-legacy/proxy/session/virtual_study/'+id)
+            .done(function(response){
+            	    def.resolve(response)
+            })
+            .fail(function(error) {
+                def.reject(error);
             });
-            return _def.promise();
+            return def.promise();
         }
         
         var getPhysicalStudies = function(){

@@ -410,7 +410,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     {
         List<String> profileIds = (molecularProfileIds instanceof List) ?
             (List<String>)molecularProfileIds : new ArrayList<String>(molecularProfileIds);
-        for (MolecularProfile molecularProfile : molecularProfileRepository.getMolecularProfiles(profileIds, "SUMMARY")) {
+        for (MolecularProfile molecularProfile : molecularProfileRepository.getMolecularProfiles(profileIds, "DETAILED")) {
             if (molecularProfile == null || !hasPermission(authentication, molecularProfile, permission)) {
                 return false;
             }
@@ -420,8 +420,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
     private boolean hasAccessToSampleLists(Authentication authentication, List<String> sampleListIds, Object permission)
     {
-        for (String sampleListId : sampleListIds) {
-            SampleList sampleList = sampleListRepository.getSampleList(sampleListId);
+        for (SampleList sampleList : sampleListRepository.getSampleLists(sampleListIds, "DETAILED")) {
             if (sampleList == null || !hasPermission(authentication, sampleList, permission)) {
                 return false;
             }

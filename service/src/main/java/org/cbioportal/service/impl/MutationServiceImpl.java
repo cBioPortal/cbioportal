@@ -12,7 +12,6 @@ import org.cbioportal.service.MutationService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.ChromosomeCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -40,7 +39,6 @@ public class MutationServiceImpl implements MutationService {
     private OffsetCalculator offsetCalculator;
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
                                                                        List<Integer> entrezGeneIds, Boolean snpOnly,
                                                                        Boolean includeNonMutated, String projection, 
@@ -62,7 +60,6 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public MutationMeta getMetaMutationsInMolecularProfileBySampleListId(String molecularProfileId, 
                                                                          String sampleListId, 
                                                                          List<Integer> entrezGeneIds,
@@ -83,7 +80,6 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
     public List<Mutation> getMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
                                                                   List<String> sampleIds, List<Integer> entrezGeneIds, 
                                                                   Boolean includeNonMutated, String projection, 
@@ -98,7 +94,6 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
     public MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                     List<String> sampleIds, 
                                                                     List<Integer> entrezGeneIds, 
@@ -116,7 +111,6 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<Mutation> fetchMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
                                                            List<Integer> entrezGeneIds, Boolean snpOnly,
                                                            Boolean includeNonMutated, String projection, 
@@ -137,7 +131,6 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public MutationMeta fetchMetaMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
                                                              List<Integer> entrezGeneIds, Boolean includeNonMutated)
         throws MolecularProfileNotFoundException {
@@ -155,7 +148,6 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<MutationCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
                                                                                List<String> sampleIds,
                                                                                List<Integer> entrezGeneIds)
@@ -168,7 +160,6 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
                                                                                 List<String> patientIds,
                                                                                 List<Integer> entrezGeneIds)
@@ -181,7 +172,6 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<MutationCount> getMutationCountsInMolecularProfileBySampleListId(String molecularProfileId,
                                                                                  String sampleListId)
         throws MolecularProfileNotFoundException {
@@ -192,7 +182,6 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<MutationCount> fetchMutationCountsInMolecularProfile(String molecularProfileId, List<String> sampleIds)
         throws MolecularProfileNotFoundException {
 

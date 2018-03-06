@@ -40,7 +40,6 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -55,7 +54,6 @@ public class GenesetDataServiceImpl implements GenesetDataService {
     @Autowired
     private SampleListService sampleListService;
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<GenesetMolecularData> fetchGenesetData(String molecularProfileId, List<String> sampleIds, List<String> genesetIds)
             throws MolecularProfileNotFoundException {
 
@@ -104,7 +102,6 @@ public class GenesetDataServiceImpl implements GenesetDataService {
         return genesetDataList;
     }
 
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
     public List<GenesetMolecularData> fetchGenesetData(String geneticProfileId, String sampleListId, List<String> genesetIds) 
             throws MolecularProfileNotFoundException, SampleListNotFoundException {
 

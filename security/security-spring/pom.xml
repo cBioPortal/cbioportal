@@ -17,7 +17,7 @@
     <dependencies>
       <dependency>
         <groupId>org.mskcc.cbio</groupId>
-        <artifactId>persistence-mybatis</artifactId>
+        <artifactId>web</artifactId>
         <version>${project.version}</version>
       </dependency>
       <!-- Spring Security -->

@@ -5,8 +5,9 @@ import org.cbioportal.web.SampleController;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.io.Serializable;
 
-public class SampleFilter {
+public class SampleFilter implements Serializable {
     
     @Size(min = 1, max = SampleController.SAMPLE_MAX_PAGE_SIZE)
     private List<SampleIdentifier> sampleIdentifiers;

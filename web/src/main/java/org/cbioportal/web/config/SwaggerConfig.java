@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import springfox.documentation.swagger.web.UiConfiguration;
+import springfox.documentation.swagger.web.UiConfigurationBuilder;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,6 +43,14 @@ public class SwaggerConfig {
             .useDefaultResponseMessages(false)
             .protocols(new HashSet<>(Arrays.asList("http", "https")))
             .apiInfo(apiInfo());
+    }
+
+    @Bean
+    UiConfiguration uiConfig() {
+        return UiConfigurationBuilder.builder()
+            .displayRequestDuration(true)
+            .validatorUrl("")
+            .build();
     }
 
     private ApiInfo apiInfo() {

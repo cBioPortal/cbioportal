@@ -24,6 +24,9 @@
            </b:property>
         </b:bean>
 
+    <!-- We are autowiring some components from web into the customPermissionEvaluator below -->
+    <context:component-scan base-package="org.cbioportal.web.util" />
+
     <!-- support for general annotations within class definitions (used in AccessControl) -->
     <context:annotation-config/>
 
@@ -48,8 +51,10 @@
     <http pattern="/gfx/**" security="none"/>
     <http pattern="/saml/gfx/**" security="none"/>
     <http pattern="/reactapp/**" security="none"/>
+    <http pattern="/api/swagger-resources/**" security="none"/>
+    <http pattern="/api/swagger-ui.html" security="none"/>
         
-    <!-- this must come before the default entry point which will capture everything not matched by pattern -->
+    <!-- This must come before the default entry point which will capture everything not matched by pattern -->
     <http use-expressions="true" pattern="/api/**" entry-point-ref="restAuthenticationEntryPoint" create-session="never">
         <intercept-url pattern="/**" access="isAuthenticated()"/>
     </http>

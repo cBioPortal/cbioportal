@@ -46,7 +46,6 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -63,7 +62,6 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
     @Autowired
     private SampleListService sampleListService;
 	
-	@PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
 	public List<GenesetHierarchyInfo> fetchGenesetHierarchyInfo(String geneticProfileId, Integer percentile, 
 			Double scoreThreshold, Double pvalueThreshold) throws MolecularProfileNotFoundException {
 		
@@ -75,7 +73,6 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 		return fetchGenesetHierarchyInfo(geneticProfileId, percentile, scoreThreshold, pvalueThreshold, sampleIds);
 	}
 
-	@PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
 	public List<GenesetHierarchyInfo> fetchGenesetHierarchyInfo(String geneticProfileId, Integer percentile,
 			Double scoreThreshold, Double pvalueThreshold, String sampleListId) throws MolecularProfileNotFoundException, SampleListNotFoundException {
 		
@@ -84,7 +81,6 @@ public class GenesetHierarchyServiceImpl implements GenesetHierarchyService {
 		return fetchGenesetHierarchyInfo(geneticProfileId, percentile, scoreThreshold, pvalueThreshold, sampleIds);
 	}
 
-	@PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
 	public List<GenesetHierarchyInfo> fetchGenesetHierarchyInfo(String geneticProfileId, Integer percentile,
 			Double scoreThreshold, Double pvalueThreshold, List<String> sampleIds) throws MolecularProfileNotFoundException {
 

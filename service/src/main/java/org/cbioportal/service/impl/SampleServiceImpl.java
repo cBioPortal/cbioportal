@@ -13,7 +13,6 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -39,7 +38,6 @@ public class SampleServiceImpl implements SampleService {
     private CopyNumberSegmentRepository copyNumberSegmentRepository;
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<Sample> getAllSamplesInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber,
                                              String sortBy, String direction) throws StudyNotFoundException {
 
@@ -52,7 +50,6 @@ public class SampleServiceImpl implements SampleService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaSamplesInStudy(String studyId) throws StudyNotFoundException {
 
         studyService.getStudy(studyId);
@@ -61,7 +58,6 @@ public class SampleServiceImpl implements SampleService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public Sample getSampleInStudy(String studyId, String sampleId) throws SampleNotFoundException,
         StudyNotFoundException {
 
@@ -77,7 +73,6 @@ public class SampleServiceImpl implements SampleService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<Sample> getAllSamplesOfPatientInStudy(String studyId, String patientId, String projection,
                                                       Integer pageSize, Integer pageNumber, String sortBy,
                                                       String direction) throws StudyNotFoundException,
@@ -92,7 +87,6 @@ public class SampleServiceImpl implements SampleService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaSamplesOfPatientInStudy(String studyId, String patientId) throws StudyNotFoundException,
         PatientNotFoundException {
 
@@ -102,7 +96,6 @@ public class SampleServiceImpl implements SampleService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<Sample> getAllSamplesOfPatientsInStudy(String studyId, List<String> patientIds, String projection) {
 
         List<Sample> samples = sampleRepository.getAllSamplesOfPatientsInStudy(studyId, patientIds, projection);
@@ -112,7 +105,6 @@ public class SampleServiceImpl implements SampleService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {
 
         List<Sample> samples = sampleRepository.fetchSamples(studyIds, sampleIds, projection);
@@ -121,28 +113,23 @@ public class SampleServiceImpl implements SampleService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#sampleListIds, 'List<SampleListId>', 'read')")
 	public List<Sample> fetchSamples(List<String> sampleListIds, String projection) {
         
         return sampleRepository.fetchSamples(sampleListIds, projection);
 	}
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     public BaseMeta fetchMetaSamples(List<String> studyIds, List<String> sampleIds) {
 
         return sampleRepository.fetchMetaSamples(studyIds, sampleIds);
     }
 
     @Override
-    @PreAuthorize("hasPermission(#sampleListIds, 'List<SampleListId>', 'read')")
 	public BaseMeta fetchMetaSamples(List<String> sampleListIds) {
         
         return sampleRepository.fetchMetaSamples(sampleListIds);
 	}
 
-    // this is not secured as it is only used interally by other services which have
-    // already had permissions checked
     @Override
     public List<Sample> getSamplesByInternalIds(List<Integer> internalIds) {
 

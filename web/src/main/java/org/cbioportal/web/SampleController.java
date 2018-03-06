@@ -10,9 +10,9 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
-import org.cbioportal.web.interceptor.UniqueKeyInterceptor;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.SampleSortBy;
+import org.cbioportal.web.util.UniqueKeyExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,11 +25,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 @PublicApi
@@ -38,14 +38,16 @@ import java.util.List;
 @Api(tags = "Samples", description = " ")
 public class SampleController {
 
-    private static final Base64.Decoder BASE64_DECODER = Base64.getDecoder();
-
     public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
     private static final String SAMPLE_DEFAULT_PAGE_SIZE = "10000000";
 
     @Autowired
     private SampleService sampleService;
 
+    @Autowired
+    private UniqueKeyExtractor uniqueKeyExtractor;
+
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/samples", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all samples in a study")
@@ -78,6 +80,7 @@ public class SampleController {
         }
     }
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get a sample in a study")
@@ -90,6 +93,7 @@ public class SampleController {
         return new ResponseEntity<>(sampleService.getSampleInStudy(studyId, sampleId), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/samples", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all samples of a patient in a study")
@@ -125,6 +129,7 @@ public class SampleController {
         }
     }
 
+    @PreAuthorize("hasPermission(#sampleFilter, 'SampleFilter', 'read')")
     @RequestMapping(value = "/samples/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch samples by ID")
@@ -147,7 +152,7 @@ public class SampleController {
                 if (sampleFilter.getSampleIdentifiers() != null) {
                     extractStudyAndSampleIds(sampleFilter, studyIds, sampleIds);
                 } else {
-                    extractUniqueSampleKeys(sampleFilter, studyIds, sampleIds);
+                    uniqueKeyExtractor.extractUniqueKeys(sampleFilter.getUniqueSampleKeys(), studyIds, sampleIds);
                 }
                 baseMeta = sampleService.fetchMetaSamples(studyIds, sampleIds);
             }
@@ -162,7 +167,7 @@ public class SampleController {
                 if (sampleFilter.getSampleIdentifiers() != null) {
                     extractStudyAndSampleIds(sampleFilter, studyIds, sampleIds);
                 } else {
-                    extractUniqueSampleKeys(sampleFilter, studyIds, sampleIds);
+                    uniqueKeyExtractor.extractUniqueKeys(sampleFilter.getUniqueSampleKeys(), studyIds, sampleIds);
                 }
                 samples = sampleService.fetchSamples(studyIds, sampleIds, projection.name());
             }
@@ -176,18 +181,6 @@ public class SampleController {
         for (SampleIdentifier sampleIdentifier : sampleFilter.getSampleIdentifiers()) {
             studyIds.add(sampleIdentifier.getStudyId());
             sampleIds.add(sampleIdentifier.getSampleId());
-        }
-    }
-
-    private void extractUniqueSampleKeys(SampleFilter sampleFilter, List<String> studyIds, List<String> sampleIds) {
-
-        for (String uniqueSampleKey : sampleFilter.getUniqueSampleKeys()) {
-            String uniqueSampleId = new String(BASE64_DECODER.decode(uniqueSampleKey));
-            String[] sampleAndStudyId = uniqueSampleId.split(UniqueKeyInterceptor.DELIMITER);
-            if (sampleAndStudyId.length == 2) {
-                sampleIds.add(sampleAndStudyId[0]);
-                studyIds.add(sampleAndStudyId[1]);
-            }
         }
     }
 }

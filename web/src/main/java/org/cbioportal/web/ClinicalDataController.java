@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -49,6 +50,7 @@ public class ClinicalDataController {
     @Autowired
     private ClinicalDataService clinicalDataService;
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/clinical-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical data of a sample in a study")
@@ -87,6 +89,7 @@ public class ClinicalDataController {
         }
     }
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/clinical-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical data of a patient in a study")
@@ -125,6 +128,7 @@ public class ClinicalDataController {
         }
     }
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/clinical-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical data in a study")
@@ -162,6 +166,7 @@ public class ClinicalDataController {
         }
     }
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/clinical-data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data by patient IDs or sample IDs (specific study)")
@@ -189,6 +194,7 @@ public class ClinicalDataController {
         }
     }
 
+    @PreAuthorize("hasPermission(#clinicalDataMultiStudyFilter, 'ClinicalDataMultiStudyFilter', 'read')")
     @RequestMapping(value = "/clinical-data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data by patient IDs or sample IDs (all studies)")

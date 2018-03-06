@@ -5,7 +5,6 @@ import org.cbioportal.model.FractionGenomeAltered;
 import org.cbioportal.service.CopyNumberSegmentService;
 import org.cbioportal.service.FractionGenomeAlteredService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,7 +20,6 @@ public class FractionGenomeAlteredServiceImpl implements FractionGenomeAlteredSe
     private CopyNumberSegmentService copyNumberSegmentService;
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<FractionGenomeAltered> getFractionGenomeAltered(String studyId, String sampleListId, Double cutoff) {
 
         List<CopyNumberSeg> copyNumberSegList = copyNumberSegmentService
@@ -30,7 +28,6 @@ public class FractionGenomeAlteredServiceImpl implements FractionGenomeAlteredSe
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<FractionGenomeAltered> fetchFractionGenomeAltered(String studyId, List<String> sampleIds,
                                                                   Double cutoff) {
         

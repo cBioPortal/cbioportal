@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -70,6 +71,7 @@ public class SampleListController {
         }
     }
 
+    @PreAuthorize("hasPermission(#sampleListId, 'SampleList', 'read')")
     @RequestMapping(value = "/sample-lists/{sampleListId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get sample list")
@@ -80,6 +82,7 @@ public class SampleListController {
         return new ResponseEntity<>(sampleListService.getSampleList(sampleListId), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/sample-lists", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all sample lists in a study")
@@ -112,6 +115,7 @@ public class SampleListController {
         }
     }
 
+    @PreAuthorize("hasPermission(#sampleListId, 'SampleList', 'read')")
     @RequestMapping(value = "/sample-lists/{sampleListId}/sample-ids", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all sample IDs in a sample list")
@@ -122,6 +126,7 @@ public class SampleListController {
         return new ResponseEntity<>(sampleListService.getAllSampleIdsInSampleList(sampleListId), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#sampleListIds, 'List<SampleListId>', 'read')")
     @RequestMapping(value = "/sample-lists/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
     produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample lists by ID")

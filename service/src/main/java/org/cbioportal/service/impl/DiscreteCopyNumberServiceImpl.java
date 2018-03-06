@@ -12,7 +12,6 @@ import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -31,7 +30,6 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     private MolecularProfileService molecularProfileService;
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMolecularProfileBySampleListId(
         String molecularProfileId,
         String sampleListId,
@@ -52,7 +50,6 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public BaseMeta getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(String molecularProfileId,
                                                                                String sampleListId,
                                                                                List<Integer> entrezGeneIds,
@@ -75,7 +72,6 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<DiscreteCopyNumberData> fetchDiscreteCopyNumbersInMolecularProfile(String molecularProfileId,
                                                                                    List<String> sampleIds,
                                                                                    List<Integer> entrezGeneIds,
@@ -95,7 +91,6 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public BaseMeta fetchMetaDiscreteCopyNumbersInMolecularProfile(String molecularProfileId,
                                                                    List<String> sampleIds,
                                                                    List<Integer> entrezGeneIds,
@@ -118,7 +113,6 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(
         String molecularProfileId,
         List<String> sampleIds,
@@ -140,7 +134,6 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<CopyNumberCount> fetchCopyNumberCounts(String molecularProfileId, List<Integer> entrezGeneIds,
                                                        List<Integer> alterations)
         throws MolecularProfileNotFoundException {

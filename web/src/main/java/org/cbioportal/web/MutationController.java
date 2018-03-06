@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -53,6 +54,7 @@ public class MutationController {
     @Autowired
     private MutationService mutationService;
 
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutations", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get mutations in a molecular profile by Sample List ID")
@@ -89,6 +91,7 @@ public class MutationController {
         }
     }
 
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutations/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutations in a molecular profile")
@@ -145,6 +148,7 @@ public class MutationController {
         }
     }
 
+    @PreAuthorize("hasPermission(#mutationMultipleStudyFilter, 'MutationMultipleStudyFilter', 'read')")
     @RequestMapping(value = "/mutations/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutations in multiple molecular profiles by sample IDs")
@@ -207,6 +211,7 @@ public class MutationController {
         }
     }
 
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutation-counts", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get mutation counts in a molecular profile by Sample List ID")
@@ -220,6 +225,7 @@ public class MutationController {
             molecularProfileId, sampleListId), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutation-counts/fetch", 
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
         produces = MediaType.APPLICATION_JSON_VALUE)

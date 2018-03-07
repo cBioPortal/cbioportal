@@ -817,7 +817,7 @@ window.DataManagerForIviz = (function($, _) {
           if (_.isObject(configs_)) {
             fetch_promise.resolve(configs_);
           } else {
-            $.getJSON(window.cbioResourceURL + 'configs.json')
+            $.getJSON(window.cbioResourceURL + 'configs.json?' + appVersion)
               .then(function(data) {
                 var configs = {
                   styles: {

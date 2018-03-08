@@ -101,7 +101,7 @@ public final class DaoMutation {
         MySQLbulkLoader.getMySQLbulkLoader("mutation_event").insertRecord(
                 Long.toString(event.getMutationEventId()),
                 Long.toString(event.getGene().getEntrezGeneId()),
-                Integer.toString(DaoReferenceGenome.getInstance().getReferenceGenomeByName(event.getNcbiBuild())),
+                Integer.toString(DaoReferenceGenome.getReferenceGenomeIdByName(event.getNcbiBuild())),
                 event.getChr(),
                 Long.toString(event.getStartPosition()),
                 Long.toString(event.getEndPosition()),

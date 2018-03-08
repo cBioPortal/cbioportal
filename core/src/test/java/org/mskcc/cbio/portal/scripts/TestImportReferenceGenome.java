@@ -62,8 +62,7 @@ public class TestImportReferenceGenome {
      * in genes_test.txt. The file genes_test.txt contains real data.
      */
     public void testImportReferenceGenome() throws Exception {
-
-        DaoReferenceGenome daoGenome = DaoReferenceGenome.getInstance();
+        
         ProgressMonitor.setConsoleMode(false);
 
         File file = new File("src/test/resources/reference_genomes.txt");
@@ -71,10 +70,10 @@ public class TestImportReferenceGenome {
         ImportReferenceGenome.importData(file);
         
 
-        ReferenceGenome genome = daoGenome.getReferenceGenomeByInternalId(1);
+        ReferenceGenome genome = DaoReferenceGenome.getReferenceGenomeByInternalId(1);
         assertEquals("GRCh37", genome.getBuildName());
         
-        assertEquals(2, daoGenome.getReferenceGenomeByName("GRCh38"));
+        assertEquals(1, DaoReferenceGenome.getReferenceGenomeIdByName("GRCh37"));
 
 
     }

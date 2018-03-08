@@ -230,7 +230,7 @@ public class GeneticProfileReader {
         String genomeBuild = properties.getProperty("reference_genome_id");
         int referenceGenomeId = 1;
         if (genomeBuild != null && !genomeBuild.isEmpty()) {
-            referenceGenomeId = DaoReferenceGenome.getInstance().getReferenceGenomeByName(genomeBuild);
+            referenceGenomeId = DaoReferenceGenome.getReferenceGenomeIdByName(genomeBuild);
         }
 
         

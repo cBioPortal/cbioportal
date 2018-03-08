@@ -19,30 +19,69 @@ package org.mskcc.cbio.portal.dao;
 
 import java.sql.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.SpringUtil;
+
+import java.util.*;
 
 
 /**
  * Adding or updating Reference Genomes used by molecular profiling
  * @author Kelsey Zhu
  */
-public class DaoReferenceGenome {
-    private static DaoReferenceGenome instance = null;
+public final class DaoReferenceGenome {
 
-    protected DaoReferenceGenome() {}
-
-    public static DaoReferenceGenome getInstance() {
-        if (instance == null) {
-            instance = new DaoReferenceGenome();
-        }
-        return instance;
+    private static final Map<String,ReferenceGenome> byGenomeBuild = new HashMap<String,ReferenceGenome>();
+    private static final Map<String,ReferenceGenome> byGenomeName = new HashMap<String,ReferenceGenome>();
+    private static final Map<Integer,ReferenceGenome> byGenomeInternalId = new HashMap<Integer,ReferenceGenome>();
+    private static final Map<String, Integer> genomeInternalIds = new HashMap<String,Integer>();
+    
+    static {
+        SpringUtil.initDataSource();
+        reCache(); 
     }
+    
+    private static synchronized void clearCache() {
+        byGenomeBuild.clear();
+        byGenomeInternalId.clear();
+        byGenomeName.clear();
+        genomeInternalIds.clear();
+    }
+    
+    private static synchronized void addCache(ReferenceGenome referenceGenome) {
+        byGenomeBuild.put(referenceGenome.getBuildName(), referenceGenome);
+        byGenomeName.put(referenceGenome.getGenomeName(), referenceGenome);
+        byGenomeInternalId.put(referenceGenome.getReferenceGenomeId(), referenceGenome);
+        genomeInternalIds.put(referenceGenome.getBuildName(), referenceGenome.getReferenceGenomeId());
+    }
+                
+    private static synchronized void reCache() {
+        clearCache();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoReferenceGenome.class);
+            pstmt = con.prepareStatement("SELECT * FROM reference_genome");
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                ReferenceGenome referenceGenome = extractReferenceGenome(rs);
+                addCache(referenceGenome);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            JdbcUtil.closeAll(DaoReferenceGenome.class, con, pstmt, rs);
+        }
+    }
+    
+    
     /**
      * Add a new reference genome to the Database.
      *
      * @param referenceGenome   Reference Genome.
      * @throws DaoException Database Error.
      */
-    public void addReferenceGenome(ReferenceGenome referenceGenome) throws DaoException {
+    public static void addReferenceGenome(ReferenceGenome referenceGenome) throws DaoException {
         addReferenceGenome(referenceGenome, false);
     }
 
@@ -52,7 +91,7 @@ public class DaoReferenceGenome {
      * @param overwrite if true, overwrite if exist.
      * @throws DaoException
      */
-    public void addReferenceGenome(ReferenceGenome referenceGenome, boolean overwrite) throws DaoException {
+    public static void addReferenceGenome(ReferenceGenome referenceGenome, boolean overwrite) throws DaoException {
 
         ReferenceGenome existing = getReferenceGenomeByInternalId(referenceGenome.getReferenceGenomeId());
         if (existing!=null) {
@@ -62,33 +101,37 @@ public class DaoReferenceGenome {
                 updateReferenceGenome(referenceGenome);
             }
         }
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
-            pstmt = con.prepareStatement("INSERT INTO reference_genome " +
-                    "( `species`, `name`, "
-                    + "`build_name`, `genome_size`, `URL`, "
-                    + " `release_date` ) VALUES (?,?,?,?,?,?)",
-                Statement.RETURN_GENERATED_KEYS);
-            pstmt.setString(1, referenceGenome.getSpecies());
-            pstmt.setString(2, referenceGenome.getGenomeName());
-            pstmt.setString(3, referenceGenome.getBuildName());
-            pstmt.setLong(4, referenceGenome.getGenomeSize());
-            pstmt.setString(5, referenceGenome.getUrl());
-            pstmt.setDate(6, new java.sql.Date(referenceGenome.getReleaseDate().getTime()));
+        else {
+            Connection con = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            try {
+                con = JdbcUtil.getDbConnection(DaoReferenceGenome.class);
+                pstmt = con.prepareStatement("INSERT INTO reference_genome " +
+                        "( `species`, `name`, "
+                        + "`build_name`, `genome_size`, `URL`, "
+                        + " `release_date` ) VALUES (?,?,?,?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS);
+                pstmt.setString(1, referenceGenome.getSpecies());
+                pstmt.setString(2, referenceGenome.getGenomeName());
+                pstmt.setString(3, referenceGenome.getBuildName());
+                pstmt.setLong(4, referenceGenome.getGenomeSize());
+                pstmt.setString(5, referenceGenome.getUrl());
+                pstmt.setDate(6, new java.sql.Date(referenceGenome.getReleaseDate().getTime()));
 
-            pstmt.executeUpdate();
-            rs = pstmt.getGeneratedKeys();
-            if (rs.next()) {
-                int autoId = rs.getInt(1);
-                referenceGenome.setReferenceGenomeId(autoId);
+                pstmt.executeUpdate();
+                rs = pstmt.getGeneratedKeys();
+                if (rs.next()) {
+                    int autoId = rs.getInt(1);
+                    referenceGenome.setReferenceGenomeId(autoId);
+                }
+                // update reference cache
+                addCache(referenceGenome);
+            } catch (SQLException e) {
+                throw new DaoException(e);
+            } finally {
+                JdbcUtil.closeAll(DaoReferenceGenome.class, con, pstmt, rs);
             }
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoReferenceGenome.class, con, pstmt, rs);
         }
     }
 
@@ -96,7 +139,7 @@ public class DaoReferenceGenome {
      * Deletes all Reference Genomes.
      * @throws DaoException Database Error.
      */
-    public void deleteAllRecords() throws DaoException {
+    public static void deleteAllRecords() throws DaoException {
 
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -107,6 +150,8 @@ public class DaoReferenceGenome {
             pstmt = con.prepareStatement("TRUNCATE TABLE reference_genome");
             pstmt.executeUpdate();
             JdbcUtil.enableForeignKeyCheck(con);
+            // clear cache
+            clearCache();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -119,7 +164,7 @@ public class DaoReferenceGenome {
      * @param referenceGenome Reference Genome Object
      * @throws DaoException
      */
-    public int updateReferenceGenome(ReferenceGenome referenceGenome) throws DaoException {
+    public static int updateReferenceGenome(ReferenceGenome referenceGenome) throws DaoException {
 
         ReferenceGenome existing = getReferenceGenomeByInternalId(referenceGenome.getReferenceGenomeId());
         if (existing==null) {
@@ -130,7 +175,7 @@ public class DaoReferenceGenome {
         ResultSet rs = null;
         int rows = 0;
         try {
-            con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
+            con = JdbcUtil.getDbConnection(DaoReferenceGenome.class);
             pstmt = con.prepareStatement("UPDATE reference_genome " +
                     "SET `species`=?, `name`=?, "
                     + "`build_name`=?, `genome_size`=?, `URL`=?, "
@@ -143,6 +188,8 @@ public class DaoReferenceGenome {
             pstmt.setDate(6, new java.sql.Date(referenceGenome.getReleaseDate().getTime()));
             pstmt.setInt(7, referenceGenome.getReferenceGenomeId());
             rows += pstmt.executeUpdate();
+            // update reference cache
+            reCache();
             return rows;
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -157,54 +204,43 @@ public class DaoReferenceGenome {
      * @throws DaoException Database Error.
      */
 
-    public ReferenceGenome getReferenceGenomeByInternalId(int internalId) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoReferenceGenome.class);
-            pstmt = con.prepareStatement("SELECT * FROM reference_genome where reference_genome_id = ?");
-            pstmt.setInt(1, internalId);
-            rs = pstmt.executeQuery();
-            if (rs.next()) {
-                ReferenceGenome referenceGenome = extractReferenceGenome(rs);
-                return referenceGenome;
-            } else {
-                return null;
-            }
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoReferenceGenome.class, con, pstmt, rs);
-        }
+    public static ReferenceGenome getReferenceGenomeByInternalId(int internalId) throws DaoException {
+        return byGenomeInternalId.get(internalId);
     }
 
     /**
-     * Retrieve reference genome of interest by genome name or genome assembly name
-     * @param name   Name of Reference Genome or Genome Assembly
+     * Retrieve reference genome by genome build name
+     * @param buildName   Reference Genome build name
      * @throws DaoException Database Error.
      */
 
-    public int getReferenceGenomeByName(String name) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
+    public static ReferenceGenome getReferenceGenomeByBuildName(String buildName) throws DaoException {
+        return byGenomeBuild.get(buildName);
+    }
+
+
+    /**
+     * Retrieve reference genome by genome build name
+     * @param genomeName   Reference Genome build name
+     * @throws DaoException Database Error.
+     */
+
+    public static ReferenceGenome getReferenceGenomeByGenomeName(String genomeName) throws DaoException {
+        return byGenomeName.get(genomeName);
+    }
+    
+    
+    /**
+     * Retrieve reference genome of interest by genome name or genome assembly name
+     * @param buildName   Name of Reference Genome or Genome Assembly
+     * @throws DaoException Database Error.
+     */
+
+    public static int getReferenceGenomeIdByName(String buildName) throws DaoException {
         try {
-            con = JdbcUtil.getDbConnection(DaoReferenceGenome.class);
-            pstmt = con.prepareStatement("SELECT * FROM reference_genome WHERE name = ? OR build_name = ?");
-            pstmt.setString(1, name);
-            pstmt.setString(2,name);
-            rs = pstmt.executeQuery();
-            if (rs.next()) {
-                ReferenceGenome referenceGenome = extractReferenceGenome(rs);
-                return referenceGenome.getReferenceGenomeId();
-            } else {
-                return -1;
-            }
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoReferenceGenome.class, con, pstmt, rs);
+            return genomeInternalIds.get(buildName);
+        } catch (java.lang.NullPointerException exp) {
+            return ReferenceGenome.REFERENCE_GENOME_ID; // NCBI_BUILD field was an optional in the past
         }
     }
 
@@ -212,7 +248,7 @@ public class DaoReferenceGenome {
      * Extracts Reference Genome JDBC Results.
      * @param rs JDBC Result Set
      */
-    private ReferenceGenome extractReferenceGenome(ResultSet rs) throws SQLException {
+    private static ReferenceGenome extractReferenceGenome(ResultSet rs) throws SQLException {
         ReferenceGenome referenceGenome = new ReferenceGenome(
             rs.getString("SPECIES"),
             rs.getString("NAME"),

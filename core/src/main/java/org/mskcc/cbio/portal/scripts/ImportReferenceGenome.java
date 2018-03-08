@@ -92,20 +92,19 @@ public class ImportReferenceGenome extends ConsoleRunnable {
      * @throws DaoException
      */
     private static void addReferenceGenomesToDB(Set<ReferenceGenome> referenceGenomes) throws DaoException {
-
-        DaoReferenceGenome daoReferenceGenome = DaoReferenceGenome.getInstance();
+        
         
         int nrExisting = 0;
         for (ReferenceGenome refGenome: referenceGenomes) {
-            if (daoReferenceGenome.getReferenceGenomeByInternalId(refGenome.getReferenceGenomeId()) != null) {
+            if (DaoReferenceGenome.getReferenceGenomeByInternalId(refGenome.getReferenceGenomeId()) != null) {
                 ProgressMonitor.logWarning("Reference genome updated");
-                int rows = daoReferenceGenome.updateReferenceGenome(refGenome);
+                int rows = DaoReferenceGenome.updateReferenceGenome(refGenome);
                 if (rows != 1) {
                     ProgressMonitor.logWarning("No change for " + refGenome.getGenomeName());
                 }
             } else {
                 ProgressMonitor.logWarning("New reference genome added");
-                daoReferenceGenome.addReferenceGenome(refGenome);
+                DaoReferenceGenome.addReferenceGenome(refGenome);
             }
         }
     }

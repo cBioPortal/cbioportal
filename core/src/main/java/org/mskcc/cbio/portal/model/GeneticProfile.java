@@ -33,7 +33,7 @@
 package org.mskcc.cbio.portal.model;
 
 import java.util.Properties;
-
+import org.mskcc.cbio.portal.model.ReferenceGenome;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
@@ -56,6 +56,7 @@ public class GeneticProfile {
       super();
    }
 
+   @Deprecated
    public GeneticProfile(String stableId, int cancerStudyId, GeneticAlterationType geneticAlterationType,
 						 String datatype, String profileName, String profileDescription, boolean showProfileInAnalysisTab) {
       this();
@@ -66,7 +67,7 @@ public class GeneticProfile {
       this.profileName = profileName;
       this.profileDescription = profileDescription;
       this.showProfileInAnalysisTab = showProfileInAnalysisTab;
-      this.referenceGenomeId = 1;
+      this.referenceGenomeId = ReferenceGenome.REFERENCE_GENOME_ID;
    }
 
 
@@ -87,6 +88,7 @@ public class GeneticProfile {
        this.setGeneticProfileId(template.geneticProfileId);
        this.setTargetLine(template.getTargetLine());
        this.setOtherMetadataFields(template.getAllOtherMetadataFields());
+       this.setReferenceGenomeId(template.getReferenceGenomeId());
    }
 
    public int getGeneticProfileId() {

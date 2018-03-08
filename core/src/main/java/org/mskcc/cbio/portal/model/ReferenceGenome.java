@@ -35,6 +35,7 @@ public class ReferenceGenome {
     private long genomeSize; //non-N bases
     private String url;
     private Date releaseDate;
+    public static final int REFERENCE_GENOME_ID = 1;
 
 
     /**

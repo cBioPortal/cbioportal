@@ -5,7 +5,7 @@ This manual is intended to guide you to load new reference genome(s) to the data
 A digital nucleic acid sequence database assembled by scientists as a representative example of a species' set of genes. Reference genomes can be accessed online using dedicated browsers such as Ensembl or UCSC Genome Browser. 
 
 ### Why does reference genomes matter?
-Raw reads from sample tissue are often aligned to a particular reference genome. Choose the same reference genome used by the alignment help us accurately identify the chromosomal location of the gene and the position of cyto-genetic bands within a chromosome. 
+Some of the views in cBioPortal rely on the reference genome version matching the reference genome version used to analyse the original data (before it was loaded into cBioPortal DB).
 
 ## How to load reference genome(s) to the database?
 
@@ -22,7 +22,7 @@ here is a sample reference genome file:
 #species	name	build_name	nonN_bases	URL	release_date
 human	hg19	GRCh37	2897310462	http://hgdownload.cse.ucsc.edu/goldenPath/hg19	2009-02-01 00:00:00
 human	hg38	GRCh38	3049315783	http://hgdownload.cse.ucsc.edu/goldenPath/hg38	2013-12-24 00:00:00
-mouse	mm10	GRCm38	2652783500	http://hgdownload.cse.ucsc.edu//goldenPath/mm10	2011-12-01 00:00:00
+mouse	mm10	GRCm38	2652783500	http://hgdownload.cse.ucsc.edu/goldenPath/mm10	2011-12-01 00:00:00
 ```
 ##2. Using import script to load reference genome(s) data to the database:
 ```

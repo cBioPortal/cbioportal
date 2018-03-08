@@ -276,7 +276,7 @@ public class ImportGeneData extends ConsoleRunnable {
         //Set the variables needed for the method
         FileReader reader = new FileReader(geneFile);
         BufferedReader buf = new BufferedReader(reader);
-        int referenceGenomeId = DaoReferenceGenome.getInstance().getReferenceGenomeByName(genomeBuild);
+        int referenceGenomeId = DaoReferenceGenome.getReferenceGenomeIdByName(genomeBuild);
         String line;
         ProgressMonitor.setCurrentMessage("\nUpdating gene lengths... \n"); //Display a message in the console
         boolean geneUpdated = false;

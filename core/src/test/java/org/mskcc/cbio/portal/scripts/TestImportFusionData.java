@@ -82,7 +82,7 @@ public class TestImportFusionData
             ProgressMonitor.setConsoleMode(false);
 
             // TODO change this to use getResourceAsStream()
-            File file = new File("target/test-classes/data_fusions.txt");
+            File file = new File("src/test/resources/data_fusions.txt");
             ImportFusionData parser = new ImportFusionData(file, geneticProfileId, null);
 
 			loadGenes();

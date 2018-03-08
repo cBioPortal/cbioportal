@@ -340,7 +340,7 @@ public class ImportExtendedMutationData{
                     continue;
                 } else {
                     ExtendedMutation mutation = new ExtendedMutation();
-
+                    
                     mutation.setGeneticProfileId(geneticProfileId);
                     mutation.setSampleId(sample.getInternalId());
                     mutation.setGene(gene);

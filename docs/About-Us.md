@@ -20,11 +20,12 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 ## Dana-Farber Cancer Institute
 * Ethan Cerami
 * Ersin Ciftci
+* Tali Mazor
+* Augustin Luna
 * James Lindsay
 * Priti Kumari
 * Catherine Del Vecchio
 * Chris Sander
-* Tali Mazor
 
 ## Princess Margaret Cancer Centre, Toronto
 * Kelsey Zhu

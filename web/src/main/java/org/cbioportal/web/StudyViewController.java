@@ -1,0 +1,130 @@
+package org.cbioportal.web;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import javax.validation.Valid;
+import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.MutationCountByGene;
+import org.cbioportal.service.ClinicalDataService;
+import org.cbioportal.service.DiscreteCopyNumberService;
+import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.MutationService;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.web.config.annotation.InternalApi;
+import org.cbioportal.web.parameter.ClinicalDataCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.util.StudyViewFilterApplier;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
+@InternalApi
+@RestController
+@Validated
+@Api(tags = "Study View", description = " ")
+public class StudyViewController {
+
+    @Autowired
+    private StudyViewFilterApplier studyViewFilterApplier;
+    @Autowired
+    private ClinicalDataService clinicalDataService;
+    @Autowired
+    private MutationService mutationService;
+    @Autowired
+    private MolecularProfileService molecularProfileService;
+    @Autowired
+    private DiscreteCopyNumberService discreteCopyNumberService;
+
+    @RequestMapping(value = "/studies/{studyId}/clinical-data-counts/fetch", method = RequestMethod.POST, 
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch clinical data counts by study view filter")
+    public ResponseEntity<Map<String, List<ClinicalDataCount>>> fetchClinicalDataCounts(
+        @ApiParam(required = true, value = "Study ID e.g. acc_tcga") 
+        @PathVariable String studyId,
+        @ApiParam("Type of the clinical data")
+        @RequestParam(defaultValue = "SAMPLE") ClinicalDataType clinicalDataType,
+        @ApiParam(required = true, value = "Clinical data count filter")
+        @Valid @RequestBody ClinicalDataCountFilter clinicalDataCountFilter) throws StudyNotFoundException, 
+        MolecularProfileNotFoundException {
+
+        List<String> filteredSampleIds = studyViewFilterApplier.apply(studyId, clinicalDataCountFilter.getFilter());
+        if (filteredSampleIds.isEmpty()) {
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        }
+        
+        return new ResponseEntity<>(clinicalDataService.fetchClinicalDataCounts(studyId, filteredSampleIds, 
+            clinicalDataCountFilter.getAttributeIds(), clinicalDataType.name()), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutated-genes/fetch", method = RequestMethod.POST, 
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch mutated genes by study view filter")
+    public ResponseEntity<List<MutationCountByGene>> fetchMutatedGenes(
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
+        @PathVariable String molecularProfileId,
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid @RequestBody StudyViewFilter studyViewFilter) throws MolecularProfileNotFoundException, StudyNotFoundException {
+
+        String studyId = molecularProfileService.getMolecularProfile(molecularProfileId).getCancerStudyIdentifier();
+        List<String> filteredSampleIds = studyViewFilterApplier.apply(studyId, studyViewFilter);
+        List<MutationCountByGene> result = new ArrayList<>();
+        if (!filteredSampleIds.isEmpty()) {
+            result = mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(molecularProfileId, 
+                filteredSampleIds, null);
+            result.sort((a, b) -> b.getCountByEntity() - a.getCountByEntity());
+        }
+        
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/cna-genes/fetch", method = RequestMethod.POST, 
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch CNA genes by study view filter")
+    public ResponseEntity<List<CopyNumberCountByGene>> fetchCNAGenes(
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_gistic")
+        @PathVariable String molecularProfileId,
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid @RequestBody StudyViewFilter studyViewFilter) throws MolecularProfileNotFoundException, StudyNotFoundException {
+
+        String studyId = molecularProfileService.getMolecularProfile(molecularProfileId).getCancerStudyIdentifier();
+        List<String> filteredSampleIds = studyViewFilterApplier.apply(studyId, studyViewFilter);
+        List<CopyNumberCountByGene> result = new ArrayList<>();
+        if (!filteredSampleIds.isEmpty()) {
+            result = discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(molecularProfileId, 
+                filteredSampleIds, null, Arrays.asList(-2, 2));
+            result.sort((a, b) -> b.getCountByEntity() - a.getCountByEntity());
+        }
+        
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/studies/{studyId}/sample-ids/fetch", method = RequestMethod.POST, 
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch sample IDs by study view filter")
+    public ResponseEntity<List<String>> fetchSampleIds(
+        @ApiParam(required = true, value = "Study ID e.g. acc_tcga") 
+        @PathVariable String studyId,
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid @RequestBody StudyViewFilter studyViewFilter) throws StudyNotFoundException, 
+        MolecularProfileNotFoundException {
+        
+        return new ResponseEntity<>(studyViewFilterApplier.apply(studyId, studyViewFilter), HttpStatus.OK);
+    }
+}

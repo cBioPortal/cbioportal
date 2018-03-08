@@ -19,4 +19,6 @@ public interface PatientService {
     List<Patient> fetchPatients(List<String> studyIds, List<String> patientIds, String projection);
 
     BaseMeta fetchMetaPatients(List<String> studyIds, List<String> patientIds);
+
+    List<String> getPatientIdsOfSamples(List<String> sampleIds);
 }

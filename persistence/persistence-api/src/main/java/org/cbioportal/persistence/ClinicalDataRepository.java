@@ -1,6 +1,7 @@
 package org.cbioportal.persistence;
 
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.meta.BaseMeta;
 
 import java.util.List;
@@ -37,4 +38,7 @@ public interface ClinicalDataRepository {
 
     BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                    String clinicalDataType);
+
+    List<ClinicalDataCount> fetchClinicalDataCounts(String studyId, List<String> sampleIds, List<String> attributeIds, 
+        String clinicalDataType);
 }

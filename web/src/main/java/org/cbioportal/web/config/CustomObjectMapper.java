@@ -41,6 +41,7 @@ import java.util.Map;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventData;
 import org.cbioportal.model.CopyNumberSeg;
@@ -62,6 +63,7 @@ import org.cbioportal.model.SampleList;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.web.mixin.CancerStudyMixin;
 import org.cbioportal.web.mixin.ClinicalAttributeMixin;
+import org.cbioportal.web.mixin.ClinicalDataCountMixin;
 import org.cbioportal.web.mixin.ClinicalDataMixin;
 import org.cbioportal.web.mixin.ClinicalEventDataMixin;
 import org.cbioportal.web.mixin.ClinicalEventMixin;
@@ -93,6 +95,7 @@ public class CustomObjectMapper extends ObjectMapper {
         mixinMap.put(CancerStudy.class, CancerStudyMixin.class);
         mixinMap.put(ClinicalAttribute.class, ClinicalAttributeMixin.class);
         mixinMap.put(ClinicalData.class, ClinicalDataMixin.class);
+        mixinMap.put(ClinicalDataCount.class, ClinicalDataCountMixin.class);
         mixinMap.put(ClinicalEvent.class, ClinicalEventMixin.class);
         mixinMap.put(ClinicalEventData.class, ClinicalEventDataMixin.class);
         mixinMap.put(CopyNumberSeg.class, CopyNumberSegMixin.class);
@@ -112,6 +115,6 @@ public class CustomObjectMapper extends ObjectMapper {
         mixinMap.put(Sample.class, SampleMixin.class);
         mixinMap.put(SampleList.class, SampleListMixin.class);
         mixinMap.put(TypeOfCancer.class, TypeOfCancerMixin.class);
-        super.setMixInAnnotations(mixinMap);
+        super.setMixIns(mixinMap);
     }
 }

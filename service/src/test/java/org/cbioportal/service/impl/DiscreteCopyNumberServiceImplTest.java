@@ -270,7 +270,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         CopyNumberCountByGene copyNumberSampleCountByGene = new CopyNumberCountByGene();
         copyNumberSampleCountByGene.setEntrezGeneId(ENTREZ_GENE_ID_1);
         copyNumberSampleCountByGene.setAlteration(-2);
-        copyNumberSampleCountByGene.setCount(1);
+        copyNumberSampleCountByGene.setCountByEntity(1);
         copyNumberSampleCountByGeneList.add(copyNumberSampleCountByGene);
 
         MolecularProfile molecularProfile = new MolecularProfile();

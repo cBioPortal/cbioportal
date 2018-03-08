@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.MutationMapper">
-    <cache readOnly="true" size="100000"/>
+    <cache readOnly="true" size="1000000"/>
 
     <sql id="select">
         genetic_profile.STABLE_ID AS molecularProfileId,
@@ -222,10 +222,13 @@
     <select id="getSampleCountByEntrezGeneIdsAndSampleIds" resultType="org.cbioportal.model.MutationCountByGene">
         SELECT
         mutation.ENTREZ_GENE_ID AS entrezGeneId,
-        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS count
+        gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+        COUNT(*) AS totalCount,
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS countByEntity
         FROM mutation
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         <include refid="where"/>
         GROUP BY mutation.ENTREZ_GENE_ID
     </select>
@@ -233,11 +236,14 @@
     <select id="getPatientCountByEntrezGeneIdsAndSampleIds" resultType="org.cbioportal.model.MutationCountByGene">
         SELECT
         mutation.ENTREZ_GENE_ID AS entrezGeneId,
-        COUNT(DISTINCT(patient.INTERNAL_ID)) AS count
+        gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+        COUNT(*) AS totalCount,
+        COUNT(DISTINCT(patient.INTERNAL_ID)) AS countByEntity
         FROM mutation
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+        INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         WHERE
         genetic_profile.STABLE_ID = #{molecularProfileId}
         <if test="patientIds != null and !patientIds.isEmpty()">

@@ -1643,6 +1643,19 @@ class GisticGenesValidationTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.cause, '')
 
+class GenePanelMatrixValidationTestCase(PostClinicalDataFileTestCase):
+
+    """Test for validations in Gene Panel Matrix."""
+
+    def test_duplicate_sample(self):
+        """Test if duplicate samples are detected"""
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_gene_matrix_duplicate_sample.txt',
+                                    validateData.GenePanelMatrixValidator)
+
+        self.assertEqual(len(record_list), 1)
+        self.assertIn("duplicated sample id.", record_list[0].getMessage().lower())
 
 class StudyCompositionTestCase(LogBufferTestCase):
 

@@ -55,10 +55,9 @@
 
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     boolean showShareButton = true;
-    boolean showVirtualStudyButton = false;
+    boolean showSaveButton = false;
     if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-        showShareButton = false;
-        showVirtualStudyButton= true;
+        showSaveButton= true;
     }
     
     if (cancerStudyViewError!=null) {
@@ -224,7 +223,7 @@
     var username = $('#header_bar_table span').text()||'';
     var studyCasesMap = '<%=studySampleMap%>';
     var showShareButton = <%=showShareButton%>;
-    var showVirtualStudyButton = <%=showVirtualStudyButton%>;
+    var showSaveButton = <%=showSaveButton%>;
     studyCasesMapTemp = JSON.parse(studyCasesMap);
     studyCasesMap = {};
     _.each(studyCasesMapTemp,function(casesList,studyId){
@@ -489,7 +488,7 @@
                 // This is used to indicate how to disable two buttons. By default, they are set to true.
                 if(window.sessionServiceAvailable) {
                     iViz.vue.manage.getInstance().showShareButton=showShareButton;
-                    iViz.vue.manage.getInstance().showVirtualStudyButton=showVirtualStudyButton;
+                    iViz.vue.manage.getInstance().showSaveButton=showSaveButton;
                     if(username !== '') {
                         iViz.vue.manage.getInstance().loadUserSpecificCohorts = true;
                     }

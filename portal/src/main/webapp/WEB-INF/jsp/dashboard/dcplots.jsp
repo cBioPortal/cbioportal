@@ -73,9 +73,9 @@
                     <span>{{ selectedSamplesNum }} samples / {{ selectedPatientsNum }} patients</span>
                 </span>
             </div>
-            <virtual-study v-if="showVirtualStudyButton" :stats="stats" :update-stats.sync="updateStats"></virtual-study>
-            <share-virtual-study :show-share-button="showShareButton" :stats="stats"
-                                 :update-stats.sync="updateStats"></share-virtual-study>
+            <virtual-study v-if="showShareButton || showSaveButton" :show-share-button="showShareButton"
+                           :show-save-button="showSaveButton" :stats="stats"
+                           :update-stats.sync="updateStats"></virtual-study>
             <span id="iviz-header-left-patient-select" class="iviz-header-button"
                   @click="openCases" class="number"
                   role="button" tabindex="0" style="display: block;"><i class="fa fa-user-circle-o"

@@ -7510,9 +7510,9 @@ window.LogRankTest = (function(jStat) {
       function(_attributes, _opts, _selectedSamples, _selectedGenes,
                _data, _callbacks, _geneData, _dimension, _genePanelMap) {
         initialized = false;
+        _selectedSamples.sort();
         allSamplesIds = _selectedSamples;
         selectedSamples = _selectedSamples;
-        selectedSamples.sort();
         sequencedSampleIds = _attributes.options.sequencedCases === undefined ? allSamplesIds : _attributes.options.sequencedCases;
         sequencedSampleIds.sort();
         selectedGenes = _selectedGenes;
@@ -7531,7 +7531,8 @@ window.LogRankTest = (function(jStat) {
           group = dimension.group();
           initPieTableData();
         }
-        initReactTable(true);
+        initReactTable(true, sequencedSampleIds);
+        initialized = true;
       };
 
     content.update = function(_selectedSampleUIDs, _selectedRows) {
@@ -7549,7 +7550,7 @@ window.LogRankTest = (function(jStat) {
         initialized = true;
         selectedSamples = _selectedSampleUIDs;
         if (iViz.util.compare(allSamplesIds, selectedSamples)) {
-          initReactTable(true);
+          initReactTable(true, selectedSamples);
         } else {
           _.each(_selectedSampleUIDs, function(caseId) {
             var caseData_ = data_[caseId];
@@ -7598,7 +7599,7 @@ window.LogRankTest = (function(jStat) {
             content.case_uids = iViz.util.unique(content.case_ids);
           });
           
-          initReactTable(true, selectedMap_, selectedSamples);
+          initReactTable(true, selectedSamples, selectedMap_);
         }
       } else {
         initReactTable(false);
@@ -7620,7 +7621,7 @@ window.LogRankTest = (function(jStat) {
       return _.values(categories_);
     };
 
-    function initReactTable(_reloadData, _selectedMap, _selectedSampleUids) {
+    function initReactTable(_reloadData, _selectedSampleUids, _selectedMap) {
       if (_reloadData) {
         reactTableData = initReactData(_selectedMap, _selectedSampleUids);
       }

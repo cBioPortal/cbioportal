@@ -46,6 +46,7 @@ import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.GeneticProfileLink;
+import org.mskcc.cbio.portal.model.ReferenceGenome;
 import org.mskcc.cbio.portal.scripts.TrimmedProperties;
 
 /**
@@ -228,11 +229,7 @@ public class GeneticProfileReader {
         String geneticAlterationTypeString = properties.getProperty("genetic_alteration_type");
         String datatype = properties.getProperty("datatype");
         String genomeBuild = properties.getProperty("reference_genome_id");
-        int referenceGenomeId = 1;
-        if (genomeBuild != null && !genomeBuild.isEmpty()) {
-            referenceGenomeId = DaoReferenceGenome.getReferenceGenomeIdByName(genomeBuild);
-        }
-
+        int referenceGenomeId = DaoReferenceGenome.getReferenceGenomeIdByName(genomeBuild);
         
         if (profileName == null) {
             profileName = geneticAlterationTypeString;

@@ -46,7 +46,6 @@ import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.GeneticProfileLink;
-import org.mskcc.cbio.portal.model.ReferenceGenome;
 import org.mskcc.cbio.portal.scripts.TrimmedProperties;
 
 /**

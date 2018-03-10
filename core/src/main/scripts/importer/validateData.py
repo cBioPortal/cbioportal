@@ -1230,7 +1230,7 @@ class MutationsExtendedValidator(Validator):
                         'No Amino_Acid_Change or HGVSp_Short value. This '
                             'mutation record will get a generic "MUTATED" flag',
                         extra={'line_number': self.line_number})
-        if ("NCBI_Build") not in self.cols or data[self.cols.index('NCBI_Build')] not in ["GRCh37", "GRCh38","GRCm38"]:
+        if "NCBI_Build" not in self.cols or data[self.cols.index('NCBI_Build')] not in ["GRCh37", "GRCh38","GRCm38"]:
             self.logger.warning('NCBI_Build column is not present or values not in "GRCh37", "GRCh38","GRCm38"');
 
     def printDataInvalidStatement(self, value, col_index):

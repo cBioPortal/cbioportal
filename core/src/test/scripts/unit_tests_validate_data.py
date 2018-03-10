@@ -932,7 +932,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                                     validateData.MutationsExtendedValidator)
         # we expect 1 warning, something like
         # WARNING: data_mutations_missing_swissprot.maf: line 1: SWISSPROT column is recommended if you want to make sure that a specific isoform is used for the PFAM domains drawing in the mutations view.; wrong value: 'SWISSPROT column not found'
-        self.assertEqual(len(record_list), 1)
+        self.assertEqual(len(record_list), 5)
         # check if both messages come from printDataInvalidStatement:
         self.assertIn("swissprot column is recommended",
                       record_list[0].getMessage().lower())
@@ -945,7 +945,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                 validateData.MutationsExtendedValidator,
                 extra_meta_fields={
                     'swissprot_identifier': 'accession'})
-        self.assertEqual(len(record_list), 2)
+        self.assertEqual(len(record_list), 6)
         record_iterator = iter(record_list)
         # used a name instead of an accession
         record = record_iterator.next()
@@ -985,7 +985,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
 
     def assert_swissprotname_validated(self, record_list):
         """Assert names are validated in data_mutations_name_swissprot.maf."""
-        self.assertEqual(len(record_list), 2)
+        self.assertEqual(len(record_list), 6)
         record_iterator = iter(record_list)
         # used an accession instead of a name
         record = record_iterator.next()
@@ -1022,7 +1022,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                 'mutations/data_mutations_wrong_aa_change.maf',
                 validateData.MutationsExtendedValidator,
                 extra_meta_fields={'swissprot_identifier': 'accession'})
-        self.assertEqual(len(record_list), 5)
+        self.assertEqual(len(record_list), 10)
         record_iterator = iter(record_list)
         # empty field (and no HGVSp_Short column)
         record = record_iterator.next()
@@ -1265,7 +1265,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                                     extra_meta_fields={
                                             'swissprot_identifier': 'name'})
         # we expect 3 WARNINGs :
-        self.assertEqual(len(record_list), 3)
+        self.assertEqual(len(record_list), 19)
         
         # WARNINGs should be something like: "cbp_driver_tiers contains more than 10 different values"
         self.assertIn("cbp_driver_tiers contains more than 10 different tiers.", record_list[0].getMessage().lower())

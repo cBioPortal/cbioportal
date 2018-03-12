@@ -255,7 +255,7 @@ class PortalInstance(object):
                         self.entrez_set.add(entrez_id)
         #Set defaults for genome version and species
         self.species = 'human'
-        self.ncbi_build = ['GRCh37']
+        self.ncbi_build = ['37','GRCh37']
         self.genome_build = ['hg19']
 
     def load_genome_info(self, properties_filename):
@@ -1251,16 +1251,6 @@ class MutationsExtendedValidator(Validator):
 
     def checkNCBIbuild(self, value):
         return value in (self.portal.ncbi_build + self.portal.genome_build)
-        
-        # if value != '':
-        #     # based on MutationDataUtils.getNcbiBuild
-        #     if self.portal.species == "human":
-        #         if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCh'+str(self.portal.ncbi_build)]:
-        #             return False
-        #     elif self.portal.species == "mouse":
-        #         if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCm'+str(self.portal.ncbi_build)]:
-        #             return False
-        # return True
 
     def checkMatchedNormSampleBarcode(self, value):
         if value != '':

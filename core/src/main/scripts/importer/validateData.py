@@ -256,7 +256,7 @@ class PortalInstance(object):
         #Set defaults for genome version and species
         self.species = 'human'
         self.ncbi_build = ['37','GRCh37']
-        self.genome_build = ['hg19']
+        self.genome_build = 'hg19'
 
     def load_genome_info(self, properties_filename):
         """Retrieves the species and genome information from portal.properties."""
@@ -268,10 +268,10 @@ class PortalInstance(object):
                 sp_line = line.split('=', 1)
                 if sp_line[0] == 'species':
                     self.species = sp_line[1]
-                elif sp_line[0] == 'ncbi.build':
+                elif sp_line[0] == 'genome.build':
                     self.ncbi_build = sp_line[1].split(",")
-                elif sp_line[0] == 'ucsc.build':
-                    self.genome_build = sp_line[1].split(",")
+                elif sp_line[0] == 'genome.name':
+                    self.genome_build = sp_line[1]
 
 class Validator(object):
 
@@ -1250,7 +1250,7 @@ class MutationsExtendedValidator(Validator):
 
 
     def checkNCBIbuild(self, value):
-        return value in (self.portal.ncbi_build + self.portal.genome_build)
+        return value in (self.portal.ncbi_build)
 
     def checkMatchedNormSampleBarcode(self, value):
         if value != '':

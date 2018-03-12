@@ -52,6 +52,7 @@ public final class DaoReferenceGenome {
         byGenomeName.put(referenceGenome.getGenomeName(), referenceGenome);
         byGenomeInternalId.put(referenceGenome.getReferenceGenomeId(), referenceGenome);
         genomeInternalIds.put(referenceGenome.getBuildName(), referenceGenome.getReferenceGenomeId());
+        genomeInternalIds.put(referenceGenome.getGenomeName(), referenceGenome.getReferenceGenomeId());
     }
                 
     private static synchronized void reCache() {
@@ -236,9 +237,9 @@ public final class DaoReferenceGenome {
      * @throws DaoException Database Error.
      */
 
-    public static int getReferenceGenomeIdByName(String buildName) throws DaoException {
+    public static int getReferenceGenomeIdByName(String name) throws DaoException {
         try {
-            return genomeInternalIds.get(buildName);
+            return genomeInternalIds.get(name);
         } catch (java.lang.NullPointerException exp) {
             return ReferenceGenome.REFERENCE_GENOME_ID; // NCBI_BUILD field was an optional in the past
         }

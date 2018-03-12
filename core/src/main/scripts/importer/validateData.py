@@ -255,8 +255,8 @@ class PortalInstance(object):
                         self.entrez_set.add(entrez_id)
         #Set defaults for genome version and species
         self.species = 'human'
-        self.ncbi_build = '37'
-        self.genome_build = 'hg19'
+        self.ncbi_build = ['GRCh37']
+        self.genome_build = ['hg19']
 
     def load_genome_info(self, properties_filename):
         """Retrieves the species and genome information from portal.properties."""
@@ -269,9 +269,9 @@ class PortalInstance(object):
                 if sp_line[0] == 'species':
                     self.species = sp_line[1]
                 elif sp_line[0] == 'ncbi.build':
-                    self.ncbi_build = sp_line[1]
+                    self.ncbi_build = sp_line[1].split(",")
                 elif sp_line[0] == 'ucsc.build':
-                    self.genome_build = sp_line[1]
+                    self.genome_build = sp_line[1].split(",")
 
 class Validator(object):
 
@@ -1250,15 +1250,17 @@ class MutationsExtendedValidator(Validator):
 
 
     def checkNCBIbuild(self, value):
-        if value != '':
-            # based on MutationDataUtils.getNcbiBuild
-            if self.portal.species == "human":
-                if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCh'+str(self.portal.ncbi_build)]:
-                    return False
-            elif self.portal.species == "mouse":
-                if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCm'+str(self.portal.ncbi_build)]:
-                    return False
-        return True
+        return value in (self.portal.ncbi_build + self.portal.genome_build)
+        
+        # if value != '':
+        #     # based on MutationDataUtils.getNcbiBuild
+        #     if self.portal.species == "human":
+        #         if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCh'+str(self.portal.ncbi_build)]:
+        #             return False
+        #     elif self.portal.species == "mouse":
+        #         if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCm'+str(self.portal.ncbi_build)]:
+        #             return False
+        # return True
 
     def checkMatchedNormSampleBarcode(self, value):
         if value != '':

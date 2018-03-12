@@ -446,7 +446,7 @@ c1.`CANCER_STUDY_ID` = cancer_study.`CANCER_STUDY_ID` GROUP BY cancer_study.`CAN
 
 UPDATE info SET DB_SCHEMA_VERSION="2.5.0";
 
-##version 2.6.0
+##version: 2.6.0
 -- modify fkc for gistic_to_gene
 ALTER TABLE gistic_to_gene DROP FOREIGN KEY gistic_to_gene_ibfk_2;
 ALTER TABLE gistic_to_gene ADD CONSTRAINT `gistic_to_gene_ibfk_2` FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE;

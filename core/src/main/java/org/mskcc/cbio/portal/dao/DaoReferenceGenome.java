@@ -230,10 +230,9 @@ public final class DaoReferenceGenome {
         return byGenomeName.get(genomeName);
     }
     
-    
     /**
      * Retrieve reference genome of interest by genome name or genome assembly name
-     * @param buildName   Name of Reference Genome or Genome Assembly
+     * @param name   Name of Reference Genome or Genome Assembly
      * @throws DaoException Database Error.
      */
 
@@ -241,7 +240,7 @@ public final class DaoReferenceGenome {
         try {
             return genomeInternalIds.get(name);
         } catch (java.lang.NullPointerException exp) {
-            return ReferenceGenome.REFERENCE_GENOME_ID; // NCBI_BUILD field was an optional in the past
+            return genomeInternalIds.get("GRCh37"); // NCBI_BUILD field was an optional in the past
         }
     }
 

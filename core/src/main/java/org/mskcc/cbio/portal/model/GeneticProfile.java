@@ -58,7 +58,8 @@ public class GeneticProfile {
 
    @Deprecated
    public GeneticProfile(String stableId, int cancerStudyId, GeneticAlterationType geneticAlterationType,
-						 String datatype, String profileName, String profileDescription, boolean showProfileInAnalysisTab) {
+						 String datatype, String profileName, String profileDescription, 
+                         boolean showProfileInAnalysisTab) {
       this();
       this.stableId = stableId;
       this.cancerStudyId = cancerStudyId;
@@ -67,7 +68,7 @@ public class GeneticProfile {
       this.profileName = profileName;
       this.profileDescription = profileDescription;
       this.showProfileInAnalysisTab = showProfileInAnalysisTab;
-      this.referenceGenomeId = ReferenceGenome.REFERENCE_GENOME_ID;
+      this.referenceGenomeId = 0; //place holder, genetic profile reader will update the value later
    }
 
 

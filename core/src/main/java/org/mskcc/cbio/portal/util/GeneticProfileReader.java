@@ -42,10 +42,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.model.GeneticProfileLink;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.scripts.TrimmedProperties;
 
 /**
@@ -132,7 +129,6 @@ public class GeneticProfileReader {
         // Get ID
         GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfile.getStableId());
         geneticProfile.setGeneticProfileId(gp.getGeneticProfileId());
-        geneticProfile.setReferenceGenomeId(gp.getReferenceGenomeId());
         return geneticProfile;
     }
 
@@ -229,7 +225,6 @@ public class GeneticProfileReader {
         String datatype = properties.getProperty("datatype");
         String genomeBuild = properties.getProperty("reference_genome_id");
         int referenceGenomeId = DaoReferenceGenome.getReferenceGenomeIdByName(genomeBuild);
-        
         if (profileName == null) {
             profileName = geneticAlterationTypeString;
         }

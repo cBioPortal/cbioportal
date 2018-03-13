@@ -453,3 +453,29 @@ ALTER TABLE gistic_to_gene DROP FOREIGN KEY gistic_to_gene_ibfk_2;
 ALTER TABLE gistic_to_gene ADD CONSTRAINT `gistic_to_gene_ibfk_2` FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE;
 
 UPDATE info SET DB_SCHEMA_VERSION="2.6.0";
+
+##version: 2.7.0
+-- ================== new reference genome foreign key for mutation_event and genetic_profile tables   ==================
+ALTER TABLE `mutation_event` ADD COLUMN `REFERENCE_GENOME_ID` INT(4) NULL AFTER `ENTREZ_GENE_ID`;
+ALTER TABLE `mutation_event`
+    ADD FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome_gene` (`REFERENCE_GENOME_ID`) ON DELETE CASCADE;
+
+UPDATE `mutation_event` set REFERENCE_GENOME_ID = (SELECT `REFERENCE_GENOME_ID` FROM `reference_genome` WHERE BUILD_NAME = 'GRCh37') WHERE NCBI_BUILD in ('hg19', 'GRCh37','37');
+-- UPDATE `mutation_event` set REFERENCE_GENOME_ID = (SELECT `REFERENCE_GENOME_ID` FROM `reference_genome` WHERE BUILD_NAME = 'GRCm38') WHERE NCBI_BUILD in ('mm10', 'GRCm38');
+
+ALTER TABLE `mutation_event` DROP COLUMN `NCBI_BUILD`;
+
+ALTER TABLE `genetic_profile` ADD COLUMN `REFERENCE_GENOME_ID` INT(4) NULL AFTER `CANCER_STUDY_ID`;
+ALTER TABLE `genetic_profile`
+    ADD FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE CASCADE;
+
+UPDATE `genetic_profile`
+    INNER JOIN `mutation`
+        ON `mutation`.`GENETIC_PROFILE_ID` = `genetic_profile`.`GENETIC_PROFILE_ID`
+           AND `genetic_profile`.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED'
+    INNER JOIN `mutation_event`
+        ON `mutation`.`MUTATION_EVENT_ID` = `mutation_event`.`MUTATION_EVENT_ID`
+SET `genetic_profile`.`REFERENCE_GENOME_ID`=`mutation_event`.`REFERENCE_GENOME_ID`;
+
+UPDATE info SET DB_SCHEMA_VERSION="2.7.0";
+-- ================ end of updating mutation_event and genetic_profile tables ===============

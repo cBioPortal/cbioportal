@@ -495,7 +495,7 @@ window.loadReactApp({ defaultRoute: 'results' });
         );
 
         //Move code related to expression tab from cross_cancer_results.jsp to here
-        window.ccQueriedGenes = OQL.genes(window.serverVars.theQuery);
+        window.ccQueriedGenes = window.frontendVars.oqlGenes(window.serverVars.theQuery);
         
         var _cc_plots_gene_list = "";
         var tmp = setInterval(function () {timer();}, 1000);

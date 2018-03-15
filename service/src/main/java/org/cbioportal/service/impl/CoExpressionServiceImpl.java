@@ -61,9 +61,13 @@ public class CoExpressionServiceImpl implements CoExpressionService {
             .map(String::valueOf).collect(Collectors.toList()), "ENTREZ_GENE_ID", "SUMMARY").stream()
             .collect(Collectors.groupingBy(Gene::getEntrezGeneId));
         
-        List<String> queryValues = queryMolecularDataList.stream().map(g -> g.getValue()).collect(Collectors.toList());
-        
         List<CoExpression> coExpressionList = new ArrayList<>();
+
+        if (queryMolecularDataList == null) {
+            return coExpressionList;
+        }
+
+        List<String> queryValues = queryMolecularDataList.stream().map(g -> g.getValue()).collect(Collectors.toList());
         for (Integer entrezGeneId : molecularDataMap.keySet()) {
             
             List<String> values = molecularDataMap.get(entrezGeneId).stream().map(g -> g.getValue())

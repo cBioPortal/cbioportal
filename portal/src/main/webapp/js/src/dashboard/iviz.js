@@ -1056,6 +1056,8 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 _sampleDatum.cna_fraction = _cnaFractionData[_sampleDatum.study_id][_sampleDatum.sample_id];
                 _sampleDatum.copy_number_alterations = _cnaFractionData[_sampleDatum.study_id][_sampleDatum.sample_id];
               }
+              data_.groups.sample.data[_sampleDatum.sample_uid].cna_fraction = _sampleDatum.cna_fraction;
+              data_.groups.sample.data[_sampleDatum.sample_uid].copy_number_alterations = _sampleDatum.copy_number_alterations;
             }
           });
           def.resolve(data, _hasCNAFractionData, _hasMutationCountData);
@@ -1089,6 +1091,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               } else {
                 _sampleDatum.mutation_count = _mutationCountData[_sampleDatum.study_id][_sampleDatum.sample_id];
               }
+              data_.groups.sample.data[_sampleDatum.sample_uid].mutation_count = _sampleDatum.mutation_count;
             }
           });
           def.resolve(data, _hasMutationCountData);
@@ -1179,6 +1182,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       window.open(_url);
     },
     downloadCaseData: function() {
+      var _def = new $.Deferred();
       var sampleUIds_ = vm_.selectedsampleUIDs;
       var attr = {};
       var self = this;
@@ -1235,9 +1239,12 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         };
 
         cbio.download.initDownload(content, downloadOpts);
+        _def.resolve();
       }, function() {
         // TODO: give warning/error message to user if the download is failed
+        _def.resolve();
       });
+      return _def.promise();
     },
     submitForm: function() {
       var _self = this;
@@ -1261,7 +1268,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         }
       } else { // query multiple studies
         if (QueryByGeneTextArea.isEmpty()) {
-          QueryByGeneUtil.toMainPage(_self.cohorts_,  vm_.hasfilters ? _self.stat().studies : undefined);
+          QueryByGeneUtil.toMainPage(_self.cohorts_, vm_.hasfilters ? _self.stat().studies : undefined);
         } else {
           QueryByGeneUtil.toMultiStudiesQueryPage(undefined, _self.stat().studies, QueryByGeneTextArea.getGenes());
         }
@@ -1395,6 +1402,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               patientUids: []
             },
             charts: {},
+            downloadingSelected: false,
             groupCount: 0,
             updateSpecialCharts: false,
             showShareButton: false,
@@ -1510,7 +1518,12 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               iViz.openCases();
             },
             downloadCaseData: function() {
-              iViz.downloadCaseData();
+              var _self = this;
+              _self.downloadingSelected = true;
+              iViz.downloadCaseData()
+                .always(function() {
+                  _self.downloadingSelected = false;
+                });
             },
             submitForm: function() {
               iViz.submitForm();
@@ -4677,8 +4690,8 @@ module.exports = {
       var tickVal = [];
       var i = 0;
       var barSet = {};
-      
-      dcDimension = ndx_.dimension(function (d) {
+
+      dcDimension = ndx_.dimension(function(d) {
         var val = d[data_.attrId];
         var _min;
         var _max;
@@ -4686,17 +4699,25 @@ module.exports = {
 
         // isNaN(val) treats string in data as 'NA', such as "withheld" and "cannotReleaseHIPAA"
         if (iViz.util.strIsNa(val, true) || isNaN(val)) {
+          var smallerOutlierPattern = new RegExp('^<|(>=?)$');
+          var greaterOutlierPattern = new RegExp('^>|(<=?)$');
+          if (smallerOutlierPattern.test(val)) {
+            val = opts_.xDomain[0];
+          } else if (greaterOutlierPattern.test(val)) {
+            val = data_.hasNA ? opts_.xDomain[opts_.xDomain.length - 2] : opts_.xDomain[opts_.xDomain.length - 1];
+          } else {
             val = opts_.xDomain[opts_.xDomain.length - 1];
+          }
         } else if (logScale) {
-            for (i = 1; i < opts_.xDomain.length; i++) {
-                if (d[data_.attrId] < opts_.xDomain[i] &&
-                    d[data_.attrId] >= opts_.xDomain[i - 1]) {
-                    val = parseInt(Math.pow(10, i / 2 - 0.25), 10);
-                    _min = opts_.xDomain[i - 1];
-                    _max = opts_.xDomain[i];
-                    break;
-                }
+          for (i = 1; i < opts_.xDomain.length; i++) {
+            if (d[data_.attrId] < opts_.xDomain[i] &&
+              d[data_.attrId] >= opts_.xDomain[i - 1]) {
+              val = parseInt(Math.pow(10, i / 2 - 0.25), 10);
+              _min = opts_.xDomain[i - 1];
+              _max = opts_.xDomain[i];
+              break;
             }
+          }
         } else if (data_.noGrouping) {
           val = opts_.xFakeDomain[opts_.xDomain.indexOf(Number(d[data_.attrId]))];
         } else {
@@ -4710,7 +4731,7 @@ module.exports = {
             } else {
               if (data_.hasNA) {
                 endNumIndex = opts_.xDomain.length - 2;
-              } 
+              }
               for (i = 2; i < endNumIndex; i++) {
                 if (d[data_.attrId] <= opts_.xDomain[i] &&
                   d[data_.attrId] >= opts_.xDomain[i - 1]) {
@@ -4741,8 +4762,8 @@ module.exports = {
               _max = val + opts_.gutter / 2;
             }
           }
-        } 
-        
+        }
+
         barSet[val] = 1;
         if (tickVal.indexOf(val) === -1) {
           tickVal.push(Number(val));
@@ -4761,10 +4782,10 @@ module.exports = {
           data_.groupType === 'patient' ? d.patient_uid : d.sample_uid);
         return val;
       });
-    
+
       opts_.xBarValues = Object.keys(barSet);
-      opts_.xBarValues.sort(function (a, b) {
-          return Number(a) < Number(b) ? -1 : 1;
+      opts_.xBarValues.sort(function(a, b) {
+        return Number(a) < Number(b) ? -1 : 1;
       });
 
       tickVal.sort(function(a, b) {
@@ -4817,7 +4838,7 @@ module.exports = {
       chartInst_.xAxis().tickFormat(function(v) {
         return iViz.util.getTickFormat(v, logScale, data_, opts_);
       });
-      
+
       chartInst_.xUnits(function() {
         return opts_.xDomain.length * 1.3 <= 5 ? 5 : opts_.xDomain.length * 1.3;
       });
@@ -4922,7 +4943,7 @@ module.exports = {
 
       tempFilters_[0] = '';
       tempFilters_[1] = '';
-      
+
       if (opts_.xDomain.length === 0) {
         tempFilters_[0] = 'Invalid Selection';
       } else {
@@ -4930,7 +4951,7 @@ module.exports = {
         if (opts_.xDomain.length >= 2) {
           if (data_.noGrouping) {
             if (data_.hasNA) {
-              endNumIndex = opts_.xDomain.length - 2 ;
+              endNumIndex = opts_.xDomain.length - 2;
             }
           } else {
             if (logScaleChecked) {
@@ -4990,7 +5011,7 @@ module.exports = {
             maxNumBarPoint = opts_.xDomain[endNumIndex];
           }
         }
-        
+
         if (data_.noGrouping) {
           minNumBarPoint = opts_.xFakeDomain[0];
           if (data_.hasNA) {
@@ -5037,14 +5058,14 @@ module.exports = {
         // avoid "min< ~ <=min"
         if (!data_.noGrouping && _.isNumber(minNumBarPoint) && _.isNumber(maxNumBarPoint) && minNumBarPoint === maxNumBarPoint) {
           tempFilters_[0] = 'Invalid Selection';
-        } else if ((!data_.noGrouping && _filter[0] < opts_.xDomain[0] && _filter[1] > opts_.xDomain[opts_.xDomain.length - 1]) || 
+        } else if ((!data_.noGrouping && _filter[0] < opts_.xDomain[0] && _filter[1] > opts_.xDomain[opts_.xDomain.length - 1]) ||
           (data_.noGrouping && _filter[0] < opts_.xFakeDomain[0] && _filter[1] > opts_.xFakeDomain[opts_.xFakeDomain.length - 1])) {
           tempFilters_[0] = 'All';
         } else {
           if (data_.noGrouping) {
             if (selectedNumBar.length === opts_.xBarValues.length ||
               (_filter[0] <= opts_.xBarValues[0] && _filter[1] >= opts_.xBarValues[opts_.xBarValues.length - 2] &&
-              data_.hasNA && !hasNA)) {// select all number bars
+                data_.hasNA && !hasNA)) {// select all number bars
               tempFilters_[0] = 'All Numbers';
             } else if (selectedNumBar.length === 0 && hasNA) {// only choose NA bar
               tempFilters_[0] = 'NA';
@@ -5077,7 +5098,7 @@ module.exports = {
               } else if (hasNA && minNumBarPoint !== '' && maxNumBarPoint === '') {
                 tempFilters_[0] = minNumBarPoint + '<';
                 tempFilters_[1] = '<=' + opts_.xDomain[endNumIndex] + ", NA";
-              } else if (hasNA && minNumBarPoint === '' && maxNumBarPoint === ''){//only select "NA" bar
+              } else if (hasNA && minNumBarPoint === '' && maxNumBarPoint === '') {//only select "NA" bar
                 tempFilters_[0] = 'NA';
               } else {
                 tempFilters_[0] = 'Invalid Selection';
@@ -5103,7 +5124,7 @@ module.exports = {
                 if (hasSmallerOutlier) {// Select all bars excluding NA
                   tempFilters_[0] = 'All Numbers';
                 } else {// "> Num"
-                  if(minNumBarPoint === '') {
+                  if (minNumBarPoint === '') {
                     tempFilters_[1] = '> ' + opts_.xDomain[endNumIndex];
                   } else {
                     tempFilters_[1] = '> ' + minNumBarPoint;
@@ -5121,7 +5142,7 @@ module.exports = {
             }
           }
         }
-      }      
+      }
 
       return tempFilters_;
     };
@@ -5285,7 +5306,7 @@ module.exports = {
             config.divider = 2 * Math.pow(10, minExponent);
           }
         }
-        
+
         if (range === 0) {
           config.startPoint = min;
         } else if (max <= 1 && max > 0 && min >= -1 && min < 0) {
@@ -5302,8 +5323,8 @@ module.exports = {
           // config.emptyMappingVal = 1.1;
         } else if (range >= 1) {
           config.gutter = (
-              parseInt(range / (config.numOfGroups * config.divider), 10) + 1
-            ) * config.divider;
+            parseInt(range / (config.numOfGroups * config.divider), 10) + 1
+          ) * config.divider;
           config.maxVal = (parseInt(max / config.gutter, 10) + 1) *
             config.gutter;
           config.startPoint = parseInt(min / config.gutter, 10) *
@@ -5384,13 +5405,13 @@ module.exports = {
                     Number(cbio.util.toPrecision(Number(_tmpValue), 3, 0.1));
                 }
 
-                // If the current tmpValue already bigger than maxmium number, the
+                // If the current tmpValue already bigger than maximum number, the
                 // function should decrease the number of bars and also reset the
-                // Mappped empty value.
+                // Mapped empty value.
                 if (_tmpValue >= max) {
                   // if i = 0 and tmpValue bigger than maximum number, that means
                   // all data fall into NA category.
-                  config.xDomain.push(_tmpValue);
+                  // config.xDomain.push(_tmpValue);
                   break;
                 } else {
                   config.xDomain.push(_tmpValue);
@@ -5680,30 +5701,35 @@ module.exports = {
             this.data.smallDataFlag = false;
           }
 
-          if (smallerOutlier.length > 0 && greaterOutlier.length > 0) {// data contain ">, >=,<, <="
-            this.data.min = _.max(smallerOutlier);
-            this.data.max = _.min(greaterOutlier);
+          var findExtremeResult = cbio.util.findExtremes(this.data.meta);
+          if (iViz.util.isAgeClinicalAttr(this.attributes.attr_id) && _.min(this.data.meta) < 18 && (findExtremeResult[1] - findExtremeResult[0]) / 2 > 18) {
+            this.data.min = 18;
           } else {
-            var findExtremeResult = cbio.util.findExtremes(this.data.meta);
-            if (iViz.util.isAgeClinicalAttr(this.attributes.attr_id) && _.min(this.data.meta) < 18 && (findExtremeResult[1] - findExtremeResult[0]) / 2 > 18) {
-              this.data.min = 18;
-            } else {
-              this.data.min = findExtremeResult[0];
-            }
-            this.data.max = findExtremeResult[1];
+            this.data.min = findExtremeResult[0];
+          }
+          this.data.max = findExtremeResult[1];
 
-            // noGrouping is true when number of different values less than or equal to 5. 
-            // In this case, the chart sets data value as ticks' value directly. 
-            this.data.noGrouping = false;
-            if (Object.keys(dataMetaKeys).length <= 5 && this.data.meta.length > 0) {// for data less than 6 points
-              this.data.noGrouping = true;
-              this.data.uniqueSortedData = _.unique(findExtremeResult[3]);// use sorted value as ticks directly
-            }
+          // noGrouping is true when number of different values less than or equal to 5. 
+          // In this case, the chart sets data value as ticks' value directly. 
+          this.data.noGrouping = false;
+          if (Object.keys(dataMetaKeys).length <= 5 && this.data.meta.length > 0) {// for data less than 6 points
+            this.data.noGrouping = true;
+            this.data.uniqueSortedData = _.unique(findExtremeResult[3]);// use sorted value as ticks directly
+          }
+
+          if (smallerOutlier.length > 0) {
+            this.data.min = Number(_.max(smallerOutlier));
+            this.data.smallerOutlier = this.data.min;
+          }
+
+          if (greaterOutlier.length > 0) {
+            this.data.max = Number(_.min(greaterOutlier));
+            this.data.greaterOutlier = this.data.max;
           }
 
           this.data.attrId = this.attributes.attr_id;
           this.data.groupType = this.attributes.group_type;
-          
+
           // logScale and noGroup cannot be true at same time
           // logScale and smallDataFlag cannot be true at same time
           if (((this.data.max - this.data.min) > 1000) && (this.data.min > 1) && !this.data.noGrouping) {
@@ -5847,7 +5873,7 @@ module.exports = {
         y: _yArr,
         text: _qtips,
         mode: 'markers',
-        type: 'scatter',
+        type: 'scattergl',
         hoverinfo: 'text',
         study_id: _.pluck(data_, 'study_id'),
         sample_uid: _.pluck(data_, 'sample_uid'),
@@ -5858,6 +5884,7 @@ module.exports = {
         }
       };
       var data = [trace];
+      opts_.numOfTraces = 1;
       var _marginX = (d3.max(_xArr) - d3.min(_xArr)) * 0.05;
       var _marginY = (d3.max(_yArr) - d3.min(_yArr)) * 0.05;
       layout_ = {
@@ -5887,22 +5914,11 @@ module.exports = {
           pad: 0
         }
       };
-      Plotly.plot(document.getElementById(chartId_), data, layout_, {
+      Plotly.plot(chartId_, data, layout_, {
         displaylogo: false,
         modeBarButtonsToRemove: ['sendDataToCloud', 'pan2d',
           'zoomIn2d', 'zoomOut2d', 'resetScale2d',
           'hoverClosestCartesian', 'hoverCompareCartesian', 'toImage']
-      });
-
-      // link to sample view
-      var _plotsElem = document.getElementById(chartId_);
-      _plotsElem.on('plotly_click', function(data) {
-        var _pts_study_id =
-          data.points[0].data.study_id[data.points[0].pointNumber];
-        var _pts_sample_uid =
-          data.points[0].data.sample_uid[data.points[0].pointNumber];
-        window.open(
-          cbio.util.getLinkToSampleView(_pts_study_id, iViz.getCaseIdUsingUID('sample', _pts_sample_uid)));
       });
 
       groups_ = [{
@@ -5930,7 +5946,6 @@ module.exports = {
         }
       });
 
-      document.getElementById(chartId_).data = [];
       var _unselectedDataQtips = [];
       var _selectedDataQtips = [];
 
@@ -5954,12 +5969,19 @@ module.exports = {
           data: _unselectedData
         })
       }
-      document.getElementById(chartId_).data[0] = {
+
+      var _traces = [];
+      for (var i = 0; i < opts_.numOfTraces; i++) {
+        _traces.push(i);
+      }
+      Plotly.deleteTraces(chartId_, _traces);
+      var data = [];
+      data.push({
         x: _.pluck(_unselectedData, 'cna_fraction'),
         y: _.pluck(_unselectedData, 'mutation_count'),
         text: _unselectedDataQtips,
         mode: 'markers',
-        type: 'scatter',
+        type: 'scattergl',
         hoverinfo: 'text',
         study_id: _.pluck(data_, 'study_id'),
         sample_uid: _.pluck(data_, 'sample_uid'),
@@ -5968,13 +5990,13 @@ module.exports = {
           color: '#2986e2',
           line: {color: 'white'}
         }
-      };
-      document.getElementById(chartId_).data[1] = {
+      });
+      data.push({
         x: _.pluck(_selectedData, 'cna_fraction'),
         y: _.pluck(_selectedData, 'mutation_count'),
         text: _selectedDataQtips,
         mode: 'markers',
-        type: 'scatter',
+        type: 'scattergl',
         hoverinfo: 'text',
         study_id: _.pluck(data_, 'study_id'),
         sample_uid: _.pluck(data_, 'sample_uid'),
@@ -5983,10 +6005,9 @@ module.exports = {
           color: 'red',
           line: {color: 'white'}
         }
-      };
-
-      Plotly.newPlot(document.getElementById(chartId_), document.getElementById(chartId_).data, layout_);
-
+      });
+      opts_.numOfTraces = 2;
+      Plotly.addTraces(chartId_, data);
     };
 
     content.updateDataForDownload = function(fileType) {
@@ -6085,7 +6106,6 @@ module.exports = {
         showOperations: false,
         selectedSamples: [],
         chartInst: {},
-        hasFilters: false,
         showLoad: true,
         error: {
           dataInvalid: false,
@@ -6125,7 +6145,6 @@ module.exports = {
         this.showLoad = true;
       },
       'update-special-charts': function(hasFilters) {
-        this.hasFilters = hasFilters;
         if (this.dataLoaded) {
           var attrId =
             this.attributes.group_type === 'patient' ? 'patient_uid' : 'sample_uid';
@@ -6260,7 +6279,7 @@ module.exports = {
             _self.dataLoaded = true;
             var _selectedCases =
               _.pluck(_self.invisibleDimension.top(Infinity), attrId);
-            if (_self.hasFilters) {
+            if (_self.$root.hasfilters) {
               _self.chartInst.update(_selectedCases);
             }
             _self.attachPlotlySelectedEvent();
@@ -6759,15 +6778,18 @@ module.exports = {
       _self.chartInst.setDownloadDataTypes(['pdf', 'svg']);
 
       var data = iViz.getGroupNdx(this.attributes.group_id);
-      var groups = [{
-        id: 0,
-        name: 'All Patients',
-        curveHex: '#2986e2',
-        caseIds: iViz.getCaseUIDs(_type)
-      }];
-      groups = this.calcCurvesData(groups, _type);
-
-      _self.chartInst.init(groups, data, _opts);
+      if (this.$root.hasfilters) {
+        this.updatePlotGroups(true);
+      } else {
+        var groups = [{
+          id: 0,
+          name: 'All Patients',
+          curveHex: '#2986e2',
+          caseIds: iViz.getCaseUIDs(_type)
+        }];
+        this.groups = this.calcCurvesData(groups, _type);
+      }
+      _self.chartInst.init(this.groups, data, _opts);
       _self.checkDownloadableStatus();
       _self.showLoad = false;
       _self.$once('initMainDivQtip', _self.initMainDivQtip);

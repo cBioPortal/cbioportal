@@ -1,7 +1,9 @@
 ## March 18, 2018
 * The _Download_ tab has been refactored as part of the architectural upgrade effort.
-* Significant performance gains for loading of portal instances with authentication enabled.
+![image](https://ptpb.pw/jMli.png)
 * Download SVG of _Cancer Type Summary_ tab
+![image](https://ptpb.pw/oPSd.png)
+* Significant performance gains for loading of portal instances with authentication enabled.
 
 ## January 15, 2018
  *   The fifth phase of the cBioPortal architectural upgrade is now complete: The OncoPrint and Survival tabs have been moved to the new architecture.

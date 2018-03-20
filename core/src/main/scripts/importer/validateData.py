@@ -255,8 +255,8 @@ class PortalInstance(object):
                         self.entrez_set.add(entrez_id)
         #Set defaults for genome version and species
         self.species = 'human'
-        self.genome_build = {'human': {'hg19':['37','GRCh37']}}
-        self.genome_name = ['hg19']
+        self.genome_build = {'human': {'hg19':['37','GRCh37'], 'hg38':['GRCh38']}}
+        self.genome_name = ['hg19','hg38']
 
     def load_genome_info(self, properties_filename):
         """Retrieves the species and genome information from portal.properties."""
@@ -268,23 +268,9 @@ class PortalInstance(object):
                 sp_line = line.split('=', 1)
                 if sp_line[0] == 'species':
                     self.species = sp_line[1]
-                elif sp_line[0] == 'genome.name':
-                    if ',' in sp_line[1]:
-                        self.genome_name = [sp_line[1]]
-                    else:
-                        self.genome_name = sp_line[1].split(',')
-                elif sp_line[0] == 'genome.build':
-                    if ',' in sp_line[1]:
-                        genome_build = sp_line[1].split(",")
-                    else:
-                        genome_build = [sp_line[1]]
-                    self.genome_build = {self.species: {} }
-                    for name, build in zip(self.genome_name, genome_build):
-                        if name in self.genome_build.keys():
-                            self.genome_build[self.species][name].append(build)
-                        else:
-                            self.genome_build[self.species][name] = [build]
-                
+                    if self.species == 'mouse':
+                        self.genome_build = {'mouse': {'mm10':['GRCm38']}}
+                        self.genome_name = ['mm10']
 class Validator(object):
 
     """Abstract validator class for tab-delimited data files.

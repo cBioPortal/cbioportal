@@ -13,6 +13,7 @@ This page describes the main properties within portal.properties.
 	- [Automatic selection of OncoKB annotations](#automatic-selection-of-oncokb-annotations)
 	- [Automatic hiding of putative passenger mutations](#automatic-hiding-of-putative-passenger-mutations)
 - [Gene sets used for gene querying](#gene-sets-used-for-gene-querying)
+- [Species](#species)
 
 # Database Settings
 
@@ -131,25 +132,18 @@ To change the gene sets used for gene querying, create a JSON file and add gene 
 ```
 querypage.setsofgenes.location=file:/<path>
 ```
-# Reference Genome information for validating the genomic data
-The reference genome information will be used by the importer validation script to ensure the version of Genome Reference Consortium Build is the same version that was used to analyse the genomic data. 
-Currently, the portal only supports multiple reference genome builds for single species.
+# Species
+cBioPortal supports only 1 species per instance, but can include multiple reference genome builds for that species. The species property will be used by the data validator 
+to ensure the genome build from `NCBI_Build` in MAF files is consistent with the respective species of the cBioPortal instance.
 
-1. Use **species** to indicate the organism of the reference genome. For example, **human** is for Genome Reference Consortium human build 37.
-2. Use **genome.name** to indicate the name of reference genome as used by the UCSC browser. For example, **hg19** is the name for Genome Reference Consortium human build 37. 
-3. Use **genome.build** to specify the version of Genome Reference Consortium Build as published by the NCBI. For example, **GRCh37** is Genome Reference Consortium Human Build 37.
-4. Use a comma to separate multiple genome names and builds. 
-5. Each genome name should have a matched genome build.
+This property is dependent on the reference genomes in the database, and should therefore be set after importing reference genome data to the database. Reference genome data 
+can be included or added in the database with these 3 methods:
+- By creating a new database from a seed database that includes reference genome data. The database schema of this seed should be version 2.7.0 or later. More about this can be found in [Import-the-Seed-Database.md](https://github.com/cBioPortal/cbioportal/blob/master/docs/Import-the-Seed-Database.md) and on [cBioPortal Datahub](https://github.com/cBioPortal/datahub/blob/master/seedDB/README.md).
+- By migrating a database to version 2.7.0 or later. Details on how to migrate the database to a newer version can be found in [Updating-your-cBioPortal-installation.md](Updating-your-cBioPortal-installation.md).
+- By loading custom reference genome data. Details can be found in [import-reference-genome.md](import-reference-genome.md).
 
-**species, genome.name, genome.build** properties need to be added or updated in each of the following cases:
-1. After reference genomes are imported to the database (details on how to import reference genomes can be found in [this document](import-reference-genome.md))
-2. After existing database is migrated to a new schema version using migration.sql (details on how to update your existing cBioportal can be found in [this document](Updating-your-cBioPortal-installation.md)) 
-3. After new database is created from a seed database that contains these reference genomes (details on how to load seed databases can be found in [this document](Import-the-Seed-Database.md)), 
-
-Below is the sample reference genome information for a human
 ```
-# species and genomic information
 species=human
-genome.name=hg19,hg19,hg38
-genome.build=37,GRCh37,GRCh38
 ```
+
+Currently allowed values are `human` or `mouse`.

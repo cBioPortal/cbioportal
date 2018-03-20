@@ -194,10 +194,8 @@ disabled_tabs=
 # format is category1#study1a,study1b,study1c;category2#study2
 priority_studies=
 
-# species and genomic information
+# species
 species=human
-genome.name=hg19,hg19,hg38
-genome.build=37,GRCh37,GRCh38
 
 # default view in oncoprint (sample, patient (default))
 oncoprint.defaultview=patient

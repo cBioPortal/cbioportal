@@ -1,3 +1,10 @@
+## March 20, 2018
+* The sixth phase of the cBioPortal architectural upgrade is now complete: The _Download_ tab have been moved to the new architecture.
+
+![image](https://ptpb.pw/jMli.png)
+
+* Option to download SVG in _Cancer Type Summary_ tab
+
 ## January 15, 2018
  *   The fifth phase of the cBioPortal architectural upgrade is now complete: The OncoPrint and Survival tabs have been moved to the new architecture.
 

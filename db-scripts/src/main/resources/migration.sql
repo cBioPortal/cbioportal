@@ -380,6 +380,8 @@ ALTER TABLE `mutation` ADD COLUMN `DRIVER_FILTER_ANNOTATION` VARCHAR(80) NULL;
 ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER` VARCHAR(50) NULL;
 ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER_ANNOTATION` VARCHAR(80) NULL;
 
+UPDATE info SET DB_SCHEMA_VERSION="2.4.0";
+
 ##version: 2.4.1
 -- ========================== new reference genome genes related tables =============================================
 CREATE TABLE `reference_genome` (

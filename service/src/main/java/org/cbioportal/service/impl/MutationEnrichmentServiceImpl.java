@@ -12,7 +12,6 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
     private AlterationEnrichmentUtil alterationEnrichmentUtil;
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<AlterationEnrichment> getMutationEnrichments(String molecularProfileId, List<String> alteredIds,
                                                              List<String> unalteredIds, String enrichmentType)
         throws MolecularProfileNotFoundException {
@@ -46,7 +44,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
             mutationCountByGeneList = mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(molecularProfileId, 
                 allIds, null);
             mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileId, alteredIds, null, null, 
-                "ID", null, null, null, null);
+                false, "ID", null, null, null, null);
         } else {
             mutationCountByGeneList = mutationService.getPatientCountByEntrezGeneIdsAndSampleIds(molecularProfileId,
                 allIds, null);
@@ -54,8 +52,8 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
             List<Sample> sampleList = sampleService.getAllSamplesOfPatientsInStudy(
                 molecularProfile.getCancerStudyIdentifier(), alteredIds, "ID");
             mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileId,
-                sampleList.stream().map(Sample::getStableId).collect(Collectors.toList()), null, null, "ID", null, null,
-                null, null);
+                sampleList.stream().map(Sample::getStableId).collect(Collectors.toList()), null, null, false, "ID", 
+                null, null, null, null);
         }
 
         return alterationEnrichmentUtil.createAlterationEnrichments(alteredIds.size(), unalteredIds.size(),

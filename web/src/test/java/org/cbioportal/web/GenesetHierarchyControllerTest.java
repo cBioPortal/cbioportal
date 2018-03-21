@@ -66,7 +66,7 @@ public class GenesetHierarchyControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(4)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].nodeId").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].nodeName").value("Root node"))

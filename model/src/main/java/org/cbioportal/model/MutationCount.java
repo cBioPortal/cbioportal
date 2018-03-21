@@ -1,13 +1,19 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
 public class MutationCount extends UniqueKeyBase {
 
+    @NotNull
     private String molecularProfileId;
+    @NotNull
     private String sampleId;
+    @NotNull
     private String patientId;
+    @NotNull
     private String studyId;
+    @NotNull
     private Integer mutationCount;
 
     public String getMolecularProfileId() {

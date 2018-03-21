@@ -1,14 +1,23 @@
 package org.cbioportal.model;
 
+import javax.validation.constraints.NotNull;
+
 public class GenePanelData extends UniqueKeyBase {
     
+    @NotNull
     private String molecularProfileId;
+    @NotNull
     private String sampleId;
+    @NotNull
     private String patientId;
+    @NotNull
     private String studyId;
     private String genePanelId;
+    @NotNull
     private Integer entrezGeneId;
+    @NotNull
     private Boolean sequenced;
+    @NotNull
     private Boolean wholeExomeSequenced;
 
     public String getMolecularProfileId() {

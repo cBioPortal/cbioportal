@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -71,6 +72,7 @@ public class MolecularProfileController {
         }
     }
 
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get molecular profile")
@@ -81,6 +83,7 @@ public class MolecularProfileController {
         return new ResponseEntity<>(molecularProfileService.getMolecularProfile(molecularProfileId), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/molecular-profiles", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all molecular profiles in a study")
@@ -113,6 +116,7 @@ public class MolecularProfileController {
         }
     }
 
+    @PreAuthorize("hasPermission(#molecularProfileFilter, 'MolecularProfileFilter', 'read')")
     @RequestMapping(value = "/molecular-profiles/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch molecular profiles")

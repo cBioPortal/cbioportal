@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -75,6 +76,7 @@ public class ClinicalAttributeController {
         }
     }
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/clinical-attributes", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical attributes in the specified study")
@@ -108,6 +110,7 @@ public class ClinicalAttributeController {
         }
     }
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/clinical-attributes/{clinicalAttributeId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get specified clinical attribute")
@@ -122,6 +125,7 @@ public class ClinicalAttributeController {
                 HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     @RequestMapping(value = "/clinical-attributes/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical attributes")
@@ -143,6 +147,7 @@ public class ClinicalAttributeController {
         }
     }
 
+    @PreAuthorize("hasPermission(#clinicalAttributeFilter, 'ClinicalAttributeFilter', 'read')")
     @RequestMapping(value = "/clinical-attributes/counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical attributes in specified sampleIdentifiers or sampleListID with clinical attribute count")

@@ -1,6 +1,7 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
 public class MolecularProfile implements Serializable {
 
@@ -25,8 +26,10 @@ public class MolecularProfile implements Serializable {
     }
 
     private Integer molecularProfileId;
+    @NotNull
     private String stableId;
     private Integer cancerStudyId;
+    @NotNull
     private String cancerStudyIdentifier;
     private MolecularAlterationType molecularAlterationType;
     private String datatype;

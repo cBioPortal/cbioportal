@@ -6,11 +6,13 @@ import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +26,11 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
 
     @Mock
     private StudyRepository studyRepository;
+
+    @Before
+    public void setup() {
+        ReflectionTestUtils.setField(studyService, "AUTHENTICATE", "false");
+    }
 
     @Test
     public void getAllStudies() throws Exception {

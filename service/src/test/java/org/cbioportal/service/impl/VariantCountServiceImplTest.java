@@ -45,7 +45,7 @@ public class VariantCountServiceImplTest extends BaseServiceImplTest {
 
         MutationMeta mutationMeta = new MutationMeta();
         mutationMeta.setSampleCount(5);
-        Mockito.when(mutationService.fetchMetaMutationsInMolecularProfile(MOLECULAR_PROFILE_ID, null, null))
+        Mockito.when(mutationService.fetchMetaMutationsInMolecularProfile(MOLECULAR_PROFILE_ID, null, null, false))
             .thenReturn(mutationMeta);
 
         SampleList sampleList = new SampleList();
@@ -56,11 +56,11 @@ public class VariantCountServiceImplTest extends BaseServiceImplTest {
         VariantCount variantCount = new VariantCount();
         expectedVariantCounts.add(variantCount);
         
-        Mockito.when(variantCountRepository.fetchVariantCounts(MOLECULAR_PROFILE_ID, Arrays.asList(ENTREZ_GENE_ID), 
+        Mockito.when(variantCountRepository.fetchVariantCounts(MOLECULAR_PROFILE_ID, Arrays.asList(ENTREZ_GENE_ID_1), 
             Arrays.asList(KEYWORD))).thenReturn(expectedVariantCounts);
         
         List<VariantCount> result = variantCountService.fetchVariantCounts(MOLECULAR_PROFILE_ID, 
-            Arrays.asList(ENTREZ_GENE_ID), Arrays.asList(KEYWORD));
+            Arrays.asList(ENTREZ_GENE_ID_1), Arrays.asList(KEYWORD));
 
         Assert.assertEquals(expectedVariantCounts, result);
         Assert.assertEquals((Integer) 5, result.get(0).getNumberOfSamples());

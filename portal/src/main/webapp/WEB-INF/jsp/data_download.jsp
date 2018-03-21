@@ -37,29 +37,37 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 
-<script type="text/javascript" src="js/src/data_download.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
 <div class="section" id="data_download">
-
-    <div id='data_download_tab_links_li_div'>
-        <h4>The following are downloadable data files (click to download) </h4>
-        <ul id='data_download_links_li'></ul>
-        <div id='data_download_redirect_home_page'></div>
-    </div><!-- end data_download_tab_info_div -->
-
-    <div id='data_download_tab_text_areas'>
-        <h4>Contents below can be copied and pasted into Excel</h4><br>
-        <h3><small>Frequency of Gene Alteration:</small></h3>
-        <textarea class="form-control" id="text_area_gene_alteration_freq" title="Frequency of Gene Alteration"></textarea><br>
-        <h3><small>Type of Genetic alterations across all cases: (Alterations are summarized as MUT, Gain, HetLoss, etc.)</small></h3>
-        <textarea class="form-control" id="text_area_gene_alteration_type" title="Type of Genetic alterations across all cases"></textarea><br>
-        <h3><small>Cases affected: (Only cases with an alteration are included)</small></h3>
-        <textarea class="form-control" id="text_area_case_affected" title="Cases affected"></textarea><br>
-        <h3><small>Case matrix: (1= Case harbors alteration in one of the input genes)</small></h3>
-        <textarea class="form-control" id="text_area_case_matrix" title="Case matrix"></textarea><br>
-    </div>
-
 </div><!-- end data download div -->
+
+<script>
+
+    $(document).ready( function() {
+        //whether this tab has already been initialized or not:
+        var tab_init = false;
+        //function that will listen to tab changes and init this one when applicable:
+        function tabsUpdate() {
+            if ($("#data_download").is(":visible")) {
+                if (tab_init === false) {
+                    window.onReactAppReady(function(){
+                        window.renderDownloadTab(document.getElementById('data_download'));
+                    });
+                    tab_init = true;
+                }
+            }
+        }
+        
+        //this is for the scenario where the tab is open by default (as part of URL >> #tab_name at the end of URL),
+        tabsUpdate();
+
+        //this is for the scenario where the user navigates to this tab:
+        $("#tabs").bind("tabsactivate", function(event, ui) {
+            tabsUpdate();
+        });
+    });
+
+</script>
+
 
 <%
     String debugStr = request.getParameter("xdebug");
@@ -69,16 +77,3 @@
     }
     String textOnly = request.getParameter("text_only");
 %>
-
-<style>
-    #data_download textarea {
-        width: 90%;
-        height: 200px;
-    }
-
-    #data_download_tab_text_areas {
-        margin-top: 30px;
-    }
-
-</style>
-

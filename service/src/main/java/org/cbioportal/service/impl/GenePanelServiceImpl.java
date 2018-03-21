@@ -1,20 +1,30 @@
 package org.cbioportal.service.impl;
 
+import org.cbioportal.model.Gene;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.GenePanelToGene;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
+import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.GenePanelService;
+import org.cbioportal.service.GeneService;
 import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.apache.commons.collections.map.MultiKeyMap;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +34,12 @@ public class GenePanelServiceImpl implements GenePanelService {
     private GenePanelRepository genePanelRepository;
     @Autowired
     private MolecularProfileService molecularProfileService;
+    @Autowired
+    private SampleListRepository sampleListRepository;
+    @Autowired
+    private SampleService sampleService;
+    @Autowired
+    private GeneService geneService;
 
     @Override
     public List<GenePanel> getAllGenePanels(String projection, Integer pageSize, Integer pageNumber, String sortBy, 
@@ -63,50 +79,126 @@ public class GenePanelServiceImpl implements GenePanelService {
     }
     
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<GenePanelData> getGenePanelData(String molecularProfileId, String sampleListId, 
                                                 List<Integer> entrezGeneIds) throws MolecularProfileNotFoundException {
 
         molecularProfileService.getMolecularProfile(molecularProfileId);
-        
-        List<GenePanelData> genePanelDataList = genePanelRepository.getGenePanelData(molecularProfileId, sampleListId);
-        assignGenesOfPanels(genePanelDataList, entrezGeneIds);
-        
-        return genePanelDataList;
+        List<String> sampleIds = sampleListRepository.getAllSampleIdsInSampleList(sampleListId);
+        List<String> molecularProfileIds = new ArrayList<>();
+        sampleIds.forEach(s -> molecularProfileIds.add(molecularProfileId));
+
+        List<GenePanelData> genePanelData = genePanelRepository.getGenePanelData(molecularProfileId, sampleListId);
+        return createGenePanelData(createGenePanelDataMap(genePanelData), createGenePanelToGeneMap(genePanelData),
+                                   molecularProfileIds, sampleIds, entrezGeneIds);
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<GenePanelData> fetchGenePanelData(String molecularProfileId, List<String> sampleIds, 
                                                   List<Integer> entrezGeneIds) throws MolecularProfileNotFoundException {
 
         molecularProfileService.getMolecularProfile(molecularProfileId);
+        List<String> molecularProfileIds = new ArrayList<>();
+        sampleIds.forEach(s -> molecularProfileIds.add(molecularProfileId));
 
-        List<GenePanelData> genePanelDataList = genePanelRepository.fetchGenePanelData(molecularProfileId, sampleIds);
-        assignGenesOfPanels(genePanelDataList, entrezGeneIds);
-
-        return genePanelDataList;
+        List<GenePanelData> genePanelData = genePanelRepository.fetchGenePanelData(molecularProfileId, sampleIds);
+        return createGenePanelData(createGenePanelDataMap(genePanelData), createGenePanelToGeneMap(genePanelData),
+                                   molecularProfileIds, sampleIds, entrezGeneIds);
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
 	public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds,
 			List<String> sampleIds, List<Integer> entrezGeneIds) {
-        
-        List<GenePanelData> genePanelDataList = genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(
-            molecularProfileIds, sampleIds);
-        assignGenesOfPanels(genePanelDataList, entrezGeneIds);
-        
-        return genePanelDataList;
+
+            List<GenePanelData> genePanelData =
+                genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds);
+            return createGenePanelData(createGenePanelDataMap(genePanelData), createGenePanelToGeneMap(genePanelData),
+                                       molecularProfileIds, sampleIds, entrezGeneIds);
 	}
 
-    private void assignGenesOfPanels(List<GenePanelData> genePanelDataList, List<Integer> entrezGeneIds) {
-        
-        List<GenePanelToGene> genePanelToGeneList = genePanelRepository.getGenesOfPanels(genePanelDataList.stream()
-            .map(GenePanelData::getGenePanelId).collect(Collectors.toList()));
+    private List<GenePanelData> createGenePanelData(MultiKeyMap genePanelDataMap, MultiKeyMap genePanelToGeneMap, List<String> molecularProfileIds,
+        List<String> sampleIds, List<Integer> entrezGeneIds) {
 
-        genePanelDataList.forEach(g1 -> g1.setEntrezGeneIds(genePanelToGeneList.stream().filter(g2 ->
-            g2.getGenePanelId().equals(g1.getGenePanelId())).filter(g2 -> entrezGeneIds.contains(g2.getEntrezGeneId()))
-            .map(GenePanelToGene::getEntrezGeneId).collect(Collectors.toList())));
+        List<Gene> genes = geneService.fetchGenes(entrezGeneIds.stream().map(e -> String.valueOf(e)).collect(Collectors.toList()), 
+            "ENTREZ_GENE_ID", "ID");
+
+        Map<String, MolecularProfile> molecularProfileMap = molecularProfileService.getMolecularProfiles(
+            molecularProfileIds, "SUMMARY").stream().collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
+        List<String> studyIds = new ArrayList<>();
+        List<String> copyMolecularProfileIds = new ArrayList<>(molecularProfileIds);
+        
+        for (int i = 0; i < copyMolecularProfileIds.size(); i++) {
+            String molecularProfileId = copyMolecularProfileIds.get(i);
+            if (molecularProfileMap.containsKey(molecularProfileId)) {
+                studyIds.add(molecularProfileMap.get(molecularProfileId).getCancerStudyIdentifier());
+            } else {
+                molecularProfileIds.remove(i);
+                sampleIds.remove(i);
+            }
+        }
+
+        MultiKeyMap samples = createSampleMap(studyIds, sampleIds);
+
+        List<GenePanelData> resultGenePanelDataList = new ArrayList<>();
+
+        for(int i = 0; i < sampleIds.size(); i++) {
+            String sampleId = sampleIds.get(i);
+            String molecularProfileId = molecularProfileIds.get(i);
+            for (Gene gene : genes) {
+                Integer entrezGeneId = gene.getEntrezGeneId();
+                GenePanelData resultGenePanelData = new GenePanelData();
+                Optional<GenePanelData> genePanelData =
+                    Optional.ofNullable((GenePanelData)genePanelDataMap.get(molecularProfileId, sampleId));
+                if (genePanelData.isPresent()) {
+                    String genePanelId = genePanelData.get().getGenePanelId();
+                    resultGenePanelData.setGenePanelId(genePanelId);
+                    resultGenePanelData.setSequenced(genePanelToGeneMap.containsKey(genePanelId, entrezGeneId));
+                    resultGenePanelData.setWholeExomeSequenced(false);
+                } else {
+                    resultGenePanelData.setWholeExomeSequenced(true);
+                    resultGenePanelData.setSequenced(true);
+                }
+                resultGenePanelData.setEntrezGeneId(entrezGeneId);
+                resultGenePanelData.setMolecularProfileId(molecularProfileId);
+                resultGenePanelData.setSampleId(sampleId);
+                String studyId = molecularProfileMap.get(molecularProfileId).getCancerStudyIdentifier();
+                resultGenePanelData.setStudyId(studyId);
+                Optional<Sample> sample = Optional.ofNullable((Sample)samples.get(sampleId, studyId));
+                if (sample.isPresent()) {
+                    resultGenePanelData.setPatientId(sample.get().getPatientStableId());
+                    resultGenePanelDataList.add(resultGenePanelData);
+                }
+            }
+        }
+
+        return resultGenePanelDataList;
+    }
+
+    private MultiKeyMap createGenePanelDataMap(List<GenePanelData> genePanelDataList)
+    {
+        MultiKeyMap toReturn = new MultiKeyMap();
+        for (GenePanelData gpd : genePanelDataList) {
+            toReturn.put(gpd.getMolecularProfileId(), gpd.getSampleId(), gpd);
+        }
+        return toReturn;
+    }
+
+    private MultiKeyMap createGenePanelToGeneMap(List<GenePanelData> genePanelDataList)
+    {
+        MultiKeyMap toReturn = new MultiKeyMap();
+           List<GenePanelToGene> genePanelToGeneList = genePanelRepository.getGenesOfPanels(genePanelDataList.stream()
+            .map(GenePanelData::getGenePanelId).collect(Collectors.toList()));
+           for (GenePanelToGene gp2g : genePanelToGeneList) {
+               toReturn.put(gp2g.getGenePanelId(), gp2g.getEntrezGeneId(), gp2g);
+           }
+           return toReturn;
+    }
+
+    private MultiKeyMap createSampleMap(List<String> studyIds, List<String> sampleIds)
+    {
+        MultiKeyMap toReturn = new MultiKeyMap();
+        for (Sample sample : sampleService.fetchSamples(studyIds, sampleIds, "ID")) {
+            toReturn.put(sample.getStableId(), sample.getCancerStudyIdentifier(), sample);
+        }
+        return toReturn;
     }
 }

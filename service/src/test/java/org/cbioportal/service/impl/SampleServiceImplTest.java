@@ -119,14 +119,14 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Sample sample = new Sample();
         expectedSampleList.add(sample);
 
-        Mockito.when(sampleRepository.getAllSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID, PROJECTION, PAGE_SIZE,
+        Mockito.when(sampleRepository.getAllSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE,
                 PAGE_NUMBER, SORT, DIRECTION)).thenReturn(expectedSampleList);
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(new ArrayList<>());
 
-        List<Sample> result = sampleService.getAllSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID, PROJECTION, PAGE_SIZE,
+        List<Sample> result = sampleService.getAllSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE,
                 PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedSampleList, result);
@@ -135,9 +135,9 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     @Test(expected = PatientNotFoundException.class)
     public void getAllSamplesOfPatientInStudyPatientNotFound() throws Exception {
 
-        Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID)).thenThrow(new PatientNotFoundException(
-            STUDY_ID, PATIENT_ID));
-        sampleService.getAllSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, 
+        Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1)).thenThrow(new PatientNotFoundException(
+            STUDY_ID, PATIENT_ID_1));
+        sampleService.getAllSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, 
             DIRECTION);
     }
 
@@ -145,8 +145,8 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     public void getMetaSamplesOfPatientInStudy() throws Exception {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(sampleRepository.getMetaSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID)).thenReturn(expectedBaseMeta);
-        BaseMeta result = sampleService.getMetaSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID);
+        Mockito.when(sampleRepository.getMetaSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID_1)).thenReturn(expectedBaseMeta);
+        BaseMeta result = sampleService.getMetaSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID_1);
 
         Assert.assertEquals(expectedBaseMeta, result);
     }
@@ -154,9 +154,9 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     @Test(expected = PatientNotFoundException.class)
     public void getMetaSamplesOfPatientInStudyPatientNotFound() throws Exception {
         
-        Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID)).thenThrow(new PatientNotFoundException(
-            STUDY_ID, PATIENT_ID));
-        sampleService.getMetaSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID);
+        Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1)).thenThrow(new PatientNotFoundException(
+            STUDY_ID, PATIENT_ID_1));
+        sampleService.getMetaSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID_1);
     }
 
     @Test
@@ -166,14 +166,14 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Sample sample = new Sample();
         expectedSampleList.add(sample);
 
-        Mockito.when(sampleRepository.getAllSamplesOfPatientsInStudy(STUDY_ID, Arrays.asList(PATIENT_ID), PROJECTION))
+        Mockito.when(sampleRepository.getAllSamplesOfPatientsInStudy(STUDY_ID, Arrays.asList(PATIENT_ID_1), PROJECTION))
             .thenReturn(expectedSampleList);
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(new ArrayList<>());
 
-        List<Sample> result = sampleService.getAllSamplesOfPatientsInStudy(STUDY_ID, Arrays.asList(PATIENT_ID), PROJECTION);
+        List<Sample> result = sampleService.getAllSamplesOfPatientsInStudy(STUDY_ID, Arrays.asList(PATIENT_ID_1), PROJECTION);
 
         Assert.assertEquals(expectedSampleList, result);
     }

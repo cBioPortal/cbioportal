@@ -1,5 +1,7 @@
 package org.cbioportal.model;
 
+import javax.validation.constraints.NotNull;
+
 public class Sample extends UniqueKeyBase {
 
     public enum SampleType {
@@ -41,12 +43,15 @@ public class Sample extends UniqueKeyBase {
     }
 
     private Integer internalId;
+    @NotNull
     private String stableId;
     private SampleType sampleType;
     private Integer patientId;
+    @NotNull
     private String patientStableId;
     private String typeOfCancerId;
     private Patient patient;
+    @NotNull
     private String cancerStudyIdentifier;
     private Boolean sequenced;
     private Boolean copyNumberSegmentPresent;
@@ -115,7 +120,7 @@ public class Sample extends UniqueKeyBase {
         this.cancerStudyIdentifier = cancerStudyIdentifier;
     }
 
-    public Boolean isSequenced() {
+    public Boolean getSequenced() {
         return sequenced;
     }
 
@@ -123,7 +128,7 @@ public class Sample extends UniqueKeyBase {
         this.sequenced = sequenced;
     }
 
-    public Boolean isCopyNumberSegmentPresent() {
+    public Boolean getCopyNumberSegmentPresent() {
         return copyNumberSegmentPresent;
     }
 

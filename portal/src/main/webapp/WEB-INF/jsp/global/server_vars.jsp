@@ -23,6 +23,9 @@
     }
     oql = xssUtil.getCleanerInput(oql);
 
+    // List of queried gene sets
+    String genesetIds = request.getParameter(QueryBuilder.GENESET_LIST);
+
     String studySampleMapJson = (String)request.getAttribute("STUDY_SAMPLE_MAP");
     String sampleSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String sampleSetName = request.getAttribute("case_set_name") != null ? (String) request.getAttribute("case_set_name") : "User-defined Patient List";
@@ -72,6 +75,7 @@
         dataPriority:jspToJs('<%=dataPriority%>', function(d) { return parseInt(d, 10); }),
         
         theQuery: decodeURIComponent(jspToJs(uri_and_html_decoded_oql) || ""), 
+        genesetIds: jspToJs('<%=genesetIds%>'.trim()) || "",
         studySampleObj: jspToJs('<%=studySampleMapJson%>', JSON.parse)
        	
     };

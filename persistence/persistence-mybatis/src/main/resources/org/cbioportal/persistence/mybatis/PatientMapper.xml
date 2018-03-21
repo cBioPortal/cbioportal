@@ -2,16 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.PatientMapper">
-    <cache/>
+    <cache readOnly="true"/>
 
     <sql id="select">
         patient.INTERNAL_ID AS "${prefix}internalId",
-        patient.STABLE_ID AS "${prefix}stableId"
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            ,
-            patient.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
-            cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
-        </if>
+        patient.STABLE_ID AS "${prefix}stableId",
+        patient.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
         <if test="projection == 'DETAILED'">
             ,
             <include refid="org.cbioportal.persistence.mybatis.StudyMapper.select">

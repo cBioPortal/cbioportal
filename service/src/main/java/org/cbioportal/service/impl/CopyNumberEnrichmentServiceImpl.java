@@ -12,7 +12,6 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
     private AlterationEnrichmentUtil alterationEnrichmentUtil;
     
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<AlterationEnrichment> getCopyNumberEnrichments(String molecularProfileId, List<String> alteredIds,
                                                                List<String> unalteredIds, List<Integer> alterationTypes, 
                                                                String enrichmentType)
@@ -40,16 +38,16 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
 
         List<String> allIds = new ArrayList<>(alteredIds);
         allIds.addAll(unalteredIds);
-        List<CopyNumberCountByGene> copyNumberCountByGeneList;
+        List<CopyNumberCountByGene> copyNumberCountByGeneListFromRepo;
         List<DiscreteCopyNumberData> discreteCopyNumberDataList;
         
         if (enrichmentType.equals("SAMPLE")) {
-            copyNumberCountByGeneList = discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(
+            copyNumberCountByGeneListFromRepo = discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(
                 molecularProfileId, allIds, null, null);
             discreteCopyNumberDataList = discreteCopyNumberService
                 .fetchDiscreteCopyNumbersInMolecularProfile(molecularProfileId, alteredIds, null, alterationTypes, "ID");
         } else {
-            copyNumberCountByGeneList = discreteCopyNumberService.getPatientCountByGeneAndAlterationAndPatientIds(
+            copyNumberCountByGeneListFromRepo = discreteCopyNumberService.getPatientCountByGeneAndAlterationAndPatientIds(
                 molecularProfileId, allIds, null, null);
             MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
             List<Sample> sampleList = sampleService.getAllSamplesOfPatientsInStudy(
@@ -59,6 +57,8 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                     sampleList.stream().map(Sample::getStableId).collect(Collectors.toList()), null, alterationTypes, 
                     "ID");
         }
+        List<CopyNumberCountByGene> copyNumberCountByGeneList =
+            new ArrayList<CopyNumberCountByGene>(copyNumberCountByGeneListFromRepo);
         copyNumberCountByGeneList.removeIf(m -> !alterationTypes.contains(m.getAlteration()));
 
         return alterationEnrichmentUtil.createAlterationEnrichments(alteredIds.size(), unalteredIds.size(),

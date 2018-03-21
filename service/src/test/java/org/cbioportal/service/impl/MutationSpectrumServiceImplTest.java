@@ -30,7 +30,7 @@ public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
         List<Mutation> mutationList = createMutationList();
 
         Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
-            null, true, "SUMMARY", null, null, null, null)).thenReturn(mutationList);
+            null, true, false, "SUMMARY", null, null, null, null)).thenReturn(mutationList);
         
         List<MutationSpectrum> result = mutationSpectrumService.getMutationSpectrums(MOLECULAR_PROFILE_ID, 
             SAMPLE_LIST_ID);
@@ -62,7 +62,7 @@ public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
         List<Mutation> mutationList = createMutationList();
 
         Mockito.when(mutationService.fetchMutationsInMolecularProfile(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, 
-            SAMPLE_ID2), null, true, "SUMMARY", null, null, null, null)).thenReturn(mutationList);
+            SAMPLE_ID2), null, true, false, "SUMMARY", null, null, null, null)).thenReturn(mutationList);
 
         List<MutationSpectrum> result = mutationSpectrumService.fetchMutationSpectrums(MOLECULAR_PROFILE_ID,
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2));

@@ -8,11 +8,13 @@ import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +30,11 @@ public class MolecularProfileServiceImplTest extends BaseServiceImplTest {
     private MolecularProfileRepository molecularProfileRepository;
     @Mock
     private StudyService studyService;
+
+    @Before
+    public void setup() {
+        ReflectionTestUtils.setField(molecularProfileService, "AUTHENTICATE", "false");
+    }
 
     @Test
     public void getAllMolecularProfiles() throws Exception {

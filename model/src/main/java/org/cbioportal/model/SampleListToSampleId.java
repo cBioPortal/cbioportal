@@ -1,10 +1,12 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
 public class SampleListToSampleId implements Serializable {
     
     private Integer sampleListId;
+    @NotNull
     private String sampleId;
 
     public Integer getSampleListId() {

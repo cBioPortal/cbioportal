@@ -10,6 +10,7 @@ import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.web.parameter.GenePanelDataFilter;
 import org.cbioportal.web.parameter.GenePanelMultipleStudyFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
+import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -129,7 +130,7 @@ public class GenePanelControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/gene-panels")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
@@ -202,15 +203,15 @@ public class GenePanelControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/gene-panels/test_gene_panel_id")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$stableId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$genePanelId").value(TEST_GENE_PANEL_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$description").value(TEST_DESCRIPTION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$genes[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$genes[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$genes[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$genes[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2));
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.stableId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.genePanelId").value(TEST_GENE_PANEL_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(TEST_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.genes[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.genes[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.genes[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.genes[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2));
     }
 
     @Test
@@ -232,7 +233,7 @@ public class GenePanelControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(genePanelDataFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_MOLECULAR_PROFILE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
@@ -261,7 +262,16 @@ public class GenePanelControllerTest {
             Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class))).thenReturn(genePanelDataList);
 
         GenePanelMultipleStudyFilter genePanelMultipleStudyFilter = new GenePanelMultipleStudyFilter();
-        genePanelMultipleStudyFilter.setMolecularProfileIds(Arrays.asList(TEST_MOLECULAR_PROFILE_ID_1, TEST_MOLECULAR_PROFILE_ID_2));
+        List<SampleMolecularIdentifier> sampleMolecularIdentifiers = new ArrayList<>();
+        SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();
+        sampleMolecularIdentifier1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_ID_1);
+        sampleMolecularIdentifier1.setSampleId(TEST_SAMPLE_ID_1);
+        sampleMolecularIdentifiers.add(sampleMolecularIdentifier1);
+        SampleMolecularIdentifier sampleMolecularIdentifier2 = new SampleMolecularIdentifier();
+        sampleMolecularIdentifier2.setMolecularProfileId(TEST_MOLECULAR_PROFILE_ID_2);
+        sampleMolecularIdentifier2.setSampleId(TEST_SAMPLE_ID_2);
+        sampleMolecularIdentifiers.add(sampleMolecularIdentifier2);
+        genePanelMultipleStudyFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifiers);
         genePanelMultipleStudyFilter.setEntrezGeneIds(Arrays.asList(TEST_ENTREZ_GENE_ID_1, TEST_ENTREZ_GENE_ID_2, 
             TEST_ENTREZ_GENE_ID_3, TEST_ENTREZ_GENE_ID_4));
 
@@ -271,7 +281,7 @@ public class GenePanelControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(genePanelMultipleStudyFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_MOLECULAR_PROFILE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))

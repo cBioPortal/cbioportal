@@ -98,6 +98,7 @@ DROP TABLE IF EXISTS `geneset_hierarchy_node`;
 DROP TABLE IF EXISTS `geneset`;
 DROP TABLE IF EXISTS `genetic_entity`;
 DROP TABLE IF EXISTS `reference_genome`;
+DROP TABLE IF EXISTS `fraction_genome_altered`;
 
 -- --------------------------------------------------------
 CREATE TABLE `type_of_cancer` (
@@ -624,7 +625,7 @@ CREATE TABLE `gistic_to_gene` (
   `ENTREZ_GENE_ID` int(11) NOT NULL,
   PRIMARY KEY(`GISTIC_ROI_ID`, `ENTREZ_GENE_ID`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`),
-  FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`)
+  FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------
@@ -804,9 +805,19 @@ CREATE TABLE `reference_genome_gene` (
 );
 
 -- --------------------------------------------------------
+CREATE TABLE `fraction_genome_altered` (
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `SAMPLE_ID` int(11) NOT NULL,
+  `VALUE` double NOT NULL,
+  PRIMARY KEY (`CANCER_STUDY_ID`,`SAMPLE_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
 CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24),
   `GENESET_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.4.1', NULL);
+INSERT INTO info VALUES ('2.6.0', NULL);

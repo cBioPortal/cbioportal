@@ -174,7 +174,7 @@ window.loadReactApp({ defaultRoute: 'results' });
                 // hacky but consistent with how currently being done
                 showMutTab = true;
             }
-            String[] geneList = URLDecoder.decode((String) request.getAttribute(QueryBuilder.GENE_LIST), "UTF-8").split("( )|(\\n)");
+            String[] geneList = URLDecoder.decode((String) request.getAttribute(QueryBuilder.GENE_LIST), "UTF-8").split("( )|(\\n)|(;)");
             if (geneList.length <= 1) {
                 computeLogOddsRatio = false;
             }

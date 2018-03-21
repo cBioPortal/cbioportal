@@ -124,7 +124,6 @@ mdacc.heatmap.study.url=//bioinformatics.mdanderson.org/TCGA/NGCHMPortal/?
 
 # patient view settings
 patient_view_placeholder=false
-patient_view_genomic_overview_cna_cutoff=0.2,1.5
 digitalslidearchive.iframe.url=http://cancer.digitalslidearchive.net/index_mskcc.php?slide_name=
 digitalslidearchive.meta.url=http://cancer.digitalslidearchive.net/local_php/get_slide_list_from_db_groupid_not_needed.php?slide_name_filter=
 tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/

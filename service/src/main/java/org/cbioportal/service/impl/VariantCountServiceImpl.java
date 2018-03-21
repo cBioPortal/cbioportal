@@ -10,7 +10,6 @@ import org.cbioportal.service.VariantCountService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,7 +29,6 @@ public class VariantCountServiceImpl implements VariantCountService {
     private MolecularProfileService molecularProfileService;
     
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<VariantCount> fetchVariantCounts(String molecularProfileId, List<Integer> entrezGeneIds, 
                                                  List<String> keywords) throws MolecularProfileNotFoundException {
 
@@ -51,8 +49,8 @@ public class VariantCountServiceImpl implements VariantCountService {
             return sampleListService.getSampleList(
                 molecularProfile.getCancerStudyIdentifier() + SEQUENCED_LIST_SUFFIX).getSampleCount();
         } catch (SampleListNotFoundException ex) {
-            return mutationService.fetchMetaMutationsInMolecularProfile(molecularProfile.getStableId(), null, null)
-                .getSampleCount();
+            return mutationService.fetchMetaMutationsInMolecularProfile(molecularProfile.getStableId(), null, null, 
+                false).getSampleCount();
         }
 	}
 

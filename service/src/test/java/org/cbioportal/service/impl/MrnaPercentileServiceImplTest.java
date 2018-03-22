@@ -34,19 +34,19 @@ public class MrnaPercentileServiceImplTest extends BaseServiceImplTest {
         List<GeneMolecularData> molecularDataList = new ArrayList<>();
         GeneMolecularData molecularData1 = new GeneMolecularData();
         molecularData1.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-        molecularData1.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        molecularData1.setEntrezGeneId(ENTREZ_GENE_ID);
         molecularData1.setSampleId(SAMPLE_ID1);
         molecularData1.setValue("0.3456");
         molecularDataList.add(molecularData1);
         GeneMolecularData molecularData2 = new GeneMolecularData();
         molecularData2.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-        molecularData2.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        molecularData2.setEntrezGeneId(ENTREZ_GENE_ID);
         molecularData2.setSampleId("sample_id_2");
         molecularData2.setValue("0.2456");
         molecularDataList.add(molecularData2);
         GeneMolecularData molecularData3 = new GeneMolecularData();
         molecularData3.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-        molecularData3.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        molecularData3.setEntrezGeneId(ENTREZ_GENE_ID);
         molecularData3.setSampleId("sample_id_3");
         molecularData3.setValue("0.2457");
         molecularDataList.add(molecularData3);
@@ -74,7 +74,7 @@ public class MrnaPercentileServiceImplTest extends BaseServiceImplTest {
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
         
         List<Integer> entrezGeneIds = new ArrayList<>();
-        entrezGeneIds.add(ENTREZ_GENE_ID_1);
+        entrezGeneIds.add(ENTREZ_GENE_ID);
         entrezGeneIds.add(2);
 
         Mockito.when(molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, null, entrezGeneIds, 
@@ -87,7 +87,7 @@ public class MrnaPercentileServiceImplTest extends BaseServiceImplTest {
         MrnaPercentile mrnaPercentile1 = result.get(0);
         Assert.assertEquals(MOLECULAR_PROFILE_ID, mrnaPercentile1.getMolecularProfileId());
         Assert.assertEquals("sample_id_2", mrnaPercentile1.getSampleId());
-        Assert.assertEquals(ENTREZ_GENE_ID_1, mrnaPercentile1.getEntrezGeneId());
+        Assert.assertEquals(ENTREZ_GENE_ID, mrnaPercentile1.getEntrezGeneId());
         Assert.assertEquals(new BigDecimal("0.2456"), mrnaPercentile1.getzScore());
         Assert.assertEquals(new BigDecimal("33.33"), mrnaPercentile1.getPercentile());
         MrnaPercentile mrnaPercentile2 = result.get(1);

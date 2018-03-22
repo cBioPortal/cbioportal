@@ -44,7 +44,7 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
             .thenReturn(genes);
 
         List<CoExpression> result = coExpressionService.getCoExpressions(MOLECULAR_PROFILE_ID,
-            SAMPLE_LIST_ID, ENTREZ_GENE_ID_1, THRESHOLD);
+            SAMPLE_LIST_ID, ENTREZ_GENE_ID, THRESHOLD);
 
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
@@ -74,7 +74,7 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
             .thenReturn(genes);
 
         List<CoExpression> result = coExpressionService.fetchCoExpressions(MOLECULAR_PROFILE_ID,
-            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), ENTREZ_GENE_ID_1, THRESHOLD);
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), ENTREZ_GENE_ID, THRESHOLD);
 
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
@@ -94,15 +94,15 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
     private List<GeneMolecularData> createGeneMolecularData() {
         List<GeneMolecularData> molecularDataList = new ArrayList<>();
         GeneMolecularData geneMolecularData1 = new GeneMolecularData();
-        geneMolecularData1.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        geneMolecularData1.setEntrezGeneId(ENTREZ_GENE_ID);
         geneMolecularData1.setValue("2.1");
         molecularDataList.add(geneMolecularData1);
         GeneMolecularData geneMolecularData2 = new GeneMolecularData();
-        geneMolecularData2.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        geneMolecularData2.setEntrezGeneId(ENTREZ_GENE_ID);
         geneMolecularData2.setValue("3");
         molecularDataList.add(geneMolecularData2);
         GeneMolecularData geneMolecularData3 = new GeneMolecularData();
-        geneMolecularData3.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        geneMolecularData3.setEntrezGeneId(ENTREZ_GENE_ID);
         geneMolecularData3.setValue("3");
         molecularDataList.add(geneMolecularData3);
         GeneMolecularData geneMolecularData4 = new GeneMolecularData();

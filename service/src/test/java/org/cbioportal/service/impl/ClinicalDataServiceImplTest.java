@@ -90,11 +90,11 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
         ClinicalData patientClinicalData = new ClinicalData();
         expectedPatientClinicalDataList.add(patientClinicalData);
 
-        Mockito.when(clinicalDataRepository.getAllClinicalDataOfPatientInStudy(STUDY_ID, PATIENT_ID_1, 
+        Mockito.when(clinicalDataRepository.getAllClinicalDataOfPatientInStudy(STUDY_ID, PATIENT_ID, 
             CLINICAL_ATTRIBUTE_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
             .thenReturn(expectedPatientClinicalDataList);
 
-        List<ClinicalData> result = clinicalDataService.getAllClinicalDataOfPatientInStudy(STUDY_ID, PATIENT_ID_1,
+        List<ClinicalData> result = clinicalDataService.getAllClinicalDataOfPatientInStudy(STUDY_ID, PATIENT_ID,
             CLINICAL_ATTRIBUTE_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedPatientClinicalDataList, result);
@@ -103,9 +103,9 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
     @Test(expected = PatientNotFoundException.class)
     public void getAllClinicalDataOfPatientInStudyPatientNotFound() throws Exception {
         
-        Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1)).thenThrow(new PatientNotFoundException(
-            STUDY_ID, PATIENT_ID_1));
-        clinicalDataService.getAllClinicalDataOfPatientInStudy(STUDY_ID, PATIENT_ID_1, CLINICAL_ATTRIBUTE_ID, PROJECTION, 
+        Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID)).thenThrow(new PatientNotFoundException(
+            STUDY_ID, PATIENT_ID));
+        clinicalDataService.getAllClinicalDataOfPatientInStudy(STUDY_ID, PATIENT_ID, CLINICAL_ATTRIBUTE_ID, PROJECTION, 
             PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
     }
 
@@ -114,10 +114,10 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
 
-        Mockito.when(clinicalDataRepository.getMetaPatientClinicalData(STUDY_ID, PATIENT_ID_1, CLINICAL_ATTRIBUTE_ID))
+        Mockito.when(clinicalDataRepository.getMetaPatientClinicalData(STUDY_ID, PATIENT_ID, CLINICAL_ATTRIBUTE_ID))
                 .thenReturn(expectedBaseMeta);
 
-        BaseMeta result = clinicalDataService.getMetaPatientClinicalData(STUDY_ID, PATIENT_ID_1, CLINICAL_ATTRIBUTE_ID);
+        BaseMeta result = clinicalDataService.getMetaPatientClinicalData(STUDY_ID, PATIENT_ID, CLINICAL_ATTRIBUTE_ID);
 
         Assert.assertEquals(expectedBaseMeta, result);
     }
@@ -125,9 +125,9 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
     @Test(expected = PatientNotFoundException.class)
     public void getMetaPatientClinicalDataPatientNotFound() throws Exception {
 
-        Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1)).thenThrow(new PatientNotFoundException(
-            STUDY_ID, PATIENT_ID_1));
-        clinicalDataService.getMetaPatientClinicalData(STUDY_ID, PATIENT_ID_1, CLINICAL_ATTRIBUTE_ID);
+        Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID)).thenThrow(new PatientNotFoundException(
+            STUDY_ID, PATIENT_ID));
+        clinicalDataService.getMetaPatientClinicalData(STUDY_ID, PATIENT_ID, CLINICAL_ATTRIBUTE_ID);
     }
 
     @Test
@@ -184,7 +184,7 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
         List<String> studyIds = new ArrayList<>();
         studyIds.add(STUDY_ID);
         List<String> patientIds = new ArrayList<>();
-        patientIds.add(PATIENT_ID_1);
+        patientIds.add(PATIENT_ID);
 
         List<ClinicalData> expectedPatientClinicalDataList = new ArrayList<>();
         ClinicalData patientClinicalData = new ClinicalData();
@@ -206,7 +206,7 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
         List<String> studyIds = new ArrayList<>();
         studyIds.add(STUDY_ID);
         List<String> patientIds = new ArrayList<>();
-        patientIds.add(PATIENT_ID_1);
+        patientIds.add(PATIENT_ID);
 
         BaseMeta expectedBaseMeta = new BaseMeta();
         expectedBaseMeta.setTotalCount(5);

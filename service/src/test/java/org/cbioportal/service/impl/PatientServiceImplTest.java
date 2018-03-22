@@ -72,23 +72,23 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
     @Test(expected = PatientNotFoundException.class)
     public void getPatientInStudyPatientNotFound() throws Exception {
 
-        Mockito.when(patientRepository.getPatientInStudy(STUDY_ID, PATIENT_ID_1)).thenReturn(null);
-        patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1);
+        Mockito.when(patientRepository.getPatientInStudy(STUDY_ID, PATIENT_ID)).thenReturn(null);
+        patientService.getPatientInStudy(STUDY_ID, PATIENT_ID);
     }
 
     @Test(expected = StudyNotFoundException.class)
     public void getPatientInStudyNotFound() throws Exception {
 
         Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
-        patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1);
+        patientService.getPatientInStudy(STUDY_ID, PATIENT_ID);
     }
 
     @Test
     public void getPatientInStudy() throws Exception {
 
         Patient expectedPatient = new Patient();
-        Mockito.when(patientRepository.getPatientInStudy(STUDY_ID, PATIENT_ID_1)).thenReturn(expectedPatient);
-        Patient result = patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1);
+        Mockito.when(patientRepository.getPatientInStudy(STUDY_ID, PATIENT_ID)).thenReturn(expectedPatient);
+        Patient result = patientService.getPatientInStudy(STUDY_ID, PATIENT_ID);
 
         Assert.assertEquals(expectedPatient, result);
     }
@@ -100,10 +100,10 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
         Patient patient = new Patient();
         expectedPatientList.add(patient);
 
-        Mockito.when(patientRepository.fetchPatients(Arrays.asList(STUDY_ID), Arrays.asList(PATIENT_ID_1), PROJECTION))
+        Mockito.when(patientRepository.fetchPatients(Arrays.asList(STUDY_ID), Arrays.asList(PATIENT_ID), PROJECTION))
             .thenReturn(expectedPatientList);
 
-        List<Patient> result = patientService.fetchPatients(Arrays.asList(STUDY_ID), Arrays.asList(PATIENT_ID_1),
+        List<Patient> result = patientService.fetchPatients(Arrays.asList(STUDY_ID), Arrays.asList(PATIENT_ID),
             PROJECTION);
 
         Assert.assertEquals(expectedPatientList, result);
@@ -113,9 +113,9 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
     public void fetchMetaPatients() throws Exception {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(patientRepository.fetchMetaPatients(Arrays.asList(STUDY_ID), Arrays.asList(PATIENT_ID_1)))
+        Mockito.when(patientRepository.fetchMetaPatients(Arrays.asList(STUDY_ID), Arrays.asList(PATIENT_ID)))
             .thenReturn(expectedBaseMeta);
-        BaseMeta result = patientService.fetchMetaPatients(Arrays.asList(STUDY_ID), Arrays.asList(PATIENT_ID_1));
+        BaseMeta result = patientService.fetchMetaPatients(Arrays.asList(STUDY_ID), Arrays.asList(PATIENT_ID));
 
         Assert.assertEquals(expectedBaseMeta, result);
     }

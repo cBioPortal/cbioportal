@@ -2229,7 +2229,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    return getClinicalData(this, attribute_ids, "patient");
 	},
 	'getCaseSetId': function () {
-	    return case_set_properties.case_set_id;
+		//when querying virtual study with once real study case_set_id is all, in this case set case_set_id to -1
+	    return case_set_properties.case_set_id == "all" ? "-1" : case_set_properties.case_set_id;
 	},
 	'getCaseIdsKey': function () {
 	    return case_set_properties.case_ids_key;

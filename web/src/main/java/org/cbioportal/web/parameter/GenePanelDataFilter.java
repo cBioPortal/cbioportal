@@ -9,8 +9,6 @@ public class GenePanelDataFilter {
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> sampleIds;
     private String sampleListId;
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<Integer> entrezGeneIds;
 
     @AssertTrue
     private boolean isEitherSampleListIdOrSampleIdsPresent() {
@@ -31,13 +29,5 @@ public class GenePanelDataFilter {
 
     public void setSampleListId(String sampleListId) {
         this.sampleListId = sampleListId;
-    }
-
-    public List<Integer> getEntrezGeneIds() {
-        return entrezGeneIds;
-    }
-
-    public void setEntrezGeneIds(List<Integer> entrezGeneIds) {
-        this.entrezGeneIds = entrezGeneIds;
     }
 }

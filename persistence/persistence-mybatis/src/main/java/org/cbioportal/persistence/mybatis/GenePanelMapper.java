@@ -16,6 +16,8 @@ public interface GenePanelMapper {
 
     GenePanel getGenePanel(String genePanelId, String projection);
 
+    List<GenePanel> fetchGenePanels(List<String> genePanelIds, String projection);
+
     List<GenePanelData> getGenePanelDataBySampleListId(String molecularProfileId, String sampleListId);
 
     List<GenePanelData> getGenePanelDataBySampleIds(String molecularProfileId, List<String> sampleIds);

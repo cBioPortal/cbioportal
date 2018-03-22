@@ -45,7 +45,7 @@ public class VariantCountServiceImplTest extends BaseServiceImplTest {
 
         MutationMeta mutationMeta = new MutationMeta();
         mutationMeta.setSampleCount(5);
-        Mockito.when(mutationService.fetchMetaMutationsInMolecularProfile(MOLECULAR_PROFILE_ID, null, null, false))
+        Mockito.when(mutationService.fetchMetaMutationsInMolecularProfile(MOLECULAR_PROFILE_ID, null, null))
             .thenReturn(mutationMeta);
 
         SampleList sampleList = new SampleList();

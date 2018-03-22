@@ -148,9 +148,8 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutations();
         
         Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(Mockito.anyString(), 
-            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyBoolean(), 
-            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
-            .thenReturn(mutationList);
+            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyString(), 
+            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/mutations")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -236,9 +235,8 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutationsWithGene();
 
         Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(Mockito.anyString(), 
-            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyBoolean(), 
-            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
-            .thenReturn(mutationList);
+            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyString(), 
+            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/mutations")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -335,7 +333,7 @@ public class MutationControllerTest {
         mutationMeta.setTotalCount(2);
 
         Mockito.when(mutationService.getMetaMutationsInMolecularProfileBySampleListId(Mockito.anyString(), 
-            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyBoolean())).thenReturn(mutationMeta);
+            Mockito.anyString(), Mockito.anyListOf(Integer.class))).thenReturn(mutationMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/mutations")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -350,9 +348,8 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutations();
 
         Mockito.when(mutationService.getMutationsInMultipleMolecularProfiles(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), 
-            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
-            .thenReturn(mutationList);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyString(), Mockito.anyInt(),
+            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
 
         List<SampleMolecularIdentifier> sampleMolecularIdentifiers = new ArrayList<>();
         SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();
@@ -363,12 +360,8 @@ public class MutationControllerTest {
         sampleMolecularIdentifier2.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_2);
         sampleMolecularIdentifier2.setSampleId(TEST_SAMPLE_STABLE_ID_2);
         sampleMolecularIdentifiers.add(sampleMolecularIdentifier2);
-        List<Integer> entrezGeneIds = new ArrayList<>();
-        entrezGeneIds.add(TEST_ENTREZ_GENE_ID_1);
-        entrezGeneIds.add(TEST_ENTREZ_GENE_ID_2);
         MutationMultipleStudyFilter mutationMultipleStudyFilter = new MutationMultipleStudyFilter();
         mutationMultipleStudyFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifiers);
-        mutationMultipleStudyFilter.setEntrezGeneIds(entrezGeneIds);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/mutations/fetch")
             .accept(MediaType.APPLICATION_JSON)
@@ -456,18 +449,14 @@ public class MutationControllerTest {
 
         Mockito.when(mutationService.fetchMutationsInMolecularProfile(Mockito.anyString(), 
             Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), 
-            Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), 
-            Mockito.anyString())).thenReturn(mutationList);
+            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+            .thenReturn(mutationList);
         
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
         sampleIds.add(TEST_SAMPLE_STABLE_ID_2);
-        List<Integer> entrezGeneIds = new ArrayList<>();
-        entrezGeneIds.add(TEST_ENTREZ_GENE_ID_1);
-        entrezGeneIds.add(TEST_ENTREZ_GENE_ID_2);
         MutationFilter mutationFilter = new MutationFilter();
         mutationFilter.setSampleIds(sampleIds);
-        mutationFilter.setEntrezGeneIds(entrezGeneIds);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/mutations/fetch")
             .accept(MediaType.APPLICATION_JSON)
@@ -555,18 +544,14 @@ public class MutationControllerTest {
 
         Mockito.when(mutationService.fetchMutationsInMolecularProfile(Mockito.anyString(),
             Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), 
-            Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), 
-            Mockito.anyString())).thenReturn(mutationList);
+            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+            .thenReturn(mutationList);
 
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
         sampleIds.add(TEST_SAMPLE_STABLE_ID_2);
-        List<Integer> entrezGeneIds = new ArrayList<>();
-        entrezGeneIds.add(TEST_ENTREZ_GENE_ID_1);
-        entrezGeneIds.add(TEST_ENTREZ_GENE_ID_2);
         MutationFilter mutationFilter = new MutationFilter();
         mutationFilter.setSampleIds(sampleIds);
-        mutationFilter.setEntrezGeneIds(entrezGeneIds);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/mutations/fetch")
             .param("projection", "DETAILED")
@@ -665,18 +650,13 @@ public class MutationControllerTest {
         mutationMeta.setTotalCount(2);
 
         Mockito.when(mutationService.fetchMetaMutationsInMolecularProfile(Mockito.anyString(), 
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean()))
-            .thenReturn(mutationMeta);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class))).thenReturn(mutationMeta);
 
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
         sampleIds.add(TEST_SAMPLE_STABLE_ID_2);
-        List<Integer> entrezGeneIds = new ArrayList<>();
-        entrezGeneIds.add(TEST_ENTREZ_GENE_ID_1);
-        entrezGeneIds.add(TEST_ENTREZ_GENE_ID_2);
         MutationFilter mutationFilter = new MutationFilter();
         mutationFilter.setSampleIds(sampleIds);
-        mutationFilter.setEntrezGeneIds(entrezGeneIds);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/mutations/fetch")
             .param("projection", "META")

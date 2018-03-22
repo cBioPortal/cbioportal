@@ -80,14 +80,14 @@ public class MutationController {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT,
-                mutationService.getMetaMutationsInMolecularProfileBySampleListId(molecularProfileId, sampleListId, 
-                null, false).getTotalCount().toString());
+                mutationService.getMetaMutationsInMolecularProfileBySampleListId(molecularProfileId, sampleListId, null)
+                    .getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                mutationService.getMutationsInMolecularProfileBySampleListId(molecularProfileId, sampleListId, null, 
-                null, false, projection.name(), pageSize, pageNumber, 
-                sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
+                mutationService.getMutationsInMolecularProfileBySampleListId(molecularProfileId, sampleListId, null, null,
+                    projection.name(), pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(),
+                    direction.name()), HttpStatus.OK);
         }
     }
 
@@ -100,9 +100,6 @@ public class MutationController {
         @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
         @Valid @RequestBody MutationFilter mutationFilter,
-        @ApiParam("Include non-sequenced and wild-type values in the result. Ineffective when entrezGeneIds is missing."
-            + " sortBy is ineffective when true")
-        @RequestParam(defaultValue = "false") Boolean includeNonMutated,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
@@ -123,10 +120,10 @@ public class MutationController {
 
             if (mutationFilter.getSampleListId() != null) {
                 mutationMeta = mutationService.getMetaMutationsInMolecularProfileBySampleListId(molecularProfileId,
-                    mutationFilter.getSampleListId(), mutationFilter.getEntrezGeneIds(), includeNonMutated);
+                    mutationFilter.getSampleListId(), mutationFilter.getEntrezGeneIds());
             } else {
                 mutationMeta = mutationService.fetchMetaMutationsInMolecularProfile(molecularProfileId,
-                    mutationFilter.getSampleIds(), mutationFilter.getEntrezGeneIds(), includeNonMutated);
+                    mutationFilter.getSampleIds(), mutationFilter.getEntrezGeneIds());
             }
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
@@ -134,14 +131,12 @@ public class MutationController {
             List<Mutation> mutations;
             if (mutationFilter.getSampleListId() != null) {
                 mutations = mutationService.getMutationsInMolecularProfileBySampleListId(molecularProfileId,
-                    mutationFilter.getSampleListId(), mutationFilter.getEntrezGeneIds(), null, includeNonMutated, 
-                    projection.name(), pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), 
-                    direction.name());
+                    mutationFilter.getSampleListId(), mutationFilter.getEntrezGeneIds(), null, projection.name(), 
+                    pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
             } else {
                 mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileId,
-                    mutationFilter.getSampleIds(), mutationFilter.getEntrezGeneIds(), null, includeNonMutated, 
-                    projection.name(), pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), 
-                    direction.name());
+                    mutationFilter.getSampleIds(), mutationFilter.getEntrezGeneIds(), null, projection.name(), pageSize,
+                    pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
             }
 
             return new ResponseEntity<>(mutations, HttpStatus.OK);
@@ -155,9 +150,6 @@ public class MutationController {
     public ResponseEntity<List<Mutation>> fetchMutationsInMultipleMolecularProfiles(
         @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs and Entrez Gene IDs")
         @Valid @RequestBody MutationMultipleStudyFilter mutationMultipleStudyFilter,
-        @ApiParam("Include non-sequenced and wild-type values in the result. Ineffective when entrezGeneIds is missing."
-            + " sortBy is ineffective when true")
-        @RequestParam(defaultValue = "false") Boolean includeNonMutated,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
@@ -179,14 +171,14 @@ public class MutationController {
             if (mutationMultipleStudyFilter.getMolecularProfileIds() != null) {
                 mutationMeta = mutationService.getMetaMutationsInMultipleMolecularProfiles(
                     mutationMultipleStudyFilter.getMolecularProfileIds(), null, 
-                    mutationMultipleStudyFilter.getEntrezGeneIds(), includeNonMutated);
+                    mutationMultipleStudyFilter.getEntrezGeneIds());
             } else {
 
                 List<String> molecularProfileIds = new ArrayList<>();
                 List<String> sampleIds = new ArrayList<>();
                 extractMolecularProfileAndSampleIds(mutationMultipleStudyFilter, molecularProfileIds, sampleIds);
                 mutationMeta = mutationService.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds,
-                    sampleIds, mutationMultipleStudyFilter.getEntrezGeneIds(), includeNonMutated);
+                    sampleIds, mutationMultipleStudyFilter.getEntrezGeneIds());
             }
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
@@ -195,16 +187,16 @@ public class MutationController {
             if (mutationMultipleStudyFilter.getMolecularProfileIds() != null) {
                 mutations = mutationService.getMutationsInMultipleMolecularProfiles(
                     mutationMultipleStudyFilter.getMolecularProfileIds(), null, 
-                    mutationMultipleStudyFilter.getEntrezGeneIds(), includeNonMutated, projection.name(), pageSize, 
-                    pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
+                    mutationMultipleStudyFilter.getEntrezGeneIds(), projection.name(), pageSize, pageNumber, 
+                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
             } else {
 
                 List<String> molecularProfileIds = new ArrayList<>();
                 List<String> sampleIds = new ArrayList<>();
                 extractMolecularProfileAndSampleIds(mutationMultipleStudyFilter, molecularProfileIds, sampleIds);
                 mutations = mutationService.getMutationsInMultipleMolecularProfiles(molecularProfileIds,
-                    sampleIds, mutationMultipleStudyFilter.getEntrezGeneIds(), includeNonMutated, projection.name(), 
-                    pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
+                    sampleIds, mutationMultipleStudyFilter.getEntrezGeneIds(), projection.name(), pageSize,
+                    pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
             }
 
             return new ResponseEntity<>(mutations, HttpStatus.OK);
@@ -237,8 +229,8 @@ public class MutationController {
         @Size(min = 1, max = MUTATION_MAX_PAGE_SIZE)
         @RequestBody List<String> sampleIds) throws MolecularProfileNotFoundException {
 
-        return new ResponseEntity<>(mutationService.fetchMutationCountsInMolecularProfile(molecularProfileId, 
-            sampleIds), HttpStatus.OK);
+        return new ResponseEntity<>(mutationService.fetchMutationCountsInMolecularProfile(molecularProfileId, sampleIds), 
+            HttpStatus.OK);
     }
 
     @RequestMapping(value = "/mutation-counts-by-position/fetch", method = RequestMethod.POST,

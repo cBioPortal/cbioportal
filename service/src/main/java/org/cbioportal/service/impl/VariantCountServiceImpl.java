@@ -49,8 +49,8 @@ public class VariantCountServiceImpl implements VariantCountService {
             return sampleListService.getSampleList(
                 molecularProfile.getCancerStudyIdentifier() + SEQUENCED_LIST_SUFFIX).getSampleCount();
         } catch (SampleListNotFoundException ex) {
-            return mutationService.fetchMetaMutationsInMolecularProfile(molecularProfile.getStableId(), null, null, 
-                false).getSampleCount();
+            return mutationService.fetchMetaMutationsInMolecularProfile(molecularProfile.getStableId(), null, null)
+                .getSampleCount();
         }
 	}
 

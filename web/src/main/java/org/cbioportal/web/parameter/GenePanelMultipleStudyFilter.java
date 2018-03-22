@@ -10,9 +10,6 @@ public class GenePanelMultipleStudyFilter implements Serializable {
     @NotNull
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<SampleMolecularIdentifier> sampleMolecularIdentifiers;
-    @NotNull
-    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<Integer> entrezGeneIds;
 
     public List<SampleMolecularIdentifier> getSampleMolecularIdentifiers() {
         return sampleMolecularIdentifiers;
@@ -20,13 +17,5 @@ public class GenePanelMultipleStudyFilter implements Serializable {
 
     public void setSampleMolecularIdentifiers(List<SampleMolecularIdentifier> sampleMolecularIdentifiers) {
         this.sampleMolecularIdentifiers = sampleMolecularIdentifiers;
-    }
-
-    public List<Integer> getEntrezGeneIds() {
-        return entrezGeneIds;
-    }
-
-    public void setEntrezGeneIds(List<Integer> entrezGeneIds) {
-        this.entrezGeneIds = entrezGeneIds;
     }
 }

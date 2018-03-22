@@ -14,10 +14,6 @@ public class GenePanelData extends UniqueKeyBase {
     private String studyId;
     private String genePanelId;
     @NotNull
-    private Integer entrezGeneId;
-    @NotNull
-    private Boolean sequenced;
-    @NotNull
     private Boolean wholeExomeSequenced;
 
     public String getMolecularProfileId() {
@@ -59,22 +55,6 @@ public class GenePanelData extends UniqueKeyBase {
     public void setGenePanelId(String genePanelId) {
         this.genePanelId = genePanelId;
     }
-
-	public Integer getEntrezGeneId() {
-		return entrezGeneId;
-	}
-
-	public void setEntrezGeneId(Integer entrezGeneId) {
-		this.entrezGeneId = entrezGeneId;
-	}
-
-	public Boolean getSequenced() {
-		return sequenced;
-	}
-
-	public void setSequenced(Boolean sequenced) {
-		this.sequenced = sequenced;
-	}
 
 	public Boolean getWholeExomeSequenced() {
 		return wholeExomeSequenced;

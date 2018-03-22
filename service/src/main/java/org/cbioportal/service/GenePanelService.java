@@ -17,12 +17,14 @@ public interface GenePanelService {
 
     GenePanel getGenePanel(String genePanelId) throws GenePanelNotFoundException;
     
-    List<GenePanelData> getGenePanelData(String molecularProfileId, String sampleListId, List<Integer> entrezGeneIds) 
+    List<GenePanelData> getGenePanelData(String molecularProfileId, String sampleListId) 
         throws MolecularProfileNotFoundException;
 
-    List<GenePanelData> fetchGenePanelData(String molecularProfileId, List<String> sampleIds, 
-                                           List<Integer> entrezGeneIds) throws MolecularProfileNotFoundException;
+    List<GenePanelData> fetchGenePanelData(String molecularProfileId, List<String> sampleIds) 
+        throws MolecularProfileNotFoundException;
 
     List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds, 
-        List<String> sampleIds, List<Integer> entrezGeneIds);
+        List<String> sampleIds);
+
+	List<GenePanel> fetchGenePanels(List<String> genePanelIds, String projection);
 }

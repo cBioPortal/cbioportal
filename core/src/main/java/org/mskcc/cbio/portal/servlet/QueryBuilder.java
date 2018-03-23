@@ -503,14 +503,6 @@ public class QueryBuilder extends HttpServlet {
             } else {
                 redirectStudyUnavailable(request, response);
             }
-            if (sampleIdsKey == null) {
-                    String sampleIds = studySampleMap
-                                            .values()
-                                            .stream()
-                                            .flatMap(List::stream)
-                                            .collect(Collectors.joining("\n"));
-                sampleIdsKey = SampleSetUtil.shortenSampleIds(sampleIds);
-            }
         } else { // multiple studies OR single virtual study
             if (sampleSetId.equals("-1") && sampleIdsStr != null && sampleIdsStr.length() > 0) { //using user customized case list
                 studySampleMap = parseCaseIdsTextBoxStr(sampleIdsStr);
@@ -540,6 +532,16 @@ public class QueryBuilder extends HttpServlet {
                 });
                 studySampleMap = studySampleMapConcurrent;
             }
+        }
+        
+        //always set sampleIdsKey when there is only one real study in query
+        if (studySampleMap.keySet().size() == 1 && sampleIdsKey == null) {
+            String sampleIds = studySampleMap
+                                    .values()
+                                    .stream()
+                                    .flatMap(List::stream)
+                                    .collect(Collectors.joining("\n"));
+            sampleIdsKey = SampleSetUtil.shortenSampleIds(sampleIds);
         }
 
 

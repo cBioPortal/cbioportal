@@ -34,6 +34,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +88,19 @@ public class GenePanelController {
         return new ResponseEntity<>(genePanelService.getGenePanel(genePanelId), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/gene-panels/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get gene panel")
+    public ResponseEntity<List<GenePanel>> fetchGenePanels(
+        @ApiParam(required = true, value = "List of Gene Panel IDs")
+        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+        @RequestBody List<String> genePanelIds,
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) {
+
+        return new ResponseEntity<>(genePanelService.fetchGenePanels(genePanelIds, projection.name()), HttpStatus.OK);
+    }
+
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/gene-panel-data/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -99,10 +114,10 @@ public class GenePanelController {
         List<GenePanelData> genePanelDataList;
         if (genePanelDataFilter.getSampleListId() != null) {
             genePanelDataList = genePanelService.getGenePanelData(molecularProfileId,
-                genePanelDataFilter.getSampleListId(), genePanelDataFilter.getEntrezGeneIds());
+                genePanelDataFilter.getSampleListId());
         } else {
             genePanelDataList = genePanelService.fetchGenePanelData(molecularProfileId,
-                genePanelDataFilter.getSampleIds(), genePanelDataFilter.getEntrezGeneIds());
+                genePanelDataFilter.getSampleIds());
         }
 
         return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
@@ -127,7 +142,7 @@ public class GenePanelController {
             sampleIds.add(sampleMolecularIdentifier.getSampleId());
         }
         List<GenePanelData> genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
-            molecularProfileIds, sampleIds, genePanelMultipleStudyFilter.getEntrezGeneIds());
+            molecularProfileIds, sampleIds);
 
         return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
     }

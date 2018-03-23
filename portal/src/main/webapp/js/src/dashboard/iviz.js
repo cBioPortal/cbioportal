@@ -92,27 +92,47 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       if (name) {
         _virtualCohort.name = name;
       } else {
-        _virtualCohort.name = cases.length > 1 ? "Combined Study" : "Selected Study";
+        _virtualCohort.name = getVSDefaultName();
       }
       _virtualCohort.description = description || '';
       def.resolve(_virtualCohort);
       return def.promise();
     };
 
-    var generateVSDescription_ = function(_cases) {
-      var def = new $.Deferred(), _desp = "";
-      $.when(window.iviz.datamanager.getCancerStudyDisplayName(_.pluck(_cases, "id"))).done(function(_studyIdNameMap) {
-        _.each(_cases, function (_i) {
-          _desp += _studyIdNameMap[_i.id] + ": " + _i.samples.length + " samples\n";
-        });
-        def.resolve(_desp);
+    var getNumOfSelectedSamplesFromStudyMap = function(studyMap) {
+      var _numOfSamples = 0;
+      _.each(studyMap, function(_study) {
+        _numOfSamples += _study.samples.length;
       });
-      return def.promise();
-    }
+      return _numOfSamples;
+    };
+    
+    var generateVSDescription_ = function(_cases) {
+      var _desp = '';
+      if (_cases.length >= 1) {
+        var _numOfSamples = getNumOfSelectedSamplesFromStudyMap(_cases);
+        _desp = _numOfSamples + (_numOfSamples > 1 ? ' samples ' : ' sample ') 
+          + 'from ' + _cases.length +
+          (_cases.length > 1 ? ' studies' : ' study') + ' (' + getCurrentDate() + ')';
+      }
+      return _desp;
+    };
+
+    var getCurrentDate = function() {
+      var _date = new Date();
+      var strArr = [_date.getFullYear(), _date.getMonth(), _date.getDate()];
+      return strArr.join('-');
+    };
+
+    var getVSDefaultName = function(studyMap) {
+      var _numOfSamples = getNumOfSelectedSamplesFromStudyMap(studyMap);
+      return 'Selected ' + (_numOfSamples > 1 ? 'samples' : 'sample')
+        + ' (' + getCurrentDate() + ')';
+    };
 
     return {
       buildVCObject: buildVCObject_,
-      VSDefaultName: 'Selected Study',
+      VSDefaultName: getVSDefaultName,
       generateVSDescription: generateVSDescription_
     };
   })();
@@ -1358,12 +1378,12 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       });
       return _def.promise();
     },
-    submitForm: function() {
+    submitForm: function(cohortIdsList) {
       // Remove all hidden inputs
       $('#iviz-form input:not(:first)').remove();
 
       
-          QueryByGeneUtil. query (window.cohortIdsList, this.stat(),
+          QueryByGeneUtil. query (cohortIdsList ? cohortIdsList: window.cohortIdsList, this.stat(),
           QueryByGeneTextArea.getGenes(), includeCases)
     },
     stat: function() {
@@ -8722,18 +8742,9 @@ window.LogRankTest = (function(jStat) {
           _self.addNewVC = true;
         });
       },
-      checkVSName: function(tooltip) {
-        if (tooltip.find('.cohort-name').val() === '') {
-          this.disableSaveCohortBtn(tooltip);
-          this.disableSaveCohortBtn(tooltip);
-        } else {
-          this.enableSaveCohortBtn(tooltip);
-          this.enableShareCohortBtn(tooltip);
-        }
-      },
       createQtip: function() {
         var self_ = this;
-        var previousSelectedCases = {};
+        var previousSelection = {};
         $('.virtual-study').qtip(iViz.util.defaultQtipConfig(
           (self_.showSaveButton ? 'Save/' : '') + 'Share Virtual Study'));
         $('.virtual-study-btn').qtip({
@@ -8759,7 +8770,8 @@ window.LogRankTest = (function(jStat) {
 
                 api.reposition();
 
-                var cohortName = tooltip.find('.cohort-name').val();
+                var cohortName = tooltip.find('.cohort-name').val() ?
+                  tooltip.find('.cohort-name').val() : tooltip.find('.cohort-name').attr('placeholder');
                 var cohortDescription =
                   tooltip.find('textarea').val();
                 if (_.isObject(vcSession)) {
@@ -8779,13 +8791,23 @@ window.LogRankTest = (function(jStat) {
                         self_.savedVS = response;
                         self_.updateSavedMessage(tooltip, '<span>Virtual study <i>' + cohortName +
                           '</i> is saved.</span>' +
-                          '<a class="left-space" href="' +
-                          window.cbioURL + 'study?id=' +
-                          self_.savedVS.id + '">view</a>');
+                          '<div class="btn-group" role="group">' +
+                          '<button type="button" class="btn btn-default btn-xs view-vs">View</button>' +
+                          '<button type="button" class="btn btn-default btn-xs query-vs">Query</button>' +
+                          '</div>');
                         tooltip.find('.saved .message').find('a').click(function(event) {
                           event.preventDefault();
                           window.open(window.cbioURL + 'study?id=' +
                             self_.savedVS.id);
+                        });
+                        tooltip.find('.saved .message .view-vs').click(function(event) {
+                          event.preventDefault();
+                          window.open(window.cbioURL + 'study?id=' +
+                            self_.savedVS.id);
+                        });
+                        tooltip.find('.saved .message .query-vs').click(function(event) {
+                          event.preventDefault();
+                          iViz.submitForm([self_.savedVS.id]);
                         });
                       })
                       .fail(function() {
@@ -8805,7 +8827,6 @@ window.LogRankTest = (function(jStat) {
                         tooltip.find('.cohort-name').val('');
                         tooltip.find('textarea').val('');
 
-                        self_.disableSaveCohortBtn(tooltip);
                         api.reposition();
                       });
                   });
@@ -8829,9 +8850,9 @@ window.LogRankTest = (function(jStat) {
                       // to the user. When a user want to see the cohort url, he/she needs to click Share button. 
                       // We always show the url to user but we don't need to same virtual cohort every time 
                       // if it is same with the previous saved cohort.
-                      var currentSelectedCases = JSON.stringify(self_.stats.studies) + JSON.stringify(self_.stats);
+                      var currentSelection = cohortName + cohortDescription + JSON.stringify(self_.stats.studies) + JSON.stringify(self_.stats);
 
-                      if (currentSelectedCases !== previousSelectedCases) {
+                      if (currentSelection !== previousSelection) {
                         vcSession.events.saveCohort(self_.stats,
                           cohortName, cohortDescription || '', false)
                           .done(function(response) {
@@ -8844,7 +8865,7 @@ window.LogRankTest = (function(jStat) {
 
                             self_.hideLoading(tooltip);
                             self_.showShared(tooltip);
-                            previousSelectedCases = currentSelectedCases;
+                            previousSelection = currentSelection;
                           })
                           .fail(function() {
                             self_.hideLoading(tooltip);
@@ -8885,30 +8906,17 @@ window.LogRankTest = (function(jStat) {
                 }
                 temp.remove();
               });
-              tooltip.find('.cohort-name')
-                .keyup(function() {
-                  self_.checkVSName(tooltip);
-                });
               this.createdQtip = true;
             },
             show: function() {
               var tooltip = $('.iviz-virtual-study-btn-qtip .qtip-content');
               self_.updateStats = true;
               self_.$nextTick(function() {
-                // If user hasn't specific name only.
-                if (tooltip.find('.cohort-name').val() === '') {
-                  tooltip.find('.cohort-name').val(vcSession.utils.VSDefaultName);
-                }
-
-                // If user hasn't specific description only.
-                if (!tooltip.find('textarea').val()) {
-                  $.when(vcSession.utils.generateVSDescription(self_.stats.studies))
-                    .then(function(_desp) {
-                      self_.updateStats = false;
-                      tooltip.find('textarea').val(_desp);
-                    });
-                }
-                self_.checkVSName(tooltip);
+                self_.updateStats = false;
+                tooltip.find('.cohort-name').val('');
+                tooltip.find('.cohort-name')
+                  .attr('placeholder', vcSession.utils.VSDefaultName(self_.stats.studies));
+                tooltip.find('textarea').val(vcSession.utils.generateVSDescription(self_.stats.studies));
               });
               self_.showDialog(tooltip);
               self_.hideLoading(tooltip);
@@ -8934,8 +8942,8 @@ window.LogRankTest = (function(jStat) {
           content: '<div><div class="dialog"><div class="input-group">' +
           '<input type="text" class="form-control cohort-name" ' +
           'placeholder="Virtual study Name"> <span class="input-group-btn">' +
-          (self_.showSaveButton ? '<button class="btn btn-default save-cohort" type="button" disabled>Save</button>' : '') +
-          (self_.showShareButton ? '<button class="btn btn-default share-cohort" type="button" disabled>Share</button>' : '') +
+          (self_.showSaveButton ? '<button class="btn btn-default save-cohort" type="button">Save</button>' : '') +
+          (self_.showShareButton ? '<button class="btn btn-default share-cohort" type="button">Share</button>' : '') +
           '</span>' +
           '</div><div>' +
           '<textarea classe="form-control" rows="5" ' +

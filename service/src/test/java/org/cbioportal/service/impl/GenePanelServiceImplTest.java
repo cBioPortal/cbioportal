@@ -186,46 +186,23 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         Mockito.when(genePanelRepository.getGenesOfPanels(Arrays.asList(GENE_PANEL_ID)))
             .thenReturn(genePanelToGeneList);
         
-        List<GenePanelData> result = genePanelService.getGenePanelData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
-            Arrays.asList(ENTREZ_GENE_ID_1, ENTREZ_GENE_ID_2));
+        List<GenePanelData> result = genePanelService.getGenePanelData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID);
         
-        Assert.assertEquals(4, result.size());
+        Assert.assertEquals(2, result.size());
         GenePanelData resultGenePanelData1 = result.get(0);
         Assert.assertEquals(SAMPLE_ID1, resultGenePanelData1.getSampleId());
-        Assert.assertEquals(ENTREZ_GENE_ID_1, resultGenePanelData1.getEntrezGeneId());
         Assert.assertEquals(GENE_PANEL_ID, resultGenePanelData1.getGenePanelId());
         Assert.assertEquals(MOLECULAR_PROFILE_ID, resultGenePanelData1.getMolecularProfileId());
         Assert.assertEquals(PATIENT_ID_1, resultGenePanelData1.getPatientId());
         Assert.assertEquals(STUDY_ID, resultGenePanelData1.getStudyId());
-        Assert.assertEquals(true, resultGenePanelData1.getSequenced());
         Assert.assertEquals(false, resultGenePanelData1.getWholeExomeSequenced());
         GenePanelData resultGenePanelData2 = result.get(1);
-        Assert.assertEquals(SAMPLE_ID1, resultGenePanelData2.getSampleId());
-        Assert.assertEquals(ENTREZ_GENE_ID_2, resultGenePanelData2.getEntrezGeneId());
-        Assert.assertEquals(GENE_PANEL_ID, resultGenePanelData2.getGenePanelId());
+        Assert.assertEquals(SAMPLE_ID2, resultGenePanelData2.getSampleId());
+        Assert.assertNull(resultGenePanelData2.getGenePanelId());
         Assert.assertEquals(MOLECULAR_PROFILE_ID, resultGenePanelData2.getMolecularProfileId());
-        Assert.assertEquals(PATIENT_ID_1, resultGenePanelData2.getPatientId());
+        Assert.assertEquals(PATIENT_ID_2, resultGenePanelData2.getPatientId());
         Assert.assertEquals(STUDY_ID, resultGenePanelData2.getStudyId());
-        Assert.assertEquals(false, resultGenePanelData2.getSequenced());
-        Assert.assertEquals(false, resultGenePanelData2.getWholeExomeSequenced());
-        GenePanelData resultGenePanelData3 = result.get(2);
-        Assert.assertEquals(SAMPLE_ID2, resultGenePanelData3.getSampleId());
-        Assert.assertEquals(ENTREZ_GENE_ID_1, resultGenePanelData3.getEntrezGeneId());
-        Assert.assertNull(resultGenePanelData3.getGenePanelId());
-        Assert.assertEquals(MOLECULAR_PROFILE_ID, resultGenePanelData3.getMolecularProfileId());
-        Assert.assertEquals(PATIENT_ID_2, resultGenePanelData3.getPatientId());
-        Assert.assertEquals(STUDY_ID, resultGenePanelData3.getStudyId());
-        Assert.assertEquals(true, resultGenePanelData3.getSequenced());
-        Assert.assertEquals(true, resultGenePanelData3.getWholeExomeSequenced());
-        GenePanelData resultGenePanelData4 = result.get(3);
-        Assert.assertEquals(SAMPLE_ID2, resultGenePanelData4.getSampleId());
-        Assert.assertEquals(ENTREZ_GENE_ID_2, resultGenePanelData4.getEntrezGeneId());
-        Assert.assertNull(resultGenePanelData4.getGenePanelId());
-        Assert.assertEquals(MOLECULAR_PROFILE_ID, resultGenePanelData4.getMolecularProfileId());
-        Assert.assertEquals(PATIENT_ID_2, resultGenePanelData4.getPatientId());
-        Assert.assertEquals(STUDY_ID, resultGenePanelData4.getStudyId());
-        Assert.assertEquals(true, resultGenePanelData4.getSequenced());
-        Assert.assertEquals(true, resultGenePanelData4.getWholeExomeSequenced());
+        Assert.assertEquals(true, resultGenePanelData2.getWholeExomeSequenced());
     }
 
     @Test
@@ -283,27 +260,16 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
             .thenReturn(genePanelToGeneList);
         
         List<GenePanelData> result = genePanelService.fetchGenePanelData(MOLECULAR_PROFILE_ID, 
-            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), Arrays.asList(ENTREZ_GENE_ID_1, ENTREZ_GENE_ID_2));
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2));
         
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(1, result.size());
         GenePanelData resultGenePanelData1 = result.get(0);
         Assert.assertEquals(SAMPLE_ID1, resultGenePanelData1.getSampleId());
-        Assert.assertEquals(ENTREZ_GENE_ID_1, resultGenePanelData1.getEntrezGeneId());
         Assert.assertEquals(GENE_PANEL_ID, resultGenePanelData1.getGenePanelId());
         Assert.assertEquals(MOLECULAR_PROFILE_ID, resultGenePanelData1.getMolecularProfileId());
         Assert.assertEquals(PATIENT_ID_1, resultGenePanelData1.getPatientId());
         Assert.assertEquals(STUDY_ID, resultGenePanelData1.getStudyId());
-        Assert.assertEquals(true, resultGenePanelData1.getSequenced());
         Assert.assertEquals(false, resultGenePanelData1.getWholeExomeSequenced());
-        GenePanelData resultGenePanelData2 = result.get(1);
-        Assert.assertEquals(SAMPLE_ID1, resultGenePanelData2.getSampleId());
-        Assert.assertEquals(ENTREZ_GENE_ID_2, resultGenePanelData2.getEntrezGeneId());
-        Assert.assertEquals(GENE_PANEL_ID, resultGenePanelData2.getGenePanelId());
-        Assert.assertEquals(MOLECULAR_PROFILE_ID, resultGenePanelData2.getMolecularProfileId());
-        Assert.assertEquals(PATIENT_ID_1, resultGenePanelData2.getPatientId());
-        Assert.assertEquals(STUDY_ID, resultGenePanelData2.getStudyId());
-        Assert.assertEquals(false, resultGenePanelData2.getSequenced());
-        Assert.assertEquals(false, resultGenePanelData2.getWholeExomeSequenced());
     }
 
     @Test
@@ -363,26 +329,22 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         
         List<GenePanelData> result = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
             new ArrayList<>(Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, "invalid_profile")), 
-            new ArrayList<>(Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3)), Arrays.asList(ENTREZ_GENE_ID_1, 3));
+            new ArrayList<>(Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3)));
         
         Assert.assertEquals(2, result.size());
         GenePanelData resultGenePanelData1 = result.get(0);
         Assert.assertEquals(SAMPLE_ID1, resultGenePanelData1.getSampleId());
-        Assert.assertEquals(ENTREZ_GENE_ID_1, resultGenePanelData1.getEntrezGeneId());
         Assert.assertEquals(GENE_PANEL_ID, resultGenePanelData1.getGenePanelId());
         Assert.assertEquals(MOLECULAR_PROFILE_ID, resultGenePanelData1.getMolecularProfileId());
         Assert.assertEquals(PATIENT_ID_1, resultGenePanelData1.getPatientId());
         Assert.assertEquals(STUDY_ID, resultGenePanelData1.getStudyId());
-        Assert.assertEquals(true, resultGenePanelData1.getSequenced());
         Assert.assertEquals(false, resultGenePanelData1.getWholeExomeSequenced());
         GenePanelData resultGenePanelData2 = result.get(1);
         Assert.assertEquals(SAMPLE_ID2, resultGenePanelData2.getSampleId());
-        Assert.assertEquals(ENTREZ_GENE_ID_1, resultGenePanelData2.getEntrezGeneId());
         Assert.assertNull(resultGenePanelData2.getGenePanelId());
         Assert.assertEquals(MOLECULAR_PROFILE_ID, resultGenePanelData2.getMolecularProfileId());
         Assert.assertEquals(PATIENT_ID_2, resultGenePanelData2.getPatientId());
         Assert.assertEquals(STUDY_ID, resultGenePanelData2.getStudyId());
-        Assert.assertEquals(true, resultGenePanelData2.getSequenced());
         Assert.assertEquals(true, resultGenePanelData2.getWholeExomeSequenced());
     }
 }

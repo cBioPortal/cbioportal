@@ -1,5 +1,6 @@
 ## March 20, 2018
  *   The sixth phase of the cBioPortal architectural upgrade is now complete: The _Download_ tab has been moved to the new architecture.
+ *   Data can now be downloaded in [tabular format](http://blog.thehyve.nl/blog/downloading-data-from-the-cbioportal-oncoprint-view) from OncoPrint.
  *   Added an option to download an SVG file on the _Cancer Type Summary_ tab.
 
  ![image](https://ptpb.pw/jMli.png)

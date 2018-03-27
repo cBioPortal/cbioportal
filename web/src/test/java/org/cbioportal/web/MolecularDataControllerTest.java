@@ -38,11 +38,11 @@ public class MolecularDataControllerTest {
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_1 = "test_molecular_profile_stable_id_1";
     private static final String TEST_SAMPLE_STABLE_ID_1 = "test_sample_stable_id_1";
     private static final int TEST_ENTREZ_GENE_ID_1 = 1;
-    private static final String TEST_VALUE_1 = "test_value_1";
+    private static final String TEST_VALUE_1 = "2.3";
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_2 = "test_molecular_profile_stable_id_2";
     private static final String TEST_SAMPLE_STABLE_ID_2 = "test_sample_stable_id_2";
     private static final int TEST_ENTREZ_GENE_ID_2 = 2;
-    private static final String TEST_VALUE_2 = "test_value_2";
+    private static final String TEST_VALUE_2 = "2.4";
     private static final String TEST_SAMPLE_LIST_ID = "test_sample_list_id";
 
     @Autowired
@@ -86,13 +86,13 @@ public class MolecularDataControllerTest {
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_STABLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(2.3))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(2.4))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene").doesNotExist());
     }
 
@@ -136,13 +136,13 @@ public class MolecularDataControllerTest {
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_STABLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(2.3))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(2.4))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene").doesNotExist());
     }
 
@@ -192,13 +192,13 @@ public class MolecularDataControllerTest {
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_STABLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(2.3))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(2.4))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene").doesNotExist());
     }
     

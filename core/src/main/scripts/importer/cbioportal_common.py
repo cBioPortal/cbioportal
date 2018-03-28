@@ -542,7 +542,7 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("GISTIC_GENES_DEL", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,
         ("MUTSIG", "Q-VALUE"): MetaFileTypes.MUTATION_SIGNIFICANCE,
         ("GENESET_SCORE", "GSVA-SCORE"): MetaFileTypes.GSVA_SCORES,
-        ("GENESET_SCORE", "P-VALUE"): MetaFileTypes.GSVA_PVALUES,
+        ("GENESET_SCORE", "P-VALUE"): MetaFileTypes.GSVA_PVALUES
     }
     result = None
     if 'genetic_alteration_type' in meta_dictionary and 'datatype' in meta_dictionary:

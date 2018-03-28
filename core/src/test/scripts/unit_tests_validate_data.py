@@ -1415,6 +1415,35 @@ class FusionValidationTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(len(record_list), 1)
         self.assertIn("duplicate entry in fusion data", record_list[0].getMessage().lower())
 
+
+class StructuralVariantValidationTestCase(PostClinicalDataFileTestCase):
+
+    """Tests for the various validations of data in Fusion data files."""
+
+    def test_exon_not_in_transcript(self):
+        """Test whether the exons are found in the transcript"""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_structural_variants_exon_not_in_transcript.txt',
+                                    validateData.StructuralVariantValidator)
+
+        self.assertEqual(len(record_list), 2)
+        record_iterator = iter(record_list)
+
+        # Expected ERROR message due to value "1500" in Site1_Exon in line 2
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 2)
+        self.assertEqual(record.cause, "1500 not in ENST00000242365")
+        self.assertIn("Exon is not found in rank of transcript", record_list[0].getMessage())
+
+        # Expected ERROR message due to value "2000" in Site2_Exon in line 4
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 4)
+        self.assertEqual(record.cause, "2000 not in ENST00000389048")
+        self.assertIn("Exon is not found in rank of transcript", record_list[0].getMessage())
+
+
 class SegFileValidationTestCase(PostClinicalDataFileTestCase):
 
     """Tests for the various validations of data in segment CNA data files."""

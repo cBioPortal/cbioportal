@@ -2407,10 +2407,9 @@ class StructuralVariantValidator(Validator):
     3. If there is a second gene, also validate Gene IDs of second gene
     """
 
-    ### If the Entrez Gene id present, the Hugo Symbol can be skipped
     REQUIRED_HEADERS = [
         'Sample_ID',
-        'Event_Info', # For example: Fusion
+        'Event_Info',  # For example: Fusion
         ]
     REQUIRE_COLUMN_ORDER = False
     ALLOW_BLANKS = True
@@ -2418,10 +2417,10 @@ class StructuralVariantValidator(Validator):
     def __init__(self, *args, ** kwargs):
         super(StructuralVariantValidator, self).__init__(*args, **kwargs)
         self.structural_variant_entries = {}
-        self.unknown_transcript_gene_list = []
-        self.gene_transcript_dict = {}
+        self.unknown_transcript_gene_set = set()
+        self.gene_canonical_transcript_dict = {}
         self.ncbi_build = None
-        self.transcript_list = []
+        self.transcript_set = set()
         self.transcript_exons_dict = {}
 
     def checkHeader(self, data):
@@ -2438,15 +2437,12 @@ class StructuralVariantValidator(Validator):
             # Check second gene column
             if not ('Site2_Hugo_Symbol' in self.cols or 'Site2_Entrez_Gene_Id' in self.cols):
                 self.logger.error('Fusion event requires Site2_Entrez_Gene_Id and/or Site2_Hugo_Symbol column',
-                                          extra={'line_number': self.line_number})
+                                  extra={'line_number': self.line_number})
 
-            # Validate if positions are given by chromosomal locations or exons
-            if set(['Site1_Chromosome', 'Site1_Position', 'Site2_Chromosome', 'Site2_Position']).issubset(set(self.cols)):
-                pass
-            elif set(['Site1_Exon', 'Site2_Exon']).issubset(set(self.cols)):
-                pass
-            else:
-                self.logger.error('Fusion event requires chromosomal locations columns or exons columns',
+            # Fusion events should be described by exons.
+            # Using chromosomal locations to describe fusion events is not supported.
+            if not {'Site1_Exon', 'Site2_Exon'}.issubset(set(self.cols)):
+                self.logger.error('Fusion event requires columns for exons',
                                   extra={'line_number': self.line_number})
 
     def checkLine(self, data):
@@ -2489,45 +2485,30 @@ class StructuralVariantValidator(Validator):
             def checkTranscriptPresence(self, transcript, hugo_symbol, site_number):
                 """Check if transcript is present"""
                 if transcript is None:
-                    self.logger.warning('No Ensembl_Transcript_Id, retrieving canonical transcript. This may cause a mapping error with the exon',
-                                        extra={'line_number': self.line_number})
-                    if not hugo_symbol in self.unknown_transcript_gene_list:
-                        self.unknown_transcript_gene_list.append(hugo_symbol)
+                    self.logger.warning('No Ensembl_Transcript_Id found. cBioPortal will retrieve canonical transcript '
+                                        'from Genome Nexus. This may cause a mapping error with the exon.',
+                                        extra={'line_number': self.line_number,
+                                               'cause': hugo_symbol})
+                    self.unknown_transcript_gene_set.add(hugo_symbol)
                 self.structural_variant_entries[self.line_number][site_number] = transcript
 
             # Check the presence of values
-            site1_chromosome = checkPresenceValue('Site1_Chromosome', self, data)
-            site1_position = checkPresenceValue('Site1_Position', self, data)
             site1_exon = checkPresenceValue('Site1_Exon', self, data)
-            site2_chromosome = checkPresenceValue('Site2_Chromosome', self, data)
-            site2_position = checkPresenceValue('Site2_Position', self, data)
             site2_exon = checkPresenceValue('Site2_Exon', self, data)
 
             # Check whether fusion event is described by chromosomal location or exon
-            if not None in [site1_chromosome, site1_position, site2_chromosome, site2_position]:
-                # Check value of chromosome and position
-                site1_chromosome = self.parse_chromosome_num(site1_chromosome, column_number=self.cols.index('Site1_Chromosome') + 1)
-                site1_position = self.parse_genomic_coord(site1_position, column_number=self.cols.index('Site1_Position') + 1)
-                site2_chromosome = self.parse_chromosome_num(site2_chromosome, column_number=self.cols.index('Site2_Chromosome') + 1)
-                site2_position = self.parse_genomic_coord(site2_position, column_number=self.cols.index('Site2_Position') + 1)
-
-            # Add values to dictionary
-            elif not None in [site1_exon, site2_exon]:
+            if None not in [site1_exon, site2_exon]:
                 # Check value of exon
                 site1_exon = self.parse_exon(site1_exon, column_number=self.cols.index('Site1_Exon') + 1)
                 site2_exon = self.parse_exon(site2_exon, column_number=self.cols.index('Site2_Exon') + 1)
             else:
-                self.logger.error('Fusion event missing values for either chromosomal locations or exons',
+                self.logger.error('Fusion event missing values for exons',
                                   extra={'line_number': self.line_number})
 
             # Add values to dictionary which we have to check after we've retrieved transcripts and exons
             self.structural_variant_entries[self.line_number]['Site1_Hugo_Symbol'] = site1_hugo_symbol
-            self.structural_variant_entries[self.line_number]['Site1_Chromosome'] = site1_chromosome
-            self.structural_variant_entries[self.line_number]['Site1_Position'] = site1_position
             self.structural_variant_entries[self.line_number]['Site1_Exon'] = site1_exon
             self.structural_variant_entries[self.line_number]['Site2_Hugo_Symbol'] = site2_hugo_symbol
-            self.structural_variant_entries[self.line_number]['Site2_Chromosome'] = site2_chromosome
-            self.structural_variant_entries[self.line_number]['Site2_Position'] = site2_position
             self.structural_variant_entries[self.line_number]['Site2_Exon'] = site2_exon
             self.structural_variant_entries[self.line_number]['NCBI_Build'] = ncbi_build
             self.structural_variant_entries[self.line_number]['Event_Info'] = 'Fusion'
@@ -2564,141 +2545,161 @@ class StructuralVariantValidator(Validator):
             checkFusionValues(self, data)
         else:
             self.logger.warning('Validation for other structural variant events is not implemented yet',
-                              extra={'cause': self.cols.index('Event_Info')})
+                                extra={'cause': self.cols.index('Event_Info')})
 
     def onComplete(self):
         """Perform final validations based on the data parsed."""        
   
-        def retrieveTranscripts(self):
-            """Retrieve transcripts when the ensembl transcript id is empty."""
-            for hugo_symbol in self.unknown_transcript_gene_list:
-             url = 'http://genomenexus.org/ensembl/canonical-transcript/hgnc/%s?isoformOverrideSource=uniprot' % hugo_symbol
-             headers = {'content-type': 'application/json', 'Accept': 'application/json'}
-             r = requests.get(url, headers=headers)
-             if r.ok:
-                 # Parse canonical transcript from JSON
-                 parsed_json = r.json()
-                 self.gene_transcript_dict[hugo_symbol] = r.json()['transcriptId']
-             else:
-                 if r.status_code == 404:
-                     self.logger.error('No canonical transcript found for gene',
-                                       extra={'cause': hugo_symbol})
-                 else:
-                     r.raise_for_status()
-                 self.gene_transcript_dict[hugo_symbol] = None
+        def retrieveCanonicalTranscripts(self):
+            """Retrieve canonical transcripts from Genome Nexus."""
+            request_url = 'http://genomenexus.org/ensembl/canonical-transcript/hgnc?isoformOverrideSource=uniprot'
+            request_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+            request_data = '["%s"]' % '", "'.join(self.unknown_transcript_gene_set)
+            request = requests.post(url=request_url, headers=request_headers, data=request_data)
+            if request.ok:
+                # Parse canonical transcripts from JSON
+                result_json = request.json()
+                for gene in result_json:
+                    # In probably all cases only 1 Hugo Symbol is returned. But the API currently returns a list.
+                    for hugo_symbol in gene['hugoSymbols']:
+                            self.gene_canonical_transcript_dict[hugo_symbol] = gene['transcriptId']
+            else:
+                if request.status_code == 404:
+                    self.logger.error('An error occurred when trying to connect to Genome Nexus for retrieving '
+                                      'canonical transcripts.',
+                                      extra={'cause': request.status_code})
+                else:
+                    request.raise_for_status()
             return
 
-        def retrieveExons(self):
-            """Check positions in exons for fusion events."""
+        def fillInTranscripts(self):
+            """In case the data does not contain Ensembl transcript IDs, the canonical transcripts are used."""
 
-            # To retrieve transcripts for grch37 we need to add prefix to ensembl url
-            if str(self.ncbi_build).lower() == 'grch38':
-                url_prefix = ''
-            # If the NCBI build is not GRCh38, assume GRCh37
-            else:
-                url_prefix = 'grch37.'
+            def fillInTranscript(self, line_number, hugo_symbol_column, transcript_id_columm):
+                # Retrieve hugo symbol and transcript
+                hugo_symbol = self.structural_variant_entries[line_number][hugo_symbol_column]
+                transcript = self.structural_variant_entries[line_number][transcript_id_columm]
+                if transcript is None:
+                    if hugo_symbol in self.gene_canonical_transcript_dict:
+                        # Retrieve canonical transcript
+                        transcript = self.gene_canonical_transcript_dict[hugo_symbol]
 
-            # Retrieve exons for every transcript
-            counter = 0
-            transcript_data = '{ "ids" : ["%s"] }' % ('", "'.join(self.transcript_list))
-            url = "https://%srest.ensembl.org/lookup/id/?expand=1" % (url_prefix)
-            r = requests.post(url, headers={ "Content-Type" : "application/json"}, data=transcript_data)
+                        # Add transcript to structural_variant_entries
+                        self.structural_variant_entries[line_number][transcript_id_columm] = transcript
 
-            if r.ok:
-                # Parse retrieved JSON and save it in dictionary
-                parsed_json = r.json()
-                for transcript in parsed_json.keys():
-                    self.transcript_exons_dict[transcript] = parsed_json[transcript]['Exon']
-            else:
-                r.raise_for_status()
+                # Add transcript to list of unique transcripts
+                self.transcript_set.add(transcript)
+
+            # Loop over all entries and check both transcript ID columns
+            for line_number in self.structural_variant_entries.keys():
+                fillInTranscript(self, line_number, 'Site1_Hugo_Symbol', 'Site1_Ensembl_Transcript_Id')
+                fillInTranscript(self, line_number, 'Site2_Hugo_Symbol', 'Site2_Ensembl_Transcript_Id')
             return
 
-        def checkFusionPositions(self):
-            """Check positions in exons for fusion events."""
+        def retrieveTranscriptsAndExons(self):
+            """Retrieve transcript and exons information from Genome Nexus."""
+            request_url = "http://genomenexus.org/ensembl/transcript"
+            request_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+            request_data = '{ "transcriptIds" : ["%s"] }' % ('", "'.join(self.transcript_set))
+            request = requests.post(url=request_url, headers=request_headers, data=request_data)
+            if request.ok:
+                # Parse transcripts and exons from JSON
+                result_json = request.json()
+                for transcript in result_json:
+                    if 'exons' not in transcript:
+                        self.transcript_exons_dict[transcript['transcriptId']] = None
+                    else:
+                        self.transcript_exons_dict[transcript['transcriptId']] = transcript['exons']
+            else:
+                if request.status_code == 404:
+                    self.logger.error(
+                        'An error occurred when trying to connect to Genome Nexus for retrieving exons in '
+                        'transcripts.',
+                        extra={'cause': request.status_code})
+                else:
+                    request.raise_for_status()
+            return
 
-            def checkInExon(chromosome, position, exons_list, transcript):
-                """Function to check if chromosomal position is in any exon of transcript."""
-                #TODO: Remove print statements
-                position_in_exon = False
-                exons_list = self.transcript_exons_dict[transcript]
-                exon_description_list = []
+        def validateTranscripts(self):
+            """Validate whether the transcripts in the data can also be found in Genome Nexus"""
 
-                # First check if the chromosome is correct
-                if not chromosome == exons_list[0]['seq_region_name']:
-                    print "%s Chromosome (%s) differs from chromosome of transcript (%s)" % (transcript, chromosome, exons_list[0]['seq_region_name'])
-                    self.logger.error('Chromosome in data differs from chromosome of transcript',
-                                      extra={'line_number': structural_variant,
-                                             'cause': '%s: %s != %s' % (transcript, chromosome, exons_list[0]['seq_region_name'])})
+            for transcript in list(self.transcript_set):
+                if transcript not in self.transcript_exons_dict:
+                    self.logger.error('Ensembl Transcript not found in Genome Nexus.',
+                                      extra={'cause': transcript})
+                else:
+                    if self.transcript_exons_dict[transcript] is None:
+                        self.logger.error('This (possibly canonical) transcript does not contain known exons in '
+                                          'Genome Nexus. Please update the Ensembl Transcript column of your data to '
+                                          'include transcripts which have known exons.',
+                                          extra={'cause': transcript})
 
-                # Check if position is in any exon of the canonical transcript
-                for exon_entry in exons_list:
-                    # print "%s: %s : %s - %s" % (transcript, position, exon_entry['start'], exon_entry['end'])
-                    exon_location = range(exon_entry['start'], exon_entry['end'] + 1)
-                    exon_description = "%s-%s" % (exon_entry['start'], exon_entry['end'])
-                    exon_description_list.append(exon_description)
-                    if position in exon_location:
-                        print "%s Position (%s) in exon %s - %s" % (transcript, position, exon_entry['start'], exon_entry['end'])
-                        position_in_exon = True
+        def validateExons(self):
+            """Validate exons, particularly for structural variants"""
+
+            def validateExonsInTranscript(self, transcript, exon, line_number):
+                """Check if exons are in transcript"""
+
+                # Loop over the exons in the transcript and try to find the exon in the 'rank' field
+                exon_in_transcript = False
+                for retrieved_exon in self.transcript_exons_dict[transcript]:
+                    if int(exon) is retrieved_exon['rank']:
+                        exon_in_transcript = True
                         break
 
-                # Issue error when position cannot be found within the exons
-                # TODO: Enable this validation if it is an issue. Currently many positions fall outside of exons
-                # if not position_in_exon:
-                #     print "%s Position (%s) not within exons of transcript [%s]" % (transcript, position, ", ".join(exon_description_list))
-                #     self.logger.error('Site position not within exons of transcript',
-                #                       extra={'line_number': structural_variant,
-                #                              'cause': transcript})
-                return
+                # Log an error if the transcript is not found in the transcript
+                if not exon_in_transcript:
+                    self.logger.error('Exon is not found in rank of transcript',
+                                      extra={'line_number': line_number,
+                                             'cause': '%s not in %s' % (exon, transcript)})
 
-            # Loop over structural variant events and check positions in exons for fusion events
-            for structural_variant in self.structural_variant_entries.keys():
-                if self.structural_variant_entries[structural_variant]['Event_Info'] == 'Fusion':
+            # Check all structural variants
+            for line_number in self.structural_variant_entries.keys():
+
+                # For fusion events, exons have to be validated
+                if self.structural_variant_entries[line_number]['Event_Info'] == 'Fusion':
 
                     # Retrieve event info
-                    site1_chromosome = self.structural_variant_entries[structural_variant]['Site1_Chromosome']
-                    site2_chromosome = self.structural_variant_entries[structural_variant]['Site2_Chromosome']
-                    site1_position = self.structural_variant_entries[structural_variant]['Site1_Position']
-                    site2_position = self.structural_variant_entries[structural_variant]['Site2_Position']
-                    site1_transcript = self.structural_variant_entries[structural_variant]['Site1_Ensembl_Transcript_Id']
-                    site2_transcript = self.structural_variant_entries[structural_variant]['Site2_Ensembl_Transcript_Id']
+                    site1_exon = self.structural_variant_entries[line_number]['Site1_Exon']
+                    site2_exon = self.structural_variant_entries[line_number]['Site2_Exon']
+                    site1_transcript = self.structural_variant_entries[line_number]['Site1_Ensembl_Transcript_Id']
+                    site2_transcript = self.structural_variant_entries[line_number]['Site2_Ensembl_Transcript_Id']
 
-                    # Check if position can be found in any exons of the transcript
-                    # Data from VCF seems to be 0 based, so we add 1.
-                    if site1_transcript is not None:
+                    # Validate exons
+                    if (site1_exon is not None and
+                            site1_transcript is not None and
+                            site1_transcript in self.transcript_exons_dict):
                         if self.transcript_exons_dict[site1_transcript] is not None:
-                            checkInExon(site1_chromosome, site1_position + 1, self.transcript_exons_dict[site1_transcript], site1_transcript)
-                    if site2_transcript is not None:
+                            validateExonsInTranscript(self, site1_transcript, site1_exon, line_number)
+                    if (site2_exon is not None and
+                            site2_transcript is not None and
+                            site2_transcript in self.transcript_exons_dict):
                         if self.transcript_exons_dict[site2_transcript] is not None:
-                            checkInExon(site2_chromosome, site2_position, self.transcript_exons_dict[site2_transcript], site2_transcript)
+                            validateExonsInTranscript(self, site2_transcript, site2_exon, line_number)
             return
 
+        # Start with validation for onComplete(self)
+
         # Retrieve canonical Ensembl transcript IDs
-        if len(self.unknown_transcript_gene_list) > 0:
-            print "Retrieving ensembl transcript for symbols"
-            retrieveTranscripts(self)
+        if len(self.unknown_transcript_gene_set) > 0:
+            retrieveCanonicalTranscripts(self)
 
-        # Loop over all fusion events
-        for i in self.structural_variant_entries.keys():
-            # Fill in missing transcript ids
-            if self.structural_variant_entries[i]['Site1_Ensembl_Transcript_Id'] is None:
-                self.structural_variant_entries[i]['Site1_Ensembl_Transcript_Id'] = self.gene_transcript_dict[self.structural_variant_entries[i]['Site1_Hugo_Symbol']]
-            if self.structural_variant_entries[i]['Site2_Ensembl_Transcript_Id'] is None:
-                self.structural_variant_entries[i]['Site2_Ensembl_Transcript_Id'] = self.gene_transcript_dict[self.structural_variant_entries[i]['Site2_Hugo_Symbol']]
+        # After retrieving canonical transcripts, fill in any canonical transcripts where the transcripts are missing
+        # in data. This is only for exon validation purposes. Also create a set of all unique transcripts
+        fillInTranscripts(self)
 
-            # Add transcripts to list for which exons have to be retrieved
-            self.transcript_list.append(self.structural_variant_entries[i]['Site1_Ensembl_Transcript_Id'])
-            self.transcript_list.append(self.structural_variant_entries[i]['Site2_Ensembl_Transcript_Id'])
+        # Retrieve all transcripts and exons in Genome Nexus
+        retrieveTranscriptsAndExons(self)
 
-        # Retrieve exons for transcripts
-        if len(self.transcript_list) > 0 :
-            print "Retrieving ensembl exons for transcripts"
-            retrieveExons(self)
+        # Validate whether the transcripts in the data can also be found in Genome Nexus
+        validateTranscripts(self)
 
-        # For every fusion event, check if position is inside an exon
-        checkFusionPositions(self)
+        # For every fusion event, check if exon is part of the transcript
+        validateExons(self)
 
         # End validation of this data type by running the super function
         super(StructuralVariantValidator, self).onComplete()
+
 
 class MutationSignificanceValidator(Validator):
 

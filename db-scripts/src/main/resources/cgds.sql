@@ -202,7 +202,7 @@ CREATE TABLE `gene` (
   `CYTOBAND` varchar(64),
   `LENGTH` int(11),
   PRIMARY KEY (`ENTREZ_GENE_ID`),
-  UNIQUE KEY `GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID`),
+  UNIQUE KEY `GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID`),  
   KEY `HUGO_GENE_SYMBOL` (`HUGO_GENE_SYMBOL`),
   FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
 );
@@ -392,7 +392,7 @@ CREATE TABLE `structural_variant` (
   `LENGTH` int(11),
   `COMMENTS` varchar(255),
   `EXTERNAL_ANNOTATION` varchar(80),
-  `DRIVER_FILTER` VARCHAR(20),
+  `DRIVER_FILTER` VARCHAR(20), -- These fields are the same as in `mutation` table and will be useful in a future PR to include custom driver annotation support for fusions.
   `DRIVER_FILTER_ANNOTATION` VARCHAR(80),
   `DRIVER_TIERS_FILTER` VARCHAR(50),
   `DRIVER_TIERS_FILTER_ANNOTATION` VARCHAR(80),

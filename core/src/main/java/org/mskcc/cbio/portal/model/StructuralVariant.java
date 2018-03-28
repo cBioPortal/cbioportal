@@ -32,36 +32,36 @@ public class StructuralVariant {
     private Long site1EntrezGeneId;
     private String site1HugoSymbol;
     private String site1EnsemblTranscriptId;
-    private Integer site1Exon;
+    private int site1Exon;
     private String site1Chromosome;
-    private Integer site1Position;
+    private int site1Position;
     private String site1Description;
     private Long site2EntrezGeneId;
     private String site2HugoSymbol;
     private String site2EnsemblTranscriptId;
-    private Integer site2Exon;
+    private int site2Exon;
     private String site2Chromosome;
-    private Integer site2Position;
+    private int site2Position;
     private String site2Description;
     private String site2EffectOnFrame;
     private String ncbiBuild;
     private String dnaSupport;
     private String rnaSupport;
-    private Integer normalReadCount;
-    private Integer tumorReadCount;
-    private Integer normalVariantCount;
-    private Integer tumorVariantCount;
-    private Integer normalPairedEndReadCount;
-    private Integer tumorPairedEndReadCount;
-    private Integer normalSplitReadCount;
-    private Integer tumorSplitReadCount;
+    private int normalReadCount;
+    private int tumorReadCount;
+    private int normalVariantCount;
+    private int tumorVariantCount;
+    private int normalPairedEndReadCount;
+    private int tumorPairedEndReadCount;
+    private int normalSplitReadCount;
+    private int tumorSplitReadCount;
     private String annotation;
     private String breakpointType;
     private String center;
     private String connectionType;
     private String eventInfo;
     private String variantClass;
-    private Integer length;
+    private int length;
     private String comments;
     private String externalAnnotation;
     private String driverFilter;
@@ -111,10 +111,10 @@ public class StructuralVariant {
     public void setSite1EnsemblTranscriptId(String site1TranscriptId) {
         this.site1EnsemblTranscriptId = site1TranscriptId;
     }
-    public Integer getSite1Exon() {
+    public int getSite1Exon() {
         return site1Exon;
     }
-    public void setSite1Exon(Integer site1Exon) {
+    public void setSite1Exon(int site1Exon) {
         this.site1Exon = site1Exon;
     }
     public String getSite1Chromosome() {
@@ -123,10 +123,10 @@ public class StructuralVariant {
     public void setSite1Chromosome(String site1Chrom) {
         this.site1Chromosome = site1Chrom;
     }
-    public Integer getSite1Position() {
+    public int getSite1Position() {
         return site1Position;
     }
-    public void setSite1Position(Integer site1Pos) {
+    public void setSite1Position(int site1Pos) {
         this.site1Position = site1Pos;
     }
     public String getSite1Description() {
@@ -153,10 +153,10 @@ public class StructuralVariant {
     public void setSite2EnsemblTranscriptId(String site2TranscriptId) {
         this.site2EnsemblTranscriptId = site2TranscriptId;
     }
-    public Integer getSite2Exon() {
+    public int getSite2Exon() {
         return site2Exon;
     }
-    public void setSite2Exon(Integer site2Exon) {
+    public void setSite2Exon(int site2Exon) {
         this.site2Exon = site2Exon;
     }
     public String getSite2Chromosome() {
@@ -165,10 +165,10 @@ public class StructuralVariant {
     public void setSite2Chromosome(String site2Chrom) {
         this.site2Chromosome = site2Chrom;
     }
-    public Integer getSite2Position() {
+    public int getSite2Position() {
         return site2Position;
     }
-    public void setSite2Position(Integer site2Pos) {
+    public void setSite2Position(int site2Pos) {
         this.site2Position = site2Pos;
     }
     public String getSite2Description() {
@@ -201,52 +201,52 @@ public class StructuralVariant {
     public void setRnaSupport(String rnaSupport) {
         this.rnaSupport = rnaSupport;
     }
-    public Integer getNormalReadCount() {
+    public int getNormalReadCount() {
         return normalReadCount;
     }
-    public void setNormalReadCount(Integer normalReadCount) {
+    public void setNormalReadCount(int normalReadCount) {
         this.normalReadCount = normalReadCount;
     }
-    public Integer getTumorReadCount() {
+    public int getTumorReadCount() {
         return tumorReadCount;
     }
-    public void setTumorReadCount(Integer tumorReadCount) {
+    public void setTumorReadCount(int tumorReadCount) {
         this.tumorReadCount = tumorReadCount;
     }
-    public Integer getNormalVariantCount() {
+    public int getNormalVariantCount() {
         return normalVariantCount;
     }
-    public void setNormalVariantCount(Integer normalVariantCount) {
+    public void setNormalVariantCount(int normalVariantCount) {
         this.normalVariantCount = normalVariantCount;
     }
-    public Integer getTumorVariantCount() {
+    public int getTumorVariantCount() {
         return tumorVariantCount;
     }
-    public void setTumorVariantCount(Integer tumorVariantCount) {
+    public void setTumorVariantCount(int tumorVariantCount) {
         this.tumorVariantCount = tumorVariantCount;
     }
-    public Integer getNormalPairedEndReadCount() {
+    public int getNormalPairedEndReadCount() {
         return normalPairedEndReadCount;
     }
-    public void setNormalPairedEndReadCount(Integer normalPairedEndReadCount) {
+    public void setNormalPairedEndReadCount(int normalPairedEndReadCount) {
         this.normalPairedEndReadCount = normalPairedEndReadCount;
     }
-    public Integer getTumorPairedEndReadCount() {
+    public int getTumorPairedEndReadCount() {
         return tumorPairedEndReadCount;
     }
-    public void setTumorPairedEndReadCount(Integer tumorPairedEndReadCount) {
+    public void setTumorPairedEndReadCount(int tumorPairedEndReadCount) {
         this.tumorPairedEndReadCount = tumorPairedEndReadCount;
     }
-    public Integer getNormalSplitReadCount() {
+    public int getNormalSplitReadCount() {
         return normalSplitReadCount;
     }
-    public void setNormalSplitReadCount(Integer normalSplitReadCount) {
+    public void setNormalSplitReadCount(int normalSplitReadCount) {
         this.normalSplitReadCount = normalSplitReadCount;
     }
-    public Integer getTumorSplitReadCount() {
+    public int getTumorSplitReadCount() {
         return tumorSplitReadCount;
     }
-    public void setTumorSplitReadCount(Integer tumorSplitReadCount) {
+    public void setTumorSplitReadCount(int tumorSplitReadCount) {
         this.tumorSplitReadCount = tumorSplitReadCount;
     }
     public String getAnnotation() {
@@ -285,10 +285,10 @@ public class StructuralVariant {
     public void setVariantClass(String variantClass) {
         this.variantClass = variantClass;
     }
-    public Integer getLength() {
+    public int getLength() {
         return length;
     }
-    public void setLength(Integer length) {
+    public void setLength(int length) {
         this.length = length;
     }
     public String getComments() {

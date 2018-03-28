@@ -781,25 +781,30 @@ Required columns for each type of structural variant:
 
 Additional required columns for fusion events:
 - **Site2_Entrez_Gene_Id** and/or **Site2_Hugo_Symbol**
-- **Site1_Chromosome** **Site1_Position** and/or **Site1_Exon** 
-- **Site2_Chromosome** **Site2_Position** and/or **Site2_Exon** 
+- **Site1_Exon**
+- **Site2_Exon**
+
+Recommended columns in case of fusion events:
+- **Site1_Ensembl_Transcript_Id**
+- **Site2_Ensembl_Transcript_Id**
+ If the transcripts are not present, the canonical transcripts will be retrieved from GenomeNexus.
 
 Description of all allowed columns:
 1. **Sample_ID**: Sample ID, as defined in the clinical sample file.
 2. **Site1_Entrez_Gene_Id**: An [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
 3. **Site1_Hugo_Symbol**: A [HUGO](http://www.genenames.org/) gene symbol.
-4. **Site1_Ensembl_Transcript_Id**: An ENSEMBL Transcript ID.
+4. **Site1_Ensembl_Transcript_Id**: An ENSEMBL Transcript ID. If the transcript is not present, the canonical transcript will be retrieved from GenomeNexus.
 5. **Site1_Exon**: The exon of the canonical transcript.
 6. **Site1_Chromosome**: Chromosome.
 7. **Site1_Position**: Genomic position.
-8. **Site1_Description**: Decription of this event.
+8. **Site1_Description**: Description of this event at site 1. This could be the location of 1st breakpoint in case of a fusion event. E.g. Intron of PAX8(-): 2Kb before exon 10
 9. **Site2_Entrez_Gene_Id**: An [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
 10. **Site2_Hugo_Symbol**: A [HUGO](http://www.genenames.org/) gene symbol.
-11. **Site2_Ensembl_Transcript_Id**: An ENSEMBL Transcript ID.
+11. **Site2_Ensembl_Transcript_Id**: An ENSEMBL Transcript ID. If the transcript is not present, the canonical transcript will be retrieved from GenomeNexus.
 12. **Site2_Exon**: The exon of the canonical transcript.
 13. **Site2_Chromosome**: Chromosome.
 14. **Site2_Position**: Genomic position.
-15. **Site2_Description**: Description of this event
+15. **Site2_Description**: Description of this event at site 2. This could be the location of 2nd breakpoint in case of a fusion event.
 16. **Site2_Effect_On_Frame**: `Frame_Shift` or `InFrame`.
 17. **NCBI_Build**: The NCBI assembly, e.g. `GRCh37`.
 18. **DNA_Support**: `yes`/`no`.
@@ -812,7 +817,7 @@ Description of all allowed columns:
 25. **Tumor_Paired_End_Read_Count**: The number of paired-end reads of the tumor tissue that support the call.
 26. **Normal_Split_Read_Count**: The number of split reads of the normal tissue that support the call.
 27. **Tumor_Split_Read_Count**: The number of split reads of the tumor tissue that support the call.
-28. **Annotation**: Free text description of the gene or transcript rearrangement, i.e.:
+28. **Annotation**: Free text description of the gene or transcript rearrangement, e.g.:
 ```
 PAX8 (NM_003466) rearrangement: c.1088-2028_c.25+11587del;
 TMPRSS2 (NM_001135099) - ERG (NM_182918) fusion: c.56-1943:TMPRSS2_c.18+13593:ERGdel
@@ -822,7 +827,7 @@ TMPRSS2 (NM_001135099) - ERG (NM_182918) fusion: c.56-1943:TMPRSS2_c.18+13593:ER
 31. **Connection_Type**: `3to5` or `5to3`. The direction of the second gene.
 32. **Event_Info**: Description of the event. For a fusion event, fill in `Fusion`.
 33. **Class**: [`DELETION`, `DUPLICATION`, `INSERTION`, `INVERSION` or `TRANSLOCATION`]
-34. **Length**: Length of the structural variant in number of basepairs.
+34. **Length**: Length of the structural variant in number of bases.
 35. **Comments**: Any comments or free text.
 36. **External_Annotation**: COSMIC or GENBank ID. Cosmic IDs follow the format `COSMIC:COS1000`.
 

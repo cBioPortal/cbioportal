@@ -18,8 +18,8 @@ DEFINED_SAMPLE_IDS = None
 DEFINED_SAMPLE_ATTRIBUTES = None
 PATIENTS_WITH_SAMPLES = None
 PORTAL_INSTANCE = None
-GSVA_SAMPLE_IDS = None
-GSVA_GENESET_IDS = None
+prior_validated_sample_ids = None
+prior_validated_geneset_ids = None
 
 def setUpModule():
     """Initialise mock data used throughout the module."""
@@ -114,19 +114,19 @@ class PostClinicalDataFileTestCase(DataFileTestCase):
         self.orig_patients_with_samples = validateData.PATIENTS_WITH_SAMPLES
         validateData.PATIENTS_WITH_SAMPLES = PATIENTS_WITH_SAMPLES
 
-        # reset all GSVA global variables when starting a test
-        self.orig_gsva_sample_ids = validateData.GSVA_SAMPLE_IDS
-        validateData.GSVA_SAMPLE_IDS = GSVA_SAMPLE_IDS
-        self.orig_gsva_geneset_ids = validateData.GSVA_GENESET_IDS
-        validateData.GSVA_GENESET_IDS = GSVA_GENESET_IDS
+        # reset all gene set global variables when starting a test
+        self.orig_prior_validated_sample_ids = validateData.prior_validated_sample_ids
+        validateData.prior_validated_sample_ids = prior_validated_sample_ids
+        self.orig_prior_validated_geneset_ids = validateData.prior_validated_geneset_ids
+        validateData.prior_validated_geneset_ids = prior_validated_geneset_ids
 
     def tearDown(self):
         """Restore the environment to before setUp() was called."""
         validateData.DEFINED_SAMPLE_IDS = self.orig_defined_sample_ids
         validateData.DEFINED_SAMPLE_ATTRIBUTES = self.orig_defined_sample_attributes
         validateData.PATIENTS_WITH_SAMPLES = self.orig_patients_with_samples
-        validateData.GSVA_SAMPLE_IDS = self.orig_gsva_sample_ids
-        validateData.GSVA_GENESET_IDS = self.orig_gsva_geneset_ids
+        validateData.prior_validated_sample_ids = self.orig_prior_validated_sample_ids
+        validateData.prior_validated_geneset_ids = self.orig_prior_validated_geneset_ids
         super(PostClinicalDataFileTestCase, self).tearDown()
 
 
@@ -839,16 +839,17 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
 
         ### Error should appear when the second file is validated
         record_list1 = self.validate('data_gsva_pvalues_missing_row.txt',
-                                    validateData.GsvaPvalueValidator)
+                                     validateData.GsvaPvalueValidator)
 
         record_list2 = self.validate('data_gsva_scores_missing_row.txt',
-                                    validateData.GsvaScoreValidator)
+                                     validateData.GsvaScoreValidator)
         self.assertEqual(len(record_list1), 0)
         self.assertEqual(len(record_list2), 1)
         for record in record_list2:
             self.assertEqual(record.levelno, logging.ERROR)
-        self.assertIn('first column', record.getMessage().lower())
-        self.assertIn('not equal', record.getMessage().lower())
+        self.assertEqual('Gene sets column in score and p-value file are not equal', record.getMessage())
+        return
+
     def test_geneset_not_in_database(self):
         """Test if an error is issued if the score and pvalue table does not have same rownames"""
 

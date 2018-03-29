@@ -78,6 +78,11 @@
         <!-- limit to portal server -->
         <param-value>${session.service.origin}</param-value>
       </init-param>
+        <!-- Allow GET and DELETE methods for proxy session service -->
+        <init-param>
+            <param-name>cors.allowed.methods</param-name>
+            <param-value>GET, POST, PUT, DELETE, OPTIONS, HEAD</param-value>
+        </init-param> 
     </filter>
 
     <filter-mapping>

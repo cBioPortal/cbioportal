@@ -744,6 +744,7 @@ AKT1 AKT2 10000|AKT<TAB>0.17071492725<TAB>0.264067254391
 
 
 ## Structural Variants data
+This is the format used for the gene fusions to be displayed in the Fusion tab.
 
 #### Meta file
 The structural variants metadata file should contain the following fields:
@@ -772,7 +773,9 @@ show_profile_in_analysis_tab: true
 ```
 
 #### Data file
-A structural variants data file is a two dimensional matrix with one structural variant per row. A small number of columns are required; the others are optional.
+A structural variants data file is a two dimensional matrix with one structural variant per row.
+
+Please note that for gene fusion events, Ensembl transcript IDs and exon ranks are required. cBioPortal will query [Genome Nexus](http://genomenexus.org/swagger-ui.html) for validating transcripts and exons. Genome Nexus' source of exon data is Homo_sapiens.GRCh37.87.gff3.gz, downloadable from the [Ensembl FTP server](ftp://ftp.ensembl.org/pub/grch37/release-91/gff3/homo_sapiens/). Fusion events will be displayed in the fusion tab. Fused genes will be merged based on exons. The included table will provide other breakpoint information and annotations.
 
 Required columns for each type of structural variant:
 - **Sample_ID**
@@ -783,32 +786,29 @@ Additional required columns for fusion events:
 - **Site2_Entrez_Gene_Id** and/or **Site2_Hugo_Symbol**
 - **Site1_Exon**
 - **Site2_Exon**
-
-Recommended columns in case of fusion events:
 - **Site1_Ensembl_Transcript_Id**
 - **Site2_Ensembl_Transcript_Id**
- If the transcripts are not present, the canonical transcripts will be retrieved from GenomeNexus.
 
 Description of all allowed columns:
 1. **Sample_ID**: Sample ID, as defined in the clinical sample file.
-2. **Site1_Entrez_Gene_Id**: An [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
-3. **Site1_Hugo_Symbol**: A [HUGO](http://www.genenames.org/) gene symbol.
-4. **Site1_Ensembl_Transcript_Id**: An ENSEMBL Transcript ID. If the transcript is not present, the canonical transcript will be retrieved from GenomeNexus.
-5. **Site1_Exon**: The exon of the canonical transcript.
-6. **Site1_Chromosome**: Chromosome.
-7. **Site1_Position**: Genomic position.
-8. **Site1_Description**: Description of this event at site 1. This could be the location of 1st breakpoint in case of a fusion event. E.g. Intron of PAX8(-): 2Kb before exon 10
-9. **Site2_Entrez_Gene_Id**: An [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
-10. **Site2_Hugo_Symbol**: A [HUGO](http://www.genenames.org/) gene symbol.
-11. **Site2_Ensembl_Transcript_Id**: An ENSEMBL Transcript ID. If the transcript is not present, the canonical transcript will be retrieved from GenomeNexus.
-12. **Site2_Exon**: The exon of the canonical transcript.
-13. **Site2_Chromosome**: Chromosome.
-14. **Site2_Position**: Genomic position.
-15. **Site2_Description**: Description of this event at site 2. This could be the location of 2nd breakpoint in case of a fusion event.
-16. **Site2_Effect_On_Frame**: `Frame_Shift` or `InFrame`.
-17. **NCBI_Build**: The NCBI assembly, e.g. `GRCh37`.
-18. **DNA_Support**: `yes`/`no`.
-19. **RNA_Support**: `yes`/`no`.
+2. **Site1_Entrez_Gene_Id**: [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier of gene 1.
+3. **Site1_Hugo_Symbol**: [HUGO](http://www.genenames.org/) gene symbol of gene 1.
+4. **Site1_Ensembl_Transcript_Id**: Ensembl transcript ID of gene 1.
+5. **Site1_Exon**: The exon rank in the provided Ensembl transcript of gene 1.
+6. **Site1_Chromosome**: Chromosome of gene 1.
+7. **Site1_Position**: Genomic position of breakpoint of gene 1.
+8. **Site1_Description**: Description of this event at site 1. This could be the location of 1st breakpoint in case of a fusion event. E.g. `Intron of ADAM9(+): 2Kb before exon 3`.
+9. **Site2_Entrez_Gene_Id**: [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier of gene 2.
+10. **Site2_Hugo_Symbol**: [HUGO](http://www.genenames.org/) gene symbol of gene 2.
+11. **Site2_Ensembl_Transcript_Id**: Ensembl transcript ID of gene 2. If the transcript is not present, the canonical transcript will be retrieved from GenomeNexus.
+12. **Site2_Exon**: The exon rank in the provided Ensembl transcript of gene 2.
+13. **Site2_Chromosome**: Chromosome of gene 2.
+14. **Site2_Position**: Genomic position of breakpoint of gene 2.
+15. **Site2_Description**: Description of this event at site 2. This could be the location of 2nd breakpoint in case of a fusion event. E.g. `Intron of RNF170(-): 203bp after exon 5`.
+16. **Site2_Effect_On_Frame**: The effect on frame reading in gene 2. `Frame_Shift` or `InFrame`.
+17. **NCBI_Build**: The NCBI assembly. `GRCh37` is currently the only supported reference genome for structural variants.
+18. **DNA_Support**: Whether this observation is based on DNA. `yes`/`no`.
+19. **RNA_Support**: Whether this observation is based on RNA. `yes`/`no`.
 20. **Normal_Read_Count**: The total number of reads of the normal tissue.
 21. **Tumor_Read_Count**: The total number of reads of the tumor tissue.
 22. **Normal_Variant_Count**: The number of reads of the normal tissue that have the variant/allele.
@@ -828,7 +828,7 @@ TMPRSS2 (NM_001135099) - ERG (NM_182918) fusion: c.56-1943:TMPRSS2_c.18+13593:ER
 32. **Event_Info**: Description of the event. For a fusion event, fill in `Fusion`.
 33. **Class**: [`DELETION`, `DUPLICATION`, `INSERTION`, `INVERSION` or `TRANSLOCATION`]
 34. **Length**: Length of the structural variant in number of bases.
-35. **Comments**: Any comments or free text.
+35. **Comments**: Any comments or free text, e.g. `Protein fusion: in frame (ADAM9-RNF170)`
 36. **External_Annotation**: COSMIC or GENBank ID. Cosmic IDs follow the format `COSMIC:COS1000`.
 
 ## Case Lists

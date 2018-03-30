@@ -106,7 +106,7 @@ public class ProxySessionServiceController {
 
     }
 
-    @RequestMapping(value = "/virtual_study/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/virtual_study/add/{id}", method = RequestMethod.GET)
     public void addUsertoVirtualStudy(@PathVariable String   id, 
                                       HttpServletResponse    response) throws IOException {
         
@@ -123,7 +123,7 @@ public class ProxySessionServiceController {
         
     }
     
-    @RequestMapping(value = "/virtual_study/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/virtual_study/delete/{id}", method = RequestMethod.GET)
     public void removeUserFromVirtualStudy(@PathVariable String id,
                                            HttpServletResponse  response) throws IOException {
         

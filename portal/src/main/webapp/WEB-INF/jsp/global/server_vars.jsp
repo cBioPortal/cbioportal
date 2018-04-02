@@ -33,6 +33,9 @@
     String sampleIdsKey = request.getAttribute(QueryBuilder.CASE_IDS_KEY) != null ? (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY) : "";
     
     String caseIds = (String) request.getAttribute(QueryBuilder.CASE_IDS);
+    if (request.getAttribute(QueryBuilder.CASE_IDS) != null) {
+        caseIds = caseIds.replace("\n","+");
+    }
 
     sampleSetName = sampleSetName.replaceAll("'", "\\'");
     sampleSetName = sampleSetName.replaceAll("\"", "\\\"");

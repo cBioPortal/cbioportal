@@ -526,9 +526,14 @@ var GenelistModel = Backbone.Model.extend({
         delim = delim || " ";
         return this.getCleanGeneArray().join(delim);
     },
-
-    getCleanGeneArray: function(){
-        return $.unique(this.removeEmptyElements(this.get("geneString").toUpperCase().split(/[^a-zA-Z0-9-]/))).reverse();
+  
+    getCleanGeneArray: function() {
+      var _arr = this.removeEmptyElements(this.get("geneString")
+        .toUpperCase().split(/[^a-zA-Z0-9-]/));
+      _arr = _arr.filter(function(item, pos) {
+        return _arr.indexOf(item) === pos;
+      });
+      return _arr;
     },
 
     removeEmptyElements: function (array){
@@ -651,7 +656,9 @@ var QueryByGeneTextArea  = (function() {
     // initialise events
     function initEvents(){
         // when user types in the textarea, update the model
-        $(areaId).bind('input propertychange', updateModel);
+        $(areaId).bind('input propertychange', function() {
+          setTimeout(updateModel, 1000);
+        });
 
         // when the model is changed, update the textarea
         geneModel.on("change", updateTextArea);
@@ -1037,11 +1044,17 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     },
     extractMutationData: function(_mutationData) {
       var _mutGeneMeta = {};
+      var _allMutSamples = {};
+      var _allMutGenes = _.pluck(_mutationData, 'gene_symbol');
       var _mutGeneMetaIndex = 0;
       var self = this;
       _.each(_mutationData, function(_mutGeneDataObj) {
         var _uniqueId = _mutGeneDataObj.gene_symbol;
+        if (!_allMutSamples.hasOwnProperty(_mutGeneDataObj.study_id)) {
+          _allMutSamples[_mutGeneDataObj.study_id] = {};
+        }
         _.each(_mutGeneDataObj.caseIds, function(_caseId) {
+          _allMutSamples[_mutGeneDataObj.study_id][_caseId] = 1;
           var _caseUIdIndex = self.getCaseIndex('sample', _mutGeneDataObj.study_id, _caseId);
           if (_mutGeneMeta[_uniqueId] === undefined) {
             _mutGeneMeta[_uniqueId] = {};
@@ -1074,16 +1087,33 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
       tableData_.mutated_genes = {};
       tableData_.mutated_genes.geneMeta = _mutGeneMeta;
+      tableData_.mutated_genes.allGenes = _allMutGenes;
+      tableData_.mutated_genes.allSamples = [];
+
+      _.each(_allMutSamples, function(samples, studyId) {
+        _.each(Object.keys(samples), function(sampleId) {
+          tableData_.mutated_genes.allSamples.push({
+            "molecularProfileId": window.iviz.datamanager.getMutationProfileIdByStudyId(studyId),
+            "sampleId": sampleId
+          })
+        })
+      });
       return tableData_.mutated_genes;
     },
     extractCnaData: function(_cnaData) {
       var _cnaMeta = {};
+      var _allCNASamples = {};
+      var _allCNAGenes = {};
       var _cnaMetaIndex = 0;
       var self = this;
       $.each(_cnaData, function(_studyId, _cnaDataPerStudy) {
+        if (!_allCNASamples.hasOwnProperty(_studyId)) {
+          _allCNASamples[_studyId] = {};
+        }
         $.each(_cnaDataPerStudy.caseIds, function(_index, _caseIdsPerGene) {
           var _geneSymbol = _cnaDataPerStudy.gene[_index];
           var _altType = '';
+          _allCNAGenes[_geneSymbol] = 1;
           switch (_cnaDataPerStudy.alter[_index]) {
           case -2:
             _altType = 'DEL';
@@ -1096,6 +1126,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           }
           var _uniqueId = _geneSymbol + '-' + _altType;
           _.each(_caseIdsPerGene, function(_caseId) {
+            _allCNASamples[_studyId][_caseId] = 1;
             var _caseIdIndex = self.getCaseIndex('sample', _studyId, _caseId);
             if (_cnaMeta[_uniqueId] === undefined) {
               _cnaMeta[_uniqueId] = {};
@@ -1133,6 +1164,17 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
       tableData_.cna_details = {};
       tableData_.cna_details.geneMeta = _cnaMeta;
+      tableData_.cna_details.allGenes = Object.keys(_allCNAGenes);
+      tableData_.cna_details.allSamples = [];
+
+      _.each(_allCNASamples, function(samples, studyId) {
+        _.each(Object.keys(samples), function(sampleId) {
+          tableData_.cna_details.allSamples.push({
+            "molecularProfileId":  window.iviz.datamanager.getCNAProfileIdByStudyId(studyId),
+            "sampleId": sampleId
+          })
+        })
+      });
       return tableData_.cna_details;
     },
     getTableData: function(attrId, progressFunc) {
@@ -5751,7 +5793,7 @@ module.exports = {
 
         this.data.meta = _.map(_.filter(_.pluck(
           _data, this.opts.attrId), function(d) {
-          if (isNaN(d) && !(_.isString(d) && (d.includes('>') || d.includes('<')))) {
+          if (isNaN(d) && !(_.isString(d) && (d.indexOf('>') !== -1 || d.indexOf('<') !== -1))) {
             _self.data.hasNA = true;
             d = 'NA';
           }
@@ -6180,7 +6222,8 @@ module.exports = {
     'class="dc-chart dc-scatter-plot" align="center" ' +
     ':class="{\'show-loading-content\': showLoad}" id={{chartId}} ></div>' +
     '<div v-show="showLoad" class="progress-bar-parent-div" :class="{\'show-loading-bar\': showLoad}" >' +
-    '<progress-bar :div-id="loadingBar.divId" :status="loadingBar.status" :opts="loadingBar.opts"></progress-bar></div>' +
+    '<progress-bar :div-id="loadingBar.divId" :type="loadingBar.type" :disable="loadingBar.disable" ' +
+    ' :status="loadingBar.status" :opts="loadingBar.opts"></progress-bar></div>' +
     '<div v-if="failedToInit" class="error-panel" align="center">' +
     '<error-handle v-if="failedToInit" :error="error"></error-handle>' +
     '</div></div>',
@@ -6208,9 +6251,10 @@ module.exports = {
         failedToInit: false,
         loadingBar :{
           status: 0,
+          type: 'percentage',
           divId: iViz.util.getDefaultDomId('progressBarId', this.attributes.attr_id),
           opts: {},
-          infinityInterval: null
+          disable: false
         },
         invisibleDimension: {}
       };
@@ -6226,10 +6270,7 @@ module.exports = {
         if (newVal) {
           this.initialInfinityLoadingBar();
         } else {
-          if (this.loadingBar.infinityInterval) { 
-            window.clearInterval(this.loadingBar.infinityInterval);
-            this.loadingBar.infinityInterval = null;
-          }
+          this.loadingBar.disable = true;
         }
       }
     },
@@ -6285,17 +6326,7 @@ module.exports = {
         this.showOperations = false;
       },
       initialInfinityLoadingBar: function() {
-        var self = this;
-        self.loadingBar.opts = {
-          duration: 300,
-          step: function(state, bar) {
-            bar.setText('Loading...');
-          }
-        };
-        self.loadingBar.status = 0.5;
-        self.loadingBar.infinityInterval = setInterval(function() {
-          self.loadingBar.status += 0.5;
-        }, 800);
+        this.loadingBar.type = 'infinite';
       },
       attachPlotlySelectedEvent: function() {
         var _self = this;
@@ -6511,7 +6542,8 @@ module.exports = {
     '<div v-show="!showLoad" :class="{\'show-loading-content\': showLoad}"' +
     'class="dc-chart dc-scatter-plot" align="center" id={{chartId}} ></div>' +
     '<div v-show="showLoad" class="progress-bar-parent-div" :class="{\'show-loading-bar\': showLoad}">' +
-    '<progress-bar :div-id="loadingBar.divId" :status="loadingBar.status" :opts="loadingBar.opts"></progress-bar></div>' +
+    '<progress-bar :div-id="loadingBar.divId" :status="loadingBar.status" :opts="loadingBar.opts" ' +
+    ':type="loadingBar.type" :disable="loadingBar.disable" ></progress-bar></div>' +
     '</div>',
     props: [
       'ndx', 'attributes'
@@ -6536,11 +6568,12 @@ module.exports = {
         showingRainbowSurvival: false,
         groups: [],
         invisibleDimension: {},
-        loadingBar :{
+        loadingBar: {
           status: 0,
+          type: 'percentage',
           divId: iViz.util.getDefaultDomId('progressBarId', this.attributes.attr_id),
           opts: {},
-          infinityInterval: null
+          disable: false
         },
         mainDivQtip: ''
       };
@@ -6559,10 +6592,7 @@ module.exports = {
         if (newVal) {
           this.initialInfinityLoadingBar();
         } else {
-          if (this.loadingBar.infinityInterval) {
-            window.clearInterval(this.loadingBar.infinityInterval);
-            this.loadingBar.infinityInterval = null;
-          }
+          this.loadingBar.disable = true;
         }
       }
     },
@@ -6654,7 +6684,7 @@ module.exports = {
               };
             }
             filteredClinicalAttrs[group.id].attrs = [];
-            
+
             // Loop through attrList instead of only using attr_id
             // Combination chart has its own attr_id, but the clinical data
             // it's using are listed under attrList
@@ -6830,17 +6860,7 @@ module.exports = {
         self_.updateQtipContent();
       },
       initialInfinityLoadingBar: function() {
-        var self = this;
-        self.loadingBar.opts = {
-          duration: 300,
-          step: function(state, bar) {
-            bar.setText('Loading...');
-          }
-        };
-        self.loadingBar.status = 0.5;
-        self.loadingBar.infinityInterval = setInterval(function() {
-          self.loadingBar.status += 0.5;
-        }, 300);
+        this.loadingBar.type = 'infinite';
       },
       checkDownloadableStatus: function() {
         if (this.chartInst.downloadIsEnabled()) {
@@ -7787,14 +7807,7 @@ window.LogRankTest = (function(jStat) {
     }
 
     function mutatedGenesData(_selectedGenesMap, _selectedSampleUids) {
-      var _selectedSampleIds;
-      if (_.isArray(_selectedSampleUids)) {
-        _selectedSampleIds = [];
-        _.each(_selectedSampleUids, function(uid) {
-          _selectedSampleIds.push(iViz.getCaseIdUsingUID('sample', uid));
-        });
-      }
-      genePanelMap = window.iviz.datamanager.updateGenePanelMap(genePanelMap, _selectedSampleIds);
+      genePanelMap = window.iviz.datamanager.updateGenePanelMap(genePanelMap, _selectedSampleUids);
 
       selectedGeneData.length = 0;
       var numOfCases_ = content.getCases().length;
@@ -7809,7 +7822,7 @@ window.LogRankTest = (function(jStat) {
             datum.cases = datum.case_uids.length;
             datum.uniqueId = index;
             if (typeof genePanelMap[item.gene] !== 'undefined') {
-              freq = iViz.util.calcFreq(datum.cases, genePanelMap[item.gene]["sample_num"]);
+              freq = iViz.util.calcFreq(datum.cases, genePanelMap[item.gene].sampleNum);
             } else {
               freq = iViz.util.calcFreq(datum.cases, numOfCases_);
             }
@@ -7833,7 +7846,7 @@ window.LogRankTest = (function(jStat) {
             datum.case_uids = _selectedGenesMap[item.index].case_uids;
             datum.cases = datum.case_uids.length;
             if (typeof genePanelMap[item.gene] !== 'undefined') {
-              freq = iViz.util.calcFreq(datum.cases, genePanelMap[item.gene]["sample_num"]);
+              freq = iViz.util.calcFreq(datum.cases, genePanelMap[item.gene].sampleNum);
             } else {
               freq = iViz.util.calcFreq(datum.cases, numOfCases_);
             }
@@ -8148,7 +8161,8 @@ window.LogRankTest = (function(jStat) {
     'v-show="!showLoad" :class="{\'show-loading-bar\': showLoad}" ' +
     'align="center" id={{chartId}} ></div>' +
     '<div v-show="showLoad" class="progress-bar-parent-div" :class="{\'show-loading-bar\': showLoad}">' +
-    '<progress-bar :div-id="loadingBar.divId" :status="loadingBar.status" :opts="loadingBar.opts"></progress-bar></div>' +
+    '<progress-bar :div-id="loadingBar.divId" :type="loadingBar.type" :disable="loadingBar.disable" ' +
+    ':status="loadingBar.status" :opts="loadingBar.opts"></progress-bar></div>' +
     '<div :class="{\'error-init\': failedToInit}" ' +
     'style="display: none;">' +
     '<span class="content">Failed to load data, refresh the page may help</span></div></div>',
@@ -8182,9 +8196,10 @@ window.LogRankTest = (function(jStat) {
         totalNumOfStudies: 0,
         loadingBar :{
           status: 0,
+          type: 'percentage',
           divId: iViz.util.getDefaultDomId('progressBarId', this.attributes.attr_id),
           opts: {},
-          infinityInterval: null
+          disable: false
         },
         // this is used to set dc invisibleDimension filters
         // In case of MutatedGeneCna plot this would be case uids
@@ -8202,16 +8217,13 @@ window.LogRankTest = (function(jStat) {
         this.$dispatch('update-filters', true);
       },
       'loadedStudies': function() {
-        this.loadingBar.status = this.loadedStudies / (this.totalNumOfStudies || 1);
+        this.loadingBar.status = (this.loadedStudies / (this.totalNumOfStudies || 1)) * 0.8;
       },
       'showLoad': function(newVal) {
         if (newVal) {
           this.initialInfinityLoadingBar();
         } else {
-          if (this.loadingBar.infinityInterval) {
-            window.clearInterval(this.loadingBar.infinityInterval);
-            this.loadingBar.infinityInterval = null;
-          }
+          this.loadingBar.disable = true;
         }
       },
       'showedSurvivalPlot': function() {
@@ -8401,17 +8413,7 @@ window.LogRankTest = (function(jStat) {
         }
       },
       initialInfinityLoadingBar: function() {
-        var self = this;
-        self.loadingBar.opts = {
-          duration: 300,
-          step: function(state, bar) {
-            bar.setText('Loading...');
-          }
-        };
-        self.loadingBar.status = 0.5;
-        self.loadingBar.infinityInterval = setInterval(function() {
-          self.loadingBar.status += 0.5;
-        }, 800);
+        this.loadingBar.type = 'infinite';
       }
     },
     ready: function() {
@@ -8454,15 +8456,21 @@ window.LogRankTest = (function(jStat) {
         $.when(iViz.getTableData(_self.attributes.attr_id, function() {
           _self.loadedStudies++;
         })).then(function(_tableData) {
-          $.when(window.iviz.datamanager.getGenePanelMap())
+          $.when(window.iviz.datamanager.getGenePanelMap(_tableData.allGenes, _tableData.allSamples))
             .then(function(_genePanelMap) {
               // create gene panel map
-              this.dataLoaded = true;
-              _self.genePanelMap = _genePanelMap;
-              _self.processTableData(_tableData);
+              _self.loadingBar.status = 1;
+              setTimeout(function() {
+                this.dataLoaded = true;
+                _self.genePanelMap = _genePanelMap;
+                _self.processTableData(_tableData);
+              }, 0);
             }, function() {
-              _self.genePanelMap = {};
-              _self.processTableData(_tableData);
+              _self.loadingBar.status = 1;
+              setTimeout(function() {
+                _self.genePanelMap = {};
+                _self.processTableData(_tableData);
+              }, 0);
             });
         }, function() {
           _self.setDisplayTitle();
@@ -8986,6 +8994,14 @@ window.LogRankTest = (function(jStat) {
     template:
       '<div id="{{divId}}" class="study-view-progress-bar"></div>',
     props: {
+      type: {
+        type: String,
+        default: 'percentage'
+      },
+      disable: {
+        type: Boolean,
+        default: false
+      },
       status: {
         type: Number,
         default: 0
@@ -8998,6 +9014,11 @@ window.LogRankTest = (function(jStat) {
           return {};
         },
         type: Object
+      }
+    },
+    data: function() {
+      return {
+        intervals: {}
       }
     },
     methods: {
@@ -9030,18 +9051,66 @@ window.LogRankTest = (function(jStat) {
         }
         _self.bar = new ProgressBar.Line('#' + _self.divId, opts);
         _self.bar.animate(_self.status);
+      },
+      cancelAllIntervals: function() {
+        _.each(this.intervals, function(interval) {
+          window.clearInterval(interval);
+          interval = null;
+        })
+      },
+      cancelInterval: function(type) {
+        if (this.intervals[type]) {
+          window.clearInterval(this.intervals[type]);
+          this.intervals[type] = null;
+        }
+      },
+      initialInterval: function() {
+        var self = this;
+        if (self.type === 'percentage') {
+          self.intervals.percentage = window.setInterval(function() {
+            self.status += Math.floor(Math.random() * 5) * 0.01;
+          }, self.opts.duration || 500);
+        } else if (self.type = 'infinite') {
+          self.intervals.infinite = window.setInterval(function() {
+            self.status += 0.5;
+          }, self.opts.duration || 500);
+        }
       }
     },
     watch: {
-      'status': function(newVal) {
-        this.bar.animate(newVal);
+      'status': function(newVal, oldVal) {
+        if (this.type === 'percentage' && newVal >= 0.9) {
+          this.cancelInterval('percentage');
+        }
+        if (newVal > this.bar.value()) {
+          this.bar.animate(newVal);
+        }
       },
       'opts': function() {
         this.initLine();
+      },
+      'disable': function() {
+        this.cancelAllIntervals();
+      },
+      'type': function(newVal) {
+        this.cancelAllIntervals();
+        this.initialInterval();
+        this.disable = false;
+        if (newVal === 'infinite') {
+          this.opts = {
+            duration: 300,
+            step: function(state, bar) {
+              bar.setText('Loading...');
+            }
+          };
+          this.status = 0.5;
+        }
       }
     },
     ready: function() {
-      this.initLine();
+      var self = this;
+      self.initLine();
+      self.initialInterval();
     }
   });
 })(window.Vue,

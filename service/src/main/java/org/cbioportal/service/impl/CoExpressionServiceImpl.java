@@ -95,6 +95,10 @@ public class CoExpressionServiceImpl implements CoExpressionService {
 
             double[] queryValuesNumber = queryValuesCopy.stream().mapToDouble(Double::parseDouble).toArray();
             double[] valuesNumber = values.stream().mapToDouble(Double::parseDouble).toArray();
+
+            if (valuesNumber.length < 2) {
+                continue;
+            }
             
             double pearsonsValue = pearsonsCorrelation.correlation(queryValuesNumber, valuesNumber);
             if (Double.isNaN(pearsonsValue) || Math.abs(pearsonsValue) < threshold) {

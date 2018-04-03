@@ -1181,7 +1181,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 	    return this.oql_query;
 	},
 	'getQueryGenes': function () {
-	    return OQL.genes(this.oql_query);
+	    return window.frontendVars.oqlGenes(this.oql_query);
 	},
 	'getGeneticProfileIds': function () {
 	    return this.genetic_profile_ids;

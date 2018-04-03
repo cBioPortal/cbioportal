@@ -187,7 +187,7 @@
 <script src="js/lib/jquery-ui.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/FileSaver.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/bootstrap-dropdown-checkbox.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script src="js/lib/ZeroClipboard.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/clipboard.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/EnhancedFixedDatatable.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/MutatedGeneCNATable.js?<%=GlobalProperties.getAppVersion()%>"></script>
 

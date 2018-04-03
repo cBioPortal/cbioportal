@@ -1,9 +1,14 @@
 package org.cbioportal.model;
 
+import java.math.BigDecimal;
+
 import javax.validation.constraints.NotNull;
 
-public class GenePanelData extends UniqueKeyBase {
-    
+public class NumericGeneMolecularData extends UniqueKeyBase {
+
+    @NotNull
+    private Integer entrezGeneId;
+    private Gene gene;
     @NotNull
     private String molecularProfileId;
     @NotNull
@@ -12,9 +17,24 @@ public class GenePanelData extends UniqueKeyBase {
     private String patientId;
     @NotNull
     private String studyId;
-    private String genePanelId;
     @NotNull
-    private Boolean wholeExomeSequenced;
+    private BigDecimal value;
+
+    public Integer getEntrezGeneId() {
+        return entrezGeneId;
+    }
+
+    public void setEntrezGeneId(Integer entrezGeneId) {
+        this.entrezGeneId = entrezGeneId;
+    }
+
+    public Gene getGene() {
+        return gene;
+    }
+
+    public void setGene(Gene gene) {
+        this.gene = gene;
+    }
 
     public String getMolecularProfileId() {
         return molecularProfileId;
@@ -48,19 +68,11 @@ public class GenePanelData extends UniqueKeyBase {
         this.studyId = studyId;
     }
 
-    public String getGenePanelId() {
-        return genePanelId;
+    public BigDecimal getValue() {
+        return value;
     }
 
-    public void setGenePanelId(String genePanelId) {
-        this.genePanelId = genePanelId;
+    public void setValue(BigDecimal value) {
+        this.value = value;
     }
-
-	public Boolean getWholeExomeSequenced() {
-		return wholeExomeSequenced;
-	}
-
-	public void setWholeExomeSequenced(Boolean wholeExomeSequenced) {
-		this.wholeExomeSequenced = wholeExomeSequenced;
-	}
 }

@@ -38,6 +38,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * To speed up CGDS data loading, bulk load from files using MySQL "LOAD DATA INFILE" functionality.
@@ -50,6 +51,7 @@ import java.util.*;
 public class MySQLbulkLoader {
    private static boolean bulkLoad = false;
    private static boolean relaxedMode = false;
+   private String[] fieldNames = null;
    
    private static final Map<String,MySQLbulkLoader> mySQLbulkLoaders = new LinkedHashMap<String,MySQLbulkLoader>();
    /**
@@ -131,7 +133,7 @@ public class MySQLbulkLoader {
    private MySQLbulkLoader( String tableName ){
       try {
           openTempFile( tableName );
-         this.tableName = tableName;
+          this.tableName = tableName;
       } catch (Exception e) {
          e.printStackTrace();
       }
@@ -234,6 +236,11 @@ public class MySQLbulkLoader {
          stmt = con.createStatement();
          
          String command = "LOAD DATA LOCAL INFILE '" + tempFileName.replace("\\", "\\\\") + "'" + " INTO TABLE " + tableName;
+         //if optional fieldNames is set, then use it. This is useful for tables with auto-increment (in such cases the auto-increment
+         //field should not be part of the fieldNames list as it will also not be in the lines of the file tempFileName):
+         if (fieldNames != null) {
+             command += " (" + Arrays.asList(fieldNames).stream().collect(Collectors.joining(",")) + ")";
+         }
          stmt.execute( command );
          
          int updateCount = stmt.getUpdateCount();
@@ -290,5 +297,9 @@ public class MySQLbulkLoader {
       public static void relaxedModeOff() {
        MySQLbulkLoader.relaxedMode = false;
    }
+
+    public void setFieldNames(String[] fieldNames) {
+        this.fieldNames = fieldNames;
+    }
 
 }

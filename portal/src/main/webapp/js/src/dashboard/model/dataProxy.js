@@ -89,7 +89,7 @@ window.DataManagerForIviz = (function($, _) {
           $.when(self.getGeneticProfiles(), self.getCaseLists(),
             self.getClinicalAttributesByStudy())
             .done(function(_geneticProfiles, _caseLists,
-              _clinicalAttributes) {
+                           _clinicalAttributes) {
               vueInstance.increaseStudyViewSummaryPagePBStatus();
               var _result = {};
               var _patientData = [];
@@ -799,6 +799,7 @@ window.DataManagerForIviz = (function($, _) {
         return window.cbio.util.deepCopyObject(this.studyCasesMap);
       },
       data: {
+        studies: {},
         clinical: {
           sample: {},
           patient: {}
@@ -817,7 +818,7 @@ window.DataManagerForIviz = (function($, _) {
           if (_.isObject(configs_)) {
             fetch_promise.resolve(configs_);
           } else {
-            $.getJSON(window.cbioResourceURL + 'configs.json?' + appVersion)
+            $.getJSON(window.cbioResourceURL + 'configs.json')
               .then(function(data) {
                 var configs = {
                   styles: {
@@ -947,7 +948,7 @@ window.DataManagerForIviz = (function($, _) {
               fetch_promise.reject(error);
             });
         }),
-      
+
       // Server side uses uppercase clinical attribute ID as convention but the rule is not strictly followed yet.
       // Manually convert all IDs in front-end to prevent any discrepancy between clinical meta and clinical sample/patient data
       // In the refactoring effort, this needs to be verified again with backend team.
@@ -1599,17 +1600,23 @@ window.DataManagerForIviz = (function($, _) {
         var _def = new $.Deferred();
         var _asyncAjaxCalls = [];
         var _responses = [];
+        var _self = this;
         _.each(_cancerStudyStableIds, function(_csId) {
-          _asyncAjaxCalls.push(
-            $.ajax({
-              url: window.cbioURL + 'api/studies/' + _csId,
-              contentType: "application/json",
-              type: 'GET',
-              success: function(_res) {
-                _responses.push(_res);
-              }
-            })
-          );
+          if (_self.data.studies.hasOwnProperty(_csId)) {
+            _responses.push(_self.data.studies[_csId]);
+          } else {
+            _asyncAjaxCalls.push(
+              $.ajax({
+                url: window.cbioURL + 'api/studies/' + _csId,
+                contentType: "application/json",
+                type: 'GET',
+                success: function(_res) {
+                  _self.data.studies[_res.studyId] = _res;
+                  _responses.push(_res);
+                }
+              })
+            );
+          }
         });
         $.when.apply($, _asyncAjaxCalls).done(function() {
           var _map = {};

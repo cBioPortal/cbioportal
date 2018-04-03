@@ -120,7 +120,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
 
     var getCurrentDate = function() {
       var _date = new Date();
-      var strArr = [_date.getFullYear(), _date.getMonth(), _date.getDate()];
+      var strArr = [_date.getFullYear(), _date.getMonth() + 1, _date.getDate()];
       return strArr.join('-');
     };
 
@@ -8984,7 +8984,6 @@ window.LogRankTest = (function(jStat) {
   });
 })(window.Vue,
   window.$ || window.jQuery, window.vcSession, window.iViz);
-
 /**
  * @author Hongxin Zhang on 11/15/17.
  */

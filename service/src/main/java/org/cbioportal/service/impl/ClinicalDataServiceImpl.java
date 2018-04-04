@@ -133,28 +133,36 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
 			List<String> attributeIds, String clinicalDataType) {
 
         List<ClinicalDataCount> clinicalDataCounts = clinicalDataRepository.fetchClinicalDataCounts(studyId, sampleIds,
-            attributeIds, clinicalDataType).stream().filter(c -> !c.getAttributeId().toUpperCase().equals("NA") && 
-            !c.getAttributeId().toUpperCase().equals("NAN") && !c.getAttributeId().toUpperCase().equals("N/A")).collect(Collectors.toList());
+            attributeIds, clinicalDataType).stream().filter(c -> !c.getValue().toUpperCase().equals("NA") && 
+            !c.getValue().toUpperCase().equals("NAN") && !c.getValue().toUpperCase().equals("N/A")).collect(Collectors.toList());
 
         Map<String, List<ClinicalDataCount>> result = clinicalDataCounts.stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId));
 
-        result.forEach((k, v) -> {
+        attributeIds.forEach(a -> {
 
             int naCount = 0;
+            int totalCount = 0; 
+            List<ClinicalDataCount> counts = result.get(a);
+            if (counts != null) {
+                totalCount = counts.stream().mapToInt(ClinicalDataCount::getCount).sum();
+            } else {
+                counts = new ArrayList<>();
+                result.put(a, counts);
+            }
 
             if (clinicalDataType.equals("SAMPLE")) {
-                naCount = sampleIds.size() - clinicalDataCounts.stream().mapToInt(ClinicalDataCount::getCount).sum();
+                naCount = sampleIds.size() - totalCount;
             } else {
                 List<String> patientIds = patientService.getPatientIdsOfSamples(sampleIds);
-                naCount = patientIds.size() - clinicalDataCounts.stream().mapToInt(ClinicalDataCount::getCount).sum();
+                naCount = patientIds.size() - totalCount;
             }
             
             if (naCount > 0) {
                 ClinicalDataCount clinicalDataCount = new ClinicalDataCount();
-                clinicalDataCount.setAttributeId(k);
+                clinicalDataCount.setAttributeId(a);
                 clinicalDataCount.setValue("NA");
                 clinicalDataCount.setCount(naCount);
-                v.add(clinicalDataCount);
+                counts.add(clinicalDataCount);
             }
         });
         

@@ -285,10 +285,6 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         genePanelToGeneList.add(genePanelToGene);
 
         List<SampleList> sampleLists = new ArrayList<>();
-        SampleList sampleList = new SampleList();
-        sampleList.setSampleIds(Arrays.asList(SAMPLE_ID1));
-        sampleList.setCancerStudyIdentifier(STUDY_ID);
-        sampleLists.add(sampleList);
 
         List<MolecularProfile> molecularProfiles = new ArrayList<>();
         MolecularProfile molecularProfile = new MolecularProfile();
@@ -342,6 +338,6 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(MOLECULAR_PROFILE_ID, resultGenePanelData2.getMolecularProfileId());
         Assert.assertEquals(PATIENT_ID_2, resultGenePanelData2.getPatientId());
         Assert.assertEquals(STUDY_ID, resultGenePanelData2.getStudyId());
-        Assert.assertEquals(false, resultGenePanelData2.getWholeExomeSequenced());
+        Assert.assertEquals(true, resultGenePanelData2.getWholeExomeSequenced());
     }
 }

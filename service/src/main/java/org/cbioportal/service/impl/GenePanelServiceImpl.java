@@ -173,10 +173,13 @@ public class GenePanelServiceImpl implements GenePanelService {
                 String genePanelId = genePanelData.get().getGenePanelId();
                 resultGenePanelData.setGenePanelId(genePanelId);
                 resultGenePanelData.setWholeExomeSequenced(false);
-            } else if (sampleListMap.get(studyId).get(0).getSampleIds().contains(sampleId)) {
-                resultGenePanelData.setWholeExomeSequenced(true);
             } else {
-                resultGenePanelData.setWholeExomeSequenced(false);
+                List<SampleList> sampleLists = sampleListMap.get(studyId);
+                if (sampleLists == null || (sampleLists != null && sampleLists.get(0).getSampleIds().contains(sampleId))) {
+                    resultGenePanelData.setWholeExomeSequenced(true);
+                } else {
+                    resultGenePanelData.setWholeExomeSequenced(false);
+                }
             }
             resultGenePanelData.setMolecularProfileId(molecularProfileId);
             resultGenePanelData.setSampleId(sampleId);

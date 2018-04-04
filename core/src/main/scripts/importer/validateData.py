@@ -256,7 +256,6 @@ class PortalInstance(object):
         #Set defaults for genome version and species
         self.species = 'human'
         self.genome_build = {'human': {'hg19':['37','GRCh37'], 'hg38':['GRCh38']}}
-        self.genome_name = ['hg19','hg38']
 
     def load_genome_info(self, properties_filename):
         """Retrieves the species and genome information from portal.properties."""
@@ -270,7 +269,7 @@ class PortalInstance(object):
                     self.species = sp_line[1]
                     if self.species == 'mouse':
                         self.genome_build = {'mouse': {'mm10':['GRCm38']}}
-                        self.genome_name = ['mm10']
+
 class Validator(object):
 
     """Abstract validator class for tab-delimited data files.
@@ -1248,7 +1247,7 @@ class MutationsExtendedValidator(Validator):
 
 
     def checkNCBIbuild(self, value):
-        return value in (self.portal.genome_build[self.portal.species].values()[0])
+        return value in list(itertools.chain(*self.portal.genome_build[self.portal.species].values()))
 
     def checkMatchedNormSampleBarcode(self, value):
         if value != '':
@@ -3005,7 +3004,7 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode):
     for filename in filenames:
 
         meta_dictionary = cbioportal_common.parse_metadata_file(
-            filename, logger, study_id, portal_instance.genome_build[portal_instance.species].keys()[0])
+            filename, logger, study_id, portal_instance.genome_build[portal_instance.species].keys())
         meta_file_type = meta_dictionary['meta_file_type']
         if meta_file_type is None:
             continue

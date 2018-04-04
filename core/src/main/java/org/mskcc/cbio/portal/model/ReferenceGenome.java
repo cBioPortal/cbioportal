@@ -59,19 +59,6 @@ public class ReferenceGenome {
      * Constructor.
      * @param genomeName        Name of the reference genome.
      * @param species           Species of the reference genome.
-     * @param buildName         Name of genome assembly      
-     */
-    public ReferenceGenome(String genomeName, String species, String buildName) {
-        super();
-        this.genomeName = genomeName;
-        this.species = species;
-        this.buildName = buildName;
-    }
-
-    /**
-     * Constructor.
-     * @param genomeName        Name of the reference genome.
-     * @param species           Species of the reference genome.
      * @param buildName         Name of genome assembly
      * @param genomeSize        Effective genome size
      * @param url               URL to download reference genome

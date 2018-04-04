@@ -34,7 +34,7 @@ package org.mskcc.cbio.portal.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cbioportal.model.virtualstudy.VirtualStudy;
+import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudy;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.httpclient.HttpException;
 

@@ -1,6 +1,8 @@
 package org.cbioportal.web.parameter;
 
-public class SampleMolecularIdentifier {
+import java.io.Serializable;
+
+public class SampleMolecularIdentifier implements Serializable {
     
     private String sampleId;
     private String molecularProfileId;

@@ -33,7 +33,6 @@ public class AlterationEnrichmentUtilTest {
     @Mock
     private GeneService geneService;
 
-
     @Test
     public void createAlterationEnrichments() throws Exception {
         

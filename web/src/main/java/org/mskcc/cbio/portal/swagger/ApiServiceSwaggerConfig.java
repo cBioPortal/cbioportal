@@ -15,7 +15,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @PropertySource("classpath:springfox.properties")
 public class ApiServiceSwaggerConfig {
-
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)

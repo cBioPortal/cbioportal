@@ -279,6 +279,8 @@ cbio.util = (function() {
 
         browser.msie = /msie/.test(uagent);
 
+        browser.edge = /edge/.test(uagent);
+
         browser.version = "";
 
         // check for IE 11

@@ -1248,13 +1248,17 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       // But for safe, we decrease the limit to 1800
       if (_url.length > URLlenLimit) {
         var browser = cbio.util.browser;
-        if (browser.msie) {
+        if (browser.msie || browser.edge) {
           var limit = getNavCaseIdsStr(_selectedCasesMap, _selectedCaseIds, true).limit;
           var limit = limit > 50 ?
             (Math.floor(limit / 50) * 50) : Math.floor(limit / 5) * 5;
+          var browserName = 'Internet Explorer';
+          if (browser.edge) {
+            browserName = 'Microsoft Edge'
+          }
           new Notification().createNotification(
             'Too many selected samples to browse due to URL length limit of' +
-            ' Internet Explore. ' +
+            ' ' + browserName + '. ' +
             ' Please select less than ' + limit + ' samples, or use another browser.',
             {message_type: 'danger'});
         } else {

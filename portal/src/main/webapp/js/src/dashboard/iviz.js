@@ -631,9 +631,10 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     };
     var targetList = selectedCaseIds;
     if (Object.keys(selectedCasesMap).length > 1) {
-      targetList = _.map(selectedCasesMap, function(patientIds, studyId) {
-        return _.map(patientIds, function(patientId, index) {
-          return studyId + ":" + patientId;
+      targetList = [];
+      _.each(selectedCasesMap, function(patientIds, studyId) {
+        _.each(patientIds, function(patientId, index) {
+          targetList.push(studyId + ":" + patientId);
         });
       });
     }

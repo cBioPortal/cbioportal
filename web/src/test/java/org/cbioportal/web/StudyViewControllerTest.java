@@ -172,7 +172,7 @@ public class StudyViewControllerTest {
         mutationCounts.add(mutationCount2);
 
         Mockito.when(mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(Mockito.anyString(), 
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class))).thenReturn(mutationCounts);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean())).thenReturn(mutationCounts);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/mutated-genes/fetch")
             .accept(MediaType.APPLICATION_JSON)
@@ -218,7 +218,8 @@ public class StudyViewControllerTest {
         cnaCounts.add(cnaCount2);
 
         Mockito.when(discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(Mockito.anyString(), 
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class))).thenReturn(cnaCounts);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class), 
+            Mockito.anyBoolean())).thenReturn(cnaCounts);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/molecular-profiles/test_molecular_profile_id/cna-genes/fetch")
             .accept(MediaType.APPLICATION_JSON)

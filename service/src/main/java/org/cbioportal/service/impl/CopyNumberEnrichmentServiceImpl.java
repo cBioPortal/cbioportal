@@ -43,7 +43,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
         
         if (enrichmentType.equals("SAMPLE")) {
             copyNumberCountByGeneListFromRepo = discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(
-                molecularProfileId, allIds, null, null);
+                molecularProfileId, allIds, null, null, false);
             discreteCopyNumberDataList = discreteCopyNumberService
                 .fetchDiscreteCopyNumbersInMolecularProfile(molecularProfileId, alteredIds, null, alterationTypes, "ID");
         } else {

@@ -1,17 +1,17 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.Gene;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.GenePanelToGene;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.SampleList;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.GenePanelService;
-import org.cbioportal.service.GeneService;
 import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class GenePanelServiceImpl implements GenePanelService {
+
+    private static final String SEQUENCED_LIST_SUFFIX = "_sequenced";
     
     @Autowired
     private GenePanelRepository genePanelRepository;
@@ -37,9 +39,9 @@ public class GenePanelServiceImpl implements GenePanelService {
     @Autowired
     private SampleListRepository sampleListRepository;
     @Autowired
-    private SampleService sampleService;
+    private SampleListService sampleListService;
     @Autowired
-    private GeneService geneService;
+    private SampleService sampleService;
 
     @Override
     public List<GenePanel> getAllGenePanels(String projection, Integer pageSize, Integer pageNumber, String sortBy, 
@@ -138,6 +140,7 @@ public class GenePanelServiceImpl implements GenePanelService {
         Map<String, MolecularProfile> molecularProfileMap = molecularProfileService.getMolecularProfiles(
             molecularProfileIds, "SUMMARY").stream().collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
         List<String> studyIds = new ArrayList<>();
+        List<String> sequencedSampleListIds = new ArrayList<>();
         List<String> copyMolecularProfileIds = new ArrayList<>(molecularProfileIds);
         
         for (int i = 0; i < copyMolecularProfileIds.size(); i++) {
@@ -151,6 +154,9 @@ public class GenePanelServiceImpl implements GenePanelService {
         }
 
         MultiKeyMap samples = createSampleMap(studyIds, sampleIds);
+        studyIds.stream().distinct().forEach(s -> sequencedSampleListIds.add(s + SEQUENCED_LIST_SUFFIX));
+        Map<String, List<SampleList>> sampleListMap = sampleListService.fetchSampleLists(sequencedSampleListIds, "DETAILED")
+            .stream().collect(Collectors.groupingBy(SampleList::getCancerStudyIdentifier));
 
         List<GenePanelData> resultGenePanelDataList = new ArrayList<>();
 
@@ -159,6 +165,8 @@ public class GenePanelServiceImpl implements GenePanelService {
             String molecularProfileId = molecularProfileIds.get(i);
         
             GenePanelData resultGenePanelData = new GenePanelData();
+            String studyId = molecularProfileMap.get(molecularProfileId).getCancerStudyIdentifier();
+            resultGenePanelData.setStudyId(studyId);
             Optional<GenePanelData> genePanelData =
                 Optional.ofNullable((GenePanelData)genePanelDataMap.get(molecularProfileId, sampleId));
             if (genePanelData.isPresent()) {
@@ -166,12 +174,15 @@ public class GenePanelServiceImpl implements GenePanelService {
                 resultGenePanelData.setGenePanelId(genePanelId);
                 resultGenePanelData.setWholeExomeSequenced(false);
             } else {
-                resultGenePanelData.setWholeExomeSequenced(true);
+                List<SampleList> sampleLists = sampleListMap.get(studyId);
+                if (sampleLists == null || (sampleLists != null && sampleLists.get(0).getSampleIds().contains(sampleId))) {
+                    resultGenePanelData.setWholeExomeSequenced(true);
+                } else {
+                    resultGenePanelData.setWholeExomeSequenced(false);
+                }
             }
             resultGenePanelData.setMolecularProfileId(molecularProfileId);
             resultGenePanelData.setSampleId(sampleId);
-            String studyId = molecularProfileMap.get(molecularProfileId).getCancerStudyIdentifier();
-            resultGenePanelData.setStudyId(studyId);
             Optional<Sample> sample = Optional.ofNullable((Sample)samples.get(sampleId, studyId));
             if (sample.isPresent()) {
                 resultGenePanelData.setPatientId(sample.get().getPatientStableId());

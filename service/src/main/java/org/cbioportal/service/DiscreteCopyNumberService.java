@@ -36,7 +36,9 @@ public interface DiscreteCopyNumberService {
     List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String molecularProfileId,
                                                                               List<String> sampleIds,
                                                                               List<Integer> entrezGeneIds,
-                                                                              List<Integer> alterations);
+                                                                              List<Integer> alterations,
+                                                                              boolean includeFrequency) 
+        throws MolecularProfileNotFoundException;
 
     List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId,
                                                                                 List<String> patientIds,

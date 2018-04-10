@@ -1,13 +1,15 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 public class AlterationCountByGene implements Serializable {
 
     private Integer entrezGeneId;
     private String hugoGeneSymbol;
     private Integer countByEntity;
-    private Integer totalCount;
+	private Integer totalCount;
+	private BigDecimal frequency;
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -40,4 +42,12 @@ public class AlterationCountByGene implements Serializable {
 	public void setTotalCount(Integer totalCount) {
 		this.totalCount = totalCount;
 	}
+
+	public BigDecimal getFrequency() {
+		return frequency;
+	}
+
+	public void setFrequency(BigDecimal frequency) {
+		this.frequency = frequency;
+	}	
 }

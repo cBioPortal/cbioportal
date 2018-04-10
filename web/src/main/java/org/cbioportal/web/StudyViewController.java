@@ -87,7 +87,7 @@ public class StudyViewController {
         List<MutationCountByGene> result = new ArrayList<>();
         if (!filteredSampleIds.isEmpty()) {
             result = mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(molecularProfileId, 
-                filteredSampleIds, null);
+                filteredSampleIds, null, true);
             result.sort((a, b) -> b.getCountByEntity() - a.getCountByEntity());
         }
         
@@ -108,7 +108,7 @@ public class StudyViewController {
         List<CopyNumberCountByGene> result = new ArrayList<>();
         if (!filteredSampleIds.isEmpty()) {
             result = discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(molecularProfileId, 
-                filteredSampleIds, null, Arrays.asList(-2, 2));
+                filteredSampleIds, null, Arrays.asList(-2, 2), true);
             result.sort((a, b) -> b.getCountByEntity() - a.getCountByEntity());
         }
         

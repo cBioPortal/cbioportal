@@ -10,7 +10,7 @@ screenshot:
     - study.do?cancer_study_id=lgg_ucsf_2014
   # timeout in seconds
   timeout:
-    - 10
+    - 25
     - 10
   # number of retries before failing
   retry:

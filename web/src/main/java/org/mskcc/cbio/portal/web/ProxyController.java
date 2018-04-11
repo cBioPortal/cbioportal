@@ -65,7 +65,7 @@ public class ProxyController
 {
 	
   private String hotspotsURL;
-  @Value("${hotspots.url:http://cancerhotspots.org/api/}")
+  @Value("${hotspots.url:https://www.cancerhotspots.org/api/}")
   public void setHotspotsURL(String property) { this.hotspotsURL = property; }
   
   private String bitlyURL;

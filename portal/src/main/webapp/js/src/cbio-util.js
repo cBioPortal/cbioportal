@@ -646,7 +646,7 @@ cbio.util = (function() {
         }
         
         if (is3dHotspot) {
-            strBuilder.push("<a href=\"http://3dhotspots.org/\" target=\"_blank\">http://3dhotspots.org/</a>.");
+            strBuilder.push("<a href=\"https://www.3dhotspots.org/\" target=\"_blank\">https://www.3dhotspots.org/</a>.");
         }
         // end links
         

@@ -11,10 +11,12 @@ import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MutationCountByGene;
+import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
+import org.cbioportal.service.SampleService;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.StudyViewFilterApplier;
@@ -44,6 +46,8 @@ public class StudyViewControllerTest {
     private static final String TEST_STUDY_ID = "test_study_id";
     private static final String TEST_SAMPLE_ID_1 = "test_sample_id_1";
     private static final String TEST_SAMPLE_ID_2 = "test_sample_id_2";
+    private static final String TEST_PATIENT_ID_1 = "test_patient_id_1";
+    private static final String TEST_PATIENT_ID_2 = "test_patient_id_2";
     private static final String TEST_ATTRIBUTE_ID_1 = "test_attribute_1";
     private static final String TEST_ATTRIBUTE_ID_2 = "test_attribute_2";
     private static final String TEST_CLINICAL_DATA_VALUE_1 = "value1";
@@ -70,6 +74,8 @@ public class StudyViewControllerTest {
     private MolecularProfileService molecularProfileService;
     @Autowired
     private DiscreteCopyNumberService discreteCopyNumberService;
+    @Autowired
+    private SampleService sampleService;
     private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -243,11 +249,21 @@ public class StudyViewControllerTest {
 
     @Test
     public void fetchSampleIds() throws Exception {
-    
-        List<String> filteredSampleIds = new ArrayList<>();
-        filteredSampleIds.add(TEST_SAMPLE_ID_1);
-        filteredSampleIds.add(TEST_SAMPLE_ID_2);
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyString(), Mockito.anyObject())).thenReturn(filteredSampleIds);
+
+        List<Sample> filteredSamples = new ArrayList<>();
+        Sample sample1 = new Sample();
+        sample1.setStableId(TEST_SAMPLE_ID_1);
+        sample1.setPatientStableId(TEST_PATIENT_ID_1);
+        sample1.setCancerStudyIdentifier(TEST_STUDY_ID);
+        filteredSamples.add(sample1);
+        Sample sample2 = new Sample();
+        sample2.setStableId(TEST_SAMPLE_ID_2);
+        sample2.setPatientStableId(TEST_PATIENT_ID_2);
+        sample2.setCancerStudyIdentifier(TEST_STUDY_ID);
+        filteredSamples.add(sample2);
+
+        Mockito.when(sampleService.fetchSamples(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), 
+            Mockito.anyString())).thenReturn(filteredSamples);
     
         mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/sample-ids/fetch")
             .accept(MediaType.APPLICATION_JSON)
@@ -255,7 +271,11 @@ public class StudyViewControllerTest {
             .content(objectMapper.writeValueAsString(new StudyViewFilter())))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0]").value(TEST_SAMPLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1]").value(TEST_SAMPLE_ID_2));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").value(TEST_PATIENT_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_ID));
     }
 }

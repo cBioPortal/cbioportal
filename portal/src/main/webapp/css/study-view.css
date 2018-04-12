@@ -1067,32 +1067,6 @@ div.DTTT_print_info {
     padding: 0px 10px 0px 0px;
     margin-top: 2px;
 }
-textarea.expand{
-    margin: 0 5px 0 0;
-    font-family: Verdana,Arial,sans-serif;
-    background: none;
-    font-weight: normal;
-    color: darkgrey;
-    padding: 5px 10px;
-    margin-top: -3px;
-    margin-right: 10px;
-    border: solid 1px;
-    border-radius: 5px;
-    border-color: darkgrey;
-    outline-offset: -2px;
-    /*vertical-align: middle;*/
-}
-textarea.expandFocusOut{
-    width: 175px;
-    font-size: 0.8em;
-    height: 18px;
-    line-height: 17px;
-}
-textarea.expandFocusIn{
-    height: 5em;
-    width: 200px;
-    font-size: 1.0em;
-}
 #query-by-gene-span{
     float: left;
     padding: 0 10px 0 0;

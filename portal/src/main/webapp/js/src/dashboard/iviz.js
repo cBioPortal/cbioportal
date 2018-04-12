@@ -73,7 +73,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       description: '',
       filters: '',
       studies: '',
-      origin:''
+      origin: ''
     };
 
     var buildVCObject_ = function(stats, name,
@@ -81,7 +81,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       var def = new $.Deferred();
       var _virtualCohort = $.extend(true, {}, virtualCohort_);
       _virtualCohort.filters = stats.filters;
-      
+
       _virtualCohort.studies = stats.studies.map(function(studyObj) {
         return {
           id: studyObj.id,
@@ -100,20 +100,59 @@ window.vcSession = window.vcSession ? window.vcSession : {};
     };
 
     var getNumOfSelectedSamplesFromStudyMap = function(studyMap) {
-      var _numOfSamples = 0;
+      var _numOfSamples = {
+        sampleCounts__: 0,
+        studies: {}
+      };
       _.each(studyMap, function(_study) {
-        _numOfSamples += _study.samples.length;
+        _numOfSamples.studies[_study.id] = _study.samples.length;
+        _numOfSamples.sampleCounts__ += _study.samples.length;
       });
       return _numOfSamples;
     };
-    
-    var generateVSDescription_ = function(_cases) {
+
+    var generateVSDescription_ = function(_studyDisplayName, _filters, _cases) {
       var _desp = '';
-      if (_cases.length >= 1) {
+      if (_cases.length > 0) {
         var _numOfSamples = getNumOfSelectedSamplesFromStudyMap(_cases);
-        _desp = _numOfSamples + (_numOfSamples > 1 ? ' samples ' : ' sample ') 
+        var _count = _numOfSamples.sampleCounts__;
+        _desp = _count + (_count > 1 ? ' samples ' : ' sample ')
           + 'from ' + _cases.length +
-          (_cases.length > 1 ? ' studies' : ' study') + ' (' + getCurrentDate() + ')';
+          (_cases.length > 1 ? ' studies' : ' study') + ':';
+
+        _.each(_numOfSamples.studies, function(_count, _studyId) {
+          _desp += '\n- ' + _studyDisplayName[_studyId] + ' ('
+            + _count + ' sample' + (_count > 1 ? 's' : '') + ')';
+        });
+
+        if (_filters.length > 0) {
+          _desp += '\n\nFilter' + (_filters.length > 1 ? 's' : '') + ':';
+          _filters.sort(function(a, b) {
+            return a.attrName.localeCompare(b.attrName);
+          });
+          _.each(_filters, function(_filter) {
+            _desp += '\n- ' + _filter.attrName + ': ';
+            if (_filter.viewType === 'bar_chart') {
+              _desp += iViz.util.getDisplayBarChartBreadCrumb(_filter.filter);
+            } else if (_filter.viewType === 'table'
+              && ['mutated_genes', 'cna_details'].indexOf(_filter.attrId) !== -1) {
+              _.each(_filter.filter, function(subSelection) {
+                _desp += '\n  - ' + subSelection;
+              });
+            } else if (_filter.viewType === 'scatter_plot' || _filter.viewType === 'custom') {
+              _desp += _filter.filter.length + ' sample'
+                + (_filter.filter.length > 1 ? 's' : '');
+            } else {
+              _desp += _filter.filter.join(', ');
+            }
+          });
+        }
+
+        _desp += '\n\nCreated on  ' + getCurrentDate();
+
+        if (window.userEmailAddress) {
+          _desp += ' by ' + window.userEmailAddress;
+        }
       }
       return _desp;
     };
@@ -126,7 +165,7 @@ window.vcSession = window.vcSession ? window.vcSession : {};
 
     var getVSDefaultName = function(studyMap) {
       var _numOfSamples = getNumOfSelectedSamplesFromStudyMap(studyMap);
-      return 'Selected ' + (_numOfSamples > 1 ? 'samples' : 'sample')
+      return 'Selected ' + (_numOfSamples.sampleCounts__ > 1 ? 'samples' : 'sample')
         + ' (' + getCurrentDate() + ')';
     };
 
@@ -1316,6 +1355,16 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     getSampleIds: function(studyId, patientId) {
       return data_.groups.group_mapping.studyMap[studyId].patient_to_sample[patientId];
     },
+    getStudyCacseIdsUsingUIDs: function(type, uids) {
+      var ids = [];
+      _.each(uids, function(uid) {
+        ids.push({
+          studyId: data_.groups[type].data[uid].study_id,
+          caseId: data_.groups[type].data[uid].sample_id
+        });
+      });
+      return ids;
+    },
     openCases: function() {
       var _selectedCasesMap = {};
       var _patientData = data_.groups.patient.data;
@@ -1475,6 +1524,12 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           _.each(group.attributes, function(attributes) {
             if (attributes.filter.length > 0) {
               filters_[attributes.attr_id] = attributes.filter;
+              if (attributes.attr_id === 'MUT_CNT_VS_CNA') {
+                filters_[attributes.attr_id] =
+                  _.map(self.getStudyCacseIdsUsingUIDs('sample', filters_[attributes.attr_id]), function(item) {
+                    return item.studyId + ':' + item.caseId;
+                  });
+              }
             }
           });
           temp = $.extend(true, _result.filters.samples, filters_);
@@ -1482,6 +1537,16 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           _result.filters.samples = array;
         }
       });
+
+      if (vm_.customfilter.sampleUids.length > 0
+        || vm_.customfilter.patientUids.length > 0) {
+        var type = vm_.customfilter.type === 'sample' ? 'samples' : 'patients';
+        var uidsType = type === 'samples' ? 'sampleUids' : 'patientUids';
+        _result.filters[type][vm_.customfilter.id] =
+          _.map(self.getStudyCacseIdsUsingUIDs(vm_.customfilter.type, vm_.customfilter[uidsType]), function(item) {
+            return item.studyId + ':' + item.caseId;
+          });
+      }
       _result.studies = _studies;
       return _result;
     },
@@ -1537,7 +1602,8 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             isloading: true,
             redrawgroups: [],
             customfilter: {
-              display_name: 'Custom',
+              id: 'selectById',
+              display_name: 'Select by IDs',
               type: '',
               sampleUids: [],
               patientUids: []
@@ -1758,6 +1824,9 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 }
               });
             },
+            getChartsByAttrIds: function(attrIds) {
+              return _.pick(this.charts, attrIds);
+            },
             removeChart: function(attrId) {
               var self = this;
               var attrData = self.charts[attrId];
@@ -1833,7 +1902,6 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 new Notification().createNotification(selectedCaseUIDs.length +
                   ' case(s) selected.', {message_type: 'info'});
               }
-              $('#iviz-header-right-1').qtip('toggle');
               if (selectedCaseUIDs.length > 0) {
                 this.clearAllCharts(false);
                 var self_ = this;
@@ -1843,10 +1911,10 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                       self_.hasfilters = true;
                       self_.customfilter.type = group.type;
                       if (radioVal === 'sample') {
-                        self_.customfilter.sampleUids = selectedCaseUIDs;
+                        self_.customfilter.sampleUids = selectedCaseUIDs.sort();
                         self_.customfilter.patientUids = [];
                       } else {
-                        self_.customfilter.patientUids = selectedCaseUIDs;
+                        self_.customfilter.patientUids = selectedCaseUIDs.sort();
                         self_.customfilter.sampleUids = [];
                       }
                       self_.$broadcast('update-custom-filters');
@@ -2236,7 +2304,7 @@ var util = (function(_, cbio) {
 
       // This is for PDF download. fill transparent will be treated as black.
       _svg.find('rect').each(function(index, item) {
-        if($(item).css('fill') === 'transparent') {
+        if ($(item).css('fill') === 'transparent') {
           $(item).css('fill', 'white');
         }
       });
@@ -2702,7 +2770,7 @@ var util = (function(_, cbio) {
       }
       return status;
     };
-    
+
     content.getTickFormat = function(v, logScale, data_, opts_) {
       var _returnValue = v;
       var index = 0;
@@ -2808,7 +2876,7 @@ var util = (function(_, cbio) {
       }
       return message;
     };
-    
+
     content.getHypotenuse = function(a, b) {
       return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
     };
@@ -2820,6 +2888,22 @@ var util = (function(_, cbio) {
         isRelated = _.isArray(result) && result.length > 0;
       }
       return isRelated;
+    };
+
+    /**
+     *
+     * @param filters Array Filters should contain two elements
+     */
+    content.getDisplayBarChartBreadCrumb = function(filters) {
+      var str = '';
+      if (filters[0] && filters[1]) {
+        str = filters[0] + ' ~ ' + filters[1];
+      } else if (filters[0]) {
+        str = filters[0];
+      } else if (filters[1]) {
+        str = filters[1];
+      }
+      return str;
     };
 
     return content;
@@ -3984,7 +4068,7 @@ module.exports = {
  * Created by Karthik Kalletla on 4/18/16.
  */
 'use strict';
-(function(Vue) {
+(function(Vue, iViz) {
   Vue.component('breadCrumb', {
     template: '<span class="breadcrumb_container" ' +
     'v-if="attributes.filter.length > 0">' +
@@ -3992,9 +4076,7 @@ module.exports = {
     'v-if="(filtersToSkipShowing.indexOf(attributes.attr_id) === -1) && ' +
     '(specialTables.indexOf(attributes.attr_id) === -1)" class="breadcrumb_items">' +
     '<span v-if="attributes.view_type===\'bar_chart\'">' +
-    '<span v-if="filters[0]!==\'\' && filters[1]!==\'\'" class="breadcrumb_item">{{filters[0]}} ~ {{filters[1]}}</span>' +
-    '<span v-if="filters[0]!==\'\' && filters[1]===\'\'" class="breadcrumb_item">{{filters[0]}}</span>' +
-    '<span v-if="filters[0]===\'\' && filters[1]!==\'\'" class="breadcrumb_item">{{filters[1]}}</span>' +
+    '<span class="breadcrumb_item">{{getBarChartFilterString(filters)}}</span>' +
     '<i class="fa fa-times breadcrumb_remove" @click="removeFilter()"></i>' +
     '</span>' +
     '<template v-else>' +
@@ -4014,6 +4096,9 @@ module.exports = {
       };
     },
     methods: {
+      getBarChartFilterString: function(filters) {
+        return iViz.util.getDisplayBarChartBreadCrumb(filters);
+      },
       removeFilter: function(val) {
         if (this.attributes.view_type === 'bar_chart') {
           this.filters = [];
@@ -4036,7 +4121,7 @@ module.exports = {
       }
     }
   });
-})(window.Vue);
+})(window.Vue, window.iViz);
 
 /**
  * @author Hongxin Zhang on 3/10/16.
@@ -8323,7 +8408,7 @@ window.LogRankTest = (function(jStat) {
 
         if (this.isMutatedGeneCna) {
           this.selectedRows = _.union(this.selectedRows, selectedRowsUids);
-          this.attributes.filter.push(selectedRowsUids.join(','))
+          this.attributes.filter.push(selectedRowsUids.join(', '))
           _.each(_selectedRowData, function(item) {
             var casesIds = item.case_uids.split(',');
             selectedSamplesUnion = selectedSamplesUnion.concat(casesIds);
@@ -8743,6 +8828,41 @@ window.LogRankTest = (function(jStat) {
       enableShareCohortBtn: function(tooltip) {
         this.disableBtn(tooltip.find('.share-cohort'), false);
       },
+      getDefaultVSDescription: function() {
+        var def = new $.Deferred();
+        var selectedStudiesDisplayName = [];
+        var self = this;
+        window.iviz.datamanager.getCancerStudyDisplayName(this.stats.origin)
+          .then(function(names) {
+            selectedStudiesDisplayName = names
+          })
+          .always(function() {
+            var filters = {};
+            var vm = iViz.vue.manage.getInstance();
+            _.each(self.stats.filters, function(_filters, _type) {
+              _.each(_filters, function(filter, attrId) {
+                filters[attrId] = {
+                  filter: filter
+                };
+              });
+            });
+            var attrs = vm.getChartsByAttrIds(Object.keys(filters));
+            _.each(attrs, function(attr) {
+              filters[attr.attr_id].attrId = attr.attr_id;
+              filters[attr.attr_id].attrName = attr.display_name;
+              filters[attr.attr_id].viewType = attr.view_type;
+            });
+
+            if (filters.hasOwnProperty(vm.customfilter.id)) {
+              filters[vm.customfilter.id].attrId = vm.customfilter.id;
+              filters[vm.customfilter.id].attrName = vm.customfilter.display_name;
+              filters[vm.customfilter.id].viewType = 'custom';
+            }
+
+            def.resolve(vcSession.utils.generateVSDescription(selectedStudiesDisplayName, _.values(filters), self.stats.studies));
+          });
+        return def.promise();
+      },
       saveCohort: function() {
         var _self = this;
         _self.updateStats = true;
@@ -8846,7 +8966,8 @@ window.LogRankTest = (function(jStat) {
                 self_.showLoading(tooltip);
                 self_.updateSavingMessage(tooltip, 'Generating the virtual study link');
 
-                var cohortName = tooltip.find('.cohort-name').val();
+                var cohortName = tooltip.find('.cohort-name').val() ?
+                  tooltip.find('.cohort-name').val() : tooltip.find('.cohort-name').attr('placeholder');
                 var cohortDescription =
                   tooltip.find('textarea').val();
                 if (_.isObject(vcSession)) {
@@ -8918,26 +9039,31 @@ window.LogRankTest = (function(jStat) {
             },
             show: function() {
               var tooltip = $('.iviz-virtual-study-btn-qtip .qtip-content');
+              var showThis = this;
               self_.updateStats = true;
               self_.$nextTick(function() {
                 self_.updateStats = false;
                 tooltip.find('.cohort-name').val('');
                 tooltip.find('.cohort-name')
                   .attr('placeholder', vcSession.utils.VSDefaultName(self_.stats.studies));
-                tooltip.find('textarea').val(vcSession.utils.generateVSDescription(self_.stats.studies));
-              });
-              self_.showDialog(tooltip);
-              self_.hideLoading(tooltip);
-              self_.hideShared(tooltip);
-              self_.hideSaved(tooltip);
-              self_.hideFailedInfo(tooltip);
-              self_.hideAfterClipboard(tooltip);
+                self_.hideDialog(tooltip);
+                self_.showLoading(tooltip);
+                self_.getDefaultVSDescription()
+                  .always(function(description) {
+                    tooltip.find('textarea').val(description);
+                    self_.showDialog(tooltip);
+                    self_.hideLoading(tooltip);
+                    self_.hideShared(tooltip);
+                    self_.hideSaved(tooltip);
+                    self_.hideFailedInfo(tooltip);
+                    self_.hideAfterClipboard(tooltip);
 
-              // Tell the tip itself to not bubble up clicks on it
-              $($(this).qtip('api').elements.tooltip).click(function() {
-                return false;
+                    // Tell the tip itself to not bubble up clicks on it
+                    $($(showThis).qtip('api').elements.tooltip).click(function() {
+                      return false;
+                    });
+                  });
               });
-
             },
             visible: function() {
               // Tell the document itself when clicked to hide the tip and then unbind
@@ -8954,7 +9080,7 @@ window.LogRankTest = (function(jStat) {
           (self_.showShareButton ? '<button class="btn btn-default share-cohort" type="button">Share</button>' : '') +
           '</span>' +
           '</div><div>' +
-          '<textarea classe="form-control" rows="5" ' +
+          '<textarea classe="form-control" rows="10" ' +
           'placeholder="Virtual study description (Optional)"></textarea>' +
           '</div></div>' +
           '<div class="saving" style="display: none;">' +

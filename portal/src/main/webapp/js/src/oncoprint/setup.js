@@ -2347,7 +2347,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 					"population-scale cohort of tumor samples of various cancer types using " +
 					"methodology based in part on <a href='http://www.ncbi.nlm.nih.gov/pubmed/26619011' target='_blank'>Chang et al., Nat Biotechnol, 2016.</a>" +
 					"\n" +
-					"Explore all mutations at <a href='http://cancerhotspots.org' target='_blank'>http://cancerhotspots.org</a></p>" +
+					"Explore all mutations at <a href='https://www.cancerhotspots.org' target='_blank'>https://www.cancerhotspots.org</a></p>" +
 					(external_data_status.hotspots ? "" : "<p>Currently unavailable.</p>"));
 			    }},
 			position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},

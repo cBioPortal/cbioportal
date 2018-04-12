@@ -224,6 +224,7 @@
     var studyCasesMap = '<%=studySampleMap%>';
     var showShareButton = <%=showShareButton%>;
     var showSaveButton = <%=showSaveButton%>;
+    var userEmailAddress = '<%=GlobalProperties.getAuthenticatedUserName()%>';
     studyCasesMapTemp = JSON.parse(studyCasesMap);
     studyCasesMap = {};
     _.each(studyCasesMapTemp,function(casesList,studyId){

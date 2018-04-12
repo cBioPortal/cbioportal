@@ -12,15 +12,18 @@ import javax.validation.Valid;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.MutationCountByGene;
+import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
+import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.springframework.validation.annotation.Validated;
@@ -51,6 +54,8 @@ public class StudyViewController {
     private MolecularProfileService molecularProfileService;
     @Autowired
     private DiscreteCopyNumberService discreteCopyNumberService;
+    @Autowired
+    private SampleService sampleService;
 
     @RequestMapping(value = "/studies/{studyId}/clinical-data-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -118,13 +123,16 @@ public class StudyViewController {
     @RequestMapping(value = "/studies/{studyId}/sample-ids/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample IDs by study view filter")
-    public ResponseEntity<List<String>> fetchSampleIds(
+    public ResponseEntity<List<Sample>> fetchSampleIds(
         @ApiParam(required = true, value = "Study ID e.g. acc_tcga") 
         @PathVariable String studyId,
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody StudyViewFilter studyViewFilter) throws StudyNotFoundException, 
         MolecularProfileNotFoundException {
         
-        return new ResponseEntity<>(studyViewFilterApplier.apply(studyId, studyViewFilter), HttpStatus.OK);
+        List<String> sampleIds = studyViewFilterApplier.apply(studyId, studyViewFilter);
+        List<String> studyIds = new ArrayList<>();
+        sampleIds.forEach(s -> studyIds.add(studyId));
+        return new ResponseEntity<>(sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name()), HttpStatus.OK);
     }
 }

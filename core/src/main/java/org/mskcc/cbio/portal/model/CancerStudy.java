@@ -440,6 +440,23 @@ public class CancerStudy {
                     attrs.contains(ClinicalAttribute.DFS_STATUS);
     }
 
+    /**
+     * Check if study has fusion data 
+     * @return true if has fusion data, false when it's not
+     */
+    public boolean hasFusionData() {
+        ArrayList<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(studyID);
+        boolean hasFusionData = false;
+        for (GeneticProfile geneticProfile : geneticProfiles) {
+            if (geneticProfile.getDatatype().equals("SV")) { // check if genetic profiles contains Structural Variant
+                                                             // data type
+                hasFusionData = true;
+                break;
+            }
+        }
+        return hasFusionData;
+    }
+
     public String getShortName() {
         if (shortName==null || shortName.length()==0) {
             return cancerStudyIdentifier;

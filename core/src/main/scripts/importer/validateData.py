@@ -1363,7 +1363,7 @@ class MutationsExtendedValidator(Validator):
             entrez_id = data[self.cols.index('Entrez_Gene_Id')]
         if hugo_symbol == 'Unknown' and entrez_id == '0':
             is_silent = True
-            if variant_classification == 'IGR':
+            if variant_classification in ['IGR', 'Targeted_Region']:
                 self.logger.info("This variant (Gene symbol 'Unknown', Entrez gene ID 0) will be filtered out",
                                  extra={'line_number': self.line_number,
                                         'cause': variant_classification})
@@ -1376,7 +1376,7 @@ class MutationsExtendedValidator(Validator):
                 self.logger.warning(
                                     "Gene specification (Gene symbol 'Unknown', Entrez gene ID 0) for this variant "
                                     "implies intergenic even though Variant_Classification is "
-                                    "not 'IGR'; this variant will be filtered out",
+                                    "not 'IGR' or 'Targeted_Region'; this variant will be filtered out",
                                     extra={'line_number': self.line_number,
                                            'cause': variant_classification})
         elif variant_classification in self.SKIP_VARIANT_TYPES:

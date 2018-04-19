@@ -8730,7 +8730,7 @@ window.LogRankTest = (function(jStat) {
     template:
     '<div class="virtual-study">' +
     '<div class="virtual-study-btn">' +
-    'Virtual Study</div></div>',
+    '<i class="fa fa-bookmark" aria-hidden="true"></i></div></div>',
     props: {
       selectedSamplesNum: {
         type: Number,
@@ -8935,7 +8935,7 @@ window.LogRankTest = (function(jStat) {
                         });
                         tooltip.find('.saved .message .query-vs').click(function(event) {
                           event.preventDefault();
-                          iViz.submitForm([self_.savedVS.id]);
+                          window.open(window.cbioURL + 'index.do?cancer_study_id='+self_.savedVS.id)
                         });
                       })
                       .fail(function() {

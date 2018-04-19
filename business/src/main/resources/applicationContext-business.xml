@@ -84,6 +84,11 @@
             <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
             <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler" />
             <property name="objectFactory" ref="customObjectFactory" />
+            <property name="configuration">
+                <bean class="org.apache.ibatis.session.Configuration">
+                    <property name="cacheEnabled" value="${mybatis.cache.enabled:true}" />
+                </bean>
+            </property>
         </bean>
     </beans>
   

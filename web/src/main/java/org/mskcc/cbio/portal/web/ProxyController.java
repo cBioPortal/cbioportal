@@ -65,7 +65,7 @@ public class ProxyController
 {
 	
   private String hotspotsURL;
-  @Value("${hotspots.url:http://cancerhotspots.org/api/}")
+  @Value("${hotspots.url:https://www.cancerhotspots.org/api/}")
   public void setHotspotsURL(String property) { this.hotspotsURL = property; }
   
   private String bitlyURL;
@@ -109,7 +109,7 @@ public class ProxyController
       
       pathToUrl.put("bitly", bitlyURL);
       pathToUrl.put("cancerHotSpots", hotspotsURL + "hotspots/single/");
-      pathToUrl.put("3dHotspots", "http://3dhotspots.org/3d/api/hotspots/3d");
+      pathToUrl.put("3dHotspots", "https://www.3dhotspots.org/api/hotspots/3d/");
       pathToUrl.put("oncokbAccess", oncokbApiURL + "access");
       pathToUrl.put("oncokbSummary", oncokbApiURL + "summary.json");
 

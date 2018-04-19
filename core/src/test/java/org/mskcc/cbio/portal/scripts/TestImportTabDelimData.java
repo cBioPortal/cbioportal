@@ -358,9 +358,9 @@ public class TestImportTabDelimData {
             }
         }
         //check that we have 11 warning messages:
-        assertEquals(2, countDuplicatedRowWarnings);
+        assertEquals(4, countDuplicatedRowWarnings);
         assertEquals(3, countInvalidEntrez);
-        assertEquals(6, countSkippedWarnings);
+        assertEquals(4, countSkippedWarnings);
         
         Set<Integer> geneticEntityIds = DaoGeneticAlteration.getEntityIdsInProfile(newGeneticProfileId);
         // data will be loaded for 5 of the genes

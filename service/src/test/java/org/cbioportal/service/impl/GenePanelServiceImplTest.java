@@ -6,6 +6,7 @@ import org.cbioportal.model.GenePanelToGene;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleList;
+import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
 import org.cbioportal.persistence.SampleListRepository;
@@ -149,6 +150,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         List<MolecularProfile> molecularProfiles = new ArrayList<>();
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
+        molecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
         molecularProfiles.add(molecularProfile);
 
@@ -229,6 +231,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
+        molecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
         molecularProfiles.add(molecularProfile);
 
         List<Sample> samples = new ArrayList<>();
@@ -290,6 +293,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
+        molecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
         molecularProfiles.add(molecularProfile);
 
         List<Sample> samples = new ArrayList<>();

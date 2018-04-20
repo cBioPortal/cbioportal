@@ -1377,7 +1377,7 @@ window.DataManagerForIviz = (function($, _) {
         var _def = new $.Deferred();
         var panelSamplesMap = {};
         var geneSampleMap = {};
-        var wholeExomeSequencedPanelId = 'wholeExomeSequenced';
+        var isProfiledPanelId = 'profiled';
 
         $.ajax({
           type: 'POST',
@@ -1390,8 +1390,8 @@ window.DataManagerForIviz = (function($, _) {
         }).then(function(data) {
           _.each(data, function(datum) {
             var _panelId = datum.genePanelId;
-            if (!_panelId & datum.wholeExomeSequenced) {
-              _panelId = wholeExomeSequencedPanelId;
+            if (!_panelId & datum.profiled) {
+              _panelId = isProfiledPanelId;
             }
             if (_panelId) {
               if (!panelSamplesMap[_panelId]) {
@@ -1401,7 +1401,7 @@ window.DataManagerForIviz = (function($, _) {
             }
           });
           var _panels = _.filter(Object.keys(panelSamplesMap), function(item) {
-            return item !== wholeExomeSequencedPanelId;
+            return item !== isProfiledPanelId;
           });
 
           if (_panels.length > 0) {
@@ -1422,9 +1422,9 @@ window.DataManagerForIviz = (function($, _) {
                     geneSampleMap[gene.hugoGeneSymbol].sampleUids = geneSampleMap[gene.hugoGeneSymbol].sampleUids.concat(panelSamplesMap[panel.genePanelId]);
                   })
                 });
-                if (panelSamplesMap.hasOwnProperty(wholeExomeSequencedPanelId)) {
+                if (panelSamplesMap.hasOwnProperty(isProfiledPanelId)) {
                   _.each(geneSampleMap, function(item) {
-                    item.sampleUids = item.sampleUids.concat(panelSamplesMap[wholeExomeSequencedPanelId]);
+                    item.sampleUids = item.sampleUids.concat(panelSamplesMap[isProfiledPanelId]);
                   });
                 }
                 
@@ -1446,7 +1446,7 @@ window.DataManagerForIviz = (function($, _) {
             });
           } else {
             _.each(geneSampleMap, function(item) {
-              item.sampleUids = panelSamplesMap[wholeExomeSequencedPanelId].sort();
+              item.sampleUids = panelSamplesMap[isProfiledPanelId].sort();
             });
             _def.resolve(geneSampleMap);
           }

@@ -33,7 +33,8 @@ window.legacySupportFrontendConfig = {
     oncoprintCustomDriverTiersAnnotationDefault:'<%=GlobalProperties.enableTiers()%>' !== "false", // true unless "false"
     oncoprintOncoKbHotspotsDefault:{"true":undefined, "false":"disable", "custom":"custom"}['<%=GlobalProperties.enableOncoKBandHotspots()%>'],
     oncoprintHideVUSDefault:'<%=GlobalProperties.hidePassengerMutations()%>' === "true", // false unless "true"
-    priorityStudies : {}
+    priorityStudies : {},
+    sessionServiceIsEnabled: '<%=GlobalProperties.getSessionServiceUrl()%>' !== ""
 }
 
 // this prevents react router from messing with hash in a way that could is unecessary (static pages)

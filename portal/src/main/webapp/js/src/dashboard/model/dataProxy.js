@@ -1620,7 +1620,7 @@ window.DataManagerForIviz = (function($, _) {
         $.when.apply($, _asyncAjaxCalls).done(function() {
           var _map = {};
           _.each(_responses, function(_res) {
-            _map[_res.studyId] = _res.shortName;
+            _map[_res.studyId] = _res.name;
           });
           _def.resolve(_map);
         });

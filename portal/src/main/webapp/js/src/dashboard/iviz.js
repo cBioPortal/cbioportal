@@ -781,6 +781,43 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       }
     }
   };
+  var URLlenLimit = 1800;
+
+  function getNavCaseIdsStr(selectedCasesMap, selectedCaseIds, underURLLimit) {
+    var result = {
+      str: '',
+      limit: -1
+    };
+    var targetList = selectedCaseIds;
+    if (Object.keys(selectedCasesMap).length > 1) {
+      targetList = [];
+      _.each(selectedCasesMap, function(patientIds, studyId) {
+        _.each(patientIds, function(patientId, index) {
+          targetList.push(studyId + ":" + patientId);
+        });
+      });
+    }
+    if (underURLLimit) {
+      _.every(targetList, function(id, index) {
+        if (index === 0) {
+          result.str = id;
+          return true;
+        }
+        var _str = result.str += ',' + id;
+        if (_str.length > URLlenLimit) {
+          result.limit = index;
+          return false;
+        } else {
+          result.str = _str;
+          return true;
+        }
+      })
+    } else {
+      result.str = targetList.join(',');
+    }
+
+    return result;
+  }
 
   return {
 
@@ -1209,7 +1246,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       _.each(_allCNASamples, function(samples, studyId) {
         _.each(Object.keys(samples), function(sampleId) {
           tableData_.cna_details.allSamples.push({
-            "molecularProfileId":  window.iviz.datamanager.getCNAProfileIdByStudyId(studyId),
+            "molecularProfileId": window.iviz.datamanager.getCNAProfileIdByStudyId(studyId),
             "sampleId": sampleId
           })
         })
@@ -1380,29 +1417,37 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var _selectedCaseIds = _selectedCasesMap[_study_id].sort();
       var _url = '';
 
-      if (Object.keys(_selectedCasesMap).length === 1) {
-        _url = window.cbioURL +
-               'case.do#/patient?studyId=' +
-                _study_id +
-                '&caseId=' +
-                _selectedCaseIds[0] +
-                '&navCaseIds=' +
-                _selectedCaseIds.join(',');
+      _url = window.cbioURL +
+        'case.do#/patient?studyId=' +
+        _study_id +
+        '&caseId=' +
+        _selectedCaseIds[0] +
+        '&navCaseIds=' + getNavCaseIdsStr(_selectedCasesMap, _selectedCaseIds, false).str;
+
+      // The IE URL limitation is 2083
+      // https://blogs.msdn.microsoft.com/ieinternals/2014/08/13/url-length-limits/
+      // But for safe, we decrease the limit to 1800
+      if (_url.length > URLlenLimit) {
+        var browser = cbio.util.browser;
+        if (browser.msie || browser.edge) {
+          var limit = getNavCaseIdsStr(_selectedCasesMap, _selectedCaseIds, true).limit;
+          var limit = limit > 50 ?
+            (Math.floor(limit / 50) * 50) : Math.floor(limit / 5) * 5;
+          var browserName = 'Internet Explorer';
+          if (browser.edge) {
+            browserName = 'Microsoft Edge'
+          }
+          new Notification().createNotification(
+            'Too many selected samples to browse due to URL length limit of' +
+            ' ' + browserName + '. ' +
+            ' Please select less than ' + limit + ' samples, or use another browser.',
+            {message_type: 'danger'});
+        } else {
+          window.open(_url);
+        }
       } else {
-        var studyPatientString = _.map(_selectedCasesMap, function (patientIds, studyId) {
-          return _.map(patientIds, function(patientId,index){
-            return studyId+":"+patientId;
-          });
-        }).join(',');
-        _url = window.cbioURL +
-               'case.do#/patient?studyId=' +
-               _study_id +
-               '&caseId=' +
-               _selectedCaseIds[0] +
-               '&navCaseIds=' +
-               studyPatientString;
+        window.open(_url);
       }
-      window.open(_url);
     },
     downloadCaseData: function() {
       var _def = new $.Deferred();

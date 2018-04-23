@@ -105,9 +105,9 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>com.github.cbioportal</groupId>
+                  <groupId>com.github.inodb</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
-                  <version>v1.12.1</version>
+                  <version>95702b4e681de7a0f69d08d257c4537c41bd676e</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>

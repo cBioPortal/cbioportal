@@ -1,0 +1,69 @@
+version: 2
+jobs:
+  end_to_end_tests:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/node:8.9.4-browsers
+        environment:
+          CBIOPORTAL_DB_CONNECTION_STRING: jdbc:mysql://devdb.cbioportal.org:3306/
+          CBIOPORTAL_DB_HOST: devdb.cbioportal.org
+          JAVA_OPTS: "-Xms1024m -Xmx2048m"
+    steps:
+      - checkout
+      - run:
+          name: "1. run backend, 2. pull frontend repo and 3. run end to end tests"
+          command: |
+            sudo apt-get update && sudo apt-get -y install openjdk-8-jre &&
+            curl -SL "https://jitpack.io/com/github/${CIRCLE_USERNAME}/cbioportal/cbioportal/${CIRCLE_SHA1}/cbioportal-${CIRCLE_SHA1}.war" > cbioportal.war && \
+            curl -SL "http://central.maven.org/maven2/com/github/jsimone/webapp-runner/8.0.24.0/webapp-runner-8.0.24.0.jar" > webapp-runner.jar && \
+            touch download_war.done && \
+            java ${JAVA_OPTS} -Dshow.civic=true -Ddbconnector=dbcp -jar webapp-runner.jar --expand-war cbioportal.war --port 8080 & \
+            export FRONTEND_VERSION=$(grep -A 1 cbioportal-frontend portal/pom.xml  | grep version | sed 's/<version>//g' | sed 's|</version>||' | tr -d '[:blank:]') && \
+            export FRONTEND_USERNAME=$(grep -B 1 cbioportal-frontend portal/pom.xml  | grep groupId | cut -d. -f3 | cut -d'<' -f1) && \
+            git clone https://github.com/${FRONTEND_USERNAME}/cbioportal-frontend.git ~/cbioportal-frontend && \
+            cd ~/cbioportal-frontend && \
+            git fetch --tags && \
+            git checkout ${FRONTEND_VERSION} && \
+            cd end-to-end-tests && \
+            npm install && \
+            ./node_modules/webdriver-manager/bin/webdriver-manager update --versions.chrome 2.37 && \
+            touch ../checkout.done && \
+            ./node_modules/webdriver-manager/bin/webdriver-manager start --versions.chrome 2.37 & \
+            while [ ! -f ~/cbioportal-frontend/checkout.done ]; do sleep 2; done && \
+            while [ ! -f ~/repo/download_war.done ]; do sleep 2; done && \
+            cd ~/cbioportal-frontend && \
+            echo 'export CBIOPORTAL_URL="http://localhost:8080"' > env/custom.sh && \
+            ./scripts/env_vars.sh && \
+            eval "$(./scripts/env_vars.sh)" && \
+            sleep 5s && \
+            curl $CBIOPORTAL_URL > /dev/null && \
+            sleep 5s && \
+            curl $CBIOPORTAL_URL > /dev/null && \
+            sleep 5s && \
+            curl $CBIOPORTAL_URL > /dev/null && \
+            sleep 20s && \
+            cd end-to-end-tests && \
+            export FRONTEND_TEST_DO_NOT_LOAD_EXTERNAL_FRONTEND=true && \
+            npm run test-webdriver-manager
+          environment:
+            JUNIT_REPORT_PATH: ./junit/
+          when: always
+      -  store_artifacts:
+          path: ~/cbioportal-frontend/end-to-end-tests/screenshots
+          destination: /screenshots
+      -  store_artifacts:
+          path: ~/cbioportal-frontend/end-to-end-tests/image-compare
+          destination: /image-compare
+      - store_test_results:
+          path: ~/cbioportal-frontend/end-to-end-tests/junit
+      - store_artifacts:
+          path: ~/cbioportal-frontend/end-to-end-tests/junit
+      - store_artifacts:
+          path: ~/cbioportal-frontend/end-to-end-tests/imageCompare.html
+          destination: /imageCompare.html
+
+workflows:
+  version: 2
+  end_to_end_test_workflow:
+    jobs:
+      - end_to_end_tests

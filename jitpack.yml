@@ -1,0 +1,5 @@
+jdk:
+  - oraclejdk8
+install:
+   - echo "Running mvn clean install, include env variables for database"
+   - export PORTAL_HOME=`pwd` && mvn -U -e -Pheroku,public -DskipTests -Dshow.civic=true -Ddb.suppress_schema_version_mismatch_errors=true -Dfinal.war.name=cbioportal -Ddb.user='${CBIOPORTAL_DB_USER:cbio_user}'  -Ddb.password='${CBIOPORTAL_DB_PASSWORD:cbio_pass}' -Ddb.portal_db_name='${CBIOPORTAL_PUBLIC_DB_NAME:public_test}' -Dtomcat.catalina.scope=runtime -Ddb.connection_string='${CBIOPORTAL_DB_CONNECTION_STRING}' -Ddb.host='${CBIOPORTAL_DB_HOST}' clean install

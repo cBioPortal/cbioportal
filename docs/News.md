@@ -1,3 +1,54 @@
+## April 17, 2018
+ *   **Added data**  of 3732 samples from 4 TARGET studies:
+     *   [Pediatric Acute Lymphoid Leukemia - Phase II (TARGET, 2018)](http://www.cbioportal.org/study?id=all_phase2_target_2018_pub#summary) *1978 samples*
+     *   [Pediatric Acute Myeloid Leukemia (TARGET, 2018)](http://www.cbioportal.org/study?id=aml_target_2018_pub#summary) *1025 samples*
+     *   [Pediatric Rhabdoid Tumor (TARGET, 2018)](http://www.cbioportal.org/study?id=rt_target_2018_pub#summary) *72 samples*
+     *   [Pediatric Wilms' Tumor (TARGET, 2018)](http://www.cbioportal.org/study?id=wt_target_2018_pub#summary) *657 samples*    
+ *   **Added data**  of 3416 samples from 10 published studies:
+     *    [Prostate Adenocarcinoma (MSKCC/DFCI, Nature Genetics 2018)](http://www.cbioportal.org/study?id=prad_p1000#summary) *1013 samples*
+     *    [Prostate Adenocarcinoma (EurUrol, 2017)](http://www.cbioportal.org/study?id=prad_eururol_2017#summary) *65 samples*
+     *    [Non-Small Cell Lung Cancer (MSK, JCO 2018)](http://www.cbioportal.org/study?id=nsclc_pd1_msk_2018#summary) *240 samples*
+     *    [Small-Cell Lung Cancer (Multi-Institute 2017)](http://www.cbioportal.org/study?id=sclc_cancercell_gardner_2017#summary) *20 samples*
+     *    [The Angiosarcoma Project (Provisional, February 2018)](http://www.cbioportal.org/study?id=angs_project_painter_2018#summary) *14 samples*
+     *    [Acute Lymphoblastic Leukemia (St Jude, Nat Genet 2016)](http://www.cbioportal.org/study?id=all_stjude_2016#summary) *73 samples*
+     *    [Updated Segment data and Allele Frequencies for The Metastatic Breast Cancer Project (Provisional, October 2017)](http://www.cbioportal.org/study?id=brca_mbcproject_wagle_2017#summary) *103 samples*
+     *    [Colorectal Cancer (MSK, Cancer Cell 2018)](http://www.cbioportal.org/study?id=crc_msk_2018#summary) *1134 samples*
+     *    [Metastatic Esophagogastric Cancer (MSK,Cancer Discovery 2017)](http://www.cbioportal.org/study?id=egc_msk_2017#summary) *341 samples*
+## April 05, 2018
+ *   **Added data** from the TCGA PanCanAtlas project with >10,000 samples from 33 tumor types:
+     *   [Adrenocortical Carcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=acc_tcga_pan_can_atlas_2018)
+     *   [Bladder Urothelial Carcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=blca_tcga_pan_can_atlas_2018)
+     *   [Breast Invasive Carcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=brca_tcga_pan_can_atlas_2018)
+     *   [Cervical Squamous Cell Carcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=cesc_tcga_pan_can_atlas_2018)
+     *   [Colon Adenocarcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=coad_tcga_pan_can_atlas_2018)
+     *   [Cholangiocarcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=chol_tcga_pan_can_atlas_2018)
+     *   [Diffuse Large B-Cell Lymphoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=dlbc_tcga_pan_can_atlas_2018)
+     *   [Esophageal Adenocarcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=esca_tcga_pan_can_atlas_2018)
+     *   [Glioblastoma Multiforme (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=gbm_tcga_pan_can_atlas_2018)
+     *   [Head and Neck Squamous Cell Carcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=hnsc_tcga_pan_can_atlas_2018)
+     *   [Kidney Chromophobe (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=kich_tcga_pan_can_atlas_2018)
+     *   [Kidney Renal Clear Cell Carcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=kirc_tcga_pan_can_atlas_2018)
+     *   [Kidney Renal Papillary Cell Carcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=kirp_tcga_pan_can_atlas_2018)
+     *   [Acute Myeloid Leukemia (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=laml_tcga_pan_can_atlas_2018)
+     *   [Brain Lower Grade Glioma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=lgg_tcga_pan_can_atlas_2018)
+     *   [Liver Hepatocellular Carcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=lihc_tcga_pan_can_atlas_2018)
+     *   [Lung Adenocarcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=luad_tcga_pan_can_atlas_2018)
+     *   [Lung Squamous Cell Carcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=lusc_tcga_pan_can_atlas_2018)
+     *   [Mesothelioma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=meso_tcga_pan_can_atlas_2018)
+     *   [Ovarian Serous Cystadenocarcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=ov_tcga_pan_can_atlas_2018)
+     *   [Pancreatic Adenocarcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=paad_tcga_pan_can_atlas_2018)
+     *   [Pheochromocytoma and Paraganglioma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=pcpg_tcga_pan_can_atlas_2018)
+     *   [Prostate Adenocarcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=prad_tcga_pan_can_atlas_2018)
+     *   [Rectum Adenocarcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=read_tcga_pan_can_atlas_2018)
+     *   [Sarcoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=sarc_tcga_pan_can_atlas_2018)
+     *   [Skin Cutaneous Melanoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=skcm_tcga_pan_can_atlas_2018)
+     *   [Stomach Adenocarcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=stad_tcga_pan_can_atlas_2018)
+     *   [Testicular Germ Cell Tumors (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=tgct_tcga_pan_can_atlas_2018)
+     *   [Thyroid Carcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=thca_tcga_pan_can_atlas_2018)
+     *   [Thymoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=thym_tcga_pan_can_atlas_2018)
+     *   [Uterine Corpus Endometrial Carcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=ucec_tcga_pan_can_atlas_2018)
+     *   [Uterine Carcinosarcoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=ucs_tcga_pan_can_atlas_2018)
+     *   [Uveal Melanoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=uvm_tcga_pan_can_atlas_2018)
 ## March 20, 2018
  *   The sixth phase of the cBioPortal architectural upgrade is now complete: The _Download_ tab has been moved to the new architecture.
  *   Data can now be downloaded in [tabular format](http://blog.thehyve.nl/blog/downloading-data-from-the-cbioportal-oncoprint-view) from OncoPrint.

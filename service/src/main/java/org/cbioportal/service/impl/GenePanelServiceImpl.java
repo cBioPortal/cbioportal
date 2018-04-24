@@ -171,20 +171,15 @@ public class GenePanelServiceImpl implements GenePanelService {
             Optional<GenePanelData> genePanelData =
                 Optional.ofNullable((GenePanelData)genePanelDataMap.get(molecularProfileId, sampleId));
             if (genePanelData.isPresent()) {
-                String genePanelId = genePanelData.get().getGenePanelId();
-                resultGenePanelData.setGenePanelId(genePanelId);
-                if (genePanelId == null) {
-                    resultGenePanelData.setWholeExomeSequenced(true);
-                } else {
-                    resultGenePanelData.setWholeExomeSequenced(false);
-                }
+                resultGenePanelData.setGenePanelId(genePanelData.get().getGenePanelId());
+                resultGenePanelData.setProfiled(true);
             } else {
                 List<SampleList> sampleLists = sampleListMap.get(studyId);
                 if (molecularProfile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED) && 
                     (sampleLists == null || (sampleLists != null && sampleLists.get(0).getSampleIds().contains(sampleId)))) {
-                    resultGenePanelData.setWholeExomeSequenced(true);
+                    resultGenePanelData.setProfiled(true);
                 } else {
-                    resultGenePanelData.setWholeExomeSequenced(false);
+                    resultGenePanelData.setProfiled(false);
                 }
             }
             resultGenePanelData.setMolecularProfileId(molecularProfileId);

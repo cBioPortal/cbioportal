@@ -105,6 +105,10 @@ public class MafUtil
 	public static final String TUMOR_VAF = "tumor_vaf";
 	public static final String NORMAL_DEPTH = "normal_depth";
 	public static final String NORMAL_VAF = "normal_vaf";
+        public static final String TUMOR_VAR_READS = "tumors_var_reads";
+        public static final String TUMOR_REF_READS = "tumor_ref_reads";
+        public static final String NORMAL_VAR_READS = "normal_var_reads";
+        public static final String NORMAL_REF_READS = "normal_ref_reads";
 
 	// custom annotator column names
 	public static final String PROTEIN_CHANGE = "HGVSp_Short";
@@ -416,17 +420,21 @@ public class MafUtil
             }
 	        else if(header.equalsIgnoreCase(T_REF_COUNT) ||
 	                header.equalsIgnoreCase(I_T_REF_COUNT) ||
-	                header.equalsIgnoreCase(AD_REF)) {
+	                header.equalsIgnoreCase(AD_REF) ||
+                        header.equalsIgnoreCase(TUMOR_REF_READS)) {
 	        	tumorRefCountIndex = i;
             } else if(header.equalsIgnoreCase(T_ALT_COUNT) ||
 	                  header.equalsIgnoreCase(I_T_ALT_COUNT) ||
-	                  header.equalsIgnoreCase(AD_ALT)) {
+	                  header.equalsIgnoreCase(AD_ALT) ||
+                          header.equalsIgnoreCase(TUMOR_VAR_READS)) {
                 tumorAltCountIndex = i;
             } else if(header.equalsIgnoreCase(N_REF_COUNT) ||
-	                  header.equalsIgnoreCase(NORM_AD_REF)) {
+	                  header.equalsIgnoreCase(NORM_AD_REF) ||
+                          header.equalsIgnoreCase(NORMAL_REF_READS)) {
                 normalRefCountIndex= i;
             } else if(header.equalsIgnoreCase(N_ALT_COUNT) ||
-	                  header.equalsIgnoreCase(NORM_AD_ALT)) {
+	                  header.equalsIgnoreCase(NORM_AD_ALT) ||
+                          header.equalsIgnoreCase(NORMAL_VAR_READS)) {
                 normalAltCountIndex = i;
             } else if(header.equalsIgnoreCase(T_TOT_COV)) {
                 tTotCovIndex = i;

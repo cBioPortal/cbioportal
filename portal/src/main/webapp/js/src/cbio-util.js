@@ -801,7 +801,7 @@ cbio.util = (function() {
      * 
      * @param nameSelector - Any element selector can be accepted by jQuery
      * @param descriptionSelector - Any element selector can be accepted by jQuery
-     * @param studies - List of cancer studies 
+     * @param studies - List of cancer studies
      * @param name - The combined study name
      * @param description - The combined study description
      */
@@ -816,32 +816,51 @@ cbio.util = (function() {
                 description += ' ';
             }
             description += twoMoreStudies ?
-                ('This combined study contains samples from ' + studies.length + ' studies.') : '';
+                ('This combined study contains samples from ' + studies.length + ' studies.') : getCollapseStudyName(studies);
+        }
+        $(descriptionSelector).append(description);
+        if (twoMoreStudies) {
             var collapseStudyName = studies.map(function(study) {
                 // Remove html tags in study.description in case title of <a> not work 
                 return '<a href="' + window.cbioURL + 'study?id=' + study.id + '" title="' +
                     study.description.replace(/(<([^>]+)>)/ig, '') + '" target="_blank">' +
                     study.name + '</a>';
             }).join("<br />");
+            addFoldableDescription(descriptionSelector, collapseStudyName)
+        }
+    }
 
-            if (twoMoreStudies) {
-                description += '<span class="truncated"><br />' + collapseStudyName + '</span>';
+    function showVShtmlDescription(descriptionSelector, str) {
+        if (str) {
+            var lines = str.split(/\r?\n/g);
+            if (lines.length > 1) {
+                $(descriptionSelector).append(lines.shift());
+                addFoldableDescription(descriptionSelector, lines.join('<br />'));
             } else {
-                description += '<span>' + collapseStudyName + '</span>';
+                $(descriptionSelector).append(str);
             }
         }
-        $(descriptionSelector).append(description);
-        if (hasStudies) {
-            if (twoMoreStudies) {
-                var trncatedElm = $('.truncated').hide()                       // Hide the text initially
-                    .before('<i class="fa fa-plus-circle combined-study-title-toggle-icon" aria-hidden="true"></i>'); /// Create toggle button
-                $(descriptionSelector).find('.combined-study-title-toggle-icon')
-                    .on('click', function() {          // Attach behavior
-                        $(this).toggleClass("fa-minus-circle");   // Swap the icon
-                        $(trncatedElm).toggle();                    // Hide/show the text
-                    });
-            }
-        }
+        return str;
+    }
+
+    function getCollapseStudyName(studies) {
+        return studies.map(function(study) {
+            // Remove html tags in study.description in case title of <a> not work 
+            return '<a href="' + window.cbioURL + 'study?id=' + study.id + '" title="' +
+                study.description.replace(/(<([^>]+)>)/ig, '') + '" target="_blank">' +
+                study.name + '</a>';
+        }).join("<br />");
+    }
+
+    function addFoldableDescription(descriptionSelector, content) {
+        $(descriptionSelector).append('<span class="truncated"><br />' + content + '</span>');
+        var truncatedElm = $(descriptionSelector + ' .truncated').hide()                       // Hide the text initially
+            .before('<i class="fa fa-plus-circle combined-study-title-toggle-icon" aria-hidden="true"></i>'); /// Create toggle button
+        $(descriptionSelector).find('.combined-study-title-toggle-icon')
+            .on('click', function() {          // Attach behavior
+                $(this).toggleClass("fa-minus-circle");   // Swap the icon
+                $(truncatedElm).toggle();                    // Hide/show the text
+            });
     }
 
     return {
@@ -873,6 +892,7 @@ cbio.util = (function() {
         makeCachedPromiseFunction: makeCachedPromiseFunction,
         getDatahubStudiesList: getDatahubStudiesList,
         showCombinedStudyNameAndDescription: showCombinedStudyNameAndDescription,
+        showVShtmlDescription: showVShtmlDescription,
         getDecimalExponents: getDecimalExponents
     };
 

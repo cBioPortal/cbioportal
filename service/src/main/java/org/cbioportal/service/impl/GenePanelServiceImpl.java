@@ -165,20 +165,21 @@ public class GenePanelServiceImpl implements GenePanelService {
             String molecularProfileId = molecularProfileIds.get(i);
         
             GenePanelData resultGenePanelData = new GenePanelData();
-            String studyId = molecularProfileMap.get(molecularProfileId).getCancerStudyIdentifier();
+            MolecularProfile molecularProfile = molecularProfileMap.get(molecularProfileId);
+            String studyId = molecularProfile.getCancerStudyIdentifier();
             resultGenePanelData.setStudyId(studyId);
             Optional<GenePanelData> genePanelData =
                 Optional.ofNullable((GenePanelData)genePanelDataMap.get(molecularProfileId, sampleId));
             if (genePanelData.isPresent()) {
-                String genePanelId = genePanelData.get().getGenePanelId();
-                resultGenePanelData.setGenePanelId(genePanelId);
-                resultGenePanelData.setWholeExomeSequenced(false);
+                resultGenePanelData.setGenePanelId(genePanelData.get().getGenePanelId());
+                resultGenePanelData.setProfiled(true);
             } else {
                 List<SampleList> sampleLists = sampleListMap.get(studyId);
-                if (sampleLists == null || (sampleLists != null && sampleLists.get(0).getSampleIds().contains(sampleId))) {
-                    resultGenePanelData.setWholeExomeSequenced(true);
+                if (molecularProfile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED) && 
+                    (sampleLists == null || (sampleLists != null && sampleLists.get(0).getSampleIds().contains(sampleId)))) {
+                    resultGenePanelData.setProfiled(true);
                 } else {
-                    resultGenePanelData.setWholeExomeSequenced(false);
+                    resultGenePanelData.setProfiled(false);
                 }
             }
             resultGenePanelData.setMolecularProfileId(molecularProfileId);

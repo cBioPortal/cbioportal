@@ -6,6 +6,7 @@ import org.cbioportal.model.GenePanelToGene;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleList;
+import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
 import org.cbioportal.persistence.SampleListRepository;
@@ -149,6 +150,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         List<MolecularProfile> molecularProfiles = new ArrayList<>();
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
+        molecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
         molecularProfiles.add(molecularProfile);
 
@@ -193,14 +195,14 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(MOLECULAR_PROFILE_ID, resultGenePanelData1.getMolecularProfileId());
         Assert.assertEquals(PATIENT_ID_1, resultGenePanelData1.getPatientId());
         Assert.assertEquals(STUDY_ID, resultGenePanelData1.getStudyId());
-        Assert.assertEquals(false, resultGenePanelData1.getWholeExomeSequenced());
+        Assert.assertEquals(true, resultGenePanelData1.getProfiled());
         GenePanelData resultGenePanelData2 = result.get(1);
         Assert.assertEquals(SAMPLE_ID2, resultGenePanelData2.getSampleId());
         Assert.assertNull(resultGenePanelData2.getGenePanelId());
         Assert.assertEquals(MOLECULAR_PROFILE_ID, resultGenePanelData2.getMolecularProfileId());
         Assert.assertEquals(PATIENT_ID_2, resultGenePanelData2.getPatientId());
         Assert.assertEquals(STUDY_ID, resultGenePanelData2.getStudyId());
-        Assert.assertEquals(false, resultGenePanelData2.getWholeExomeSequenced());
+        Assert.assertEquals(false, resultGenePanelData2.getProfiled());
     }
 
     @Test
@@ -229,6 +231,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
+        molecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
         molecularProfiles.add(molecularProfile);
 
         List<Sample> samples = new ArrayList<>();
@@ -265,7 +268,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(MOLECULAR_PROFILE_ID, resultGenePanelData1.getMolecularProfileId());
         Assert.assertEquals(PATIENT_ID_1, resultGenePanelData1.getPatientId());
         Assert.assertEquals(STUDY_ID, resultGenePanelData1.getStudyId());
-        Assert.assertEquals(false, resultGenePanelData1.getWholeExomeSequenced());
+        Assert.assertEquals(true, resultGenePanelData1.getProfiled());
     }
 
     @Test
@@ -290,6 +293,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         MolecularProfile molecularProfile = new MolecularProfile();
         molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
         molecularProfile.setCancerStudyIdentifier(STUDY_ID);
+        molecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
         molecularProfiles.add(molecularProfile);
 
         List<Sample> samples = new ArrayList<>();
@@ -331,13 +335,13 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(MOLECULAR_PROFILE_ID, resultGenePanelData1.getMolecularProfileId());
         Assert.assertEquals(PATIENT_ID_1, resultGenePanelData1.getPatientId());
         Assert.assertEquals(STUDY_ID, resultGenePanelData1.getStudyId());
-        Assert.assertEquals(false, resultGenePanelData1.getWholeExomeSequenced());
+        Assert.assertEquals(true, resultGenePanelData1.getProfiled());
         GenePanelData resultGenePanelData2 = result.get(1);
         Assert.assertEquals(SAMPLE_ID2, resultGenePanelData2.getSampleId());
         Assert.assertNull(resultGenePanelData2.getGenePanelId());
         Assert.assertEquals(MOLECULAR_PROFILE_ID, resultGenePanelData2.getMolecularProfileId());
         Assert.assertEquals(PATIENT_ID_2, resultGenePanelData2.getPatientId());
         Assert.assertEquals(STUDY_ID, resultGenePanelData2.getStudyId());
-        Assert.assertEquals(true, resultGenePanelData2.getWholeExomeSequenced());
+        Assert.assertEquals(true, resultGenePanelData2.getProfiled());
     }
 }

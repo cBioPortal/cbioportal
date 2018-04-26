@@ -77,7 +77,8 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.MUTATION_SIGNIFICANCE:'MutationSignificanceValidator',
     cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX:'GenePanelMatrixValidator',
     cbioportal_common.MetaFileTypes.GSVA_SCORES:'GsvaScoreValidator',
-    cbioportal_common.MetaFileTypes.GSVA_PVALUES:'GsvaPvalueValidator'
+    cbioportal_common.MetaFileTypes.GSVA_PVALUES:'GsvaPvalueValidator',
+    cbioportal_common.MetaFileTypes.PHYLOGENETIC_TREE:'PhylogeneticTreeValidator'
 }
 
 
@@ -2432,6 +2433,19 @@ class TimelineValidator(Validator):
 
     def checkLine(self, data):
         super(TimelineValidator, self).checkLine(data)
+        # TODO check the values
+
+class PhylogeneticTreeValidator(Validator):
+
+    REQUIRED_HEADERS = [
+        'PATIENT_ID',
+        'anscestor_clone',
+        'descendant_clone']
+    REQUIRE_COLUMN_ORDER = True
+    ALLOW_BLANKS = True
+
+    def checkLine(self, data):
+        super(PhylogeneticTreeValidator, self).checkLine(data)
         # TODO check the values
 
 class CancerTypeValidator(Validator):

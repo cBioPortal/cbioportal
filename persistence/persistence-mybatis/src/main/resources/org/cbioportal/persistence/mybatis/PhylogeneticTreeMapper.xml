@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.persistence.mybatis.PhylogeneticTreeMapper">
+    <cache size="20000"/>
+    
+    <sql id="select">
+        phylogenetic_tree_structure.INTERNAL_ID AS internalID,
+        phylogenetic_tree_structure.CANCER_STUDY_ID AS cancerStudyId,
+        cancer_study.CANCER_STUDY_IDENTIFIER AS cancerStudyIdentifier,
+        phylogenetic_tree_structure.PATIENT_ID AS patientId,
+        patient.STABLE_ID AS patientStableId,
+        phylogenetic_tree_structure.ANCESTOR_CLONE AS ancestorClone,
+        phylogenetic_tree_structure.DESCENDENT_CLONE AS descendantClone
+    </sql>
+
+    <sql id="from">
+        FROM phylogenetic_tree_structure
+        INNER JOIN cancer_study ON phylogenetic_tree_structure.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN patient ON phylogenetic_tree_structure.PATIENT_ID = patient.INTERNAL_ID
+    </sql>
+    
+    <sql id="where">
+        <where>
+            <if test="patientIds != null and !patientIds.isEmpty()">
+                <foreach index="i" collection="patientIds" open="(" separator="OR" close=")">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[${i}]} AND patient.STABLE_ID = #{patientIds[${i}]}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+    
+    <select id="getPhylogeneticTrees" resultType="org.cbioportal.model.PhylogeneticTree">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <include refid="where"/>
+    </select>
+</mapper>

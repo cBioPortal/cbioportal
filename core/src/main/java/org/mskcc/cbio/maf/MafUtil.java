@@ -152,6 +152,11 @@ public class MafUtil
 	public static final String MA_LINK_PDB = "MA:link.PDB";
 	public static final String MA_PROTEIN_CHANGE = "MA:protein.change";
 
+	// clonality information
+	public static final String CLONAL_STATUS = "clonal_status";
+	public static final String CCF = "ccf";
+	public static final String CCF_CLUSTER = "cluster";
+
 	// custom filtering of passenger and driver mutations column names
 	public static final String DRIVER_FILTER = "cbp_driver";
 	public static final String DRIVER_FILTER_ANNOTATION = "cbp_driver_annotation";
@@ -249,6 +254,11 @@ public class MafUtil
 	private int driverAnnIndex = -1; //cbp_driver_annotation
 	private int driverTiersIndex = -1; //cbp_driver_tiers
 	private int driverTiersAnnIndex = -1; //cbp_driver_tiers_annotation
+
+	// clonality information
+	private int clonalStatusIndex = -1;  
+	private int mutCCFIndex = -1;  
+	private int ccfClusterIndex = -1; 
 
 	// number of headers in the header line
     private int headerCount;
@@ -444,7 +454,13 @@ public class MafUtil
                 normalDepthIndex = i;
             } else if(header.equalsIgnoreCase(NORMAL_VAF)) {
                 normalVafIndex = i;
-            } else if(header.equalsIgnoreCase(DRIVER_FILTER)) {
+            } else if(header.equalsIgnoreCase(CLONAL_STATUS)) {
+                clonalStatusIndex = i;
+        	} else if(header.equalsIgnoreCase(CCF)) {
+                mutCCFIndex = i;
+        	} else if(header.equalsIgnoreCase(CCF_CLUSTER)) {
+                ccfClusterIndex = i;
+        	} else if(header.equalsIgnoreCase(DRIVER_FILTER)) {
             		driverIndex = i;
             } else if(header.equalsIgnoreCase(DRIVER_FILTER_ANNOTATION)) {
             		driverAnnIndex = i;
@@ -559,6 +575,10 @@ public class MafUtil
 	    record.setOncotatorExonAffectedBestEffect(TabDelimitedFileUtil.getPartInt(oncoExonAffectedBeIndex, parts));
 	    record.setOncotatorProteinPosStartBestEffect(TabDelimitedFileUtil.getPartInt(oncoProteinPosStartBeIndex, parts));
 	    record.setOncotatorProteinPosEndBestEffect(TabDelimitedFileUtil.getPartInt(oncoProteinPosEndBeIndex, parts));
+
+		record.setClonalStatus(TabDelimitedFileUtil.getPartString(clonalStatusIndex, parts));
+	    record.setMutCCF(TabDelimitedFileUtil.getPartFloat(mutCCFIndex, parts));
+	    record.setCCFCluster(TabDelimitedFileUtil.getPartString(ccfClusterIndex, parts));
 
 	    // custom filtering of passenger and driver mutations columns
 
@@ -891,6 +911,21 @@ public class MafUtil
 	public int getOncoProteinPosEndBeIndex()
 	{
 		return oncoProteinPosEndBeIndex;
+	}
+
+	public int getClonalStatusIndex()
+	{
+		return clonalStatusIndex;
+	}
+
+	public int getMutCCF()
+	{
+		return mutCCFIndex;
+	}
+
+	public int getCCFCluster()
+	{
+		return ccfClusterIndex;
 	}
 
 	public int getDriverIndex()

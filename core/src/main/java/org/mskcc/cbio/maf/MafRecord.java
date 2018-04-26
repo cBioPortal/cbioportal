@@ -88,6 +88,11 @@ public class MafRecord
     private int normalDepth;
     private float normalVaf;
 
+    // clonal columns
+    private String clonalStatus;
+    private float mutCCF;
+    private String ccfCluster;
+
 	// custom annotator columns
 	private String proteinChange;
 	private String codons;
@@ -496,6 +501,30 @@ public class MafRecord
 
     public void setNormalVaf(float normalVaf) {
         this.normalVaf = normalVaf;
+    }
+
+    public String getClonalStatus() {
+        return clonalStatus;
+    }
+
+    public void setClonalStatus(String clonalStatus) {
+        this.clonalStatus = clonalStatus;
+    }
+
+    public float getMutCCF() {
+        return mutCCF;
+    }
+
+    public void setMutCCF(float mutCCF) {
+        this.mutCCF = mutCCF;
+    }
+
+    public String getCCFCluster() {
+        return ccfCluster;
+    }
+
+    public void setCCFCluster(String ccfCluster) {
+        this.ccfCluster = ccfCluster;
     }
 
 	public String getProteinChange()

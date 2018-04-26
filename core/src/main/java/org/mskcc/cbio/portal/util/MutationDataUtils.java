@@ -104,6 +104,9 @@ public class MutationDataUtils {
     public static final String MY_CANCER_GENOME = "myCancerGenome";
     public static final String IS_HOTSPOT = "isHotspot";
     public static final String OMA_LINK_NOT_AVAILABLE_VALUE = "NA";
+    public static final String CLONAL_STATUS = "clonal_status";
+    public static final String CCF = "ccf";
+    public static final String CCF_CLUSTER = "cluster";
 
     @Autowired
     private MutationRepositoryLegacy mutationRepositoryLegacy;
@@ -289,6 +292,12 @@ public class MutationDataUtils {
         mutationData.put(CNA_CONTEXT, getCnaData(cnaDataMap, mutation));
         mutationData.put(MY_CANCER_GENOME, mcgLinks);
         mutationData.put(IS_HOTSPOT, isHotspot);
+        //mutationData.put(CLONAL_STATUS, mutation.getClonalStatus());
+        mutationData.put(CLONAL_STATUS, this.getClonalStatus(mutation));
+        //mutationData.put(CCF, this.getMutCCF(mutation)); // to use these, would have to create a function
+        //mutationData.put(CCF_CLUSTER, this.getCCFCluster(mutation));
+        mutationData.put(CCF, mutation.getMutCCF());
+        mutationData.put(CCF_CLUSTER, mutation.getCCFCluster());
 
         return mutationData;
     }
@@ -634,6 +643,11 @@ public class MutationDataUtils {
             mat.add(l);
         }
         return mat;
+    }
+
+    protected String getClonalStatus(ExtendedMutation mutation)
+    {
+        return mutation.getClonalStatus();
     }
 
 }

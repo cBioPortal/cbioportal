@@ -454,3 +454,25 @@ ALTER TABLE gistic_to_gene DROP FOREIGN KEY gistic_to_gene_ibfk_2;
 ALTER TABLE gistic_to_gene ADD CONSTRAINT `gistic_to_gene_ibfk_2` FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE;
 
 UPDATE info SET DB_SCHEMA_VERSION="2.6.0";
+
+-- ========================== add clonal status  =============================================
+
+##version: 2.6.1
+ALTER TABLE `mutation` ADD COLUMN `CLONAL_STATUS` VARCHAR(10) NULL AFTER `NORMAL_REF_COUNT`;
+ALTER TABLE `mutation` ADD COLUMN `CCF` FLOAT(11) NULL AFTER `CLONAL_STATUS`;
+ALTER TABLE `mutation` ADD COLUMN `CCF_CLUSTER` VARCHAR(10) NULL AFTER `CCF`;
+
+-- ========================== add tree structure  =============================================
+
+CREATE TABLE `tree_structure` (
+  `INTERNAL_ID` INT(11) NOT NULL auto_increment,
+  `PATIENT_ID` INT(11) NOT NULL,
+  `CANCER_STUDY_ID` INT(11) NOT NULL,
+  `ANCESTOR_CLONE` VARCHAR(10) NULL,
+  `DESCENDENT_CLONE` VARCHAR(10) NULL,
+  PRIMARY KEY (`INTERNAL_ID`),
+  FOREIGN KEY (`PATIENT_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+);
+
+UPDATE info SET DB_SCHEMA_VERSION="2.6.1";

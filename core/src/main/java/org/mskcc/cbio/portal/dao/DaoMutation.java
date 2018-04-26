@@ -84,6 +84,9 @@ public final class DaoMutation {
                     Integer.toString(mutation.getTumorRefCount()),
                     Integer.toString(mutation.getNormalAltCount()),
                     Integer.toString(mutation.getNormalRefCount()),
+                    mutation.getClonalStatus(),
+                    Float.toString(mutation.getMutCCF()),
+                    mutation.getCCFCluster(),
                     //AminoAcidChange column is not used
                     null,
                     mutation.getDriverFilter(),
@@ -659,6 +662,9 @@ public final class DaoMutation {
             mutation.setTumorRefCount(rs.getInt("TUMOR_REF_COUNT"));
             mutation.setNormalAltCount(rs.getInt("NORMAL_ALT_COUNT"));
             mutation.setNormalRefCount(rs.getInt("NORMAL_REF_COUNT"));
+            mutation.setClonalStatus(rs.getString("CLONAL_STATUS"));
+            mutation.setMutCCF(rs.getFloat("CCF"));
+            mutation.setCCFCluster(rs.getString("CCF_CLUSTER"));
             return mutation;
         }
         catch(NullPointerException e) {

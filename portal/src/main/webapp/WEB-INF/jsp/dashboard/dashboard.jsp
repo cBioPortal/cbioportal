@@ -286,18 +286,6 @@
         
         var studyIds = Object.keys(studyCasesMap);
 
-        var getVirtualStudies = function(){
-        	    var def = new $.Deferred();
-        	    $.get(window.cbioURL+'api-legacy/proxy/session/virtual_study')
-            .done(function(response){
-                def.resolve(response)
-            })
-            .fail(function(error) {
-                def.reject(error);
-            });
-            return def.promise();
-        }
-
         var getVirtualStudy = function(id){
             var def = new $.Deferred();
             $.get(window.cbioURL+'api-legacy/proxy/session/virtual_study/'+id)
@@ -310,21 +298,9 @@
             return def.promise();
         }
         
-        var getPhysicalStudies = function(){
-            var def = new $.Deferred();
-            $.get(window.cbioURL + '/api/studies')
-            .done(function(response) {
-                def.resolve(response);
-            })
-            .fail(function(error) {
-                def.reject(error);
-            });
-            return def.promise();
-        }
-        
         var getSelectableStudyIds = function() {
             var def = new $.Deferred();
-            $.when(getPhysicalStudies(), getVirtualStudies()).then(function(physicalStudies, virtualStudies) {
+            $.when(window.iviz.datamanager.getAllPhysicalStudies(), window.iviz.datamanager.getAllVirtualStudies()).then(function(physicalStudies, virtualStudies) {
                 var physicalStudyIds = _.pluck(physicalStudies,'studyId');
                 var virtualStudyIds = _.pluck(virtualStudies,'id');
                 def.resolve( physicalStudyIds.concat(virtualStudyIds))
@@ -334,7 +310,7 @@
             return def.promise();
         }
         
-        $.when(window.cbioportal_client.getStudies({ study_ids: studyIds}), window.iviz.datamanager.getGeneticProfiles(),getVirtualStudies())
+        $.when(window.cbioportal_client.getStudies({ study_ids: studyIds}), window.iviz.datamanager.getGeneticProfiles(),window.iviz.datamanager.getAllVirtualStudies())
             .then(function(_cancerStudies, _geneticProfiles,virtualStudies){
                 if(cohortIdsList.length === 1 ) {
                     if(JSON.stringify(cohortIdsList) === JSON.stringify(studyIds)) {
@@ -378,7 +354,7 @@
                                  var name = response['data']['name'];
                                  $("#show_study_details").css('display','block');
                                  $("#study_name").html(name);
-                                 $("#study_desc").html(response['data']['description']);
+                                 cbio.util.showVShtmlDescription('#study_desc', response['data']['description']);
                                  $("#cancer_study_list").val(cohortIdsList[0]);
                                  document.title = name;
                          } else {
@@ -386,7 +362,7 @@
                                     var name = vs['data']['name'];
                                     $("#show_study_details").css('display','block');
                                     $("#study_name").html(name);
-                                    $("#study_desc").html(vs['data']['description']);
+                                    cbio.util.showVShtmlDescription('#study_desc', vs['data']['description']);
                                     $("#cancer_study_list").val(cohortIdsList[0]);
                                     document.title = name;
                                 }).fail(function() {

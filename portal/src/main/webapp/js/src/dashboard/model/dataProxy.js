@@ -1595,36 +1595,51 @@ window.DataManagerForIviz = (function($, _) {
         return array;
       },
 
-      getCancerStudyDisplayName: function(_cancerStudyStableIds) {
+      getAllVirtualStudies:  function(){
         var _def = new $.Deferred();
-        var _asyncAjaxCalls = [];
-        var _responses = [];
+        var _self = this;
+        $.get(window.cbioURL+'api-legacy/proxy/session/virtual_study')
+          .done(function(virtualStudies) {
+            _.each(virtualStudies, function(study) {
+              study.studyType = 'vs';
+              _self.data.studies[study.id] = study;
+            });
+            _def.resolve(virtualStudies);
+          })
+          .fail(function(error) {
+            _def.resolve([]);
+          });
+        return _def.promise();
+      },
+
+      getAllPhysicalStudies: function(){
+        var _def = new $.Deferred();
+        var _self = this;
+        $.get(window.cbioURL + 'api/studies')
+          .done(function(response) {
+            _.each(response, function(study) {
+              study.studyType = 'regular';
+              _self.data.studies[study.studyId] = study;
+            });
+            _def.resolve(response);
+          })
+          .fail(function(error) {
+            _def.reject(error);
+          });
+        return _def.promise();
+      },
+
+      getCancerStudyDisplayName: function(_cancerStudyStableIds) {
+        var _map = {};
         var _self = this;
         _.each(_cancerStudyStableIds, function(_csId) {
           if (_self.data.studies.hasOwnProperty(_csId)) {
-            _responses.push(_self.data.studies[_csId]);
-          } else {
-            _asyncAjaxCalls.push(
-              $.ajax({
-                url: window.cbioURL + 'api/studies/' + _csId,
-                contentType: "application/json",
-                type: 'GET',
-                success: function(_res) {
-                  _self.data.studies[_res.studyId] = _res;
-                  _responses.push(_res);
-                }
-              })
-            );
+            var _study = _self.data.studies[_csId];
+            var _id = _study.studyType === 'vs' ? _study.id : _study.studyId;
+            _map[_id] = _study.studyType === 'vs' ? _study.data.name : _study.name;
           }
         });
-        $.when.apply($, _asyncAjaxCalls).done(function() {
-          var _map = {};
-          _.each(_responses, function(_res) {
-            _map[_res.studyId] = _res.name;
-          });
-          _def.resolve(_map);
-        });
-        return _def.promise();
+        return _map;
       }
     };
   };

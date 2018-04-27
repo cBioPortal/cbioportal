@@ -59,7 +59,7 @@ public class GeneServiceImpl implements GeneService {
             }
         }
 
-        geneList.forEach(gene -> chromosomeCalculator.setChromosome(gene));
+        //geneList.forEach(gene -> chromosomeCalculator.setChromosome(gene));
         return geneList;
     }
 
@@ -77,6 +77,15 @@ public class GeneServiceImpl implements GeneService {
     }
 
     @Override
+    public Gene getGeneByGeneticEntityId(Integer geneticEntityId) throws GeneNotFoundException {
+
+        Gene gene;
+        gene = geneRepository.getGeneByGeneticEntityId(geneticEntityId);
+        if (gene == null) throw new GeneNotFoundException(Integer.toString(geneticEntityId));
+        return gene;
+    }  
+
+    @Override
     public Gene getGene(String geneId) throws GeneNotFoundException {
 
         Gene gene;
@@ -91,7 +100,7 @@ public class GeneServiceImpl implements GeneService {
             throw new GeneNotFoundException(geneId);
         }
 
-        chromosomeCalculator.setChromosome(gene);
+        //chromosomeCalculator.setChromosome(gene);
         return gene;
     }
 
@@ -119,7 +128,7 @@ public class GeneServiceImpl implements GeneService {
             geneList = geneRepository.fetchGenesByHugoGeneSymbols(geneIds, projection);
         }
 
-        geneList.forEach(gene -> chromosomeCalculator.setChromosome(gene));
+        //geneList.forEach(gene -> chromosomeCalculator.setChromosome(gene));
         return geneList;
     }
 

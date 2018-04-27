@@ -343,7 +343,8 @@ public class DaoGeneOptimized {
 
             List<CanonicalGene> ret = new ArrayList<CanonicalGene>();
             for (CanonicalGene cg : genes) {
-                String gchr = getChrFromCytoband(cg.getCytoband());
+                //String gchr = getChrFromCytoband(cg.getCytoband());
+                String gchr = null;
                 if (gchr==null // TODO: should we exlude this?
                         || gchr.equals(nchr)) {
                     ret.add(cg);

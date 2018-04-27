@@ -19,7 +19,7 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+ 
 import com.datumbox.framework.common.dataobjects.AssociativeArray;
 import com.datumbox.framework.common.dataobjects.DataTable2D;
 import com.datumbox.framework.common.dataobjects.FlatDataCollection;

@@ -71,9 +71,15 @@ def interface():
                                        action='store_true',
                                        help='Skip tests requiring information '
                                             'from the cBioPortal installation')
-    parser.add_argument('-P', '--portal_properties', type=str,
-                        help='portal.properties file path (default: assumed hg19)',
-                        required=False) 
+    parser.add_argument('-species', '--species', type=str, default='human',
+                        help='species information (default: assumed human)',
+                        required=False)
+    parser.add_argument('-genome', '--reference_genome', type=str, default='hg19',
+                        help='reference genome build (default: assumed hg19)',
+                        required=False)   
+    parser.add_argument('-build', '--genome_build', type=str, default='37',
+                         help='reference genome build (default: assumed 37 for reference genome hg19)',
+                         required=False)                                                                  
     parser.add_argument('-jar', '--jar_path', type=str, required=False,
                         help=(
                             'Path to scripts JAR file (default: locate it '

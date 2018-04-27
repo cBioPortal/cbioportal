@@ -66,6 +66,7 @@ public class CancerStudy {
     private Set<String> groups;
     private String shortName;
     private Date importDate;
+    private String referenceGenome;
     
 
     /**
@@ -190,6 +191,12 @@ public class CancerStudy {
 
     public void setCitation(String citation) {
         this.citation = citation;
+    }
+    
+    public String getReferenceGenome() { return referenceGenome; }
+    
+    public void setReferenceGenome(String referenceGenome) {
+        this.referenceGenome = referenceGenome;
     }
 
     /**

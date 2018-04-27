@@ -1,11 +1,6 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.CopyNumberCount;
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneMolecularData;
-import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.service.MolecularDataService;

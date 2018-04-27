@@ -146,7 +146,18 @@ public class ImportExtendedMutationData{
             {
                 String[] parts = line.split("\t", -1 ); // the -1 keeps trailing empty strings; see JavaDoc for String
                 MafRecord record = mafUtil.parseRecord(line);
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(geneticProfile.getCancerStudyId());
+                String genomeBuildName;
+                try {
+                    String referenceGenome = cancerStudy.getReferenceGenome();
+                    genomeBuildName = DaoReferenceGenome.getReferenceGenomeByGenomeName(referenceGenome).getBuildName();
+                } catch (NullPointerException e) {
+                    genomeBuildName = ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_BUILD;
+                }
 
+                if (!record.getNcbiBuild().equalsIgnoreCase(genomeBuildName)) {
+                    ProgressMonitor.setCurrentMessage("Genome Build Name does not match, expecting " + genomeBuildName);
+                }
                 // process case id
                 String barCode = record.getTumorSampleID();
                 Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),

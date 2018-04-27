@@ -12,11 +12,13 @@ import org.cbioportal.model.Geneset;
 import org.cbioportal.model.MolecularData;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.model.CoExpression.GeneticEntityType;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.model.CoExpression;
 import org.cbioportal.service.GeneService;
+import org.cbioportal.service.ReferenceGenomeGeneService;
 import org.cbioportal.service.GenesetDataService;
 import org.cbioportal.service.GenesetService;
 import org.cbioportal.service.MolecularDataService;
@@ -50,6 +52,8 @@ public class CoExpressionServiceImpl implements CoExpressionService {
     private MolecularDataService molecularDataService;
     @Autowired
     private GeneService geneService;
+    @Autowired
+    private ReferenceGenomeGeneService referenceGenomeGeneService;
     @Autowired
     private GenesetService genesetService;
     @Autowired
@@ -105,7 +109,7 @@ public class CoExpressionServiceImpl implements CoExpressionService {
                 .filter(p -> sharedSamples.contains(p.getSampleId())).collect(Collectors.toList());
 
         computedCoExpressions = computeCoExpressionsFromMolecularData(finalmolecularDataListB, isMolecularProfileBOfGenesetType,
-                finalmolecularDataListA, geneticEntityId, threshold);
+                finalmolecularDataListA, geneticEntityId, threshold, molecularProfileIdB);
         return computedCoExpressions;
     }
 
@@ -252,7 +256,7 @@ public class CoExpressionServiceImpl implements CoExpressionService {
                     .collect(Collectors.toList());
         }
         computedCoExpressions = computeCoExpressionsFromMolecularData(molecularDataListB, isMolecularProfileBOfGenesetType,
-                molecularDataListA, geneticEntityId, threshold);
+                molecularDataListA, geneticEntityId, threshold, molecularProfileIdB);
         return computedCoExpressions;
     }
 
@@ -319,7 +323,15 @@ public class CoExpressionServiceImpl implements CoExpressionService {
             coExpression.setGeneticEntityName(geneset.getName());
         } else {
             Gene gene = geneService.getGene(entityId);
-            coExpression.setCytoband(gene.getCytoband());
+            try {
+                MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
+                ReferenceGenomeGene refGene = referenceGenomeGeneService.getReferenceGenomeGene(
+                    gene.getEntrezGeneId(),
+                    molecularProfile.getCancerStudy().getReferenceGenome());
+                coExpression.setCytoband(refGene.getCytoband()); //value will be set by the frontend
+            } catch (NullPointerException e) {
+                coExpression.setCytoband("-");
+            }
             coExpression.setGeneticEntityName(gene.getHugoGeneSymbol());
         }
 

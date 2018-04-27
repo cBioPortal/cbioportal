@@ -298,7 +298,7 @@ public final class DaoCancerStudy {
             pstmt = con.prepareStatement("INSERT INTO cancer_study " +
                     "( `CANCER_STUDY_IDENTIFIER`, `NAME`, "
                     + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
-                    + "`PMID`, `CITATION`, `GROUPS`, `SHORT_NAME`, `STATUS`, `IMPORT_DATE` ) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                    + "`PMID`, `CITATION`, `GROUPS`, `SHORT_NAME`, `STATUS`, `IMPORT_DATE`,`REFERENCE_GENOME_ID` ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, stableId);
             pstmt.setString(2, cancerStudy.getName());
@@ -319,6 +319,13 @@ public final class DaoCancerStudy {
             //TODO - use this field in parts of the system that build up the list of studies to display in home page:
             pstmt.setInt(10, Status.UNAVAILABLE.ordinal());
             pstmt.setDate(11, java.sql.Date.valueOf(LocalDate.now()));
+            try {
+                ReferenceGenome referenceGenome = DaoReferenceGenome.getReferenceGenomeByGenomeName(cancerStudy.getReferenceGenome());
+                pstmt.setInt(12, referenceGenome.getReferenceGenomeId());
+            }
+            catch (NullPointerException e) {
+                pstmt.setInt(12,1); //#TODO default reference genome to use
+            }
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
@@ -356,7 +363,7 @@ public final class DaoCancerStudy {
     /**
      * Return the cancerStudy identified by the internal cancer study ID, if it exists.
      *
-     * @param cancerStudyID     Internal (int) Cancer Study ID.
+     * @param internalId     Internal (int) Cancer Study ID.
      * @return Cancer Study Object, or null if there's no such study.
      */
     public static CancerStudy getCancerStudyByInternalId(int internalId) throws DaoException {
@@ -366,7 +373,7 @@ public final class DaoCancerStudy {
     /**
      * Returns the cancerStudy identified by the stable identifier, if it exists.
      *
-     * @param cancerStudyStableId Cancer Study Stable ID.
+     * @param stableId Cancer Study Stable ID.
      * @return the CancerStudy, or null if there's no such study.
      */
     public static CancerStudy getCancerStudyByStableId(String stableId) throws DaoException {
@@ -624,6 +631,12 @@ public final class DaoCancerStudy {
         cancerStudy.setShortName(rs.getString("SHORT_NAME"));
         cancerStudy.setInternalId(rs.getInt("CANCER_STUDY_ID"));
         cancerStudy.setImportDate(rs.getDate("IMPORT_DATE"));
+        try {
+            cancerStudy.setReferenceGenome(DaoReferenceGenome.getReferenceGenomeByInternalId(
+                rs.getInt("REFERENCE_GENOME_ID")).getGenomeName());
+        } catch (DaoException e) {
+            cancerStudy.setReferenceGenome(ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
+        }
         return cancerStudy;
     }
 

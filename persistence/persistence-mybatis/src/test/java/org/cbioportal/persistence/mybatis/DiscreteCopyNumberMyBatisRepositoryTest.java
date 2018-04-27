@@ -1,8 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
-import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.Gene;
+import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,6 +21,9 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
 
     @Autowired
     private DiscreteCopyNumberMyBatisRepository discreteCopyNumberMyBatisRepository;
+    
+    @Autowired
+    private ReferenceGenomeGeneMyBatisRepository refGeneMyBatisRepository;
     
     @Test
     public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdSummaryProjection() throws Exception {
@@ -62,7 +63,7 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         List<DiscreteCopyNumberData> result =  discreteCopyNumberMyBatisRepository
             .getDiscreteCopyNumbersInMolecularProfileBySampleListId("study_tcga_pub_gistic", "study_tcga_pub_all", 
                 entrezGeneIds, alterations, "DETAILED");
-
+        
         Assert.assertEquals(3, result.size());
         DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
         Assert.assertEquals("study_tcga_pub_gistic", discreteCopyNumberData.getMolecularProfileId());
@@ -72,8 +73,9 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         Gene gene = discreteCopyNumberData.getGene();
         Assert.assertEquals((Integer) 207, gene.getEntrezGeneId());
         Assert.assertEquals("AKT1", gene.getHugoGeneSymbol());
-        Assert.assertEquals("protein-coding", gene.getType());
-        Assert.assertEquals("14q32.32", gene.getCytoband());
+        ReferenceGenomeGene refGene = refGeneMyBatisRepository.getReferenceGenomeGene(gene.getEntrezGeneId(), "hg19");
+        Assert.assertEquals("14q32.33", refGene.getCytoband());
+        Assert.assertEquals((Integer) 10838, refGene.getLength());
     }
 
     @Test

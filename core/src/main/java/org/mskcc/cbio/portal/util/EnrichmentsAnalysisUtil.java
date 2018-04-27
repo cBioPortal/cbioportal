@@ -38,10 +38,17 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.inference.TestUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
+import org.mskcc.cbio.portal.dao.DaoReferenceGenome;
+import org.mskcc.cbio.portal.dao.DaoReferenceGenomeGene;
 import org.mskcc.cbio.portal.dao.DaoGeneticAlteration;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.ReferenceGenome;
+import org.mskcc.cbio.portal.model.Gene;
 import org.mskcc.cbio.portal.stats.FisherExact;
 
 /**
@@ -109,8 +116,10 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
         }
         //get Gene Name and Cytoband
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        String geneName = daoGeneOptimized.getGene(entrezGeneId).getHugoGeneSymbolAllCaps();
-        String cytoband = daoGeneOptimized.getGene(entrezGeneId).getCytoband();
+        Gene gene = daoGeneOptimized.getGene(entrezGeneId);
+        String geneName = ((CanonicalGene) gene).getHugoGeneSymbolAllCaps();
+        String cytoband = getCytoband(((CanonicalGene) gene).getGeneticEntityId(), geneticProfileStableId);
+        
         //statistics analysis
         if (!(Arrays.asList(queriedGenes)).contains(geneName)) { //remove queried genes from result
             _datum.put(COL_NAME_GENE, geneName);
@@ -150,8 +159,9 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
         }
         //get Gene Name and Cytoband
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        String geneName = daoGeneOptimized.getGene(entrezGeneId).getHugoGeneSymbolAllCaps();
-        String cytoband = daoGeneOptimized.getGene(entrezGeneId).getCytoband();
+        Gene gene = daoGeneOptimized.getGene(entrezGeneId);
+        String geneName = ((CanonicalGene) gene).getHugoGeneSymbolAllCaps();
+        String cytoband = getCytoband(((CanonicalGene) gene).getGeneticEntityId(), geneticProfileStableId);
         if (cytoband == null || cytoband.length() == 0) {
             cytoband = "--";
         }
@@ -641,5 +651,21 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
         }
         FisherExact fisher = new FisherExact(a + b + c + d);
         return fisher.getCumlativeP(a, b, c, d);
+    }
+
+    private String getCytoband(int geneticEntityId, String geneticProfileStableId) {
+        try {
+            int cancerStudyId = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileStableId).getCancerStudyId();
+            String genomeName = null;
+            try {
+                genomeName = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId).getReferenceGenome();
+            } catch (NullPointerException ne) {
+                genomeName = ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME;
+            }
+            int genomeId = DaoReferenceGenome.getReferenceGenomeByGenomeName(genomeName).getReferenceGenomeId();
+            return DaoReferenceGenomeGene.getInstance().getGene(geneticEntityId, genomeId).getCytoband();
+        } catch (DaoException e) {
+            return null;
+        }
     }
 }

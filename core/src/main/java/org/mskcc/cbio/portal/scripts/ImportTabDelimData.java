@@ -825,7 +825,6 @@ public class ImportTabDelimData {
                 ProgressMonitor.logWarning("Phosphoprotein " + phosphoSymbol + " not yet known in DB. Adding it to `gene` table with 3 aliases in `gene_alias` table.");
                 phosphoGene = new CanonicalGene(phosphoSymbol, aliases);
                 phosphoGene.setType(CanonicalGene.PHOSPHOPROTEIN_TYPE);
-                phosphoGene.setCytoband(gene.getCytoband());
                 daoGene.addGene(phosphoGene);
             }
             phosphoGenes.add(phosphoGene);

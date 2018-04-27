@@ -83,12 +83,12 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         Gene gene1 = new Gene();
         gene1.setEntrezGeneId(2);
         gene1.setHugoGeneSymbol("HUGO2");
-        gene1.setCytoband("CYTOBAND2");
+        gene1.setGeneticEntityId(GENETIC_ENTITY_ID_2);
         genes.add(gene1);
         Gene gene2 = new Gene();
         gene2.setEntrezGeneId(3);
         gene2.setHugoGeneSymbol("HUGO3");
-        gene2.setCytoband("CYTOBAND3");
+        gene2.setGeneticEntityId(GENETIC_ENTITY_ID_3);
         genes.add(gene2);
 
         Mockito.when(geneService.fetchGenes(Arrays.asList("2", "3"), "ENTREZ_GENE_ID", "SUMMARY")).thenReturn(genes);
@@ -100,7 +100,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         ExpressionEnrichment expressionEnrichment1 = result.get(0);
         Assert.assertEquals((Integer) 2, expressionEnrichment1.getEntrezGeneId());
         Assert.assertEquals("HUGO2", expressionEnrichment1.getHugoGeneSymbol());
-        Assert.assertEquals("CYTOBAND2", expressionEnrichment1.getCytoband());
+        Assert.assertEquals("-", expressionEnrichment1.getCytoband());
         Assert.assertEquals(new BigDecimal("2.5"), expressionEnrichment1.getMeanExpressionInAlteredGroup());
         Assert.assertEquals(new BigDecimal("2.55"), expressionEnrichment1.getMeanExpressionInUnalteredGroup());
         Assert.assertEquals(new BigDecimal("0.7071067811865476"), 
@@ -111,7 +111,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         ExpressionEnrichment expressionEnrichment2 = result.get(1);
         Assert.assertEquals((Integer) 3, expressionEnrichment2.getEntrezGeneId());
         Assert.assertEquals("HUGO3", expressionEnrichment2.getHugoGeneSymbol());
-        Assert.assertEquals("CYTOBAND3", expressionEnrichment2.getCytoband());
+        Assert.assertEquals("-", expressionEnrichment2.getCytoband());
         Assert.assertEquals(new BigDecimal("3.05"), expressionEnrichment2.getMeanExpressionInAlteredGroup());
         Assert.assertEquals(new BigDecimal("2.65"), expressionEnrichment2.getMeanExpressionInUnalteredGroup());
         Assert.assertEquals(new BigDecimal("2.7577164466275352"), 

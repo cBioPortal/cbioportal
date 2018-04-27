@@ -34,6 +34,7 @@
         </include>
         FROM genetic_profile
         INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         <if test="studyIds != null">
             WHERE cancer_study.CANCER_STUDY_IDENTIFIER IN
             <foreach item="item" collection="studyIds" open="(" separator="," close=")">
@@ -57,6 +58,7 @@
         FROM genetic_profile
         <if test="list != null">
             INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+            INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
             WHERE cancer_study.CANCER_STUDY_IDENTIFIER IN
             <foreach item="item" collection="list" open="(" separator="," close=")">
                 #{item}
@@ -71,6 +73,7 @@
         </include>
         FROM genetic_profile
         INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         WHERE genetic_profile.STABLE_ID = #{molecularProfileId}
     </select>
 
@@ -81,6 +84,7 @@
         </include>
         FROM genetic_profile
         INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         <where>
             <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
                 genetic_profile.STABLE_ID IN
@@ -112,6 +116,7 @@
         </include>
         FROM genetic_profile
         INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         WHERE 
         genetic_profile.GENETIC_PROFILE_ID in
                       (SELECT REFERRED_GENETIC_PROFILE_ID 
@@ -129,6 +134,7 @@
         </include>
         FROM genetic_profile
         INNER JOIN cancer_study ON genetic_profile.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         WHERE 
         genetic_profile.GENETIC_PROFILE_ID in
                       (SELECT REFERRING_GENETIC_PROFILE_ID 

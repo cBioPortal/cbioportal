@@ -14,6 +14,7 @@ public class Mutation extends Alteration implements Serializable {
     private Integer normalAltCount;
     private Integer normalRefCount;
     private String aminoAcidChange;
+    private String chr;
     private Long startPosition;
     private Long endPosition;
     private String referenceAllele;
@@ -99,6 +100,10 @@ public class Mutation extends Alteration implements Serializable {
     public void setAminoAcidChange(String aminoAcidChange) {
         this.aminoAcidChange = aminoAcidChange;
     }
+    
+    public String getChr() { return chr; }
+    
+    public void setChr(String chr) { this.chr = chr; }
 
     public Long getStartPosition() {
         return startPosition;

@@ -40,7 +40,10 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoReferenceGenomeGene;
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ReferenceGenome;
+import org.mskcc.cbio.portal.model.ReferenceGenomeGene;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -65,11 +68,11 @@ public class TestImportGeneData {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         ProgressMonitor.setConsoleMode(false);
 	
+        /* those isoforms from MSKCC clinical bioinformatics pipeline need to be manually added 
         File file = new File("src/test/resources/supp-genes.txt");
-
-        ImportGeneData.importSuppGeneData(file);
+        ImportGeneData.importSuppGeneData(file, ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_BUILD);*/
         
-        file = new File("src/test/resources/genes_test.txt");
+        File file = new File("src/test/resources/genes_test.txt");
         ImportGeneData.importData(file);
 
         CanonicalGene gene = daoGene.getGene(10);

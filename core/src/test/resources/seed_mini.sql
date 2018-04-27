@@ -95,73 +95,63 @@ INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORD
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('bpdcn','Blastic Plasmacytoid Dendritic Cell Neoplasm','blastic plasmacytoid dendritic cell neoplasm','LightSalmon','BPDCN','tissue');
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORDS","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('brca','Breast Invasive Carcinoma','breast,breast invasive','HotPink','Breast','tissue');
 
+-- reference_genome
+INSERT INTO `reference_genome` VALUES (1, 'human', 'hg19', 'GRCh37', 2897310462, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01');
+INSERT INTO `reference_genome` VALUES (2, 'human', 'hg38', 'GRCh38', 3049315783, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips', '2013-12-01');
+
 -- cancer_study
-INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS") 
-VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897,26451490','TCGA, Nature 2012, ...','SU2C-PI3K;PUBLIC;GDAC');
+INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS","REFERENCE_GENOME_ID") 
+VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC',1);
 
 -- gene as genetic_entity
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id, 207,'AKT1','protein-coding','14q32.32');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id, 207,'AKT1','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,208,'AKT2','protein-coding','19q13.1-q13.2');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,208,'AKT2','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,10000,'AKT3','protein-coding','1q44');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,10000,'AKT3','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,369,'ARAF','protein-coding','Xp11.4-p11.2');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,369,'ARAF','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,472,'ATM','protein-coding','11q22-q23');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,472,'ATM','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,673,'BRAF','protein-coding','7q34');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,673,'BRAF','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,672,'BRCA1','protein-coding','17q21');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,672,'BRCA1','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,675,'BRCA2','protein-coding','13q12.3');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,675,'BRCA2','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,3265,'HRAS','protein-coding','11p15.5');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,3265,'HRAS','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,3845,'KRAS','protein-coding','12p12.1');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,3845,'KRAS','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,4893,'NRAS','protein-coding','1p13.2');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,4893,'NRAS','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,51259,'TMEM216','protein-coding','11q13.1');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,51259,'TMEM216','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,282770,'OR10AG1','protein-coding','11q11');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,282770,'OR10AG1','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,983,'CDK1','protein-coding','10q21.1');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,983,'CDK1','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,8085,'KMT2D','protein-coding','12q13.12');
-INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
--- add genes for structural variant events
-SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,57670,'KIAA1549','protein-coding','7q34');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,8085,'KMT2D','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,27436,'EML4','protein-coding','2p21');
-INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
-SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,238,'ALK','protein-coding','2p23.2-p23.1');
-INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
-SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,2115,'ETV1','protein-coding','7p21.2');
-INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
-SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND") VALUES (@max_entity_id,7273,'TTN','protein-coding','2q31.2');
-
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,31259,'TMEM216','protein-coding');
 -- cna_event
 INSERT INTO "cna_event" ("CNA_EVENT_ID","ENTREZ_GENE_ID","ALTERATION") VALUES (20093,207,-2);
 INSERT INTO "cna_event" ("CNA_EVENT_ID","ENTREZ_GENE_ID","ALTERATION") VALUES (20092,207,2);
@@ -234,20 +224,15 @@ INSERT INTO "gene_alias" ("ENTREZ_GENE_ID","GENE_ALIAS") VALUES (3845,'KRAS2');
 INSERT INTO "gene_alias" ("ENTREZ_GENE_ID","GENE_ALIAS") VALUES (4893,'N-ras');
 INSERT INTO "gene_alias" ("ENTREZ_GENE_ID","GENE_ALIAS") VALUES (4893,'NCMS');
 
-INSERT INTO `reference_genome` VALUES (1, 'human', 'hg19', 'GRCh37', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01 00:00:00');
-INSERT INTO `reference_genome` VALUES (2, 'human', 'hg38', 'GRCh38', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips', '2013-12-01 00:00:00');
-INSERT INTO `reference_genome` VALUES (3, 'mouse', 'mm10', 'GRCm38', NULL, 'http://hgdownload.cse.ucsc.edu//goldenPath/mm10/bigZips', '2012-01-01 00:00:00');
-
 INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(207,'14q32.33',10838,105235686,105262088,14,1);
-INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(207,'14q32.33',10838,104769349,104795751,14,2);
-INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(208,'19q13.2',0, 40736224, 40791443,19,1);
-INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(208,'19q13.2',0, 40230317, 40285536,19,2);
-INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(51259,'11q12.2',0, 61159159, 61166335,11,1);
-INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(51259,'11q12.2',0, 61391687, 61398863,11,2);
-INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(282770,'11q12.1',0, 55734975, 55735990,11,1);
-INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(282770,'11q12.1',0, 55967558, 55968463,11,2);
+INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(207,'14q32.33',11162,104769349,104795751,14,2);
+INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(208,'19q13.2',15035, 40736224, 40791443,19,1);
+INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(208,'19q13.2',15035, 40230317, 40285536,19,2);
+INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(51259,'11q12.2',2364, 61159159, 61166335,11,1);
+INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(51259,'11q12.2',2364, 61391687, 61398863,11,2);
+INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(282770,'11q12.1',2814, 55734975, 55735990,11,1);
+INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,END,CHR,REFERENCE_GENOME_ID) VALUES(282770,'11q12.1',2814, 55967558, 55968463,11,2);
 
--- genetic_profile
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (2,'study_tcga_pub_gistic',1,'COPY_NUMBER_ALTERATION','DISCRETE','Putative copy-number alterations from GISTIC','Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.','1');
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (3,'study_tcga_pub_mrna',1,'MRNA_EXPRESSION','Z-SCORE','mRNA expression (microarray)','Expression levels (Agilent microarray).','0');
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (4,'study_tcga_pub_log2CNA',1,'COPY_NUMBER_ALTERATION','LOG2-VALUE','Log2 copy-number values','Log2 copy-number values for each gene (from Affymetrix SNP6).','0');

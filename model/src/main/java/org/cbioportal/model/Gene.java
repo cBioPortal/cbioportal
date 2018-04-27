@@ -6,13 +6,17 @@ import javax.validation.constraints.NotNull;
 public class Gene implements Serializable {
 
     @NotNull
+    private Integer geneticEntityId;
+    @NotNull
     private Integer entrezGeneId;
     @NotNull
     private String hugoGeneSymbol;
     private String type;
-    private String cytoband;
-    private String chromosome;
 
+    public Integer getGeneticEntityId() { return geneticEntityId; }
+    
+    public void setGeneticEntityId(Integer geneticEntityId) { this.geneticEntityId = geneticEntityId; }
+    
     public Integer getEntrezGeneId() {
         return entrezGeneId;
     }
@@ -35,21 +39,5 @@ public class Gene implements Serializable {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public String getCytoband() {
-        return cytoband;
-    }
-
-    public void setCytoband(String cytoband) {
-        this.cytoband = cytoband;
-    }
-
-    public String getChromosome() {
-        return chromosome;
-    }
-
-    public void setChromosome(String chromosome) {
-        this.chromosome = chromosome;
     }
 }

@@ -155,7 +155,6 @@
         SELECT
         cna_event.ENTREZ_GENE_ID AS entrezGeneId,
         gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
-        gene.CYTOBAND AS cytoband,
         cna_event.ALTERATION AS alteration,
         COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS numberOfAlteredCases
         FROM cna_event
@@ -184,13 +183,16 @@
         SELECT
         cna_event.ENTREZ_GENE_ID AS entrezGeneId,
         gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
-        gene.CYTOBAND AS cytoband,
+        reference_genome_gene.CYTOBAND as cytoband,
         cna_event.ALTERATION AS alteration,
         COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS numberOfAlteredCases
         FROM cna_event
         INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        INNER JOIN cancer_study ON cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+        INNER JOIN reference_genome_gene ON reference_genome_gene.ENTREZ_GENE_ID = cna_event.ENTREZ_GENE_ID
+        AND reference_genome_gene.reference_genome_id = cancer_study.reference_genome_id
         WHERE
         <if test="sampleIds != null and !sampleIds.isEmpty()">
             sample_cna_event.SAMPLE_ID IN (
@@ -231,7 +233,6 @@
         SELECT
         cna_event.ENTREZ_GENE_ID AS entrezGeneId,
         gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
-        gene.CYTOBAND AS cytoband,
         cna_event.ALTERATION AS alteration,
         COUNT(DISTINCT(patient.INTERNAL_ID)) AS numberOfAlteredCases
         FROM cna_event

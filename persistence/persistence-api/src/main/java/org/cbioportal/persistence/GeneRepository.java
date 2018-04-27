@@ -43,6 +43,8 @@ public interface GeneRepository {
                            String direction);
 
     BaseMeta getMetaGenes(String keyword, String alias);
+    
+    Gene getGeneByGeneticEntityId(Integer geneticEntityId);
 
     Gene getGeneByEntrezGeneId(Integer entrezGeneId);
 

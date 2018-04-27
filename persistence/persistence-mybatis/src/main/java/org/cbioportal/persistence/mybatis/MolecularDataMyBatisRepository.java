@@ -18,8 +18,12 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
 
     @Override
     public String getCommaSeparatedSampleIdsOfMolecularProfile(String molecularProfileId) {
-
-        return molecularDataMapper.getCommaSeparatedSampleIdsOfMolecularProfiles(Arrays.asList(molecularProfileId)).get(0);
+        try {
+            return molecularDataMapper.getCommaSeparatedSampleIdsOfMolecularProfiles(
+                Arrays.asList(molecularProfileId)).get(0);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
     }
 
     @Override

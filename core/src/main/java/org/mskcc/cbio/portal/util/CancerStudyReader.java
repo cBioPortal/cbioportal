@@ -35,6 +35,7 @@ package org.mskcc.cbio.portal.util;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.ReferenceGenome;
 import org.mskcc.cbio.portal.scripts.TrimmedProperties;
 
 import java.io.File;
@@ -104,6 +105,11 @@ public class CancerStudyReader {
         cancerStudy.setCitation(properties.getProperty("citation"));
         cancerStudy.setGroupsInUpperCase(properties.getProperty("groups"));
         cancerStudy.setShortName(shortName);
+        String referenceGenome = properties.getProperty("reference_genome");
+        if (referenceGenome == null) {
+            referenceGenome = ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME;
+        }
+        cancerStudy.setReferenceGenome(referenceGenome);
 
         return cancerStudy;
     }

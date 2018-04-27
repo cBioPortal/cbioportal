@@ -14,7 +14,7 @@
         DESCRIPTION as description,
         PMID as pmid,
         CITATION as citation,
-        GROUPS as groups,
+        `GROUPS` as `groups`,
         CANCER_STUDY_ID  as internal_id
     from cancer_study
     where CANCER_STUDY_IDENTIFIER in <foreach item="item" collection="study_ids" open="(" separator="," close=")">#{item}</foreach>

@@ -40,6 +40,7 @@ import org.mskcc.cbio.portal.model.CancerStudy;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.mskcc.cbio.portal.model.ReferenceGenome;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -129,14 +130,17 @@ public class TestDaoCancerStudy {
 
         CancerStudy cancerStudy1 = new CancerStudy("GBM public study x", "GBM Description",
                 "tcga_gbm1", "brca", true);
+        cancerStudy1.setReferenceGenome(ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
         DaoCancerStudy.addCancerStudy(cancerStudy1);
 
         CancerStudy cancerStudy2 = new CancerStudy("GBM private study x", "GBM Description 2",
                 "tcga_gbm2", "brca", false);
+        cancerStudy2.setReferenceGenome(ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
         DaoCancerStudy.addCancerStudy(cancerStudy2);
 
         CancerStudy cancerStudy3 = new CancerStudy("Breast", "Breast Description",
                 "tcga_gbm3", "brca", false);
+        cancerStudy3.setReferenceGenome(ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
         DaoCancerStudy.addCancerStudy(cancerStudy3);
 
         ArrayList<CancerStudy> list = DaoCancerStudy.getAllCancerStudies();

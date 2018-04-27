@@ -9,8 +9,10 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.service.ExpressionEnrichmentService;
 import org.cbioportal.service.GeneService;
+import org.cbioportal.service.ReferenceGenomeGeneService;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
@@ -20,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,6 +40,8 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     private MolecularDataService molecularDataService;
     @Autowired
     private GeneService geneService;
+    @Autowired
+    private ReferenceGenomeGeneService refGeneService;
 
     @Override
     public List<ExpressionEnrichment> getExpressionEnrichments(String molecularProfileId, List<String> alteredIds, 
@@ -95,7 +98,13 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
             ExpressionEnrichment expressionEnrichment = new ExpressionEnrichment();
             expressionEnrichment.setEntrezGeneId(entrezGeneId);
             Gene gene = genes.get(entrezGeneId).get(0);
-            expressionEnrichment.setCytoband(gene.getCytoband());
+            try {
+                ReferenceGenomeGene refGene = refGeneService.getReferenceGenomeGene(gene.getEntrezGeneId(),
+                    molecularProfileService.getMolecularProfile(molecularProfileId).getCancerStudy().getReferenceGenome());
+                expressionEnrichment.setCytoband(refGene.getCytoband()); 
+            } catch (NullPointerException e) {
+                expressionEnrichment.setCytoband("-");
+            }
             expressionEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
             expressionEnrichment.setMeanExpressionInAlteredGroup(BigDecimal.valueOf(alteredMean));
             expressionEnrichment.setMeanExpressionInUnalteredGroup(BigDecimal.valueOf(unalteredMean));

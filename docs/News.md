@@ -14,6 +14,7 @@
      *    [Updated Segment data and Allele Frequencies for The Metastatic Breast Cancer Project (Provisional, October 2017)](http://www.cbioportal.org/study?id=brca_mbcproject_wagle_2017#summary) *103 samples*
      *    [Colorectal Cancer (MSK, Cancer Cell 2018)](http://www.cbioportal.org/study?id=crc_msk_2018#summary) *1134 samples*
      *    [Metastatic Esophagogastric Cancer (MSK,Cancer Discovery 2017)](http://www.cbioportal.org/study?id=egc_msk_2017#summary) *341 samples*
+     * [Bladder Cancer (TCGA, Cell 2017)](http://www.cbioportal.org/study?id=blca_tcga_pub_2017#summary) *413 samples*
 ## April 05, 2018
  *   **Added data** from the TCGA PanCanAtlas project with >10,000 samples from 33 tumor types:
      *   [Adrenocortical Carcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=acc_tcga_pan_can_atlas_2018)

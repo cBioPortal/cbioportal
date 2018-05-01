@@ -108,8 +108,6 @@ public class CancerStudyView extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-    	
-    	
         XDebug xdebug = new XDebug( request );
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
         
@@ -151,7 +149,7 @@ public class CancerStudyView extends HttpServlet {
             xdebug.logMsg(this, "Error while processing data:  " + e.getMessage());
             forwardToErrorPage(request, response,
                 "Error while processing data", xdebug);
-        }*/
+        }
     }
 
     /**

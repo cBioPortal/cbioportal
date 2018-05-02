@@ -61,8 +61,8 @@ GSVA_GENESET_IDS = None
 
 VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.CNA:'CNAValidator',
-    cbioportal_common.MetaFileTypes.CNA_LOG2:'ContinuousValuesValidator',
-    cbioportal_common.MetaFileTypes.CNA_CONTINUOUS:'ContinuousValuesValidator',
+    cbioportal_common.MetaFileTypes.CNA_LOG2:'CNAContinuousValuesValidator',
+    cbioportal_common.MetaFileTypes.CNA_CONTINUOUS:'CNAContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.EXPRESSION:'ContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.METHYLATION:'ContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.MUTATION:'MutationsExtendedValidator',
@@ -986,7 +986,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
             if hugo_symbol == '':
                 hugo_symbol = None
             # In case of CNA data the Hugo Symbol should be split when gene symbol contains pipe
-            if type(self) is CNAValidator and '|' in hugo_symbol:
+            if (type(self) is CNAValidator or type(self) is CNAContinuousValuesValidator) and '|' in hugo_symbol:
                 hugo_symbol = hugo_symbol.split('|')[0]
         if 'Entrez_Gene_Id' in self.nonsample_cols:
             entrez_index = self.nonsample_cols.index('Entrez_Gene_Id')
@@ -2614,6 +2614,12 @@ class ContinuousValuesValidator(GenewiseFileValidator):
                               extra={'line_number': self.line_number,
                                      'column_number': col_index + 1,
                                      'cause': value})
+
+
+class CNAContinuousValuesValidator(ContinuousValuesValidator):
+
+    """Sub-class CNA validator. No validations different from ContinuousValuesValidator yet."""
+    pass
 
 
 class FusionValidator(Validator):

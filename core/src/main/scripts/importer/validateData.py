@@ -656,7 +656,7 @@ class Validator(object):
                     # If alias table cannot be checked report warning that hugo symbols normally do not start
                     # with a number
                     else:
-                        self.logger.warning('Hugo Symbol does not start with a number.',
+                        self.logger.warning('Hugo Symbol should not start with a number.',
                                             extra={'line_number': self.line_number, 'cause': gene_symbol})
 
         if entrez_id is not None:

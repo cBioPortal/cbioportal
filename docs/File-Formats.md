@@ -558,6 +558,13 @@ The mutation data file extends the [Mutation Annotation Format](https://wiki.nci
 1. A minimal MAF file with only the columns required for cBioPortal.
 2. An extended MAF file created with [vcf2maf or maf2maf](https://github.com/mskcc/vcf2maf).
 
+Whether you choose to curate a minimial MAF or extended MAF, the data file should contain a header row which defines all the samples that were sequenced prior to analysis. This is required in order for the cBioPortal to properly distingish between samples that were not sequenced and samples that were sequenced but contain no mutations. This header should come before the row containing standard MAF column headers.  Here is an example:
+```
+#sequenced_samples: SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>SAMPLE_ID_3<TAB>...
+Hugo_Symbol<TAB>Tumor_Sample_Barcode<TAB>Variant_Classification<TAB>...
+...
+```
+
 #### Minimal MAF format
 A minimal mutation annotations file can contain just three of the MAF columns plus one annotation column. From this minimal MAF, it is possible to create an extended MAF by running maf2maf.
 1. **Hugo_Symbol (Required)**: (MAF column) A [HUGO](http://www.genenames.org/) gene symbol.

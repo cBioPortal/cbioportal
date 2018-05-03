@@ -817,6 +817,7 @@ window.DataManagerForIviz = (function($, _) {
           lists: {}
         }
       },
+      unknownSamples:[],
       // The reason to separate style variable into individual json is
       // that the scss file can also rely on this file.
       getConfigs: window.cbio.util.makeCachedPromiseFunction(
@@ -1094,12 +1095,10 @@ window.DataManagerForIviz = (function($, _) {
           var _sampleLists = [];
           _.each(self.getCancerStudyIds(), function(studyId) {
             self.data.sampleLists[studyId] = self.data.sampleLists[studyId] || {};
-            if (!_.isArray(self.studyCasesMap[studyId].samples)) {
               var _existLists = self.data.sampleLists.lists[studyId] || [];
               if (_existLists.indexOf(studyId + '_all') !== -1) {
                 _sampleLists.push(studyId + '_all');
               }
-            }
           });
 
           self.getSampleListsData(_sampleLists)
@@ -1118,6 +1117,23 @@ window.DataManagerForIviz = (function($, _) {
                   self.studyCasesMap[studyId].samples =
                     self.data.sampleLists[studyId].hasOwnProperty(studyId + '_all') ?
                       self.data.sampleLists[studyId][studyId + '_all'] : [];
+                } else {
+                  var studySamples = self.data.sampleLists[studyId].hasOwnProperty(studyId + '_all') ?
+                                                        self.data.sampleLists[studyId][studyId + '_all'] : [];
+                  var studySamplesSet = _.reduce(studySamples, function(acc, next){ acc[next]=true; return acc;}, {});
+                  var inputStudySamples = self.studyCasesMap[studyId].samples;
+                  var unknownSamples = [];
+                  var filteredSamples = _.filter(inputStudySamples, function(sample){ 
+                    if(!studySamplesSet[sample]){
+                      unknownSamples.push(sample);
+                    }
+                    return studySamplesSet[sample];
+                  });
+
+                  if(unknownSamples.length>0){
+                    self.unknownSamples.push({studyId:studyId, samples:unknownSamples});
+                  }
+                  self.studyCasesMap[studyId].samples = filteredSamples;
                 }
               });
               getSamplesCall()

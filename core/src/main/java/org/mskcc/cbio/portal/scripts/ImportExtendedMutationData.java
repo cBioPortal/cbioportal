@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.*;
 
 /**
  * Import an extended mutation file.
@@ -68,6 +69,7 @@ public class ImportExtendedMutationData{
     private Set<String> geneSet = new HashSet<String>();
                      private String genePanel;
     private Set<String> filteredMutations = new HashSet<String>();
+    private Pattern SEQUENCE_SAMPLES_REGEX = Pattern.compile("^.*sequenced_samples:(.*)$");
 
     /**
      * construct an ImportExtendedMutationData.
@@ -116,13 +118,8 @@ public class ImportExtendedMutationData{
 
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
-        //  The MAF File Changes fairly frequently, and we cannot use column index constants.
-        String line = buf.readLine();
-                while (line.startsWith("#")) {
-                    line = buf.readLine(); // skip comments/meta info
-                }
-
-        line = line.trim();
+        // process MAF header and return line immediately following it
+        String line = processMAFHeader(buf);
 
         MafUtil mafUtil = new MafUtil(line);
 
@@ -152,18 +149,10 @@ public class ImportExtendedMutationData{
 
                 // process case id
                 String barCode = record.getTumorSampleID();
-                // backwards compatible part (i.e. in the new process, the sample should already be there. TODO - replace this workaround later with an exception:
                 Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
                         StableIdUtil.getSampleId(barCode));
-                if (sample == null ) {
-                    ImportDataUtil.addPatients(new String[] { barCode }, geneticProfileId);
-                    // add the sample (except if it is a 'normal' sample):
-                    ImportDataUtil.addSamples(new String[] { barCode }, geneticProfileId);
-                }
-                // check again (repeated because of workaround above):
-                sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
-                                                                            StableIdUtil.getSampleId(barCode));
                 // can be null in case of 'normal' sample:
+                // (if data files are run through validator, this condition should be minimal)
                 if (sample == null) {
                     assert StableIdUtil.isNormal(barCode);
                     //if new sample:
@@ -428,13 +417,8 @@ public class ImportExtendedMutationData{
                                                 } else {
                                                     mutations.put(mutation,mutation);
                                                 }
-                                                if( !DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId) && !sampleSet.contains(sample.getStableId())) {
-                                                    if (genePanel != null) {
-                                                        DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, GeneticProfileUtil.getGenePanelId(genePanel));
-                                                    }
-                                                    else {
-                                                        DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
-                                                    }
+                                                if(!sampleSet.contains(sample.getStableId())) {
+                                                    addSampleProfileRecord(sample);
                                                 }
                                                 //keep track:
                                                 sampleSet.add(sample.getStableId());
@@ -542,5 +526,53 @@ public class ImportExtendedMutationData{
         } else {
             return omaScore;
         }
+    }
+
+    private String processMAFHeader(BufferedReader buffer) throws IOException, DaoException {
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
+        String line = buffer.readLine().trim();
+        while (line.startsWith("#")) {
+            Matcher seqSamplesMatcher = SEQUENCE_SAMPLES_REGEX.matcher(line);
+            // line is of format #sequenced_samples: STABLE_ID STABLE_ID STABLE_ID STABLE_ID
+            if (seqSamplesMatcher.find()) {
+                addSampleProfileRecords(getSequencedSamples(seqSamplesMatcher.group(1), geneticProfile));
+            }
+            line = buffer.readLine().trim();
+        }
+        return line;
+    }
+
+    private List<Sample> getSequencedSamples(String sequencedSamplesIDList, GeneticProfile geneticProfile) {
+        ArrayList<Sample> toReturn = new ArrayList<Sample>();
+        for (String stableSampleID : sequencedSamplesIDList.trim().split("\\s")) {
+            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
+                                                                        StableIdUtil.getSampleId(stableSampleID));
+            // if data files are run through validator, this condition should be minimal
+            if (sample == null) {
+                missingSample(stableSampleID);
+            }
+            toReturn.add(sample);
+        }
+        return toReturn;
+    }
+
+    private void addSampleProfileRecords(List<Sample> sequencedSamples) throws DaoException {
+        for (Sample sample : sequencedSamples) {
+            addSampleProfileRecord(sample);
+        }
+        if( MySQLbulkLoader.isBulkLoad()) {
+            MySQLbulkLoader.flushAll();
+        }
+    }
+
+    private void addSampleProfileRecord(Sample sample) throws DaoException {
+        if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
+            Integer genePanelID = (genePanel == null) ? null : GeneticProfileUtil.getGenePanelId(genePanel);
+            DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, genePanelID);
+        }
+    }
+
+    private void missingSample(String stableSampleID) {
+        throw new NullPointerException("Sample is not found in database (is it missing from clinical data file?): " + stableSampleID);
     }
 }

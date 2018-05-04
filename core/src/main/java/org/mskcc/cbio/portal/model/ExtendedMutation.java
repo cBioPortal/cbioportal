@@ -35,6 +35,7 @@ package org.mskcc.cbio.portal.model;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.mskcc.cbio.maf.MafUtil;
 
 /**
  * Encapsules Details regarding a Single Mutation.
@@ -648,30 +649,22 @@ public final class ExtendedMutation
         
         
         
-        /**
-         * Set alleles. For variant allele: one of the tumor sequence alleles
-         * which is different from the reference allele.
+    /**
+     * Set alleles. 
+     * For variant allele: one of the tumor sequence alleles is selected.
+     * @see MafUtil#resolveTumorSeqAllele(String referenceAllele, String tumorSeqAllele1, String tumorSeqAllele2)
      *
      * @param varAllele1  the first variant allele
      * @param varAllele2  the second variant allele
      * @param refAllele  the reference allele
-     * @return          tumor sequence allele different from the reference allele
+     * @return tumor sequence allele
      */
     public void setAllele(String varAllele1, String varAllele2, String refAllele)
     {
-            this.setReferenceAllele(refAllele);
-            this.setTumorSeqAllele1(varAllele1);
-            this.setTumorSeqAllele2(varAllele2);
-            
-            String varAllele = varAllele1;
-
-            if (refAllele != null &&
-                    refAllele.equals(varAllele1))
-            {
-                    varAllele = varAllele2;
-            }
-
-            this.setTumorSeqAllele(varAllele);
+        this.setReferenceAllele(refAllele);
+        this.setTumorSeqAllele1(varAllele1);
+        this.setTumorSeqAllele2(varAllele2);
+        this.setTumorSeqAllele(MafUtil.resolveTumorSeqAllele(refAllele, varAllele1, varAllele2));
     }
 
     public String getDbSnpRs() {

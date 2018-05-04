@@ -39,8 +39,8 @@ import org.mskcc.cbio.portal.web_api.*;
 import org.apache.commons.lang.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cbioportal.model.virtualstudy.VirtualStudy;
-import org.cbioportal.model.virtualstudy.VirtualStudySamples;
+import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudy;
+import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudySamples;
 import org.owasp.validator.html.PolicyException;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -76,6 +76,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String SET_OF_CASE_IDS = "set_of_case_ids";
     public static final String CLINICAL_PARAM_SELECTION = "clinical_param_selection";
     public static final String GENE_LIST = "gene_list";
+    public static final String GENESET_LIST = "geneset_list";
     public static final String ACTION_NAME = "Action";
     public static final String XDEBUG = "xdebug";
     public static final String ACTION_SUBMIT = "Submit";
@@ -325,6 +326,24 @@ public class QueryBuilder extends HttpServlet {
                 } else {
                     if (errorsExist) {
                         httpServletRequest.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "Please fix the errors below.");
+                    }
+
+                    // Returning the list of physical studies for the shared virtual study.
+                    // This is needed for the new front-end structure and keep the same behavior as result's page
+                    // TODO: Modify the logic to distinguish shared virtual study and saved virtual study.
+                    if (cohortDetails != null) {
+                        List<String> studies = new ArrayList<>();
+                        Set<String> samples = new HashSet<>();
+                        for (Map.Entry<String, Set<String>> map : cohortDetails.getStudySampleMap().entrySet()) {
+                            studies.add(map.getKey());
+                            for (String sample : map.getValue()) {
+                                samples.add(map.getKey() + ":" + sample);
+                            }
+                        }
+                        httpServletRequest.setAttribute(CANCER_STUDY_LIST, StringUtils.join(studies, ","));
+                        if (httpServletRequest.getAttribute(CASE_IDS) == null) {
+                            httpServletRequest.setAttribute(CASE_IDS, StringUtils.join(samples, "+"));
+                        }
                     }
                     RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
                     dispatcher.forward(httpServletRequest, httpServletResponse);

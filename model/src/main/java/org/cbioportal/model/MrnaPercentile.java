@@ -1,15 +1,23 @@
 package org.cbioportal.model;
 
 import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
 
 public class MrnaPercentile extends UniqueKeyBase {
 
+    @NotNull
     private String molecularProfileId;
+    @NotNull
     private String sampleId;
+    @NotNull
     private String patientId;
+    @NotNull
     private String studyId;
+    @NotNull
     private Integer entrezGeneId;
+    @NotNull
     private BigDecimal percentile;
+    @NotNull
     private BigDecimal zScore;
 
     public String getMolecularProfileId() {

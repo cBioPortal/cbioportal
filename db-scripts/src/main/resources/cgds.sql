@@ -83,6 +83,7 @@ DROP TABLE IF EXISTS `genetic_profile`;
 DROP TABLE IF EXISTS `uniprot_id_mapping`;
 DROP TABLE IF EXISTS `gene_alias`;
 DROP TABLE IF EXISTS `geneset_gene`;
+DROP TABLE IF EXISTS `reference_genome_gene`;
 DROP TABLE IF EXISTS `gene`;
 DROP TABLE IF EXISTS `sample_list_list`;
 DROP TABLE IF EXISTS `sample_list`;
@@ -96,6 +97,8 @@ DROP TABLE IF EXISTS `geneset_hierarchy_leaf`;
 DROP TABLE IF EXISTS `geneset_hierarchy_node`;
 DROP TABLE IF EXISTS `geneset`;
 DROP TABLE IF EXISTS `genetic_entity`;
+DROP TABLE IF EXISTS `reference_genome`;
+DROP TABLE IF EXISTS `fraction_genome_altered`;
 
 -- --------------------------------------------------------
 CREATE TABLE `type_of_cancer` (
@@ -196,7 +199,7 @@ CREATE TABLE `gene` (
   `HUGO_GENE_SYMBOL` varchar(255) NOT NULL,
   `GENETIC_ENTITY_ID` int(11) NOT NULL,
   `TYPE` varchar(50),
-  `CYTOBAND` varchar(50),
+  `CYTOBAND` varchar(64),
   `LENGTH` int(11),
   PRIMARY KEY (`ENTREZ_GENE_ID`),
   UNIQUE KEY `GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID`),  
@@ -263,6 +266,19 @@ CREATE TABLE `uniprot_id_mapping` (
   KEY (`UNIPROT_ID`),
   Key (`UNIPROT_ACC`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `reference_genome` (
+    `REFERENCE_GENOME_ID` int(4) NOT NULL AUTO_INCREMENT,
+    `SPECIES` varchar(64) NOT NULL,
+    `NAME` varchar(64) NOT NULL,
+    `BUILD_NAME` varchar(64) NOT NULL,
+    `GENOME_SIZE` bigint(20) NULL,
+    `URL` varchar(256) NOT NULL,
+    `RELEASE_DATE` datetime DEFAULT NULL,
+    PRIMARY KEY (`REFERENCE_GENOME_ID`),
+    UNIQUE INDEX `BUILD_NAME_UNIQUE` (`BUILD_NAME` ASC)
 );
 
 -- --------------------------------------------------------
@@ -609,7 +625,7 @@ CREATE TABLE `gistic_to_gene` (
   `ENTREZ_GENE_ID` int(11) NOT NULL,
   PRIMARY KEY(`GISTIC_ROI_ID`, `ENTREZ_GENE_ID`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`),
-  FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`)
+  FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------
@@ -775,9 +791,33 @@ CREATE TABLE `clinical_event_data` (
 );
 
 -- --------------------------------------------------------
+CREATE TABLE `reference_genome_gene` (
+    `ENTREZ_GENE_ID` int(11) NOT NULL,
+    `REFERENCE_GENOME_ID` int(4) NOT NULL,
+    `CHR` varchar(4) DEFAULT NULL,
+    `CYTOBAND` varchar(64) DEFAULT NULL,
+    `EXONIC_LENGTH` int(11) DEFAULT NULL,
+    `START` bigint(20) DEFAULT NULL,
+    `END` bigint(20) DEFAULT NULL,
+    PRIMARY KEY (`ENTREZ_GENE_ID`,`REFERENCE_GENOME_ID`),
+    FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `fraction_genome_altered` (
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `SAMPLE_ID` int(11) NOT NULL,
+  `VALUE` double NOT NULL,
+  PRIMARY KEY (`CANCER_STUDY_ID`,`SAMPLE_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
 CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24),
   `GENESET_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.4.0', NULL);
+INSERT INTO info VALUES ('2.6.0', NULL);

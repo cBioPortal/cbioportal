@@ -17,7 +17,6 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.BenjaminiHochbergFDRCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -45,7 +44,6 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     private BenjaminiHochbergFDRCalculator benjaminiHochbergFDRCalculator;
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<ExpressionEnrichment> getExpressionEnrichments(String molecularProfileId, List<String> alteredIds, 
                                                                List<String> unalteredIds, String enrichmentType) 
         throws MolecularProfileNotFoundException {

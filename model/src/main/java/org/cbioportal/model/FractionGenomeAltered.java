@@ -1,12 +1,17 @@
 package org.cbioportal.model;
 
 import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
 
 public class FractionGenomeAltered extends UniqueKeyBase {
 
+    @NotNull
     private String studyId;
+    @NotNull
     private String sampleId;
+    @NotNull
     private String patientId;
+    @NotNull
     private BigDecimal value;
 
     public String getStudyId() {

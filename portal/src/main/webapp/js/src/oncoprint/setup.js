@@ -730,7 +730,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    if (oncoprint_data_frame.sequenced_samples.length > 0) { 
 				track_info = utils.proportionToPercentString(oncoprint_data_frame.altered_samples.length / oncoprint_data_frame.sequenced_samples.length);
 			    } else {
-				track_info = "N/S";
+				track_info = "N/P";
 			    }
 			    oncoprint.setTrackInfo(track_id, track_info);
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('sample', true));
@@ -809,7 +809,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    if (oncoprint_data_frame.sequenced_patients.length > 0) { 
 				track_info = utils.proportionToPercentString(oncoprint_data_frame.altered_patients.length / oncoprint_data_frame.sequenced_patients.length);
 			    } else {
-				track_info = "N/S";
+				track_info = "N/P";
 			    }
 			    oncoprint.setTrackInfo(track_id, track_info);
 			    oncoprint.setTrackTooltipFn(track_id, tooltip_utils.makeGeneticTrackTooltip('patient', true));

@@ -477,5 +477,16 @@
     
     
     </span>
+    
+    
+<script src="js/src/load-frontend.js"></script>
+
+<script>
+        window.loadReactApp({ defaultRoute: 'blank' });
+</script>
+
+<div id="reactRoot" style="display:none"></div>
+    
+    
 </body>
 </html>

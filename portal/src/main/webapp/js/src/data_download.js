@@ -86,7 +86,7 @@ var DataDownloadTab = (function() {
                     var alt_type = "";
                     sample_to_line_to_alt_type[sample] = sample_to_line_to_alt_type[sample] || [];
                     if (datum.na) {
-                        alt_type = "N/S";
+                        alt_type = "N/P";
                     } else {
                         if (typeof datum.disp_mut !== "undefined") {
                             alt_type += "MUT: ";

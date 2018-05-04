@@ -2,20 +2,17 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.SignificantCopyNumberRegionMapper">
-    <cache/>
+    <cache readOnly="true"/>
 
     <sql id="select">
         gistic.GISTIC_ROI_ID AS gisticRoiId,
         cancer_study.CANCER_STUDY_IDENTIFIER AS cancerStudyId,
         gistic.CHROMOSOME AS chromosome,
-        gistic.CYTOBAND AS cytoband
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            ,
-            gistic.WIDE_PEAK_START AS widePeakStart,
-            gistic.WIDE_PEAK_END AS widePeakEnd,
-            gistic.Q_VALUE AS qValue,
-            gistic.AMP AS amp
-        </if>
+        gistic.CYTOBAND AS cytoband,
+        gistic.WIDE_PEAK_START AS widePeakStart,
+        gistic.WIDE_PEAK_END AS widePeakEnd,
+        gistic.Q_VALUE AS qValue,
+        gistic.AMP AS amp
     </sql>
 
     <sql id="from">

@@ -1,14 +1,20 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
 public class VariantCount implements Serializable {
     
+    @NotNull
     private String molecularProfileId;
+    @NotNull
     private Integer entrezGeneId;
     private String keyword;
+    @NotNull
     private Integer numberOfSamples;
+    @NotNull
     private Integer numberOfSamplesWithMutationInGene;
+    @NotNull
     private Integer numberOfSamplesWithKeyword;
 
     public String getMolecularProfileId() {

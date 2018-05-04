@@ -56,4 +56,4 @@ To load the data into cBioPortal, the [metaImport script](Using-the-metaImport-s
 To remove a study, the [cbioportalImporter script](Development,-debugging-and-maintenance-mode-using-cbioportalImporter.md#deleting-a-study) can be used. 
 
 ## Example studies
-Examples for the different types of data are available on the [File Formats](File-Formats.md) page. The Provisional TCGA studies (\*\_tcga.tar.gz) from [cBioPortal Datahub](https://github.com/cBioPortal/datahub/tree/master/public) are complete studies that can be used as reference when creating data files.
+Examples for the different types of data are available on the [File Formats](File-Formats.md) page. The Provisional TCGA studies, downloadable from the [Data Sets section](http://www.cbioportal.org/data_sets.jsp) are complete studies that can be used as reference when creating data files.

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.GeneMapper">
-    <cache size="100000"/>
+    <cache readOnly="true" size="100000"/>
 
     <sql id="select">
         gene.ENTREZ_GENE_ID AS "${prefix}entrezGeneId",
@@ -14,7 +14,7 @@
             gene.LENGTH AS "${prefix}length"
         </if>
     </sql>
-
+    
     <select id="getGenes" resultType="org.cbioportal.model.Gene">
         SELECT
         <include refid="select">

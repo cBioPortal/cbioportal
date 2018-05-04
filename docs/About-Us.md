@@ -9,27 +9,26 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Adam Abeshouse
 * Ritika Kundra
 * Ino de Bruijn
-* Zachary Heins
 * Robert Sheridan
 * Angelica Ochoa
 * Aaron Lisman
 * Manda Wilson
 * Jiaojiao Wang
+* Avery Wang
 * Nikolaus Schultz
 
 ## Dana-Farber Cancer Institute
 * Ethan Cerami
 * Ersin Ciftci
+* Tali Mazor
+* Augustin Luna
 * James Lindsay
 * Priti Kumari
 * Catherine Del Vecchio
-* Andy Dufilie
 * Chris Sander
-* Tali Mazor
-* Tamba Monrose
 
 ## Princess Margaret Cancer Centre, Toronto
-* Stuart Watt
+* Kelsey Zhu
 * Trevor Pugh
 
 ## Children's Hospital of Philadelphia
@@ -56,11 +55,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 
 ## Weill Cornell Medicine
 * Alexandros Sigaras
-* Ken Eng
-* Andrea Sboner
 * Olivier Elemento
-* Mark Rubin
-* Lewis Cantley
 
 ## Alumni
 * B. Arman Aksoy
@@ -68,14 +63,18 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Hsiao-Wei Chen
 * Fred Criscuolo
 * Gideon Dresdner
+* Andy Dufilie
 * Arthur Goldberg
+* Zachary Heins
 * Michael Heuer
 * Anders Jacobsen
 * Erik Larsson
 * Dong Li
-* James Xu
+* Tamba Monrose
 * Peter Kok
 * M. Furkan Sahin
+* Stuart Watt
+* James Xu
 
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided by:
 
@@ -96,4 +95,3 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Breast Cancer Research Foundation
 * Adenoid Cystic Carcinoma Research Foundation
 * Prostate Cancer Foundation
-

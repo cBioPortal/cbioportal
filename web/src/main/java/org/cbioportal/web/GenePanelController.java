@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
-import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
@@ -30,10 +29,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +88,20 @@ public class GenePanelController {
         return new ResponseEntity<>(genePanelService.getGenePanel(genePanelId), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/gene-panels/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get gene panel")
+    public ResponseEntity<List<GenePanel>> fetchGenePanels(
+        @ApiParam(required = true, value = "List of Gene Panel IDs")
+        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+        @RequestBody List<String> genePanelIds,
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) {
+
+        return new ResponseEntity<>(genePanelService.fetchGenePanels(genePanelIds, projection.name()), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/gene-panel-data/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get gene panel data")
@@ -98,15 +114,16 @@ public class GenePanelController {
         List<GenePanelData> genePanelDataList;
         if (genePanelDataFilter.getSampleListId() != null) {
             genePanelDataList = genePanelService.getGenePanelData(molecularProfileId,
-                genePanelDataFilter.getSampleListId(), genePanelDataFilter.getEntrezGeneIds());
+                genePanelDataFilter.getSampleListId());
         } else {
             genePanelDataList = genePanelService.fetchGenePanelData(molecularProfileId,
-                genePanelDataFilter.getSampleIds(), genePanelDataFilter.getEntrezGeneIds());
+                genePanelDataFilter.getSampleIds());
         }
 
         return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#genePanelMultipleStudyFilter, 'GenePanelMultipleStudyFilter', 'read')")
     @RequestMapping(value = "/gene-panel-data/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch gene panel data")
@@ -115,31 +132,18 @@ public class GenePanelController {
             "Profile IDs and Entrez Gene IDs")
         @Valid @RequestBody GenePanelMultipleStudyFilter genePanelMultipleStudyFilter) {
         
-        List<GenePanelData> genePanelDataList;
-        if (genePanelMultipleStudyFilter.getMolecularProfileIds() != null) {
-            genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
-                genePanelMultipleStudyFilter.getMolecularProfileIds(), null, 
-                genePanelMultipleStudyFilter.getEntrezGeneIds());
-        } else {
+        List<String> molecularProfileIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
 
-            List<String> molecularProfileIds = new ArrayList<>();
-            List<String> sampleIds = new ArrayList<>();
-            extractMolecularProfileAndSampleIds(genePanelMultipleStudyFilter, molecularProfileIds, sampleIds);
-            genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds,
-                sampleIds, genePanelMultipleStudyFilter.getEntrezGeneIds());
-        }
-
-        return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
-    }
-
-    private void extractMolecularProfileAndSampleIds(GenePanelMultipleStudyFilter genePanelMultipleStudyFilter,
-                                                     List<String> molecularProfileIds, List<String> sampleIds) {
-        
         for (SampleMolecularIdentifier sampleMolecularIdentifier :
             genePanelMultipleStudyFilter.getSampleMolecularIdentifiers()) {
 
             molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
             sampleIds.add(sampleMolecularIdentifier.getSampleId());
         }
+        List<GenePanelData> genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
+            molecularProfileIds, sampleIds);
+
+        return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
     }
 }

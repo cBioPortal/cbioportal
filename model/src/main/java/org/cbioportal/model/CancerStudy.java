@@ -2,10 +2,12 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import javax.validation.constraints.NotNull;
 
 public class CancerStudy implements Serializable {
 
     private Integer cancerStudyId;
+    @NotNull
     private String cancerStudyIdentifier;
     private String typeOfCancerId;
     private String name;

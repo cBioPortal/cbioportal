@@ -279,6 +279,8 @@ cbio.util = (function() {
 
         browser.msie = /msie/.test(uagent);
 
+        browser.edge = /edge/.test(uagent);
+
         browser.version = "";
 
         // check for IE 11
@@ -635,7 +637,7 @@ cbio.util = (function() {
         
         if (isHotspot)
         {
-            strBuilder.push("<a href=\"http://cancerhotspots.org/\" target=\"_blank\">http://cancerhotspots.org/</a>");
+            strBuilder.push("<a href=\"https://www.cancerhotspots.org/\" target=\"_blank\">https://www.cancerhotspots.org/</a>");
 
             if (is3dHotspot) {
                 strBuilder.push(" and ");
@@ -646,7 +648,7 @@ cbio.util = (function() {
         }
         
         if (is3dHotspot) {
-            strBuilder.push("<a href=\"http://3dhotspots.org/\" target=\"_blank\">http://3dhotspots.org/</a>.");
+            strBuilder.push("<a href=\"https://www.3dhotspots.org/\" target=\"_blank\">https://www.3dhotspots.org/</a>.");
         }
         // end links
         
@@ -729,27 +731,11 @@ cbio.util = (function() {
 
     function getDatahubStudiesList() {
         var DATAHUB_GIT_URL =
-            'https://api.github.com/repos/cBioPortal/datahub/contents/public';
+            'proxy/download.cbioportal.org/study_list.json';
         var def = new $.Deferred();
 
         $.getJSON(DATAHUB_GIT_URL, function(data) {
-            var studies = {};
-            if (_.isArray(data)) {
-                _.each(data, function(fileInfo) {
-                    if (_.isObject(fileInfo) &&
-                        fileInfo.type === 'file' &&
-                        _.isString(fileInfo.name)) {
-                        var fileName = fileInfo.name.split('.tar.gz');
-                        if (fileName.length > 0) {
-                            studies[fileName[0]] = {
-                                name: fileName[0],
-                                htmlURL: fileInfo.html_url
-                            };
-                        }
-                    }
-                })
-            }
-            def.resolve(studies);
+            def.resolve(data);
         }).fail(function(error) {
             def.reject(error);
         });

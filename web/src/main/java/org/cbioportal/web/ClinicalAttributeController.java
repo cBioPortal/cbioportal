@@ -12,6 +12,8 @@ import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.ClinicalAttributeFilter;
+import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.sort.ClinicalAttributeSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -25,10 +27,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @PublicApi
@@ -70,6 +76,7 @@ public class ClinicalAttributeController {
         }
     }
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/clinical-attributes", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical attributes in the specified study")
@@ -103,6 +110,7 @@ public class ClinicalAttributeController {
         }
     }
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/clinical-attributes/{clinicalAttributeId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get specified clinical attribute")
@@ -117,6 +125,7 @@ public class ClinicalAttributeController {
                 HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     @RequestMapping(value = "/clinical-attributes/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical attributes")
@@ -136,5 +145,38 @@ public class ClinicalAttributeController {
             return new ResponseEntity<>(clinicalAttributeService.fetchClinicalAttributes(studyIds, projection.name()), 
                 HttpStatus.OK);
         }
+    }
+
+    @PreAuthorize("hasPermission(#clinicalAttributeFilter, 'ClinicalAttributeFilter', 'read')")
+    @RequestMapping(value = "/clinical-attributes/counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get all clinical attributes in specified sampleIdentifiers or sampleListID with clinical attribute count")
+    public ResponseEntity<List<ClinicalAttribute>> getAllClinicalAttributesInStudies(
+            @ApiParam(required = true, value = "List of SampleIdentifiers or Sample List ID")
+            @Valid @RequestBody ClinicalAttributeFilter clinicalAttributeFilter,
+            @RequestParam(defaultValue = "SUMMARY") Projection projection,
+            @ApiParam("Name of the property that the result list is sorted by")
+            @RequestParam(required = false) ClinicalAttributeSortBy sortBy,
+            @ApiParam("Direction of the sort")
+            @RequestParam(defaultValue = "ASC") Direction direction) {
+
+        List<ClinicalAttribute> clinicalAttributeList;
+        if (clinicalAttributeFilter.getSampleListId() != null) {
+            clinicalAttributeList = clinicalAttributeService.getAllClinicalAttributesInStudiesBySampleListId(
+                    clinicalAttributeFilter.getSampleListId(), projection.name(),
+                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
+        } else {
+            List<SampleIdentifier> sampleIdentifiers = clinicalAttributeFilter.getSampleIdentifiers();
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
+                studyIds.add(sampleIdentifier.getStudyId());
+                sampleIds.add(sampleIdentifier.getSampleId());
+            }
+            clinicalAttributeList = clinicalAttributeService.getAllClinicalAttributesInStudiesBySampleIds(studyIds,
+                    sampleIds, projection.name(), sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
+        }
+
+        return new ResponseEntity<>(clinicalAttributeList, HttpStatus.OK);
     }
 }

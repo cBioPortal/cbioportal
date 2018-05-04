@@ -12,7 +12,6 @@ import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MrnaPercentileService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -31,7 +30,6 @@ public class MrnaPercentileServiceImpl implements MrnaPercentileService {
     private NaturalRanking naturalRanking = new NaturalRanking(NaNStrategy.REMOVED, TiesStrategy.MAXIMUM);
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<MrnaPercentile> fetchMrnaPercentile(String molecularProfileId, String sampleId,
                                                     List<Integer> entrezGeneIds)
         throws MolecularProfileNotFoundException {

@@ -79,11 +79,11 @@ public class ImportExtendedMutationData{
         this.swissprotIsAccession = false;
         this.genePanel = genePanel;
         this.filteredMutations = filteredMutations;
-        
+
         // create default MutationFilter
         myMutationFilter = new MutationFilter( );
     }
-    
+
     public ImportExtendedMutationData(File mutationFile, int geneticProfileId, String genePanel) {
         this(mutationFile, geneticProfileId, genePanel, null);
     }
@@ -362,7 +362,14 @@ public class ImportExtendedMutationData{
                     mutation.setNcbiBuild(record.getNcbiBuild());
                     mutation.setStrand(record.getStrand());
                     mutation.setVariantType(record.getVariantType());
-                                        mutation.setAllele(record.getTumorSeqAllele1(), record.getTumorSeqAllele2(), record.getReferenceAllele());
+                    mutation.setAllele(record.getTumorSeqAllele1(), record.getTumorSeqAllele2(), record.getReferenceAllele());
+                    // log whether tumor seq allele is empty (failed to resolve tumor seq allele because of invalid data values)
+                    if (mutation.getTumorSeqAllele().isEmpty()) {
+                        ProgressMonitor.logWarning("Tumor allele could not be resolved for sample '" + sample.getStableId() +
+                            "' (chr,start,end,ref,tum1,tum2) = (" + record.getChr() + "," + record.getStartPosition() + "," +
+                            record.getEndPosition() + "," + record.getReferenceAllele() + "," + record.getTumorSeqAllele1() +
+                            "," + record.getTumorSeqAllele2() + ")");
+                    }
                     mutation.setDbSnpRs(record.getDbSNP_RS());
                     mutation.setDbSnpValStatus(record.getDbSnpValStatus());
                     mutation.setMatchedNormSampleBarcode(record.getMatchedNormSampleBarcode());
@@ -389,7 +396,7 @@ public class ImportExtendedMutationData{
                     mutation.setOncotatorUniprotAccession(uniprotAccession);
                     mutation.setOncotatorProteinPosStart(proteinPosStart);
                     mutation.setOncotatorProteinPosEnd(proteinPosEnd);
-                                        
+
                     mutation.setDriverFilter(record.getDriverFilter());
                     mutation.setDriverFilterAnn(record.getDriverFilterAnn());
                     mutation.setDriverTiersFilter(record.getDriverTiersFilter());

@@ -2,20 +2,80 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper">
-    <cache/>
+    <cache readOnly="true"/>
 
     <sql id="select">
         clinical_attribute_meta.ATTR_ID AS "${prefix}attrId",
-        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier",
+        clinical_attribute_meta.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+        clinical_attribute_meta.PATIENT_ATTRIBUTE AS "${prefix}patientAttribute",
+        clinical_attribute_meta.DISPLAY_NAME AS "${prefix}displayName"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            clinical_attribute_meta.DISPLAY_NAME AS "${prefix}displayName",
             clinical_attribute_meta.DESCRIPTION AS "${prefix}description",
             clinical_attribute_meta.DATATYPE AS "${prefix}datatype",
-            clinical_attribute_meta.PATIENT_ATTRIBUTE AS "${prefix}patientAttribute",
-            clinical_attribute_meta.PRIORITY AS "${prefix}priority",
-            clinical_attribute_meta.CANCER_STUDY_ID AS "${prefix}cancerStudyId"
+            clinical_attribute_meta.PRIORITY AS "${prefix}priority"
         </if>
+    </sql>
+    
+    <sql id="selectWithCountPatient">
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        <if test="projection == 'DETAILED'">
+            ,
+            COUNT(sample.STABLE_ID) AS "${prefix}count"
+        </if>
+    </sql>
+    
+    <sql id="selectWithCountSample">
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        <if test="projection == 'DETAILED'">
+            ,
+            COUNT(patient.INTERNAL_ID) AS "${prefix}count"
+        </if>
+    </sql>
+    
+    <sql id="joinPatient">
+    		INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        LEFT JOIN clinical_patient ON clinical_attribute_meta.ATTR_ID = clinical_patient.ATTR_ID
+        LEFT JOIN patient ON clinical_attribute_meta.CANCER_STUDY_ID = patient.CANCER_STUDY_ID 
+        		AND clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+    </sql>
+    
+    <sql id="joinSample">
+    		INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        LEFT JOIN clinical_sample ON clinical_attribute_meta.ATTR_ID = clinical_sample.ATTR_ID
+    </sql>
+    
+    <sql id="groupBy">
+    		GROUP BY clinical_attribute_meta.ATTR_ID, cancer_study.CANCER_STUDY_IDENTIFIER, clinical_attribute_meta.DISPLAY_NAME, clinical_attribute_meta.DESCRIPTION,clinical_attribute_meta.DATATYPE,  clinical_attribute_meta.PATIENT_ATTRIBUTE, clinical_attribute_meta.PRIORITY, clinical_attribute_meta.CANCER_STUDY_ID
+    </sql>
+    
+    <sql id="sortBy">
+    		<if test="sortBy != null">
+			ORDER BY ${sortBy} ${direction}
+		</if>
+		<if test="sortBy == null">
+			ORDER BY attrId ASC
+		</if>
+    </sql>
+    
+    <sql id="subQuerySampleList">
+    		(
+        		SELECT sample_list.CANCER_STUDY_ID, sample_list_list.SAMPLE_ID FROM sample_list_list
+        		INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+        		WHERE sample_list.STABLE_ID = #{sampleListId}
+        	)
+    </sql>
+    
+    <sql id="subQueryCancerStudy">
+    		(
+        		SELECT CANCER_STUDY_ID FROM sample_list
+        		WHERE sample_list.STABLE_ID = #{sampleListId}
+        	)
     </sql>
 
     <select id="getClinicalAttributes" resultType="org.cbioportal.model.ClinicalAttribute">
@@ -68,6 +128,84 @@
         INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
         WHERE clinical_attribute_meta.ATTR_ID = #{clinicalAttributeId}
         AND cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+    </select>
+    
+    <select id="getAllClinicalAttributesInStudiesBySampleIds" resultType="org.cbioportal.model.ClinicalAttribute">
+        SELECT
+        <include refid="selectWithCountPatient">
+            <property name="prefix" value=""/>
+        </include>
+        FROM clinical_attribute_meta
+        <include refid="joinPatient"/>
+        LEFT JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID 
+        		AND (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+        		<foreach index="i" collection="sampleIds" open="(" separator="," close=")"> 
+        			(#{studyIds[${i}]}, #{sampleIds[${i}]}) 
+        		</foreach>
+        WHERE clinical_attribute_meta.PATIENT_ATTRIBUTE = 1 
+        		AND cancer_study.CANCER_STUDY_IDENTIFIER IN
+        		<foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                 #{item}
+ 	        </foreach>
+        <include refid="groupBy"/>
+        
+        UNION
+        
+        SELECT 
+        <include refid="selectWithCountSample">
+            <property name="prefix" value=""/>
+        </include>
+        FROM clinical_attribute_meta
+        <include refid="joinSample"/>
+        LEFT JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID 
+        		AND (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN 
+			<foreach index="i" collection="sampleIds" open="(" separator="," close=")"> 
+				(#{studyIds[${i}]}, #{sampleIds[${i}]}) 
+			</foreach>
+		LEFT JOIN patient ON clinical_attribute_meta.CANCER_STUDY_ID = patient.CANCER_STUDY_ID 
+			AND sample.PATIENT_ID = patient.INTERNAL_ID 
+        WHERE clinical_attribute_meta.PATIENT_ATTRIBUTE = 0
+	        	AND cancer_study.CANCER_STUDY_IDENTIFIER IN
+	        		<foreach item="item" collection="studyIds" open="(" separator="," close=")">
+	                 #{item}
+	 	        </foreach>
+        <include refid="groupBy"/>
+        <include refid="sortBy"/>
+    </select>
+    
+    <select id="getAllClinicalAttributesInStudiesBySampleListId" resultType="org.cbioportal.model.ClinicalAttribute">
+        SELECT
+        <include refid="selectWithCountPatient">
+            <property name="prefix" value=""/>
+        </include>
+        FROM clinical_attribute_meta
+        <include refid="joinPatient"/>
+        LEFT JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID 
+        		AND (cancer_study.CANCER_STUDY_ID, sample.INTERNAL_ID) IN
+        		<include refid="subQuerySampleList"/>
+        WHERE clinical_attribute_meta.PATIENT_ATTRIBUTE = 1 
+        		AND cancer_study.CANCER_STUDY_ID IN
+        		<include refid="subQueryCancerStudy"/>
+        <include refid="groupBy"/>
+        
+        UNION
+        
+        SELECT 
+        <include refid="selectWithCountSample">
+            <property name="prefix" value=""/>
+        </include>
+        FROM clinical_attribute_meta
+        <include refid="joinSample"/>
+        LEFT JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID 
+        		AND (cancer_study.CANCER_STUDY_ID, sample.INTERNAL_ID) IN 
+        		<include refid="subQuerySampleList"/>
+		LEFT JOIN patient ON clinical_attribute_meta.CANCER_STUDY_ID = patient.CANCER_STUDY_ID 
+			AND sample.PATIENT_ID = patient.INTERNAL_ID 
+        WHERE clinical_attribute_meta.PATIENT_ATTRIBUTE = 0
+	        	AND cancer_study.CANCER_STUDY_ID IN 
+        		<include refid="subQueryCancerStudy"/>
+        <include refid="groupBy"/>
+		<include refid="sortBy"/>
     </select>
 
 </mapper>

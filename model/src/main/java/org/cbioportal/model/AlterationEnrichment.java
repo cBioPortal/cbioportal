@@ -2,16 +2,24 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
 
 public class AlterationEnrichment implements Serializable {
 
+    @NotNull
     private Integer entrezGeneId;
+    @NotNull
     private String hugoGeneSymbol;
     private String cytoband;
+    @NotNull
     private Integer alteredCount;
+    @NotNull
     private Integer unalteredCount;
+    @NotNull
     private String logRatio;
+    @NotNull
     private BigDecimal pValue;
+    @NotNull
     private BigDecimal qValue;
 
     public Integer getEntrezGeneId() {

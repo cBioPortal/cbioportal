@@ -56,7 +56,7 @@ public class StudyViewController {
     @Autowired
     private SampleService sampleService;
 
-    @RequestMapping(value = "/studies/{studyId}/clinical-data-counts/{attributeId}/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/studies/{studyId}/attributes/{attributeId}/clinical-data-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data counts by study view filter")
     public ResponseEntity<Map<String, List<ClinicalDataCount>>> fetchClinicalDataCounts(

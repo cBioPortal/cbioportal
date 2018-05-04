@@ -17,7 +17,6 @@ import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.SampleService;
-import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.junit.Before;
@@ -132,10 +131,10 @@ public class StudyViewControllerTest {
         Mockito.when(clinicalDataService.fetchClinicalDataCounts(Mockito.anyString(), Mockito.anyListOf(String.class), 
             Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(clinicalDataCountMap);
         
-        mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/clinical-data-counts/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/clinical-data-counts/test_attribute_id/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(new ClinicalDataCountFilter())))
+            .content(objectMapper.writeValueAsString(new StudyViewFilter())))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.test_attribute_1[0].attributeId").doesNotExist())

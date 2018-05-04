@@ -21,7 +21,6 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
-import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.StudyViewFilter;
@@ -57,25 +56,30 @@ public class StudyViewController {
     @Autowired
     private SampleService sampleService;
 
-    @RequestMapping(value = "/studies/{studyId}/clinical-data-counts/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/studies/{studyId}/clinical-data-counts/{attributeId}/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data counts by study view filter")
     public ResponseEntity<Map<String, List<ClinicalDataCount>>> fetchClinicalDataCounts(
         @ApiParam(required = true, value = "Study ID e.g. acc_tcga") 
         @PathVariable String studyId,
+        @ApiParam(required = true, value = "Attribute ID e.g. CANCER_TYPE")
+        @PathVariable String attributeId,
         @ApiParam("Type of the clinical data")
         @RequestParam(defaultValue = "SAMPLE") ClinicalDataType clinicalDataType,
         @ApiParam(required = true, value = "Clinical data count filter")
-        @Valid @RequestBody ClinicalDataCountFilter clinicalDataCountFilter) throws StudyNotFoundException, 
+        @Valid @RequestBody StudyViewFilter studyViewFilter) throws StudyNotFoundException, 
         MolecularProfileNotFoundException {
 
-        List<String> filteredSampleIds = studyViewFilterApplier.apply(studyId, clinicalDataCountFilter.getFilter());
+        if (studyViewFilter.getClinicalDataEqualityFilters() != null) {
+            studyViewFilter.getClinicalDataEqualityFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
+        }
+        List<String> filteredSampleIds = studyViewFilterApplier.apply(studyId, studyViewFilter);
+
         if (filteredSampleIds.isEmpty()) {
             return new ResponseEntity<>(null, HttpStatus.OK);
         }
-        
         return new ResponseEntity<>(clinicalDataService.fetchClinicalDataCounts(studyId, filteredSampleIds, 
-            clinicalDataCountFilter.getAttributeIds(), clinicalDataType.name()), HttpStatus.OK);
+            Arrays.asList(attributeId), clinicalDataType.name()), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutated-genes/fetch", method = RequestMethod.POST, 

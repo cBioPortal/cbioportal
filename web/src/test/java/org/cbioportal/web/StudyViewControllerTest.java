@@ -131,7 +131,7 @@ public class StudyViewControllerTest {
         Mockito.when(clinicalDataService.fetchClinicalDataCounts(Mockito.anyString(), Mockito.anyListOf(String.class), 
             Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(clinicalDataCountMap);
         
-        mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/clinical-data-counts/test_attribute_id/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/attributes/test_attribute_id/clinical-data-counts/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(new StudyViewFilter())))

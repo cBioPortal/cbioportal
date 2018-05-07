@@ -76,7 +76,7 @@ public class GeneFrequencyCalculator {
                     denominator += genePanelDataMap.get(genePanel.getStableId()).size();
                 }
                 
-                denominator += genePanelDataList.stream().filter(g -> g.getWholeExomeSequenced()).count();
+                denominator += genePanelDataList.stream().filter(g -> g.getProfiled() && g.getGenePanelId() == null).count();
             } else {
                 denominator = finalSampleIds.size();
             }

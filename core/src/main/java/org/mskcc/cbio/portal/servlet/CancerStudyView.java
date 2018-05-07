@@ -110,26 +110,6 @@ public class CancerStudyView extends HttpServlet {
         throws ServletException, IOException {
         XDebug xdebug = new XDebug( request );
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
-        
-        
-        // Convert old URL parameters cancer_study_id and case_id/sample_id to new frontend
-        // hash style URL paramters #studyId=x&caseId=y
-        String cancerStudyId = (String) request.getParameter("cancer_study_id");
-        if(cancerStudyId == null) {
-        	cancerStudyId = (String) request.getParameter(ID);
-        }
-        if(cancerStudyId == null) {
-        	cancerStudyId = (String) request.getParameter("studyId");
-        }
-        
-        if (cancerStudyId != null) {
-            String hashUrl = "#/study?studyId=" + cancerStudyId;
-            
-            response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-            String oldUrl = ((HttpServletRequest)request).getRequestURL().toString();
-            response.setHeader("Location", oldUrl + hashUrl);
-        } else {
-            request.setAttribute(QueryBuilder.HTML_TITLE, "Study Summary");
 
         try {
             if (buildResponse(request)) {

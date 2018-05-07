@@ -66,14 +66,14 @@ public class GeneFrequencyCalculatorTest {
         List<GenePanelData> genePanelDataList = new ArrayList<>();
         GenePanelData genePanelData1 = new GenePanelData();
         genePanelData1.setGenePanelId(GENE_PANEL_ID_1);
-        genePanelData1.setWholeExomeSequenced(false);
+        genePanelData1.setProfiled(true);
         genePanelDataList.add(genePanelData1);
         GenePanelData genePanelData2 = new GenePanelData();
         genePanelData2.setGenePanelId(GENE_PANEL_ID_2);
-        genePanelData2.setWholeExomeSequenced(false);
+        genePanelData2.setProfiled(true);
         genePanelDataList.add(genePanelData2);
         GenePanelData genePanelData3 = new GenePanelData();
-        genePanelData3.setWholeExomeSequenced(true);
+        genePanelData3.setProfiled(true);
         genePanelDataList.add(genePanelData3);
 
         Mockito.when(genePanelService.fetchGenePanelData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID_3, SAMPLE_ID_2,

@@ -63,20 +63,31 @@ String url = request.getRequestURL().toString();
 String baseURL = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
 baseURL = baseURL.replace("https://", "").replace("http://", "");
 %>
+
+function assignQuickDirty(obj1, obj2){
+    for (var k in obj2) {
+        obj1[k] = obj2[k];
+    }
+    return obj1;
+}
+
 // override legacySupportFrontendConfig with new frontendConfig
 window.frontendConfig = JSON.parse('<%=GlobalProperties.getFrontendConfig()%>');
-window.frontendConfig = Object.assign(window.legacySupportFrontendConfig, window.frontendConfig);
+//window.frontendConfig = Object.assign(window.legacySupportFrontendConfig, window.frontendConfig);
+window.frontendConfig = assignQuickDirty(window.legacySupportFrontendConfig, window.frontendConfig);
+
+
 
 // get localdev from url and set localStorage accordingly. Setting localStorage
 // is necessary when changing page (e.g. from query to study view)
-var url = new URL(window.location.href);
-if (url.searchParams.get("localdev") === "true") {
+//var url = new URL(window.location.href);
+if (/localdev=true/.test(window.location.query)) {
 	localStorage.setItem("localdev", "true");
 }
 window.localdev = localStorage.getItem("localdev") === "true";
 // localdist (instead of using npm run start, one serves artifacts from dist
 // folder (more production like env)
-if (url.searchParams.get("localdist") === "true") {
+if (/localdist=true/.test(window.location.query)) {
 	localStorage.setItem("localdist", "true");
 }
 window.localdist = localStorage.getItem("localdist") === "true";

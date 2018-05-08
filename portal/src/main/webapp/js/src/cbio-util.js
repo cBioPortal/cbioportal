@@ -825,7 +825,7 @@ cbio.util = (function() {
                 return '<a href="' + window.cbioURL + 'study?id=' + study.id + '" title="' +
                     study.description.replace(/(<([^>]+)>)/ig, '') + '" target="_blank">' +
                     study.name + '</a>';
-            }).join("<br />e");
+            }).join("<br />");
             addFoldableDescription(descriptionSelector, collapseStudyName)
         }
     }

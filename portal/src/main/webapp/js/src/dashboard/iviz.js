@@ -8903,7 +8903,7 @@ window.LogRankTest = (function(jStat) {
         filteredOriginStudies.studies = this.stats.origin.map(function(studyId) {
           var _studyData = iviz.datamanager.getStudyById(studyId);
           var _count = 0;
-          if (_studyData.studyType === 'vs') {
+          if (_.isObject(_studyData) && _studyData.studyType === 'vs') {
             _.each(_studyData.data.studies, function(_study) {
               _count += _.intersection(_study.samples, selectedStudies[_study.id]).length;
             });

@@ -8,13 +8,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
 import javax.validation.Valid;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.MolecularProfileSampleCount;
 import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.DiscreteCopyNumberService;
+import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.SampleService;
@@ -55,6 +58,8 @@ public class StudyViewController {
     private DiscreteCopyNumberService discreteCopyNumberService;
     @Autowired
     private SampleService sampleService;
+    @Autowired
+    private GenePanelService genePanelService;
 
     @RequestMapping(value = "/studies/{studyId}/attributes/{attributeId}/clinical-data-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -138,5 +143,26 @@ public class StudyViewController {
         List<String> studyIds = new ArrayList<>();
         sampleIds.forEach(s -> studyIds.add(studyId));
         return new ResponseEntity<>(sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name()), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/sample-counts/fetch", method = RequestMethod.POST, 
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch sample IDs by study view filter")
+    public ResponseEntity<MolecularProfileSampleCount> fetchMolecularProfileSampleCounts(
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
+        @PathVariable String molecularProfileId,
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid @RequestBody StudyViewFilter studyViewFilter) throws StudyNotFoundException, 
+        MolecularProfileNotFoundException {
+        
+        String studyId = molecularProfileService.getMolecularProfile(molecularProfileId).getCancerStudyIdentifier();
+        List<String> sampleIds = studyViewFilterApplier.apply(studyId, studyViewFilter);
+        MolecularProfileSampleCount molecularProfileSampleCount = new MolecularProfileSampleCount();
+        molecularProfileSampleCount.setNumberOfProfiledSamples(Math.toIntExact(genePanelService.fetchGenePanelData(
+            molecularProfileId, sampleIds).stream().filter(g -> g.getProfiled()).count()));
+        molecularProfileSampleCount.setNumberOfUnprofiledSamples(sampleIds.size() - 
+            molecularProfileSampleCount.getNumberOfProfiledSamples());
+
+        return new ResponseEntity<>(molecularProfileSampleCount, HttpStatus.OK);
     }
 }

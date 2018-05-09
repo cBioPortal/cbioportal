@@ -1647,6 +1647,25 @@ window.DataManagerForIviz = (function($, _) {
         return _def.promise();
       },
 
+      getVirtualStudy: function(id) {
+        var def = new $.Deferred();
+        var self = this;
+        if (self.data.studies[id]) {
+          def.resolve(self.data.studies[id]);
+        } else {
+          $.get(window.cbioURL + 'api-legacy/proxy/session/virtual_study/' + id)
+            .done(function(response) {
+              response.studyType = 'vs';
+              self.data.studies[id] = response;
+              def.resolve(response);
+            })
+            .fail(function(error) {
+              def.reject(error);
+            });
+        }
+        return def.promise();
+      },
+
       getAllPhysicalStudies: function() {
         var _def = new $.Deferred();
         var _self = this;

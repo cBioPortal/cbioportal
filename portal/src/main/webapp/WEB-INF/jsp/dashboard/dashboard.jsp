@@ -266,18 +266,31 @@
             window.location.hash = '#cna';
         });
     }
-    
-    function getOriginStudies (virtualStudy) {
-        return virtualStudy.data.origin.map(function(studyId) {
-            var studyMetaData = iviz.datamanager.getStudyById(studyId);
-            return {
-                id: studyId,
-                name: studyMetaData.studyType === 'vs' ? studyMetaData.data.name : studyMetaData.name,
-                description: studyMetaData.studyType === 'vs' ? studyMetaData.data.description : studyMetaData.description
-            }
-        })
+
+    function getOriginStudies(virtualStudy) {
+        var def = new $.Deferred();
+        var promises = _.filter(virtualStudy.data.origin, function(study) {
+            return !iviz.datamanager.data.studies.hasOwnProperty(study);
+        }).map(function(t) {
+            return iviz.datamanager.getVirtualStudy(t);
+        });
+        $.when.apply($, promises)
+            .then(function() {
+                def.resolve(virtualStudy.data.origin.map(function(studyId) {
+                    var studyMetaData = iviz.datamanager.getStudyById(studyId);
+                    var info = {
+                        id: studyId
+                    };
+                    if (studyMetaData) {
+                        info.name = studyMetaData.studyType === 'vs' ? studyMetaData.data.name : studyMetaData.name;
+                        info.description = studyMetaData.studyType === 'vs' ? studyMetaData.data.description : studyMetaData.description;
+                    }
+                    return info;
+                }));
+            });
+        return def.promise();
     }
-    
+
     $(document).ready(function() {
         //this is for testing, once done this should be commented/deleted
         //window.cbioURL = '';
@@ -362,21 +375,27 @@
                         window.case_set_id = StudyViewParams.params.caseSetId;
                         } else {
                             var response = _.findWhere(virtualStudies, {id: cohortIdsList[0]})
-                         if (response !== undefined) {
+                         if (response) {
                                  var name = response['data']['name'];
                                  $("#show_study_details").css('display','');
                                  $("#study_name").html(name);
-                                 cbio.util.showVShtmlDescription('#study_desc', response['data']['description'], getOriginStudies(response));
                                  $("#cancer_study_list").val(cohortIdsList[0]);
                                  document.title = name;
+                                 getOriginStudies(response)
+                                     .done(function(data) {
+                                         cbio.util.showVShtmlDescription('#study_desc', response['data']['description'], data);
+                                     });
                          } else {
-                               $.when(getVirtualStudy(cohortIdsList[0])).then(function(vs){
+                             $.when(iviz.datamanager.getVirtualStudy(cohortIdsList[0])).then(function(vs){
                                     var name = vs['data']['name'];
                                     $("#show_study_details").css('display','');
                                     $("#study_name").html(name);
-                                    cbio.util.showVShtmlDescription('#study_desc', vs['data']['description'], getOriginStudies(vs));
                                     $("#cancer_study_list").val(cohortIdsList[0]);
                                     document.title = name;
+                                     getOriginStudies(vs)
+                                         .done(function(data) {
+                                             cbio.util.showVShtmlDescription('#study_desc', vs['data']['description'], data);
+                                         });
                                 }).fail(function() {
                                     $("#show_study_details").css('display','');
                                     cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, '', '');

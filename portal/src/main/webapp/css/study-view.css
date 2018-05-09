@@ -362,10 +362,41 @@ embed {
 .study-view-bar-chart g.brush rect.background {
     z-index: -999;
 }
-.header {
-    font-size:10px;
-    width:3000px;
+
+#study_desc .origin-studies {
+    margin-top: 10px;
 }
+
+#study_desc .origin-studies .header {
+    font-weight: bold;
+    font-size: 13px;
+}
+
+#study_desc .origin-studies .panel-group {
+    margin-top: 5px;
+    margin-bottom: 0;
+}
+
+#study_desc .origin-studies .panel-group .panel.panel-default {
+    border-radius: 0;
+}
+
+#study_desc .origin-studies .panel-group .panel.panel-default .panel-heading {
+    padding: 10px 5px;
+    background-color: white;
+}
+
+#study_desc .origin-studies .panel-group .panel.panel-default .panel-heading h4 {
+    font-size: 14px;
+    font-weight: 400;
+    color: #000;
+}
+
+#study_desc .origin-studies .panel-group .panel.panel-default .panel-heading h4 i {
+    margin: 0 5px;
+    color: #000;
+}
+
 .dc-table-group {
     background-color:lightblue;
 }

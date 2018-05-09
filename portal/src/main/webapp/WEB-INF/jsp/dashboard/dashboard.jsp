@@ -266,7 +266,31 @@
             window.location.hash = '#cna';
         });
     }
-    
+
+    function getOriginStudies(virtualStudy) {
+        var def = new $.Deferred();
+        var promises = _.filter(virtualStudy.data.origin, function(study) {
+            return !iviz.datamanager.data.studies.hasOwnProperty(study);
+        }).map(function(t) {
+            return iviz.datamanager.getVirtualStudy(t);
+        });
+        $.when.apply($, promises)
+            .then(function() {
+                def.resolve(virtualStudy.data.origin.map(function(studyId) {
+                    var studyMetaData = iviz.datamanager.getStudyById(studyId);
+                    var info = {
+                        id: studyId
+                    };
+                    if (studyMetaData) {
+                        info.name = studyMetaData.studyType === 'vs' ? studyMetaData.data.name : studyMetaData.name;
+                        info.description = studyMetaData.studyType === 'vs' ? studyMetaData.data.description : studyMetaData.description;
+                    }
+                    return info;
+                }));
+            });
+        return def.promise();
+    }
+
     $(document).ready(function() {
         //this is for testing, once done this should be commented/deleted
         //window.cbioURL = '';
@@ -310,11 +334,12 @@
             return def.promise();
         }
         
-        $.when(window.cbioportal_client.getStudies({ study_ids: studyIds}), window.iviz.datamanager.getGeneticProfiles(),window.iviz.datamanager.getAllVirtualStudies())
-            .then(function(_cancerStudies, _geneticProfiles,virtualStudies){
+        $.when(window.cbioportal_client.getStudies({ study_ids: studyIds}), window.iviz.datamanager.getGeneticProfiles(),
+            window.iviz.datamanager.getAllPhysicalStudies(), window.iviz.datamanager.getAllVirtualStudies())
+            .then(function(_cancerStudies, _geneticProfiles,physicalStudies,virtualStudies){
                 if(cohortIdsList.length === 1 ) {
                     if(JSON.stringify(cohortIdsList) === JSON.stringify(studyIds)) {
-                            $("#show_study_details").css('display', 'block');
+                            $("#show_study_details").css('display','');
                             var _cancerStudy = _cancerStudies[0]
                         document.title = _cancerStudy.name
                         $("#study_name").html(_cancerStudy.name);
@@ -350,29 +375,35 @@
                         window.case_set_id = StudyViewParams.params.caseSetId;
                         } else {
                             var response = _.findWhere(virtualStudies, {id: cohortIdsList[0]})
-                         if (response !== undefined) {
+                         if (response) {
                                  var name = response['data']['name'];
-                                 $("#show_study_details").css('display','block');
+                                 $("#show_study_details").css('display','');
                                  $("#study_name").html(name);
-                                 cbio.util.showVShtmlDescription('#study_desc', response['data']['description']);
                                  $("#cancer_study_list").val(cohortIdsList[0]);
                                  document.title = name;
+                                 getOriginStudies(response)
+                                     .done(function(data) {
+                                         cbio.util.showVShtmlDescription('#study_desc', response['data']['description'], data);
+                                     });
                          } else {
-                               $.when(getVirtualStudy(cohortIdsList[0])).then(function(vs){
+                             $.when(iviz.datamanager.getVirtualStudy(cohortIdsList[0])).then(function(vs){
                                     var name = vs['data']['name'];
-                                    $("#show_study_details").css('display','block');
+                                    $("#show_study_details").css('display','');
                                     $("#study_name").html(name);
-                                    cbio.util.showVShtmlDescription('#study_desc', vs['data']['description']);
                                     $("#cancer_study_list").val(cohortIdsList[0]);
                                     document.title = name;
+                                     getOriginStudies(vs)
+                                         .done(function(data) {
+                                             cbio.util.showVShtmlDescription('#study_desc', vs['data']['description'], data);
+                                         });
                                 }).fail(function() {
-                                    $("#show_study_details").css('display', 'block');
+                                    $("#show_study_details").css('display','');
                                     cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, '', '');
                                 });
                             }
                         }
                 } else {
-                    $("#show_study_details").css('display', 'block');
+                    $("#show_study_details").css('display','');
                     cbio.util.showCombinedStudyNameAndDescription("#study_name", "#study_desc", _cancerStudies, '', '');
                 }
                 $("#submit_button").click(function(){

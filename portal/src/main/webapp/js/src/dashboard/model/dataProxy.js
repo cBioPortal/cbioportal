@@ -817,7 +817,11 @@ window.DataManagerForIviz = (function($, _) {
           lists: {}
         }
       },
-      unknownSamples:[],
+      apiStatus: {
+        allPhysicalStudies: '',
+        allVirtualStudies: ''
+      },
+      unknownSamples: [],
       // The reason to separate style variable into individual json is
       // that the scss file can also rely on this file.
       getConfigs: window.cbio.util.makeCachedPromiseFunction(
@@ -1095,10 +1099,10 @@ window.DataManagerForIviz = (function($, _) {
           var _sampleLists = [];
           _.each(self.getCancerStudyIds(), function(studyId) {
             self.data.sampleLists[studyId] = self.data.sampleLists[studyId] || {};
-              var _existLists = self.data.sampleLists.lists[studyId] || [];
-              if (_existLists.indexOf(studyId + '_all') !== -1) {
-                _sampleLists.push(studyId + '_all');
-              }
+            var _existLists = self.data.sampleLists.lists[studyId] || [];
+            if (_existLists.indexOf(studyId + '_all') !== -1) {
+              _sampleLists.push(studyId + '_all');
+            }
           });
 
           self.getSampleListsData(_sampleLists)
@@ -1119,19 +1123,25 @@ window.DataManagerForIviz = (function($, _) {
                       self.data.sampleLists[studyId][studyId + '_all'] : [];
                 } else {
                   var studySamples = self.data.sampleLists[studyId].hasOwnProperty(studyId + '_all') ?
-                                                        self.data.sampleLists[studyId][studyId + '_all'] : [];
-                  var studySamplesSet = _.reduce(studySamples, function(acc, next){ acc[next]=true; return acc;}, {});
+                    self.data.sampleLists[studyId][studyId + '_all'] : [];
+                  var studySamplesSet = _.reduce(studySamples, function(acc, next) {
+                    acc[next] = true;
+                    return acc;
+                  }, {});
                   var inputStudySamples = self.studyCasesMap[studyId].samples;
                   var unknownSamples = [];
-                  var filteredSamples = _.filter(inputStudySamples, function(sample){ 
-                    if(!studySamplesSet[sample]){
+                  var filteredSamples = _.filter(inputStudySamples, function(sample) {
+                    if (!studySamplesSet[sample]) {
                       unknownSamples.push(sample);
                     }
                     return studySamplesSet[sample];
                   });
 
-                  if(unknownSamples.length>0){
-                    self.unknownSamples.push({studyId:studyId, samples:unknownSamples});
+                  if (unknownSamples.length > 0) {
+                    self.unknownSamples.push({
+                      studyId: studyId,
+                      samples: unknownSamples
+                    });
                   }
                   self.studyCasesMap[studyId].samples = filteredSamples;
                 }
@@ -1444,7 +1454,7 @@ window.DataManagerForIviz = (function($, _) {
                     item.sampleUids = item.sampleUids.concat(panelSamplesMap[isProfiledPanelId]);
                   });
                 }
-                
+
                 var _sortedMap = {};
                 _.each(geneSampleMap, function(item) {
                   var _json = JSON.stringify(item.sampleUids);
@@ -1611,38 +1621,79 @@ window.DataManagerForIviz = (function($, _) {
         return array;
       },
 
-      getAllVirtualStudies:  function(){
+      getAllVirtualStudies: function() {
         var _def = new $.Deferred();
         var _self = this;
-        $.get(window.cbioURL+'api-legacy/proxy/session/virtual_study')
-          .done(function(virtualStudies) {
-            _.each(virtualStudies, function(study) {
-              study.studyType = 'vs';
-              _self.data.studies[study.id] = study;
+        if (_self.apiStatus.allVirtualStudies === 'fetched') {
+          _def.resolve(_.filter(_self.data.studies, function(t) {
+            return t.studyType === 'vs';
+          }));
+        } else {
+          $.get(window.cbioURL + 'api-legacy/proxy/session/virtual_study')
+            .done(function(virtualStudies) {
+              _.each(virtualStudies, function(study) {
+                study.studyType = 'vs';
+                _self.data.studies[study.id] = study;
+              });
+              _def.resolve(virtualStudies);
+            })
+            .fail(function(error) {
+              _def.resolve([]);
+            })
+            .always(function() {
+              _self.apiStatus.allVirtualStudies = 'fetched';
             });
-            _def.resolve(virtualStudies);
-          })
-          .fail(function(error) {
-            _def.resolve([]);
-          });
+        }
         return _def.promise();
       },
 
-      getAllPhysicalStudies: function(){
+      getVirtualStudy: function(id) {
+        var def = new $.Deferred();
+        var self = this;
+        if (self.data.studies[id]) {
+          def.resolve(self.data.studies[id]);
+        } else {
+          $.get(window.cbioURL + 'api-legacy/proxy/session/virtual_study/' + id)
+            .done(function(response) {
+              response.studyType = 'vs';
+              self.data.studies[id] = response;
+              def.resolve(response);
+            })
+            .fail(function(error) {
+              def.reject(error);
+            });
+        }
+        return def.promise();
+      },
+
+      getAllPhysicalStudies: function() {
         var _def = new $.Deferred();
         var _self = this;
-        $.get(window.cbioURL + 'api/studies')
-          .done(function(response) {
-            _.each(response, function(study) {
-              study.studyType = 'regular';
-              _self.data.studies[study.studyId] = study;
+        if (_self.apiStatus.allPhysicalStudies === 'fetched') {
+          _def.resolve(_.filter(_self.data.studies, function(t) {
+            return t.studyType === 'regular';
+          }));
+        } else {
+          $.get(window.cbioURL + 'api/studies')
+            .done(function(response) {
+              _.each(response, function(study) {
+                study.studyType = 'regular';
+                _self.data.studies[study.studyId] = study;
+              });
+              _def.resolve(response);
+            })
+            .fail(function(error) {
+              _def.reject(error);
+            })
+            .always(function() {
+              _self.apiStatus.allPhysicalStudies = 'fetched';
             });
-            _def.resolve(response);
-          })
-          .fail(function(error) {
-            _def.reject(error);
-          });
+        }
         return _def.promise();
+      },
+
+      getStudyById: function(id) {
+        return this.data.studies[id];
       },
 
       getCancerStudyDisplayName: function(_cancerStudyStableIds) {

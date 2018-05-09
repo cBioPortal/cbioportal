@@ -271,7 +271,7 @@ public class StudyViewControllerTest {
         Mockito.when(sampleService.fetchSamples(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), 
             Mockito.anyString())).thenReturn(filteredSamples);
     
-        mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/sample-ids/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/samples/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(new StudyViewFilter())))

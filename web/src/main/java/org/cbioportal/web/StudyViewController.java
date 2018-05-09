@@ -129,7 +129,7 @@ public class StudyViewController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/studies/{studyId}/sample-ids/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/studies/{studyId}/samples/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample IDs by study view filter")
     public ResponseEntity<List<Sample>> fetchSampleIds(

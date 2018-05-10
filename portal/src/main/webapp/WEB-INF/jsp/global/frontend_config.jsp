@@ -81,13 +81,13 @@ window.frontendConfig = assignQuickDirty(window.legacySupportFrontendConfig, win
 // get localdev from url and set localStorage accordingly. Setting localStorage
 // is necessary when changing page (e.g. from query to study view)
 //var url = new URL(window.location.href);
-if (/localdev=true/.test(window.location.query)) {
+if (/localdev=true/.test(window.location.href)) {
 	localStorage.setItem("localdev", "true");
 }
 window.localdev = localStorage.getItem("localdev") === "true";
 // localdist (instead of using npm run start, one serves artifacts from dist
 // folder (more production like env)
-if (/localdist=true/.test(window.location.query)) {
+if (/localdist=true/.test(window.location.href)) {
 	localStorage.setItem("localdist", "true");
 }
 window.localdist = localStorage.getItem("localdist") === "true";

@@ -111,18 +111,16 @@ window.vcSession = window.vcSession ? window.vcSession : {};
       return _numOfSamples;
     };
 
-    var generateVSDescription_ = function(_studyDisplayName, _filters, _cases) {
+    var generateVSDescription_ = function(_studies, _filters) {
       var _desp = '';
-      if (_cases.length > 0) {
-        var _numOfSamples = getNumOfSelectedSamplesFromStudyMap(_cases);
-        var _count = _numOfSamples.sampleCounts__;
-        _desp = _count + (_count > 1 ? ' samples ' : ' sample ')
-          + 'from ' + _cases.length +
-          (_cases.length > 1 ? ' studies' : ' study') + ':';
+      if (_studies.studies.length > 0) {
+        _desp = _studies.count + (_studies.count > 1 ? ' samples ' : ' sample ')
+          + 'from ' + _studies.studies.length +
+          (_studies.studies.length > 1 ? ' studies' : ' study') + ':';
 
-        _.each(_numOfSamples.studies, function(_count, _studyId) {
-          _desp += '\n- ' + _studyDisplayName[_studyId] + ' ('
-            + _count + ' sample' + (_count > 1 ? 's' : '') + ')';
+        _.each(_studies.studies, function(_study) {
+          _desp += '\n- ' + _study.name + ' ('
+            + _study.count + ' sample' + (_study.count > 1 ? 's' : '') + ')';
         });
 
         if (_filters.length > 0) {
@@ -915,6 +913,20 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         vm_.selectedpatientUIDs = _.pluck(data_.groups.patient.data, 'patient_uid');
         vm_.groups = groups;
         vm_.charts = charts;
+
+        //Show unknown samples error message, whenthe initial(pie and bar) charts are loaded
+        if (window.iviz.datamanager.unknownSamples.length > 0) {
+          var str = ''
+          window.iviz.datamanager.unknownSamples.forEach(function(obj){
+            obj.samples.forEach(function(sample){
+              str = str+'<br/>'+obj.studyId+':'+sample
+            })
+          })
+          new Notification().createNotification('Following sample(s) might have been deleted/updated with the recent data updates<br/>'+str, {
+            message_type: 'danger',
+            delay:10000
+          });
+        }
       });
     }, // ---- close init function ----groups
     createGroupNdx: function(group) {
@@ -8770,7 +8782,7 @@ window.LogRankTest = (function(jStat) {
 
 
 'use strict';
-(function(Vue, $, vcSession, iViz) {
+(function(Vue, $, vcSession, iViz, _) {
   Vue.component('virtualStudy', {
     template:
     '<div class="virtual-study">' +
@@ -8858,6 +8870,10 @@ window.LogRankTest = (function(jStat) {
         tooltip.find('.saving .message')
           .html(message)
       },
+      updateOriginStudiesDescription: function(tooltip, message) {
+        tooltip.find('.origin-studies-frame')
+          .html(message);
+      },
       disableBtn: function(el, action) {
         el.attr('disabled', action);
       },
@@ -8873,9 +8889,38 @@ window.LogRankTest = (function(jStat) {
       enableShareCohortBtn: function(tooltip) {
         this.disableBtn(tooltip.find('.share-cohort'), false);
       },
-      getDefaultVSDescription: function() {
-        var def = new $.Deferred();
-        var selectedStudiesDisplayName = window.iviz.datamanager.getCancerStudyDisplayName(_.pluck(this.stats.studies, 'id'));
+      getFilteredOriginStudies: function() {
+        var selectedStudiesDisplayName = window.iviz.datamanager.getCancerStudyDisplayName(this.stats.origin);
+        var filteredOriginStudies = {
+          studies: [],
+          count: 0
+        };
+        var selectedStudies = {};
+        _.each(this.stats.studies, function(study) {
+          selectedStudies[study.id] = study.samples;
+          filteredOriginStudies.count += study.samples.length;
+        });
+        filteredOriginStudies.studies = this.stats.origin.map(function(studyId) {
+          var _studyData = iviz.datamanager.getStudyById(studyId);
+          var _count = 0;
+          if (_.isObject(_studyData) && _studyData.studyType === 'vs') {
+            _.each(_studyData.data.studies, function(_study) {
+              _count += _.intersection(_study.samples, selectedStudies[_study.id]).length;
+            });
+          } else {
+            _count = selectedStudies.hasOwnProperty(studyId) ? selectedStudies[studyId].length : 0;
+          }
+          return {
+            id: studyId,
+            name: selectedStudiesDisplayName[studyId],
+            count: _count
+          };
+        }).filter(function(t) {
+          return t.count > 0;
+        });
+        return filteredOriginStudies;
+      },
+      getDefaultVSDescription: function(filteredOriginStudies) {
         var self = this;
         var filters = {};
         var vm = iViz.vue.manage.getInstance();
@@ -8898,9 +8943,7 @@ window.LogRankTest = (function(jStat) {
           filters[vm.customfilter.id].attrName = vm.customfilter.display_name;
           filters[vm.customfilter.id].viewType = 'custom';
         }
-
-        def.resolve(vcSession.utils.generateVSDescription(selectedStudiesDisplayName, _.values(filters), self.stats.studies));
-        return def.promise();
+        return vcSession.utils.generateVSDescription(filteredOriginStudies, _.values(filters));
       },
       saveCohort: function() {
         var _self = this;
@@ -8974,7 +9017,7 @@ window.LogRankTest = (function(jStat) {
                         });
                         tooltip.find('.saved .message .query-vs').click(function(event) {
                           event.preventDefault();
-                          window.open(window.cbioURL + 'index.do?cancer_study_id='+self_.savedVS.id)
+                          window.open(window.cbioURL + 'index.do?cancer_study_id=' + self_.savedVS.id)
                         });
                       })
                       .fail(function() {
@@ -9079,6 +9122,7 @@ window.LogRankTest = (function(jStat) {
             show: function() {
               var tooltip = $('.iviz-virtual-study-btn-qtip .qtip-content');
               var showThis = this;
+              self_.updateSavingMessage(tooltip, 'Loading');
               self_.updateStats = true;
               self_.$nextTick(function() {
                 self_.updateStats = false;
@@ -9087,21 +9131,35 @@ window.LogRankTest = (function(jStat) {
                   .attr('placeholder', vcSession.utils.VSDefaultName(self_.stats.studies));
                 self_.hideDialog(tooltip);
                 self_.showLoading(tooltip);
-                self_.getDefaultVSDescription()
-                  .always(function(description) {
-                    tooltip.find('textarea').val(description);
-                    self_.showDialog(tooltip);
-                    self_.hideLoading(tooltip);
-                    self_.hideShared(tooltip);
-                    self_.hideSaved(tooltip);
-                    self_.hideFailedInfo(tooltip);
-                    self_.hideAfterClipboard(tooltip);
+                var filteredOriginStudies = this.getFilteredOriginStudies();
+                var defaultVSDescription = self_.getDefaultVSDescription(filteredOriginStudies);
+                tooltip.find('textarea').val(defaultVSDescription);
 
-                    // Tell the tip itself to not bubble up clicks on it
-                    $($(showThis).qtip('api').elements.tooltip).click(function() {
-                      return false;
-                    });
+                if (filteredOriginStudies.studies.length > 0) {
+                  filteredOriginStudies.studies.map(function(study) {
+                    var studyMetaData = iviz.datamanager.getStudyById(study.id);
+                    study.description = studyMetaData.studyType === 'vs' ? studyMetaData.data.description : studyMetaData.description;
+                    return study;
                   });
+                  self_.updateOriginStudiesDescription(tooltip, cbio.util.getOriginStudiesDescriptionHtml(filteredOriginStudies.studies));
+                  $('.origin-studies-frame [data-toggle="collapse"]').click(function(a, b) {
+                    $($(this).attr('data-target')).collapse('toggle');
+                  });
+                  $('.origin-studies-frame .panel-title a').click(function() {
+                    window.open($(this).attr('href'));
+                  });
+                }
+                self_.showDialog(tooltip);
+                self_.hideLoading(tooltip);
+                self_.hideShared(tooltip);
+                self_.hideSaved(tooltip);
+                self_.hideFailedInfo(tooltip);
+                self_.hideAfterClipboard(tooltip);
+
+                // Tell the tip itself to not bubble up clicks on it
+                $($(showThis).qtip('api').elements.tooltip).click(function() {
+                  return false;
+                });
               });
             },
             visible: function() {
@@ -9121,6 +9179,7 @@ window.LogRankTest = (function(jStat) {
           '</div><div>' +
           '<textarea classe="form-control" rows="10" ' +
           'placeholder="Virtual study description (Optional)"></textarea>' +
+          '<div class="origin-studies-frame"></div>' +
           '</div></div>' +
           '<div class="saving" style="display: none;">' +
           '<i class="fa fa-spinner fa-spin"></i>' +
@@ -9148,7 +9207,7 @@ window.LogRankTest = (function(jStat) {
     }
   });
 })(window.Vue,
-  window.$ || window.jQuery, window.vcSession, window.iViz);
+  window.$ || window.jQuery, window.vcSession, window.iViz, window._);
 /**
  * @author Hongxin Zhang on 11/15/17.
  */

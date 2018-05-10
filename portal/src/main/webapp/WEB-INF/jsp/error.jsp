@@ -43,7 +43,7 @@
             <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:95%;margin-top:10px;margin-bottom:20px">
             <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
             <% if (userMessage != null) { %>
-            <strong>Oops!  <%= userMessage %><br><br>You may have caught us in the middle of updating data. Please check back later.</strong></p>
+            <strong>Oops!  <%= userMessage %></strong></p>
             <% } else {%>
                 Oops!  An Error Has occurred while processing your request.
               <% } %>

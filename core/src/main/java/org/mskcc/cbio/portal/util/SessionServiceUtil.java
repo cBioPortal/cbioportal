@@ -129,11 +129,9 @@ public class SessionServiceUtil {
             		return new RestTemplate().getForObject(url + virtualStudyId, VirtualStudy.class);
             } catch (HttpStatusCodeException exception) {
                 LOG.warn("SessionServiceUtil.getVirtualCohortData(): HttpStatusCodeException = '" + exception.getStatusCode() + "'");
-                throw exception;
             }
             catch (Exception exception) {
                 LOG.warn("SessionServiceUtil.getVirtualCohortData(): Exception = '" + exception.getMessage() + "'");
-                throw exception;
             }
         }
         return null;

@@ -82,7 +82,7 @@
 
     <filter-mapping>
       <filter-name>APICorsFilter</filter-name>
-      <url-pattern>/api-legacy/proxy/session-service/*</url-pattern>
+      <url-pattern>/api-legacy/proxy/session/*</url-pattern>
     </filter-mapping>
 
     <filter>

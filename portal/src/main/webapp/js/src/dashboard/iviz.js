@@ -1,3 +1,182 @@
+'use strict';
+// Move vcSession initialization to here since the sessionEvent.js
+// is the first one to be called in the dependency list.
+window.vcSession = window.vcSession ? window.vcSession : {};
+
+(function(vcSession, _) {
+  if (!_.isObject(vcSession)) {
+    vcSession = {};
+  }
+  vcSession.events = (function() {
+    return {
+      saveCohort: function(stats, name, description, addToUserStudies) {
+        var def = new $.Deferred();
+        $.when(vcSession.utils.buildVCObject(stats,
+          name, description)).done(function(_virtualCohort) {
+          vcSession.model.saveSession(_virtualCohort, addToUserStudies)
+            .done(function(response) {
+              def.resolve(response);
+            })
+            .fail(function() {
+              def.reject();
+            });
+        });
+        return def.promise();
+      }
+    };
+  })();
+})(window.vcSession,
+  window._);
+
+'use strict';
+
+(function(vcSession, _, $) {
+  if (!_.isObject(vcSession)) {
+    vcSession = {};
+  }
+  vcSession.model = (function() {
+
+    return {
+      saveSession: function(virtualCohort, addToUserStudies) {
+        var def = new $.Deferred();
+        var url = window.cbioURL+'api-legacy/proxy/session/virtual_study'+ (addToUserStudies ? '/save' : '');
+        $.ajax({
+          type: 'POST',
+          url: url,
+          contentType: 'application/json;charset=UTF-8',
+          data: JSON.stringify(virtualCohort)
+        }).done(function(response) {
+          if (virtualCohort.userID === 'DEFAULT') {
+            virtualCohort.virtualCohortID = response.id;
+          }
+          def.resolve(response);
+        }).fail(function() {
+          def.reject();
+        });
+        return def.promise();
+      }
+    };
+  })();
+})(window.vcSession,
+  window._,
+  window.$ || window.jQuery);
+
+'use strict';
+
+(function(vcSession, _, $) {
+  if (!_.isObject(vcSession)) {
+    vcSession = {};
+  }
+  vcSession.utils = (function() {
+    var virtualCohort_ = {
+      name: '',
+      description: '',
+      filters: '',
+      studies: '',
+      origin: ''
+    };
+
+    var buildVCObject_ = function(stats, name,
+                                  description) {
+      var def = new $.Deferred();
+      var _virtualCohort = $.extend(true, {}, virtualCohort_);
+      _virtualCohort.filters = stats.filters;
+
+      _virtualCohort.studies = stats.studies.map(function(studyObj) {
+        return {
+          id: studyObj.id,
+          samples: studyObj.samples
+        };
+      });
+      _virtualCohort.origin = stats.origin;
+      if (name) {
+        _virtualCohort.name = name;
+      } else {
+        _virtualCohort.name = getVSDefaultName();
+      }
+      _virtualCohort.description = description || '';
+      def.resolve(_virtualCohort);
+      return def.promise();
+    };
+
+    var getNumOfSelectedSamplesFromStudyMap = function(studyMap) {
+      var _numOfSamples = {
+        sampleCounts__: 0,
+        studies: {}
+      };
+      _.each(studyMap, function(_study) {
+        _numOfSamples.studies[_study.id] = _study.samples.length;
+        _numOfSamples.sampleCounts__ += _study.samples.length;
+      });
+      return _numOfSamples;
+    };
+
+    var generateVSDescription_ = function(_studies, _filters) {
+      var _desp = '';
+      if (_studies.studies.length > 0) {
+        _desp = _studies.count + (_studies.count > 1 ? ' samples ' : ' sample ')
+          + 'from ' + _studies.studies.length +
+          (_studies.studies.length > 1 ? ' studies' : ' study') + ':';
+
+        _.each(_studies.studies, function(_study) {
+          _desp += '\n- ' + _study.name + ' ('
+            + _study.count + ' sample' + (_study.count > 1 ? 's' : '') + ')';
+        });
+
+        if (_filters.length > 0) {
+          _desp += '\n\nFilter' + (_filters.length > 1 ? 's' : '') + ':';
+          _filters.sort(function(a, b) {
+            return a.attrName.localeCompare(b.attrName);
+          });
+          _.each(_filters, function(_filter) {
+            _desp += '\n- ' + _filter.attrName + ': ';
+            if (_filter.viewType === 'bar_chart') {
+              _desp += iViz.util.getDisplayBarChartBreadCrumb(_filter.filter);
+            } else if (_filter.viewType === 'table'
+              && ['mutated_genes', 'cna_details'].indexOf(_filter.attrId) !== -1) {
+              _.each(_filter.filter, function(subSelection) {
+                _desp += '\n  - ' + subSelection;
+              });
+            } else if (_filter.viewType === 'scatter_plot' || _filter.viewType === 'custom') {
+              _desp += _filter.filter.length + ' sample'
+                + (_filter.filter.length > 1 ? 's' : '');
+            } else {
+              _desp += _filter.filter.join(', ');
+            }
+          });
+        }
+
+        _desp += '\n\nCreated on  ' + getCurrentDate();
+
+        if (window.userEmailAddress && window.userEmailAddress !== 'anonymousUser') {
+          _desp += ' by ' + window.userEmailAddress;
+        }
+      }
+      return _desp;
+    };
+
+    var getCurrentDate = function() {
+      var _date = new Date();
+      var strArr = [_date.getFullYear(), _date.getMonth() + 1, _date.getDate()];
+      return strArr.join('-');
+    };
+
+    var getVSDefaultName = function(studyMap) {
+      var _numOfSamples = getNumOfSelectedSamplesFromStudyMap(studyMap);
+      return 'Selected ' + (_numOfSamples.sampleCounts__ > 1 ? 'samples' : 'sample')
+        + ' (' + getCurrentDate() + ')';
+    };
+
+    return {
+      buildVCObject: buildVCObject_,
+      VSDefaultName: getVSDefaultName,
+      generateVSDescription: generateVSDescription_
+    };
+  })();
+})(window.vcSession,
+  window._,
+  window.$ || window.jQuery);
+
 // http://bootstrap-notify.remabledesigns.com/
 function Notification() {
 
@@ -318,77 +497,54 @@ window.QueryByGeneUtil = (function() {
   }
 
   return {
-    toMainPage: function(studyIds, selectedCases) {
-      var _arr = [];
+    /*
+    * Input parameter
+    * cohortIds : list of input queried id
+    * stats : object containing study statistics(filters, selected study samples)
+    * geneIds : selected genes
+    * includeCases : indicates whether to include custom samples in the form.
+    *                this is true for shared virtual study
+    */
+    query: function(cohortIds, stats, geneIds, includeCases) {
       var formOps = {
-        cancer_study_list: studyIds
-      };
+        cancer_study_list: cohortIds,
+        cancer_study_id:'all'
+      }
 
-      if (_.isObject(selectedCases)) {
-        _.each(selectedCases, function(_obj) {
-          var _studyId = _obj.id;
-          _.each(_obj.samples, function(_sampleId) {
-            _arr.push(_studyId + ":" + _sampleId);
+      if(geneIds !== undefined && geneIds !== ''){
+        formOps['tab_index'] = 'tab_visualize';
+        formOps['Action'] = 'Submit';
+        formOps['data_priority'] = 0;
+        formOps['gene_list'] = encodeURIComponent(geneIds);
+
+        var physicalStudies = _.pluck(stats.studies,'id')
+
+        if(cohortIds.length === 1 && physicalStudies.length === 1 && physicalStudies[0] === cohortIds[0]){
+          //TODO: what if window.mutationProfileId is null
+          formOps['genetic_profile_ids_PROFILE_MUTATION_EXTENDED'] = window.mutationProfileId;
+          //TODO: what if window.cnaProfileId is null
+          formOps['genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION'] = window.cnaProfileId;
+          formOps['case_set_id'] = cohortIds[0]+'_all'
+        } else {
+          formOps['case_set_id'] = 'all'
+        }
+      }
+
+      //check if there are filters
+      if ((JSON.stringify(stats.filters) !== JSON.stringify({patients:{},samples:{}})) || includeCases) {
+        var studySamples = [];
+        _.each(stats.studies, function(study) {
+          _.each(study.samples, function(sampleId) {
+            studySamples.push(study.id + ":" + sampleId);
           });
         });
-
-        formOps = {
-          cancer_study_list: selectedCases.map(function(t) {
-            return t.id
-          }),
-          cancer_study_id: 'all',
-          case_set_id: -1,
-          case_ids: _arr.join('+')
-        };
+        formOps['case_set_id'] = -1;
+        formOps['case_ids'] = studySamples.join('+');
+      }
+      if(includeCases){
+        formOps['cancer_study_list'] = _.pluck(stats.studies,'id')
       }
       submitForm(window.cbioURL + 'index.do', formOps);
-    },
-    toQueryPageSingleCohort: function(studyId, selectedCases,
-                                      selectedGenes, mutationProfileId, cnaProfileId) {
-      var _arr = [];
-      _.each(selectedCases, function(_obj) {
-        var _studyId = _obj.id;
-        _.each(_obj.samples, function(_sampleId) {
-          _arr.push(_studyId + ":" + _sampleId);
-        });
-      });
-      submitForm(window.cbioURL + 'index.do', {
-        cancer_study_list: selectedCases.map(function(x) {
-          return x.id
-        }),
-        cancer_study_id: 'all',
-        case_ids: _arr.join('+'),
-        case_set_id: -1,
-        gene_set_choice: 'user-defined-list',
-        gene_list: encodeURIComponent(selectedGenes),
-        Z_SCORE_THRESHOLD: 2.0,
-        genetic_profile_ids_PROFILE_MUTATION_EXTENDED: mutationProfileId,
-        genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION: cnaProfileId,
-        clinical_param_selection: null,
-        data_priority: 0,
-        tab_index: 'tab_visualize',
-        Action: 'Submit'
-      });
-    },
-    toMultiStudiesQueryPage: function(_vcId, _selectedCases, _selectedGenes) {
-      var _arr = [];
-      _.each(_selectedCases, function(_obj) {
-        var _studyId = _obj.id;
-        _.each(_obj.samples, function(_sampleId) {
-          _arr.push(_studyId + ":" + _sampleId);
-        });
-      });
-      submitForm(window.cbioURL + 'index.do', {
-        cancer_study_list: _selectedCases.map(function(x) {
-          return x.id
-        }),
-        cancer_study_id: 'all',
-        gene_list: encodeURIComponent(_selectedGenes),
-        case_set_id: -1,
-        case_ids: _arr.join('+'),
-        tab_index: 'tab_visualize',
-        Action: 'Submit'
-      });
     }
   }
 })();
@@ -586,6 +742,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
   var groupFiltersMap_ = {};
   var groupNdxMap_ = {};
   var charts = {};
+  var includeCases= true;
   var configs_ = {
     styles: {
       vars: {
@@ -662,8 +819,20 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
 
   return {
 
-    init: function(_rawDataJSON, configs) {
+    init: function(_rawDataJSON, configs,_selectableIds) {
       vm_ = iViz.vue.manage.getInstance();
+      var selectableIdsSet = {}
+      _.each(_selectableIds, function(id){
+        selectableIdsSet[id] = true;
+      });
+
+      var cohortIds = window.cohortIdsList;
+      for (var i = 0; i < cohortIds.length; i++) {
+        if(selectableIdsSet[cohortIds[i]]){
+          includeCases = false;
+          break;
+        }
+      }
 
       data_ = _rawDataJSON;
 
@@ -744,6 +913,20 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         vm_.selectedpatientUIDs = _.pluck(data_.groups.patient.data, 'patient_uid');
         vm_.groups = groups;
         vm_.charts = charts;
+
+        //Show unknown samples error message, whenthe initial(pie and bar) charts are loaded
+        if (window.iviz.datamanager.unknownSamples.length > 0) {
+          var str = ''
+          window.iviz.datamanager.unknownSamples.forEach(function(obj){
+            obj.samples.forEach(function(sample){
+              str = str+'<br/>'+obj.studyId+':'+sample
+            })
+          })
+          new Notification().createNotification('Following sample(s) might have been deleted/updated with the recent data updates<br/>'+str, {
+            message_type: 'danger',
+            delay:10000
+          });
+        }
       });
     }, // ---- close init function ----groups
     createGroupNdx: function(group) {
@@ -1221,6 +1404,16 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
     getSampleIds: function(studyId, patientId) {
       return data_.groups.group_mapping.studyMap[studyId].patient_to_sample[patientId];
     },
+    getStudyCacseIdsUsingUIDs: function(type, uids) {
+      var ids = [];
+      _.each(uids, function(uid) {
+        ids.push({
+          studyId: data_.groups[type].data[uid].study_id,
+          caseId: data_.groups[type].data[uid].sample_id
+        });
+      });
+      return ids;
+    },
     openCases: function() {
       var _selectedCasesMap = {};
       var _patientData = data_.groups.patient.data;
@@ -1333,50 +1526,17 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       });
       return _def.promise();
     },
-    submitForm: function() {
-      var _self = this;
-      _self.selectedsamples = _.keys(iViz.getCasesMap('sample'));
-      _self.selectedpatients = _.keys(iViz.getCasesMap('patient'));
-      _self.cohorts_ = window.cohortIdsList; // queried cohorts (vc or regular study)
-
+    submitForm: function(cohortIdsList) {
       // Remove all hidden inputs
       $('#iviz-form input:not(:first)').remove();
 
-      // Had discussion whether we should get rid of _self.cohorts_ and always
-      // use _self.stat().studies which will make the code looks cleaner.
-      // But the major issue for using _self.stat() is the unnecessary calculation
-      // for studies without filters. Especially big combined studies.
-      // We decided to leave the code as it is for now. By Karthik and Hongxin
-      if (_self.cohorts_.length === 1) { // to query single study
-        if (QueryByGeneTextArea.isEmpty()) {
-          QueryByGeneUtil.toMainPage(_self.cohorts_[0], vm_.hasfilters ? _self.stat().studies : undefined);
-        } else {
-          QueryByGeneTextArea.validateGenes(this.decideSubmitSingleCohort, false);
-        }
-      } else { // query multiple studies
-        if (QueryByGeneTextArea.isEmpty()) {
-          QueryByGeneUtil.toMainPage(_self.cohorts_, vm_.hasfilters ? _self.stat().studies : undefined);
-        } else {
-          QueryByGeneUtil.toMultiStudiesQueryPage(undefined, _self.stat().studies, QueryByGeneTextArea.getGenes());
-        }
-      }
-    },
-    decideSubmitSingleCohort: function(allValid) {
-      // if all genes are valid, submit, otherwise show a notification
-      if (allValid) {
-        var _self = this;
-        QueryByGeneUtil.toQueryPageSingleCohort(window.cohortIdsList[0], iViz.stat().studies,
-          QueryByGeneTextArea.getGenes(), window.mutationProfileId,
-          window.cnaProfileId);
-      } else {
-        new Notification().createNotification(
-          'Invalid gene symbols.',
-          {message_type: 'danger'});
-        $('#query-by-gene-textarea').focus();
-      }
+      
+          QueryByGeneUtil. query (cohortIdsList ? cohortIdsList: window.cohortIdsList, this.stat(),
+          QueryByGeneTextArea.getGenes(), includeCases)
     },
     stat: function() {
       var _result = {};
+      _result.origin = window.cohortIdsList;
       _result.filters = {};
       var self = this;
 
@@ -1421,6 +1581,12 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           _.each(group.attributes, function(attributes) {
             if (attributes.filter.length > 0) {
               filters_[attributes.attr_id] = attributes.filter;
+              if (attributes.attr_id === 'MUT_CNT_VS_CNA') {
+                filters_[attributes.attr_id] =
+                  _.map(self.getStudyCacseIdsUsingUIDs('sample', filters_[attributes.attr_id]), function(item) {
+                    return item.studyId + ':' + item.caseId;
+                  });
+              }
             }
           });
           temp = $.extend(true, _result.filters.samples, filters_);
@@ -1428,6 +1594,16 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
           _result.filters.samples = array;
         }
       });
+
+      if (vm_.customfilter.sampleUids.length > 0
+        || vm_.customfilter.patientUids.length > 0) {
+        var type = vm_.customfilter.type === 'sample' ? 'samples' : 'patients';
+        var uidsType = type === 'samples' ? 'sampleUids' : 'patientUids';
+        _result.filters[type][vm_.customfilter.id] =
+          _.map(self.getStudyCacseIdsUsingUIDs(vm_.customfilter.type, vm_.customfilter[uidsType]), function(item) {
+            return item.studyId + ':' + item.caseId;
+          });
+      }
       _result.studies = _studies;
       return _result;
     },
@@ -1483,7 +1659,8 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             isloading: true,
             redrawgroups: [],
             customfilter: {
-              display_name: 'Custom',
+              id: 'selectById',
+              display_name: 'Select by IDs',
               type: '',
               sampleUids: [],
               patientUids: []
@@ -1492,9 +1669,8 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             downloadingSelected: false,
             groupCount: 0,
             updateSpecialCharts: false,
-            showShareButton: false,
             showSaveButton: false,
-            showManageButton: false,
+            showShareButton: false,
             loadUserSpecificCohorts: false,
             stats: {},
             updateStats: false,
@@ -1705,6 +1881,9 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 }
               });
             },
+            getChartsByAttrIds: function(attrIds) {
+              return _.pick(this.charts, attrIds);
+            },
             removeChart: function(attrId) {
               var self = this;
               var attrData = self.charts[attrId];
@@ -1780,7 +1959,6 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                 new Notification().createNotification(selectedCaseUIDs.length +
                   ' case(s) selected.', {message_type: 'info'});
               }
-              $('#iviz-header-right-1').qtip('toggle');
               if (selectedCaseUIDs.length > 0) {
                 this.clearAllCharts(false);
                 var self_ = this;
@@ -1790,10 +1968,10 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
                       self_.hasfilters = true;
                       self_.customfilter.type = group.type;
                       if (radioVal === 'sample') {
-                        self_.customfilter.sampleUids = selectedCaseUIDs;
+                        self_.customfilter.sampleUids = selectedCaseUIDs.sort();
                         self_.customfilter.patientUids = [];
                       } else {
-                        self_.customfilter.patientUids = selectedCaseUIDs;
+                        self_.customfilter.patientUids = selectedCaseUIDs.sort();
                         self_.customfilter.sampleUids = [];
                       }
                       self_.$broadcast('update-custom-filters');
@@ -1804,11 +1982,6 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
               }
             }
           }, ready: function() {
-            this.$watch('showVCList', function() {
-              if (_.isObject(iViz.session)) {
-                this.virtualCohorts = iViz.session.utils.getVirtualCohorts();
-              }
-            });
             $('#iviz-header-left-patient-select').qtip({
               content: {text: 'View the selected patients.'},
               style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
@@ -2188,7 +2361,7 @@ var util = (function(_, cbio) {
 
       // This is for PDF download. fill transparent will be treated as black.
       _svg.find('rect').each(function(index, item) {
-        if($(item).css('fill') === 'transparent') {
+        if ($(item).css('fill') === 'transparent') {
           $(item).css('fill', 'white');
         }
       });
@@ -2654,7 +2827,7 @@ var util = (function(_, cbio) {
       }
       return status;
     };
-    
+
     content.getTickFormat = function(v, logScale, data_, opts_) {
       var _returnValue = v;
       var index = 0;
@@ -2760,7 +2933,7 @@ var util = (function(_, cbio) {
       }
       return message;
     };
-    
+
     content.getHypotenuse = function(a, b) {
       return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
     };
@@ -2772,6 +2945,22 @@ var util = (function(_, cbio) {
         isRelated = _.isArray(result) && result.length > 0;
       }
       return isRelated;
+    };
+
+    /**
+     *
+     * @param filters Array Filters should contain two elements
+     */
+    content.getDisplayBarChartBreadCrumb = function(filters) {
+      var str = '';
+      if (filters[0] && filters[1]) {
+        str = filters[0] + ' ~ ' + filters[1];
+      } else if (filters[0]) {
+        str = filters[0];
+      } else if (filters[1]) {
+        str = filters[1];
+      }
+      return str;
     };
 
     return content;
@@ -3936,7 +4125,7 @@ module.exports = {
  * Created by Karthik Kalletla on 4/18/16.
  */
 'use strict';
-(function(Vue) {
+(function(Vue, iViz) {
   Vue.component('breadCrumb', {
     template: '<span class="breadcrumb_container" ' +
     'v-if="attributes.filter.length > 0">' +
@@ -3944,9 +4133,7 @@ module.exports = {
     'v-if="(filtersToSkipShowing.indexOf(attributes.attr_id) === -1) && ' +
     '(specialTables.indexOf(attributes.attr_id) === -1)" class="breadcrumb_items">' +
     '<span v-if="attributes.view_type===\'bar_chart\'">' +
-    '<span v-if="filters[0]!==\'\' && filters[1]!==\'\'" class="breadcrumb_item">{{filters[0]}} ~ {{filters[1]}}</span>' +
-    '<span v-if="filters[0]!==\'\' && filters[1]===\'\'" class="breadcrumb_item">{{filters[0]}}</span>' +
-    '<span v-if="filters[0]===\'\' && filters[1]!==\'\'" class="breadcrumb_item">{{filters[1]}}</span>' +
+    '<span class="breadcrumb_item">{{getBarChartFilterString(filters)}}</span>' +
     '<i class="fa fa-times breadcrumb_remove" @click="removeFilter()"></i>' +
     '</span>' +
     '<template v-else>' +
@@ -3966,6 +4153,9 @@ module.exports = {
       };
     },
     methods: {
+      getBarChartFilterString: function(filters) {
+        return iViz.util.getDisplayBarChartBreadCrumb(filters);
+      },
       removeFilter: function(val) {
         if (this.attributes.view_type === 'bar_chart') {
           this.filters = [];
@@ -3988,7 +4178,7 @@ module.exports = {
       }
     }
   });
-})(window.Vue);
+})(window.Vue, window.iViz);
 
 /**
  * @author Hongxin Zhang on 3/10/16.
@@ -8275,7 +8465,7 @@ window.LogRankTest = (function(jStat) {
 
         if (this.isMutatedGeneCna) {
           this.selectedRows = _.union(this.selectedRows, selectedRowsUids);
-          this.attributes.filter.push(selectedRowsUids.join(','))
+          this.attributes.filter.push(selectedRowsUids.join(', '))
           _.each(_selectedRowData, function(item) {
             var casesIds = item.case_uids.split(',');
             selectedSamplesUnion = selectedSamplesUnion.concat(casesIds);
@@ -8590,18 +8780,15 @@ window.LogRankTest = (function(jStat) {
   });
 })(window.Vue);
 
+
 'use strict';
-(function(Vue, $, vcSession, iViz) {
-  Vue.component('saveVirtualStudy', {
-    template: 
-    '<div v-if="showSaveButton" class="save-virtual-study">' +
-    '<div class="save-cohort-btn">' +
-    '<i class="fa fa-floppy-o" alt="Save Virtual Study"></i></div></div>',
+(function(Vue, $, vcSession, iViz, _) {
+  Vue.component('virtualStudy', {
+    template:
+    '<div class="virtual-study">' +
+    '<div class="virtual-study-btn">' +
+    '<i class="fa fa-bookmark" aria-hidden="true"></i></div></div>',
     props: {
-      selectedPatientsNum: {
-        type: Number,
-        default: 0
-      },
       selectedSamplesNum: {
         type: Number,
         default: 0
@@ -8617,183 +8804,6 @@ window.LogRankTest = (function(jStat) {
         type: Boolean,
         default: false
       },
-      createdQtip: {
-        type: Boolean,
-        default: false
-      }
-    },
-    data: function() {
-      return {
-        savedVC: null
-      };
-    },
-    watch: {
-      'showSaveButton': function(showSaveButton) {
-        // In case static qtip will be created multiple times.
-        if (showSaveButton && !this.createdQtip) {
-          this.createQtip();
-        }
-      }
-    }, 
-    methods: {
-      saveCohort: function() {
-        var _self = this;
-        _self.updateStats = true;
-        _self.$nextTick(function() {
-          _self.addNewVC = true;
-        });
-      },
-      createQtip: function() {
-        var self_ = this;
-        $('.save-virtual-study').qtip(iViz.util.defaultQtipConfig('Save Virtual Study'));
-        $('.save-cohort-btn').qtip({
-          style: {
-            classes: 'qtip-light qtip-rounded qtip-shadow ' +
-            'iviz-save-cohort-btn-qtip'
-          },
-          show: {event: 'click', ready: false},
-          hide: false,
-          position: {
-            my: 'top center',
-            at: 'bottom center',
-            viewport: $(window)
-          },
-          events: {
-            render: function(event, api) {
-              var tooltip = $('.iviz-save-cohort-btn-qtip .qtip-content');
-              tooltip.find('.save-cohort').click(function() {
-                tooltip.find('.saving').css('display', 'block');
-                tooltip.find('.saved').css('display', 'none');
-                tooltip.find('.dialog').css('display', 'none');
-                api.reposition();
-
-                var cohortName = tooltip.find('.cohort-name').val();
-                var cohortDescription =
-                  tooltip.find('.cohort-description').val();
-                if (_.isObject(vcSession)) {
-                  self_.updateStats = true;
-                  self_.$nextTick(function() {
-                    var _selectedSamplesNum = 0;
-                    var _selectedPatientsNum = 0;
-                    if (_.isObject(self_.stats.studies)) {
-                      _.each(self_.stats.studies, function(studyCasesMap) {
-                        _selectedSamplesNum += studyCasesMap.samples.length;
-                        _selectedPatientsNum += studyCasesMap.patients.length;
-                      });
-                      self_.selectedSamplesNum = _selectedSamplesNum;
-                      self_.selectedPatientsNum = _selectedPatientsNum;
-                    }
-
-                    vcSession.events.saveCohort(self_.stats,
-                      cohortName, cohortDescription || '')
-                      .done(function(response) {
-                        self_.savedVC = response;
-                        tooltip.find('.savedMessage').html(
-                          '<span>Virtual study <i>' + cohortName +
-                          '</i> is saved.</span>' +
-                          '<a class="left-space" href="' +
-                          window.cbioURL + 'study?id=' +
-                          self_.savedVC.id + '">view</a>');
-                      })
-                      .fail(function() {
-                        tooltip.find('.savedMessage').html(
-                          '<i class="fa fa-exclamation-triangle"></i>' +
-                          '<span class="left-space">' +
-                          'Failed to save virtual study, ' +
-                          'please try again later.</span>');
-                      })
-                      .always(function() {
-                        tooltip.find('.saved').css('display', 'block');
-                        tooltip.find('.saving').css('display', 'none');
-                        tooltip.find('.dialog').css('display', 'none');
-                        tooltip.find('.cohort-name').val('');
-                        tooltip.find('.cohort-description').val('');
-                        tooltip.find('.save-cohort')
-                          .attr('disabled', true);
-                        api.reposition();
-                      });
-                  });
-                }
-              });
-              tooltip.find('.cohort-name')
-                .keyup(function() {
-                  if (tooltip.find('.cohort-name').val() === '') {
-                    tooltip.find('.save-cohort')
-                      .attr('disabled', true);
-                  } else {
-                    tooltip.find('.save-cohort')
-                      .attr('disabled', false);
-                  }
-                });
-              this.createdQtip = true;
-            },
-            show: function() {
-              var tooltip = $('.iviz-save-cohort-btn-qtip .qtip-content');
-              self_.updateStats = true;
-              self_.$nextTick(function() {
-                // If user hasn't specific description only.
-                if (!tooltip.find('.cohort-description').val()) {
-                  $.when(vcSession.utils.generateCohortDescription(self_.stats.studies))
-                    .then(function(_desp) {
-                      // If user hasn't specific description only.
-                      if (!tooltip.find('.cohort-description').val()) {
-                        tooltip.find('.cohort-description').val(_desp);
-                      }
-                    });
-                }
-              });
-              tooltip.find('.dialog').css('display', 'block');
-              tooltip.find('.saving').css('display', 'none');
-              tooltip.find('.saved').css('display', 'none');
-
-              // Tell the tip itself to not bubble up clicks on it
-              $($(this).qtip('api').elements.tooltip).click(function() { return false; });
-
-              // Tell the document itself when clicked to hide the tip and then unbind
-              // the click event (the .one() method does the auto-unbinding after one time)
-              $(document).one("click", function() { $(".save-cohort-btn").qtip('hide'); });
-            }
-          },
-          content: '<div><div class="dialog"><div class="input-group">' +
-          '<input type="text" class="form-control cohort-name" ' +
-          'placeholder="Virtual study Name"> <span class="input-group-btn">' +
-          '<button class="btn btn-default save-cohort" ' +
-          'type="button" disabled>Save</button></span>' +
-          '</div><div>' +
-          '<textarea class="form-control cohort-description" rows="5" ' +
-          'placeholder="Virtual study description (Optional)"></textarea>' +
-          '</div></div>' +
-          '<div class="saving" style="display: none;">' +
-          '<i class="fa fa-spinner fa-spin"></i> Saving virtual study</div>' +
-          '<div class="saved" style="display: none;">' +
-          '<span class="savedMessage"></span>' +
-          '</div></div>'
-        });
-      }
-    }
-  });
-})(window.Vue,
-  window.$ || window.jQuery, window.vcSession, window.iViz);
-/**
- * Share virtual cohort component
- * Created by Jing Su on 9/25/2017
- */
-
-'use strict';
-(function(Vue, $, vcSession, iViz) {
-  Vue.component('shareVirtualStudy', {
-    template:
-    '<div v-if="showShareButton" class="share-virtual-study">' +
-    '<div class="share-cohort-btn">' +
-    '<i class="fa fa-share-alt" alt="Share Virtual Study"></i></div></div>',
-    props: {
-      stats: {
-        type: Object
-      },
-      updateStats: {
-        type: Boolean,
-        default: false
-      },
       showShareButton: {
         type: Boolean,
         default: false
@@ -8805,35 +8815,154 @@ window.LogRankTest = (function(jStat) {
     },
     data: function() {
       return {
-        savedVC: null
+        savedVS: null
       };
     },
-    watch: {
-      'showShareButton': function(showShareButton) {
-        // In case static qtip will be created multiple times.
-        if (showShareButton && !this.createdQtip) {
-          this.createQtip();
-        }
-      }
-    }, 
     methods: {
+      styleDisplay: function(el, action) {
+        el.css('display', action);
+      },
+      showDialog: function(tooltip) {
+        this.styleDisplay(tooltip.find('.dialog'), 'block');
+      },
+      hideDialog: function(tooltip) {
+        this.styleDisplay(tooltip.find('.dialog'), 'none');
+      },
+      showLoading: function(tooltip) {
+        this.styleDisplay(tooltip.find('.saving'), 'block');
+      },
+      hideLoading: function(tooltip) {
+        this.styleDisplay(tooltip.find('.saving'), 'none');
+      },
+      showShared: function(tooltip) {
+        this.styleDisplay(tooltip.find('.shared'), 'block');
+      },
+      hideShared: function(tooltip) {
+        this.styleDisplay(tooltip.find('.shared'), 'none');
+      },
+      showSaved: function(tooltip) {
+        this.styleDisplay(tooltip.find('.saved'), 'block');
+      },
+      hideSaved: function(tooltip) {
+        this.styleDisplay(tooltip.find('.saved'), 'none');
+      },
+      showFailedInfo: function(tooltip) {
+        this.styleDisplay(tooltip.find('.failed'), 'block');
+      },
+      hideFailedInfo: function(tooltip) {
+        this.styleDisplay(tooltip.find('.failed'), 'none');
+      },
+      showAfterClipboard: function(tooltip) {
+        this.styleDisplay(tooltip.find('.after-clipboard'), 'block');
+      },
+      hideAfterClipboard: function(tooltip) {
+        this.styleDisplay(tooltip.find('.after-clipboard'), 'none');
+      },
+      updateFailedMessage: function(tooltip, message) {
+        tooltip.find('.failed .message')
+          .html(message)
+      },
+      updateSavedMessage: function(tooltip, message) {
+        tooltip.find('.saved .message')
+          .html(message)
+      },
+      updateSavingMessage: function(tooltip, message) {
+        tooltip.find('.saving .message')
+          .html(message)
+      },
+      updateOriginStudiesDescription: function(tooltip, message) {
+        tooltip.find('.origin-studies-frame')
+          .html(message);
+      },
+      disableBtn: function(el, action) {
+        el.attr('disabled', action);
+      },
+      disableSaveCohortBtn: function(tooltip) {
+        this.disableBtn(tooltip.find('.save-cohort'), true);
+      },
+      enableSaveCohortBtn: function(tooltip) {
+        this.disableBtn(tooltip.find('.save-cohort'), false);
+      },
+      disableShareCohortBtn: function(tooltip) {
+        this.disableBtn(tooltip.find('.share-cohort'), true);
+      },
+      enableShareCohortBtn: function(tooltip) {
+        this.disableBtn(tooltip.find('.share-cohort'), false);
+      },
+      getFilteredOriginStudies: function() {
+        var selectedStudiesDisplayName = window.iviz.datamanager.getCancerStudyDisplayName(this.stats.origin);
+        var filteredOriginStudies = {
+          studies: [],
+          count: 0
+        };
+        var selectedStudies = {};
+        _.each(this.stats.studies, function(study) {
+          selectedStudies[study.id] = study.samples;
+          filteredOriginStudies.count += study.samples.length;
+        });
+        filteredOriginStudies.studies = this.stats.origin.map(function(studyId) {
+          var _studyData = iviz.datamanager.getStudyById(studyId);
+          var _count = 0;
+          if (_.isObject(_studyData) && _studyData.studyType === 'vs') {
+            _.each(_studyData.data.studies, function(_study) {
+              _count += _.intersection(_study.samples, selectedStudies[_study.id]).length;
+            });
+          } else {
+            _count = selectedStudies.hasOwnProperty(studyId) ? selectedStudies[studyId].length : 0;
+          }
+          return {
+            id: studyId,
+            name: selectedStudiesDisplayName[studyId],
+            count: _count
+          };
+        }).filter(function(t) {
+          return t.count > 0;
+        });
+        return filteredOriginStudies;
+      },
+      getDefaultVSDescription: function(filteredOriginStudies) {
+        var self = this;
+        var filters = {};
+        var vm = iViz.vue.manage.getInstance();
+        _.each(self.stats.filters, function(_filters, _type) {
+          _.each(_filters, function(filter, attrId) {
+            filters[attrId] = {
+              filter: filter
+            };
+          });
+        });
+        var attrs = vm.getChartsByAttrIds(Object.keys(filters));
+        _.each(attrs, function(attr) {
+          filters[attr.attr_id].attrId = attr.attr_id;
+          filters[attr.attr_id].attrName = attr.display_name;
+          filters[attr.attr_id].viewType = attr.view_type;
+        });
+
+        if (filters.hasOwnProperty(vm.customfilter.id)) {
+          filters[vm.customfilter.id].attrId = vm.customfilter.id;
+          filters[vm.customfilter.id].attrName = vm.customfilter.display_name;
+          filters[vm.customfilter.id].viewType = 'custom';
+        }
+        return vcSession.utils.generateVSDescription(filteredOriginStudies, _.values(filters));
+      },
       saveCohort: function() {
         var _self = this;
         _self.updateStats = true;
         _self.$nextTick(function() {
           _self.addNewVC = true;
         });
-      }, 
-      createQtip: function () {
+      },
+      createQtip: function() {
         var self_ = this;
-        var previousSelectedCases = {};
-        $('.share-virtual-study').qtip(iViz.util.defaultQtipConfig('Share Virtual Study'));
-        $('.share-cohort-btn').qtip({
+        var previousSelection = {};
+        $('.virtual-study').qtip(iViz.util.defaultQtipConfig(
+          (self_.showSaveButton ? 'Save/' : '') + 'Share Virtual Study'));
+        $('.virtual-study-btn').qtip({
           style: {
             classes: 'qtip-light qtip-rounded qtip-shadow ' +
-            'iviz-share-cohort-btn-qtip'
+            'iviz-virtual-study-btn-qtip'
           },
-          show: {event: 'click', ready: false},
+          show: false,
           hide: false,
           position: {
             my: 'top center',
@@ -8842,12 +8971,136 @@ window.LogRankTest = (function(jStat) {
           },
           events: {
             render: function(event, api) {
-              var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
+              var tooltip = $('.iviz-virtual-study-btn-qtip .qtip-content');
+              tooltip.find('.save-cohort').click(function() {
+                self_.hideDialog(tooltip);
+                self_.showLoading(tooltip);
+                self_.updateSavingMessage(tooltip, 'Saving virtual study...');
+                self_.hideSaved(tooltip)
 
+                api.reposition();
+
+                var cohortName = tooltip.find('.cohort-name').val() ?
+                  tooltip.find('.cohort-name').val() : tooltip.find('.cohort-name').attr('placeholder');
+                var cohortDescription =
+                  tooltip.find('textarea').val();
+                if (_.isObject(vcSession)) {
+                  self_.updateStats = true;
+                  self_.$nextTick(function() {
+                    var _selectedSamplesNum = 0;
+                    if (_.isObject(self_.stats.studies)) {
+                      _.each(self_.stats.studies, function(studyCasesMap) {
+                        _selectedSamplesNum += studyCasesMap.samples.length;
+                      });
+                      self_.selectedSamplesNum = _selectedSamplesNum;
+                    }
+
+                    vcSession.events.saveCohort(self_.stats,
+                      cohortName, cohortDescription || '', true)
+                      .done(function(response) {
+                        self_.savedVS = response;
+                        self_.updateSavedMessage(tooltip, '<span>Virtual study <i>' + cohortName +
+                          '</i> is saved.</span>' +
+                          '<div class="btn-group" role="group">' +
+                          '<button type="button" class="btn btn-default btn-xs view-vs">View</button>' +
+                          '<button type="button" class="btn btn-default btn-xs query-vs">Query</button>' +
+                          '</div>');
+                        tooltip.find('.saved .message').find('a').click(function(event) {
+                          event.preventDefault();
+                          window.open(window.cbioURL + 'study?id=' +
+                            self_.savedVS.id);
+                        });
+                        tooltip.find('.saved .message .view-vs').click(function(event) {
+                          event.preventDefault();
+                          window.open(window.cbioURL + 'study?id=' +
+                            self_.savedVS.id);
+                        });
+                        tooltip.find('.saved .message .query-vs').click(function(event) {
+                          event.preventDefault();
+                          window.open(window.cbioURL + 'index.do?cancer_study_id=' + self_.savedVS.id)
+                        });
+                      })
+                      .fail(function() {
+                        self_.hideSaved(tooltip);
+                        self_.updateFailedMessage(tooltip,
+                          '<i class="fa fa-exclamation-triangle"></i>' +
+                          '<span class="left-space">' +
+                          'Failed to save virtual study, ' +
+                          'please try again later.</span>');
+                        self_.showFailedInfo(tooltip);
+                      })
+                      .always(function() {
+                        self_.showSaved(tooltip);
+                        self_.hideLoading(tooltip);
+                        self_.hideDialog(tooltip);
+
+                        tooltip.find('.cohort-name').val('');
+                        tooltip.find('textarea').val('');
+
+                        api.reposition();
+                      });
+                  });
+                }
+              });
               tooltip.find('.share-cohort').click(function() {
-                tooltip.find('.shared').css('display', 'none');
-                tooltip.find('.dialog').css('display', 'none');
-                tooltip.find('.saving').css('display', 'none');
+                self_.hideDialog(tooltip);
+                self_.hideShared(tooltip);
+                self_.showLoading(tooltip);
+                self_.updateSavingMessage(tooltip, 'Generating the virtual study link');
+
+                var cohortName = tooltip.find('.cohort-name').val() ?
+                  tooltip.find('.cohort-name').val() : tooltip.find('.cohort-name').attr('placeholder');
+                var cohortDescription =
+                  tooltip.find('textarea').val();
+                if (_.isObject(vcSession)) {
+                  self_.updateStats = true;
+
+                  self_.$nextTick(function() {
+                    if (_.isObject(self_.stats.studies)) {
+                      // When a user clicks copy, it will trigger saving the current virtual cohort and return the url 
+                      // to the user. When a user want to see the cohort url, he/she needs to click Share button. 
+                      // We always show the url to user but we don't need to same virtual cohort every time 
+                      // if it is same with the previous saved cohort.
+                      var currentSelection = cohortName + cohortDescription + JSON.stringify(self_.stats.studies) + JSON.stringify(self_.stats);
+
+                      if (currentSelection !== previousSelection) {
+                        vcSession.events.saveCohort(self_.stats,
+                          cohortName, cohortDescription || '', false)
+                          .done(function(response) {
+                            self_.savedVC = response;
+                            tooltip.find('.cohort-link').html(
+                              '<a class="virtual-study-link" href="' + window.cbioURL +
+                              'study?id=' + self_.savedVC.id + '" onclick="window.open(\'' +
+                              window.cbioURL + 'study?id=' + self_.savedVC.id + '\')">' +
+                              window.cbioURL + 'study?id=' + self_.savedVC.id + '</a>');
+
+                            self_.hideLoading(tooltip);
+                            self_.showShared(tooltip);
+                            previousSelection = currentSelection;
+                          })
+                          .fail(function() {
+                            self_.hideLoading(tooltip);
+                            self_.hideDialog(tooltip);
+                            self_.updateFailedMessage(tooltip,
+                              '<i class="fa fa-exclamation-triangle"></i>' +
+                              '<span class="left-space">' +
+                              'Failed to share virtual study, ' +
+                              'please try again later.</span>')
+                            self_.showFailedInfo(tooltip);
+                          });
+                      } else {
+                        self_.hideLoading(tooltip);
+                        self_.showShared(tooltip);
+                      }
+                    }
+                  });
+                }
+              });
+              tooltip.find('.copy-cohort-btn').click(function() {
+                self_.hideDialog(tooltip);
+                self_.hideShared(tooltip);
+                self_.hideLoading(tooltip);
+
                 api.reposition();
 
                 // Copy virtual study link to clipboard
@@ -8858,8 +9111,8 @@ window.LogRankTest = (function(jStat) {
                 document.execCommand("copy");
                 // Check if users copy url successfully
                 if (temp.val() === tooltip.find('.virtual-study-link').attr('href')) {
-                  tooltip.find('.shared').css('display', 'block');
-                  tooltip.find('.dialog').css('display', 'none');
+                  self_.hideShared(tooltip);
+                  self_.showAfterClipboard(tooltip);
                   api.reposition();
                 }
                 temp.remove();
@@ -8867,82 +9120,94 @@ window.LogRankTest = (function(jStat) {
               this.createdQtip = true;
             },
             show: function() {
-              var tooltip = $('.iviz-share-cohort-btn-qtip .qtip-content');
-              tooltip.find('.dialog').css('display', 'block');
-              tooltip.find('.saving').css('display', 'block');
-              tooltip.find('.shared').css('display', 'none');
+              var tooltip = $('.iviz-virtual-study-btn-qtip .qtip-content');
+              var showThis = this;
+              self_.updateSavingMessage(tooltip, 'Loading');
+              self_.updateStats = true;
+              self_.$nextTick(function() {
+                self_.updateStats = false;
+                tooltip.find('.cohort-name').val('');
+                tooltip.find('.cohort-name')
+                  .attr('placeholder', vcSession.utils.VSDefaultName(self_.stats.studies));
+                self_.hideDialog(tooltip);
+                self_.showLoading(tooltip);
+                var filteredOriginStudies = this.getFilteredOriginStudies();
+                var defaultVSDescription = self_.getDefaultVSDescription(filteredOriginStudies);
+                tooltip.find('textarea').val(defaultVSDescription);
 
-              var cohortName = $('#study_name').val();
-              var cohortDescription = $('#study_desc').val();
-              if (_.isObject(vcSession)) {
-                self_.updateStats = true;
+                if (filteredOriginStudies.studies.length > 0) {
+                  filteredOriginStudies.studies.map(function(study) {
+                    var studyMetaData = iviz.datamanager.getStudyById(study.id);
+                    study.description = studyMetaData.studyType === 'vs' ? studyMetaData.data.description : studyMetaData.description;
+                    return study;
+                  });
+                  self_.updateOriginStudiesDescription(tooltip, cbio.util.getOriginStudiesDescriptionHtml(filteredOriginStudies.studies));
+                  $('.origin-studies-frame [data-toggle="collapse"]').click(function(a, b) {
+                    $($(this).attr('data-target')).collapse('toggle');
+                  });
+                  $('.origin-studies-frame .panel-title a').click(function() {
+                    window.open($(this).attr('href'));
+                  });
+                }
+                self_.showDialog(tooltip);
+                self_.hideLoading(tooltip);
+                self_.hideShared(tooltip);
+                self_.hideSaved(tooltip);
+                self_.hideFailedInfo(tooltip);
+                self_.hideAfterClipboard(tooltip);
 
-                self_.$nextTick(function() {
-                  if (_.isObject(self_.stats.studies)) {
-                    // When a user clicks copy, it will trigger saving the current virtual cohort and return the url 
-                    // to the user. When a user want to see the cohort url, he/she needs to click Share button. 
-                    // We always show the url to user but we don't need to same virtual cohort every time 
-                    // if it is same with the previous saved cohort.
-                    var currentSelectedCases = JSON.stringify(self_.stats.studies) + JSON.stringify(self_.stats);
-
-                    if (currentSelectedCases !== previousSelectedCases) {
-                      vcSession.events.saveCohort(self_.stats,
-                        cohortName, cohortDescription || '')
-                        .done(function (response) {
-                          self_.savedVC = response;
-                          tooltip.find('.cohort-link').html(
-                            '<a class="virtual-study-link" href="' + window.cbioURL +
-                            'study?id=' + self_.savedVC.id + '" onclick="window.open(\'' +
-                            window.cbioURL + 'study?id=' + self_.savedVC.id + '\')">' +
-                            window.cbioURL + 'study?id=' + self_.savedVC.id + '</a>');
-                          tooltip.find('.saving').css('display', 'none');
-                          tooltip.find('.cohort-link').css('display', 'block');
-                          previousSelectedCases = currentSelectedCases;
-                        })
-                        .fail(function () {
-                          tooltip.find('.failedMessage').html(
-                            '<i class="fa fa-exclamation-triangle"></i>' +
-                            '<span class="left-space">' +
-                            'Failed to save virtual study, ' +
-                            'please try again later.</span>');
-                          tooltip.find('.failed').css('display', 'block');
-                          tooltip.find('.dialog').css('display', 'none');
-                        });
-                    } else {
-                      // Hide saving icon if current study is same as previous.
-                      tooltip.find('.saving').css('display', 'none');
-                    }
-                  }
+                // Tell the tip itself to not bubble up clicks on it
+                $($(showThis).qtip('api').elements.tooltip).click(function() {
+                  return false;
                 });
-              }
-
-              // Tell the tip itself to not bubble up clicks on it
-              $($(this).qtip('api').elements.tooltip).click(function() { return false; });
-
+              });
+            },
+            visible: function() {
               // Tell the document itself when clicked to hide the tip and then unbind
               // the click event (the .one() method does the auto-unbinding after one time)
-              $(document).one("click", function() { $(".share-cohort-btn").qtip('hide'); });
+              $(document).one("click", function() {
+                $(".virtual-study-btn").qtip('hide');
+              });
             }
           },
           content: '<div><div class="dialog"><div class="input-group">' +
-          '<span class="cohort-link" style="display: none;"></span>' +
-          '<div class="saving" style="display: none;">' +
-          '<i class="fa fa-spinner fa-spin"></i> Saving virtual study</div>' +
-          '<span class="input-group-btn"><button class="btn btn-default share-cohort" ' +
-          'type="button">Copy</button></span>' +
+          '<input type="text" class="form-control cohort-name" ' +
+          'placeholder="Virtual study Name"> <span class="input-group-btn">' +
+          (self_.showSaveButton ? '<button class="btn btn-default save-cohort" type="button">Save</button>' : '') +
+          (self_.showShareButton ? '<button class="btn btn-default share-cohort" type="button">Share</button>' : '') +
+          '</span>' +
+          '</div><div>' +
+          '<textarea classe="form-control" rows="10" ' +
+          'placeholder="Virtual study description (Optional)"></textarea>' +
+          '<div class="origin-studies-frame"></div>' +
           '</div></div>' +
+          '<div class="saving" style="display: none;">' +
+          '<i class="fa fa-spinner fa-spin"></i>' +
+          '<span class="message"></span></div>' +
+          '<div class="saved" style="display: none;">' +
+          '<span class="message"></span>' +
+          '</div>' +
+          '<div class="shared" style="display: none;"><span class="cohort-link"></span>' +
+          '<button class="btn btn-default btn-xs copy-cohort-btn" ' +
+          'type="button">Copy</button></div>' +
+          '<div class="after-clipboard" style="display: none;">' +
+          '<span class="message">The URL has been copied to clipboard.</span>' +
+          '</div>' +
           '<div class="failed" style="display: none;">' +
-          '<span class="failedMessage"></span></div>' +
-          '<div class="shared" style="display: none;">' +
-          '<span class="sharedMessage">The URL has been copied to clipboard.</span>' +
-          '</div></div>'
+          '<span class="message"></span></div>' +
+          '</div>'
+        });
+        $('.virtual-study-btn').click(function() {
+          $('.virtual-study-btn').qtip('show');
         });
       }
+    },
+    ready: function() {
+      this.createQtip();
     }
   });
 })(window.Vue,
-  window.$ || window.jQuery, window.vcSession, window.iViz);
-
+  window.$ || window.jQuery, window.vcSession, window.iViz, window._);
 /**
  * @author Hongxin Zhang on 11/15/17.
  */

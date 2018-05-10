@@ -363,6 +363,13 @@ embed {
     z-index: -999;
 }
 
+#study_desc {
+    max-height: 300px;
+    overflow-y: auto;
+    display: inline-block;
+    width: 100%;
+}
+
 #study_desc .origin-studies {
     margin-top: 10px;
 }
@@ -376,6 +383,8 @@ embed {
 #study_desc .origin-studies .panel-group {
     margin-top: 5px;
     margin-bottom: 0;
+    max-height: 100%;
+    overflow-y: hidden;
 }
 
 #study_desc .origin-studies .panel-group .panel.panel-default {

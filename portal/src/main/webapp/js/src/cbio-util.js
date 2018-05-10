@@ -837,8 +837,7 @@ cbio.util = (function() {
                 '<div class="panel panel-default">' +
                 '<div class="panel-heading">' +
                 '<h4 class="panel-title"><span role="button" data-toggle="collapse" ' +
-                'data-target="#' + study.id + '-collapse-content">' +
-                '<i class="fa fa-chevron-right" aria-hidden="true"></i>' +
+                'data-target="#' + study.id + '-collapse-content" class="collapsed">' +
                 study.name + '</span><a target="_blank" href="' + window.cbioURL + 'study?id=' + study.id + '"><i class="fa fa-external-link" aria-hidden="true"></i></a></h4></div>' +
                 '<div id="' + study.id + '-collapse-content" ' +
                 'class="panel-collapse collapse">' +

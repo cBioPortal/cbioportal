@@ -50,8 +50,7 @@ public class StudyViewControllerTest {
     private static final String TEST_SAMPLE_ID_3 = "test_sample_id_3";
     private static final String TEST_PATIENT_ID_1 = "test_patient_id_1";
     private static final String TEST_PATIENT_ID_2 = "test_patient_id_2";
-    private static final String TEST_ATTRIBUTE_ID_1 = "test_attribute_1";
-    private static final String TEST_ATTRIBUTE_ID_2 = "test_attribute_2";
+    private static final String TEST_ATTRIBUTE_ID = "test_attribute_id";
     private static final String TEST_CLINICAL_DATA_VALUE_1 = "value1";
     private static final String TEST_CLINICAL_DATA_VALUE_2 = "value2";
     private static final String TEST_CLINICAL_DATA_VALUE_3 = "value3";
@@ -112,28 +111,16 @@ public class StudyViewControllerTest {
         Map<String, List<ClinicalDataCount>> clinicalDataCountMap = new HashMap<>();
         List<ClinicalDataCount> clinicalDataCounts1 = new ArrayList<>();
         ClinicalDataCount clinicalDataCount1 = new ClinicalDataCount();
-        clinicalDataCount1.setAttributeId(TEST_ATTRIBUTE_ID_1);
+        clinicalDataCount1.setAttributeId(TEST_ATTRIBUTE_ID);
         clinicalDataCount1.setValue(TEST_CLINICAL_DATA_VALUE_1);
         clinicalDataCount1.setCount(3);
         clinicalDataCounts1.add(clinicalDataCount1);
         ClinicalDataCount clinicalDataCount2 = new ClinicalDataCount();
-        clinicalDataCount2.setAttributeId(TEST_ATTRIBUTE_ID_1);
+        clinicalDataCount2.setAttributeId(TEST_ATTRIBUTE_ID);
         clinicalDataCount2.setValue(TEST_CLINICAL_DATA_VALUE_2);
         clinicalDataCount2.setCount(1);
         clinicalDataCounts1.add(clinicalDataCount2);
-        clinicalDataCountMap.put(TEST_ATTRIBUTE_ID_1, clinicalDataCounts1);
-        List<ClinicalDataCount> clinicalDataCounts2 = new ArrayList<>();
-        ClinicalDataCount clinicalDataCount3 = new ClinicalDataCount();
-        clinicalDataCount3.setAttributeId(TEST_ATTRIBUTE_ID_2);
-        clinicalDataCount3.setValue(TEST_CLINICAL_DATA_VALUE_3);
-        clinicalDataCount3.setCount(2);
-        clinicalDataCounts2.add(clinicalDataCount3);
-        ClinicalDataCount clinicalDataCount4 = new ClinicalDataCount();
-        clinicalDataCount4.setAttributeId(TEST_ATTRIBUTE_ID_2);
-        clinicalDataCount4.setValue(TEST_CLINICAL_DATA_VALUE_4);
-        clinicalDataCount4.setCount(2);
-        clinicalDataCounts2.add(clinicalDataCount4);
-        clinicalDataCountMap.put(TEST_ATTRIBUTE_ID_2, clinicalDataCounts2);
+        clinicalDataCountMap.put(TEST_ATTRIBUTE_ID, clinicalDataCounts1);
         
         Mockito.when(clinicalDataService.fetchClinicalDataCounts(Mockito.anyString(), Mockito.anyListOf(String.class), 
             Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(clinicalDataCountMap);
@@ -144,18 +131,12 @@ public class StudyViewControllerTest {
             .content(objectMapper.writeValueAsString(new StudyViewFilter())))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.test_attribute_1[0].attributeId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.test_attribute_1[0].value").value(TEST_CLINICAL_DATA_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.test_attribute_1[0].count").value(3))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.test_attribute_1[1].attributeId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.test_attribute_1[1].value").value(TEST_CLINICAL_DATA_VALUE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.test_attribute_1[1].count").value(1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.test_attribute_2[0].attributeId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.test_attribute_2[0].value").value(TEST_CLINICAL_DATA_VALUE_3))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.test_attribute_2[0].count").value(2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.test_attribute_2[1].attributeId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.test_attribute_2[1].value").value(TEST_CLINICAL_DATA_VALUE_4))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.test_attribute_2[1].count").value(2));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].attributeId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_CLINICAL_DATA_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(3))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].attributeId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_CLINICAL_DATA_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(1));
     }
 
     @Test

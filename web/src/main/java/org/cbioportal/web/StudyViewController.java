@@ -64,7 +64,7 @@ public class StudyViewController {
     @RequestMapping(value = "/studies/{studyId}/attributes/{attributeId}/clinical-data-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data counts by study view filter")
-    public ResponseEntity<Map<String, List<ClinicalDataCount>>> fetchClinicalDataCounts(
+    public ResponseEntity<List<ClinicalDataCount>> fetchClinicalDataCounts(
         @ApiParam(required = true, value = "Study ID e.g. acc_tcga") 
         @PathVariable String studyId,
         @ApiParam(required = true, value = "Attribute ID e.g. CANCER_TYPE")
@@ -84,7 +84,7 @@ public class StudyViewController {
             return new ResponseEntity<>(null, HttpStatus.OK);
         }
         return new ResponseEntity<>(clinicalDataService.fetchClinicalDataCounts(studyId, filteredSampleIds, 
-            Arrays.asList(attributeId), clinicalDataType.name()), HttpStatus.OK);
+            Arrays.asList(attributeId), clinicalDataType.name()).get(attributeId), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutated-genes/fetch", method = RequestMethod.POST, 

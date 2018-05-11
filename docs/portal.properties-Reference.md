@@ -20,12 +20,19 @@ This page describes the main properties within portal.properties.
 db.user=
 db.password=
 db.host=[e.g. localhost to connect via socket, or e.g. 127.0.0.1:3307 to connect to a different port like 3307. Used by Java data import layer]
-db.portal_db_name=[the database name in myslq, e.g. cbiodb]
+db.portal_db_name=[the database name in mysql, e.g. cbiodb]
 db.driver=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver]
+```
+
+Include `db_connection_string` with the format specified below, and replace `localhost` by the value of `db.host`:
+```
 db.connection_string=jdbc:mysql://localhost/
+```
+
+db.tomcat_resource_name is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
+```
 db.tomcat_resource_name=jdbc/cbioportal
 ```
-db.tomcat_resource_name is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
 
 # Segment File URL
 

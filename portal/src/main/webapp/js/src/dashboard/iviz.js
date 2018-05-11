@@ -8137,18 +8137,21 @@ window.LogRankTest = (function(jStat) {
             }, {
               attr_id: 'numOfMutations',
               display_name: '# Mut',
+              description: 'Number of mutations in all samples',
               datatype: 'NUMBER',
               column_width: 95
             },
             {
               attr_id: 'cases',
               display_name: '#',
+              description: 'Number of samples with mutation',
               datatype: 'NUMBER',
               column_width: 95
             },
             {
               attr_id: 'sampleRate',
               display_name: 'Freq',
+              description: '% of samples with this mutation',
               datatype: 'PERCENTAGE',
               column_width: 93
             },
@@ -8195,12 +8198,14 @@ window.LogRankTest = (function(jStat) {
             {
               attr_id: 'cases',
               display_name: '#',
+              description: 'Number of samples with copy number alteration',
               datatype: 'NUMBER',
               column_width: 75
             },
             {
               attr_id: 'altrateInSample',
               display_name: 'Freq',
+              description: '% of samples with this copy number alteration',
               datatype: 'PERCENTAGE',
               column_width: 78
             },

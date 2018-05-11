@@ -496,11 +496,12 @@ window.EnhancedFixedDataTableSpecial = (function() {
     render: function() {
       var columnData = this.props.columnData;
       var shortLabel = this.props.shortLabel;
+      var label = shortLabel === columnData.displayName ? (columnData.description ? columnData.description : '') : (columnData.displayName + (columnData.description ? ('<br/>' + columnData.description) : ''));
       return (
         React.createElement("div", {className: "EFDT-header"}, 
           React.createElement("span", {className: "EFDT-header-sort", href: "#", 
                 onClick: this.props.sortNSet.bind(null, this.props.cellDataKey)}, 
-            React.createElement(QtipWrapper, {label: columnData.displayName, 
+            React.createElement(QtipWrapper, {label: label, 
                          shortLabel: shortLabel, 
                          className: 'EFDT-header-sort-content'}), 
             columnData.sortFlag ?
@@ -750,6 +751,7 @@ window.EnhancedFixedDataTableSpecial = (function() {
                       header: 
                         React.createElement(HeaderWrapper, {cellDataKey: col.name, columnData: {
                           displayName: col.displayName,
+                          description: col.description,
                           sortFlag: props.sortBy === col.name,
                           sortDirArrow: props.sortDirArrow,
                           filterAll: props.filterAll,
@@ -784,6 +786,7 @@ window.EnhancedFixedDataTableSpecial = (function() {
                     header: 
                       React.createElement(HeaderWrapper, {cellDataKey: col.name, columnData: {
                         displayName: col.displayName,
+                        description: col.description,
                         sortFlag: props.sortBy === col.name,
                         sortDirArrow: props.sortDirArrow,
                         filterAll: props.filterAll,
@@ -887,17 +890,14 @@ window.EnhancedFixedDataTableSpecial = (function() {
 
       _.each(cols, function(col) {
         if (!col.hasOwnProperty('show') || col.show) {
-          var _label = col.displayName;
-          var _shortLabel = '';
+          var _shortLabel = col.displayName;
 
-          if (_label) {
-            _label = _label.toString();
-            var _labelWidth = self.getRulerWidth(_label, measureMethod, 15);
+          if (_shortLabel) {
+            _shortLabel = _shortLabel.toString();
+            var _labelWidth = self.getRulerWidth(_shortLabel, measureMethod, 15);
             if (_labelWidth > columnWidth[col.name]) {
-              var end = Math.floor((_label.length) * columnWidth[col.name] / _labelWidth) - 3;
-              _shortLabel = _label.substring(0, end) + '...';
-            } else {
-              _shortLabel = _label;
+              var end = Math.floor((_shortLabel.length) * columnWidth[col.name] / _labelWidth) - 3;
+              _shortLabel = _shortLabel.substring(0, end) + '...';
             }
           }
           headerShortLabels[col.name] = _shortLabel;
@@ -1265,6 +1265,7 @@ window.EnhancedFixedDataTableSpecial = (function() {
         col.attr_id = col.attr_id.toLowerCase();
         newCol = {
           displayName: col.display_name,
+          description: col.description,
           name: col.attr_id,
           type: col.datatype,
           fixed: false,

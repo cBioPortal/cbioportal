@@ -382,10 +382,10 @@ public final class ExtendedMutation
     private String score;
     private String bamFile;
 	private String aminoAcidChange;
-    private int tumorAltCount;
-    private int tumorRefCount;
-    private int normalAltCount;
-    private int normalRefCount;
+    private Integer tumorAltCount;
+    private Integer tumorRefCount;
+    private Integer normalAltCount;
+    private Integer normalRefCount;
     private String driverFilter;
     private String driverFilterAnn;
     private String driverTiersFilter;
@@ -787,35 +787,35 @@ public final class ExtendedMutation
         this.bamFile = bamFile;
     }
 
-    public int getTumorAltCount() {
+    public Integer getTumorAltCount() {
         return tumorAltCount;
     }
 
-    public void setTumorAltCount(int tumorAltCount) {
+    public void setTumorAltCount(Integer tumorAltCount) {
         this.tumorAltCount = tumorAltCount;
     }
 
-    public int getTumorRefCount() {
+    public Integer getTumorRefCount() {
         return tumorRefCount;
     }
 
-    public void setTumorRefCount(int tumorRefCount) {
+    public void setTumorRefCount(Integer tumorRefCount) {
         this.tumorRefCount = tumorRefCount;
     }
 
-    public int getNormalAltCount() {
+    public Integer getNormalAltCount() {
         return normalAltCount;
     }
 
-    public void setNormalAltCount(int normalAltCount) {
+    public void setNormalAltCount(Integer normalAltCount) {
         this.normalAltCount = normalAltCount;
     }
 
-    public int getNormalRefCount() {
+    public Integer getNormalRefCount() {
         return normalRefCount;
     }
 
-    public void setNormalRefCount(int normalRefCount) {
+    public void setNormalRefCount(Integer normalRefCount) {
         this.normalRefCount = normalRefCount;
     }
 

@@ -1,3 +1,8 @@
+## May 10, 2018
+ *   Enhanced OncoPrint to show germline mutations -- see [example](http://www.cbioportal.org/index.do?session_id=59357ca8498e5df2e2919824)
+ 
+ ![image](https://user-images.githubusercontent.com/840895/39926636-c3304d8c-54fd-11e8-9cb7-76430c8772d7.png)
+
 ## April 17, 2018
  *   **Added data**  of 3732 samples from 4 TARGET studies:
      *   [Pediatric Acute Lymphoid Leukemia - Phase II (TARGET, 2018)](http://www.cbioportal.org/study?id=all_phase2_target_2018_pub#summary) *1978 samples*

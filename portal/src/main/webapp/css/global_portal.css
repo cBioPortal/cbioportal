@@ -202,7 +202,7 @@ A:hover {
 }
 
 #network {
-    height: 750px;
+    /*height: 750px;*/
   /* never allow setting display to none
      this is to fix flash (CytoWeb) repaint problem */
   /*display: block !important;*/
@@ -1715,4 +1715,51 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 
 .combined-study-title-toggle-icon {
     cursor: pointer;
+}
+
+
+/* for when we open Network in iframe */
+
+.isolateNetwork #tabs {
+    border:none;
+    position:absolute;
+    top:0;
+    left:0;
+    z-index:0;
+}
+
+.isolateNetwork #network {
+    display:block !important;
+}
+
+.isolateNetwork #tabs > .ui-tabs-nav {
+    display:none;
+}
+
+.isolateNetwork .main_smry {
+    display:none;
+}
+
+.isolateNetwork #footer {
+    display:none;
+}
+
+.isolateNetwork .ui-tabs-panel#network {
+    padding:0 !important;
+    margin:0;
+    height:auto;
+}    
+
+.isolateNetwork #vis_content {
+    width:auto;
+    border:none;
+}
+
+body.isolateNetwork {
+    overflow:hidden;
+}
+
+
+.isolateNetwork .pageTopContainer {
+    display:none;
 }

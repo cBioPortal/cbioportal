@@ -105,7 +105,7 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>com.github.franciscrickinstitutegobble</groupId>
+                  <groupId>com.github.franciscrickinstitute</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
                   <version>257e99b87fc3f5d3a3f71c3641a54fa2c58b37f7</version>
                   <type>jar</type>

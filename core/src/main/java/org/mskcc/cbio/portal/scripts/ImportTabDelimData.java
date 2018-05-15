@@ -63,7 +63,7 @@ public class ImportTabDelimData {
     private int entriesSkipped = 0;
     private int nrExtraRecords = 0;
     private Set<String> arrayIdSet = new HashSet<String>();
-    private String genePanel;
+    private String genePanelID;
 
     /**
      * Constructor.
@@ -75,11 +75,11 @@ public class ImportTabDelimData {
      * 
      * @deprecated : TODO shall we deprecate this feature (i.e. the targetLine)? 
      */
-    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId, String genePanel) {
+    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId, String genePanelID) {
         this.mutationFile = dataFile;
         this.targetLine = targetLine;
         this.geneticProfileId = geneticProfileId;
-        this.genePanel = genePanel;
+        this.genePanelID = genePanelID;
     }
 
     /**
@@ -88,10 +88,10 @@ public class ImportTabDelimData {
      * @param dataFile         Data File containing Copy Number Alteration, MRNA Expression Data, or protein RPPA data
      * @param geneticProfileId GeneticProfile ID.
      */
-    public ImportTabDelimData(File dataFile, int geneticProfileId, String genePanel) {
+    public ImportTabDelimData(File dataFile, int geneticProfileId, String genePanelID) {
         this.mutationFile = dataFile;
         this.geneticProfileId = geneticProfileId;
-        this.genePanel = genePanel;
+        this.genePanelID = genePanelID;
     }
 
     /**
@@ -174,14 +174,7 @@ public class ImportTabDelimData {
 	                samplesSkipped++;
 	                continue;
 	           }
-	           if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
-                                    if (genePanel != null) {
-                                        DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, GeneticProfileUtil.getGenePanelId(genePanel));
-                                    }
-                                    else {
-                                        DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
-                                    }
-	           }
+               ImportDataUtil.addSampleProfile(sample, geneticProfileId, genePanelID);
 	           orderedSampleList.add(sample.getInternalId());
 	        }
 	        if (nrUnknownSamplesAdded > 0) {

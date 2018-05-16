@@ -214,7 +214,7 @@ public class GetMutationData {
 
 	private static String getAlleleCount(Integer count)
 	{
-		if (count < 0)
+		if (count == null || count < 0)
 		{
 			return "NA";
 		}

@@ -112,15 +112,17 @@ public class GlobalProperties {
     @Value("${skin.authorization_message:Access to this portal is only available to authorized users.}")
     public void setSkinAuthorizationMessage(String property) { skinAuthorizationMessage = property; }
     public static final String SKIN_EXAMPLE_STUDY_QUERIES = "skin.example_study_queries";
-    public static final String DEFAULT_SKIN_EXAMPLE_STUDY_QUERIES =
+    public static final String DEFAULT_SKIN_EXAMPLE_STUDY_QUERIES =        
+            "tcga pancancer atlas\n" +
             "tcga provisional\n" +
-            "tcga -provisional\n" +
-            "tcga OR icgc\n" +
+            "tcga -provisional -pancancer\n" +
+            "tcga or icgc\n" +
+            "msk-impact\n" +
             "-\"cell line\"\n" +
-            "prostate mskcc\n" +
+            "breast\n" +
             "esophageal OR stomach\n" +
-            "serous\n" +
-            "breast";
+            "prostate msk\n" +
+            "serous";
     public static final String SKIN_DATASETS_HEADER = "skin.data_sets_header";
     public static final String DEFAULT_SKIN_DATASETS_HEADER = "The portal currently contains data from the following " +
             "cancer genomics studies.  The table below lists the number of available samples per data type and tumor.";

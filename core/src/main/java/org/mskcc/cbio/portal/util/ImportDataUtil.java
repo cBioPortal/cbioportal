@@ -143,4 +143,15 @@ public class ImportDataUtil
         DaoSample.addSample(new Sample(sampleId, pId,
                                        cancerStudy.getTypeOfCancerId()));
     }
+
+    public static void addSampleProfile(Sample sample, Integer geneticProfileID, String genePanelID) throws DaoException
+    {
+        if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileID)) {
+            if (genePanelID != null) {
+                DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileID, GeneticProfileUtil.getGenePanelId(genePanelID));
+            } else {
+                DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileID, null);
+            }
+        }
+    }
 }

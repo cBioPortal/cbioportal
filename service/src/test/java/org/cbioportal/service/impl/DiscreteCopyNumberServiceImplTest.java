@@ -231,6 +231,8 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
 
     @Test
     public void getSampleCountByGeneAndAlteration() throws Exception {
+
+        createMolecularProfile();
         
         List<CopyNumberCountByGene> expectedCopyNumberSampleCountByGeneList = new ArrayList<>();
         expectedCopyNumberSampleCountByGeneList.add(new CopyNumberCountByGene());
@@ -241,7 +243,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         
         List<CopyNumberCountByGene> result = discreteCopyNumberService
             .getSampleCountByGeneAndAlterationAndSampleIds(MOLECULAR_PROFILE_ID, null, Arrays.asList(ENTREZ_GENE_ID_1), 
-                Arrays.asList(-2));
+                Arrays.asList(-2), false);
         
         Assert.assertEquals(expectedCopyNumberSampleCountByGeneList, result);
     }
@@ -270,18 +272,15 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         CopyNumberCountByGene copyNumberSampleCountByGene = new CopyNumberCountByGene();
         copyNumberSampleCountByGene.setEntrezGeneId(ENTREZ_GENE_ID_1);
         copyNumberSampleCountByGene.setAlteration(-2);
-        copyNumberSampleCountByGene.setCount(1);
+        copyNumberSampleCountByGene.setCountByEntity(1);
         copyNumberSampleCountByGeneList.add(copyNumberSampleCountByGene);
 
-        MolecularProfile molecularProfile = new MolecularProfile();
-        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
-        molecularProfile.setDatatype("DISCRETE");
-        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
+        createMolecularProfile();
 
         Mockito.when(molecularDataService.getNumberOfSamplesInMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(2);
 
         Mockito.when(discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(MOLECULAR_PROFILE_ID, null,
-            Arrays.asList(ENTREZ_GENE_ID_1), Arrays.asList(-2))).thenReturn(copyNumberSampleCountByGeneList);
+            Arrays.asList(ENTREZ_GENE_ID_1), Arrays.asList(-2), false)).thenReturn(copyNumberSampleCountByGeneList);
 
         List<CopyNumberCount> result = discreteCopyNumberService.fetchCopyNumberCounts(MOLECULAR_PROFILE_ID,
             Arrays.asList(ENTREZ_GENE_ID_1), Arrays.asList(-2));

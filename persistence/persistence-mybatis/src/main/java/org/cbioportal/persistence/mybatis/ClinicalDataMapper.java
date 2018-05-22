@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.meta.BaseMeta;
 
 import java.util.List;
@@ -18,4 +19,10 @@ public interface ClinicalDataMapper {
                                               String direction);
 
     BaseMeta getMetaPatientClinicalData(List<String> studyIds, List<String> patientIds, List<String> attributeIds);
+
+	List<ClinicalDataCount> fetchSampleClinicalDataCounts(List<String> studyIds, List<String> sampleIds,
+			List<String> attributeIds);
+
+	List<ClinicalDataCount> fetchPatientClinicalDataCounts(List<String> studyIds, List<String> patientIds,
+			List<String> attributeIds);
 }

@@ -10,9 +10,9 @@ import static org.cbioportal.web.parameter.PagingConstants.MAX_PAGE_SIZE;
 public class ClinicalDataSingleStudyFilter {
 
     @Size(min = 1, max = ClinicalDataController.CLINICAL_DATA_MAX_PAGE_SIZE)
-    List<String> ids;
+    private List<String> ids;
     @Size(min = 1, max = MAX_PAGE_SIZE)
-    List<String> attributeIds;
+    private List<String> attributeIds;
 
     public List<String> getIds() {
         return ids;

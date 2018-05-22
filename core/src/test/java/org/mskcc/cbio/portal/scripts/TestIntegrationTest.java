@@ -129,8 +129,8 @@ public class TestIntegrationTest {
                     countWarnings++;
                 }
             }
-            //check that there are no warnings.
-            assertEquals(0, countWarnings);
+            //check that there are only warnings for empty positions in fake data:
+            assertEquals(1, countWarnings);
             
             //check that ALL data really got into DB correctly. In the spirit of integration tests,
             //we want to query via the same service layer as the one used by the web API here.
@@ -147,7 +147,7 @@ public class TestIntegrationTest {
             assertEquals(31, mutations.size());
 
             //===== Check FUSION data ========
-            // Are there 3 fusion entries in mutation profile? true
+            // Are there 4 fusion entries in mutation profile, but one is off panel, so only 3 should be imported
             int countFusions = 0;
             for (Mutation mutation : mutations) {
                 if (mutation.getMutationEvent().getMutationType().equals("Fusion")) {

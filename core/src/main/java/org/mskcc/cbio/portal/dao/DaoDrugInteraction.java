@@ -368,7 +368,9 @@ public class DaoDrugInteraction {
                     }
 
                     for (String gene : genesOfEvents) {
-                        long entrez = daoGeneOptimized.getGene(gene).getEntrezGeneId();
+                        CanonicalGene canonicalGene = daoGeneOptimized.getGene(gene);
+                        if (canonicalGene == null) continue;
+                        long entrez = canonicalGene.getEntrezGeneId();
                         Map<String,Set<Long>> mapEventTargets = drugTargetAnnotation.get(entrez);
                         if (mapEventTargets==null) {
                             mapEventTargets = new HashMap<String,Set<Long>>();

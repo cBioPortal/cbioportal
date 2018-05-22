@@ -32,13 +32,11 @@
 
 package org.mskcc.cbio.portal.util;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
+import org.cbioportal.model.Gene;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.repository.GenePanelRepositoryLegacy;
-import org.mskcc.cbio.portal.model.GenePanel;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
-import org.mskcc.cbio.portal.model.GeneticProfile;
+
+import java.util.*;
 
 /**
  * Genetic Profile Util Class.
@@ -92,5 +90,14 @@ public class GeneticProfileUtil {
         GenePanelRepositoryLegacy genePanelRepositoryLegacy = (GenePanelRepositoryLegacy)SpringUtil.getApplicationContext().getBean("genePanelRepositoryLegacy");  
         GenePanel genePanel = genePanelRepositoryLegacy.getGenePanelByStableId(panelId).get(0);
         return genePanel.getInternalId();
+    }
+
+    public static boolean geneInPanel(CanonicalGene gene, GenePanel genePanel) {
+         for (Gene panelGene : genePanel.getGenes()) {
+            if (panelGene.getEntrezGeneId().longValue() == gene.getEntrezGeneId()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

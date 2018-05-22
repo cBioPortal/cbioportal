@@ -830,12 +830,33 @@ cbio.util = (function() {
         }
     }
 
-    function showVShtmlDescription(descriptionSelector, str) {
+    function getOriginStudiesDescriptionHtml(studies) {
+        var originStudiesDescription = ['<div class="origin-studies"><div class="header">This virtual study was derived from:</div><div class="panel-group">'];
+        _.each(studies, function(study) {
+            originStudiesDescription.push(
+                '<div class="panel panel-default">' +
+                '<div class="panel-heading">' +
+                '<h4 class="panel-title"><span role="button" data-toggle="collapse" ' +
+                'data-target="#' + study.id + '-collapse-content" class="collapsed">' +
+                study.name + '</span><a target="_blank" href="' + window.cbioURL + 'study?id=' + study.id + '"><i class="fa fa-external-link" aria-hidden="true"></i></a></h4></div>' +
+                '<div id="' + study.id + '-collapse-content" ' +
+                'class="panel-collapse collapse">' +
+                '<div class="panel-body">' + study.description.replace(/\r?\n/g, '<br/>') + '</div></div></div>');
+        });
+        originStudiesDescription.push('</div></div>');
+        return originStudiesDescription.join('');
+    }
+
+    function showVShtmlDescription(descriptionSelector, str, originStudies) {
         if (str) {
             var lines = str.split(/\r?\n/g);
             if (lines.length > 1) {
                 $(descriptionSelector).append(lines.shift());
-                addFoldableDescription(descriptionSelector, lines.join('<br />'));
+                var folableContent = lines.join('<br />');
+                if(_.isArray(originStudies) && originStudies.length > 0) {
+                    folableContent += getOriginStudiesDescriptionHtml(originStudies);
+                }
+                addFoldableDescription(descriptionSelector, folableContent);
             } else {
                 $(descriptionSelector).append(str);
             }
@@ -855,7 +876,7 @@ cbio.util = (function() {
     function addFoldableDescription(descriptionSelector, content) {
         $(descriptionSelector).append('<span class="truncated"><br />' + content + '</span>');
         var truncatedElm = $(descriptionSelector + ' .truncated').hide()                       // Hide the text initially
-            .before('<i class="fa fa-plus-circle combined-study-title-toggle-icon" aria-hidden="true"></i>'); /// Create toggle button
+            .before('<i class="fa fa-plus-circle combined-study-title-toggle-icon" aria-hidden="true" style="margin-left: 5px;"></i>'); /// Create toggle button
         $(descriptionSelector).find('.combined-study-title-toggle-icon')
             .on('click', function() {          // Attach behavior
                 $(this).toggleClass("fa-minus-circle");   // Swap the icon
@@ -893,6 +914,7 @@ cbio.util = (function() {
         getDatahubStudiesList: getDatahubStudiesList,
         showCombinedStudyNameAndDescription: showCombinedStudyNameAndDescription,
         showVShtmlDescription: showVShtmlDescription,
+        getOriginStudiesDescriptionHtml: getOriginStudiesDescriptionHtml,
         getDecimalExponents: getDecimalExponents
     };
 

@@ -63,7 +63,7 @@ public class ImportTabDelimData {
     private int entriesSkipped = 0;
     private int nrExtraRecords = 0;
     private Set<String> arrayIdSet = new HashSet<String>();
-    private String genePanel;
+    private String genePanelID;
 
     /**
      * Constructor.
@@ -75,11 +75,11 @@ public class ImportTabDelimData {
      * 
      * @deprecated : TODO shall we deprecate this feature (i.e. the targetLine)? 
      */
-    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId, String genePanel) {
+    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId, String genePanelID) {
         this.mutationFile = dataFile;
         this.targetLine = targetLine;
         this.geneticProfileId = geneticProfileId;
-        this.genePanel = genePanel;
+        this.genePanelID = genePanelID;
     }
 
     /**
@@ -88,10 +88,10 @@ public class ImportTabDelimData {
      * @param dataFile         Data File containing Copy Number Alteration, MRNA Expression Data, or protein RPPA data
      * @param geneticProfileId GeneticProfile ID.
      */
-    public ImportTabDelimData(File dataFile, int geneticProfileId, String genePanel) {
+    public ImportTabDelimData(File dataFile, int geneticProfileId, String genePanelID) {
         this.mutationFile = dataFile;
         this.geneticProfileId = geneticProfileId;
-        this.genePanel = genePanel;
+        this.genePanelID = genePanelID;
     }
 
     /**
@@ -174,14 +174,7 @@ public class ImportTabDelimData {
 	                samplesSkipped++;
 	                continue;
 	           }
-	           if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
-                                    if (genePanel != null) {
-                                        DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, GeneticProfileUtil.getGenePanelId(genePanel));
-                                    }
-                                    else {
-                                        DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
-                                    }
-	           }
+               ImportDataUtil.addSampleProfile(sample, geneticProfileId, genePanelID);
 	           orderedSampleList.add(sample.getInternalId());
 	        }
 	        if (nrUnknownSamplesAdded > 0) {
@@ -334,39 +327,39 @@ public class ImportTabDelimData {
                     ProgressMonitor.logWarning("Ignoring gene ID:  " + geneSymbol);
                     return false;
                 } else {
-                	List<CanonicalGene> genes = null;
-                	//If rppa, parse genes from "Composite.Element.REF" column:
-                	if (rppaProfile) {
+                    List<CanonicalGene> genes = null;
+                    //If rppa, parse genes from "Composite.Element.REF" column:
+                    if (rppaProfile) {
                         genes = parseRPPAGenes(geneSymbol);
                         if (genes == null) {
-                        	//will be null when there is a parse error in this case, so we 
-                        	//can return here and avoid duplicated messages:
-                        	return false;
+                            //will be null when there is a parse error in this case, so we
+                            //can return here and avoid duplicated messages:
+                            return false;
                         }	
                     }
-                	else {
-	                	//try entrez:
-	                    if (entrez!=null) {
-	                        CanonicalGene gene = daoGene.getGene(Long.parseLong(entrez));
-	                        if (gene!=null) {
-	                            genes = Arrays.asList(gene);
-	                        }
-	                        else {
-	                        	ProgressMonitor.logWarning("Entrez_Id " + entrez + " not found. Record will be skipped for this gene.");
-	                        	return false;
-	                        }
-	                    } 
-	                    //no entrez, try hugo:
-	                    if (genes==null && geneSymbol != null) {
-	                        // deal with multiple symbols separate by |, use the first one
-	                        int ix = geneSymbol.indexOf("|");
-	                        if (ix>0) {
-	                            geneSymbol = geneSymbol.substring(0, ix);
-	                        }
-	
-	                        genes = daoGene.getGene(geneSymbol, true);
-	                    }
-                	}
+                    else {
+                        //try entrez:
+                        if (entrez != null) {
+                            CanonicalGene gene = daoGene.getGene(Long.parseLong(entrez));
+                            if (gene != null) {
+                                genes = Arrays.asList(gene);
+                            }
+                        }
+                        //no entrez or could not resolve by entrez, try hugo:
+                        if ((genes == null || genes.isEmpty()) && geneSymbol != null) {
+                            // deal with multiple symbols separate by |, use the first one
+                            int ix = geneSymbol.indexOf("|");
+                            if (ix>0) {
+                                geneSymbol = geneSymbol.substring(0, ix);
+                            }
+                            genes = daoGene.getGene(geneSymbol, true);
+                        }
+                        //if genes still null, skip current record
+                        if (genes == null || genes.isEmpty()) {
+                            ProgressMonitor.logWarning("Entrez_Id " + entrez + " not found. Record will be skipped for this gene.");
+                            return false;
+                        }
+                    }
 
                     if (genes == null || genes.isEmpty()) {
                         genes = Collections.emptyList();

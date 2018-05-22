@@ -945,12 +945,15 @@ window.DataManagerForIviz = (function($, _) {
                 // Always check for all lists, the API call may fail partially
                 if (_.isArray(self.data.sampleLists[studyId][studyId + '_sequenced'])) {
                   _responseStudyCaseList[studyId].sequencedSampleIds = iViz.util.intersection(self.data.sampleLists[studyId][studyId + '_sequenced'], self.studyCasesMap[studyId].samples);
+                  self.data.sampleLists.sequenced[studyId] = _responseStudyCaseList[studyId].sequencedSampleIds;
                 }
                 if (_.isArray(self.data.sampleLists[studyId][studyId + '_cna'])) {
                   _responseStudyCaseList[studyId].cnaSampleIds = iViz.util.intersection(self.data.sampleLists[studyId][studyId + '_cna'], self.studyCasesMap[studyId].samples);
+                  self.data.sampleLists.cna[studyId] = _responseStudyCaseList[studyId].cnaSampleIds;
                 }
                 if (_.isArray(self.data.sampleLists[studyId][studyId + '_all'])) {
                   _responseStudyCaseList[studyId].allSampleIds = iViz.util.intersection(self.data.sampleLists[studyId][studyId + '_all'], self.studyCasesMap[studyId].samples);
+                  self.data.sampleLists.all[studyId] = _responseStudyCaseList[studyId].allSampleIds;
                 }
               });
               fetch_promise.resolve(_responseStudyCaseList);
@@ -1213,6 +1216,22 @@ window.DataManagerForIviz = (function($, _) {
             def.reject(error);
           });
         return def.promise();
+      },
+      getAllMutatedGeneSamples: function() {
+        var samples = {};
+        var self = this;
+        _.each(Object.keys(self.studyCasesMap), function(studyId) {
+          samples[studyId] = self.data.sampleLists.sequenced[studyId] || self.data.sampleLists.all[studyId]
+        });
+        return samples;
+      },
+      getAllCNASamples: function() {
+        var samples = {};
+        var self = this;
+        _.each(Object.keys(self.studyCasesMap), function(studyId) {
+          samples[studyId] = self.data.sampleLists.cna[studyId] || self.data.sampleLists.all[studyId]
+        });
+        return samples;
       },
       getCnaFractionData: window.cbio.util.makeCachedPromiseFunction(
         function(self, fetch_promise) {

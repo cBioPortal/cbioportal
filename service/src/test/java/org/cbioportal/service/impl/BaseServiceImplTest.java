@@ -15,7 +15,9 @@ public class BaseServiceImplTest {
     public static final String PATIENT_ID_1 = "patient_id1";
     public static final String PATIENT_ID_2 = "patient_id2";
     public static final String PATIENT_ID_3 = "patient_id3";
-    public static final String CLINICAL_ATTRIBUTE_ID = "attributeId";
+    public static final String CLINICAL_ATTRIBUTE_ID_1 = "attribute_id1";
+    public static final String CLINICAL_ATTRIBUTE_ID_2 = "attribute_id2";
+    public static final String CLINICAL_ATTRIBUTE_ID_3 = "attribute_id3";
     public static final String CANCER_TYPE_ID = "cancer_type_id";
     public static final String CLINICAL_DATA_TYPE = "clinical_data_type";
     public static final Integer ENTREZ_GENE_ID_1 = 1;

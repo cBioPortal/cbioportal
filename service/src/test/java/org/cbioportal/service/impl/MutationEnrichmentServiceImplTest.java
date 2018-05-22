@@ -40,7 +40,7 @@ public class MutationEnrichmentServiceImplTest extends BaseServiceImplTest {
         allSampleIds.addAll(unalteredSampleIds);
 
         List<MutationCountByGene> mutationSampleCountByGeneList = new ArrayList<>();
-        Mockito.when(mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(MOLECULAR_PROFILE_ID, allSampleIds, null))
+        Mockito.when(mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(MOLECULAR_PROFILE_ID, allSampleIds, null, false))
             .thenReturn(mutationSampleCountByGeneList);
         
         List<Mutation> mutations = new ArrayList<>();

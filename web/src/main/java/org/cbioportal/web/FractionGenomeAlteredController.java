@@ -41,17 +41,15 @@ public class FractionGenomeAlteredController {
         @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
         @ApiParam(required = true, value = "List of Sample IDs/Sample List ID")
-        @Valid @RequestBody FractionGenomeAlteredFilter fractionGenomeAlteredFilter,
-        @ApiParam("Cutoff")
-        @RequestParam(defaultValue = "0.2") Double cutoff) {
+        @Valid @RequestBody FractionGenomeAlteredFilter fractionGenomeAlteredFilter) {
 
         List<FractionGenomeAltered> fractionGenomeAlteredList;
         if (fractionGenomeAlteredFilter.getSampleListId() != null) {
             fractionGenomeAlteredList = fractionGenomeAlteredService.getFractionGenomeAltered(studyId, 
-                fractionGenomeAlteredFilter.getSampleListId(), cutoff);
+                fractionGenomeAlteredFilter.getSampleListId());
         } else {
             fractionGenomeAlteredList = fractionGenomeAlteredService.fetchFractionGenomeAltered(studyId, 
-                fractionGenomeAlteredFilter.getSampleIds(), cutoff);
+                fractionGenomeAlteredFilter.getSampleIds());
         }
         
         return new ResponseEntity<>(fractionGenomeAlteredList, HttpStatus.OK);

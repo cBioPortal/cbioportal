@@ -24,6 +24,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -203,6 +204,17 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(PATIENT_ID_2, resultGenePanelData2.getPatientId());
         Assert.assertEquals(STUDY_ID, resultGenePanelData2.getStudyId());
         Assert.assertEquals(false, resultGenePanelData2.getProfiled());
+    }
+
+    @Test
+    public void getGenePanelDataInvalidSampleListId() throws Exception {
+
+        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(SAMPLE_LIST_ID))
+            .thenReturn(Collections.<String>emptyList() );
+        
+        List<GenePanelData> result = genePanelService.getGenePanelData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID);
+        
+        Assert.assertEquals(0, result.size());
     }
 
     @Test

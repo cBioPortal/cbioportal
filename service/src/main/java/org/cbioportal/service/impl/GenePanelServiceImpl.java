@@ -21,6 +21,7 @@ import org.apache.commons.collections.map.MultiKeyMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,6 +105,9 @@ public class GenePanelServiceImpl implements GenePanelService {
 
         molecularProfileService.getMolecularProfile(molecularProfileId);
         List<String> sampleIds = sampleListRepository.getAllSampleIdsInSampleList(sampleListId);
+        if (sampleIds.isEmpty()) {
+            return Collections.<GenePanelData>emptyList();
+        }
         List<String> molecularProfileIds = new ArrayList<>();
         sampleIds.forEach(s -> molecularProfileIds.add(molecularProfileId));
 

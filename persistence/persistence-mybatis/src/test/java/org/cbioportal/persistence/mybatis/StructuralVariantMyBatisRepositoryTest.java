@@ -211,6 +211,5 @@ public class StructuralVariantMyBatisRepositoryTest {
         Assert.assertEquals((String) "TCGA-A1-A0SB-01", structuralVariantSecondResult.getSampleId());
         Assert.assertEquals((String) "TCGA-A1-A0SB", structuralVariantSecondResult.getPatientId());
         Assert.assertEquals((String) "study_tcga_pub", structuralVariantSecondResult.getStudyId());
-
     }
 }

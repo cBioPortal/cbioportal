@@ -86,6 +86,9 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
             
             double[] alteredValues = getAlterationValues(alteredMolecularData, molecularProfileId);
             double[] unalteredValues = getAlterationValues(unalteredMolecularData, molecularProfileId);
+            if (alteredValues.length < 2 || unalteredValues.length < 2) {
+                continue;
+            }
             
             double alteredMean = calculateMean(alteredValues);
             double unalteredMean = calculateMean(unalteredValues);

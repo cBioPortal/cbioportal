@@ -861,7 +861,7 @@ class Validator(object):
                     extra={'line_number': self.line_number,
                            'cause': gene_symbol})
 
-        return gene_symbol, identified_entrez_id
+        return identified_entrez_id
 
     def checkDriverAnnotationColumn(self, driver_value=None, driver_annotation=None):
         """Ensures that cbp_driver_annotation is filled when the cbp_driver column
@@ -998,7 +998,7 @@ class FeaturewiseFileValidator(Validator):
         # parse and check the feature identifiers (implemented by subclasses)
         feature_id = self.parseFeatureColumns(data[:self.num_nonsample_cols])
         # skip line if no feature was identified
-        if feature_id == (None, None):
+        if feature_id is None:
             return
         # skip line with an error if the feature was encountered before
         if feature_id in self._feature_id_lines:
@@ -2938,8 +2938,9 @@ class StructuralVariantValidator(Validator):
         if data[self.cols.index('Event_Info')] == 'Fusion':
             checkFusionValues(self, data)
         else:
-            self.logger.warning('Validation for other structural variant events is not implemented yet',
-                                extra={'cause': self.cols.index('Event_Info')})
+            self.logger.error('Validation and functionality for other structural variant events are not implemented '
+                              'yet. Event_Info must be "Fusion"',
+                              extra={'cause': self.cols.index('Event_Info')})
 
     def onComplete(self):
         """Perform final validations based on the data parsed."""

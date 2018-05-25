@@ -70,7 +70,6 @@
     Boolean has_methylation = (Boolean) request.getAttribute("hasMethylation");
     Boolean has_copy_no = (Boolean) request.getAttribute("hasCopyNo");
     Boolean has_survival = (Boolean) request.getAttribute("hasSurvival");
-    Boolean has_fusion_data = (Boolean) request.getAttribute("hasFusionData");
     boolean includeNetworks = GlobalProperties.includeNetworks();
     boolean computeLogOddsRatio = true;
     Boolean mutationDetailLimitReached = (Boolean)request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);

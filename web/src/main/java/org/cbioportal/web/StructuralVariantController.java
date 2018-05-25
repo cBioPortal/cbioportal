@@ -49,7 +49,7 @@ import java.util.ArrayList;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Structural Variants", description = " ")
+@Api(tags = "Q. Structural Variants", description = " ")
 public class StructuralVariantController {
     @Autowired
     private StructuralVariantService structuralVariantService;

@@ -478,8 +478,6 @@ public class QueryBuilder extends HttpServlet {
         Boolean hasMethylation = false;
         Boolean hasCopyNo = false;
         Boolean hasSurvival = false;
-        Boolean hasFusionData = false;
-
         String decodedGeneList = URLDecoder.decode(geneList, "UTF-8");
         String singleStudyId = (String) request.getAttribute(CANCER_STUDY_ID);
         if (inputStudySampleMap.keySet().size() == 1 && inputStudySampleMap.containsKey(singleStudyId)) { // single study
@@ -561,7 +559,6 @@ public class QueryBuilder extends HttpServlet {
             hasMethylation = hasMethylation || countProfiles(geneticProfileList, GeneticAlterationType.METHYLATION) > 0;
             hasCopyNo = hasCopyNo || countProfiles(geneticProfileList, GeneticAlterationType.COPY_NUMBER_ALTERATION) > 0;
             hasSurvival = hasSurvival || selectedCancerStudy.hasSurvivalData();
-            hasFusionData = hasFusionData || selectedCancerStudy.hasFusionData();
             for(String profileId : geneticProfileIdSet){
                 if (profileId != null && profileId.length() != 0)
                     geneticProfileMap.put(profileId, GeneticProfileUtil.getProfile(profileId, geneticProfileList));
@@ -603,7 +600,6 @@ public class QueryBuilder extends HttpServlet {
         request.setAttribute("hasMethylation", hasMethylation);
         request.setAttribute("hasCopyNo", hasCopyNo);
         request.setAttribute("hasSurvival", hasSurvival);
-        request.setAttribute("hasFusionData", hasFusionData);
 
         ObjectMapper mapper = new ObjectMapper();
         String studySampleMapString = mapper.writeValueAsString(studySampleMap);

@@ -202,10 +202,6 @@ window.loadReactApp({ defaultRoute: 'results' });
             if (showMutTab){
                 out.println ("<li><a href='#mutation_details' class='result-tab' id='mutation-result-tab'>Mutations</a></li>");
             }
-            if (has_fusion_data) {
-                out.println 
-                ("<li><a href='#fusion_data' class='result-tab' id='fusion-data-result-tab'>Fusion</a></li>");
-            }            
             if (showCoexpTab) {
                 out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
@@ -276,10 +272,6 @@ window.loadReactApp({ defaultRoute: 'results' });
         } else if (showMutTab) { %>
             <%@ include file="mutation_details.jsp" %>
         <% } %>
-
-            <% if (has_fusion_data) { %>
-        <%@ include file="fusion.jsp" %>
-            <% } %>
 
             <% if (includeNetworks) { %>
         <%@ include file="networks.jsp" %>
@@ -412,17 +404,6 @@ window.loadReactApp({ defaultRoute: 'results' });
         $("#mutation-result-tab").qtip(
             {
                 content: {text: "Mutation details, including mutation type, amino acid change, validation status and predicted functional consequence"},
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
-                show: {event: "mouseover", delay: 0},
-                hide: {fixed:true, delay: 100, event: "mouseout"},
-                position: {my:'left top',at:'right bottom', viewport: $(window)}
-            }
-        );
-        $("#fusion-data-result-tab").qtip(
-            {
-                content: {text: 
-                    "Fusion genes, hybrid gene formed from two previously separate genes. It can occur as a result of: " +
-                    "translocation, interstitial deletion, or chromosomal inversion *CHANGE THIS PLEASE*"},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
                 show: {event: "mouseover", delay: 0},
                 hide: {fixed:true, delay: 100, event: "mouseout"},

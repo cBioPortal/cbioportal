@@ -2,6 +2,23 @@
 
 You can use the Onco Query Language (OQL) to select specific types of alterations on the cBioPortal for Cancer Genomics. OQL-specified alterations will be reflected on most tabs, including OncoPrint, but are not currently reflected on the Plots or Mutations tabs. Note that OQL assumes any word that it doesn't recognize is a mutation code.
 
+<!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [OQL Keywords](#oql-keywords)
+- [Basic Usage](#basic-usage)
+- [Mutations](#mutations)
+- [CNA](#cna)
+- [Expression](#expression)
+- [Protein](#protein)
+- [The DATATYPES Command](#the-datatypes-command)
+- [Merged gene tracks](#merged-gene-tracks)
+- [Example: RB Pathway Alterations](#example-rb-pathway-alterations)
+	- [Using the Defaults](#using-the-defaults)
+	- [Greater Insight with OQL](#greater-insight-with-oql)
+- [Questions? Feedback?](#questions-feedback)
+
+<!-- /TOC -->
+
 ## OQL Keywords
 Users can define specific subsets of genetic alterations for four data types:
 
@@ -128,6 +145,15 @@ MDM2: AMP GAIN HOMDEL EXP > 1.5 EXP < -1.5
 TP53: AMP GAIN HOMDEL EXP > 1.5 EXP < -1.5
 ```
 
+## Merged gene tracks
+OncoPrint has functionality to display alterations for multiple genes in a single track. This can be done by enclosing a set of genes in squared brackets. The track will automatically labeled by the genes, separated by '/'. To specify a label, start the track by defining a name enclosed by double quotes. The resulting track of merged genes can be expanded to view individual tracks. Examples:
+```
+["CDK INHIBITORS" CDKN2A CDKN2B]
+[MDM2 MDM4]
+```
+![Image of merged genes in OncoPrint](images/OQL/merged_genes_oncoprint.png)
+
+It is possible to include OQL for specific alterations in merged gene tracks, as well as querying a combination of single and merged gene tracks.
 
 ## Example: RB Pathway Alterations
 ### Using the Defaults

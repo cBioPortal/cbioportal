@@ -105,7 +105,7 @@ An example metadata file, e.g. named meta_clinical_sample.txt, would be:
 cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: CLINICAL
 datatype: SAMPLE_ATTRIBUTES
-data_filename: data_clinical_samples.txt
+data_filename: data_clinical_sample.txt
 ```
 
 An example metadata file, e.g. named meta_clinical_patient.txt, would be:
@@ -113,7 +113,7 @@ An example metadata file, e.g. named meta_clinical_patient.txt, would be:
 cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: CLINICAL
 datatype: PATIENT_ATTRIBUTES
-data_filename: data_clinical_patients.txt
+data_filename: data_clinical_patient.txt
 ```
 
 #### Data files

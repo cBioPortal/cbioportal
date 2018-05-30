@@ -1,4 +1,4 @@
-<div class="section" id="enrichementTabDiv"/>
+<div class="section" id="enrichementTabDiv"></div>
 
 <script>
 

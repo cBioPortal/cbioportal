@@ -11,7 +11,7 @@ You can use the Onco Query Language (OQL) to select specific types of alteration
 - [Expression](#expression)
 - [Protein](#protein)
 - [The DATATYPES Command](#the-datatypes-command)
-- [Merged gene tracks](#merged-gene-tracks)
+- [Merged Gene Tracks](#merged-gene-tracks)
 - [Example: RB Pathway Alterations](#example-rb-pathway-alterations)
 	- [Using the Defaults](#using-the-defaults)
 	- [Greater Insight with OQL](#greater-insight-with-oql)
@@ -145,15 +145,21 @@ MDM2: AMP GAIN HOMDEL EXP > 1.5 EXP < -1.5
 TP53: AMP GAIN HOMDEL EXP > 1.5 EXP < -1.5
 ```
 
-## Merged gene tracks
-OncoPrint has functionality to display alterations for multiple genes in a single track. This can be done by enclosing a set of genes in squared brackets. The track will automatically labeled by the genes, separated by '/'. To specify a label, start the track by defining a name enclosed by double quotes. The resulting track of merged genes can be expanded to view individual tracks. Examples:
+## Merged Gene Tracks
+OQL can be used to create a merged gene track in OncoPrint, in which alterations in multiple genes appear as a single track. This is done by enclosing a list of genes in square brackets. By default, the track will be labeled by the gene names, separated by '/'. To instead specify a label, type the desired label within double quotes at the beginning of the square brackets. For example:
 ```
 ["CDK INHIBITORS" CDKN2A CDKN2B]
 [MDM2 MDM4]
 ```
+
+The resulting merged gene track will be visible in OncoPrint and can be expanded to view the individual gene tracks. For example:
+
 ![Image of merged genes in OncoPrint](images/OQL/merged_genes_oncoprint.png)
 
+
 It is possible to include OQL for specific alterations in merged gene tracks, as well as querying a combination of single and merged gene tracks.
+
+Note that merged gene tracks will only appear in OncoPrint. All other pages will show the individual genes.
 
 ## Example: RB Pathway Alterations
 ### Using the Defaults

@@ -35,8 +35,6 @@ package org.mskcc.cbio.portal.dao;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.InternalIdUtil;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.sql.*;
 import java.util.*;
 
@@ -220,11 +218,14 @@ public final class DaoClinicalData {
 
         List<ClinicalData> clinicals = new ArrayList<ClinicalData>();
         String sql = ("SELECT * FROM " + table + " WHERE `INTERNAL_ID` IN " +
-            "(" + generateIdsSql(internalIds) + ")");
+            "(" + generateInClause(internalIds) + ")");
 
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
             pstmt = con.prepareStatement(sql);
+            for (int lc = 0; lc < internalIds.size(); lc++) {
+                pstmt.setInt(lc+1, internalIds.get(lc));
+            }
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 clinicals.add(extract(table, internalCancerStudyId, rs));
@@ -384,7 +385,7 @@ public final class DaoClinicalData {
         return getDataByInternalIds(internalCancerStudyId, PATIENT_TABLE, patientIdsInt, Collections.singletonList(attr.getAttrId()));
     }
 
-    private static List<ClinicalData> getDataByInternalIds(int internalCancerStudyId, String table, List<Integer> internalIds, Collection<String> attributeIds) throws DaoException
+    private static List<ClinicalData> getDataByInternalIds(int internalCancerStudyId, String table, List<Integer> internalIds, List<String> attributeIds) throws DaoException
     {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -393,12 +394,18 @@ public final class DaoClinicalData {
         List<ClinicalData> clinicals = new ArrayList<ClinicalData>();
 
         String sql = ("SELECT * FROM " + table + " WHERE `INTERNAL_ID` IN " +
-            "(" + generateIdsSql(internalIds) + ") " +
-            " AND ATTR_ID IN ('"+ StringUtils.join(attributeIds, "','")+"') ");
+            "(" + generateInClause(internalIds) + ") " +
+            " AND ATTR_ID IN ('"+ generateInClause(attributeIds) + "')");
 
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
             pstmt = con.prepareStatement(sql);
+            for (int lc = 0; lc < internalIds.size(); lc++) {
+                pstmt.setInt(lc+1, internalIds.get(lc));
+            }
+            for (int lc = 0; lc < attributeIds.size(); lc++) {
+                pstmt.setString(internalIds.size()+lc+1, attributeIds.get(lc));
+            }
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 clinicals.add(extract(table, internalCancerStudyId, rs));
@@ -419,16 +426,18 @@ public final class DaoClinicalData {
         ResultSet rs = null;
 
         List<ClinicalData> clinicals = new ArrayList<ClinicalData>();
+        List<String> attrIds = (attributeIds instanceof List) ? (List)attributeIds : new ArrayList<String>(attributeIds);
 
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
-
             pstmt = con.prepareStatement("SELECT * FROM clinical_patient WHERE" +
-                " ATTR_ID IN ('" + StringUtils.join(attributeIds, "','") +"') ");
-
-            List<Integer> patients = getPatientIdsByCancerStudy(internalCancerStudyId);
+                " ATTR_ID IN (" + generateInClause(attrIds) +")");
+            for (int lc = 0; lc < attrIds.size(); lc++) {
+                pstmt.setString(lc+1, attrIds.get(lc));
+            }
 
             rs = pstmt.executeQuery();
+            List<Integer> patients = getPatientIdsByCancerStudy(internalCancerStudyId);
             while(rs.next()) {
                 Integer patientId = rs.getInt("INTERNAL_ID");
                 if (patients.contains(patientId)) {
@@ -465,8 +474,13 @@ public final class DaoClinicalData {
         }
     }
 
-    private static String generateIdsSql(Collection<Integer> ids) {
-        return "'" + StringUtils.join(ids, "','") + "'";
+    private static String generateInClause(List<?> list) {
+        StringBuilder toReturn = new StringBuilder();
+        for (int lc=0; lc < list.size(); lc++) {
+            toReturn.append("?,");
+        }
+        toReturn.deleteCharAt(toReturn.lastIndexOf(","));
+        return toReturn.toString();
     }
 
     public static void deleteAllRecords() throws DaoException {
@@ -638,10 +652,13 @@ public final class DaoClinicalData {
                 "distinct ATTR_VALUE as attributeValue, " +
                 "ATTR_ID as attributeID from clinical_sample " +
                 "where ATTR_ID in (?, ?) and INTERNAL_ID in (" +
-                "select INTERNAL_ID from sample where STABLE_ID in ('"
-                + StringUtils.join(samplesList,"','")+"'))");
+                "select INTERNAL_ID from sample where STABLE_ID in ("
+                + generateInClause(samplesList) +"))");
             pstmt.setString(1, ClinicalAttribute.CANCER_TYPE);
             pstmt.setString(2, ClinicalAttribute.CANCER_TYPE_DETAILED);
+            for (int lc = 0; lc < samplesList.size(); lc++) {
+                pstmt.setString(2+lc+1, samplesList.get(lc));
+            }
             rs = pstmt.executeQuery();
 
             // create a map for the results

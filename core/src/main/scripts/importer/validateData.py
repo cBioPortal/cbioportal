@@ -40,6 +40,7 @@ import itertools
 import requests
 import json
 import xml.etree.ElementTree as ET
+import re
 
 import cbioportal_common
 
@@ -1673,6 +1674,7 @@ class ClinicalValidator(Validator):
             'datatype': 'STRING'
         },
     }
+    INVALID_ID_CHARACTERS = r'[^A-Za-z0-9._-]'
 
     def __init__(self, *args, **kwargs):
         """Initialize the instance attributes of the data file validator."""
@@ -1906,6 +1908,14 @@ class ClinicalValidator(Validator):
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
+            if col_name == 'PATIENT_ID' or col_name == 'SAMPLE_ID':
+                if re.findall(self.INVALID_ID_CHARACTERS, value):
+                    self.logger.error(
+                        'PATIENT_ID and SAMPLE_ID can only contain letters, '
+                        'numbers, points, underscores and/or hyphens',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
 
 
 class SampleClinicalValidator(ClinicalValidator):
@@ -1914,7 +1924,6 @@ class SampleClinicalValidator(ClinicalValidator):
 
     REQUIRED_HEADERS = ['SAMPLE_ID', 'PATIENT_ID']
     PROP_IS_PATIENT_ATTRIBUTE = '0'
-    INVALID_SAMPLE_ID_CHARACTERS = set(',;+/=*')
 
 
     def __init__(self, *args, **kwargs):
@@ -1941,21 +1950,6 @@ class SampleClinicalValidator(ClinicalValidator):
                                'column_number': col_index + 1,
                                'cause': value})
                     continue
-                if ' ' in value:
-                    self.logger.error(
-                        'White space in SAMPLE_ID is not supported',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
-                # invalid characters in sample_id can cause problems in different parts of the portal code,
-                # so block them here:
-                if any((c in self.INVALID_SAMPLE_ID_CHARACTERS) for c in value):
-                    self.logger.error(
-                        'A number of special characters, such as ' + str(list(self.INVALID_SAMPLE_ID_CHARACTERS)) +
-                        ' are not allowed in SAMPLE_ID',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
                 if value in self.sample_id_lines:
                     if value.startswith('TCGA-'):
                         self.logger.warning(
@@ -2037,12 +2031,6 @@ class PatientClinicalValidator(ClinicalValidator):
             if col_index < len(data):
                 value = data[col_index].strip()
             if col_name == 'PATIENT_ID':
-                if ' ' in value:
-                    self.logger.error(
-                        'White space in PATIENT_ID is not supported',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
                 if value in self.patient_id_lines:
                     self.logger.error(
                         'Patient defined multiple times in file',

@@ -167,7 +167,10 @@ public class GenePanelServiceImpl implements GenePanelService {
                     }
                 }
             }
-            List<GenePanelData> mutationGenePanelData = genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(mutationMolecularProfileIds, mutationSampleIds);
+            List<GenePanelData> mutationGenePanelData = new ArrayList<>();
+            if (!mutationMolecularProfileIds.isEmpty()) {
+                mutationGenePanelData = genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(mutationMolecularProfileIds, mutationSampleIds);
+            }
             mutationGenePanelDataMap = createGenePanelDataMap(mutationGenePanelData);
         }
         // end of hacky code

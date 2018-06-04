@@ -849,9 +849,20 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
             self.assertEqual(record.levelno, logging.ERROR)
         self.assertIn('first column', record.getMessage().lower())
         self.assertIn('not equal', record.getMessage().lower())
+    def test_geneset_not_in_database(self):
+        """Test if an error is issued if the score and pvalue table does not have same rownames"""
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_gsva_scores_geneset_not_in_database.txt',
+                                    validateData.GsvaScoreValidator)
+        self.assertEqual(len(record_list), 1)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 3)
+        self.assertIn(record.cause, 'HYVE_TEST_GENE_SET')
+        self.assertEqual('Gene set not found in database, please make sure to import gene sets prior to study loading',
+                         record.getMessage())
         return
-#
-#
 
     # TODO: test other subclasses of FeatureWiseValidator
 

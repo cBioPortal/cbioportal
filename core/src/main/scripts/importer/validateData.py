@@ -2913,8 +2913,8 @@ class GsvaWiseFileValidator(FeaturewiseFileValidator):
                                      'cause': geneset_id})
         # Check if gene set is in database
         elif self.portal.geneset_id_list is not None and geneset_id not in self.portal.geneset_id_list:
-            self.logger.warning("Gene set not found in database, please make sure "
-                                "to import gene sets prior to study loading",
+            self.logger.error("Gene set not found in database, please make sure "
+                              "to import gene sets prior to study loading",
                               extra={'line_number': self.line_number, 'cause': geneset_id})
         else:
             # Check if this is the second GSVA data file

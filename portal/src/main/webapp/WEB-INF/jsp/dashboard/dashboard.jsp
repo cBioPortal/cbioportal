@@ -344,7 +344,7 @@
                         document.title = _cancerStudy.name
                         $("#study_name").html(_cancerStudy.name);
                         var _desc = _cancerStudy.description;
-                        if(_cancerStudy.pmid !== null){
+                        if(_cancerStudy.pmid !== undefined && _cancerStudy.pmid !== null){
                             _desc += '&nbsp;<a href="http://www.ncbi.nlm.nih.gov/pubmed/'+_cancerStudy.pmid+'">PubMed</a>';
                         }
                         $("#study_desc").html(_desc);

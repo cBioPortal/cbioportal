@@ -101,8 +101,8 @@ public class ExpressionEnrichmentControllerTest {
         expressionEnrichments.add(expressionEnrichment2);
 
         Mockito.when(expressionEnrichmentService.getExpressionEnrichments(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString()))
-            .thenReturn(expressionEnrichments);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), 
+            Mockito.anyString())).thenReturn(expressionEnrichments);
 
         EnrichmentFilter enrichmentFilter = new EnrichmentFilter();
         enrichmentFilter.setAlteredIds(Arrays.asList("test_sample_id_1"));

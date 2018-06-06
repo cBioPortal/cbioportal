@@ -32,7 +32,8 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
 
     @Override
     public List<AlterationEnrichment> getMutationEnrichments(String molecularProfileId, List<String> alteredIds,
-                                                             List<String> unalteredIds, String enrichmentType)
+                                                             List<String> unalteredIds, List<Integer> queryGenes, 
+                                                             String enrichmentType)
         throws MolecularProfileNotFoundException {
 
         List<String> allIds = new ArrayList<>(alteredIds);
@@ -56,6 +57,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
                 null, null);
         }
 
+        mutationCountByGeneList.removeIf(m -> queryGenes.contains(m.getEntrezGeneId()));
         return alterationEnrichmentUtil.createAlterationEnrichments(alteredIds.size(), unalteredIds.size(),
             mutationCountByGeneList, mutations, enrichmentType);
     }

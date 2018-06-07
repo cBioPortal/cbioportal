@@ -30,7 +30,11 @@ ALTER TABLE uniprot_id_mapping
 3- Empty tables `gene` and `gene_alias`
 ```sql
 TRUNCATE TABLE gene_alias;
-delete from gene;
+DELETE from genetic_entity;
+DELETE from geneset_hierarchy_node;
+ALTER TABLE `genetic_entity` AUTO_INCREMENT = 1;
+ALTER TABLE `geneset_hiefarchy_node` AUTO_INCREMENT = 1;
+ALTER TABLE `geneset` AUTO_INCREMENT = 1;
 ```
 
 4- Restart cBioPortal (restart webserver) to clean-up any cached gene lists.
@@ -77,3 +81,11 @@ ALTER TABLE cosmic_mutation
 ALTER TABLE uniprot_id_mapping
   ADD CONSTRAINT uniprot_id_mapping_ibfk_1 FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`);
 ```
+
+11- You can import new gene sets using the gene set importer. These gene sets are currently only used for gene set scoring. See [Import-Gene-Sets.md](Import-Gene-Sets.md) and [File-Formats.md#gene-set-data].
+
+For example, run in folder `<your_cbioportal_dir>/core/src/main/scripts`:
+```bash
+./importGenesetData.pl --data ~/Desktop/msigdb.v6.1.entrez.gmt --new-version msigdb_6.1
+```
+Please make sure the version gene sets is the same as the version used to calculate gene set scores in your data.

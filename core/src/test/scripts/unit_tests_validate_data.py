@@ -770,18 +770,19 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
             self.assertEqual(record.levelno, logging.ERROR)
         record_iterator = iter(record_list)
         record = record_iterator.next()
+        self.assertEqual(record.line_number, 2)
+        self.assertEqual(record.column_number, 5)
+        self.assertEqual(record.cause, '1.5')
+        return
+        record = record_iterator.next()
         self.assertEqual(record.line_number, 5)
         self.assertEqual(record.column_number, 2)
         self.assertEqual(record.cause, '2.371393691351566')
         record = record_iterator.next()
-        self.assertEqual(record.line_number, 8)
+        self.assertEqual(record.line_number, 7)
         self.assertEqual(record.column_number, 3)
         self.assertEqual(record.cause, '-12')
-        record = record_iterator.next()
-        self.assertEqual(record.line_number, 9)
-        self.assertEqual(record.column_number, 2)
-        self.assertEqual(record.cause, '1.5')
-        return
+
 
     def test_range_gsva_pvalues(self):
         """Test if an error is issued if the score is outside pvalue range"""
@@ -802,7 +803,7 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.column_number, 4)
         self.assertEqual(record.cause, '1e3')
         record = record_iterator.next()
-        self.assertEqual(record.line_number, 10)
+        self.assertEqual(record.line_number, 8)
         self.assertEqual(record.column_number, 3)
         self.assertEqual(record.cause, '-0.00000000000000005')
         return

@@ -20,6 +20,8 @@ After download, the files can be unzipped by entering the following command:
     mysql --user=cbio_user --password=somepassword cbioportal < cgds.sql
     ```
 
+    Note that this may currently fail when using the default character encoding on MySQL 8.0 (`utf8mb4`); this is why MySQL 5.7 (which uses `latin1`) is recommended.
+
 2. Import the main part of the seed database:
 
     ```

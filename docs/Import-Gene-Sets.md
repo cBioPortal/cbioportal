@@ -32,7 +32,7 @@ Note: This removes existing gene set, gene set hierarchy and gene set genetic pr
 ```
 ./importGenesetData.pl \
 	--data ../../test/resources/genesets/study_es_0_genesets.gmt \
-	--new-version 1 \
+	--new-version msigdb_6.1 \
 	--supp ../../test/resources/genesets/study_es_0_supp-genesets.txt
 ```
 
@@ -67,6 +67,7 @@ Updating the database is described [here](https://github.com/cBioPortal/cbioport
 Once you have initialized MySQL with cBioPortal database, it is possible to import gene sets. The format of the gene set data file is [the Gene Matrix Transposed file format (.gmt)](http://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29). This format is also used by the [MSigDB](#references), which hosts several collections of gene sets on: [http://software.broadinstitute.org/gsea/msigdb/](http://software.broadinstitute.org/gsea/msigdb/)
 
 Sample of .gmt file:
+
 ```
 GLI1_UP.V1_DN<TAB>http://...<TAB>22818<TAB>143384
 GLI1_UP.V1_UP<TAB>http://...<TAB>3489<TAB>3119
@@ -78,6 +79,7 @@ GMT files contain a row for every gene set. The first column contains the EXTERN
 Additional information can be placed in a supplementary file. This file should be a .txt, containing columns for the `stable id`, the long name (max 100 characters) and description of the gene set (max 300 characters).
 
 Sample of supplementary .txt file:
+
 ```
 GLI1_UP.V1_DN<TAB>GLI1 upregulated v1 down genes<TAB>Genes down-regulated in RK3E cells (kidney epithelium) over-expressing GLI1 [GeneID=2735].
 GLI1_UP.V1_UP<TAB>GLI1 upregulated v1 up genes<TAB>Genes up-regulated in RK3E cells (kidney epithelium) over-expressing GLI1 [GeneID=2735].
@@ -86,6 +88,7 @@ E2F1_UP.V1_DN<TAB>E2F1 upregulated v1 down genes<TAB>Identification of E2F1-regu
 ```
 ### Run the gene set importer
 The importer for gene sets can be run with a perl wrapper, which is located at the following location and requires the following arguments:
+
 ```
 cd $PORTAL_HOME/core/src/main/scripts
 perl importGenesetData.pl
@@ -94,7 +97,7 @@ required:     --data <data_file.gmt>
               --new-version <Version> OR --update-info
 optional:     --supp <supp_file.txt>
 ```
-The `--new-version` argument with a `<Version>` parameter is used for loading new gene set definitions. It is not possible to add new gene sets or change the genes of current gene sets, without removing the old gene sets first. This is to prevent the user from having gene sets from different definitions and data from older definitions. The user can choose the name or number of the `<Version>` as he likes, e.g. `v1.0` or `Oncogenic_2017`. Running the script with `--new-version` does **remove all previous gene sets, gene set hierarchy and gene set genetic profiles.** A prompt is given to make sure the user wants to do this. Note that it is possible enter the same version as the previous version, but previous data is removed nevertheless.
+The `--new-version` argument with a `<Version>` parameter is used for loading new gene set definitions. It is not possible to add new gene sets or change the genes of current gene sets, without removing the old gene sets first. This is to prevent the user from having gene sets from different definitions and data from older definitions. The user can choose the name or number of the `<Version>` as he likes, e.g. `msigdb_6.1` or `Oncogenic_2017`. Running the script with `--new-version` **removes all previous gene sets, gene set hierarchy and gene set genetic profiles.** A prompt is given to make sure the user wants to do this. Note that it is possible enter the same version as the previous version, but previous data is removed nevertheless.
 
 The `--update info` can be used only to update only the long name, description and reference URL.
 

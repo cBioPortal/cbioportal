@@ -207,9 +207,9 @@
 
     <final.war.name>cbioportal-${project.version}</final.war.name>
 
-  <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
+  <db.test.driver>com.mysql.cj.jdbc.Driver</db.test.driver>
     <!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->
-  <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB</db.test.url>
+  <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test</db.test.url>
     <db.test.username>cbio_user</db.test.username>
     <db.test.password>somepassword</db.test.password>
 
@@ -217,7 +217,7 @@
     <tomcat.catalina.scope>provided</tomcat.catalina.scope>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.6.0</db.version>
+    <db.version>2.7.0</db.version>
 
   </properties>
 
@@ -296,7 +296,7 @@
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.16</version>
+      <version>8.0.11</version>
     </dependency>
     <!-- slf4j -->
     <dependency>
@@ -492,7 +492,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9</version>
+        <version>3.0.1</version>
         <configuration>
           <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
           <docletArtifact>
@@ -512,7 +512,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.7</version>
+        <version>2.9</version>
       </plugin>
     </plugins>
   </reporting>

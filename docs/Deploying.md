@@ -34,8 +34,8 @@ Apache Tomcat provides the database database connection pool to the cBioPortal. 
          ...
          <Resource name="jdbc/cbioportal" auth="Container" type="javax.sql.DataSource"
             maxActive="100" maxIdle="30" maxWait="10000"
-            username="cbio_user" password="somepassword" driverClassName="com.mysql.jdbc.Driver"
-            connectionProperties="zeroDateTimeBehavior=convertToNull;"
+            username="cbio_user" password="somepassword" driverClassName="com.mysql.cj.jdbc.Driver"
+            connectionProperties="zeroDateTimeBehavior=CONVERT_TO_NULL;"
             testOnBorrow="true"
             validationQuery="SELECT 1"
             url="jdbc:mysql://localhost:3306/cbioportal"/>

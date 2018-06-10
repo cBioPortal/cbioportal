@@ -46,7 +46,7 @@
 	
 	<!-- Values are for testing only, so need to correspond to the cgds in the pom.xml -->
 	<bean id="dbcpDataSource" destroy-method="close" class="org.apache.commons.dbcp2.BasicDataSource">
-		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
 		<property name="url" value="jdbc:mysql://localhost:3306/cgds_test" />
 		<property name="username" value="${db.user}" />
 		<property name="password" value="${db.password}" />

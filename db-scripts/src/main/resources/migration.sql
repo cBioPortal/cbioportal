@@ -454,3 +454,13 @@ ALTER TABLE gistic_to_gene DROP FOREIGN KEY gistic_to_gene_ibfk_2;
 ALTER TABLE gistic_to_gene ADD CONSTRAINT `gistic_to_gene_ibfk_2` FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE;
 
 UPDATE info SET DB_SCHEMA_VERSION="2.6.0";
+
+##version: 2.7.0
+-- adjust mutation_event table columns to be compatible with UTF8, the default in mySQL8
+-- execute adjust_col_size_to_utf8.sql script to create a stored procedure before running the migration script
+CALL adjust_col_size_to_utf8();
+DROP PROCEDURE IF EXISTS adjust_col_size_to_utf8;
+
+UPDATE info SET DB_SCHEMA_VERSION="2.7.0";
+    
+

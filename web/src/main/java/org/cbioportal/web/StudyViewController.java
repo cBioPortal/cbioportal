@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiParam;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import javax.validation.Valid;
 import org.cbioportal.model.ClinicalDataCount;
@@ -87,42 +86,40 @@ public class StudyViewController {
             Arrays.asList(attributeId), clinicalDataType.name()).get(attributeId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutated-genes/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/studies/{studyId}/mutated-genes/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutated genes by study view filter")
     public ResponseEntity<List<MutationCountByGene>> fetchMutatedGenes(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
-        @PathVariable String molecularProfileId,
+        @ApiParam(required = true, value = "Study ID e.g. acc_tcga") 
+        @PathVariable String studyId,
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody StudyViewFilter studyViewFilter) throws MolecularProfileNotFoundException, StudyNotFoundException {
 
-        String studyId = molecularProfileService.getMolecularProfile(molecularProfileId).getCancerStudyIdentifier();
         List<String> filteredSampleIds = studyViewFilterApplier.apply(studyId, studyViewFilter);
         List<MutationCountByGene> result = new ArrayList<>();
         if (!filteredSampleIds.isEmpty()) {
-            result = mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(molecularProfileId, 
-                filteredSampleIds, null, true);
+            result = mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(molecularProfileService
+                .getFirstMutationProfileId(studyId), filteredSampleIds, null, true);
             result.sort((a, b) -> b.getCountByEntity() - a.getCountByEntity());
         }
         
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/cna-genes/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/studies/{studyId}/cna-genes/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch CNA genes by study view filter")
     public ResponseEntity<List<CopyNumberCountByGene>> fetchCNAGenes(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_gistic")
-        @PathVariable String molecularProfileId,
+        @ApiParam(required = true, value = "Study ID e.g. acc_tcga") 
+        @PathVariable String studyId,
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody StudyViewFilter studyViewFilter) throws MolecularProfileNotFoundException, StudyNotFoundException {
 
-        String studyId = molecularProfileService.getMolecularProfile(molecularProfileId).getCancerStudyIdentifier();
         List<String> filteredSampleIds = studyViewFilterApplier.apply(studyId, studyViewFilter);
         List<CopyNumberCountByGene> result = new ArrayList<>();
         if (!filteredSampleIds.isEmpty()) {
-            result = discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(molecularProfileId, 
-                filteredSampleIds, null, Arrays.asList(-2, 2), true);
+            result = discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(molecularProfileService
+                .getFirstDiscreteCNAProfileId(studyId), filteredSampleIds, null, Arrays.asList(-2, 2), true);
             result.sort((a, b) -> b.getCountByEntity() - a.getCountByEntity());
         }
         
@@ -145,23 +142,26 @@ public class StudyViewController {
         return new ResponseEntity<>(sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name()), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/sample-counts/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/studies/{studyId}/sample-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample IDs by study view filter")
     public ResponseEntity<MolecularProfileSampleCount> fetchMolecularProfileSampleCounts(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
-        @PathVariable String molecularProfileId,
+        @ApiParam(required = true, value = "Study ID e.g. acc_tcga") 
+        @PathVariable String studyId,
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody StudyViewFilter studyViewFilter) throws StudyNotFoundException, 
         MolecularProfileNotFoundException {
         
-        String studyId = molecularProfileService.getMolecularProfile(molecularProfileId).getCancerStudyIdentifier();
         List<String> sampleIds = studyViewFilterApplier.apply(studyId, studyViewFilter);
         MolecularProfileSampleCount molecularProfileSampleCount = new MolecularProfileSampleCount();
-        molecularProfileSampleCount.setNumberOfProfiledSamples(Math.toIntExact(genePanelService.fetchGenePanelData(
-            molecularProfileId, sampleIds).stream().filter(g -> g.getProfiled()).count()));
-        molecularProfileSampleCount.setNumberOfUnprofiledSamples(sampleIds.size() - 
-            molecularProfileSampleCount.getNumberOfProfiledSamples());
+        molecularProfileSampleCount.setNumberOfMutationProfiledSamples(Math.toIntExact(genePanelService.fetchGenePanelData(
+            molecularProfileService.getFirstMutationProfileId(studyId), sampleIds).stream().filter(g -> g.getProfiled()).count()));
+        molecularProfileSampleCount.setNumberOfMutationUnprofiledSamples(sampleIds.size() - 
+            molecularProfileSampleCount.getNumberOfMutationProfiledSamples());
+        molecularProfileSampleCount.setNumberOfCNAProfiledSamples(Math.toIntExact(genePanelService.fetchGenePanelData(
+            molecularProfileService.getFirstDiscreteCNAProfileId(studyId), sampleIds).stream().filter(g -> g.getProfiled()).count()));
+        molecularProfileSampleCount.setNumberOfCNAUnprofiledSamples(sampleIds.size() - 
+            molecularProfileSampleCount.getNumberOfMutationProfiledSamples());
 
         return new ResponseEntity<>(molecularProfileSampleCount, HttpStatus.OK);
     }

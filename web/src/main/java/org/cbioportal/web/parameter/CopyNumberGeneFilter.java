@@ -4,16 +4,7 @@ import java.util.List;
 
 public class CopyNumberGeneFilter {
 
-    private String molecularProfileId;
     private List<CopyNumberGeneFilterElement> alterations;
-
-	public String getMolecularProfileId() {
-		return molecularProfileId;
-	}
-
-	public void setMolecularProfileId(String molecularProfileId) {
-		this.molecularProfileId = molecularProfileId;
-	}
 
 	public List<CopyNumberGeneFilterElement> getAlterations() {
 		return alterations;

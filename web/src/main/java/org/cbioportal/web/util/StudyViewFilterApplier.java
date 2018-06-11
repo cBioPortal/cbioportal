@@ -15,6 +15,7 @@ import org.cbioportal.model.Mutation;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.DiscreteCopyNumberService;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleService;
@@ -43,6 +44,8 @@ public class StudyViewFilterApplier {
     private MutationService mutationService;
     @Autowired
     private DiscreteCopyNumberService discreteCopyNumberService;
+    @Autowired
+    private MolecularProfileService molecularProfileService;
 
     public List<String> apply(String studyId, StudyViewFilter studyViewFilter) throws StudyNotFoundException, MolecularProfileNotFoundException {
 
@@ -73,9 +76,9 @@ public class StudyViewFilterApplier {
         List<MutationGeneFilter> mutatedGenes = studyViewFilter.getMutatedGenes();
         if (mutatedGenes != null && !sampleIds.isEmpty()) {
             for (MutationGeneFilter molecularProfileGeneFilter : mutatedGenes) {
-                List<Mutation> mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileGeneFilter.getMolecularProfileId(), 
-                    sampleIds, molecularProfileGeneFilter.getEntrezGeneIds(), null, Projection.ID.name(), null, 
-                    null, null, null);
+                List<Mutation> mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileService
+                    .getFirstMutationProfileId(studyId), sampleIds, molecularProfileGeneFilter.getEntrezGeneIds(), 
+                    null, Projection.ID.name(), null, null, null, null);
                 
                 sampleIds = mutations.stream().map(Mutation::getSampleId).distinct().collect(Collectors.toList());
             }
@@ -90,7 +93,7 @@ public class StudyViewFilterApplier {
                 List<DiscreteCopyNumberData> ampCNAList = new ArrayList<>();
                 if (!ampEntrezGeneIds.isEmpty()) {
                     ampCNAList = discreteCopyNumberService
-                        .fetchDiscreteCopyNumbersInMolecularProfile(copyNumberGeneFilter.getMolecularProfileId(), 
+                        .fetchDiscreteCopyNumbersInMolecularProfile(molecularProfileService.getFirstDiscreteCNAProfileId(studyId), 
                         sampleIds, ampEntrezGeneIds, Arrays.asList(2), Projection.ID.name());
                 }
 
@@ -99,7 +102,7 @@ public class StudyViewFilterApplier {
                 List<DiscreteCopyNumberData> delCNAList = new ArrayList<>();
                 if (!delEntrezGeneIds.isEmpty()) {
                     delCNAList = discreteCopyNumberService
-                        .fetchDiscreteCopyNumbersInMolecularProfile(copyNumberGeneFilter.getMolecularProfileId(), 
+                        .fetchDiscreteCopyNumbersInMolecularProfile(molecularProfileService.getFirstDiscreteCNAProfileId(studyId), 
                         sampleIds, delEntrezGeneIds, Arrays.asList(-2), Projection.ID.name());
                 }
 

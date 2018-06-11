@@ -112,4 +112,19 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
         this.getMolecularProfile(referredMolecularProfileId);
         return molecularProfileRepository.getMolecularProfilesReferringTo(referredMolecularProfileId);
 	}
+
+	@Override
+	public String getFirstMutationProfileId(String studyId) throws StudyNotFoundException {
+        
+        return getAllMolecularProfilesInStudy(studyId, "SUMMARY", null, null, null, null).stream().filter(m -> 
+            m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED)).findFirst().get().getStableId();
+	}
+
+	@Override
+	public String getFirstDiscreteCNAProfileId(String studyId) throws StudyNotFoundException {
+        
+        return getAllMolecularProfilesInStudy(studyId, "SUMMARY", null, null, null, null).stream().filter(m -> 
+            m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION) && 
+            m.getDatatype().equals("DISCRETE")).findFirst().get().getStableId();
+	}
 }

@@ -94,7 +94,6 @@ public class StudyViewFilterApplierTest {
         List<MutationGeneFilter> mutatedGenes = new ArrayList<>();
         MutationGeneFilter mutationGeneFilter = new MutationGeneFilter();
         mutationGeneFilter.setEntrezGeneIds(Arrays.asList(ENTREZ_GENE_ID_1));
-        mutationGeneFilter.setMolecularProfileId(MOLECULAR_PROFILE_ID_1);
         mutatedGenes.add(mutationGeneFilter);
         studyViewFilter.setMutatedGenes(mutatedGenes);
         List<CopyNumberGeneFilter> cnaGenes = new ArrayList<>();
@@ -105,7 +104,6 @@ public class StudyViewFilterApplierTest {
         copyNumberGeneFilterElement.setEntrezGeneId(ENTREZ_GENE_ID_2);
         copyNumberGeneFilterElements.add(copyNumberGeneFilterElement);
         copyNumberGeneFilter.setAlterations(copyNumberGeneFilterElements);
-        copyNumberGeneFilter.setMolecularProfileId(MOLECULAR_PROFILE_ID_2);
         cnaGenes.add(copyNumberGeneFilter);
         studyViewFilter.setCnaGenes(cnaGenes);
 

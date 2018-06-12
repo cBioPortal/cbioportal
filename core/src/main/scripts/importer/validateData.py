@@ -1911,6 +1911,7 @@ class ClinicalValidator(Validator):
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
+
             if col_name == 'PATIENT_ID' or col_name == 'SAMPLE_ID':
                 if re.findall(self.INVALID_ID_CHARACTERS, value):
                     self.logger.error(
@@ -1919,6 +1920,21 @@ class ClinicalValidator(Validator):
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
+
+            # Scan for incorrect usage of dates, accidentally converted by excel. This is often in a format such as
+            # Jan-99 or 20-Oct. A future improvement would be to add a "DATE" datatype.
+            excel_months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+            if 'date' not in col_name.lower():
+                if '-' in value:
+                    if len(value.split('-')) == 2 and not any(i in value for i in [',', '.', ':', ';']):
+                        if any(value_part.lower() in excel_months for value_part in value.split('-')):
+                            self.logger.error(
+                                'Date found when no date was expected. Please check if values are accidentally '
+                                'converted to dates by Excel. If this data is correct, add "DATE" to column name',
+                                extra={'line_number': self.line_number,
+                                       'column_number': col_index + 1,
+                                       'cause': value})
+
 
 
 class SampleClinicalValidator(ClinicalValidator):

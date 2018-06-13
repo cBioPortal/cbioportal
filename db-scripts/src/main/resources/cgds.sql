@@ -97,6 +97,7 @@ DROP TABLE IF EXISTS `type_of_cancer`;
 DROP TABLE IF EXISTS `geneset_hierarchy_leaf`;
 DROP TABLE IF EXISTS `geneset_hierarchy_node`;
 DROP TABLE IF EXISTS `geneset`;
+DROP TABLE IF EXISTS 'mutational_signature';
 DROP TABLE IF EXISTS `genetic_entity`;
 DROP TABLE IF EXISTS `reference_genome`;
 
@@ -213,6 +214,16 @@ CREATE TABLE `gene_alias` (
   `GENE_ALIAS` varchar(255) NOT NULL,
   PRIMARY KEY (`ENTREZ_GENE_ID`,`GENE_ALIAS`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `mutational_signature` (
+  `MUTATIONAL_SIGNATURE_ID` VARCHAR (30) NOT NULL,
+  `GENETIC_ENTITY_ID` INT NOT NULL,
+  `DESCRIPTION` VARCHAR(300) NOT NULL,
+  PRIMARY KEY (`MUTATIONAL_SIGNATURE_ID`),
+  UNIQUE INDEX `MUTATIONAL_SIGNATURE_GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID` ASC),
+  FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------

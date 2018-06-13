@@ -3,12 +3,12 @@ package org.mskcc.cbio.portal.model;
 import java.io.Serializable;
 import java.util.Map;
 
-public class MutationalSignature implements Serializable {
+public class MutationalProfile implements Serializable {
 	private String sample;
 	private int[] counts;
 	private String[] mutationTypes;
 	
-	public MutationalSignature(String[] mutationTypes, String sample, int[] counts) {
+	public MutationalProfile(String[] mutationTypes, String sample, int[] counts) {
 		this.sample = sample;
 		this.counts = counts;
 		this.mutationTypes = mutationTypes;

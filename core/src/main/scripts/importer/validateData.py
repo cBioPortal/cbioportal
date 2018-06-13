@@ -1431,10 +1431,13 @@ class MutationsExtendedValidator(Validator):
                     r'^([OPQ][0-9][A-Z0-9]{3}[0-9]|'
                     r'[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$',
                      value):
-                # return this as an error
-                self.extra = 'SWISSPROT value is not a UniProtKB accession.'
-                self.extra_exists = True
-                return False
+                # Return this as a warning. The cBioPortal front-end currently (1.13.2) does not use the SWISSPROT
+                # column for the Mutation Tab. It retrieves SWISSPROT accession and name based on Entrez Gene Id
+                self.logger.warning('SWISSPROT value is not a (single) UniProtKB accession. '
+                                    'Loader will try to find UniProtKB accession using Entrez gene id or '
+                                    'gene symbol.',
+                                    extra={'line_number': self.line_number, 'cause': value})
+                return True
         else:
             # format described on http://www.uniprot.org/help/entry_name
             if not re.match(
@@ -1444,12 +1447,12 @@ class MutationsExtendedValidator(Validator):
                 if ',' in value:
                     self.logger.warning('SWISSPROT value is not a single UniProtKB/Swiss-Prot name. '
                                         'Found multiple separated by a `,`. '
-                                        'Loader will try to find UniProt accession using Entrez gene id or '
+                                        'Loader will try to find UniProtKB accession using Entrez gene id or '
                                         'gene symbol.',
                                         extra={'line_number': self.line_number, 'cause': value})
                 else:
                     self.logger.warning('SWISSPROT value is not a (single) UniProtKB/Swiss-Prot name. '
-                                        'Loader will try to find UniProt accession using Entrez gene id or '
+                                        'Loader will try to find UniProtKB accession using Entrez gene id or '
                                         'gene symbol.',
                                         extra={'line_number': self.line_number, 'cause': value})
                 return True

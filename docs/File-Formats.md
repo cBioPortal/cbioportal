@@ -1166,7 +1166,7 @@ profile_name: GSVA scores on oncogenic signatures gene sets
 profile_description: GSVA scores on oncogenic signatures gene sets using mRNA expression data calculated with GSVA version x with parameters x and y.
 data_filename: data_gsva_scores.txt
 show_profile_in_analysis_tab: true
-geneset_def_version: 1
+geneset_def_version: msigdb_6.1
 ```
 
 ### GSVA score data file
@@ -1210,7 +1210,7 @@ source_stable_id: gsva_scores
 profile_name: GSVA p-values for GSVA scores on oncogenic signatures gene sets
 profile_description: GSVA p-values for GSVA scores on oncogenic signatures gene sets using mRNA expression data calculated with the bootstrapping method in GSVA version x with parameters x and y.
 data_filename: data_gsva_pvalues.txt
-geneset_def_version: 1
+geneset_def_version: msigdb_6.1
 ```
 
 ### GSVA p-value data file

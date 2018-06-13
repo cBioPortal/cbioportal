@@ -291,7 +291,7 @@ Validation of study succeeded.
 ### Example 4: generating the portal info folder ###
 The portal information files can be generated on the server, using the dumpPortalInfo script. Go to `<your cbioportal dir>/core/src/main/scripts`, make sure the environment variables `$JAVA_HOME` and `$PORTAL_HOME` are set, and run dumpPortalInfo.pl with the name of the directory you want to create:
 ```bash
-export JAVA_HOME='/usr/lib/jvm/java-7-openjdk-amd64'
+export JAVA_HOME='/usr/lib/jvm/default-java'
 export PORTAL_HOME='../../../..'
 ./dumpPortalInfo.pl /home/johndoe/my_portal_info_folder/
 ```

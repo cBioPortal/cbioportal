@@ -939,7 +939,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                       record_list[0].getMessage().lower())
 
     def test_unknown_or_invalid_swissprot(self):
-        """Test errors for invalid and unknown accessions under SWISSPROT."""
+        """Test warnings for invalid and unknown accessions under SWISSPROT."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate(
                 'mutations/data_mutations_invalid_swissprot.maf',
@@ -950,13 +950,13 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         record_iterator = iter(record_list)
         # used a name instead of an accession
         record = record_iterator.next()
-        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.line_number, 3)
         self.assertEqual(record.cause, 'A1CF_HUMAN')
         self.assertNotIn('portal', record.getMessage().lower())
         # neither a name nor an accession
         record = record_iterator.next()
-        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.line_number, 5)
         self.assertEqual(record.cause, 'P99999,Z9ZZZ9ZZZ9')
         self.assertNotIn('portal', record.getMessage().lower())

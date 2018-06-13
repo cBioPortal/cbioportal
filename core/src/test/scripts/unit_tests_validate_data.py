@@ -18,8 +18,8 @@ DEFINED_SAMPLE_IDS = None
 DEFINED_SAMPLE_ATTRIBUTES = None
 PATIENTS_WITH_SAMPLES = None
 PORTAL_INSTANCE = None
-GSVA_SAMPLE_IDS = None
-GSVA_GENESET_IDS = None
+prior_validated_sample_ids = None
+prior_validated_geneset_ids = None
 
 def setUpModule():
     """Initialise mock data used throughout the module."""
@@ -114,19 +114,19 @@ class PostClinicalDataFileTestCase(DataFileTestCase):
         self.orig_patients_with_samples = validateData.PATIENTS_WITH_SAMPLES
         validateData.PATIENTS_WITH_SAMPLES = PATIENTS_WITH_SAMPLES
 
-        # reset all GSVA global variables when starting a test
-        self.orig_gsva_sample_ids = validateData.GSVA_SAMPLE_IDS
-        validateData.GSVA_SAMPLE_IDS = GSVA_SAMPLE_IDS
-        self.orig_gsva_geneset_ids = validateData.GSVA_GENESET_IDS
-        validateData.GSVA_GENESET_IDS = GSVA_GENESET_IDS
+        # reset all gene set global variables when starting a test
+        self.orig_prior_validated_sample_ids = validateData.prior_validated_sample_ids
+        validateData.prior_validated_sample_ids = prior_validated_sample_ids
+        self.orig_prior_validated_geneset_ids = validateData.prior_validated_geneset_ids
+        validateData.prior_validated_geneset_ids = prior_validated_geneset_ids
 
     def tearDown(self):
         """Restore the environment to before setUp() was called."""
         validateData.DEFINED_SAMPLE_IDS = self.orig_defined_sample_ids
         validateData.DEFINED_SAMPLE_ATTRIBUTES = self.orig_defined_sample_attributes
         validateData.PATIENTS_WITH_SAMPLES = self.orig_patients_with_samples
-        validateData.GSVA_SAMPLE_IDS = self.orig_gsva_sample_ids
-        validateData.GSVA_GENESET_IDS = self.orig_gsva_geneset_ids
+        validateData.prior_validated_sample_ids = self.orig_prior_validated_sample_ids
+        validateData.prior_validated_geneset_ids = self.orig_prior_validated_geneset_ids
         super(PostClinicalDataFileTestCase, self).tearDown()
 
 
@@ -778,18 +778,19 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
             self.assertEqual(record.levelno, logging.ERROR)
         record_iterator = iter(record_list)
         record = record_iterator.next()
+        self.assertEqual(record.line_number, 2)
+        self.assertEqual(record.column_number, 5)
+        self.assertEqual(record.cause, '1.5')
+        return
+        record = record_iterator.next()
         self.assertEqual(record.line_number, 5)
         self.assertEqual(record.column_number, 2)
         self.assertEqual(record.cause, '2.371393691351566')
         record = record_iterator.next()
-        self.assertEqual(record.line_number, 8)
+        self.assertEqual(record.line_number, 7)
         self.assertEqual(record.column_number, 3)
         self.assertEqual(record.cause, '-12')
-        record = record_iterator.next()
-        self.assertEqual(record.line_number, 9)
-        self.assertEqual(record.column_number, 2)
-        self.assertEqual(record.cause, '1.5')
-        return
+
 
     def test_range_gsva_pvalues(self):
         """Test if an error is issued if the score is outside pvalue range"""
@@ -810,7 +811,7 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.column_number, 4)
         self.assertEqual(record.cause, '1e3')
         record = record_iterator.next()
-        self.assertEqual(record.line_number, 10)
+        self.assertEqual(record.line_number, 8)
         self.assertEqual(record.column_number, 3)
         self.assertEqual(record.cause, '-0.00000000000000005')
         return
@@ -846,19 +847,31 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
 
         ### Error should appear when the second file is validated
         record_list1 = self.validate('data_gsva_pvalues_missing_row.txt',
-                                    validateData.GsvaPvalueValidator)
+                                     validateData.GsvaPvalueValidator)
 
         record_list2 = self.validate('data_gsva_scores_missing_row.txt',
-                                    validateData.GsvaScoreValidator)
+                                     validateData.GsvaScoreValidator)
         self.assertEqual(len(record_list1), 0)
         self.assertEqual(len(record_list2), 1)
         for record in record_list2:
             self.assertEqual(record.levelno, logging.ERROR)
-        self.assertIn('first column', record.getMessage().lower())
-        self.assertIn('not equal', record.getMessage().lower())
+        self.assertEqual('Gene sets column in score and p-value file are not equal', record.getMessage())
         return
-#
-#
+
+    def test_geneset_not_in_database(self):
+        """Test if an error is issued if the score and pvalue table does not have same rownames"""
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_gsva_scores_geneset_not_in_database.txt',
+                                    validateData.GsvaScoreValidator)
+        self.assertEqual(len(record_list), 1)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 3)
+        self.assertIn(record.cause, 'HYVE_TEST_GENE_SET')
+        self.assertEqual('Gene set not found in database, please make sure to import gene sets prior to study loading',
+                         record.getMessage())
+        return
 
     # TODO: test other subclasses of FeatureWiseValidator
 
@@ -946,7 +959,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                       record_list[0].getMessage().lower())
 
     def test_unknown_or_invalid_swissprot(self):
-        """Test errors for invalid and unknown accessions under SWISSPROT."""
+        """Test warnings for invalid and unknown accessions under SWISSPROT."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate(
                 'mutations/data_mutations_invalid_swissprot.maf',
@@ -957,13 +970,13 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         record_iterator = iter(record_list)
         # used a name instead of an accession
         record = record_iterator.next()
-        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.line_number, 3)
         self.assertEqual(record.cause, 'A1CF_HUMAN')
         self.assertNotIn('portal', record.getMessage().lower())
         # neither a name nor an accession
         record = record_iterator.next()
-        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.line_number, 5)
         self.assertEqual(record.cause, 'P99999,Z9ZZZ9ZZZ9')
         self.assertNotIn('portal', record.getMessage().lower())

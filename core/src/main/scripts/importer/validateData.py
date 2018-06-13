@@ -53,9 +53,9 @@ DEFINED_SAMPLE_ATTRIBUTES = None
 PATIENTS_WITH_SAMPLES = None
 DEFINED_CANCER_TYPES = None
 
-# GSVA globals
-GSVA_SAMPLE_IDS = None
-GSVA_GENESET_IDS = None
+# globals required for gene set scoring validation
+prior_validated_sample_ids = None
+prior_validated_geneset_ids = None
 
 # ----------------------------------------------------------------------------
 
@@ -2886,15 +2886,15 @@ class GsvaWiseFileValidator(FeaturewiseFileValidator):
         """
         num_errors = super(GsvaWiseFileValidator, self).checkHeader(cols)
 
-        global GSVA_SAMPLE_IDS
+        global prior_validated_sample_ids
 
-        if GSVA_SAMPLE_IDS != None:
-            if self.cols != GSVA_SAMPLE_IDS:
+        if prior_validated_sample_ids != None:
+            if self.cols != prior_validated_sample_ids:
                 self.logger.error('Headers from score and p-value files are different',
                                   extra={'line_number': self.line_number})
                 num_errors += 1
         else:
-            GSVA_SAMPLE_IDS = self.cols
+            prior_validated_sample_ids = self.cols
 
         return num_errors
 
@@ -2902,10 +2902,10 @@ class GsvaWiseFileValidator(FeaturewiseFileValidator):
 
         """Check the `geneset_id` column."""
 
-        global GSVA_GENESET_IDS
-
+        global prior_validated_geneset_ids
         geneset_id = nonsample_col_vals[0].strip()
-        #Check if gene set is present
+
+        # Check if gene set is present
         if geneset_id == '':
             # Validator already gives warning for this in checkLine method
             pass
@@ -2916,29 +2916,39 @@ class GsvaWiseFileValidator(FeaturewiseFileValidator):
                                      'cause': geneset_id})
         # Check if gene set is in database
         elif self.portal.geneset_id_list is not None and geneset_id not in self.portal.geneset_id_list:
-            self.logger.warning("Gene set not found in database, please make sure "
-                                "to import gene sets prior to study loading",
+            self.logger.error("Gene set not found in database, please make sure "
+                              "to import gene sets prior to study loading",
                               extra={'line_number': self.line_number, 'cause': geneset_id})
         else:
-            # Check if this is the second GSVA data file
-            if GSVA_GENESET_IDS != None:
-                # Check if gene set is in the first GSVA file
-                if not geneset_id in GSVA_GENESET_IDS:
-                    self.logger.error('Gene sets in GSVA score and p-value files are not equal',
-                                  extra={'line_number': self.line_number})
+            # Check if this is the second gene set data file
+            if prior_validated_geneset_ids is not None:
+                # Check if gene set is in the first gene set data file
+                if geneset_id not in prior_validated_geneset_ids:
+                    self.logger.error('Gene sets in cannot be found in other gene set file',
+                                      extra={'line_number': self.line_number,
+                                             'cause': geneset_id})
+            # Add gene set to list of gene sets of current gene set data file
             self.geneset_ids.append(geneset_id)
         return geneset_id
 
     def onComplete(self):
-        global GSVA_GENESET_IDS
 
-        if GSVA_GENESET_IDS == None:
-            GSVA_GENESET_IDS = self.geneset_ids
-        else:
-            # Check if geneset ids are the same
-            if not GSVA_GENESET_IDS == self.geneset_ids:
-                self.logger.error(
-                    'First columns of GSVA score and p-value files are not equal')
+        def checkConsistencyScoresPvalue(self):
+            """This function validates whether the gene sets in the scores and p-value file are the same"""
+
+            global prior_validated_geneset_ids
+
+            # If the prior_validated_geneset_ids is not filled yet, fill it with the first file.
+            if prior_validated_geneset_ids is None:
+                prior_validated_geneset_ids = self.geneset_ids
+            else:
+                # Check if gene set ids are the same
+                if not prior_validated_geneset_ids == self.geneset_ids:
+                    self.logger.error(
+                        'Gene sets column in score and p-value file are not equal')
+
+        checkConsistencyScoresPvalue(self)
+
         super(GsvaWiseFileValidator, self).onComplete()
 
 

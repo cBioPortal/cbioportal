@@ -20,6 +20,7 @@ public class StudyViewFilter implements Serializable {
     private List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters;
     private List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters;
 	private List<MutationGeneFilter> mutatedGenes;
+    private List<FusionGeneFilter> fusionGenes;
 	private List<CopyNumberGeneFilter> cnaGenes;
 	private Boolean withMutationData;
 	private Boolean withCNAData;
@@ -81,9 +82,15 @@ public class StudyViewFilter implements Serializable {
 		return mutatedGenes;
 	}
 
-	public void setMutatedGenes(List<MutationGeneFilter> mutatedGenes) {
-		this.mutatedGenes = mutatedGenes;
-	}
+	public void setMutatedGenes(List<MutationGeneFilter> mutatedGenes) { this.mutatedGenes = mutatedGenes; }
+
+    public List<FusionGeneFilter> getFusionGenes() {
+        return fusionGenes;
+    }
+
+    public void setFusionGenes(List<FusionGeneFilter> fusionGenes) {
+        this.fusionGenes = fusionGenes;
+    }
 
 	public List<CopyNumberGeneFilter> getCnaGenes() {
 		return cnaGenes;

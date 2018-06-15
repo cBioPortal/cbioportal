@@ -18,5 +18,5 @@ public interface PatientRepository {
 
     BaseMeta fetchMetaPatients(List<String> studyIds, List<String> patientIds);
 
-    List<String> getPatientIdsOfSamples(List<String> sampleIds);
+    List<Patient> getPatientsOfSamples(List<String> studyIds, List<String> sampleIds);
 }

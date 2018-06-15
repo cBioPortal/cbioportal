@@ -20,11 +20,10 @@ import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.SampleService;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.springframework.validation.annotation.Validated;
@@ -60,109 +59,128 @@ public class StudyViewController {
     @Autowired
     private GenePanelService genePanelService;
 
-    @RequestMapping(value = "/studies/{studyId}/attributes/{attributeId}/clinical-data-counts/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/attributes/{attributeId}/clinical-data-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data counts by study view filter")
     public ResponseEntity<List<ClinicalDataCount>> fetchClinicalDataCounts(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga") 
-        @PathVariable String studyId,
         @ApiParam(required = true, value = "Attribute ID e.g. CANCER_TYPE")
         @PathVariable String attributeId,
         @ApiParam("Type of the clinical data")
         @RequestParam(defaultValue = "SAMPLE") ClinicalDataType clinicalDataType,
         @ApiParam(required = true, value = "Clinical data count filter")
-        @Valid @RequestBody StudyViewFilter studyViewFilter) throws StudyNotFoundException, 
-        MolecularProfileNotFoundException {
+        @Valid @RequestBody StudyViewFilter studyViewFilter) {
 
         if (studyViewFilter.getClinicalDataEqualityFilters() != null) {
             studyViewFilter.getClinicalDataEqualityFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
         }
-        List<String> filteredSampleIds = studyViewFilterApplier.apply(studyId, studyViewFilter);
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
 
-        if (filteredSampleIds.isEmpty()) {
+        if (filteredSampleIdentifiers.isEmpty()) {
             return new ResponseEntity<>(null, HttpStatus.OK);
         }
-        return new ResponseEntity<>(clinicalDataService.fetchClinicalDataCounts(studyId, filteredSampleIds, 
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+        return new ResponseEntity<>(clinicalDataService.fetchClinicalDataCounts(studyIds, sampleIds, 
             Arrays.asList(attributeId), clinicalDataType.name()).get(attributeId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/studies/{studyId}/mutated-genes/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/mutated-genes/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutated genes by study view filter")
     public ResponseEntity<List<MutationCountByGene>> fetchMutatedGenes(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga") 
-        @PathVariable String studyId,
         @ApiParam(required = true, value = "Study view filter")
-        @Valid @RequestBody StudyViewFilter studyViewFilter) throws MolecularProfileNotFoundException, StudyNotFoundException {
+        @Valid @RequestBody StudyViewFilter studyViewFilter) {
 
-        List<String> filteredSampleIds = studyViewFilterApplier.apply(studyId, studyViewFilter);
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
         List<MutationCountByGene> result = new ArrayList<>();
-        if (!filteredSampleIds.isEmpty()) {
-            result = mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(molecularProfileService
-                .getFirstMutationProfileId(studyId), filteredSampleIds, null, true);
+        if (!filteredSampleIdentifiers.isEmpty()) {
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+            result = mutationService.getSampleCountInMultipleMolecularProfiles(molecularProfileService
+                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, true);
             result.sort((a, b) -> b.getCountByEntity() - a.getCountByEntity());
         }
         
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/studies/{studyId}/cna-genes/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/cna-genes/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch CNA genes by study view filter")
     public ResponseEntity<List<CopyNumberCountByGene>> fetchCNAGenes(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga") 
-        @PathVariable String studyId,
         @ApiParam(required = true, value = "Study view filter")
-        @Valid @RequestBody StudyViewFilter studyViewFilter) throws MolecularProfileNotFoundException, StudyNotFoundException {
+        @Valid @RequestBody StudyViewFilter studyViewFilter) {
 
-        List<String> filteredSampleIds = studyViewFilterApplier.apply(studyId, studyViewFilter);
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
         List<CopyNumberCountByGene> result = new ArrayList<>();
-        if (!filteredSampleIds.isEmpty()) {
-            result = discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(molecularProfileService
-                .getFirstDiscreteCNAProfileId(studyId), filteredSampleIds, null, Arrays.asList(-2, 2), true);
+        if (!filteredSampleIdentifiers.isEmpty()) {
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+            result = discreteCopyNumberService.getSampleCountInMultipleMolecularProfiles(molecularProfileService
+                .getFirstDiscreteCNAProfileIds(studyIds, sampleIds), sampleIds, null, Arrays.asList(-2, 2), true);
             result.sort((a, b) -> b.getCountByEntity() - a.getCountByEntity());
         }
         
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/studies/{studyId}/samples/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/filtered-samples/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample IDs by study view filter")
-    public ResponseEntity<List<Sample>> fetchSampleIds(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga") 
-        @PathVariable String studyId,
+    public ResponseEntity<List<Sample>> fetchFilteredSamples(
         @ApiParam(required = true, value = "Study view filter")
-        @Valid @RequestBody StudyViewFilter studyViewFilter) throws StudyNotFoundException, 
-        MolecularProfileNotFoundException {
+        @Valid @RequestBody StudyViewFilter studyViewFilter) {
         
-        List<String> sampleIds = studyViewFilterApplier.apply(studyId, studyViewFilter);
         List<String> studyIds = new ArrayList<>();
-        sampleIds.forEach(s -> studyIds.add(studyId));
-        return new ResponseEntity<>(sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name()), HttpStatus.OK);
+        List<String> sampleIds = new ArrayList<>();
+        extractStudyAndSampleIds(studyViewFilterApplier.apply(studyViewFilter), studyIds, sampleIds);
+        List<Sample> result = new ArrayList<>();
+        if (!sampleIds.isEmpty()) {
+            result = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name());
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/studies/{studyId}/sample-counts/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/sample-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample IDs by study view filter")
     public ResponseEntity<MolecularProfileSampleCount> fetchMolecularProfileSampleCounts(
-        @ApiParam(required = true, value = "Study ID e.g. acc_tcga") 
-        @PathVariable String studyId,
         @ApiParam(required = true, value = "Study view filter")
-        @Valid @RequestBody StudyViewFilter studyViewFilter) throws StudyNotFoundException, 
-        MolecularProfileNotFoundException {
+        @Valid @RequestBody StudyViewFilter studyViewFilter) {
         
-        List<String> sampleIds = studyViewFilterApplier.apply(studyId, studyViewFilter);
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        extractStudyAndSampleIds(studyViewFilterApplier.apply(studyViewFilter), studyIds, sampleIds);
         MolecularProfileSampleCount molecularProfileSampleCount = new MolecularProfileSampleCount();
-        molecularProfileSampleCount.setNumberOfMutationProfiledSamples(Math.toIntExact(genePanelService.fetchGenePanelData(
-            molecularProfileService.getFirstMutationProfileId(studyId), sampleIds).stream().filter(g -> g.getProfiled()).count()));
-        molecularProfileSampleCount.setNumberOfMutationUnprofiledSamples(sampleIds.size() - 
-            molecularProfileSampleCount.getNumberOfMutationProfiledSamples());
-        molecularProfileSampleCount.setNumberOfCNAProfiledSamples(Math.toIntExact(genePanelService.fetchGenePanelData(
-            molecularProfileService.getFirstDiscreteCNAProfileId(studyId), sampleIds).stream().filter(g -> g.getProfiled()).count()));
-        molecularProfileSampleCount.setNumberOfCNAUnprofiledSamples(sampleIds.size() - 
-            molecularProfileSampleCount.getNumberOfMutationProfiledSamples());
-
+        if (sampleIds.isEmpty()) {
+            molecularProfileSampleCount.setNumberOfMutationProfiledSamples(0);
+            molecularProfileSampleCount.setNumberOfMutationUnprofiledSamples(0);
+            molecularProfileSampleCount.setNumberOfCNAProfiledSamples(0);
+            molecularProfileSampleCount.setNumberOfCNAUnprofiledSamples(0);
+        } else {
+            int sampleCount = sampleIds.size();
+            molecularProfileSampleCount.setNumberOfMutationProfiledSamples(Math.toIntExact(genePanelService
+                .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileService.getFirstMutationProfileIds(
+                studyIds, sampleIds), sampleIds).stream().filter(g -> g.getProfiled()).count()));
+            molecularProfileSampleCount.setNumberOfMutationUnprofiledSamples(sampleCount - 
+                molecularProfileSampleCount.getNumberOfMutationProfiledSamples());
+            molecularProfileSampleCount.setNumberOfCNAProfiledSamples(Math.toIntExact(genePanelService
+                .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileService.getFirstDiscreteCNAProfileIds(
+                studyIds, sampleIds), sampleIds).stream().filter(g -> g.getProfiled()).count()));
+            molecularProfileSampleCount.setNumberOfCNAUnprofiledSamples(sampleCount - 
+                molecularProfileSampleCount.getNumberOfCNAProfiledSamples());
+        }
         return new ResponseEntity<>(molecularProfileSampleCount, HttpStatus.OK);
+    }
+
+    private void extractStudyAndSampleIds(List<SampleIdentifier> sampleIdentifiers, List<String> studyIds, List<String> sampleIds) {
+        
+        for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
+            studyIds.add(sampleIdentifier.getStudyId());
+            sampleIds.add(sampleIdentifier.getSampleId());
+        }
     }
 }

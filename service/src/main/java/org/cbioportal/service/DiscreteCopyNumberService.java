@@ -29,6 +29,12 @@ public interface DiscreteCopyNumberService {
                                                                             String projection)
         throws MolecularProfileNotFoundException;
 
+    List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfiles(List<String> molecularProfileIds, 
+                                                                                   List<String> sampleIds,
+                                                                                   List<Integer> entrezGeneIds,
+                                                                                   List<Integer> alterationTypes, 
+                                                                                   String projection);
+
     BaseMeta fetchMetaDiscreteCopyNumbersInMolecularProfile(String molecularProfileId, List<String> sampleIds,
                                                             List<Integer> entrezGeneIds, List<Integer> alterationTypes)
         throws MolecularProfileNotFoundException;
@@ -36,9 +42,14 @@ public interface DiscreteCopyNumberService {
     List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String molecularProfileId,
                                                                               List<String> sampleIds,
                                                                               List<Integer> entrezGeneIds,
-                                                                              List<Integer> alterations,
-                                                                              boolean includeFrequency) 
+                                                                              List<Integer> alterations) 
         throws MolecularProfileNotFoundException;
+
+    List<CopyNumberCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
+        List<String> sampleIds,
+        List<Integer> entrezGeneIds,
+        List<Integer> alterations,
+        boolean includeFrequency);
 
     List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId,
                                                                                 List<String> patientIds,

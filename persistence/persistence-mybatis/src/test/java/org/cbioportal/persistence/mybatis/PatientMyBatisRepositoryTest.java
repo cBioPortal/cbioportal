@@ -179,10 +179,11 @@ public class PatientMyBatisRepositoryTest {
     @Test
     public void getPatientIdsOfSamples() throws Exception {
 
-        List<String> result = patientMyBatisRepository.getPatientIdsOfSamples(Arrays.asList("TCGA-A1-A0SB-01", 
-            "TCGA-A1-A0SD-01", "TCGA-A1-A0SB-02"));
+        List<Patient> result = patientMyBatisRepository.getPatientsOfSamples(Arrays.asList("study_tcga_pub", "study_tcga_pub", "study_tcga_pub"), 
+            Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SB-02"));
         
         Assert.assertEquals(2, result.size());
-        Assert.assertEquals(Arrays.asList("TCGA-A1-A0SD", "TCGA-A1-A0SB"), result);
+        Assert.assertEquals("TCGA-A1-A0SD", result.get(0).getStableId());
+        Assert.assertEquals("TCGA-A1-A0SB", result.get(1).getStableId());
     }
 }

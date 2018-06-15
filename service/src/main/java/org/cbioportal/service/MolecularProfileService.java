@@ -36,6 +36,6 @@ public interface MolecularProfileService {
     List<MolecularProfile> getMolecularProfilesReferringTo(String referredMolecularProfileId) 
         throws MolecularProfileNotFoundException;
 
-    String getFirstMutationProfileId(String studyId) throws StudyNotFoundException;
-    String getFirstDiscreteCNAProfileId(String studyId) throws StudyNotFoundException;
+    List<String> getFirstMutationProfileIds(List<String> studyIds, List<String> sampleIds);
+    List<String> getFirstDiscreteCNAProfileIds(List<String> studyIds, List<String> sampleIds);
 }

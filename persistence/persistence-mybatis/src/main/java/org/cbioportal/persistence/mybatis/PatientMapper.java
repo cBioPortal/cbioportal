@@ -14,5 +14,5 @@ public interface PatientMapper {
 
     Patient getPatient(String studyId, String patientId, String projection);
 
-	List<String> getPatientIdsOfSamples(List<String> sampleIds);
+	List<Patient> getPatientsOfSamples(List<String> studyIds, List<String> sampleIds);
 }

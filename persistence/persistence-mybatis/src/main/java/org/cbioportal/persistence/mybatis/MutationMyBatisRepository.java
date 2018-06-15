@@ -83,6 +83,13 @@ public class MutationMyBatisRepository implements MutationRepository {
             null);
     }
 
+	@Override
+	public List<MutationCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
+			List<String> sampleIds, List<Integer> entrezGeneIds) {
+        
+        return mutationMapper.getSampleCountInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds, null);
+	}
+
     @Override
     public List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
                                                                                 List<String> patientIds,

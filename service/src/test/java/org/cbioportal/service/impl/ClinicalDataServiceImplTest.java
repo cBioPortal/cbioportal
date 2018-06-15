@@ -2,6 +2,7 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.Patient;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
 import org.cbioportal.service.PatientService;
@@ -252,14 +253,28 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
         clinicalDataCount5.setCount(3);
         clinicalDataCounts.add(clinicalDataCount5);
 
-        Mockito.when(clinicalDataRepository.fetchClinicalDataCounts(STUDY_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), 
-            Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2, CLINICAL_ATTRIBUTE_ID_3), "PATIENT"))
-            .thenReturn(clinicalDataCounts);
+        Mockito.when(clinicalDataRepository.fetchClinicalDataCounts(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID), 
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, 
+            CLINICAL_ATTRIBUTE_ID_2, CLINICAL_ATTRIBUTE_ID_3), "PATIENT")).thenReturn(clinicalDataCounts);
 
-        Mockito.when(patientService.getPatientIdsOfSamples(Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3)))
-            .thenReturn(Arrays.asList(PATIENT_ID_1, PATIENT_ID_2, PATIENT_ID_3));
+        List<Patient> patients = new ArrayList<>();
+        Patient patient1 = new Patient();
+        patient1.setStableId(PATIENT_ID_1);
+        patient1.setCancerStudyIdentifier(STUDY_ID);
+        patients.add(patient1);
+        Patient patient2 = new Patient();
+        patient2.setStableId(PATIENT_ID_2);
+        patient2.setCancerStudyIdentifier(STUDY_ID);
+        patients.add(patient2);
+        Patient patient3 = new Patient();
+        patient3.setStableId(PATIENT_ID_3);
+        patient3.setCancerStudyIdentifier(STUDY_ID);
+        patients.add(patient3);
 
-        Map<String, List<ClinicalDataCount>> result = clinicalDataService.fetchClinicalDataCounts(STUDY_ID, 
+        Mockito.when(patientService.getPatientsOfSamples(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID), 
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3))).thenReturn(patients);
+
+        Map<String, List<ClinicalDataCount>> result = clinicalDataService.fetchClinicalDataCounts(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID), 
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2, 
             CLINICAL_ATTRIBUTE_ID_3), "PATIENT");
 

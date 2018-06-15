@@ -9,8 +9,6 @@ import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.GenePanelToGene;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.SampleList;
 import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.SampleListService;
 import org.junit.Assert;
@@ -25,8 +23,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class GeneFrequencyCalculatorTest {
 
     private static final String MOLECULAR_PROFILE_ID = "molecular_profile_id";
-    private static final String STUDY_ID = "study_id";
-    private static final String SEQUENCED_LIST_SUFFIX = "_sequenced";
     private static final String GENE_PANEL_ID_1 = "gene_panel_id_1";
     private static final String GENE_PANEL_ID_2 = "gene_panel_id_2";
     private static final Integer ENTREZ_GENE_ID_1 = 1;
@@ -35,8 +31,6 @@ public class GeneFrequencyCalculatorTest {
     private static final String SAMPLE_ID_1 = "sample_id_1";
     private static final String SAMPLE_ID_2 = "sample_id_2";
     private static final String SAMPLE_ID_3 = "sample_id_3";
-    private static final String SAMPLE_ID_4 = "sample_id_4";
-    private static final String SAMPLE_ID_5 = "sample_id_5";
 
     @InjectMocks
     private GeneFrequencyCalculator geneFrequencyCalculator;
@@ -49,19 +43,6 @@ public class GeneFrequencyCalculatorTest {
     @Test
     public void calculate() throws Exception {
 
-        MolecularProfile molecularProfile = new MolecularProfile();
-        molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
-        molecularProfile.setCancerStudyIdentifier(STUDY_ID);
-
-        SampleList sampleList = new SampleList();
-        List<String> sampleIds = new ArrayList<>();
-        sampleIds.add(SAMPLE_ID_1);
-        sampleIds.add(SAMPLE_ID_2);
-        sampleIds.add(SAMPLE_ID_3);
-        sampleIds.add(SAMPLE_ID_4);
-        sampleList.setSampleIds(sampleIds);
-
-        Mockito.when(sampleListService.getSampleList(STUDY_ID + SEQUENCED_LIST_SUFFIX)).thenReturn(sampleList);
 
         List<GenePanelData> genePanelDataList = new ArrayList<>();
         GenePanelData genePanelData1 = new GenePanelData();
@@ -76,8 +57,8 @@ public class GeneFrequencyCalculatorTest {
         genePanelData3.setProfiled(true);
         genePanelDataList.add(genePanelData3);
 
-        Mockito.when(genePanelService.fetchGenePanelData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID_3, SAMPLE_ID_2,
-            SAMPLE_ID_1))).thenReturn(genePanelDataList);
+        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, 
+            MOLECULAR_PROFILE_ID), Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3))).thenReturn(genePanelDataList);
 
         List<GenePanel> genePanels = new ArrayList<>();
         GenePanel genePanel1 = new GenePanel();
@@ -117,8 +98,8 @@ public class GeneFrequencyCalculatorTest {
         alterationCount3.setCountByEntity(2);
         alterationCounts.add(alterationCount3);
 
-        geneFrequencyCalculator.calculate(molecularProfile, Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3, 
-            SAMPLE_ID_5), alterationCounts,SEQUENCED_LIST_SUFFIX);
+        geneFrequencyCalculator.calculate(Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID), 
+            Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts);
 
         Assert.assertEquals(new BigDecimal("100.00"), alterationCounts.get(0).getFrequency());
         Assert.assertEquals(new BigDecimal("50.00"), alterationCounts.get(1).getFrequency());

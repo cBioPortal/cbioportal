@@ -9,3 +9,4 @@ TEST-PAT1	TEST-PAT1;SAMPLE3	basal-like	Cancer_type8	Cancer_type8_Sub13
 TEST-PAT1	TEST+PAT1/SAMPLE4	basal-like	Cancer_type17	Cancer_type17_Sub10
 TEST-PAT1	TEST-PAT1-SAMPLE5	Her2 enriched	Cancer_type27	Cancer_type27_Sub18
 TEST-PAT1	TEST-PAT1*SAMPLE6	Luminal A	Cancer_type7	Cancer_type7_Sub13
+TEST-PAT1	TEST-PAT1:SAMPLE6	Luminal A	Cancer_type7	Cancer_type7_Sub13

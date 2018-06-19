@@ -41,7 +41,10 @@
     if (authenticationMethod.equals("openid") || authenticationMethod.equals("ldap")) {
         principal = "principal.name";
     }
-    else if (authenticationMethod.equals("googleplus") || authenticationMethod.equals("saml") || authenticationMethod.equals("ad")) {
+    else if (authenticationMethod.equals("googleplus") ||
+	    		authenticationMethod.equals("saml") ||
+	    		authenticationMethod.equals("ad") ||
+	    		authenticationMethod.equals("social_auth")) {
         principal = "principal.username";
     }
     pageContext.setAttribute("principal", principal);
@@ -134,24 +137,30 @@
 
         <div id="rightHeaderContent">
         <%-- Display Sign Out Button for Real (Non-Anonymous) User --%>
-        <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
-            <div class="userControls">
-            <span class="username"><i class="fa fa-cog" aria-hidden="true"></i></span>&nbsp;
-                
-                <div class="identity">Logged in as <sec:authentication property="${principal}" />&nbsp;|&nbsp;
-                <c:choose>
-                    <c:when test="${authenticationMethod == 'saml'}">
-                        <a href="${samlLogoutUrl}">Sign out</a>
-                    </c:when>
-                    <c:otherwise>
-                        <a href="j_spring_security_logout">Sign out</a>
-                    </c:otherwise>
-                </c:choose>
-                &nbsp;&nbsp;
-                <i class="fa fa-cog" aria-hidden="true"></i>
-                </div>
-            </div>
-        </sec:authorize>
+	        <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
+	            <div class="identity">Logged in as <sec:authentication property="${principal}" />&nbsp;|&nbsp;
+	            <c:choose>
+	                <c:when test="${authenticationMethod == 'saml'}">
+	                    <a href="${samlLogoutUrl}">Sign out</a>
+	                </c:when>
+	                <c:otherwise>
+	                    <a href="j_spring_security_logout">Sign out</a>
+	                </c:otherwise>
+	            </c:choose>
+	            </div>
+	        </sec:authorize>
+	        
+	        <% if (authenticationMethod.equals("social_auth")) { %>
+	        
+		        <sec:authorize access="hasRole('ROLE_ANONYMOUS')">
+		            <div class="identity">&nbsp;
+		                <a href="login.jsp">Login</a>&nbsp;&nbsp;
+		            </div>
+	            </sec:authorize>
+	            
+	        <% } %>
+	        
+	        
 
         <c:if test="${rightLogo != ''}">
             <img id="institute-logo" src="<c:url value="${rightLogo}"/>" alt="Institute Logo" />

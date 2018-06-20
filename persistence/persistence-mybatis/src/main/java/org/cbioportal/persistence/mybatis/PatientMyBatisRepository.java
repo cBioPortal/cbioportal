@@ -7,6 +7,7 @@ import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.accept.PathExtensionContentNegotiationStrategy;
 
 import java.util.Arrays;
 import java.util.List;
@@ -52,8 +53,8 @@ public class PatientMyBatisRepository implements PatientRepository {
     }
 
 	@Override
-	public List<String> getPatientIdsOfSamples(List<String> sampleIds) {
+	public List<Patient> getPatientsOfSamples(List<String> studyIds, List<String> sampleIds) {
         
-        return patientMapper.getPatientIdsOfSamples(sampleIds);
+        return patientMapper.getPatientsOfSamples(studyIds, sampleIds);
 	}
 }

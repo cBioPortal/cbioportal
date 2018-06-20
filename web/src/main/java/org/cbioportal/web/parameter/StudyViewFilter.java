@@ -2,19 +2,38 @@ package org.cbioportal.web.parameter;
 
 import java.util.List;
 
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.Size;
+
 public class StudyViewFilter {
 
-	private List<String> sampleIds;
+	@Size(min = 1)
+	private List<SampleIdentifier> sampleIdentifiers;
+	@Size(min = 1)
+	private List<String> studyIds;
     private List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters;
 	private List<MutationGeneFilter> mutatedGenes;
 	private List<CopyNumberGeneFilter> cnaGenes;
+
+	@AssertTrue
+    private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
+        return sampleIdentifiers != null ^ studyIds != null;
+    }
 	
-	public List<String> getSampleIds() {
-		return sampleIds;
+	public List<SampleIdentifier> getSampleIdentifiers() {
+		return sampleIdentifiers;
 	}
 
-	public void setSampleIds(List<String> sampleIds) {
-		this.sampleIds = sampleIds;
+	public void setSampleIdentifiers(List<SampleIdentifier> sampleIdentifiers) {
+		this.sampleIdentifiers = sampleIdentifiers;
+	}
+
+	public List<String> getStudyIds() {
+		return studyIds;
+	}
+
+	public void setStudyIds(List<String> studyIds) {
+		this.studyIds = studyIds;
 	}
 
 	public List<ClinicalDataEqualityFilter> getClinicalDataEqualityFilters() {

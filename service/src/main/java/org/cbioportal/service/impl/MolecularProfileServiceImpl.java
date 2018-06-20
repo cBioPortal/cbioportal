@@ -13,6 +13,8 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.ArrayList;
 
 @Service
@@ -111,5 +113,45 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
         //validate (throws exception if profile not found):
         this.getMolecularProfile(referredMolecularProfileId);
         return molecularProfileRepository.getMolecularProfilesReferringTo(referredMolecularProfileId);
+	}
+
+	@Override
+	public List<String> getFirstMutationProfileIds(List<String> studyIds, List<String> sampleIds) {
+        
+        List<String> molecularProfileIds = new ArrayList<>();
+        Map<String, List<MolecularProfile>> mapByStudyId = getMolecularProfilesInStudies(studyIds, "SUMMARY")
+            .stream().filter(m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED))
+            .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
+        int removedSampleCount = 0;
+        for (int i = 0; i < studyIds.size(); i++) {
+            String studyId = studyIds.get(i);
+            if (mapByStudyId.containsKey(studyId)) {
+                molecularProfileIds.add(mapByStudyId.get(studyId).get(0).getStableId());
+            } else {
+                sampleIds.remove(i - removedSampleCount);
+                removedSampleCount++;
+            }
+        }
+        return molecularProfileIds;
+	}
+
+	@Override
+	public List<String> getFirstDiscreteCNAProfileIds(List<String> studyIds, List<String> sampleIds) {
+
+        List<String> molecularProfileIds = new ArrayList<>();
+        Map<String, List<MolecularProfile>> mapByStudyId = getMolecularProfilesInStudies(studyIds, "SUMMARY")
+            .stream().filter(m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION) && 
+            m.getDatatype().equals("DISCRETE")).collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
+        int removedSampleCount = 0;
+        for (int i = 0; i < studyIds.size(); i++) {
+            String studyId = studyIds.get(i);
+            if (mapByStudyId.containsKey(studyId)) {
+                molecularProfileIds.add(mapByStudyId.get(studyId).get(0).getStableId());
+            } else {
+                sampleIds.remove(i - removedSampleCount);
+                removedSampleCount++;
+            }
+        }
+        return molecularProfileIds;
 	}
 }

@@ -1,0 +1,12 @@
+#Patient Identifier	Overall Survival (Months)	Overall Survival Status	Disease Free (Months)	Disease Free Status
+#Identifier to uniquely specify a patient.	Overall survival in months since initial diagnosis.	Overall patient survival status.	Disease free (months) since initial treatment.	Disease free status since initial treatment.
+#STRING	NUMBER	STRING	NUMBER	STRING
+#1	1	1	1	1
+PATIENT_ID	OS_MONTHS	OS_STATUS	DFS_MONTHS	DFS_STATUS
+TEST- PAT1	272	ALIVE	272	Recurred/Progressed
+TEST,PAT3	208	LIVING	208	Recurred/Progressed
+TEST;PAT4	60	DECEASED	60	Recurred/Progressed
+TEST/PAT6	151	LIVING	151	Recurred/Progressed
+TEST+PAT5	290	LIVING	290	Progressed
+TEST:PAT7	88	LIVING	88	recurred/progressed
+TEST*PAT9	72	LIVING	72	Recurred/Progressed

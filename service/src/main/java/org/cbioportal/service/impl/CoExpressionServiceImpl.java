@@ -53,36 +53,60 @@ public class CoExpressionServiceImpl implements CoExpressionService {
     private List<CoExpression> createCoExpressions(List<GeneMolecularData> molecularDataList, Integer queryEntrezGeneId,
                                                    Double threshold) {
 
-        Map<Integer, List<GeneMolecularData>> molecularDataMap = molecularDataList.stream().filter(g -> 
-            NumberUtils.isNumber(g.getValue())).collect(Collectors.groupingBy(GeneMolecularData::getEntrezGeneId));
+        Map<Integer, List<GeneMolecularData>> molecularDataMap = molecularDataList.stream()
+                .collect(Collectors.groupingBy(GeneMolecularData::getEntrezGeneId));
         List<GeneMolecularData> queryMolecularDataList = molecularDataMap.remove(queryEntrezGeneId);
-        
+
         Map<Integer, List<Gene>> genes = geneService.fetchGenes(molecularDataMap.keySet().stream()
             .map(String::valueOf).collect(Collectors.toList()), "ENTREZ_GENE_ID", "SUMMARY").stream()
             .collect(Collectors.groupingBy(Gene::getEntrezGeneId));
         
-        double[] queryValues = queryMolecularDataList.stream().mapToDouble(g -> Double.parseDouble(g.getValue()))
-            .toArray();
-        
         List<CoExpression> coExpressionList = new ArrayList<>();
+
+        if (queryMolecularDataList == null) {
+            return coExpressionList;
+        }
+
+        List<String> queryValues = queryMolecularDataList.stream().map(g -> g.getValue()).collect(Collectors.toList());
         for (Integer entrezGeneId : molecularDataMap.keySet()) {
             
-            double[] values = molecularDataMap.get(entrezGeneId).stream().mapToDouble(g -> Double.parseDouble(
-                g.getValue())).toArray();
+            List<String> values = molecularDataMap.get(entrezGeneId).stream().map(g -> g.getValue())
+                .collect(Collectors.toList());
+            List<String> queryValuesCopy = new ArrayList<>(queryValues);
+
+            List<Integer> valuesToRemove = new ArrayList<>();
+            for (int i = 0; i < queryValuesCopy.size(); i++) {
+                if (!NumberUtils.isNumber(queryValuesCopy.get(i)) || !NumberUtils.isNumber(values.get(i))) {
+                    valuesToRemove.add(i);
+                }
+            }
+
+            for (int i = 0; i < valuesToRemove.size(); i++) {
+                int valueToRemove = valuesToRemove.get(i) - i;
+                queryValuesCopy.remove(valueToRemove);
+                values.remove(valueToRemove);
+            }
             
             CoExpression coExpression = new CoExpression();
             coExpression.setEntrezGeneId(entrezGeneId);
             Gene gene = genes.get(entrezGeneId).get(0);
             coExpression.setCytoband(gene.getCytoband());
             coExpression.setHugoGeneSymbol(gene.getHugoGeneSymbol());
+
+            double[] queryValuesNumber = queryValuesCopy.stream().mapToDouble(Double::parseDouble).toArray();
+            double[] valuesNumber = values.stream().mapToDouble(Double::parseDouble).toArray();
+
+            if (valuesNumber.length < 2) {
+                continue;
+            }
             
-            double pearsonsValue = pearsonsCorrelation.correlation(queryValues, values);
+            double pearsonsValue = pearsonsCorrelation.correlation(queryValuesNumber, valuesNumber);
             if (Double.isNaN(pearsonsValue) || Math.abs(pearsonsValue) < threshold) {
                 continue;
             }
             coExpression.setPearsonsCorrelation(BigDecimal.valueOf(pearsonsValue));
             
-            double spearmansValue = spearmansCorrelation.correlation(queryValues, values);
+            double spearmansValue = spearmansCorrelation.correlation(queryValuesNumber, valuesNumber);
             if (Double.isNaN(spearmansValue) || Math.abs(spearmansValue) < threshold) {
                 continue;
             }

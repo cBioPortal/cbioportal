@@ -1,16 +1,28 @@
 package org.cbioportal.model;
 
+import javax.validation.constraints.NotNull;
+
 public class MutationSpectrum extends UniqueKeyBase {
     
+    @NotNull
     private String molecularProfileId;
+    @NotNull
     private String sampleId;
+    @NotNull
     private String patientId;
+    @NotNull
     private String studyId;
+    @NotNull
     private Integer ctoA;
+    @NotNull
     private Integer ctoG;
+    @NotNull
     private Integer ctoT;
+    @NotNull
     private Integer ttoA;
+    @NotNull
     private Integer ttoC;
+    @NotNull
     private Integer ttoG;
 
     public String getMolecularProfileId() {

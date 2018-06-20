@@ -2,6 +2,7 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
 
 public class Mutation extends Alteration implements Serializable {
     

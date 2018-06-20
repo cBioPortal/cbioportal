@@ -7,7 +7,7 @@ This document explains why you might find Keycloak authentication useful for sto
 the cBioPortal database. It also shows you how to configure Keycloak to communicate with your instance of cBioPortal using
 SAML (Security Assertion Markup Language).
 
-Please note that configuring your local instance to use Keycloak authentication requires a Keycloak server to be set up. For details on how to set up a Keycloak server, please read online document at <https://keycloak.gitbooks.io/documentation/server_installation/index.html>.
+Please note that configuring your local instance to use Keycloak authentication requires a Keycloak server to be set up. For details on how to set up a Keycloak server, please read online document at <https://www.keycloak.org/docs/latest/server_installation/index.html>.
 
 This document focuses mainly on the steps to configure Keycloak for **authenticating** and **authorizing** cBioPortal users.
 

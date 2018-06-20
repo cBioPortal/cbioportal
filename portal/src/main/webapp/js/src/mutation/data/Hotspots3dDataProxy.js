@@ -40,7 +40,7 @@ function Hotspots3dDataProxy(options)
 
 	// default options
 	var _defaultOpts = {
-		servletName: "http://3dhotspots.org/3d/api",
+		servletName: "https://www.3dhotspots.org/3d/api",
         subService : {
 		    hotspotsByGene: "hotspots/3d",
             variantsByGene: "variants"

@@ -1,6 +1,8 @@
 package org.cbioportal.web.parameter;
 
-public class SampleIdentifier {
+import java.io.Serializable;
+
+public class SampleIdentifier implements Serializable {
 
     private String sampleId;
     private String studyId;

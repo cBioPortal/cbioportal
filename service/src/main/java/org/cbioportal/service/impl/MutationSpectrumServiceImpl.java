@@ -6,7 +6,6 @@ import org.cbioportal.service.MutationService;
 import org.cbioportal.service.MutationSpectrumService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,7 +20,6 @@ public class MutationSpectrumServiceImpl implements MutationSpectrumService {
     private MutationService mutationService;
     
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<MutationSpectrum> getMutationSpectrums(String molecularProfileId, String sampleListId) 
         throws MolecularProfileNotFoundException {
 
@@ -32,7 +30,6 @@ public class MutationSpectrumServiceImpl implements MutationSpectrumService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<MutationSpectrum> fetchMutationSpectrums(String molecularProfileId, List<String> sampleIds) 
         throws MolecularProfileNotFoundException {
         

@@ -40,6 +40,7 @@ import itertools
 import requests
 import json
 import xml.etree.ElementTree as ET
+import re
 
 import cbioportal_common
 
@@ -53,9 +54,9 @@ DEFINED_SAMPLE_ATTRIBUTES = None
 PATIENTS_WITH_SAMPLES = None
 DEFINED_CANCER_TYPES = None
 
-# GSVA globals
-GSVA_SAMPLE_IDS = None
-GSVA_GENESET_IDS = None
+# globals required for gene set scoring validation
+prior_validated_sample_ids = None
+prior_validated_geneset_ids = None
 
 # ----------------------------------------------------------------------------
 
@@ -1363,7 +1364,7 @@ class MutationsExtendedValidator(Validator):
             entrez_id = data[self.cols.index('Entrez_Gene_Id')]
         if hugo_symbol == 'Unknown' and entrez_id == '0':
             is_silent = True
-            if variant_classification == 'IGR':
+            if variant_classification in ['IGR', 'Targeted_Region']:
                 self.logger.info("This variant (Gene symbol 'Unknown', Entrez gene ID 0) will be filtered out",
                                  extra={'line_number': self.line_number,
                                         'cause': variant_classification})
@@ -1376,7 +1377,7 @@ class MutationsExtendedValidator(Validator):
                 self.logger.warning(
                                     "Gene specification (Gene symbol 'Unknown', Entrez gene ID 0) for this variant "
                                     "implies intergenic even though Variant_Classification is "
-                                    "not 'IGR'; this variant will be filtered out",
+                                    "not 'IGR' or 'Targeted_Region'; this variant will be filtered out",
                                     extra={'line_number': self.line_number,
                                            'cause': variant_classification})
         elif variant_classification in self.SKIP_VARIANT_TYPES:
@@ -1431,10 +1432,13 @@ class MutationsExtendedValidator(Validator):
                     r'^([OPQ][0-9][A-Z0-9]{3}[0-9]|'
                     r'[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$',
                      value):
-                # return this as an error
-                self.extra = 'SWISSPROT value is not a UniProtKB accession.'
-                self.extra_exists = True
-                return False
+                # Return this as a warning. The cBioPortal front-end currently (1.13.2) does not use the SWISSPROT
+                # column for the Mutation Tab. It retrieves SWISSPROT accession and name based on Entrez Gene Id
+                self.logger.warning('SWISSPROT value is not a (single) UniProtKB accession. '
+                                    'Loader will try to find UniProtKB accession using Entrez gene id or '
+                                    'gene symbol.',
+                                    extra={'line_number': self.line_number, 'cause': value})
+                return True
         else:
             # format described on http://www.uniprot.org/help/entry_name
             if not re.match(
@@ -1444,12 +1448,12 @@ class MutationsExtendedValidator(Validator):
                 if ',' in value:
                     self.logger.warning('SWISSPROT value is not a single UniProtKB/Swiss-Prot name. '
                                         'Found multiple separated by a `,`. '
-                                        'Loader will try to find UniProt accession using Entrez gene id or '
+                                        'Loader will try to find UniProtKB accession using Entrez gene id or '
                                         'gene symbol.',
                                         extra={'line_number': self.line_number, 'cause': value})
                 else:
                     self.logger.warning('SWISSPROT value is not a (single) UniProtKB/Swiss-Prot name. '
-                                        'Loader will try to find UniProt accession using Entrez gene id or '
+                                        'Loader will try to find UniProtKB accession using Entrez gene id or '
                                         'gene symbol.',
                                         extra={'line_number': self.line_number, 'cause': value})
                 return True
@@ -1673,6 +1677,7 @@ class ClinicalValidator(Validator):
             'datatype': 'STRING'
         },
     }
+    INVALID_ID_CHARACTERS = r'[^A-Za-z0-9._-]'
 
     def __init__(self, *args, **kwargs):
         """Initialize the instance attributes of the data file validator."""
@@ -1907,6 +1912,30 @@ class ClinicalValidator(Validator):
                                'column_number': col_index + 1,
                                'cause': value})
 
+            if col_name == 'PATIENT_ID' or col_name == 'SAMPLE_ID':
+                if re.findall(self.INVALID_ID_CHARACTERS, value):
+                    self.logger.error(
+                        'PATIENT_ID and SAMPLE_ID can only contain letters, '
+                        'numbers, points, underscores and/or hyphens',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+
+            # Scan for incorrect usage of dates, accidentally converted by excel. This is often in a format such as
+            # Jan-99 or 20-Oct. A future improvement would be to add a "DATE" datatype.
+            excel_months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+            if 'date' not in col_name.lower():
+                if '-' in value:
+                    if len(value.split('-')) == 2 and not any(i in value for i in [',', '.', ':', ';']):
+                        if any(value_part.lower() in excel_months for value_part in value.split('-')):
+                            self.logger.error(
+                                'Date found when no date was expected. Please check if values are accidentally '
+                                'converted to dates by Excel. If this data is correct, add "DATE" to column name',
+                                extra={'line_number': self.line_number,
+                                       'column_number': col_index + 1,
+                                       'cause': value})
+
+
 
 class SampleClinicalValidator(ClinicalValidator):
 
@@ -1914,7 +1943,6 @@ class SampleClinicalValidator(ClinicalValidator):
 
     REQUIRED_HEADERS = ['SAMPLE_ID', 'PATIENT_ID']
     PROP_IS_PATIENT_ATTRIBUTE = '0'
-    INVALID_SAMPLE_ID_CHARACTERS = set(',;+/=*')
 
 
     def __init__(self, *args, **kwargs):
@@ -1941,21 +1969,6 @@ class SampleClinicalValidator(ClinicalValidator):
                                'column_number': col_index + 1,
                                'cause': value})
                     continue
-                if ' ' in value:
-                    self.logger.error(
-                        'White space in SAMPLE_ID is not supported',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
-                # invalid characters in sample_id can cause problems in different parts of the portal code,
-                # so block them here:
-                if any((c in self.INVALID_SAMPLE_ID_CHARACTERS) for c in value):
-                    self.logger.error(
-                        'A number of special characters, such as ' + str(list(self.INVALID_SAMPLE_ID_CHARACTERS)) +
-                        ' are not allowed in SAMPLE_ID',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
                 if value in self.sample_id_lines:
                     if value.startswith('TCGA-'):
                         self.logger.warning(
@@ -2037,12 +2050,6 @@ class PatientClinicalValidator(ClinicalValidator):
             if col_index < len(data):
                 value = data[col_index].strip()
             if col_name == 'PATIENT_ID':
-                if ' ' in value:
-                    self.logger.error(
-                        'White space in PATIENT_ID is not supported',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
                 if value in self.patient_id_lines:
                     self.logger.error(
                         'Patient defined multiple times in file',
@@ -2883,15 +2890,15 @@ class GsvaWiseFileValidator(FeaturewiseFileValidator):
         """
         num_errors = super(GsvaWiseFileValidator, self).checkHeader(cols)
 
-        global GSVA_SAMPLE_IDS
+        global prior_validated_sample_ids
 
-        if GSVA_SAMPLE_IDS != None:
-            if self.cols != GSVA_SAMPLE_IDS:
+        if prior_validated_sample_ids != None:
+            if self.cols != prior_validated_sample_ids:
                 self.logger.error('Headers from score and p-value files are different',
                                   extra={'line_number': self.line_number})
                 num_errors += 1
         else:
-            GSVA_SAMPLE_IDS = self.cols
+            prior_validated_sample_ids = self.cols
 
         return num_errors
 
@@ -2899,10 +2906,10 @@ class GsvaWiseFileValidator(FeaturewiseFileValidator):
 
         """Check the `geneset_id` column."""
 
-        global GSVA_GENESET_IDS
-
+        global prior_validated_geneset_ids
         geneset_id = nonsample_col_vals[0].strip()
-        #Check if gene set is present
+
+        # Check if gene set is present
         if geneset_id == '':
             # Validator already gives warning for this in checkLine method
             pass
@@ -2913,29 +2920,39 @@ class GsvaWiseFileValidator(FeaturewiseFileValidator):
                                      'cause': geneset_id})
         # Check if gene set is in database
         elif self.portal.geneset_id_list is not None and geneset_id not in self.portal.geneset_id_list:
-            self.logger.warning("Gene set not found in database, please make sure "
-                                "to import gene sets prior to study loading",
+            self.logger.error("Gene set not found in database, please make sure "
+                              "to import gene sets prior to study loading",
                               extra={'line_number': self.line_number, 'cause': geneset_id})
         else:
-            # Check if this is the second GSVA data file
-            if GSVA_GENESET_IDS != None:
-                # Check if gene set is in the first GSVA file
-                if not geneset_id in GSVA_GENESET_IDS:
-                    self.logger.error('Gene sets in GSVA score and p-value files are not equal',
-                                  extra={'line_number': self.line_number})
+            # Check if this is the second gene set data file
+            if prior_validated_geneset_ids is not None:
+                # Check if gene set is in the first gene set data file
+                if geneset_id not in prior_validated_geneset_ids:
+                    self.logger.error('Gene sets in cannot be found in other gene set file',
+                                      extra={'line_number': self.line_number,
+                                             'cause': geneset_id})
+            # Add gene set to list of gene sets of current gene set data file
             self.geneset_ids.append(geneset_id)
         return geneset_id
 
     def onComplete(self):
-        global GSVA_GENESET_IDS
 
-        if GSVA_GENESET_IDS == None:
-            GSVA_GENESET_IDS = self.geneset_ids
-        else:
-            # Check if geneset ids are the same
-            if not GSVA_GENESET_IDS == self.geneset_ids:
-                self.logger.error(
-                    'First columns of GSVA score and p-value files are not equal')
+        def checkConsistencyScoresPvalue(self):
+            """This function validates whether the gene sets in the scores and p-value file are the same"""
+
+            global prior_validated_geneset_ids
+
+            # If the prior_validated_geneset_ids is not filled yet, fill it with the first file.
+            if prior_validated_geneset_ids is None:
+                prior_validated_geneset_ids = self.geneset_ids
+            else:
+                # Check if gene set ids are the same
+                if not prior_validated_geneset_ids == self.geneset_ids:
+                    self.logger.error(
+                        'Gene sets column in score and p-value file are not equal')
+
+        checkConsistencyScoresPvalue(self)
+
         super(GsvaWiseFileValidator, self).onComplete()
 
 

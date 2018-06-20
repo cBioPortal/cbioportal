@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.GenePanelMapper">
-    <cache/>
+    <cache readOnly="true"/>
     
     <sql id="select">
         gene_panel.INTERNAL_ID AS internalId,
@@ -23,7 +23,7 @@
 
     <sql id="fromGenePanelData">
         FROM sample_profile
-        INNER JOIN gene_panel ON sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
+        LEFT JOIN gene_panel ON sample_profile.PANEL_ID = gene_panel.INTERNAL_ID
         INNER JOIN genetic_profile ON sample_profile.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON sample_profile.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
@@ -57,7 +57,21 @@
         FROM gene_panel
         WHERE gene_panel.STABLE_ID = #{genePanelId}
     </select>
-    
+
+    <select id="fetchGenePanels" resultType="org.cbioportal.model.GenePanel">
+        SELECT
+        <include refid="select"/>
+        FROM gene_panel
+        <where>
+            <if test="genePanelIds != null and !genePanelIds.isEmpty()">
+                gene_panel.STABLE_ID IN
+                <foreach item="item" collection="genePanelIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
     <select id="getGenesOfPanels" resultType="org.cbioportal.model.GenePanelToGene">
         SELECT
         gene_panel.STABLE_ID AS genePanelId,

@@ -82,7 +82,7 @@
 
     <filter-mapping>
       <filter-name>APICorsFilter</filter-name>
-      <url-pattern>/api-legacy/proxy/session-service/*</url-pattern>
+      <url-pattern>/api-legacy/proxy/session/*</url-pattern>
     </filter-mapping>
 
     <filter>
@@ -443,7 +443,10 @@
         <servlet-name>patient_view</servlet-name>
         <url-pattern>/case.do</url-pattern>
     </servlet-mapping>
-
+    <servlet-mapping>
+        <servlet-name>patient_view</servlet-name>
+        <url-pattern>/patient</url-pattern>
+    </servlet-mapping>
     <servlet>
         <servlet-name>CrossCancerJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerJSON</servlet-class>

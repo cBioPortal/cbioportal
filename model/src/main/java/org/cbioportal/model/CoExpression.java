@@ -2,13 +2,19 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
 
 public class CoExpression implements Serializable {
 
+    @NotNull
     private Integer entrezGeneId;
+    @NotNull
     private String hugoGeneSymbol;
+    @NotNull
     private String cytoband;
+    @NotNull
     private BigDecimal pearsonsCorrelation;
+    @NotNull
     private BigDecimal spearmansCorrelation;
 
     public Integer getEntrezGeneId() {

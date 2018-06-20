@@ -1,7 +1,6 @@
 package org.cbioportal.service.impl;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Geneset;

@@ -61,22 +61,22 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
     @Test(expected = GeneNotFoundException.class)
     public void getGeneByEntrezGeneIdNotFound() throws Exception {
 
-        Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID)).thenReturn(null);
+        Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(null);
 
-        geneService.getGene(ENTREZ_GENE_ID.toString());
+        geneService.getGene(ENTREZ_GENE_ID_1.toString());
     }
 
     @Test
     public void getGeneByEntrezGeneId() throws Exception {
 
         Gene expectedGene = new Gene();
-        Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID)).thenReturn(expectedGene);
+        Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(expectedGene);
         Mockito.doAnswer(invocationOnMock -> {
             ((Gene) invocationOnMock.getArguments()[0]).setChromosome("X");
             return null;
         }).when(chromosomeCalculator).setChromosome(expectedGene);
         
-        Gene result = geneService.getGene(ENTREZ_GENE_ID.toString());
+        Gene result = geneService.getGene(ENTREZ_GENE_ID_1.toString());
 
         Assert.assertEquals(expectedGene, result);
         Assert.assertEquals("X", result.getChromosome());
@@ -110,11 +110,11 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
     public void getAliasesOfGeneByEntrezGeneId() throws Exception {
 
         Gene expectedGene = new Gene();
-        Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID)).thenReturn(expectedGene);
+        Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(expectedGene);
         List<String> expectedAliases = new ArrayList<>();
         expectedAliases.add("alias");
-        Mockito.when(geneRepository.getAliasesOfGeneByEntrezGeneId(ENTREZ_GENE_ID)).thenReturn(expectedAliases);
-        List<String> result = geneService.getAliasesOfGene(ENTREZ_GENE_ID.toString());
+        Mockito.when(geneRepository.getAliasesOfGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(expectedAliases);
+        List<String> result = geneService.getAliasesOfGene(ENTREZ_GENE_ID_1.toString());
 
         Assert.assertEquals(expectedAliases, result);
     }
@@ -122,8 +122,8 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
     @Test(expected = GeneNotFoundException.class)
     public void getAliasesOfGeneByEntrezGeneIdGeneNotFound() throws Exception {
         
-        Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID)).thenReturn(null);
-        geneService.getAliasesOfGene(ENTREZ_GENE_ID.toString());
+        Mockito.when(geneRepository.getGeneByEntrezGeneId(ENTREZ_GENE_ID_1)).thenReturn(null);
+        geneService.getAliasesOfGene(ENTREZ_GENE_ID_1.toString());
     }
 
     @Test

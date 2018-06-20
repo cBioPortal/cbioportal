@@ -35,6 +35,7 @@ package org.mskcc.cbio.portal.model;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.mskcc.cbio.maf.MafUtil;
 
 /**
  * Encapsules Details regarding a Single Mutation.
@@ -381,10 +382,10 @@ public final class ExtendedMutation
     private String score;
     private String bamFile;
 	private String aminoAcidChange;
-    private int tumorAltCount;
-    private int tumorRefCount;
-    private int normalAltCount;
-    private int normalRefCount;
+    private Integer tumorAltCount;
+    private Integer tumorRefCount;
+    private Integer normalAltCount;
+    private Integer normalRefCount;
     private String driverFilter;
     private String driverFilterAnn;
     private String driverTiersFilter;
@@ -648,30 +649,22 @@ public final class ExtendedMutation
         
         
         
-        /**
-         * Set alleles. For variant allele: one of the tumor sequence alleles
-         * which is different from the reference allele.
+    /**
+     * Set alleles. 
+     * For variant allele: one of the tumor sequence alleles is selected.
+     * @see MafUtil#resolveTumorSeqAllele(String referenceAllele, String tumorSeqAllele1, String tumorSeqAllele2)
      *
      * @param varAllele1  the first variant allele
      * @param varAllele2  the second variant allele
      * @param refAllele  the reference allele
-     * @return          tumor sequence allele different from the reference allele
+     * @return tumor sequence allele
      */
     public void setAllele(String varAllele1, String varAllele2, String refAllele)
     {
-            this.setReferenceAllele(refAllele);
-            this.setTumorSeqAllele1(varAllele1);
-            this.setTumorSeqAllele2(varAllele2);
-            
-            String varAllele = varAllele1;
-
-            if (refAllele != null &&
-                    refAllele.equals(varAllele1))
-            {
-                    varAllele = varAllele2;
-            }
-
-            this.setTumorSeqAllele(varAllele);
+        this.setReferenceAllele(refAllele);
+        this.setTumorSeqAllele1(varAllele1);
+        this.setTumorSeqAllele2(varAllele2);
+        this.setTumorSeqAllele(MafUtil.resolveTumorSeqAllele(refAllele, varAllele1, varAllele2));
     }
 
     public String getDbSnpRs() {
@@ -794,35 +787,35 @@ public final class ExtendedMutation
         this.bamFile = bamFile;
     }
 
-    public int getTumorAltCount() {
+    public Integer getTumorAltCount() {
         return tumorAltCount;
     }
 
-    public void setTumorAltCount(int tumorAltCount) {
+    public void setTumorAltCount(Integer tumorAltCount) {
         this.tumorAltCount = tumorAltCount;
     }
 
-    public int getTumorRefCount() {
+    public Integer getTumorRefCount() {
         return tumorRefCount;
     }
 
-    public void setTumorRefCount(int tumorRefCount) {
+    public void setTumorRefCount(Integer tumorRefCount) {
         this.tumorRefCount = tumorRefCount;
     }
 
-    public int getNormalAltCount() {
+    public Integer getNormalAltCount() {
         return normalAltCount;
     }
 
-    public void setNormalAltCount(int normalAltCount) {
+    public void setNormalAltCount(Integer normalAltCount) {
         this.normalAltCount = normalAltCount;
     }
 
-    public int getNormalRefCount() {
+    public Integer getNormalRefCount() {
         return normalRefCount;
     }
 
-    public void setNormalRefCount(int normalRefCount) {
+    public void setNormalRefCount(Integer normalRefCount) {
         this.normalRefCount = normalRefCount;
     }
 

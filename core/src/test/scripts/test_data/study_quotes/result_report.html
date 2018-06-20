@@ -375,7 +375,7 @@
           <span class="header-icon"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></span>
           <a role="button" data-toggle="collapse" aria-expanded="true"
               aria-controls="collapse_2670945268483421722" href="#collapse_2670945268483421722">
-            <span class="badge">6</span>
+            <span class="badge">7</span>
             <h4 class="panel-title">data_patients.txt</h4>
           </a>
         </div>
@@ -407,6 +407,13 @@
                 <td>Value of numeric attribute is not a real number</td>
                 <td>&#34;8.77&#34;, &#34;12.25, 12.25&#34;</td>
               </tr>
+              <tr class="danger">
+                <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
+                <td>432</td>
+                <td>1</td>
+                <td>PATIENT_ID and SAMPLE_ID can only contain letters, numbers, points, underscores and/or hyphens</td>
+                <td>&#34;TCGA-BH-A0HW&#34;</td>
+              </tr>
               <tr class="warning">
                 <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
                 <td>432</td>
@@ -432,7 +439,7 @@
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
-                <td>Read 830 lines. Lines with warning: 1. Lines with error: 2</td>
+                <td>Read 830 lines. Lines with warning: 1. Lines with error: 3</td>
                 <td>&ndash;</td>
               </tr>
             </tbody>
@@ -441,13 +448,13 @@
         </div>
       </div>
 
-      <div class="panel panel-warning">
+      <div class="panel panel-danger">
         <div class="panel-heading" role="tab"
               id="heading_2353294301845676894">
-          <span class="header-icon"><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></span>
+          <span class="header-icon"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></span>
           <a role="button" data-toggle="collapse" aria-expanded="true"
               aria-controls="collapse_2353294301845676894" href="#collapse_2353294301845676894">
-            <span class="badge">4</span>
+            <span class="badge">5</span>
             <h4 class="panel-title">data_samples.txt</h4>
           </a>
         </div>
@@ -479,6 +486,13 @@
                 <td>Found quotation marks around field(s) in the first rows of the file. Fields and values surrounded by quotation marks might be incorrectly loaded (i.e. with the quotation marks included as part of the value)</td>
                 <td>quotation marks of type: [&#34;] </td>
               </tr>
+              <tr class="danger">
+                <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
+                <td>9, 12</td>
+                <td>2</td>
+                <td>PATIENT_ID and SAMPLE_ID can only contain letters, numbers, points, underscores and/or hyphens</td>
+                <td>&#34;TCGA-AR-A1AR-01&#34;, &#34;TCGA-B6-A0I6-01</td>
+              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -490,7 +504,7 @@
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
-                <td>Read 831 lines. Lines with warning: 0. Lines with error: 0</td>
+                <td>Read 831 lines. Lines with warning: 0. Lines with error: 2</td>
                 <td>&ndash;</td>
               </tr>
             </tbody>

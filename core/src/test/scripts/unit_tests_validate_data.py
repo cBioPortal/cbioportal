@@ -283,21 +283,17 @@ class ClinicalValuesTestCase(DataFileTestCase):
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_clin_wrong_ids.txt',
                                     validateData.SampleClinicalValidator)
-        self.assertEqual(len(record_list), 5)
+        self.assertEqual(len(record_list), 6)
         record_iterator = iter(record_list)
         record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 6)
-        self.assertIn('White space', record.getMessage())
-        record = record_iterator.next()
-        self.assertEqual(record.levelno, logging.ERROR)
-        self.assertEqual(record.line_number, 7)
-        self.assertIn('special characters', record.getMessage())
+        self.assertIn('can only contain letters, numbers, points, underscores and/or hyphens', record.getMessage())
         # last one:
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
-        self.assertEqual(record.line_number, 11)
-        self.assertIn('special characters', record.getMessage())
+        self.assertEqual(record.line_number, 12)
+        self.assertIn('can only contain letters, numbers, points, underscores and/or hyphens', record.getMessage())
 
 
 
@@ -369,6 +365,40 @@ class PatientAttrFileTestCase(PostClinicalDataFileTestCase):
                       'will be excluded from survival curve and month of death '
                       'will not be shown on patient view timeline.',
                       record.getMessage())
+        
+    def test_patient_with_invalid_characters_in_patient_id(self):
+        """Test when a invalid characters are found in PATIENT_ID."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_clin_wrong_patient_id.txt',
+                                    validateData.PatientClinicalValidator)
+        self.assertEqual(len(record_list), 24)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 6)
+        self.assertIn('can only contain letters, numbers, points, underscores and/or hyphens', record.getMessage())
+
+    def test_date_in_nondate_column(self):
+        """Test when a sample is defined twice in the same file."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_clin_date_in_nondate_column.txt',
+                                    validateData.PatientClinicalValidator)
+        self.assertEqual(len(record_list), 2)
+        record_iterator = iter(record_list)
+        # First record contains 'Jan-14'
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 8)
+        self.assertEqual(record.column_number, 6)
+        self.assertEqual(record.cause, 'Jan-14')
+        self.assertIn('Date found when no date was expected', record.getMessage())
+        # Second record contains '4-Oct'
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 9)
+        self.assertEqual(record.column_number, 6)
+        self.assertEqual(record.cause, '4-Oct')
+        self.assertIn('Date found when no date was expected', record.getMessage())
 
 
 # TODO: make tests in this testcase check the number of properly defined types

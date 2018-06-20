@@ -171,7 +171,7 @@ Following the metadata rows comes a tab delimited list of clinical attributes (c
 ##### The patient file
 
 The file containing the patient attributes has one **required** column:
-- **PATIENT_ID (required)**: a unique patient ID.
+- **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
 
 The following columns are used by the study view as well as the patient view. In the [study view](http://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header](http://www.cbioportal.org/case.do#/patient?studyId=lgg_ucsf_2014&caseId=P05). 
 - **OS_STATUS**:  Overall patient survival status
@@ -206,8 +206,8 @@ PATIENT_ID_2<TAB>LIVING<TAB>63.01<TAB>DiseaseFree<TAB>63.01<TAB>...
 
 ##### The samples file
 The file containing the sample attributes has two **required** columns:
-- **PATIENT_ID (required)**: A patient ID.
-- **SAMPLE_ID (required)**: A sample ID.
+- **PATIENT_ID (required)**: A patient ID. This field can only contain numbers, letters, points, underscores and hyphens.
+- **SAMPLE_ID (required)**: A sample ID. This field can only contain numbers, letters, points, underscores and hyphens.
 
 By adding `PATIENT_ID` here, cBioPortal will map the given sample to this patient. This enables one to associate multiple samples to one patient. For example, a single patient may have had multiple biopsies, each of which has been genomically profiled. See [this example for a patient with multiple samples](http://www.cbioportal.org/case.do#/patient?studyId=lgg_ucsf_2014&caseId=P04).
 

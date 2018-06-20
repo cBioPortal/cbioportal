@@ -1,11 +1,14 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
 public class ClinicalEventData implements Serializable {
     
     private Integer clinicalEventId;
+    @NotNull
     private String key;
+    @NotNull
     private String value;
 
     public Integer getClinicalEventId() {

@@ -12,11 +12,14 @@ public class BaseServiceImplTest {
     public static final String SAMPLE_ID1 = "sample_id1";
     public static final String SAMPLE_ID2 = "sample_id2";
     public static final String SAMPLE_ID3 = "sample_id3";
-    public static final String PATIENT_ID = "patient_id";
+    public static final String PATIENT_ID_1 = "patient_id1";
+    public static final String PATIENT_ID_2 = "patient_id2";
+    public static final String PATIENT_ID_3 = "patient_id3";
     public static final String CLINICAL_ATTRIBUTE_ID = "attributeId";
     public static final String CANCER_TYPE_ID = "cancer_type_id";
     public static final String CLINICAL_DATA_TYPE = "clinical_data_type";
-    public static final Integer ENTREZ_GENE_ID = 1;
+    public static final Integer ENTREZ_GENE_ID_1 = 1;
+    public static final Integer ENTREZ_GENE_ID_2 = 2;
     public static final String GENESET_ID1 = "geneset_id1";
     public static final String GENESET_ID2 = "geneset_id2";
     public static final String HUGO_GENE_SYMBOL = "hugo_gene_symbol";
@@ -30,4 +33,5 @@ public class BaseServiceImplTest {
     public static final Integer PROTEIN_POS_END = 2;
     public static final String GENE_PANEL_ID = "gene_panel_id";
     public static final Integer SAMPLE_INTERNAL_ID = 1;
+    public static final String SEQUENCED_LIST_SUFFIX = "_sequenced";
 }

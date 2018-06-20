@@ -8,7 +8,8 @@ public enum ClinicalAttributeSortBy {
     datatype("datatype"),
     patientAttribute("patientAttribute"),
     priority("priority"),
-    studyId("cancerStudyIdentifier");
+    studyId("cancerStudyIdentifier"),
+    count("count");
 
     private String originalValue;
 

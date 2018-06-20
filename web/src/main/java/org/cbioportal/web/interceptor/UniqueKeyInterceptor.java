@@ -10,6 +10,7 @@ import org.cbioportal.model.MolecularData;
 import org.cbioportal.model.MrnaPercentile;
 import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationSpectrum;
+import org.cbioportal.model.NumericGeneMolecularData;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
 import org.springframework.core.MethodParameter;
@@ -27,7 +28,7 @@ import java.util.List;
 public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvice {
 
     private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder().withoutPadding();
-    private static final String DELIMITER = ":";
+    public static final String DELIMITER = ":";
 
     @Override
     protected void beforeBodyWriteInternal(MappingJacksonValue mappingJacksonValue, MediaType mediaType, 
@@ -106,7 +107,14 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
                         mutationSpectrum.getStudyId()));
                     mutationSpectrum.setUniquePatientKey(calculateBase64(mutationSpectrum.getPatientId(), 
                         mutationSpectrum.getStudyId()));
-                } else if (object instanceof Patient) {
+                } else if (object instanceof NumericGeneMolecularData) {
+                    
+                    NumericGeneMolecularData numericGeneMolecularData = (NumericGeneMolecularData) object;
+                    numericGeneMolecularData.setUniqueSampleKey(calculateBase64(numericGeneMolecularData.getSampleId(), 
+                        numericGeneMolecularData.getStudyId()));
+                    numericGeneMolecularData.setUniquePatientKey(calculateBase64(numericGeneMolecularData.getPatientId(), 
+                        numericGeneMolecularData.getStudyId()));
+                }else if (object instanceof Patient) {
                     
                     Patient patient = (Patient) object;
                     patient.setUniquePatientKey(calculateBase64(patient.getStableId(), 

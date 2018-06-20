@@ -229,8 +229,8 @@ public class ExtendedMutationUtil
 		return mutationType;
 	}
 
-	public static int getTumorAltCount(MafRecord record) {
-		int result = TabDelimitedFileUtil.NA_INT ;
+	public static Integer getTumorAltCount(MafRecord record) {
+		Integer result = null;
 
 		if (record.getTumorAltCount() != TabDelimitedFileUtil.NA_INT) {
 			result = record.getTumorAltCount();
@@ -244,8 +244,8 @@ public class ExtendedMutationUtil
 		return result;
 	}
 
-	public static int getTumorRefCount(MafRecord record) {
-		int result = TabDelimitedFileUtil.NA_INT;
+	public static Integer getTumorRefCount(MafRecord record) {
+		Integer result = null;
 
 		if (record.getTumorRefCount() != TabDelimitedFileUtil.NA_INT) {
 			result = record.getTumorRefCount();
@@ -260,8 +260,8 @@ public class ExtendedMutationUtil
 		return result;
 	}
 
-	public static int getNormalAltCount(MafRecord record) {
-		int result = TabDelimitedFileUtil.NA_INT ;
+	public static Integer getNormalAltCount(MafRecord record) {
+		Integer result = null;
 
 		if (record.getNormalAltCount() != TabDelimitedFileUtil.NA_INT) {
 			result = record.getNormalAltCount();
@@ -275,8 +275,8 @@ public class ExtendedMutationUtil
 		return result;
 	}
 
-	public static int getNormalRefCount(MafRecord record) {
-		int result = TabDelimitedFileUtil.NA_INT;
+	public static Integer getNormalRefCount(MafRecord record) {
+		Integer result = null;
 
 		if (record.getNormalRefCount() != TabDelimitedFileUtil.NA_INT) {
 			result = record.getNormalRefCount();

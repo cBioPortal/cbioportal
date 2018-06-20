@@ -67,39 +67,34 @@
         src="images/ajax-loader.gif" alt="loading"></div>
     <div id="main-header" style="display: none" :class="{show:!isloading}" v-if="!failedToInit.status">
         <div id="iviz-header-left">
-            <div class="iviz-header-left-case">
-                <span class="name" style="display: block;">Selected:</span>
+            <div class="iviz-header-left-case iviz-header-item">
+                <span class="name">Selected:</span>
                 <span class="content">
                     <span>{{ selectedSamplesNum }} samples / {{ selectedPatientsNum }} patients</span>
                 </span>
             </div>
-            <save-virtual-study :show-save-button="showSaveButton" :stats="stats"
-                                :update-stats.sync="updateStats"></save-virtual-study>
-            <share-virtual-study :show-share-button="showShareButton" :stats="stats"
-                                 :update-stats.sync="updateStats"></share-virtual-study>
-            <span id="iviz-header-left-patient-select" class="iviz-header-button"
+            <virtual-study class="iviz-header-item" v-if="showShareButton || showSaveButton" :show-share-button="showShareButton"
+                           :show-save-button="showSaveButton" :stats="stats"
+                           :update-stats.sync="updateStats"></virtual-study>
+            <span id="iviz-header-left-patient-select" class="iviz-header-button iviz-header-item"
                   @click="openCases" class="number"
                   role="button" tabindex="0" style="display: block;"><i class="fa fa-user-circle-o"
                                                                         aria-hidden="true"></i></span>
-            <span id="iviz-header-left-case-download" class="iviz-header-button" @click="downloadCaseData()"
+            <span id="iviz-header-left-case-download" class="iviz-header-button iviz-header-item" @click="downloadCaseData()"
                   role="button"
                   tabindex="0" :disabled="downloadingSelected">
               <i v-if="!downloadingSelected" class="fa fa-download" alt="download"></i>
               <i v-if="downloadingSelected" class="fa fa-spinner fa-spin"></i></span>
 
-            <span id="query-by-gene-span" style="padding: 0 !important;">
+            <span id="query-by-gene-span" class="iviz-header-item" style="padding: 0 !important;">
           <textarea id="query-by-gene-textarea" class="expand expandFocusOut" rows="1" cols="10"></textarea>
       </span>
-            <span class="iviz-header-arrow">
+            <span class="iviz-header-arrow iviz-header-item">
           <i class="fa fa-arrow-right fa-lg" aria-hidden="true"></i>
         </span>
-            <input type="button" id="iviz-header-left-1" value="Query" class="iviz-header-button" style="display: block;"
+            <input type="button" id="iviz-header-left-1" value="Query" class="iviz-header-button iviz-header-item" style="display: block;"
                    v-on:click="submitForm">
-
-        </div>
-
-        <div id="iviz-header-right">
-            <custom-case-input :stats="stats" :update-stats.sync="updateStats"></custom-case-input>
+            <custom-case-input class="iviz-header-item"  :stats="stats" :update-stats.sync="updateStats"></custom-case-input>
 
             <select id="iviz-add-chart" class="chosen-select"
                     v-select :charts="charts" v-if="showDropDown">
@@ -149,8 +144,8 @@
 </div>
 
 <script>
-    function initdcplots(data, opts) {
-        iViz.init(data, opts);
+    function initdcplots(data, opts, selectableIds) {
+        iViz.init(data, opts, selectableIds);
         QueryByGeneTextArea.init('#query-by-gene-textarea', function(genes) {
             iViz.vue.manage.getInstance().$broadcast('gene-list-updated', genes);
         });

@@ -525,11 +525,14 @@ public final class DaoCancerStudy {
                 "DELETE FROM clinical_event WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM sample_list_list WHERE LIST_ID IN (SELECT LIST_ID FROM sample_list WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM clinical_sample WHERE INTERNAL_ID IN (SELECT INTERNAL_ID FROM sample WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?))",
+                "DELETE FROM fraction_genome_altered WHERE CANCER_STUDY_ID=?",
+                "DELETE FROM copy_number_seg WHERE CANCER_STUDY_ID=?",
+                "DELETE FROM copy_number_seg_file WHERE CANCER_STUDY_ID=?",
+                "DELETE FROM protein_array_data WHERE CANCER_STUDY_ID=?",
+                "DELETE FROM protein_array_cancer_study WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM sample WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM clinical_patient WHERE INTERNAL_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM patient WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM copy_number_seg WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM copy_number_seg_file WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM sample_list WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM structural_variant WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM genetic_profile_link WHERE REFERRED_GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID FROM genetic_profile where CANCER_STUDY_ID=?)",
@@ -537,8 +540,6 @@ public final class DaoCancerStudy {
                 "DELETE FROM gistic_to_gene WHERE GISTIC_ROI_ID IN (SELECT GISTIC_ROI_ID FROM gistic WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM gistic WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM mut_sig WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM protein_array_data WHERE CANCER_STUDY_ID=?",
-                "DELETE FROM protein_array_cancer_study WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM cancer_study WHERE CANCER_STUDY_ID=?;"
                 };
         Connection con = null;

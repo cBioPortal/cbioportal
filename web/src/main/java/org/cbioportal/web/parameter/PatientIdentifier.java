@@ -1,6 +1,8 @@
 package org.cbioportal.web.parameter;
 
-public class PatientIdentifier {
+import java.io.Serializable;
+
+public class PatientIdentifier implements Serializable {
 
     private String patientId;
     private String studyId;

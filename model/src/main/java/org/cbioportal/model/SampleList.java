@@ -3,9 +3,12 @@ package org.cbioportal.model;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
 public class SampleList implements Serializable {
     
     private Integer listId;
+    @NotNull
     private String stableId;
     private String category;
     private Integer cancerStudyId;

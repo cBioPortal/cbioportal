@@ -85,7 +85,7 @@
 
     //check if show co-expression tab
     if(!isVirtualStudy){
-        GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyId);
+        GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(StudiesMap.keySet().iterator().next());
         if (final_gp != null) {
             showCoexpTab = true;
         }

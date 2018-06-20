@@ -38,7 +38,6 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     private SampleListRepository sampleListRepository;
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<GeneMolecularData> getMolecularData(String molecularProfileId, String sampleListId,
                                                     List<Integer> entrezGeneIds, String projection)
         throws MolecularProfileNotFoundException {
@@ -52,7 +51,6 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public BaseMeta getMetaMolecularData(String molecularProfileId, String sampleListId, List<Integer> entrezGeneIds) 
         throws MolecularProfileNotFoundException {
         
@@ -62,7 +60,6 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<GeneMolecularData> fetchMolecularData(String molecularProfileId, List<String> sampleIds,
                                                       List<Integer> entrezGeneIds, String projection) 
         throws MolecularProfileNotFoundException {
@@ -112,7 +109,6 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public BaseMeta fetchMetaMolecularData(String molecularProfileId, List<String> sampleIds, 
                                            List<Integer> entrezGeneIds) throws MolecularProfileNotFoundException {
         
@@ -122,7 +118,6 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public Integer getNumberOfSamplesInMolecularProfile(String molecularProfileId) {
 
         String commaSeparatedSampleIdsOfMolecularProfile = molecularDataRepository
@@ -135,7 +130,6 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
 	public List<GeneMolecularData> getMolecularDataInMultipleMolecularProfiles(List<String> molecularProfileIds,
 			List<String> sampleIds, List<Integer> entrezGeneIds, String projection) {
 

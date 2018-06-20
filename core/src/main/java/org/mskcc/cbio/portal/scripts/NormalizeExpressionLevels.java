@@ -90,6 +90,8 @@ import org.mskcc.cbio.portal.util.SpringUtil;
 public class NormalizeExpressionLevels{
 
    public static final String TCGA_NORMAL_SUFFIX = "-11";
+   private static final String ENTREZ_GENE_ID_COLUMN = "Entrez_Gene_Id";
+   private static final String HUGO_SYMBOL_COLUMN = "Hugo_Symbol";
 
    static HashMap<Long, ArrayList<String[]>> geneCopyNumberStatus = null;
    static int SAMPLES;
@@ -160,6 +162,11 @@ public class NormalizeExpressionLevels{
       try {
          header = in.readLine();
          String[]values = header.split("\t");
+        int entrezGeneIdIndex = findColumnIndex(values, ENTREZ_GENE_ID_COLUMN);
+        int hugoGeneSymbolIndex = findColumnIndex(values, HUGO_SYMBOL_COLUMN);
+        if (entrezGeneIdIndex == -1 && hugoGeneSymbolIndex == -1) {
+            fatalError("Expression file header must contain at least one of the following: " + ENTREZ_GENE_ID_COLUMN + ", " + HUGO_SYMBOL_COLUMN);
+        }
          
          int firstSamplePosition = getFirstDataColumn( values );
          // catch error if no sample id contains SampleNamePrefix
@@ -218,10 +225,11 @@ public class NormalizeExpressionLevels{
             values = line.split("\t");
                     
             CanonicalGene gene;
-            if (values[1].matches("[0-9]+")) {
-                gene = daoGeneOptimized.getGene(Long.parseLong(values[1]));
-            } else {
-                gene = daoGeneOptimized.getNonAmbiguousGene(values[0]);
+            if (entrezGeneIdIndex != -1) {
+                gene = daoGeneOptimized.getGene(Long.parseLong(values[entrezGeneIdIndex]));                
+            }
+            else {
+                gene = daoGeneOptimized.getNonAmbiguousGene(values[hugoGeneSymbolIndex]);
             }
             
             if (gene==null && geneCopyNumberStatus!=null) {
@@ -434,9 +442,13 @@ public class NormalizeExpressionLevels{
       // assumes single header line
       String header;
       try {
-         header = in.readLine();
-         String[]values = header.split("\t");
-         
+        header = in.readLine();
+        String[]values = header.split("\t");
+        int entrezGeneIdIndex = findColumnIndex(values, ENTREZ_GENE_ID_COLUMN);
+        int hugoGeneSymbolIndex = findColumnIndex(values, HUGO_SYMBOL_COLUMN);
+        if (entrezGeneIdIndex == -1 && hugoGeneSymbolIndex == -1) {
+            fatalError("Copy number file header must contain at least one of the following: " + ENTREZ_GENE_ID_COLUMN + ", " + HUGO_SYMBOL_COLUMN);
+        }
          int firstSamplePosition = getFirstDataColumn( values );
          // error if no sample id contains SampleNamePrefix
          if( NO_POSITION == firstSamplePosition ){
@@ -461,13 +473,15 @@ public class NormalizeExpressionLevels{
          while((line=in.readLine())!=null){
             values = line.split("\t");
             CanonicalGene gene;
-            if (values[1].matches("[0-9]+")) {
-                gene = daoGeneOptimized.getGene(Long.parseLong(values[1]));
-            } else {
-                gene = daoGeneOptimized.getNonAmbiguousGene(values[0]);
+            if (entrezGeneIdIndex != -1) {
+                gene = daoGeneOptimized.getGene(Long.parseLong(values[entrezGeneIdIndex]));                
+            }
+            else {
+                gene = daoGeneOptimized.getNonAmbiguousGene(values[hugoGeneSymbolIndex]);
             }
 
             if (gene==null) {
+                System.out.println("Could not resolve gene  by symbol: " + values[0]);
                 continue;
             }
             
@@ -585,6 +599,15 @@ public class NormalizeExpressionLevels{
       for(int i=0;i<s;i++)
          tmp[i]=v[i];
       return tmp;
+   }
+   
+   private static Integer findColumnIndex(String[] values, String column) {
+       for (int i=0;i<values.length;i++) {
+           if (values[i].equalsIgnoreCase(column)) {
+               return i;
+           }
+       }
+       return -1;
    }
 
    private static void fatalError(String msg){

@@ -49,9 +49,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cbioportal.model.virtualstudy.VirtualStudy;
-import org.cbioportal.model.virtualstudy.VirtualStudyData;
-import org.cbioportal.model.virtualstudy.VirtualStudySamples;
+import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudy;
+import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudyData;
+import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudySamples;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoSampleList;
@@ -112,14 +112,12 @@ public class CancerStudyView extends HttpServlet {
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
 
         try {
-            buildResponse(request);
-
-            if (request.getAttribute(ERROR)!=null) {
-                forwardToErrorPage(request, response, (String)request.getAttribute(ERROR), xdebug);
-            } else {
+            if (buildResponse(request)) {
                 RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/dashboard/dashboard.jsp");
                 dispatcher.forward(request, response);
+            } else {
+            		forwardToErrorPage(request, response, (String)request.getAttribute(ERROR), xdebug);
             }
 
         } catch (DaoException e) {
@@ -140,16 +138,12 @@ public class CancerStudyView extends HttpServlet {
      * @param cancerStudyId
      * @return cancerStudy
      */
-    private CancerStudy getCancerStudyDetails(String cancerStudyId) throws NotAuthorizedException, DaoException {
+    private CancerStudy getCancerStudyDetails(String cancerStudyId) throws DaoException {
         CancerStudy cancerStudy = null;
         try {
             cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
             if (cancerStudy == null) {
                 cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(Integer.parseInt(cancerStudyId));
-            } else {
-                if (accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() != 1) {
-                    throw new NotAuthorizedException(cancerStudy.getCancerStudyStableId(), "unAuthorized");
-                }
             }
         } catch (NumberFormatException numberFormatException) {
             LOG.warn("CancerStudyView.getCancerStudyDetails(): NumberFormatException = '"
@@ -169,8 +163,6 @@ public class CancerStudyView extends HttpServlet {
     private boolean buildResponse(HttpServletRequest request)
         throws DaoException, JsonProcessingException, IOException {
 
-        Set<String> unknownStudyIds = new HashSet<>();
-        Set<String> unAuthorizedStudyIds = new HashSet<>();
         Map<String, HashSet<String>> inputStudyMap = getStudyIds(request);
         Set<VirtualStudy> studies = getProcessedStudyMap(inputStudyMap);
         Map<String, Set<String>> studySampleMap = new HashMap<String, Set<String>>();
@@ -179,30 +171,48 @@ public class CancerStudyView extends HttpServlet {
             LOG.info("CancerStudyView.validate: Query initiated by user: " + ud.getUsername() + " : Study(s): "
                 + inputStudyMap.keySet());
         }
-
-        Set<String> unKnownStudies = new HashSet<>();
-        Set<String> unauthorizedStudies = new HashSet<>();
         
-        //filter unknown and unauthorized studies
-        Set<VirtualStudy> filteredStudies = studies.stream().filter(map -> {
-			for (VirtualStudySamples _study : map.getData().getStudies()) {
-				try {
-					CancerStudy _cancerStudy = getCancerStudyDetails(_study.getId());
-					if (_cancerStudy == null) 
-						unKnownStudies.add(_study.getId());
-					else 
-						return true;
-				} catch (NotAuthorizedException notAuthorizedException) {
-					unauthorizedStudies.add(_study.getId());
-				} catch (DaoException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			return false;
-        }).collect(Collectors.toSet());
+        Set<String> knowIds = studies
+                .stream()
+                .map(obj -> obj.getId())
+                .collect(Collectors.toSet());
 
+        //add unknow input ids
+        Set<String> unKnownIds = inputStudyMap
+                .keySet()
+                .stream()
+                .filter(id -> !knowIds.contains(id))
+                .collect(Collectors.toSet());
+        
+        //add unauthorized ids
+        unKnownIds.addAll(studies
+                .stream()
+                .filter(obj -> {
+                    if(inputStudyMap.containsKey(obj.getId())) {
+                        for (VirtualStudySamples _study : obj.getData().getStudies()) {
+                            try {
+                                if (accessControl.isAccessibleCancerStudy(_study.getId()).size() != 1)
+                                    return true;
+                            } catch (Exception e) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    } else {
+                        return true;
+                    }
+                })
+                .map(obj -> obj.getId())
+                .collect(Collectors.toSet()));
+        
+        if(unKnownIds.size() > 0) {
+        		request.setAttribute(ERROR, "Unknown/Unauthorized studies in: "
+                + StringUtils.join(unKnownIds, ",") + ".");
+        		return false;
+        }
+        
         //prepare sample response map
-        filteredStudies.stream().forEach(data -> {
+        studies.stream().forEach(data -> {
 	        	for(VirtualStudySamples _study : data.getData().getStudies()) {
 	        		
 	        		Set<String> sampleIdsToAdd = _study.getSamples();
@@ -221,20 +231,7 @@ public class CancerStudyView extends HttpServlet {
 	            studySampleMap.put(_study.getId(), updatedSampleList);
 	        	}
 	    });
-
-        // check if there are any studies in the response map, if no then check
-        if (studySampleMap.size() == 0) {
-            if (unknownStudyIds.size() > 0 && unAuthorizedStudyIds.size() > 0) {
-                request.setAttribute(ERROR, "No such Study(s): " + StringUtils.join(unknownStudyIds, ",")
-                    + "and unauthorized to view with id(s):" + StringUtils.join(unAuthorizedStudyIds, ",") + ".");
-            } else if (unknownStudyIds.size() > 0) {
-                request.setAttribute(ERROR, "No such Study(s): " + StringUtils.join(unknownStudyIds, ",") + ".");
-            } else {
-                request.setAttribute(ERROR, "You are not authorized to view the cancer study with id(s): "
-                    + StringUtils.join(unAuthorizedStudyIds, ",") + ".");
-            }
-            return false;
-        }
+        
         ObjectMapper mapper = new ObjectMapper();
         String studySampleMapString = mapper.writeValueAsString(studySampleMap);
         request.setAttribute(STUDY_SAMPLE_MAP, studySampleMapString);

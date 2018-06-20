@@ -101,7 +101,7 @@ public class CNSegmentControllerTest {
                 .param("chromosomes", "1,2")
                 .param("sampleIds", "TCGA-AG-3732-01"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample").value("TCGA-AG-3732-01"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].chr").value("7"))

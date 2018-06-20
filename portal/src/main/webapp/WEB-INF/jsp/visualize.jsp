@@ -174,7 +174,7 @@ window.loadReactApp({ defaultRoute: 'results' });
                 // hacky but consistent with how currently being done
                 showMutTab = true;
             }
-            String[] geneList = URLDecoder.decode((String) request.getAttribute(QueryBuilder.GENE_LIST), "UTF-8").split("( )|(\\n)");
+            String[] geneList = URLDecoder.decode((String) request.getAttribute(QueryBuilder.GENE_LIST), "UTF-8").split("( )|(\\n)|(;)");
             if (geneList.length <= 1) {
                 computeLogOddsRatio = false;
             }
@@ -186,8 +186,8 @@ window.loadReactApp({ defaultRoute: 'results' });
             out.println ("<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>");
             // if showCancerTypesSummary is try, add the list item
             if(showCancerTypesSummary){
-                out.println ("<li><a href='#pancancer_study_summary' class='result-tab' title='Cancer types summary'>"
-                + "Cancer Types Summary</a></li>");
+                out.println ("<li><a href='#pancancer_study_summary' class='result-tab' title='Cancer types summary' " +
+                "id='cancer-types-result-tab'>Cancer Types Summary</a></li>");
             }
 
             if (computeLogOddsRatio) {
@@ -495,7 +495,9 @@ window.loadReactApp({ defaultRoute: 'results' });
         );
 
         //Move code related to expression tab from cross_cancer_results.jsp to here
-        window.ccQueriedGenes = OQL.genes(window.serverVars.theQuery);
+        if (window.serverVars.theQuery.trim() != "") {
+            window.ccQueriedGenes = window.frontendVars.oqlGenes(window.serverVars.theQuery);
+        }
         
         var _cc_plots_gene_list = "";
         var tmp = setInterval(function () {timer();}, 1000);

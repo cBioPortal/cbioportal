@@ -110,26 +110,28 @@ public class LinkOut extends HttpServlet {
     }
 
     private String createCrossCancerForwardingUrl(String hostURL, String geneList) {
-        String ret = hostURL + "/cross_cancer.do?";
+        String ret = hostURL + "/index.do?";
         ret += QueryBuilder.GENE_LIST+"="+geneList;
         ret += "&";
         ret += QueryBuilder.ACTION_NAME+"="+QueryBuilder.ACTION_SUBMIT;
         ret += "&";
-        ret += QueryBuilder.CANCER_STUDY_LIST+"=";
-        ret += "&";
         ret += QueryBuilder.CANCER_STUDY_ID+"=all";
-        ret += "#";
+        ret += "&";
         AccessControl accessControl = SpringUtil.getAccessControl();
         StringBuilder cancerStudyListBuilder = new StringBuilder();
         try {
             for (CancerStudy cs: accessControl.getCancerStudies()) {
-                cancerStudyListBuilder.append(",");
-                cancerStudyListBuilder.append(cs.getCancerStudyStableId());
+                if (!cs.getCancerStudyStableId().equals("all")) {
+                    cancerStudyListBuilder.append(",");
+                    cancerStudyListBuilder.append(cs.getCancerStudyStableId());
+                }
             }
         } catch (Exception e) {
         }
         String cancerStudyList = cancerStudyListBuilder.substring(1);
-        ret += "crosscancer/overview/0/"+geneList+"/"+cancerStudyList;
+        ret += QueryBuilder.CANCER_STUDY_LIST+"="+cancerStudyList;
+        ret += "&case_set_id=all&tab_index=tab_visualize";
+        // ret += "crosscancer/overview/0/"+geneList+"/"+cancerStudyList;
         return ret;
     }
 

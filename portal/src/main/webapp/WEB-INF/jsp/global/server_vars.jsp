@@ -23,11 +23,19 @@
     }
     oql = xssUtil.getCleanerInput(oql);
 
+    // List of queried gene sets
+    String genesetIds = request.getParameter(QueryBuilder.GENESET_LIST);
+
     String studySampleMapJson = (String)request.getAttribute("STUDY_SAMPLE_MAP");
     String sampleSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String sampleSetName = request.getAttribute("case_set_name") != null ? (String) request.getAttribute("case_set_name") : "User-defined Patient List";
     String sampleSetDescription = request.getAttribute("case_set_description") != null ? (String) request.getAttribute("case_set_description") : "User-defined Patient List.";
     String sampleIdsKey = request.getAttribute(QueryBuilder.CASE_IDS_KEY) != null ? (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY) : "";
+    
+    String caseIds = (String) request.getAttribute(QueryBuilder.CASE_IDS);
+    if (request.getAttribute(QueryBuilder.CASE_IDS) != null) {
+        caseIds = caseIds.replace("\n","+");
+    }
 
     sampleSetName = sampleSetName.replaceAll("'", "\\'");
     sampleSetName = sampleSetName.replaceAll("\"", "\\\"");
@@ -72,8 +80,9 @@
         dataPriority:jspToJs('<%=dataPriority%>', function(d) { return parseInt(d, 10); }),
         
         theQuery: decodeURIComponent(jspToJs(uri_and_html_decoded_oql) || ""), 
-        studySampleObj: jspToJs('<%=studySampleMapJson%>', JSON.parse)
-       	
+        genesetIds: jspToJs('<%=genesetIds%>'.trim()) || "",
+        studySampleObj: jspToJs('<%=studySampleMapJson%>', JSON.parse),
+       	caseIds: jspToJs('<%=caseIds%>') || ""
     };
     
     // yes "null" will be string

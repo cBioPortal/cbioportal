@@ -1,0 +1,12 @@
+#Patient Identifier	Overall Survival Status	Overall Survival (Months)	Disease Free Status	Disease Free (Months)	Some Score
+#Patient identifier	Overall survival status	Overall survival in months since diagnosis	Disease free status	Disease free in months since treatment	Some Description
+#STRING	STRING	NUMBER	STRING	NUMBER	STRING
+#1	1	1	1	1	1
+PATIENT_ID	OS_STATUS	OS_MONTHS	DFS_STATUS	DFS_MONTHS	SOME_SCORE
+TCGA-A2-A04P			Recurred/Progressed	[Not Available]	5
+TCGA-A1-A0SK	DECEASED	31.77		[Not Available]	31-77
+TCGA-A2-A0CM	DECEASED	24.77	Recurred/Progressed	[Not Available]	Jan-14
+TCGA-AR-A1AR	DECEASED	17.18	[Not Available]	[Not Available]	4-Oct
+TCGA-B6-A0WX	DECEASED	21.45	Recurred/Progressed	[Not Available]	21.45
+TCGA-BH-A1F0	DECEASED	25.79	Recurred/Progressed	[Not Available]	25.79
+TCGA-B6-A0I6	DECEASED	32.56	Recurred/Progressed	[Not Available]	32.56

@@ -2,10 +2,12 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.util.List;
+import javax.validation.constraints.NotNull;
 
 public class GenePanel implements Serializable {
  
     private Integer internalId;
+    @NotNull
     private String stableId;
     private String description;
     private List<GenePanelToGene> genes;

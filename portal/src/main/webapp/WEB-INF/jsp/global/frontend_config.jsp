@@ -33,7 +33,8 @@ window.legacySupportFrontendConfig = {
     oncoprintCustomDriverTiersAnnotationDefault:'<%=GlobalProperties.enableTiers()%>' !== "false", // true unless "false"
     oncoprintOncoKbHotspotsDefault:{"true":undefined, "false":"disable", "custom":"custom"}['<%=GlobalProperties.enableOncoKBandHotspots()%>'],
     oncoprintHideVUSDefault:'<%=GlobalProperties.hidePassengerMutations()%>' === "true", // false unless "true"
-    priorityStudies : {}
+    priorityStudies : {},
+    sessionServiceIsEnabled: '<%=GlobalProperties.getSessionServiceUrl()%>' !== ""
 }
 
 // this prevents react router from messing with hash in a way that could is unecessary (static pages)
@@ -63,24 +64,46 @@ String baseURL = url.substring(0, url.length() - request.getRequestURI().length(
 baseURL = baseURL.replace("https://", "").replace("http://", "");
 %>
 
-window.frontendConfig = JSON.parse('<%=GlobalProperties.getFrontendConfig()%>');
-if (window.frontendConfig) {
-    for (var prop in window.legacySupportFrontendConfig) {
-        // use old property if none is defined in frontendConfig
-        if (!window.frontendConfig.hasOwnProperty(prop)) {
-            window.frontendConfig[prop] = window.legacySupportFrontendConfig[prop];
-        }
+function assignQuickDirty(obj1, obj2){
+    for (var k in obj2) {
+        obj1[k] = obj2[k];
     }
-} else {
-    window.frontendConfig = window.legacySupportFrontendConfig;
+    return obj1;
+}
+
+// override legacySupportFrontendConfig with new frontendConfig
+window.frontendConfig = JSON.parse('<%=GlobalProperties.getFrontendConfig()%>');
+//window.frontendConfig = Object.assign(window.legacySupportFrontendConfig, window.frontendConfig);
+window.frontendConfig = assignQuickDirty(window.legacySupportFrontendConfig, window.frontendConfig);
+
+
+
+// get localdev from url and set localStorage accordingly. Setting localStorage
+// is necessary when changing page (e.g. from query to study view)
+//var url = new URL(window.location.href);
+if (/localdev=true/.test(window.location.href)) {
+	localStorage.setItem("localdev", "true");
+}
+window.localdev = localStorage.getItem("localdev") === "true";
+// localdist (instead of using npm run start, one serves artifacts from dist
+// folder (more production like env)
+if (/localdist=true/.test(window.location.href)) {
+	localStorage.setItem("localdist", "true");
+}
+window.localdist = localStorage.getItem("localdist") === "true";
+
+if (window.localdist || window.localdev) {
+	window.frontendConfig.frontendUrl = '//localhost:3000/'
+} else if (localStorage.heroku) {
+	var herokuInstance = '//' + localStorage.getItem('heroku') + '.herokuapp.com/';
+	window.frontendConfig.frontendUrl = herokuInstance;
 }
 // clean userEmailAddress config
 if (!window.frontendConfig.userEmailAddress || window.frontendConfig.userEmailAddress === 'anonymousUser') {
     window.frontendConfig.userEmailAddress = '';
 }
-
-// frontend config that can't be changed by deployer
-window.frontendConfig.frontendUrl = '<%=GlobalProperties.getFrontendUrl()%>',
-window.frontendConfig.apiRoot = '<%=baseURL%>';
-window.frontendConfig.historyType = 'memory'; // default, override on per page bases, set to hash if full react page
+window.frontendConfig.frontendUrl = window.frontendConfig.frontendUrl? window.frontendConfig.frontendUrl : '<%=GlobalProperties.getFrontendUrl()%>';
+window.frontendConfig.apiRoot = window.frontendConfig.apiRoot? window.frontendConfig.apiRoot : '<%=baseURL%>';
+// default, override on per page bases, set to hash if full react page
+window.frontendConfig.historyType = window.frontendConfig.historyType? window.frontendConfig.historyType : 'memory'; 
 </script>

@@ -129,8 +129,8 @@ public class TestIntegrationTest {
                     countWarnings++;
                 }
             }
-            //check that there no warnings:
-            assertEquals(0, countWarnings);
+            //check that there are only warnings for empty positions in fake data:
+            assertEquals(13, countWarnings);
             
             //check that ALL data really got into DB correctly. In the spirit of integration tests,
             //we want to query via the same service layer as the one used by the web API here.
@@ -142,12 +142,12 @@ public class TestIntegrationTest {
             List<String> geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_mutations");
             List<Mutation> mutations = mutationMapperLegacy.getMutationsDetailed(geneticProfileStableIds,null,null,null);
-            //there are 13 records in the mutation file, of which 3 are filtered, and there are 3 extra records added from fusion
-            //so we expect 13 records in DB:
-            assertEquals(13, mutations.size());
+            //there are 31 records in the mutation file, of which 3 are filtered, and there are 3 extra records added from fusion
+            //so we expect 31 records in DB:
+            assertEquals(31, mutations.size());
 
             //===== Check FUSION data ========
-            // Are there 3 fusion entries in mutation profile? true
+            // Are there 4 fusion entries in mutation profile, but one is off panel, so only 3 should be imported
             int countFusions = 0;
             for (Mutation mutation : mutations) {
                 if (mutation.getMutationEvent().getMutationType().equals("Fusion")) {

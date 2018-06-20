@@ -41,9 +41,13 @@ public interface MutationService {
 
     List<MutationCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
                                                                         List<String> sampleIds,
-                                                                        List<Integer> entrezGeneIds,
-                                                                        boolean includeFrequency)
+                                                                        List<Integer> entrezGeneIds)
         throws MolecularProfileNotFoundException;
+    
+    List<MutationCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
+                                                                        List<String> sampleIds,
+                                                                        List<Integer> entrezGeneIds,
+                                                                        boolean includeFrequency);
 
     List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
                                                                         List<String> patientIds,

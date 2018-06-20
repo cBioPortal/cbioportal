@@ -58,6 +58,13 @@ public class SampleServiceImpl implements SampleService {
     }
 
     @Override
+	public List<Sample> getAllSamplesInStudies(List<String> studyIds, String projection, Integer pageSize,
+			Integer pageNumber, String sortBy, String direction) {
+
+		return sampleRepository.getAllSamplesInStudies(studyIds, projection, pageSize, pageNumber, sortBy, direction);
+	}
+
+    @Override
     public Sample getSampleInStudy(String studyId, String sampleId) throws SampleNotFoundException,
         StudyNotFoundException {
 
@@ -103,6 +110,16 @@ public class SampleServiceImpl implements SampleService {
         processSamples(samples, projection);
         return samples;
     }
+
+    @Override
+	public List<Sample> getSamplesOfPatientsInMultipleStudies(List<String> studyIds, List<String> patientIds,
+			String projection) {
+        
+        List<Sample> samples = sampleRepository.getSamplesOfPatientsInMultipleStudies(studyIds, patientIds, projection);
+
+        processSamples(samples, projection);
+        return samples;
+	}
 
     @Override
     public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {

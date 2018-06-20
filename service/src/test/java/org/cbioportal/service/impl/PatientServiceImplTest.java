@@ -119,4 +119,15 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
 
         Assert.assertEquals(expectedBaseMeta, result);
     }
+
+    @Test
+    public void getPatientIdsOfSamples() throws Exception {
+
+        Mockito.when(patientRepository.getPatientIdsOfSamples(Arrays.asList(SAMPLE_ID1))).thenReturn(Arrays.asList(PATIENT_ID_1));
+
+        List<String> result = patientService.getPatientIdsOfSamples(Arrays.asList(SAMPLE_ID1));
+        
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals(PATIENT_ID_1, result.get(0));
+    }
 }

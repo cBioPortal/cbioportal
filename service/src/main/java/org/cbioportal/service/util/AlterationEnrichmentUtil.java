@@ -70,7 +70,7 @@ public class AlterationEnrichmentUtil {
                     Collectors.groupingBy(Alteration::getPatientId)).size());
             }
         }
-        alterationEnrichment.setUnalteredCount(alterationCountByGene.getCount() -
+        alterationEnrichment.setUnalteredCount(alterationCountByGene.getCountByEntity() -
             alterationEnrichment.getAlteredCount());
         alterationEnrichment.setEntrezGeneId(alterationCountByGene.getEntrezGeneId());
         alterationEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());

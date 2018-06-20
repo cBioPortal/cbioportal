@@ -130,7 +130,7 @@ public class TestIntegrationTest {
                 }
             }
             //check that there are only warnings for empty positions in fake data:
-            assertEquals(13, countWarnings);
+            assertEquals(1, countWarnings);
             
             //check that ALL data really got into DB correctly. In the spirit of integration tests,
             //we want to query via the same service layer as the one used by the web API here.

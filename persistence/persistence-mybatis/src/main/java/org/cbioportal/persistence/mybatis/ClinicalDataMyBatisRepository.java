@@ -1,8 +1,10 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
+import org.cbioportal.persistence.PatientRepository;
 import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
     @Autowired
     private ClinicalDataMapper clinicalDataMapper;
+    @Autowired
+    private PatientRepository patientRepository;
     @Autowired
     private OffsetCalculator offsetCalculator;
 
@@ -144,4 +148,16 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         return baseMeta;
     }
+
+	@Override
+	public List<ClinicalDataCount> fetchClinicalDataCounts(String studyId, List<String> sampleIds,
+			List<String> attributeIds, String clinicalDataType) {
+
+        if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
+            return clinicalDataMapper.fetchSampleClinicalDataCounts(Arrays.asList(studyId), sampleIds, attributeIds);
+        } else {
+            return clinicalDataMapper.fetchPatientClinicalDataCounts(Arrays.asList(studyId), 
+                patientRepository.getPatientIdsOfSamples(sampleIds), attributeIds);
+        }
+	}
 }

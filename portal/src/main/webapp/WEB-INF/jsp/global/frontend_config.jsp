@@ -104,6 +104,9 @@ if (!window.frontendConfig.userEmailAddress || window.frontendConfig.userEmailAd
 }
 window.frontendConfig.frontendUrl = window.frontendConfig.frontendUrl? window.frontendConfig.frontendUrl : '<%=GlobalProperties.getFrontendUrl()%>';
 window.frontendConfig.apiRoot = window.frontendConfig.apiRoot? window.frontendConfig.apiRoot : '<%=baseURL%>';
+// pass baseUrl explicitly for frontend routing, in case somebody wants to
+// override apiRoot for some other reason
+window.frontendConfig.baseUrl = window.frontendConfig.baseUrl? window.frontendConfig.baseUrl : '<%=baseURL%>';
 // default, override on per page bases, set to hash if full react page
 window.frontendConfig.historyType = window.frontendConfig.historyType? window.frontendConfig.historyType : 'memory'; 
 </script>

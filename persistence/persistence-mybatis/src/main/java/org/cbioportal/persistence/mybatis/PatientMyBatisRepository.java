@@ -50,4 +50,10 @@ public class PatientMyBatisRepository implements PatientRepository {
 
         return patientMapper.getMetaPatients(studyIds, patientIds);
     }
+
+	@Override
+	public List<String> getPatientIdsOfSamples(List<String> sampleIds) {
+        
+        return patientMapper.getPatientIdsOfSamples(sampleIds);
+	}
 }

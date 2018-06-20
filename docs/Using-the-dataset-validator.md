@@ -1,3 +1,11 @@
+* [Introduction](#introduction)
+* [Running the validator](#running-the-validator)
+* [Offline Validation](#offline-validation)
+* [Validation of non-human data](#validation-of-non-human-data)
+* [Running the validator for multiple studies](#running-the-validator-for-multiple-studies)
+
+## Introduction
+
 To facilitate the loading of new studies into its database, cBioPortal [provides a set of staging files formats](File-Formats.md) for the various data types. To validate your files you can use the dataset validator script. 
 
 ## Running the validator
@@ -13,6 +21,7 @@ This will tell you the parameters you can use:
 usage: validateData.py [-h] -s STUDY_DIRECTORY
                        [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
                        [-html HTML_TABLE] [-e ERROR_FILE] [-v]
+                       [-r] [-m]
 
 cBioPortal study validator
 
@@ -22,7 +31,7 @@ optional arguments:
                         path to directory.
   -u URL_SERVER, --url_server URL_SERVER
                         URL to cBioPortal server. You can set this if your URL
-                        is not http://localhost/cbioportal
+                        is not http://localhost:8080/cbioportal
   -p PORTAL_INFO_DIR, --portal_info_dir PORTAL_INFO_DIR
                         Path to a directory of cBioPortal info files to be
                         used instead of contacting a server
@@ -38,11 +47,23 @@ optional arguments:
                         were found, for scripts
   -v, --verbose         report status info messages in addition to errors and
                         warnings
+  -r, --relaxed-clinical_definitions
+                        Option to enable relaxed mode for validator when validating
+                        clinical data without header definitions
+  -m, --strict_maf_checks
+                        Option to enable strict mode for validator when validating
+                        mutation data
 ```
 
 For more information on the `--portal_info_dir` option, see [Offline validation](#offline-validation) below. If your cBioPortal is not using `hg19`, you must use the `--portal_properties` option. For more information, see [Validation of non-human data](#validation-of-non-human-data).
 
-### Example 1
+When running the validator with parameter `-r` the validator will run the validation of the clinical data it will ignore all failing checks
+about values in the headers of the clinical data file.
+
+When running the validator with parameter `-m` the validator will run the validation of the specific [MAF file checks](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+(MAF)+Specification) for the mutation file in strict maf check mode. This means that
+when the validator encounters these validation checks it will report them as an error instead of a warning.
+
+### Example 1: test study_es_0
 As an example, you can try the validator with one of the test studies found in  `<your_cbioportal_dir>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option to also see the progress:
 ```bash
 ./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080/cbioportal -v
@@ -144,7 +165,7 @@ Validation of study succeeded.
 When using the `-html` option, a report will be generated, which looks like this for the previous example:
 ![Screenshot of a successful validation report](images/scripts/report.png)
 
-### Example 2
+### Example 2: test study_es_1
 More test studies for trying the validator (`study_es_1` and `study_es_3`) are available in  `<your_cbioportal_dir>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option:
 ```bash
 ./validateData.py -s ../../../test/scripts/test_data/study_es_1/ -u http://localhost:8080/cbioportal -v
@@ -413,4 +434,82 @@ If your `portal.properties` does not have the default (human) settings, you shou
 As an example, the command for the "Example 1" listed above incorporating the `-P` parameter is given:
 ```
 ./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -P ../../../../../src/main/resources/portal.properties -u http://localhost:8080/cbioportal -v
+```
+
+## Running the validator for multiple studies
+The importer folder `<your_cbioportal_dir>/core/src/main/scripts/importer` also contains a script for running the validator for multiple studies:
+```bash
+./validateStudies.py --help
+```
+The following parameters can be used:
+```console
+usage: validateStudies.py [-h] [-d ROOT_DIRECTORY] [-l LIST_OF_STUDIES]
+                          [-html HTML_FOLDER]
+                          [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
+                          [-P PORTAL_PROPERTIES]
+
+Wrapper where cBioPortal study validator is run for multiple studies
+
+optional arguments:
+-h, --help            show this help message and exit
+-d ROOT_DIRECTORY, --root-directory ROOT_DIRECTORY
+                      Path to directory with all studies that should be
+                      validated
+-l LIST_OF_STUDIES, --list-of-studies LIST_OF_STUDIES
+                      List with paths of studies which should be validated
+-html HTML_FOLDER, --html-folder HTML_FOLDER
+                      Path to folder for output HTML reports
+-u URL_SERVER, --url_server URL_SERVER
+                      URL to cBioPortal server. You can set this if your URL
+                      is not http://localhost:8080/cbioportal
+-p PORTAL_INFO_DIR, --portal_info_dir PORTAL_INFO_DIR
+                      Path to a directory of cBioPortal info files to be
+                      used instead of contacting a server
+-n, --no_portal_checks
+                      Skip tests requiring information from the cBioPortal
+                      installation
+-P PORTAL_PROPERTIES, --portal_properties PORTAL_PROPERTIES
+                      portal.properties file path (default: assumed hg19)
+-m, --strict_maf_checks
+                      Option to enable strict mode for validator when validating
+                      mutation data
+```
+
+Parameters `--url_server`, `--portal_info_dir`, `--no_portal_checks` and `--portal_properties` are equal to the parameters with the same name in `validateData.py`. The script will save a log file with validation output (`log-validate-studies.txt`) and output the validation status from the input studies:
+
+```console
+=== Validating study ../../../test/scripts/test_data/study_es_0
+Result: VALID (WITH WARNINGS)
+
+=== Validating study ../../../test/scripts/test_data/study_es_1
+Result: INVALID
+
+=== Validating study ../../../test/scripts/test_data/study_es_invalid
+directory cannot be found: ../../../test/scripts/test_data/study_es_invalid
+Result: INVALID (PROBLEMS OCCURRED)
+
+```
+
+### Example 1: Root directory parameter
+Validation can be run for all studies in a certain directory by using the `--root-directory` parameter. The script will append each folder in the root directory to the study list to validate:
+```bash
+./validateStudies.py -d ../../../test/scripts/test_data/
+```
+
+### Example 2: List of studies parameter
+Validation can also be run for specific studies by using the `--list-of-studies` parameter. The paths to the different studies can be defined and seperated by a comma:
+```bash
+./validateStudies.py -l ../../../test/scripts/test_data/study_es_0,../../../test/scripts/test_data/study_es_1
+```
+
+### Example 3: Combination root directory and list of studies parameter
+Validation can also be run on specific studies in a certain directory by combining the `--root-directory` and `--list-of-studies` parameter:
+```bash
+./validateStudies.py -d ../../../test/scripts/test_data/ -l study_es_0,study_es_1
+```
+
+### Example 4: HTML folder parameter
+When HTML validation reports are desired, an output folder for these HTML files can be specified. This folder does not have to exist, the script can create the folder. The HTML validation reports will get the following name: `<study_name>-validation.html`. To create HTML validation reports for each study the `--html-folder` parameter needs to be defined:
+```bash
+./validateStudies.py -d ../../../test/scripts/test_data/ -l study_es_0,study_es_1 -html ../../../test/scripts/test_data/validation-reports
 ```

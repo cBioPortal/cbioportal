@@ -15,8 +15,13 @@
     if((String)request.getAttribute("STUDY_SAMPLE_MAP") != null)
     		StudiesMap = mapper.readValue((String)request.getAttribute("STUDY_SAMPLE_MAP"), typeRef);
     
-    //consider virtual study with one real study as regular study and show all the tabs
+    //consider virtual study with one real study as regular study and show all the tabs if caseSetId is -1
+    String _sampleSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     Boolean isVirtualStudy = StudiesMap.size() > 1;
+    if(StudiesMap.size() == 1 && cancerStudyIdListStr != null  && cancerStudyIdListStr.split(",").length>1 && !_sampleSetId.equals("-1")){
+    	    isVirtualStudy = true;
+    }
+    
     String normalizedCancerStudyIdListStr = StudiesMap.keySet().stream().collect(Collectors.joining(","));
     pageContext.setAttribute("normalizedCancerStudyIdListStr", normalizedCancerStudyIdListStr);
 %>

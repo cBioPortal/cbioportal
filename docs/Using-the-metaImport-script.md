@@ -36,6 +36,12 @@ optional arguments:
   -v, --verbose         report status info messages while validating
   -o, --override_warning
                         override warnings and continue importing
+  -r, --relaxed-clinical_definitions
+                        Option to enable relaxed mode for validator when validating
+                        clinical data without header definitions
+  -m, --strict_maf_checks
+                        Option to enable strict mode for validator when validating
+                        mutation data
 ```
 
 #### Example of Importing a study

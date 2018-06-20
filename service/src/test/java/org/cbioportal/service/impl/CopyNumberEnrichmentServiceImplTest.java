@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -44,7 +45,7 @@ public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
 
         List<CopyNumberCountByGene> copyNumberSampleCountByGenes = new ArrayList<>();
         Mockito.when(discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(MOLECULAR_PROFILE_ID, 
-            allSampleIds, null, null)).thenReturn(copyNumberSampleCountByGenes);
+            allSampleIds, null, null, false)).thenReturn(copyNumberSampleCountByGenes);
 
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = new ArrayList<>();
         Mockito.when(discreteCopyNumberService.fetchDiscreteCopyNumbersInMolecularProfile(MOLECULAR_PROFILE_ID, 
@@ -55,7 +56,7 @@ public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
             discreteCopyNumberDataList, "SAMPLE")).thenReturn(expectedAlterationEnrichments);
 
         List<AlterationEnrichment> result = copyNumberEnrichmentService.getCopyNumberEnrichments(MOLECULAR_PROFILE_ID,
-            alteredSampleIds, unalteredSampleIds, alterationTypes, "SAMPLE");
+            alteredSampleIds, unalteredSampleIds, Arrays.asList(ENTREZ_GENE_ID_1), alterationTypes, "SAMPLE");
 
         Assert.assertEquals(result, expectedAlterationEnrichments);
     }

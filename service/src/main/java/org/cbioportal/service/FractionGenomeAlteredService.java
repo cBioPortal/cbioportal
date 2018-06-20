@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface FractionGenomeAlteredService {
     
-    List<FractionGenomeAltered> getFractionGenomeAltered(String studyId, String sampleListId, Double cutoff);
+    List<FractionGenomeAltered> getFractionGenomeAltered(String studyId, String sampleListId);
 
-    List<FractionGenomeAltered> fetchFractionGenomeAltered(String studyId, List<String> sampleIds, Double cutoff);
+    List<FractionGenomeAltered> fetchFractionGenomeAltered(String studyId, List<String> sampleIds);
 }

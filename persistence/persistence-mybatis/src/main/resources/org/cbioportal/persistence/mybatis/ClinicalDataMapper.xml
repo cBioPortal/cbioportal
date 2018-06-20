@@ -168,4 +168,22 @@
         <include refid="wherePatient"/>
     </select>
 
+    <select id="fetchSampleClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        SELECT count(*) as count,
+        clinical_sample.ATTR_ID as attributeId,
+        clinical_sample.ATTR_VALUE as value
+        <include refid="fromSample"/>
+        <include refid="whereSample"/>
+        GROUP BY clinical_sample.ATTR_ID, clinical_sample.ATTR_VALUE
+    </select>
+
+    <select id="fetchPatientClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        SELECT count(*) as count,
+        clinical_patient.ATTR_ID as attributeId,
+        clinical_patient.ATTR_VALUE as value
+        <include refid="fromPatient"/>
+        <include refid="wherePatient"/>
+        GROUP BY clinical_patient.ATTR_ID, clinical_patient.ATTR_VALUE
+    </select>
+
 </mapper>

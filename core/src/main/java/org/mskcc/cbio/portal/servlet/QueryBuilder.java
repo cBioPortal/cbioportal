@@ -506,29 +506,32 @@ public class QueryBuilder extends HttpServlet {
         } else { // multiple studies OR single virtual study
             if (sampleSetId.equals("-1") && sampleIdsStr != null && sampleIdsStr.length() > 0) { //using user customized case list
                 studySampleMap = parseCaseIdsTextBoxStr(sampleIdsStr);
-            } else { // using all cases (default)
+            } else {
+            	
+            	    SampleSet sampleSet = SampleSet.get(sampleSetId);
+                sampleSet = (sampleSet == null) ?  SampleSet.ALL : sampleSet;
+                
+                request.setAttribute(CASE_SET_ID, sampleSet.getSampleSet());
+                
+                final SampleListCategory sampleListCategory = sampleSet.getSampleListCategory();
                 final Map<String,List<String>> studySampleMapConcurrent = new ConcurrentHashMap<>();
 
                 inputStudySampleMap.keySet().parallelStream().forEach((String _cancerStudyId) -> {
-                    ArrayList<SampleList> sampleSetList;
-
                     try {
-                        sampleSetList = GetSampleLists.getSampleLists(_cancerStudyId);
+                        for(SampleList sampleList:GetSampleLists.getSampleLists(_cancerStudyId)) {
+							if (sampleList.getSampleListCategory().equals(sampleListCategory)) {
+								List<String> sampleIds = sampleList.getSampleList();
+								if (inputStudySampleMap.get(_cancerStudyId).size() > 0) {
+									sampleIds.retainAll(inputStudySampleMap.get(_cancerStudyId));
+								}
+								studySampleMapConcurrent.put(_cancerStudyId, sampleIds);
+								break;
+							}
+                        }
                     } catch (DaoException e) {
                         e.printStackTrace();
                         return;
                     }
-
-                    AnnotatedSampleSets annotatedSampleSets = new AnnotatedSampleSets(sampleSetList, dataTypePriority);
-                    SampleList defaultSampleSet = annotatedSampleSets.getDefaultSampleList();
-                    if (defaultSampleSet == null) {
-                        return;
-                    }
-                    List<String> sampleList = defaultSampleSet.getSampleList();
-                    if(inputStudySampleMap.get(_cancerStudyId).size()>0){
-                        sampleList.retainAll(inputStudySampleMap.get(_cancerStudyId));
-                    }
-                    studySampleMapConcurrent.put(_cancerStudyId, sampleList);
                 });
                 studySampleMap = studySampleMapConcurrent;
             }
@@ -823,5 +826,36 @@ public class QueryBuilder extends HttpServlet {
         for (String i : a) { resultSet.add(i); }
         for (String i : b) { resultSet.add(i); }
         return resultSet;
+    }
+}
+
+enum SampleSet {
+	ALL("all",SampleListCategory.ALL_CASES_IN_STUDY),
+    W_MUT_CNA("w_mut_cna",SampleListCategory.ALL_CASES_WITH_MUTATION_AND_CNA_DATA),
+    W_MUT("w_mut",SampleListCategory.ALL_CASES_WITH_MUTATION_DATA),
+    W_CNA("w_cna",SampleListCategory.ALL_CASES_WITH_CNA_DATA);
+	
+	private SampleListCategory sampleListCategory;
+    
+	private String sampleSet;
+
+	SampleSet(String sampleSet, SampleListCategory sampleListCategory) {
+		this.sampleSet = sampleSet;
+		this.sampleListCategory = sampleListCategory;
+	}
+
+	public String getSampleSet() {
+		return sampleSet;
+	}
+	
+	public SampleListCategory getSampleListCategory() {
+		return sampleListCategory;
+	}
+	
+    public static SampleSet get(String sampleSet) {
+        return Arrays.stream(values())
+          .filter(obj -> obj.sampleSet.equalsIgnoreCase(sampleSet))
+          .findFirst()
+          .orElse(null);
     }
 }

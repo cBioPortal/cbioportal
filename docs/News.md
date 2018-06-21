@@ -1,6 +1,6 @@
 ## June 20, 2018
  *   The seventh phase of the cBioPortal architectural upgrade is now complete: The _Enrichments_ and _Co-Expression_ tabs have been moved to the new architecture.
- *   Supported merged gene tracks in OncoPrint and [Onco Query Language](https://www.cbioportal.org/onco_query_lang_desc.jsp) -- see [example](http://www.cbioportal.org/index.do?session_id=5b241243498eb8b3d56697d4)
+ *   Supported merged gene tracks in OncoPrint and [Onco Query Language](http://www.cbioportal.org/onco_query_lang_desc.jsp) -- see [example](http://www.cbioportal.org/index.do?session_id=5b2ba513498eb8b3d566aa01)
  
 ![image](https://user-images.githubusercontent.com/840895/41485910-60493052-70b0-11e8-8725-0a61fc62a7a4.png)
 

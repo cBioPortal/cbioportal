@@ -230,28 +230,11 @@ window.loadReactApp({ defaultRoute: 'results' });
 	            out.println (">Bookmark</a></li>");
             }            
             out.println ("</ul>");
-
-            out.println ("<div class=\"section\" id=\"bookmark_email\">");
-
-            if (!useSessionServiceBookmark && sampleSetId.equals("-1"))
-            {
-                out.println("<br>");
-                out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
-            } 
-            else 
-            {
-                out.println ("<h4>Right click on one of the links below to bookmark your results:</h4>");
-                out.println("<br>");
-                out.println("<div id='session-id'></div>");
-                out.println("<br>");
-                if (GlobalProperties.getBitlyUser() != null) {
-	                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> url below:<BR>");
-	                out.println("<div id='bitly'></div>");
-                }
-
-            }
-            out.println("</div>");
     %>
+
+        <div class="section" id="bookmark_email">
+           
+        </div>
 
         <div class="section" id="summary">
             <% //contents of fingerprint.jsp now come from attribute on request object %>
@@ -538,6 +521,36 @@ window.loadReactApp({ defaultRoute: 'results' });
             }
         }
     });
+</script>
+
+<script type="text/javascript">
+    
+    	//whether this tab has already been initialized or not:
+    	var tab_init = false;
+    	//function that will listen to tab changes and init this one when applicable:
+    	function tabsUpdate() {
+    		if ($("#bookmark_email").is(":visible")) {
+	    		if (tab_init === false) {
+	    		    window.onReactAppReady(function(){
+	    		        window.renderBookmarkTab(document.getElementById('bookmark_email'))	    		        
+                    });	    		   
+		            tab_init = true;
+		        }
+	    	}
+    	}
+        //this is for the scenario where the tab is open by default (as part of URL >> #tab_name at the end of URL):
+        
+        $(document).ready(function(){
+                tabsUpdate();
+                //this is for the scenario where the user navigates to this tab:
+                $("#tabs").bind("tabsactivate", function(event, ui) {
+                	tabsUpdate();
+                });
+         });
+
+
+            
+
 </script>
 
 

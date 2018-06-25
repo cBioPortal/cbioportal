@@ -33,12 +33,13 @@
 
 
 <script type="text/javascript">
-    
+
     	//whether this tab has already been initialized or not:
     	var tab_init = false;
     	//function that will listen to tab changes and init this one when applicable:
     	function tabsUpdate() {
-    		if ($("#network").is(":visible")) {
+
+    		if ($("#network").is(":visible") || window.isolateNetwork) {
 	    		if (tab_init === false) {
 	    		    window.onReactAppReady(function(){
 	    		        window.renderNetworkTab(document.getElementById("network"));

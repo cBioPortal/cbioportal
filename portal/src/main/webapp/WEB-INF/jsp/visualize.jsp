@@ -38,7 +38,14 @@
 <jsp:include page="global/header.jsp" flush="true" />
 
 <script>
+
+if (/isolateNetwork=1/.test(window.location.search)) {
+    window.isolateNetwork = true;
+    document.body.className = document.body.className + " isolateNetwork";
+}
+
 window.loadReactApp({ defaultRoute: 'results' });
+
 </script>
 
 <div id="reactRoot" class="hidden"></div>
@@ -329,7 +336,7 @@ window.loadReactApp({ defaultRoute: 'results' });
 
         $("#toggle_query_form").tipTip();
         // check if network tab is initially selected
-        if ($("div.section#network").is(":visible"))
+        if ($("div.section#network").is(":visible") || window.isolateNetwork)
         {
             // init the network tab
             //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");

@@ -6,12 +6,19 @@ import io.swagger.annotations.ApiParam;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.Gistic;
+import org.cbioportal.model.GisticToGene;
 import org.cbioportal.model.MolecularProfileSampleCount;
+import org.cbioportal.model.MutSig;
 import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalDataService;
@@ -20,6 +27,9 @@ import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.SignificantCopyNumberRegionService;
+import org.cbioportal.service.SignificantlyMutatedGeneService;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.Projection;
@@ -58,6 +68,10 @@ public class StudyViewController {
     private SampleService sampleService;
     @Autowired
     private GenePanelService genePanelService;
+    @Autowired
+    private SignificantlyMutatedGeneService significantlyMutatedGeneService;
+    @Autowired
+    private SignificantCopyNumberRegionService significantCopyNumberRegionService;
 
     @RequestMapping(value = "/attributes/{attributeId}/clinical-data-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -90,7 +104,7 @@ public class StudyViewController {
     @ApiOperation("Fetch mutated genes by study view filter")
     public ResponseEntity<List<MutationCountByGene>> fetchMutatedGenes(
         @ApiParam(required = true, value = "Study view filter")
-        @Valid @RequestBody StudyViewFilter studyViewFilter) {
+        @Valid @RequestBody StudyViewFilter studyViewFilter) throws StudyNotFoundException {
 
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
         List<MutationCountByGene> result = new ArrayList<>();
@@ -101,6 +115,17 @@ public class StudyViewController {
             result = mutationService.getSampleCountInMultipleMolecularProfiles(molecularProfileService
                 .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, true);
             result.sort((a, b) -> b.getCountByEntity() - a.getCountByEntity());
+            List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
+            if (distinctStudyIds.size() == 1) {
+                Map<Integer, MutSig> mutSigMap = significantlyMutatedGeneService.getSignificantlyMutatedGenes(
+                    distinctStudyIds.get(0), Projection.SUMMARY.name(), null, null, null, null).stream().collect(
+                        Collectors.toMap(MutSig::getEntrezGeneId, Function.identity()));
+                result.forEach(r -> {
+                    if (mutSigMap.containsKey(r.getEntrezGeneId())) {
+                        r.setqValue(mutSigMap.get(r.getEntrezGeneId()).getqValue());
+                    }
+                });
+            }
         }
         
         return new ResponseEntity<>(result, HttpStatus.OK);
@@ -111,7 +136,7 @@ public class StudyViewController {
     @ApiOperation("Fetch CNA genes by study view filter")
     public ResponseEntity<List<CopyNumberCountByGene>> fetchCNAGenes(
         @ApiParam(required = true, value = "Study view filter")
-        @Valid @RequestBody StudyViewFilter studyViewFilter) {
+        @Valid @RequestBody StudyViewFilter studyViewFilter) throws StudyNotFoundException {
 
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
         List<CopyNumberCountByGene> result = new ArrayList<>();
@@ -122,6 +147,23 @@ public class StudyViewController {
             result = discreteCopyNumberService.getSampleCountInMultipleMolecularProfiles(molecularProfileService
                 .getFirstDiscreteCNAProfileIds(studyIds, sampleIds), sampleIds, null, Arrays.asList(-2, 2), true);
             result.sort((a, b) -> b.getCountByEntity() - a.getCountByEntity());
+            List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
+            if (distinctStudyIds.size() == 1) {
+                List<Gistic> gisticList = significantCopyNumberRegionService.getSignificantCopyNumberRegions(
+                    distinctStudyIds.get(0), Projection.SUMMARY.name(), null, null, null, null);
+                Map<Integer, Gistic> gisticMap = new HashMap<>();
+                gisticList.forEach(g -> g.getGenes().forEach(gene -> {
+                    Gistic gistic = gisticMap.get(gene.getEntrezGeneId());
+                    if (gistic == null || g.getqValue().compareTo(gistic.getqValue()) < 0) {
+                        gisticMap.put(gene.getEntrezGeneId(), g);
+                    }
+                }));
+                result.forEach(r -> {
+                    if (gisticMap.containsKey(r.getEntrezGeneId())) {
+                        r.setqValue(gisticMap.get(r.getEntrezGeneId()).getqValue());
+                    }
+                });
+            }
         }
         
         return new ResponseEntity<>(result, HttpStatus.OK);

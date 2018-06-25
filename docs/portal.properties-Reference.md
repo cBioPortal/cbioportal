@@ -21,7 +21,7 @@ db.user=
 db.password=
 db.host=[e.g. localhost to connect via socket, or e.g. 127.0.0.1:3307 to connect to a different port like 3307. Used by Java data import layer]
 db.portal_db_name=[the database name in mysql, e.g. cbiodb]
-db.driver=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver]
+db.driver=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver (MySQL 5.7) or com.mysql.cj.jdbc.Driver]
 ```
 
 Include `db_connection_string` with the format specified below, and replace `localhost` by the value of `db.host`:
@@ -33,7 +33,10 @@ db.tomcat_resource_name is required in order to work with the tomcat database co
 ```
 db.tomcat_resource_name=jdbc/cbioportal
 ```
-
+db.timezone is required when connect to a MySQL8 database. You can find system time zone using `timedatectl` on linux or `systemsetup -gettimezone` on Mac 
+```
+db.timezone = America/Toronto
+```
 # Segment File URL
 
 This is a root URL to where segment files can be found.  This is used when you want to provide segment file viewing via external tools such as [IGV](http://www.broadinstitute.org/igv/).

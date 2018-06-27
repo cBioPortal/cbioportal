@@ -59,6 +59,12 @@
     <c:param name="local" value="${samlLogoutLocal}" />
 </c:url>
 
+<style type="text/css">
+.identity > a {
+    color: #3786C2;
+}
+</style>
+
 <header>
         <div id="leftHeaderContent">
         <a id="cbioportal-logo" href="index.do"><img src="<c:url value="/images/cbioportal_logo.png"/>" alt="cBioPortal Logo" /></a>    

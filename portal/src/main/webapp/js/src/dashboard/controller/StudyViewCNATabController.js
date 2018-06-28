@@ -31,21 +31,25 @@
 */
 
 
-
-
 var StudyViewCNATabController = (function() {
-    var init = function (callback){
-        StudyViewProxy.getGisticData().then(function(data) {
-            StudyViewInitCNATab.init(data);
-            if(_.isFunction(callback)) {
-                callback();
-            }
-        });
+    var init = function(callback) {
+        StudyViewProxy.getGisticData()
+            .done(function(data) {
+                StudyViewInitCNATab.init(data);
+                if (_.isFunction(callback)) {
+                    callback();
+                }
+            })
+            .fail(function() {
+                if(_.isFunction(callback)) {
+                    callback();
+                }
+            });
     };
-    
+
     return {
         init: init,
-        getDataTable: function () {
+        getDataTable: function() {
             return StudyViewInitCNATab.getDataTable();
         }
     };

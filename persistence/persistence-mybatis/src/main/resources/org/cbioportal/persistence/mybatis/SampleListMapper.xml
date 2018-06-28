@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.SampleListMapper">
-    <cache/>
+    <cache readOnly="true"/>
 
     <sql id="select">
         sample_list.LIST_ID AS "${prefix}listId",
@@ -64,6 +64,23 @@
         WHERE sample_list.STABLE_ID = #{sampleListId}
     </select>
 
+    <select id="getSampleLists" resultType="org.cbioportal.model.SampleList">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        FROM sample_list
+        INNER JOIN cancer_study ON sample_list.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <where>
+            <if test="sampleListIds != null and !sampleListIds.isEmpty()">
+                sample_list.STABLE_ID IN
+                <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
     <select id="getAllSampleIdsInSampleList" resultType="string">
         SELECT 
         sample.STABLE_ID
@@ -72,12 +89,13 @@
         INNER JOIN sample ON sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
         WHERE sample_list.STABLE_ID = #{sampleListId}
     </select>
-    
-    <select id="getSampleCounts" resultType="org.cbioportal.model.SampleListSampleCount">
+
+    <select id="getSampleListSampleIds" resultType="org.cbioportal.model.SampleListToSampleId">
         SELECT
         sample_list_list.LIST_ID as sampleListId,
-        COUNT(*) as sampleCount
+        sample.STABLE_ID as sampleId
         FROM sample_list_list
+        INNER JOIN sample ON sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
         <where>
             <if test="list != null and !list.isEmpty()">
                 sample_list_list.LIST_ID IN
@@ -86,6 +104,5 @@
                 </foreach>
             </if>
         </where>
-        GROUP BY sample_list_list.LIST_ID
     </select>
 </mapper>

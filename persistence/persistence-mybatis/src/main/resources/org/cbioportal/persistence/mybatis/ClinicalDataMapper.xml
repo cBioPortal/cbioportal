@@ -2,12 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.ClinicalDataMapper">
-    <cache/>
+    <cache readOnly="true" size="2"/>
 
     <sql id="selectSample">
         clinical_sample.INTERNAL_ID AS "${prefix}internalId",
-        sample.STABLE_ID AS "${prefix}stableId",
-        clinical_sample.ATTR_ID AS "${prefix}attrId"
+        sample.STABLE_ID AS "${prefix}sampleId",
+        patient.STABLE_ID AS "${prefix}patientId",
+        clinical_sample.ATTR_ID AS "${prefix}attrId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             , clinical_sample.ATTR_VALUE AS "${prefix}attrValue"
         </if>
@@ -21,8 +23,9 @@
 
     <sql id="selectPatient">
         clinical_patient.INTERNAL_ID AS "${prefix}internalId",
-        patient.STABLE_ID AS "${prefix}stableId",
-        clinical_patient.ATTR_ID AS "${prefix}attrId"
+        patient.STABLE_ID AS "${prefix}patientId",
+        clinical_patient.ATTR_ID AS "${prefix}attrId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             , clinical_patient.ATTR_VALUE AS "${prefix}attrValue"
         </if>
@@ -53,12 +56,25 @@
                 cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
             </if>
             <if test="sampleIds != null">
-                <foreach index="i" collection="sampleIds" open="(" separator="OR" close=")">
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[${i}]} AND sample.STABLE_ID = #{sampleIds[${i}]}
-                </foreach>
+                <if test="studyIds.size() == 1">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                    sample.STABLE_ID IN
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="studyIds.size() > 1">
+                    (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
+                    </foreach>
+                </if>
             </if>
-            <if test="attributeId != null">
-                AND clinical_sample.ATTR_ID = #{attributeId}
+            <if test="attributeIds != null">
+                AND clinical_sample.ATTR_ID IN
+                <foreach item="item" collection="attributeIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
             </if>
         </where>
     </sql>
@@ -69,12 +85,25 @@
                 cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
             </if>
             <if test="patientIds != null">
-                <foreach index="i" collection="patientIds" open="(" separator="OR" close=")">
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[${i}]} AND patient.STABLE_ID = #{patientIds[${i}]}
-                </foreach>
+                <if test="studyIds.size() == 1">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                    patient.STABLE_ID IN
+                    <foreach item="item" collection="patientIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="studyIds.size() > 1">
+                    (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
+                    <foreach index="i" collection="patientIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{patientIds[${i}]})
+                    </foreach>
+                </if>
             </if>
-            <if test="attributeId != null">
-                AND clinical_patient.ATTR_ID = #{attributeId}
+            <if test="attributeIds != null">
+                AND clinical_patient.ATTR_ID IN
+                <foreach item="item" collection="attributeIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
             </if>
         </where>
     </sql>
@@ -137,6 +166,24 @@
         COUNT(*) AS totalCount
         <include refid="fromPatient"/>
         <include refid="wherePatient"/>
+    </select>
+
+    <select id="fetchSampleClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        SELECT count(*) as count,
+        clinical_sample.ATTR_ID as attributeId,
+        clinical_sample.ATTR_VALUE as value
+        <include refid="fromSample"/>
+        <include refid="whereSample"/>
+        GROUP BY clinical_sample.ATTR_ID, clinical_sample.ATTR_VALUE
+    </select>
+
+    <select id="fetchPatientClinicalDataCounts" resultType="org.cbioportal.model.ClinicalDataCount">
+        SELECT count(*) as count,
+        clinical_patient.ATTR_ID as attributeId,
+        clinical_patient.ATTR_VALUE as value
+        <include refid="fromPatient"/>
+        <include refid="wherePatient"/>
+        GROUP BY clinical_patient.ATTR_ID, clinical_patient.ATTR_VALUE
     </select>
 
 </mapper>

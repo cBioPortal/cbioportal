@@ -4,7 +4,7 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.5.1</version>
+    <version>1.14.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>cbioportal</artifactId>
@@ -13,6 +13,18 @@
   <url>http://maven.apache.org</url>
 
   <dependencies>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-taglibs</artifactId>
+      <version>${spring.security.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security.extensions</groupId>
+      <artifactId>spring-security-saml2-core</artifactId>
+      <version>${spring.security.saml.version}</version>
+      <scope>runtime</scope>
+    </dependency>
     <!-- jstl -->
     <dependency>
       <groupId>jstl</groupId>
@@ -49,30 +61,6 @@
           <!--tomcat.catalina.scope is defined in master module-->
           ${tomcat.catalina.scope}
       </scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-taglibs</artifactId>
-      <version>${spring.security.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-ldap</artifactId>
-      <version>${spring.security.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-openid</artifactId>
-      <version>${spring.security.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security.extensions</groupId>
-      <artifactId>spring-security-saml2-core</artifactId>
-      <version>${spring.security.saml.version}</version>
-      <scope>runtime</scope>
     </dependency>
   </dependencies>
 
@@ -119,7 +107,7 @@
                 <artifactItem>
                   <groupId>com.github.cbioportal</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
-                  <version>v0.4.6</version>
+                  <version>v1.14.0</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>
@@ -209,6 +197,7 @@
                   <excludes>
                     <exclude>**/portal.properties.*</exclude>
                     <exclude>**/log4j.properties.*</exclude>
+                    <exclude>**/maven.properties.*</exclude>
                     <exclude>**/*.EXAMPLE</exclude>
                   </excludes>
                 </resource>
@@ -221,6 +210,7 @@
 
     <filters>
         <filter>../src/main/resources/portal.properties</filter>
+        <filter>../src/main/resources/maven.properties</filter>
     </filters>
     
     <!-- prevent some resources from getting into war -->

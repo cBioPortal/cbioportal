@@ -24,6 +24,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 * [User Authorization](User-Authorization.md)
 * [Authenticating Users via SAML](Authenticating-Users-via-SAML.md)
 * [Authenticating Users via LDAP](Authenticating-Users-via-LDAP.md)
+* [Authenticating and Authorizing Users via Keycloak](Authenticating-and-Authorizing-Users-via-keycloak.md)
 
 ### 2.3 Customization 
 * [Customizing your cBioPortal Instance via portal.properties](Customizing-your-instance-of-cBioPortal.md)
@@ -37,6 +38,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 
 ## 3. cBioPortal Maintenance
 * [Updating your cBioPortal Database Scheme](Updating-your-cBioPortal-installation.md)
+* [Update genes and gene aliases](Updating-gene-and-gene_alias-tables.md)
 
 ## 4. Development      
 * [cBioPortal Entity-relationship Diagram](cBioPortal-ER-Diagram.md)
@@ -44,6 +46,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 * [Accessing Services via the Web-API](cBioPortal-Web-API.md)
    * [API and API Client](The-API-and-API-Client-[Beta].md)
 * [Providing cBioPortal Parameters](providing-cBioPortal-parameters.md)
+* [Manual test cases](manual-test-cases.md)
 
 ## 5. Data Loading
 ### 5.1 Data Loading
@@ -57,9 +60,8 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
    * [Data Loading: What You Need To Change](Data-Loading-What-You-Need-To-Change.md)
    * [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md)
    * [Importer Tool](Importer-Tool.md) (deprecated)
+   * [Importing Gene Sets](Import-Gene-Sets.md)
 
 ### 5.2 Datasets
 * [Downloads](Downloads.md)
-* [Data Examples](Data-Examples.md)
-* [Public Datasets](Public-datasets.md)
 

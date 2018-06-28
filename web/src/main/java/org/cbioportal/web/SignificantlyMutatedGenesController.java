@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.MutSig;
 import org.cbioportal.service.SignificantlyMutatedGeneService;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -36,6 +38,7 @@ public class SignificantlyMutatedGenesController {
     @Autowired
     private SignificantlyMutatedGeneService significantlyMutatedGeneService;
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/significantly-mutated-genes", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get significantly mutated genes in a study")
@@ -54,7 +57,7 @@ public class SignificantlyMutatedGenesController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) SignificantlyMutatedGeneSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();

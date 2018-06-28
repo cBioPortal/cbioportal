@@ -25,6 +25,7 @@ package org.mskcc.cbio.portal.scripts;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,8 +53,10 @@ import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGistic;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.persistence.GeneticProfileMapperLegacy;
 import org.mskcc.cbio.portal.persistence.MutationMapperLegacy;
 import org.mskcc.cbio.portal.service.ApiService;
+import org.mskcc.cbio.portal.util.SpringUtil;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.util.TransactionalScripts;
@@ -63,6 +66,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import org.cbioportal.model.GenesetMolecularData;
+import org.cbioportal.service.GenesetDataService;
+import org.mskcc.cbio.portal.dao.DaoGeneset;
 
 
 /**
@@ -84,12 +90,14 @@ public class TestIntegrationTest {
     private ApplicationContext applicationContext;
     
     @Before
-    public void setUp() throws DaoException, JsonParseException, JsonMappingException, IOException {
+    public void setUp() throws DaoException, JsonParseException, JsonMappingException, IOException, Exception {
+        SpringUtil.setApplicationContext(applicationContext);
         ProgressMonitor.setConsoleMode(false);
         ProgressMonitor.resetWarnings();
         DaoCancerStudy.reCacheAll();
         DaoGeneOptimized.getInstance().reCache();
         loadGenes();
+        loadGenePanel();
     }
     
     /**
@@ -121,8 +129,8 @@ public class TestIntegrationTest {
                     countWarnings++;
                 }
             }
-            //check that there no warnings:
-            assertEquals(0, countWarnings);
+            //check that there are only warnings for empty positions in fake data:
+            assertEquals(1, countWarnings);
             
             //check that ALL data really got into DB correctly. In the spirit of integration tests,
             //we want to query via the same service layer as the one used by the web API here.
@@ -134,10 +142,27 @@ public class TestIntegrationTest {
             List<String> geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_mutations");
             List<Mutation> mutations = mutationMapperLegacy.getMutationsDetailed(geneticProfileStableIds,null,null,null);
-            //there are 13 records in the mutation file, but 3 are filtered, 
-            //so we expect 10 in DB:
-            assertEquals(10, mutations.size());
-            
+            //there are 31 records in the mutation file, of which 3 are filtered, and there are 3 extra records added from fusion
+            //so we expect 31 records in DB:
+            assertEquals(31, mutations.size());
+
+            //===== Check FUSION data ========
+            // Are there 4 fusion entries in mutation profile, but one is off panel, so only 3 should be imported
+            int countFusions = 0;
+            for (Mutation mutation : mutations) {
+                if (mutation.getMutationEvent().getMutationType().equals("Fusion")) {
+                    countFusions++;
+                }
+            }
+            assertEquals(countFusions, 3);
+
+            // Is there a seperate fusion profile? -> false
+            GeneticProfileMapperLegacy geneticProfileMapperLegacy = applicationContext.getBean(GeneticProfileMapperLegacy.class);
+            geneticProfileStableIds = new ArrayList<String>();
+            geneticProfileStableIds.add("study_es_0_fusion");
+            List<DBGeneticProfile> geneticProfiles = geneticProfileMapperLegacy.getGeneticProfiles(geneticProfileStableIds);
+            assertEquals(geneticProfiles.size(), 0);
+
             //===== Check CNA data ========
             geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_gistic");
@@ -203,10 +228,6 @@ public class TestIntegrationTest {
             assertEquals(1, cancerTypes.size());
             assertEquals("Breast Invasive Carcinoma", cancerTypes.get(0).name);
             
-            //===== check fusion data
-            //TODO - depends on fix for #1102 and #1314
-            
-            
             //===== check gistic data
             //servlet uses this query:
             ArrayList<Gistic> gistics = DaoGistic.getAllGisticByCancerStudyId(cancerStudy.getInternalId());
@@ -265,6 +286,22 @@ public class TestIntegrationTest {
             //===== check mutsig
             //TODO
             
+            //===== check GSVA data
+            //...
+            String testGeneset = "GO_ATP_DEPENDENT_CHROMATIN_REMODELING";
+            assertEquals(4, DaoGeneset.getGenesetByExternalId(testGeneset).getGenesetGeneIds().size());
+            //scores:                                        TCGA-A1-A0SB-01     TCGA-A1-A0SD-01      TCGA-A1-A0SE-01     TCGA-A1-A0SH-01     TCGA-A2-A04U-01
+            //        GO_ATP_DEPENDENT_CHROMATIN_REMODELING  -0.293861251463613  -0.226227563676626  -0.546556962547473  -0.0811115513543749  0.56919171543422
+            //using new api:
+            GenesetDataService genesetDataService = applicationContext.getBean(GenesetDataService.class);
+            List<GenesetMolecularData> genesetData = genesetDataService.fetchGenesetData("study_es_0_gsva_scores", "study_es_0_all",  Arrays.asList(testGeneset));
+            assertEquals(5, genesetData.size());
+
+            genesetData = genesetDataService.fetchGenesetData("study_es_0_gsva_scores", Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SH-01"), Arrays.asList(testGeneset));
+            assertEquals(2, genesetData.size());
+            assertEquals(-0.293861251463613, Double.parseDouble(genesetData.get(0).getValue()), 0.00001);
+            assertEquals(-0.0811115513543749, Double.parseDouble(genesetData.get(1).getValue()), 0.00001);
+
             //===== check study status
             assertEquals(DaoCancerStudy.Status.AVAILABLE, DaoCancerStudy.getStatus("study_es_0"));
             
@@ -325,6 +362,16 @@ public class TestIntegrationTest {
 
         MySQLbulkLoader.flushAll();
         
+    }
+
+    /**
+     * Loads a gene panel used by this test.
+     * 
+     */
+    private void loadGenePanel() throws Exception {
+        ImportGenePanel gp = new ImportGenePanel(null);
+        gp.setFile(new File("src/test/scripts/test_data/study_es_0/gene_panel_example.txt"));
+        gp.importData();
     }
     
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -23,8 +23,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -63,6 +64,8 @@ public class SampleListControllerTest {
     private SampleListService sampleListService;
     private MockMvc mockMvc;
 
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     @Bean
     public SampleListService sampleListService() {
         return Mockito.mock(SampleListService.class);
@@ -86,7 +89,7 @@ public class SampleListControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/sample-lists")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleListId").value(TEST_STABLE_ID_1))
@@ -115,7 +118,7 @@ public class SampleListControllerTest {
             .param("projection", "DETAILED")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleListId").value(TEST_STABLE_ID_1))
@@ -163,7 +166,7 @@ public class SampleListControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/sample-lists/test_sample_list_id")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.listId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$.sampleListId").value(TEST_STABLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$.studyId").value(TEST_STUDY_IDENTIFIER_1))
@@ -185,7 +188,7 @@ public class SampleListControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/sample-lists")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleListId").value(TEST_STABLE_ID_1))
@@ -214,7 +217,7 @@ public class SampleListControllerTest {
             .param("projection", "DETAILED")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleListId").value(TEST_STABLE_ID_1))
@@ -251,10 +254,39 @@ public class SampleListControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/sample-lists/test_sample_list_id/sample-ids")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0]").value(TEST_SAMPLE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1]").value(TEST_SAMPLE_ID_2));
+    }
+
+    @Test
+    public void fetchSampleLists() throws Exception {
+
+        List<SampleList> sampleLists = createExampleSampleLists();
+
+        Mockito.when(sampleListService.fetchSampleLists(Mockito.anyListOf(String.class), Mockito.anyString()))
+            .thenReturn(sampleLists);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/sample-lists/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(Arrays.asList(TEST_STABLE_ID_1, TEST_STABLE_ID_2))))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleListId").value(TEST_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].category").value(TEST_CATEGORY_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].listId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleListId").value(TEST_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_IDENTIFIER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].category").value(TEST_CATEGORY_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2));
     }
 
     private List<SampleList> createExampleSampleLists() {

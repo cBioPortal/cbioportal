@@ -37,7 +37,7 @@ import java.util.List;
 import org.apache.commons.lang.SerializationUtils;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.MolecularProfile;
 import org.mskcc.cbio.portal.model.Mutation;
 import org.mskcc.cbio.portal.model.MutationEvent;
 import org.cbioportal.model.Patient;
@@ -113,7 +113,7 @@ public class ApiControllerTest {
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value("nmzl"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value("Nodal Marginal Zone Lymphoma"))
@@ -148,7 +148,7 @@ public class ApiControllerTest {
                 .param("cancer_type_ids","nmzl,tcca")
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value("nmzl"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value("Nodal Marginal Zone Lymphoma"))
@@ -182,7 +182,7 @@ public class ApiControllerTest {
                 .param("sample_list_id","brca_tcga_all")
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(6)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample_list_id").value("brca_tcga_all"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample_list_id").value("brca_tcga_all"))
@@ -372,7 +372,7 @@ public class ApiControllerTest {
                 .param("sample_list_id","brca_tcga_all")
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample_list_id").value("brca_tcga_all"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample_list_id").value("brca_tcga_all"))
@@ -454,7 +454,7 @@ public class ApiControllerTest {
                 .param("sample_list_id","brca_tcga_all")
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0)))
                 ;
     }
@@ -481,7 +481,7 @@ public class ApiControllerTest {
                 .param("sample_ids","TCGA-AN-A0XR-01,TCGA-GM-A3NW-01")
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample_list_id").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample_list_id").doesNotExist())
@@ -577,12 +577,12 @@ public class ApiControllerTest {
         cancerStudy_brca_tcga.setGroups("PUBLIC");
         cancerStudy_brca_tcga.setStatus(1);
         cancerStudy_brca_tcga.setImportDate(null);
-        GeneticProfile geneticProfile_brca_tcga_mutations = new GeneticProfile();
-        geneticProfile_brca_tcga_mutations.setGeneticProfileId(1010);
+        MolecularProfile geneticProfile_brca_tcga_mutations = new MolecularProfile();
+        geneticProfile_brca_tcga_mutations.setMolecularProfileId(1010);
         geneticProfile_brca_tcga_mutations.setStableId("brca_tcga_mutations");
         geneticProfile_brca_tcga_mutations.setCancerStudyId(188);
         geneticProfile_brca_tcga_mutations.setCancerStudy(cancerStudy_brca_tcga);
-        geneticProfile_brca_tcga_mutations.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.MUTATION_EXTENDED);
+        geneticProfile_brca_tcga_mutations.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
         geneticProfile_brca_tcga_mutations.setDatatype("MAF");
         geneticProfile_brca_tcga_mutations.setName("Mutations");
         geneticProfile_brca_tcga_mutations.setDescription("Mutation data from whole exome sequencing.");
@@ -1076,10 +1076,10 @@ public class ApiControllerTest {
         mutation.getMutationEvent().setOncotatorUniprotAccession(null);
         mutation.getMutationEvent().setCanonicalTranscript(null);
         mutation.getMutationEvent().setKeyword(null);
-        mutation.getGeneticProfile().setGeneticProfileId(null);
+        mutation.getGeneticProfile().setMolecularProfileId(null);
         mutation.getGeneticProfile().setStableId(null);
         mutation.getGeneticProfile().setCancerStudy(null);
-        mutation.getGeneticProfile().setGeneticAlterationType(null);
+        mutation.getGeneticProfile().setMolecularAlterationType(null);
         mutation.getGeneticProfile().setDatatype(null);
         mutation.getGeneticProfile().setName(null);
         mutation.getGeneticProfile().setDescription(null);

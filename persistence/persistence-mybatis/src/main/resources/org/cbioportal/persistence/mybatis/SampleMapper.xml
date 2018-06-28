@@ -2,18 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.SampleMapper">
-    <cache/>
+    <cache readOnly="true" size="100000"/>
 
     <sql id="select">
         sample.INTERNAL_ID AS "${prefix}internalId",
-        sample.STABLE_ID AS "${prefix}stableId"
+        sample.STABLE_ID AS "${prefix}stableId",
+        patient.STABLE_ID AS "${prefix}patientStableId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
             sample.SAMPLE_TYPE AS "${prefix}sampleType",
             sample.PATIENT_ID AS "${prefix}patientId",
-            patient.STABLE_ID AS "${prefix}patientStableId",
-            sample.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId",
-            cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
+            sample.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId"
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -35,8 +35,9 @@
                 cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
             </if>
             <if test="sampleIds != null">
-                <foreach index="i" collection="sampleIds" open="(" separator="OR" close=")">
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[${i}]} AND sample.STABLE_ID = #{sampleIds[${i}]}
+                (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                    (#{studyIds[${i}]}, #{sampleIds[${i}]})
                 </foreach>
             </if>
             <if test="patientId != null">
@@ -63,11 +64,43 @@
         </if>
     </select>
 
+    <select id="getSamplesBySampleListIds" resultType="org.cbioportal.model.Sample">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        <include refid="from"/>
+        WHERE sample.INTERNAL_ID IN
+        (
+            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+            WHERE sample_list.STABLE_ID IN
+            <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        )
+    </select>
+
     <select id="getMetaSamples" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
         <include refid="from"/>
         <include refid="where"/>
+    </select>
+
+    <select id="getMetaSamplesBySampleListIds" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        <include refid="from"/>
+        WHERE sample.INTERNAL_ID IN
+        (
+            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
+            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
+            WHERE sample_list.STABLE_ID IN
+            <foreach item="item" collection="list" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        )
     </select>
 
     <select id="getSample" resultType="org.cbioportal.model.Sample">
@@ -94,7 +127,7 @@
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM sample
+        <include refid="from"/>
         <where>
             <if test="internalIds != null and !internalIds.isEmpty()">
                 sample.INTERNAL_ID IN
@@ -103,5 +136,21 @@
                 </foreach>
             </if>
         </where>
+    </select>
+    
+    <select id="getSamplesOfPatients" resultType="org.cbioportal.model.Sample">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        <include refid="from"/>
+        WHERE
+        cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        <if test="patientIds != null and !patientIds.isEmpty()">
+            AND patient.STABLE_ID IN
+            <foreach item="item" collection="patientIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
     </select>
 </mapper>

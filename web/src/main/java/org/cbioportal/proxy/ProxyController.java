@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 public class ProxyController {
 
     @RequestMapping("/**")
-    public String proxy(@RequestBody String body, HttpMethod method, HttpServletRequest request)
+    public String proxy(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
         throws URISyntaxException {
 
         String queryString = request.getQueryString();

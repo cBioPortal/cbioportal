@@ -1,41 +1,55 @@
 'use strict';
 
-var EnhancedFixedDataTable = (function() {
+window.EnhancedFixedDataTable = (function() {
 // Data button component
     var FileGrabber = React.createClass({displayName: "FileGrabber",
         // Saves table content to a text file
         saveFile: function() {
-            var formatData = this.props.content();
+            var _self = this;
+            _self.setState({saving: true});
 
-            var blob = new Blob([formatData], {type: 'text/plain'});
-            var fileName = this.props.downloadFileName ? this.props.downloadFileName : "data.txt";
+            setTimeout(function() {
+                var formatData = _self.props.content();
 
-            var downloadLink = document.createElement("a");
-            downloadLink.download = fileName;
-            downloadLink.innerHTML = "Download File";
-            if (window.webkitURL) {
-                // Chrome allows the link to be clicked
-                // without actually adding it to the DOM.
-                downloadLink.href = window.webkitURL.createObjectURL(blob);
+                var blob = new Blob([formatData], {type: 'text/plain'});
+                var fileName = _self.props.downloadFileName ? _self.props.downloadFileName : "data.txt";
+
+                var downloadLink = document.createElement("a");
+                downloadLink.download = fileName;
+                downloadLink.innerHTML = "Download File";
+                if (window.webkitURL) {
+                    // Chrome allows the link to be clicked
+                    // without actually adding it to the DOM.
+                    downloadLink.href = window.webkitURL.createObjectURL(blob);
+                }
+                else {
+                    // Firefox requires the link to be added to the DOM
+                    // before it can be clicked.
+                    downloadLink.href = window.URL.createObjectURL(blob);
+                    downloadLink.onclick = function(event) {
+                        document.body.removeChild(event.target);
+                    };
+                    downloadLink.style.display = "none";
+                    document.body.appendChild(downloadLink);
+                }
+
+                downloadLink.click();
+                _self.setState({saving: false});
+            }, 0);
+        },
+
+        getInitialState: function() {
+            return {
+                saving: false
             }
-            else {
-                // Firefox requires the link to be added to the DOM
-                // before it can be clicked.
-                downloadLink.href = window.URL.createObjectURL(blob);
-                downloadLink.onclick = function(event) {
-                    document.body.removeChild(event.target);
-                };
-                downloadLink.style.display = "none";
-                document.body.appendChild(downloadLink);
-            }
-
-            downloadLink.click();
         },
 
         render: function() {
             return (
                 React.createElement("button", {className: "btn btn-default", onClick: this.saveFile},
-                    "DATA")
+                    this.state.saving ? React.createElement("i", {className: "fa fa-spinner fa-spin"}) :
+                        React.createElement("span", null, "DATA")
+                )
             );
         }
     });
@@ -68,34 +82,40 @@ var EnhancedFixedDataTable = (function() {
         },
 
         componentDidMount: function() {
-            var client = new ZeroClipboard($("#copy-button"));
             var self = this;
-            client.on("ready", function(readyEvent) {
-                client.on("copy", function(event) {
-                    event.clipboardData.setData('text/plain', self.props.content());
+            var clipboard = new ClipboardJS('#copy-button', {
+                text: function(trigger) {
+                    return self.props.content();
+                }
+            });
+            clipboard.on("success", function(event) {
+                self.notify();
+            });
+            clipboard.on("error", function(event) {
+                // Error happened, disable Copy button notify the user.
+                clipboard.destroy();
+                self.notify({
+                    message: 'Copy button is not available at this moment.',
+                    type: 'danger'
                 });
-                client.on("aftercopy", function(event) {
-                    self.notify();
-                });
-                client.on("error", function(event) {
-                    // Error happened, disable Copy button notify the user.
-                    ZeroClipboard.destroy();
-                    self.notify({
-                        message: 'Copy button is not availble at this moment.',
-                        type: 'danger'
-                    });
-                    self.setState({show: false});
-                });
+                self.setState({show: false});
             });
         },
 
         getInitialState: function() {
             var _show = true;
-            var _content = this.props.content();
 
-            // The current not official limitation is 1,000,000
-            // https://github.com/zeroclipboard/zeroclipboard/issues/529
-            if (!_.isString(_content) || _content.length > 1000000) {
+            // Only do precise calculation if the table matrix smaller than 100000
+            // This number is just an estimation
+            if (this.props.matrix < 100000) {
+                var _content = this.props.content();
+
+                // The current not official limitation is 1,000,000
+                // https://github.com/zeroclipboard/zeroclipboard/issues/529
+                if (!_.isString(_content) || _content.length > 1000000) {
+                    _show = false;
+                }
+            } else {
                 _show = false;
             }
 
@@ -120,7 +140,8 @@ var EnhancedFixedDataTable = (function() {
     var DataGrabber = React.createClass({displayName: "DataGrabber",
         // Prepares table content data for download or copy button
         prepareContent: function() {
-            var content = [], cols = $.extend(true, [], this.props.cols), rows = this.props.rows;
+            var content = [], cols = $.extend(true, [], this.props.cols),
+                rows = this.props.rows;
 
             // List fixed columns first
             cols = cols.sort(function(x, y) {
@@ -149,6 +170,10 @@ var EnhancedFixedDataTable = (function() {
             }
 
             var content = this.prepareContent;
+            var numCols = _.isArray(this.props.cols) ? this.props.cols.length : 0;
+            var numRows = _.isArray(this.props.rows) ? this.props.rows.length : 0;
+
+            var matrix = numCols * numRows;
 
             return (
                 React.createElement("div", null,
@@ -161,7 +186,9 @@ var EnhancedFixedDataTable = (function() {
                     ),
                     React.createElement("div", {className: "EFDT-download-btn EFDT-top-btn"},
 
-                        getData != "DOWNLOAD" ? React.createElement(ClipboardGrabber, {content: content}) :
+                        getData != "DOWNLOAD" ? React.createElement(ClipboardGrabber, {
+                                matrix: matrix,
+                                content: content}) :
                             React.createElement("div", null)
 
                     )
@@ -176,7 +203,7 @@ var EnhancedFixedDataTable = (function() {
         render: function() {
             var label = this.props.label, qtipFlag = false, attr = this.props.attr;
             var studyId = this.props.arrs ? (this.props.arrs['study_id'] ?
-                    this.props.arrs['study_id'] : window.cancerStudyId) : '';
+                this.props.arrs['study_id'] : window.cancerStudyId) : '';
             var shortLabel = this.props.shortLabel;
             var className = this.props.className || '';
 
@@ -339,7 +366,8 @@ var EnhancedFixedDataTable = (function() {
     var ColumnScroller = React.createClass({displayName: "ColumnScroller",
         // Scrolls to user selected column
         scrollToColumn: function(e) {
-            var name = e.target.value, cols = this.props.cols, index, colsL = cols.length;
+            var name = e.target.value, cols = this.props.cols, index,
+                colsL = cols.length;
             for (var i = 0; i < colsL; i++) {
                 if (name === cols[i].name) {
                     index = i;
@@ -505,7 +533,8 @@ var EnhancedFixedDataTable = (function() {
     var CustomizeCell = React.createClass({displayName: "CustomizeCell",
         render: function() {
             var Cell = FixedDataTable.Cell;
-            var rowIndex = this.props.rowIndex, data = this.props.data, field = this.props.field, filterAll = this.props.filterAll;
+            var rowIndex = this.props.rowIndex, data = this.props.data,
+                field = this.props.field, filterAll = this.props.filterAll;
             var flag = (data[rowIndex][field] && filterAll.length > 0) ?
                 (data[rowIndex][field].toLowerCase().indexOf(filterAll.toLowerCase()) >= 0) : false;
             var shortLabels = this.props.shortLabels;
@@ -527,12 +556,16 @@ var EnhancedFixedDataTable = (function() {
     var TableMainPart = React.createClass({displayName: "TableMainPart",
         // Creates Qtip
         createQtip: function() {
-            $('.EFDT-table .hasQtip').one('mouseenter', function() {
+            var self = this;
+            $((self.props.elementId ? ('#' + self.props.elementId) : '') + '.EFDT-table .hasQtip').one('mouseenter', function() {
                 $(this).qtip({
                     content: {text: $(this).attr('data-qtip')},
                     hide: {fixed: true, delay: 100},
                     show: {ready: true},
-                    style: {classes: 'qtip-light qtip-rounded qtip-shadow', tip: true},
+                    style: {
+                        classes: 'qtip-light qtip-rounded qtip-shadow ' + self.props.elementId,
+                        tip: true
+                    },
                     position: {my: 'center left', at: 'center right', viewport: $(window)}
                 });
             });
@@ -550,16 +583,17 @@ var EnhancedFixedDataTable = (function() {
 
         // Creates Qtip after page scrolling
         onScrollEnd: function() {
-            $(".qtip").remove();
+            var qtipId = '.qtip';
+            if (this.props.elementId) {
+                qtipId = '.' + this.props.elementId + '-qtip ' + qtipId;
+            }
+            $(qtipId).remove();
             this.createQtip();
         },
 
         // Destroys Qtip before update rendering
         componentWillUpdate: function() {
-            //console.log('number of elments which has "hasQtip" as class name: ', $('.hasQtip').size());
-            //console.log('number of elments which has "hasQtip" as class name under class EFDT: ', $('.EFDT-table .hasQtip').size());
-
-            $('.EFDT-table .hasQtip')
+            $((this.props.elementId ? ('#' + this.props.elementId) : '') + '.EFDT-table .hasQtip')
                 .each(function() {
                     $(this).qtip('destroy', true);
                 });
@@ -592,7 +626,7 @@ var EnhancedFixedDataTable = (function() {
                         props.cols.map(function(col, index) {
                             var column;
                             var width = col.show ? (col.width ? col.width :
-                                    (columnsWidth[col.name] ? columnsWidth[col.name] : 200)) : 0;
+                                (columnsWidth[col.name] ? columnsWidth[col.name] : 200)) : 0;
 
                             if (props.groupHeader) {
                                 column = React.createElement(ColumnGroup, {
@@ -868,11 +902,11 @@ var EnhancedFixedDataTable = (function() {
                     }
                 }
 
-                if(aVal == '') {
+                if (aVal == '') {
                     sortVal = 1;
                 }
 
-                if(bVal == '') {
+                if (bVal == '') {
                     sortVal = -1;
                 }
                 return sortVal;
@@ -992,7 +1026,8 @@ var EnhancedFixedDataTable = (function() {
             var onFilterRangeChange = this.onFilterRangeChange;
             $('.rangeSlider')
                 .each(function() {
-                    var min = Math.floor(Number($(this).attr('data-min')) * 100) / 100, max = (Math.ceil(Number($(this).attr('data-max')) * 100)) / 100,
+                    var min = Math.floor(Number($(this).attr('data-min')) * 100) / 100,
+                        max = (Math.ceil(Number($(this).attr('data-max')) * 100)) / 100,
                         column = $(this).attr('data-column'), diff = max - min, step = 1;
                     var type = $(this).attr('data-type');
 
@@ -1024,8 +1059,10 @@ var EnhancedFixedDataTable = (function() {
         },
         // Processes input data, and initializes table states
         getInitialState: function() {
-            var cols = [], rows = [], rowsDict = {}, attributes = this.props.input.attributes,
-                data = this.props.input.data, dataLength = data.length, col, cell, i, filters = {},
+            var cols = [], rows = [], rowsDict = {},
+                attributes = this.props.input.attributes,
+                data = this.props.input.data, dataLength = data.length, col, cell, i,
+                filters = {},
                 uniqueId = this.props.uniqueId || 'id', newCol,
                 measureMethod = (dataLength > 100000 || !this.props.autoColumnWidth) ? 'charNum' : 'jquery',
                 autoColumnWidth = this.props.autoColumnWidth,
@@ -1077,12 +1114,12 @@ var EnhancedFixedDataTable = (function() {
                 }
 
                 //Clean up the input data
-                if (_.isUndefined(cell.attr_val)) {
+                if (_.isUndefined(cell.attr_val) || cell.attr_val === null) {
                     cell.attr_val = '';
                 }
 
                 if (colsDict[cell.attr_id].type === 'NUMBER') {
-                    rowsDict[cell[uniqueId]][cell.attr_id] = cell.attr_val !== '' ? Number(cell.attr_val) : NaN;
+                    rowsDict[cell[uniqueId]][cell.attr_id] = isNaN(cell.attr_val) ? cell.attr_val : Number(cell.attr_val);
                 } else if (colsDict[cell.attr_id].type === 'STRING') {
                     rowsDict[cell[uniqueId]][cell.attr_id] = cell.attr_val.toString();
                 } else if (colsDict[cell.attr_id].type === 'PERCENTAGE') {
@@ -1102,8 +1139,8 @@ var EnhancedFixedDataTable = (function() {
             }
 
             if (!autoColumnWidth) {
-                _.each(cols, function(col, attr) {
-                    columnsWidth[col.name] = col.width ? col.width : 200;
+                _.each(cols, function(_col, attr) {
+                    columnsWidth[_col.name] = _col.width ? _col.width : 200;
                 });
             } else {
                 columnsWidth = _.object(_.map(columnsWidth, function(length, attr) {
@@ -1115,9 +1152,9 @@ var EnhancedFixedDataTable = (function() {
             }
 
             var _uniqueId = uniqueId.toLowerCase();
-            _.each(rowsDict, function(item, i) {
-                rowsDict[i][_uniqueId] = i;
-                rows.push(rowsDict[i]);
+            _.each(rowsDict, function(_item, _i) {
+                rowsDict[_i][_uniqueId] = _i;
+                rows.push(rowsDict[_i]);
             });
 
             // Gets the range of number type features
@@ -1255,6 +1292,7 @@ var EnhancedFixedDataTable = (function() {
                 autoColumnWidth: true,
                 columnMaxWidth: 300,
                 columnSorting: true,
+                elementId: 'EFDT',
                 isResizable: false
             };
         },
@@ -1263,7 +1301,7 @@ var EnhancedFixedDataTable = (function() {
             var sortDirArrow = this.state.sortDir === this.SortTypes.DESC ? 'fa fa-sort-desc' : 'fa fa-sort-asc';
 
             return (
-                React.createElement("div", {className: "EFDT-table"},
+                React.createElement("div", {className: "EFDT-table", id: this.props.elementId},
                     React.createElement("div", {className: "EFDT-table-prefix row"},
                         React.createElement(TablePrefix, {cols: this.state.cols, rows: this.rows,
                             onFilterKeywordChange: this.onFilterKeywordChange,
@@ -1301,6 +1339,7 @@ var EnhancedFixedDataTable = (function() {
                             groupHeaderHeight: this.props.groupHeaderHeight,
                             groupHeader: this.props.groupHeader,
                             shortLabels: this.state.shortLabels,
+                            elementId: this.props.elementId,
                             columnsWidth: this.state.columnsWidth,
                             isResizable: this.props.isResizable,
                             onColumnResizeEndCallback: this.onColumnResizeEndCallback}

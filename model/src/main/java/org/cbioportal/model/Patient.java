@@ -1,12 +1,14 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
-public class Patient implements Serializable {
+public class Patient extends UniqueKeyBase {
 
     private Integer internalId;
+    @NotNull
     private String stableId;
     private Integer cancerStudyId;
+    @NotNull
     private String cancerStudyIdentifier;
     private CancerStudy cancerStudy;
 

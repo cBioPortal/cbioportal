@@ -1,6 +1,6 @@
 package org.cbioportal.persistence;
 
-import org.cbioportal.model.CopyNumberSampleCountByGene;
+import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.meta.BaseMeta;
 
@@ -8,22 +8,33 @@ import java.util.List;
 
 public interface DiscreteCopyNumberRepository {
 
-    List<DiscreteCopyNumberData> getDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, String sampleId,
-                                                                        List<Integer> alterations, String projection);
+    List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMolecularProfileBySampleListId(String molecularProfileId,
+                                                                                        String sampleListId,
+                                                                                        List<Integer> entrezGeneIds,
+                                                                                        List<Integer> alterationTypes,
+                                                                                        String projection);
 
 
-    BaseMeta getMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, String sampleId,
-                                                        List<Integer> alterations);
-
-    List<DiscreteCopyNumberData> fetchDiscreteCopyNumbersInGeneticProfile(String geneticProfileId,
-                                                                          List<String> sampleIds,
-                                                                          List<Integer> entrezGeneIds,
-                                                                          List<Integer> alterations, String projection);
-
-    BaseMeta fetchMetaDiscreteCopyNumbersInGeneticProfile(String geneticProfileId, List<String> sampleIds,
-                                                          List<Integer> entrezGeneIds, List<Integer> alterations);
-
-    List<CopyNumberSampleCountByGene> getSampleCountByGeneAndAlteration(String geneticProfileId,
+    BaseMeta getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
                                                                         List<Integer> entrezGeneIds,
-                                                                        List<Integer> alterations);
+                                                                        List<Integer> alterationTypes);
+
+    List<DiscreteCopyNumberData> fetchDiscreteCopyNumbersInMolecularProfile(String molecularProfileId,
+                                                                            List<String> sampleIds,
+                                                                            List<Integer> entrezGeneIds,
+                                                                            List<Integer> alterationTypes,
+                                                                            String projection);
+
+    BaseMeta fetchMetaDiscreteCopyNumbersInMolecularProfile(String molecularProfileId, List<String> sampleIds,
+                                                            List<Integer> entrezGeneIds, List<Integer> alterationTypes);
+
+    List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String molecularProfileId,
+                                                                              List<String> sampleIds,
+                                                                              List<Integer> entrezGeneIds,
+                                                                              List<Integer> alterations);
+
+    List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId,
+                                                                                List<String> patientIds,
+                                                                                List<Integer> entrezGeneIds,
+                                                                                List<Integer> alterations);
 }

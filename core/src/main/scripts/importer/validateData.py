@@ -39,6 +39,8 @@ import csv
 import itertools
 import requests
 import json
+import xml.etree.ElementTree as ET
+import re
 
 import cbioportal_common
 
@@ -52,13 +54,16 @@ DEFINED_SAMPLE_ATTRIBUTES = None
 PATIENTS_WITH_SAMPLES = None
 DEFINED_CANCER_TYPES = None
 
+# globals required for gene set scoring validation
+prior_validated_sample_ids = None
+prior_validated_geneset_ids = None
 
 # ----------------------------------------------------------------------------
 
 VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.CNA:'CNAValidator',
-    cbioportal_common.MetaFileTypes.CNA_LOG2:'ContinuousValuesValidator',
-    cbioportal_common.MetaFileTypes.CNA_CONTINUOUS:'ContinuousValuesValidator',
+    cbioportal_common.MetaFileTypes.CNA_LOG2:'CNAContinuousValuesValidator',
+    cbioportal_common.MetaFileTypes.CNA_CONTINUOUS:'CNAContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.EXPRESSION:'ContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.METHYLATION:'ContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.MUTATION:'MutationsExtendedValidator',
@@ -67,10 +72,13 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES:'PatientClinicalValidator',
     cbioportal_common.MetaFileTypes.SEG:'SegValidator',
     cbioportal_common.MetaFileTypes.FUSION:'FusionValidator',
-    cbioportal_common.MetaFileTypes.RPPA:'RPPAValidator',
+    cbioportal_common.MetaFileTypes.PROTEIN:'ProteinLevelValidator',
     cbioportal_common.MetaFileTypes.GISTIC_GENES: 'GisticGenesValidator',
     cbioportal_common.MetaFileTypes.TIMELINE:'TimelineValidator',
-    cbioportal_common.MetaFileTypes.MUTATION_SIGNIFICANCE:'MutationSignificanceValidator'
+    cbioportal_common.MetaFileTypes.MUTATION_SIGNIFICANCE:'MutationSignificanceValidator',
+    cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX:'GenePanelMatrixValidator',
+    cbioportal_common.MetaFileTypes.GSVA_SCORES:'GsvaScoreValidator',
+    cbioportal_common.MetaFileTypes.GSVA_PVALUES:'GsvaPvalueValidator'
 }
 
 
@@ -122,24 +130,25 @@ class LineCountHandler(logging.Handler):
     def get_nr_lines_with_error(self):
         """Return the number of lines with an error."""
         return len(self.error_lines)
-    
+
     def get_nr_lines_with_warning(self):
         """Return the number of lines with an warning."""
         return len(self.warning_lines)
-    
+
     def get_nr_lines_with_issue(self):
         """Return the number of lines with an error or warning."""
         return len(self.error_lines | self.warning_lines)
-    
+
 
 class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
 
     """Logging handler that formats aggregated HTML reports using Jinja2."""
 
-    def __init__(self, study_dir, output_filename, *args, **kwargs):
+    def __init__(self, study_dir, output_filename, cbio_version, *args, **kwargs):
         """Set study directory name, output filename and buffer size."""
         self.study_dir = study_dir
         self.output_filename = output_filename
+        self.cbio_version = cbio_version
         self.max_level = logging.NOTSET
         self.closed = False
         # get the directory name of the currently running script,
@@ -173,8 +182,10 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         # refer to this function so that it can be used in the template:
         j_env.filters['os.path.relpath'] = os.path.relpath
         template = j_env.get_template('validation_report_template.html.jinja')
-        doc = template.render(
+        # pylint falsely infers template to be a string -- trust me, it's not
+        doc = template.render(   # pylint: disable=no-member
             study_dir=self.study_dir,
+            cbio_version=self.cbio_version,
             record_list=self.buffer,
             max_level=logging.getLevelName(self.max_level))
         with open(self.output_filename, 'w') as f:
@@ -231,11 +242,12 @@ class PortalInstance(object):
     if the checks are to be skipped.
     """
 
-    def __init__(self, cancer_type_dict, hugo_entrez_map, alias_entrez_map):
+    def __init__(self, cancer_type_dict, hugo_entrez_map, alias_entrez_map, geneset_id_list):
         """Represent a portal instance with the given dictionaries."""
         self.cancer_type_dict = cancer_type_dict
         self.hugo_entrez_map = hugo_entrez_map
         self.alias_entrez_map = alias_entrez_map
+        self.geneset_id_list = geneset_id_list
         self.entrez_set = set()
         for entrez_map in (hugo_entrez_map, alias_entrez_map):
             if entrez_map is not None:
@@ -246,7 +258,7 @@ class PortalInstance(object):
         self.species = 'human'
         self.ncbi_build = '37'
         self.genome_build = 'hg19'
-    
+
     def load_genome_info(self, properties_filename):
         """Retrieves the species and genome information from portal.properties."""
         with open(properties_filename, 'r') as properties_file:
@@ -284,7 +296,7 @@ class Validator(object):
     REQUIRE_COLUMN_ORDER = True
     ALLOW_BLANKS = False
 
-    def __init__(self, study_dir, meta_dict, portal_instance, logger, relaxed_mode):
+    def __init__(self, study_dir, meta_dict, portal_instance, logger, relaxed_mode, strict_maf_checks):
         """Initialize a validator for a particular data file.
 
         :param study_dir: the path at which the study files can be found
@@ -292,7 +304,7 @@ class Validator(object):
                          (such as stable id and data file name)
         :param portal_instance: a PortalInstance object for which to validate
         :param logger: logger instance for writing the log messages
-        :param relaxed_mode: relaxes validation of headerless clinical data to 
+        :param relaxed_mode: relaxes validation of headerless clinical data to
                             prevent fast-failing
         """
         self.filename = os.path.join(study_dir, meta_dict['data_filename'])
@@ -312,6 +324,7 @@ class Validator(object):
         self.line_count_handler = None
         self.meta_dict = meta_dict
         self.relaxed_mode = relaxed_mode
+        self.strict_maf_checks = strict_maf_checks
         self.fill_in_attr_defs = False
 
     def validate(self):
@@ -356,14 +369,14 @@ class Validator(object):
                 return
 
             # parse start-of-file comment lines, if any
-            if not self.processTopLines(top_comments):                
+            if not self.processTopLines(top_comments):
                 self.logger.error(
                     'Invalid header comments, file cannot be parsed')
                 if not self.relaxed_mode:
                     return
-                else:   
+                else:
                     self.logger.info('Ignoring missing or invalid header comments. '
-                        'Continuing with validation...')                    
+                        'Continuing with validation...')
                     self.fill_in_attr_defs = True
 
             # read five data lines to detect quotes in the tsv file
@@ -376,7 +389,7 @@ class Validator(object):
             try:
                 dialect = csv.Sniffer().sniff(sample_content, delimiters='\t')
             except csv.Error:
-                self.logger.error('Not a valid tab separated file. Check if all lines have the same number of columns and if all separators are tabs.') 
+                self.logger.error('Not a valid tab separated file. Check if all lines have the same number of columns and if all separators are tabs.')
                 return
             # sniffer assumes " if no quote character exists
             if dialect.quotechar == '"' and not (
@@ -393,16 +406,16 @@ class Validator(object):
                                      [header_line],
                                      delimiter='\t',
                                      quoting=csv.QUOTE_NONE,
-                                     strict=True).next()                                             
+                                     strict=True).next()
             if self.checkHeader(header_cols) > 0:
                 if not self.relaxed_mode:
                     self.logger.error(
-                        'Invalid column header, file cannot be parsed')                    
-                    return            
+                        'Invalid column header, file cannot be parsed')
+                    return
                 else:
                     self.logger.warning('Ignoring invalid column header. '
                         'Continuing with validation...')
-            
+
             # read through the data lines of the file
             csvreader = csv.reader(itertools.chain(first_data_lines,
                                                    data_file),
@@ -631,6 +644,21 @@ class Validator(object):
         # set to upper, as both maps contain symbols in upper
         if gene_symbol is not None:
             gene_symbol = gene_symbol.upper()
+            # Check in case gene symbol is not null if it starts with an integer
+            if gene_symbol is not '':
+                # Check if the gene_symbol starts with a number
+                if gene_symbol[0] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
+                    # In case portal properties are defined check if the gene symbol that starts
+                    # with an integer is in the alias table, if not report an error
+                    if self.portal.alias_entrez_map is not None:
+                        if gene_symbol not in self.portal.alias_entrez_map:
+                            self.logger.error('Hugo Symbol is not in alias table and cannot start with a number.',
+                                              extra={'line_number': self.line_number, 'cause': gene_symbol})
+                    # If alias table cannot be checked report warning that hugo symbols normally do not start
+                    # with a number
+                    else:
+                        self.logger.warning('Hugo Symbol should not start with a number.',
+                                            extra={'line_number': self.line_number, 'cause': gene_symbol})
 
         if entrez_id is not None:
             try:
@@ -758,6 +786,40 @@ class Validator(object):
 
         return identified_entrez_id
 
+    def checkDriverAnnotationColumn(self, driver_value=None, driver_annotation=None):
+        """Ensures that cbp_driver_annotation is filled when the cbp_driver column
+        contains "Putative_Driver" or "Putative_Passenger".
+        """
+        if driver_annotation is None and (driver_value is "Putative_Driver" or driver_value is "Putative_Passenger"):
+            self.logger.error(
+                'This line does not contain a value '
+                'for cbp_driver_annotation, and cbp_driver '
+                'contains "Putative_Driver" or '
+                '"Putative_Passenger".',
+                extra={'line_number': self.line_number,
+                       'cause': driver_annotation})
+        return None
+    
+    def checkDriverTiersColumnsValues(self, driver_tiers_value=None, driver_tiers_annotation=None):
+        """Ensures that there are no mutations with one multiclass column filled and 
+        the other empty.
+        """
+        if driver_tiers_value is None and driver_tiers_annotation is not None:
+            self.logger.error(
+                'This line has no value for cbp_driver_tiers '
+                'and a value for cbp_driver_tiers_annotation. '
+                'Please, fill the cbp_driver_tiers column.',
+                extra={'line_number': self.line_number,
+                       'cause': driver_tiers_value})
+        if driver_tiers_annotation is None and driver_tiers_value is not None:
+            self.logger.error(
+                'This line has no value for cbp_driver_annotation '
+                'and a value for cbp_driver_tiers. Please, fill '
+                'the annotation column.',
+                extra={'line_number': self.line_number,
+                       'cause': driver_tiers_annotation})
+        return None
+
     def _checkRepeatedColumns(self):
         num_errors = 0
         seen = set()
@@ -876,7 +938,6 @@ class FeaturewiseFileValidator(Validator):
                     extra={'line_number': self.line_number,
                            'cause': sample_id})
                 num_errors += 1
-                
         return num_errors
 
 
@@ -896,8 +957,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
         """
         num_errors = super(GenewiseFileValidator, self).checkHeader(cols)
         # see if at least one of the gene identifiers is in the right place
-        
-        
+
         if ('Hugo_Symbol' in self.sampleIds or
                   'Entrez_Gene_Id' in self.sampleIds):
             self.logger.error('Hugo_Symbol or Entrez_Gene_Id need to be placed before the '
@@ -926,6 +986,9 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
             # treat empty string as a missing value
             if hugo_symbol == '':
                 hugo_symbol = None
+            # In case of CNA data the Hugo Symbol should be split when gene symbol contains pipe
+            if (type(self) is CNAValidator or type(self) is CNAContinuousValuesValidator) and '|' in hugo_symbol:
+                hugo_symbol = hugo_symbol.split('|')[0]
         if 'Entrez_Gene_Id' in self.nonsample_cols:
             entrez_index = self.nonsample_cols.index('Entrez_Gene_Id')
             entrez_id = nonsample_col_vals[entrez_index].strip()
@@ -934,10 +997,11 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
                 entrez_id = None
         return self.checkGeneIdentification(hugo_symbol, entrez_id)
 
+
 class CNAValidator(GenewiseFileValidator):
 
     """Sub-class CNA validator."""
-    ALLOWED_VALUES = ['-2', '-1', '0', '1', '2'] + GenewiseFileValidator.NULL_VALUES
+    ALLOWED_VALUES = ['-2', '-1.5', '-1', '0', '1', '2'] + GenewiseFileValidator.NULL_VALUES
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
@@ -955,7 +1019,7 @@ class MutationsExtendedValidator(Validator):
 
     """Sub-class mutations_extended validator."""
 
-    # TODO - maybe this should comply to https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification ? 
+    # TODO - maybe this should comply to https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification ?
     REQUIRED_HEADERS = [
         'Tumor_Sample_Barcode',
         'Hugo_Symbol', # Required to initialize the Mutation Mapper tabs
@@ -964,12 +1028,12 @@ class MutationsExtendedValidator(Validator):
     REQUIRE_COLUMN_ORDER = False
     ALLOW_BLANKS = True
 
-    # MutationFilter.java filters these types. Therefore, there is no reason to add warnings and errors for them 
+    # MutationFilter.java filters these types. Therefore, there is no reason to add warnings and errors for them
     SKIP_VARIANT_TYPES = [
-        'Silent', 
-        'Intron', 
-        '3\'UTR', 
-        '3\'Flank', 
+        'Silent',
+        'Intron',
+        '3\'UTR',
+        '3\'Flank',
         '5\'UTR',
         '5\'Flank',
         'IGR',
@@ -977,6 +1041,26 @@ class MutationsExtendedValidator(Validator):
     ]
 
     NULL_AA_CHANGE_VALUES = ('', 'NULL', 'NA')
+    NULL_DRIVER_VALUES = ('Putative_Passenger', 'Putative_Driver', 'NA', 'Unknown', '')
+    NULL_DRIVER_TIERS_VALUES = ('', 'NA')
+
+    # extra unofficial Variant classification values from https://github.com/mskcc/vcf2maf/issues/88:
+    EXTRA_VARIANT_CLASSIFICATION_VALUES = ['Splice_Region', 'Fusion']
+    # MAF values for Variant_Classification column
+    # from https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification + EXTRA values + Unknown:
+    VARIANT_CLASSIFICATION_VALUES = [
+       'Frame_Shift_Del',
+       'Frame_Shift_Ins',
+       'In_Frame_Del',
+       'In_Frame_Ins',
+       'Missense_Mutation',
+       'Nonsense_Mutation',
+       'Splice_Site',
+       'Translation_Start_Site',
+       'Nonstop_Mutation',
+       'Targeted_Region',
+       'De_novo_Start_InFrame',
+       'De_novo_Start_OutOfFrame'] + SKIP_VARIANT_TYPES + EXTRA_VARIANT_CLASSIFICATION_VALUES + ['Unknown']
 
     # Used for mapping column names to the corresponding function that does a check on the value.
     CHECK_FUNCTION_MAP = {
@@ -989,11 +1073,18 @@ class MutationsExtendedValidator(Validator):
         'n_alt_count':'check_n_alt_count',
         'n_ref_count':'check_n_ref_count',
         'Tumor_Sample_Barcode': 'checkNotBlank',
-        'Hugo_Symbol': 'checkNotBlank', 
+        'Hugo_Symbol': 'checkNotBlank',
         'HGVSp_Short': 'checkAminoAcidChange',
         'Amino_Acid_Change': 'checkAminoAcidChange',
-        'Variant_Classification': 'checkNotBlank',
-        'SWISSPROT': 'checkSwissProt'
+        'Variant_Classification': 'checkVariantClassification',
+        'SWISSPROT': 'checkSwissProt',
+        'Start_Position': 'checkStartPosition',
+        'End_Position': 'checkEndPosition',
+        'cbp_driver': 'checkDriver',
+        'cbp_driver_tiers': 'checkDriverTiers',
+        'cbp_driver_annotation': 'checkFilterAnnotation',
+        'cbp_driver_tiers_annotation': 'checkFilterAnnotation',
+        'Mutation_Status': 'checkMutationStatus'
     }
 
     def __init__(self, *args, **kwargs):
@@ -1003,6 +1094,7 @@ class MutationsExtendedValidator(Validator):
         self.extraCols = []
         self.extra_exists = False
         self.extra = ''
+        self.tiers = set()
 
     def checkHeader(self, cols):
         """Validate header, requiring at least one gene id column."""
@@ -1025,9 +1117,9 @@ class MutationsExtendedValidator(Validator):
                 extra={'line_number': self.line_number})
         elif not 'swissprot_identifier' in self.meta_dict:
             self.logger.warning(
-                "A SWISSPROT column was found without an associated "
-                "'swissprot_identifier' annotation column; assuming "
-                "'swissprot_identifier' column contains Swiss-Prot name.",
+                "A SWISSPROT column was found in datafile without specifying "
+                "associated 'swissprot_identifier' in metafile, assuming "
+                "'swissprot_identifier: name'.",
                 extra={'column_number': self.cols.index('SWISSPROT') + 1})
 
         # one of these columns should be present:
@@ -1036,6 +1128,26 @@ class MutationsExtendedValidator(Validator):
                               'Amino_Acid_Change needs to be present.',
                               extra={'line_number': self.line_number})
             num_errors += 1
+        
+        # raise errors if the filter_annotations are found without the "filter" columns
+        if 'cbp_driver_annotation' in self.cols and 'cbp_driver' not in self.cols:
+            self.logger.error('Column cbp_driver_annotation '
+                              'found without any cbp_driver '
+                              'column.', extra={'column_number': self.cols.index('cbp_driver_annotation')})
+        if 'cbp_driver_tiers_annotation' in self.cols and 'cbp_driver_tiers' not in self.cols:
+            self.logger.error('Column cbp_driver_tiers_annotation '
+                              'found without any cbp_driver_tiers '
+                              'column.', extra={'column_number': self.cols.index('cbp_driver_tiers_annotation')})
+            
+        # raise errors if the "filter" columns are found without the filter_annotations
+        if 'cbp_driver' in self.cols and 'cbp_driver_annotation' not in self.cols:
+            self.logger.error('Column cbp_driver '
+                              'found without any cbp_driver_annotation '
+                              'column.', extra={'column_number': self.cols.index('cbp_driver')})
+        if 'cbp_driver_tiers' in self.cols and 'cbp_driver_tiers_annotation' not in self.cols:
+            self.logger.error('Column cbp_driver_tiers '
+                              'found without any cbp_driver_tiers_annotation '
+                              'column.', extra={'column_number': self.cols.index('cbp_driver_tiers')})
             
         return num_errors
 
@@ -1054,6 +1166,9 @@ class MutationsExtendedValidator(Validator):
         super(MutationsExtendedValidator, self).checkLine(data)
         if self.skipValidation(data):
             return
+        self.checkAlleleMAFFormat(data)
+        self.checkAlleleSpecialCases(data)
+        self.checkValidationColumns(data)
 
         for col_name in self.CHECK_FUNCTION_MAP:
             # if optional column was found, validate it:
@@ -1064,7 +1179,6 @@ class MutationsExtendedValidator(Validator):
                 checking_function = getattr(
                     self,
                     self.CHECK_FUNCTION_MAP[col_name])
-                # FIXME: remove the 'data' argument, it's spaghetti
                 if not checking_function(value):
                     self.printDataInvalidStatement(value, col_index)
                 elif self.extra_exists or self.extra:
@@ -1092,6 +1206,34 @@ class MutationsExtendedValidator(Validator):
                 entrez_id = None
         # validate hugo and entrez together:
         self.checkGeneIdentification(hugo_symbol, entrez_id)
+        
+        # parse custom driver annotation values to validate them together
+        driver_value = None
+        driver_annotation = None
+        driver_tiers_value = None
+        driver_tiers_annotation = None
+        if 'cbp_driver' in self.cols:
+            driver_value = data[self.cols.index('cbp_driver')].strip()
+            # treat the empty string as a missing value
+            if driver_value in (''):
+                driver_value = None
+        if 'cbp_driver_annotation' in self.cols:
+            driver_annotation = data[self.cols.index('cbp_driver_annotation')].strip()
+            # treat the empty string as a missing value
+            if driver_annotation in (''):
+                driver_annotation = None
+        if 'cbp_driver_tiers' in self.cols:
+            driver_tiers_value = data[self.cols.index('cbp_driver_tiers')].strip()
+            # treat the empty string as a missing value
+            if driver_tiers_value in (''):
+                driver_tiers_value = None
+        if 'cbp_driver_tiers_annotation' in self.cols:
+            driver_tiers_annotation = data[self.cols.index('cbp_driver_tiers_annotation')].strip()
+            # treat the empty string as a missing value
+            if driver_tiers_annotation in (''):
+                driver_tiers_annotation = None
+        self.checkDriverAnnotationColumn(driver_value, driver_annotation)
+        self.checkDriverTiersColumnsValues(driver_tiers_value, driver_tiers_annotation)
 
         # check if a non-blank amino acid change exists for non-splice sites
         if ('Variant_Classification' not in self.cols or
@@ -1108,6 +1250,302 @@ class MutationsExtendedValidator(Validator):
                         'No Amino_Acid_Change or HGVSp_Short value. This '
                             'mutation record will get a generic "MUTATED" flag',
                         extra={'line_number': self.line_number})
+
+    # If strict mode is enforced, log message from mutation checks should be error,
+    # otherwise warning
+    def send_log_message(self, strict_maf_checks, log_message, extra_dict):
+        if not strict_maf_checks:
+            self.logger.warning(log_message, extra=extra_dict)
+        else:
+            self.logger.error(log_message, extra=extra_dict)
+
+
+    def checkAlleleMAFFormat(self, data):
+        """
+        Check Start_Position and End_Position against Variant_Type (according to MAF file checks #6, #10 and #11:
+        https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+(MAF)+Specification)
+        """
+
+        necessary_columns_check6 = ['Reference_Allele', 'Tumor_Seq_Allele1', 'Tumor_Seq_Allele2']
+        necessary_columns_check10 = ['Start_Position', 'End_Position']
+        necessary_columns_check11 = ['Variant_Type'] + necessary_columns_check6 + necessary_columns_check10
+
+        if set(necessary_columns_check6).issubset(self.cols):
+            ref_allele = data[self.cols.index('Reference_Allele')].strip()
+            tumor_seq_allele1 = data[self.cols.index('Tumor_Seq_Allele1')].strip()
+            tumor_seq_allele2 = data[self.cols.index('Tumor_Seq_Allele2')].strip()
+        if set(necessary_columns_check10).issubset(self.cols):
+            # Set positions to False if position are empty, so checks will not be performed
+            if data[self.cols.index('Start_Position')] == "" or data[self.cols.index('End_Position')] == "":
+                positions = False
+            else:
+                positions = True
+                start_pos = float(data[self.cols.index('Start_Position')].strip('\'').strip('\"'))
+                end_pos = float(data[self.cols.index('End_Position')].strip('\'').strip('\"'))
+        if 'Variant_Type' in self.cols:
+            variant_type = data[self.cols.index('Variant_Type')].strip()
+
+        # MAF file check #6 (for now only Reference_Allele, Tumor_Seq_Allele1 and Tumor_Seq_Allele2)
+        if set(necessary_columns_check6).issubset(self.cols):
+
+            # Check if Allele columms only contain the following values: -,A,C,T,G
+            legal_values = ["-", "A", "C", "T", "G"]
+            illegal_values_ref = [value for value in list(ref_allele) if value not in legal_values]
+            illegal_values_tumor1 = [value for value in list(tumor_seq_allele1) if value not in legal_values]
+            illegal_values_tumor2 = [value for value in list(tumor_seq_allele2) if value not in legal_values]
+
+            # Else return an error message
+            if len(illegal_values_ref) > 0 and len(illegal_values_tumor1) > 0 and len(illegal_values_tumor2) > 0:
+                log_message = "All Allele Based columns contain invalid character."
+                extra_dict = {'line_number': self.line_number,
+                              'cause': '(%s, %s, %s)' % (ref_allele, tumor_seq_allele1, tumor_seq_allele2)}
+                self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+            elif len(illegal_values_ref) > 0:
+                log_message = "Allele Based column Reference_Allele contains invalid character."
+                extra_dict = {'line_number': self.line_number, 'cause': ref_allele}
+                self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+            elif len(illegal_values_tumor1) > 0:
+                log_message = "Allele Based column Tumor_Seq_Allele1 contains invalid character."
+                extra_dict = {'line_number': self.line_number, 'cause': tumor_seq_allele1}
+                self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+            elif len(illegal_values_tumor2) > 0:
+                log_message = "Allele Based column Tumor_Seq_Allele2 contains invalid character."
+                extra_dict = {'line_number': self.line_number, 'cause': tumor_seq_allele2}
+                self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+
+        # MAF file check #10: Check if Start_Position is equal or smaller than End_Position
+        if set(necessary_columns_check10).issubset(self.cols) and positions:
+            if not (start_pos <= end_pos):
+                log_message = "Start_Position should be smaller than or equal to End_Position."
+                extra_dict = {'line_number': self.line_number, 'cause': '(%s, %s)' % (start_pos, end_pos)}
+                self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+
+        # MAF file check #11: Check Start_Position and End_Position against Variant_Type
+        if set(necessary_columns_check11).issubset(self.cols):
+
+            if variant_type == "INS":
+                # Start and End Position should be the same as length reference allele or equal 1
+                # and length of Reference_Allele should be equal or smaller than the Tumor_Seq_Allele1 or 2,
+                # otherwise no insertion, but deletion
+                if positions:
+                    if not (((end_pos - start_pos + 1) == len(ref_allele)) or ((end_pos - start_pos) == 1)):
+                        log_message = "Variant_Type indicates insertion, but difference in Start_Position and " \
+                                      "End_Position does not equal to 1 or the length or the Reference_Allele."
+                        extra_dict = {'line_number': self.line_number,
+                                      'cause': '(%s, %s, %s)' % (start_pos, end_pos, ref_allele)}
+                        self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+                if not ((len(ref_allele) <= len(tumor_seq_allele1)) or (len(ref_allele) <= len(tumor_seq_allele2))):
+                    log_message = "Variant_Type indicates insertion, but length of Reference_Allele is bigger than " \
+                                  "the length of the Tumor_Seq_Allele1 and/or 2 and therefore indicates deletion."
+                    extra_dict = {'line_number': self.line_number,
+                                  'cause': '(%s, %s, %s)' % (ref_allele, tumor_seq_allele1, tumor_seq_allele2)}
+                    self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+
+            if variant_type == "DEL":
+                # The difference between Start_Position and End_Position for a DEL should be equal to the length
+                # of the Reference_Allele
+                if positions:
+                    if not ((end_pos - start_pos + 1) == len(ref_allele)):
+                        log_message = "Variant_Type indicates deletion, but the difference between Start_Position and " \
+                                      "End_Position are not equal to the length of the Reference_Allele."
+                        extra_dict = {'line_number': self.line_number,
+                                      'cause': '(%s, %s, %s)' % (start_pos, end_pos, ref_allele)}
+                        self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+                        
+                # The length of the Reference_Allele should be bigger than of the Tumor_Seq_Alleles for a DEL
+                if len(ref_allele) < len(tumor_seq_allele1) or len(ref_allele) < len(tumor_seq_allele2):
+                    log_message = "Variant_Type indicates deletion, but length of Reference_Allele is smaller than " \
+                                  "the length of Tumor_Seq_Allele1 and/or Tumor_Seq_Allele2, indicating an insertion."
+                    extra_dict ={'line_number': self.line_number,
+                                 'cause': '(%s, %s, %s)' % (ref_allele, tumor_seq_allele1, tumor_seq_allele2)}
+                    self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+
+            if variant_type == "SNP":
+                # Expect alleles to have length 2 when variant type is SNP
+                if not (len(ref_allele) == 1 and len(tumor_seq_allele1) == 1 and len(tumor_seq_allele1) == 1):
+                    log_message = "Variant_Type indicates a SNP, but length of Reference_Allele, Tumor_Seq_Allele1 " \
+                                  "and/or Tumor_Seq_Allele2 do not equal 1."
+                    extra_dict = {'line_number': self.line_number,
+                                  'cause': '(%s, %s, %s)' % (ref_allele, tumor_seq_allele1, tumor_seq_allele2)}
+                    self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+            if variant_type == "DNP":
+                # Expect alleles to have length 2 when variant type is DNP
+                if not (len(ref_allele) == 2 and len(tumor_seq_allele1) == 2 and len(tumor_seq_allele1) == 2):
+                    log_message = "Variant_Type indicates a DNP, but length of Reference_Allele, Tumor_Seq_Allele1 " \
+                                  "and/or Tumor_Seq_Allele2 do not equal 2."
+                    extra_dict = {'line_number': self.line_number,
+                                  'cause': '(%s, %s, %s)' % (ref_allele, tumor_seq_allele1, tumor_seq_allele2)}
+                    self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+            if variant_type == "TNP":
+                # Expect alleles to have length 3 when variant type is TNP
+                if not (len(ref_allele) == 3 and len(tumor_seq_allele1) == 3 and len(tumor_seq_allele1) == 3):
+                    log_message = "Variant_Type indicates a TNP, but length of Reference_Allele, Tumor_Seq_Allele1 " \
+                                  "and/or Tumor_Seq_Allele2 do not equal 3."
+                    extra_dict = {'line_number': self.line_number,
+                                  'cause': '(%s, %s, %s)' % (ref_allele, tumor_seq_allele1, tumor_seq_allele2)}
+                    self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+            if variant_type == "ONP":
+                # Expect alleles to have length >3 when variant type is ONP and are of equal length
+                if (len(ref_allele) != len(tumor_seq_allele1) or len(tumor_seq_allele1) != len(tumor_seq_allele2))\
+                        or (len(ref_allele) <= 3 and len(tumor_seq_allele1) <= 3 and len(tumor_seq_allele2) <= 3):
+                    log_message = "Variant_Type indicates a ONP, but length of Reference_Allele, " \
+                                  "Tumor_Seq_Allele1 and 2 are not bigger than 3 or are of unequal lengths."
+                    extra_dict = {'line_number': self.line_number,
+                                  'cause': '(%s, %s, %s)' % (ref_allele, tumor_seq_allele1, tumor_seq_allele2)}
+                    self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+            # Following variant types cannot contain a deletion in the Allele columns
+            if variant_type == "SNP" or variant_type == "DNP" or variant_type == "TNP" or variant_type == "ONP":
+                if ("-" in ref_allele) or ("-" in tumor_seq_allele1) or ("-" in tumor_seq_allele2):
+                    log_message = "Variant_Type indicates a %s, but Reference_Allele, Tumor_Seq_Allele1 " \
+                                  "and/or Tumor_Seq_Allele2 contain deletion (-)." % variant_type
+                    extra_dict = {'line_number': self.line_number,
+                                  'cause': '(%s, %s, %s)' % (ref_allele, tumor_seq_allele1, tumor_seq_allele2)}
+                    self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+        return True
+
+    def checkAlleleSpecialCases(self, data):
+        """ Check other special cases which should or should not occur in Allele Based columns
+        Special cases are either from unofficial vcf2maf rules or discrepancies identified. """
+
+        # First check if columns necessary exist in the data
+        necessary_columns = ['Reference_Allele', 'Tumor_Seq_Allele1', 'Tumor_Seq_Allele2', 'Variant_Type']
+        if set(necessary_columns).issubset(self.cols):
+            ref_allele = data[self.cols.index('Reference_Allele')].strip()
+            tumor_seq_allele1 = data[self.cols.index('Tumor_Seq_Allele1')].strip()
+            tumor_seq_allele2 = data[self.cols.index('Tumor_Seq_Allele2')].strip()
+            variant_type = data[self.cols.index('Variant_Type')].strip()
+
+            # Check if Allele Based columns are not all the same
+            if ref_allele == tumor_seq_allele1 and tumor_seq_allele1 == tumor_seq_allele2:
+                log_message = "All Values in columns Reference_Allele, Tumor_Seq_Allele1 " \
+                              "and Tumor_Seq_Allele2 are equal."
+                extra_dict = {'line_number': self.line_number,
+                              'cause': '(%s, %s, %s)' % (ref_allele, tumor_seq_allele1, tumor_seq_allele2)}
+                self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+
+            # Check in case of insertion if the Reference_Allele contains '-'
+            if variant_type == "INS" and '-' not in ref_allele:
+                log_message = "Variant_Type indicates an insertion, but Reference_Allele does not equal -."
+                extra_dict = {'line_number': self.line_number, 'cause': ref_allele}
+                self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+
+            # In case of deletion, check when Reference_Allele is the same length as both Tumor_Seq_Allele if at least
+            # one of the Tumor_Seq_Alleles is a deletion ('-') otherwise a SNP
+            if variant_type == "DEL" and len(ref_allele) == len(tumor_seq_allele1) \
+                    and len(ref_allele) == len(tumor_seq_allele2) and "-" not in tumor_seq_allele1 \
+                    and "-" not in tumor_seq_allele2:
+                log_message = "Variant_Type indicates a deletion, Allele based columns are the same length, " \
+                              "but Tumor_Seq_Allele columns do not contain -, indicating a SNP."
+                extra_dict = {'line_number': self.line_number,
+                              'cause': '(%s, %s, %s)' % (ref_allele, tumor_seq_allele1, tumor_seq_allele2)}
+                self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+
+        return True
+
+    def checkValidationColumns(self, data):
+        """
+        Perform MAF file check #7,#8, #9 and #13 for the Validation columns:
+        https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+(MAF)+Specification)
+        """
+
+        # Set variables for the different checks
+        necessary_columns_check7and8 = ['Validation_Status', 'Tumor_Validation_Allele1', 'Tumor_Validation_Allele2',
+                                        'Match_Norm_Validation_Allele1', 'Match_Norm_Validation_Allele2']
+        necessary_columns_check13 = ['Validation_Status', 'Validation_Method']
+        necessary_columns_check9 = ['Mutation_Status', 'Reference_Allele'] + necessary_columns_check7and8
+
+        if set(necessary_columns_check7and8).issubset(self.cols):
+            validation_status = data[self.cols.index('Validation_Status')].strip().lower()
+            tumor_allele1 = data[self.cols.index('Tumor_Validation_Allele1')].strip()
+            tumor_allele2 = data[self.cols.index('Tumor_Validation_Allele2')].strip()
+            norm_allele1 = data[self.cols.index('Match_Norm_Validation_Allele1')].strip()
+            norm_allele2 = data[self.cols.index('Match_Norm_Validation_Allele2')].strip()
+        if set(necessary_columns_check13).issubset(self.cols):
+            validation_status = data[self.cols.index('Validation_Status')].strip().lower()
+            validation_method = data[self.cols.index('Validation_Method')].strip().lower()
+        if 'Mutation_Status' in self.cols and 'Reference_Allele' in self.cols:
+            mutation_status = data[self.cols.index('Mutation_Status')].strip().lower()
+            ref_allele = data[self.cols.index('Reference_Allele')].strip()
+
+        # Check #7 and #8: When validation status is valid or invalid the Validation_Allele columns cannot be null
+        if set(necessary_columns_check7and8).issubset(self.cols):
+
+            if validation_status == "valid" or validation_status == "invalid":
+                legal_allele_values = ['-', 'A', 'C', 'T', 'G']
+                illegal_values_tumor1 = [value for value in list(tumor_allele1) if value not in legal_allele_values]
+                illegal_values_tumor2 = [value for value in list(tumor_allele2) if value not in legal_allele_values]
+                illegal_values_norm1 = [value for value in list(norm_allele1) if value not in legal_allele_values]
+                illegal_values_norm2 = [value for value in list(norm_allele2) if value not in legal_allele_values]
+
+                # Check if Allele Columns are not empty ('' or 'NA') when Validation_Status is valid or invalid
+                if tumor_allele1 in ['', 'NA'] or tumor_allele2 in ['', 'NA'] or norm_allele1 in ['', 'NA'] \
+                        or norm_allele2 in ['', 'NA']:
+                    log_message = "Validation Status is %s, but Validation Allele columns are empty." \
+                                  % validation_status
+                    extra_dict = {'line_number': self.line_number}
+                    self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+
+                # Check when Allele Columns are not empty if the Allele Based columns contain either -,A,C,T,G
+                elif len(illegal_values_tumor1) > 0 or len(illegal_values_tumor2) > 0 \
+                        or len(illegal_values_norm1) > 0 or len(illegal_values_norm2) > 0:
+                    log_message = "At least one of the Validation Allele Based columns (Tumor_Validation_Allele1, " \
+                                  "Tumor_Validation_Allele2, Match_Norm_Validation_Allele1, " \
+                                  "Match_Norm_Validation_Allele2) contains invalid character."
+                    extra_dict = {'line_number': self.line_number,
+                                 'cause': '(%s, %s, %s, %s)' % (tumor_allele1, tumor_allele2,
+                                                                norm_allele1, norm_allele2)}
+                    self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+
+                # And in case of invalid also checks if validation alleles from tumor and normal match
+                elif validation_status == "invalid" \
+                        and (tumor_allele1 != norm_allele1 or tumor_allele2 != norm_allele2):
+                    log_message = "When Validation_Status is invalid the Tumor_Validation_Allele " \
+                                  "and Match_Norm_Validation_Allele columns should be equal."
+                    extra_dict = {'line_number': self.line_number,
+                                  'cause': '(%s, %s, %s, %s)' % (tumor_allele1, tumor_allele2,
+                                                                 norm_allele1, norm_allele2)}
+                    self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+
+
+        # Check #13: When Validation_Status is valid or invalid the Validation_Method column cannot be None.
+        if set(necessary_columns_check13).issubset(self.cols):
+            if validation_status == "valid" or validation_status == "invalid":
+                if validation_method == "none" or validation_method == "na":
+                    log_message = "Validation Status is %s, but Validation_Method is not defined." % validation_status
+                    extra_dict = {'line_number': self.line_number}
+                    self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+
+
+        # Check #9: Check Validation_Status against Mutation_Status
+        if set(necessary_columns_check9).issubset(self.cols):
+
+            # If Mutation_Status is Germline and Validation_Status is valid then the Tumor_Validation_Allele should be
+            # equal to the matched Norm_Validation_Allele
+            if mutation_status == "germline" and validation_status == "valid":
+                if tumor_allele1 != norm_allele1 or tumor_allele2 != norm_allele2:
+                    log_message = "When Validation_Status is valid and Mutation_Status is Germline, the " \
+                                  "Tumor_Validation_Allele should be equal to the Match_Norm_Validation_Allele."
+                    extra_dict = {'line_number': self.line_number,
+                                  'cause': '(%s, %s, %s, %s)' % (tumor_allele1, tumor_allele2,
+                                                                 norm_allele1, norm_allele2)}
+                    self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+                        
+            # When Mutation_Status is Somatic and Validation_Status is valid the Norm_Validation Alleles should be equal
+            # to the reference alleles and the Tumor_Validation_Alleles should be different from the Reference_Allele
+            elif mutation_status == "somatic" and validation_status == "valid":
+                if (norm_allele1 != norm_allele2 or norm_allele2 != ref_allele) and \
+                        (tumor_allele1 != ref_allele or tumor_allele2 != ref_allele):
+                    log_message = "When Validation_Status is valid and Mutation_Status is Somatic, the " \
+                                  "Match_Norm_Validation_Allele columns should be equal to the Reference Allele and " \
+                                  "one of the Tumor_Validation_Allele columns should not be."
+                    extra_dict = {'line_number': self.line_number,
+                                  'cause': '(%s, %s, %s, %s)' % (tumor_allele1, tumor_allele2,
+                                                                 norm_allele1, norm_allele2)}
+                    self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
+
+            # If for LOH (9C) not implemented, because mutation will not be loaded in cBioPortal
+
+        return True
 
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
@@ -1140,49 +1578,61 @@ class MutationsExtendedValidator(Validator):
                 if value not in [str(self.portal.ncbi_build), self.portal.genome_build, 'GRCm'+str(self.portal.ncbi_build)]:
                     return False
         return True
-    
+
     def checkMatchedNormSampleBarcode(self, value):
         if value != '':
             if 'normal_samples_list' in self.meta_dict and self.meta_dict['normal_samples_list'] != '':
                 normal_samples_list = [x.strip() for x in self.meta_dict['normal_samples_list'].split(',')]
                 if value not in normal_samples_list:
                     self.extra = "Normal sample id not in list of sample ids configured in corresponding metafile. " \
-                    "Please check your metafile field 'normal_samples_list'." 
+                    "Please check your metafile field 'normal_samples_list'."
                     self.extra_exists = True
                     return False
         return True
-    
-    
+
+
     def checkVerificationStatus(self, value):
         # if value is not blank, then it should be one of these:
-        if self.checkNotBlank(value) and value.lower() not in ('verified', 'unknown'):
-            return False
+        if self.checkNotBlank(value) and value.lower() not in ('verified', 'unknown', 'na'):
+            # Giving only warning instead of error because not used in front end.
+            self.logger.warning(
+                "Value in 'Verification_Status' not in MAF format",
+                extra={'line_number': self.line_number,
+                       'cause':value})
+            # return without error (just warning above)
+            return True
         return True
-    
+
     def checkValidationStatus(self, value):
         # if value is not blank, then it should be one of these:
         if self.checkNotBlank(value) and value.lower() not in ('untested', 'inconclusive',
-                                 'valid', 'invalid'):
-            return False
+                                 'valid', 'invalid', 'na', 'redacted', 'unknown'):
+            # Giving only warning instead of error because front end can handle unofficial values.
+            self.logger.warning(
+                "Value in 'Validation_Status' not in MAF format",
+                extra={'line_number': self.line_number,
+                       'cause':value})
+            # return without error (just warning above)
+            return True
         return True
-    
+
     def check_t_alt_count(self, value):
-        if not self.checkInt(value) and value != '':
+        if not self.checkInt(value) and value not in ('', '.'):
             return False
         return True
-    
+
     def check_t_ref_count(self, value):
-        if not self.checkInt(value) and value != '':
+        if not self.checkInt(value) and value not in ('', '.'):
             return False
         return True
-    
+
     def check_n_alt_count(self, value):
-        if not self.checkInt(value) and value != '':
+        if not self.checkInt(value) and value not in ('', '.'):
             return False
         return True
 
     def check_n_ref_count(self, value):
-        if not self.checkInt(value) and value != '':
+        if not self.checkInt(value) and value not in ('', '.'):
             return False
         return True
 
@@ -1221,27 +1671,36 @@ class MutationsExtendedValidator(Validator):
         """Test whether the mutation is silent and should be skipped."""
         is_silent = False
         variant_classification = data[self.cols.index('Variant_Classification')]
-
+        if 'variant_classification_filter' in self.meta_dict:
+            self.SKIP_VARIANT_TYPES = [x.strip() 
+                                       for x 
+                                       in self.meta_dict['variant_classification_filter'].split(',')]
+        
         hugo_symbol = data[self.cols.index('Hugo_Symbol')]
         entrez_id = '0'
         if 'Entrez_Gene_Id' in self.cols:
             entrez_id = data[self.cols.index('Entrez_Gene_Id')]
-        if hugo_symbol == 'Unknown' and entrez_id == '0' and variant_classification != 'IGR':
-            # the MAF specification documents the use of Unknown and 0 here
-            # for intergenic mutations, and since the Variant_Classification
-            # column is often invalid, cBioPortal interprets this combination
-            # (or just the symbol if the Entrez column is absent) as such, 
-            # but with a warning:
-            self.logger.warning(
-                "Gene specification for this mutation implies "
-                "intergenic even though Variant_Classification is "
-                "not 'IGR'; this variant will be filtered out",
-                extra={'line_number': self.line_number,
-                       'cause': "Gene symbol 'Unknown', Entrez gene id 0"})
+        if hugo_symbol == 'Unknown' and entrez_id == '0':
             is_silent = True
+            if variant_classification in ['IGR', 'Targeted_Region']:
+                self.logger.info("This variant (Gene symbol 'Unknown', Entrez gene ID 0) will be filtered out",
+                                 extra={'line_number': self.line_number,
+                                        'cause': variant_classification})
+            else:
+                # the MAF specification documents the use of Unknown and 0 here
+                # for intergenic mutations, and since the Variant_Classification
+                # column is often invalid, cBioPortal interprets this combination
+                # (or just the symbol if the Entrez column is absent) as such,
+                # but with a warning:
+                self.logger.warning(
+                                    "Gene specification (Gene symbol 'Unknown', Entrez gene ID 0) for this variant "
+                                    "implies intergenic even though Variant_Classification is "
+                                    "not 'IGR' or 'Targeted_Region'; this variant will be filtered out",
+                                    extra={'line_number': self.line_number,
+                                           'cause': variant_classification})
         elif variant_classification in self.SKIP_VARIANT_TYPES:
-            self.logger.info("Validation of line skipped due to cBioPortal's filtering. "
-                             "Filtered types: [%s]",
+            self.logger.info("Line will not be loaded due to the variant "
+                             "classification filter. Filtered types: [%s]",
                              ', '.join(self.SKIP_VARIANT_TYPES),
                              extra={'line_number': self.line_number,
                                     'cause': variant_classification})
@@ -1253,6 +1712,25 @@ class MutationsExtendedValidator(Validator):
         """Test whether a string is blank."""
         if value is None or value.strip() == '':
             return False
+        return True
+
+    def checkVariantClassification(self, value):
+        """Validate according to MAF standard list and give warning when value is not recognized."""
+        #if blank, return False:
+        if not self.checkNotBlank(value):
+            return False
+        else:
+            # check whether value conforms to MAF list of values, give warning otherwise:
+            if value not in self.VARIANT_CLASSIFICATION_VALUES:
+                self.logger.warning(
+                    'Given value for Variant_Classification column is not one of the expected values. This '
+                    'can result in mapping issues and subsequent missing features in the mutation view UI, '
+                    'such as missing COSMIC information.',
+                    extra={'line_number': self.line_number,
+                           'cause':value})
+                # return without error (just warning above)
+                return True
+        # if no reasons to return with a message were found, return valid
         return True
 
     def checkSwissProt(self, value):
@@ -1272,10 +1750,13 @@ class MutationsExtendedValidator(Validator):
                     r'^([OPQ][0-9][A-Z0-9]{3}[0-9]|'
                     r'[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})$',
                      value):
-                # return this as an error
-                self.extra = 'SWISSPROT value is not a UniProtKB accession.'
-                self.extra_exists = True
-                return False
+                # Return this as a warning. The cBioPortal front-end currently (1.13.2) does not use the SWISSPROT
+                # column for the Mutation Tab. It retrieves SWISSPROT accession and name based on Entrez Gene Id
+                self.logger.warning('SWISSPROT value is not a (single) UniProtKB accession. '
+                                    'Loader will try to find UniProtKB accession using Entrez gene id or '
+                                    'gene symbol.',
+                                    extra={'line_number': self.line_number, 'cause': value})
+                return True
         else:
             # format described on http://www.uniprot.org/help/entry_name
             if not re.match(
@@ -1285,18 +1766,84 @@ class MutationsExtendedValidator(Validator):
                 if ',' in value:
                     self.logger.warning('SWISSPROT value is not a single UniProtKB/Swiss-Prot name. '
                                         'Found multiple separated by a `,`. '
-                                        'Loader will try to find UniProt accession using Entrez gene id or '
+                                        'Loader will try to find UniProtKB accession using Entrez gene id or '
                                         'gene symbol.',
                                         extra={'line_number': self.line_number, 'cause': value})
                 else:
                     self.logger.warning('SWISSPROT value is not a (single) UniProtKB/Swiss-Prot name. '
-                                        'Loader will try to find UniProt accession using Entrez gene id or '
+                                        'Loader will try to find UniProtKB accession using Entrez gene id or '
                                         'gene symbol.',
                                         extra={'line_number': self.line_number, 'cause': value})
                 return True
         # if no reasons to return with a message were found, return valid
         return True
+    
+    def checkStartPosition(self, value):
+        """Check that the Start_Position value is an integer."""
+        if value.isdigit() == False or (value.isdigit() and '.' in value):
+            self.logger.error(
+                'The start position of this variant is not '
+                    'an integer',
+                extra={'line_number': self.line_number,
+                       'column_number': self.cols.index('Start_Position'),
+                       'cause': value})
+        # if no reasons to return with a message were found, return valid
+        return True
+    
+    def checkEndPosition(self, value):
+        """Check that the End_Position value is an integer."""
+        if value.isdigit() == False or (value.isdigit() and '.' in value):
+            self.logger.error(
+                'The end position of this variant is not '
+                    'an integer',
+                extra={'line_number': self.line_number,
+                       'column_number': self.cols.index('End_Position'),
+                       'cause': value})
+        # if no reasons to return with a message were found, return valid
+        return True
 
+    def checkDriver(self, value):
+        """Validate the values in the cbp_driver column."""
+        if value not in self.NULL_DRIVER_VALUES:
+            self.extra = 'Only "Putative_Passenger", "Putative_Driver", "NA", "Unknown" and "" (empty) are allowed.'
+            self.extra_exists = True
+            return False
+        return True
+    
+    def checkDriverTiers(self, value):
+        """Report the tiers in the cbp_driver_tiers column (skipping the empty values)."""
+        if value not in self.NULL_DRIVER_TIERS_VALUES:
+            self.logger.info('Values contained in the column cbp_driver_tiers that will appear in the "Mutation Color" '
+                             'menu of the Oncoprint',
+                             extra={'line_number': self.line_number, 'column_number': self.cols.index('cbp_driver_tiers'), 'cause': value})
+            self.tiers.add(value)
+        if len(self.tiers) > 10:
+            self.logger.warning('cbp_driver_tiers contains more than 10 different tiers.',
+                                extra={'line_number': self.line_number, 'column_number': self.cols.index('cbp_driver_tiers'),
+                                       'cause': value})
+        if len(value) > 50:
+            self.extra= 'cbp_driver_tiers column does not support values longer than 50 characters'
+            self.extra_exists = True
+            return False
+        return True
+    
+    def checkFilterAnnotation(self, value):
+        """Check if the annotation values are smaller than 80 characters."""
+        if len(value) > 80:
+            self.extra = 'cbp_driver_annotation and cbp_driver_tiers_annotation columns do not support annotations longer than 80 characters'
+            self.extra_exists = True
+            return False
+        return True
+
+    def checkMutationStatus(self, value):
+        """Check values in mutation status column."""
+        if value.lower() in ['loh', 'none', 'wildtype']:
+            self.logger.info('Mutation will not be loaded due to value in Mutation_Status',
+                                extra={'line_number': self.line_number, 'cause': value})
+        if value.lower() not in ['none', 'germline', 'somatic', 'loh', 'post-transcriptional modification', 'unknown', 'wildtype'] and value != '':
+            self.logger.warning('Mutation_Status value is not in MAF format',
+                                extra={'line_number': self.line_number, 'cause': value})
+        return True
 
 class ClinicalValidator(Validator):
 
@@ -1317,8 +1864,8 @@ class ClinicalValidator(Validator):
                       'priority')
 
     # Attributes required to have certain properties because of hard-coded use.
-    # Note: the 'when_wrong' property (found in some attributes like METASTATIC_SITE), 
-    # can be set to WARNING to indicate that only a WARNING should be given 
+    # Note: the 'when_wrong' property (found in some attributes like METASTATIC_SITE),
+    # can be set to WARNING to indicate that only a WARNING should be given
     # if this attribute is found in the "wrong" file (e.g. a PATIENT attribute found
     # in a SAMPLE file or vice-versa).
     PREDEFINED_ATTRIBUTES = {
@@ -1361,7 +1908,7 @@ class ClinicalValidator(Validator):
         },
         'GLEASON_SCORE': {
             'is_patient_attribute': '0',
-            'when_wrong': 'WARNING' 
+            'when_wrong': 'WARNING'
         },
         'GLEASON_SCORE_1': {
             'is_patient_attribute': '0'
@@ -1378,7 +1925,7 @@ class ClinicalValidator(Validator):
         'METASTATIC_SITE': {
             'is_patient_attribute': '0',
             'datatype': 'STRING',
-            'when_wrong': 'WARNING' 
+            'when_wrong': 'WARNING'
         },
         'OS_STATUS': {
             'is_patient_attribute': '1',
@@ -1399,7 +1946,7 @@ class ClinicalValidator(Validator):
         'PRIMARY_SITE': {
             'is_patient_attribute': '0',
             'datatype': 'STRING',
-            'when_wrong': 'WARNING' 
+            'when_wrong': 'WARNING'
         },
         'SAMPLE_CLASS': {
             'is_patient_attribute': '0',
@@ -1429,7 +1976,7 @@ class ClinicalValidator(Validator):
         'TUMOR_SITE': {
             'is_patient_attribute': '0',
             'datatype': 'STRING',
-            'when_wrong': 'WARNING' 
+            'when_wrong': 'WARNING'
         },
         'TUMOR_STAGE_2009': {
             'is_patient_attribute': '0'
@@ -1437,7 +1984,7 @@ class ClinicalValidator(Validator):
         'TUMOR_TISSUE_SITE': {
             'is_patient_attribute': '0',
             'datatype': 'STRING',
-            'when_wrong': 'WARNING' 
+            'when_wrong': 'WARNING'
         },
         'TUMOR_TYPE': {
             'is_patient_attribute': '0',
@@ -1448,6 +1995,7 @@ class ClinicalValidator(Validator):
             'datatype': 'STRING'
         },
     }
+    INVALID_ID_CHARACTERS = r'[^A-Za-z0-9._-]'
 
     def __init__(self, *args, **kwargs):
         """Initialize the instance attributes of the data file validator."""
@@ -1457,16 +2005,16 @@ class ClinicalValidator(Validator):
 
     def processTopLines(self, line_list):
 
-        """Parse the the attribute definitions above the column header."""
+        """Parse the attribute definitions above the column header."""
 
         if not line_list:
             if not self.relaxed_mode:
                 self.logger.warning(
                     'No data type definition headers found in clinical data file',
-                    extra={'line_number': self.line_number})      
+                    extra={'line_number': self.line_number})
             else:
                 self.logger.info('Ignoring missing or invalid data type definition '
-                    ' headers. Continuing with validation...')                
+                    ' headers. Continuing with validation...')
             return False
 
         if len(line_list) != len(self.METADATA_LINES):
@@ -1529,11 +2077,12 @@ class ClinicalValidator(Validator):
                         invalid_values = True
                 elif self.METADATA_LINES[line_index] == 'priority':
                     try:
-                        if int(value) < 1:
+                        if int(value) < 0:
                             raise ValueError()
                     except ValueError:
                         self.logger.error(
-                            'Priority definition is not a positive integer',
+                            'Priority definition should be an integer, and should be '
+                            'greater than or equal to zero',
                             extra={'line_number': line_index + 1,
                                    'column_number': col_index + 1,
                                    'cause': value})
@@ -1554,30 +2103,33 @@ class ClinicalValidator(Validator):
         num_errors = super(ClinicalValidator, self).checkHeader(cols)
 
         if self.numCols != len(self.attr_defs):
-             if not self.relaxed_mode:
+            if not self.relaxed_mode:
                 self.logger.error(
                     'Varying numbers of columns in clinical header (%d, %d)',
                     len(self.attr_defs),
                     len(self.cols),
                     extra={'line_number': self.line_number})
                 num_errors += 1
-            
+
         # fill in missing attr_defs data if in relaxed mode and clinical data is headerless
         if self.fill_in_attr_defs:
             self.logger.info('Filling in missing attribute properties for clinical data.')
             missing_attr_defs = {}
-            for col_index, col_name in enumerate(cols):                    
+            for col_index, col_name in enumerate(cols):
                 missing_attr_defs[col_index] = {'display_name': col_name,
                                          'description': col_name,
                                          'datatype': 'STRING',
                                          'priority': '1'}
-            self.attr_defs = missing_attr_defs            
-        
+            self.attr_defs = missing_attr_defs
+
         for col_index, col_name in enumerate(self.cols):
+            # Front end can have issues with lower case attribute names as discussed
+            # in https://github.com/cBioPortal/cbioportal/issues/3518
             if not col_name.isupper():
-                self.logger.warning(
-                    "Clinical attribute name not in all caps",
+                self.logger.error(
+                    "Attribute name not in upper case.",
                     extra={'line_number': self.line_number,
+                           'column_number': col_index + 1,
                            'cause': col_name})
             # do not check the special ID columns as attributes,
             # just parse them with the correct data type
@@ -1594,8 +2146,8 @@ class ClinicalValidator(Validator):
                         expected_level = \
                             self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
                         if self.PROP_IS_PATIENT_ATTRIBUTE != expected_level:
-                            # check if only warning should be given: 
-                            if ('when_wrong' in self.PREDEFINED_ATTRIBUTES[col_name] and 
+                            # check if only warning should be given:
+                            if ('when_wrong' in self.PREDEFINED_ATTRIBUTES[col_name] and
                             self.PREDEFINED_ATTRIBUTES[col_name]['when_wrong'] == 'WARNING'):
                                 self.logger.warning(
                                     'Attribute expected to be a %s-level attribute. Some *minor* details will be '
@@ -1604,7 +2156,7 @@ class ClinicalValidator(Validator):
                                     extra={'line_number': self.line_number,
                                            'column_number': col_index + 1,
                                            'cause': col_name})
-                            else: 
+                            else:
                                 self.logger.error(
                                     'Attribute must be a %s-level attribute',
                                     {'0': 'sample', '1': 'patient'}[expected_level],
@@ -1678,6 +2230,30 @@ class ClinicalValidator(Validator):
                                'column_number': col_index + 1,
                                'cause': value})
 
+            if col_name == 'PATIENT_ID' or col_name == 'SAMPLE_ID':
+                if re.findall(self.INVALID_ID_CHARACTERS, value):
+                    self.logger.error(
+                        'PATIENT_ID and SAMPLE_ID can only contain letters, '
+                        'numbers, points, underscores and/or hyphens',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+
+            # Scan for incorrect usage of dates, accidentally converted by excel. This is often in a format such as
+            # Jan-99 or 20-Oct. A future improvement would be to add a "DATE" datatype.
+            excel_months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+            if 'date' not in col_name.lower():
+                if '-' in value:
+                    if len(value.split('-')) == 2 and not any(i in value for i in [',', '.', ':', ';']):
+                        if any(value_part.lower() in excel_months for value_part in value.split('-')):
+                            self.logger.error(
+                                'Date found when no date was expected. Please check if values are accidentally '
+                                'converted to dates by Excel. If this data is correct, add "DATE" to column name',
+                                extra={'line_number': self.line_number,
+                                       'column_number': col_index + 1,
+                                       'cause': value})
+
+
 
 class SampleClinicalValidator(ClinicalValidator):
 
@@ -1685,6 +2261,7 @@ class SampleClinicalValidator(ClinicalValidator):
 
     REQUIRED_HEADERS = ['SAMPLE_ID', 'PATIENT_ID']
     PROP_IS_PATIENT_ATTRIBUTE = '0'
+
 
     def __init__(self, *args, **kwargs):
         """Initialize the validator to track sample ids defined."""
@@ -1710,12 +2287,6 @@ class SampleClinicalValidator(ClinicalValidator):
                                'column_number': col_index + 1,
                                'cause': value})
                     continue
-                if ' ' in value:
-                    self.logger.error(
-                        'White space in SAMPLE_ID is not supported',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
                 if value in self.sample_id_lines:
                     if value.startswith('TCGA-'):
                         self.logger.warning(
@@ -1797,12 +2368,6 @@ class PatientClinicalValidator(ClinicalValidator):
             if col_index < len(data):
                 value = data[col_index].strip()
             if col_name == 'PATIENT_ID':
-                if ' ' in value:
-                    self.logger.error(
-                        'White space in PATIENT_ID is not supported',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
                 if value in self.patient_id_lines:
                     self.logger.error(
                         'Patient defined multiple times in file',
@@ -1912,6 +2477,12 @@ class SegValidator(Validator):
                                'cause': value})
             elif col_name in ('loc.start', 'loc.end'):
                 try:
+                    # convert possible scientific notation to python scientific notation
+                    if "e+" in value:
+                        value = float(value.replace("e+", "e"))
+                        if not value.is_integer():
+                            # raise value error 'Genomic position is not an integer'
+                            raise ValueError()
                     parsed_coords[col_name] = int(value)
                 except ValueError:
                     self.logger.error(
@@ -1939,7 +2510,7 @@ class SegValidator(Validator):
                     del parsed_coords[col_name]
             elif col_name == 'num.mark':
                 if not self.checkInt(value):
-                    # also check if the value is an int in scientific notation (1e+05) 
+                    # also check if the value is an int in scientific notation (1e+05)
                     if not ("e+" in value and self.checkFloat(value)):
                         self.logger.error(
                             'Number of probes is not an integer',
@@ -2041,7 +2612,7 @@ class ContinuousValuesValidator(GenewiseFileValidator):
 
     Allowing missing values indicated by GenewiseFileValidator.NULL_VALUES.
     """
-    
+
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         stripped_value = value.strip()
@@ -2052,7 +2623,20 @@ class ContinuousValuesValidator(GenewiseFileValidator):
                                      'cause': value})
 
 
+class CNAContinuousValuesValidator(ContinuousValuesValidator):
+
+    """Sub-class CNA validator. No validations different from ContinuousValuesValidator yet."""
+    pass
+
+
 class FusionValidator(Validator):
+
+    """Basic validation for fusion data. Validates:
+
+    1. Required column headers and the order
+    2. Values of Hugo_Symbol, Entrez_Gene_Id, Fusion and Tumor_Sample_Barcode
+    3. Uniqueness of lines
+    """
 
     REQUIRED_HEADERS = [
         'Hugo_Symbol',
@@ -2060,16 +2644,51 @@ class FusionValidator(Validator):
         'Center',
         'Tumor_Sample_Barcode',
         'Fusion',
-        'DNA support',
-        'RNA support',
+        'DNA_support',
+        'RNA_support',
         'Method',
         'Frame']
     REQUIRE_COLUMN_ORDER = True
+    ALLOW_BLANKS = True
+
+    def __init__(self, *args, ** kwargs):
+        super(FusionValidator, self).__init__(*args, **kwargs)
+        self.fusion_entries = {}
 
     def checkLine(self, data):
-        super(FusionValidator, self).checkLine(data)
-        # TODO check the values
 
+        super(FusionValidator, self).checkLine(data)
+
+        # parse hugo and entrez to validate them together
+        hugo_symbol = None
+        entrez_id = None
+        if 'Hugo_Symbol' in self.cols:
+            hugo_symbol = data[self.cols.index('Hugo_Symbol')].strip()
+            # treat the empty string or 'Unknown' as a missing value
+            if hugo_symbol == '':
+                hugo_symbol = None
+        if 'Entrez_Gene_Id' in self.cols:
+            entrez_id = data[self.cols.index('Entrez_Gene_Id')].strip()
+            # treat empty string, 0 or 'NA' as a missing value
+            if entrez_id in ['', '0', 'NA']:
+                entrez_id = None
+        # validate hugo and entrez together:
+        self.checkGeneIdentification(hugo_symbol, entrez_id)
+
+        # validate uniqueness based on Hugo_Symbol, Entrez_Gene_Id, Tumor_Sample_Barcode and Fusion
+        fusion_entry = "\t".join([data[self.cols.index('Hugo_Symbol')],
+                                  data[self.cols.index('Entrez_Gene_Id')],
+                                  data[self.cols.index('Tumor_Sample_Barcode')],
+                                  data[self.cols.index('Fusion')]])
+        if fusion_entry in self.fusion_entries:
+            self.logger.warning(
+                'Duplicate entry in fusion data.',
+                extra = {'line_number': self.line_number,
+                         'cause': '%s (already defined on line %d)' % (
+                             fusion_entry,
+                             self.fusion_entries[fusion_entry])})
+        else:
+            self.fusion_entries[fusion_entry] = self.line_number
 
 class MutationSignificanceValidator(Validator):
 
@@ -2077,8 +2696,34 @@ class MutationSignificanceValidator(Validator):
     ALLOW_BLANKS = True
     pass
 
+class GenePanelMatrixValidator(Validator):
 
-class RPPAValidator(FeaturewiseFileValidator):
+    REQUIRED_HEADERS = ['SAMPLE_ID']
+    # TODO check that other column headers are valid profile stable ids
+    # TODO check that sample ids are references in clincal data file
+    # TODO check that referenced gene panel stable id is valid
+
+    def __init__(self, *args, **kwargs):
+        """Initialize a GenePanelMatrixValidator with the given parameters."""
+        super(GenePanelMatrixValidator, self).__init__(*args, **kwargs)
+        self.gene_panel_sample_ids = {}
+
+    def checkLine(self, data):
+        super(GenePanelMatrixValidator, self).checkLine(data)
+
+        # Checking sample ID occurs twice in gene panel matrix
+        # Importer will crash so return an error
+        sample_id = data[self.cols.index('SAMPLE_ID')]
+        if sample_id in self.gene_panel_sample_ids:
+            self.logger.error(
+                'Duplicated Sample ID.',
+                extra={'line_number': self.line_number,
+                       'cause': '%s (already defined on line %d)'
+                                % (sample_id, self.gene_panel_sample_ids[sample_id])})
+        else:
+            self.gene_panel_sample_ids[sample_id] = self.line_number
+
+class ProteinLevelValidator(FeaturewiseFileValidator):
 
     REQUIRED_HEADERS = ['Composite.Element.REF']
     ALLOW_BLANKS = True
@@ -2094,7 +2739,7 @@ class RPPAValidator(FeaturewiseFileValidator):
         # products if the antibody name has a particular format.
         value = nonsample_col_vals[0].strip()
         if '|' not in value:
-            self.logger.error('No pipe symbol in RPPA probe column',
+            self.logger.error('No pipe symbol in Composite.Element.REF column',
                               extra={'line_number': self.line_number,
                                      'column_number': 1,
                                      'cause': nonsample_col_vals[0]})
@@ -2247,10 +2892,10 @@ class CancerTypeValidator(Validator):
                                        'cause': value})
                 elif field_name == 'parent_type_of_cancer':
                     parent_cancer_type = value.lower()
-                    # if parent_cancer_type is not 'tissue' (which is a special case when building the oncotree), 
+                    # if parent_cancer_type is not 'tissue' (which is a special case when building the oncotree),
                     # then give error if the given parent is not found in the DB or in the given cancer types of the
                     # current study:
-                    if (parent_cancer_type != 'tissue' and 
+                    if (parent_cancer_type != 'tissue' and
                         self.portal.cancer_type_dict is not None and not
                             (parent_cancer_type in self.portal.cancer_type_dict or
                              parent_cancer_type in self.defined_cancer_types)):
@@ -2435,8 +3080,8 @@ class GisticGenesValidator(Validator):
                                    (cytoband_chromosome,
                                     parsed_cytoband,
                                     parsed_chromosome)})
-            # TODO: validate band/coord sets with the UCSC cytoband definitions (using 
-            # parsed_gene_list and some of the other parsed_*list variables 
+            # TODO: validate band/coord sets with the UCSC cytoband definitions (using
+            # parsed_gene_list and some of the other parsed_*list variables
 
     def parse_chromosome_num(self, value, column_number):
         """Parse a chromosome number, logging any errors for this column
@@ -2480,11 +3125,11 @@ class GisticGenesValidator(Validator):
                        'column_number': column_number,
                        'cause': value})
         else:
-            # loop over the comma-separated list of gene symbols. Example of such a 
+            # loop over the comma-separated list of gene symbols. Example of such a
             # list: RNA5SP149,snoU13|ENSG00000239096.1,GNB4
             for symbol in comma_sep_list.split(','):
                 symbol = symbol.strip()
-                # remove the | and trailing part if any (e.g. 
+                # remove the | and trailing part if any (e.g.
                 # remove |ENSG00000239096.1 from snoU13|ENSG00000239096.1):
                 symbol = symbol.split('|')[0]
                 # add valid, unambiguous gene symbols to the list,
@@ -2573,12 +3218,128 @@ class GisticGenesValidator(Validator):
             return parsed_value
 
 
+class GsvaWiseFileValidator(FeaturewiseFileValidator):
+
+    """FeatureWiseValidator that has Gene set ID as feature column."""
+
+    REQUIRED_HEADERS = ['geneset_id']
+    def __init__(self, *args, **kwargs):
+        super(GsvaWiseFileValidator, self).__init__(*args, **kwargs)
+        self.geneset_ids = []
+
+    def checkHeader(self, cols):
+        """Validate the header and read sample IDs from it.
+
+        Return the number of fatal errors.
+        """
+        num_errors = super(GsvaWiseFileValidator, self).checkHeader(cols)
+
+        global prior_validated_sample_ids
+
+        if prior_validated_sample_ids != None:
+            if self.cols != prior_validated_sample_ids:
+                self.logger.error('Headers from score and p-value files are different',
+                                  extra={'line_number': self.line_number})
+                num_errors += 1
+        else:
+            prior_validated_sample_ids = self.cols
+
+        return num_errors
+
+    def parseFeatureColumns(self, nonsample_col_vals):
+
+        """Check the `geneset_id` column."""
+
+        global prior_validated_geneset_ids
+        geneset_id = nonsample_col_vals[0].strip()
+
+        # Check if gene set is present
+        if geneset_id == '':
+            # Validator already gives warning for this in checkLine method
+            pass
+        # Check if gene set contains whitespace
+        elif ' ' in geneset_id:
+            self.logger.error("Whitespace found in `geneset_id`",
+                              extra={'line_number': self.line_number,
+                                     'cause': geneset_id})
+        # Check if gene set is in database
+        elif self.portal.geneset_id_list is not None and geneset_id not in self.portal.geneset_id_list:
+            self.logger.error("Gene set not found in database, please make sure "
+                              "to import gene sets prior to study loading",
+                              extra={'line_number': self.line_number, 'cause': geneset_id})
+        else:
+            # Check if this is the second gene set data file
+            if prior_validated_geneset_ids is not None:
+                # Check if gene set is in the first gene set data file
+                if geneset_id not in prior_validated_geneset_ids:
+                    self.logger.error('Gene sets in cannot be found in other gene set file',
+                                      extra={'line_number': self.line_number,
+                                             'cause': geneset_id})
+            # Add gene set to list of gene sets of current gene set data file
+            self.geneset_ids.append(geneset_id)
+        return geneset_id
+
+    def onComplete(self):
+
+        def checkConsistencyScoresPvalue(self):
+            """This function validates whether the gene sets in the scores and p-value file are the same"""
+
+            global prior_validated_geneset_ids
+
+            # If the prior_validated_geneset_ids is not filled yet, fill it with the first file.
+            if prior_validated_geneset_ids is None:
+                prior_validated_geneset_ids = self.geneset_ids
+            else:
+                # Check if gene set ids are the same
+                if not prior_validated_geneset_ids == self.geneset_ids:
+                    self.logger.error(
+                        'Gene sets column in score and p-value file are not equal')
+
+        checkConsistencyScoresPvalue(self)
+
+        super(GsvaWiseFileValidator, self).onComplete()
+
+
+class GsvaScoreValidator(GsvaWiseFileValidator):
+
+    """ Validator for files containing scores per gene set from GSVA algorithm. The GSVA algorithm
+    in R can calculate a GSVA score or GSVA-like score (such as ssGSEA) per sample per gene set.
+    """
+
+    # Score must be between -1 and 1
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+        stripped_value = float(value.strip())
+        if stripped_value < -1 or stripped_value > 1:
+            self.logger.error("Value is not between -1 and 1, and therefor not "
+                              "a valid GSVA score",
+                              extra={'line_number': self.line_number,
+                                     'column_number': col_index + 1,
+                                     'cause': value})
+
+
+class GsvaPvalueValidator(GsvaWiseFileValidator):
+
+    """ Validator for files containing p-values for GSVA scores. The GSVA algorithm in R can
+    calculate a p-value for each GSVA score using a bootstrapping method.
+    """
+
+    # Score must be between -0 and 1
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+        stripped_value = float(value.strip())
+        if stripped_value <= 0 or stripped_value > 1:
+            self.logger.error("Value is not between 0 and 1, and therefor not a valid p-value",
+                              extra={'line_number': self.line_number,
+                                     'column_number': col_index + 1,
+                                     'cause': value})
+
 # ------------------------------------------------------------------------------
 # Functions
 
 # FIXME: returning simple valid (meta_fn, data_fn) pairs would be cleaner,
 # Validator objects can be instantiated with a portal instance elsewhere
-def process_metadata_files(directory, portal_instance, logger, relaxed_mode):
+def process_metadata_files(directory, portal_instance, logger, relaxed_mode, strict_maf_checks):
 
     """Parse the meta files in a directory and create data file validators.
 
@@ -2598,9 +3359,9 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode):
                  f in os.listdir(directory) if
                  re.search(r'(\b|_)meta(\b|[_0-9])', f,
                            flags=re.IGNORECASE) and
-                 not f.startswith('.') and 
+                 not f.startswith('.') and
                  not f.endswith('~')]
-    
+
     if len(filenames) == 0:
         logger.critical(
                     'No meta files found in ' + directory +'. Please make sure the directory '\
@@ -2608,19 +3369,21 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode):
 
     study_id = None
     study_cancer_type = None
+    study_data_types = []
     validators_by_type = {}
     case_list_suffix_fns = {}
     stable_ids = []
 
     for filename in filenames:
 
-        meta, meta_file_type = cbioportal_common.parse_metadata_file(
+        meta_dictionary = cbioportal_common.parse_metadata_file(
             filename, logger, study_id, portal_instance.genome_build)
+        meta_file_type = meta_dictionary['meta_file_type']
         if meta_file_type is None:
             continue
         # validate stable_id to be unique (check can be removed once we deprecate this field):
-        if 'stable_id' in meta:
-            stable_id = meta['stable_id']
+        if 'stable_id' in meta_dictionary:
+            stable_id = meta_dictionary['stable_id']
             if stable_id in stable_ids:
                 # stable id already used in other meta file, give error:
                 logger.error(
@@ -2629,20 +3392,29 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode):
                            'cause': stable_id})
             else:
                 stable_ids.append(stable_id)
-        if study_id is None and 'cancer_study_identifier' in meta:
-            study_id = meta['cancer_study_identifier']
+        # Validate datatypes
+        if 'datatype' in meta_dictionary:
+            if meta_dictionary['datatype'].lower() in study_data_types:
+                # For Seg file only one can be loaded
+                if meta_dictionary['datatype'].lower() == "seg":
+                    logger.error('datatype SEG is repeated. Only one segmentation file can be loaded.')
+            else:
+                study_data_types.append(meta_dictionary['datatype'].lower())
+
+        if study_id is None and 'cancer_study_identifier' in meta_dictionary:
+            study_id = meta_dictionary['cancer_study_identifier']
         if meta_file_type == cbioportal_common.MetaFileTypes.STUDY:
             if study_cancer_type is not None:
                 logger.error(
                     'Encountered a second meta_study file',
                     extra={'filename_': filename})
             else:
-                study_cancer_type = meta['type_of_cancer']
-                if ('add_global_case_list' in meta and
-                        meta['add_global_case_list'].lower() == 'true'):
+                study_cancer_type = meta_dictionary['type_of_cancer']
+                if ('add_global_case_list' in meta_dictionary and
+                        meta_dictionary['add_global_case_list'].lower() == 'true'):
                     case_list_suffix_fns['all'] = filename
-            # raise a warning if pmid is existing, but no citation is available. 
-            if 'pmid' in meta and not 'citation' in meta:
+            # raise a warning if pmid is existing, but no citation is available.
+            if 'pmid' in meta_dictionary and not 'citation' in meta_dictionary:
                 logger.warning(
                 'Citation is required when giving a pubmed id (pmid).')
 
@@ -2650,14 +3422,14 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode):
         if meta_file_type not in validators_by_type:
             validators_by_type[meta_file_type] = []
         # check if data_filename is set AND if data_filename is a supported field according to META_FIELD_MAP:
-        if 'data_filename' in meta and 'data_filename' in cbioportal_common.META_FIELD_MAP[meta_file_type]:
+        if 'data_filename' in meta_dictionary and 'data_filename' in cbioportal_common.META_FIELD_MAP[meta_file_type]:
             validator_class = globals()[VALIDATOR_IDS[meta_file_type]]
-            validator = validator_class(directory, meta,
-                                        portal_instance, logger, relaxed_mode)
+            validator = validator_class(directory, meta_dictionary,
+                                        portal_instance, logger,
+                                        relaxed_mode, strict_maf_checks)
             validators_by_type[meta_file_type].append(validator)
         else:
             validators_by_type[meta_file_type].append(None)
-        
 
     if study_cancer_type is None:
         logger.error(
@@ -2703,22 +3475,27 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
                      fn in os.listdir(caseListDir) if
                      not (fn.startswith('.') or fn.endswith('~'))]
 
+    # Save case list categories
+    previous_case_list_categories = []
+
     for case in case_list_fns:
 
-        case_data, meta_file_type = cbioportal_common.parse_metadata_file(
+        meta_dictionary = cbioportal_common.parse_metadata_file(
             case, logger, cancerStudyId, case_list=True)
         # skip if invalid, errors have already been emitted
-        if meta_file_type is None:
+        if meta_dictionary['meta_file_type'] is None:
             continue
 
-        # check for duplicated stable ids
-        stable_id = case_data['stable_id']
+        # check for correct naming of case list stable ids
+        stable_id = meta_dictionary['stable_id']
         if not stable_id.startswith(cancerStudyId + '_'):
             logger.error('Stable_id of case list does not start with the '
                          'study id (%s) followed by an underscore',
                          cancerStudyId,
                          extra={'filename_': case,
                                 'cause': stable_id})
+
+        # check for duplicated stable ids
         elif stable_id in stableid_files:
             logger.error('Multiple case lists with this stable_id defined '
                          'in the study',
@@ -2730,14 +3507,61 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
         else:
             stableid_files[stable_id] = case
 
-        sampleIds = case_data['case_list_ids']
-        sampleIds = set([x.strip() for x in sampleIds.split('\t')])
-        for value in sampleIds:
+        if 'case_list_category' in meta_dictionary:
+            # Valid case list categories
+            VALID_CATEGORIES = ['all_cases_in_study',
+                                'all_cases_with_mutation_data',
+                                'all_cases_with_cna_data',
+                                'all_cases_with_log2_cna_data',
+                                'all_cases_with_methylation_data',
+                                'all_cases_with_mrna_array_data',
+                                'all_cases_with_mrna_rnaseq_data',
+                                'all_cases_with_rppa_data',
+                                'all_cases_with_microrna_data',
+                                'all_cases_with_mutation_and_cna_data',
+                                'all_cases_with_mutation_and_cna_and_mrna_data',
+                                'all_cases_with_gsva_data',
+                                'other']
+
+            # If the case list category is invalid, the importer will crash.
+            if meta_dictionary['case_list_category'] not in VALID_CATEGORIES:
+                logger.error('Invalid case list category',
+                               extra={'filename_': case,
+                               'cause': meta_dictionary['case_list_category']})
+
+            # Check for duplicate case list categories
+            if meta_dictionary['case_list_category'] in previous_case_list_categories and \
+                    not meta_dictionary['case_list_category'] is 'other':
+                logger.warning('Case list category already used in other case list. Both will be loaded',
+                               extra={'filename_': case,
+                                      'cause': meta_dictionary['case_list_category']})
+            else:
+                previous_case_list_categories.append(meta_dictionary['case_list_category'])
+
+        # Check for any duplicate sample IDs
+        sample_ids = [x.strip() for x in meta_dictionary['case_list_ids'].split('\t')]
+        seen_sample_ids = set()
+        dupl_sample_ids = set()
+        for sample_id in sample_ids:
+            if sample_id not in seen_sample_ids:
+                seen_sample_ids.add(sample_id)
+            else:
+                dupl_sample_ids.add(sample_id)
+        # Duplicate samples IDs are removed by the importer, therefore this is
+        # only a warning.
+        if len(dupl_sample_ids) > 0:
+            logger.warning('Duplicate Sample ID in case list',
+                           extra={'filename_': case,
+                           'cause': ', '.join(dupl_sample_ids)})
+
+        for value in seen_sample_ids:
+            # Compare case list sample ids with clinical file
             if value not in DEFINED_SAMPLE_IDS:
                 logger.error(
                     'Sample id not defined in clinical file',
                     extra={'filename_': case,
                            'cause': value})
+            # Check if there are white spaces in the sample id
             if ' ' in value:
                 logger.error(
                     'White space in sample id is not supported',
@@ -2768,9 +3592,99 @@ def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logge
                 cancer_study_id + '_all')
     # TODO: check for required suffixes based on the defined profiles
 
+def validate_dependencies(validators_by_meta_type, logger):
+
+    """Validation after all meta files are individually validated.
+
+    Here we validate that the required cross-linking between expression,
+    zscore, gsva score and gsva pvalue files is present in the form of
+    source_stable_id, which is used to link the profiles to each other.
+    """
+    # retrieve values from cbioportal_common.py
+    expression_stable_ids = cbioportal_common.expression_stable_ids
+    expression_zscores_source_stable_ids = cbioportal_common.expression_zscores_source_stable_ids
+    gsva_scores_stable_id = cbioportal_common.gsva_scores_stable_id
+    gsva_scores_source_stable_id = cbioportal_common.gsva_scores_source_stable_id
+    gsva_pvalues_source_stable_id = cbioportal_common.gsva_pvalues_source_stable_id
+    gsva_scores_filename = cbioportal_common.gsva_scores_filename
+    gsva_pvalues_filename = cbioportal_common.gsva_pvalues_filename
+
+    # validation specific for Z-SCORE expression data
+    for expression_zscores_source_stable_id in expression_zscores_source_stable_ids:
+
+        # check if 'source_stable_id' of EXPRESSION Z-SCORE is an EXPRESSION 'stable_id'
+        if not expression_zscores_source_stable_id in expression_stable_ids:
+            logger.error(
+                "Invalid source_stable_id. Expected one of ['" + "', '".join(expression_stable_ids) +
+                "'], which are stable ids of expression files in this study",
+                extra={'filename_': expression_zscores_source_stable_ids[expression_zscores_source_stable_id],
+                       'cause': expression_zscores_source_stable_id})
+
+    # validation specific for GSVA data
+    if any(m in validators_by_meta_type for m in ["meta_gsva_pvalues", "meta_gsva_scores"]):
+
+        # When missing a gsva file, no subsequent validation will be done
+        missing_gsva_file = False
+
+        # check if both files are present
+        if not "meta_gsva_pvalues" in validators_by_meta_type:
+            logger.error('Required meta GSVA p-value file is missing')
+            missing_gsva_file = True
+        if not "meta_gsva_scores" in validators_by_meta_type:
+            logger.error('Required meta GSVA score file is missing')
+            missing_gsva_file = True
+        if not "meta_expression" in validators_by_meta_type:
+            logger.error('Required meta expression file is missing.')
+            missing_gsva_file = True
+
+        # check `source_stable_id` in GSVA_SCORES and GSVA_PVALUES
+        if not missing_gsva_file:
+
+            # check if 'source_stable_id' of GSVA_SCORES is an EXPRESSION 'stable_id'
+            if not gsva_scores_source_stable_id in expression_stable_ids:
+                logger.error(
+                    "Invalid source_stable_id. Expected one of ['" + "', '".join(expression_stable_ids) +
+                    "'], which are stable ids of expression files in this study",
+                    extra={'filename_': gsva_scores_filename,
+                           'cause': gsva_scores_source_stable_id})
+
+            # check if 'source_stable_id'of GSVA_PVALUES is an GSVA_SCORES 'stable_id'
+            if not gsva_pvalues_source_stable_id == gsva_scores_stable_id:
+                logger.error(
+                    "Invalid source_stable_id. Expected '" + gsva_scores_stable_id + "', "
+                    "which is the stable id of the gsva score file in this study",
+                    extra={'filename_': gsva_pvalues_filename,
+                           'cause': gsva_pvalues_source_stable_id})
+
+            # Validate that there is a Z-SCORE expression file for GSVA study
+            if len(expression_zscores_source_stable_ids) == 0:
+                logger.error(
+                    "Study contains GSVA data and is missing Z-Score expression file. "
+                    "Please add a Z-Score expression file calculated from the same "
+                    "expression file used to calculate GSVA scores")
+            else:
+                # Validate that GSVA_SCORES 'source_stable_id' is also a 'source_stable_id'
+                # in a Z-SCORE expression file
+                if not gsva_scores_source_stable_id in expression_zscores_source_stable_ids.keys():
+                    logger.error(
+                        "source_stable_id does not match source_stable_id from Z-Score expression files. "
+                        "Please make sure sure that Z-Score expression file is added for '" +
+                        gsva_scores_source_stable_id + "'. Current Z-Score source stable ids found are ['" +
+                        "', '".join(expression_zscores_source_stable_ids.keys()) +"'].",
+                        extra={'filename_': gsva_scores_filename,
+                               'cause': gsva_scores_source_stable_id})
+
+
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""
-    service_url = server_url + '/api-legacy/' + api_name
+
+    if api_name == 'genesets':
+        service_url = server_url + '/api/' + api_name + "?pageSize=999999999"
+
+    # TODO: change API for genes, gene aliases and cancer types to non-legacy
+    else:
+        service_url = server_url + '/api-legacy/' + api_name
+
     logger.debug("Requesting %s from portal at '%s'",
                 api_name, server_url)
     # this may raise a requests.exceptions.RequestException subclass,
@@ -2860,6 +3774,16 @@ def transform_symbol_entrez_map(json_data,
     return result_dict
 
 
+def index_geneset_id_list(json_data,
+                         id_field = "genesetId"):
+    result_list = []
+    for data_item in json_data:
+        geneset_id = data_item[id_field]
+        if geneset_id not in result_list:
+            result_list.append(geneset_id)
+    return result_list
+
+
 def load_portal_info(path, logger, offline=False):
     """Create a PortalInstance object based on a server API or offline dir.
 
@@ -2876,7 +3800,9 @@ def load_portal_info(path, logger, offline=False):
                                         json_data, 'hugo_gene_symbol')),
             ('genesaliases',
                 lambda json_data: transform_symbol_entrez_map(
-                                        json_data, 'gene_alias'))):
+                                        json_data, 'gene_alias')),
+            ('genesets',
+                lambda json_data: index_geneset_id_list(json_data, 'genesetId'))):
         if offline:
             parsed_json = read_portal_json_file(path, api_name, logger)
         else:
@@ -2887,9 +3813,10 @@ def load_portal_info(path, logger, offline=False):
     if all(d is None for d in portal_dict.values()):
         raise IOError('No portal information found at {}'.format(
                           path))
-    return PortalInstance(cancer_type_dict=portal_dict['cancertypes'],
-                          hugo_entrez_map=portal_dict['genes'],
-                          alias_entrez_map=portal_dict['genesaliases'])
+    return PortalInstance(cancer_type_dict = portal_dict['cancertypes'],
+                          hugo_entrez_map = portal_dict['genes'],
+                          alias_entrez_map = portal_dict['genesaliases'],
+                          geneset_id_list = portal_dict['genesets'])
 
 
 # ------------------------------------------------------------------------------
@@ -2900,10 +3827,10 @@ def interface(args=None):
     portal_mode_group = parser.add_mutually_exclusive_group()
     portal_mode_group.add_argument('-u', '--url_server',
                                    type=str,
-                                   default='http://localhost/cbioportal',
+                                   default='http://localhost:8080/cbioportal',
                                    help='URL to cBioPortal server. You can '
                                         'set this if your URL is not '
-                                        'http://localhost/cbioportal')
+                                        'http://localhost:8080/cbioportal')
     portal_mode_group.add_argument('-p', '--portal_info_dir',
                                    type=str,
                                    help='Path to a directory of cBioPortal '
@@ -2915,7 +3842,7 @@ def interface(args=None):
                                         'from the cBioPortal installation')
     parser.add_argument('-P', '--portal_properties', type=str,
                         help='portal.properties file path (default: assumed hg19)',
-                        required=False) 
+                        required=False)
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
     parser.add_argument('-e', '--error_file', type=str, required=False,
@@ -2924,16 +3851,20 @@ def interface(args=None):
     parser.add_argument('-v', '--verbose', required=False, action='store_true',
                         help='report status info messages in addition '
                              'to errors and warnings')
-    parser.add_argument('-r', '--relaxed_clinical_definitions', required=False, 
-                        action='store_true', 
+    parser.add_argument('-r', '--relaxed_clinical_definitions', required=False,
+                        action='store_true', default=False,
                         help='Option to enable relaxed mode for validator when '
                         'validating clinical data without header definitions')
+    parser.add_argument('-m', '--strict_maf_checks', required=False,
+                        action='store_true', default=False,
+                        help='Option to enable strict mode for validator when '
+                             'validating mutation data')
 
     parser = parser.parse_args(args)
     return parser
 
 
-def validate_study(study_dir, portal_instance, logger, relaxed_mode):
+def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_checks):
 
     """Validate the study in `study_dir`, logging messages to `logger`, and relaxing
         clinical data validation if `relaxed_mode` is true.
@@ -2955,12 +3886,14 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode):
             portal_instance.alias_entrez_map is None):
         logger.warning('Skipping validations relating to gene identifiers and '
                        'aliases defined in the portal')
+    if portal_instance.geneset_id_list is None:
+        logger.warning('Skipping validations relating to gene set identifiers')
 
     # walk over the meta files in the dir and get properties of the study
     (validators_by_meta_type,
      defined_case_list_fns,
      study_cancer_type,
-     study_id) = process_metadata_files(study_dir, portal_instance, logger, relaxed_mode)
+     study_id) = process_metadata_files(study_dir, portal_instance, logger, relaxed_mode, strict_maf_checks)
 
     # first parse and validate cancer type files
     studydefined_cancer_types = []
@@ -3019,7 +3952,7 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode):
     if defined_sample_ids is None:
         logger.error("Sample file could not be parsed. Please fix "
                          "the problems found there first before continuing.")
-        if not relaxed_mode:                         
+        if not relaxed_mode:
             return
     DEFINED_SAMPLE_IDS = defined_sample_ids
     DEFINED_SAMPLE_ATTRIBUTES = sample_validator.defined_attributes
@@ -3047,6 +3980,9 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode):
                 continue
             validator.validate()
 
+    # additional validation after all meta files are validated
+    validate_dependencies(validators_by_meta_type, logger)
+
     # finally validate the case list directory if present
     case_list_dirname = os.path.join(study_dir, 'case_lists')
     if not os.path.isdir(case_list_dirname):
@@ -3065,6 +4001,14 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode):
     logger.info('Validation complete')
 
 
+def get_pom_path():
+    """
+    Get location of pom.xml. In system and integration test this is mocked.
+    """
+    pom_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))) + "/pom.xml"
+    return pom_path
+
+
 def main_validate(args):
 
     """Main function: process parsed arguments and validate the study."""
@@ -3080,9 +4024,8 @@ def main_validate(args):
     server_url = args.url_server
 
     html_output_filename = args.html_table
-    relaxed_mode = False
-    if hasattr(args, 'relaxed_clinical_definitions') and args.relaxed_clinical_definitions:
-        relaxed_mode = True
+    relaxed_mode = args.relaxed_clinical_definitions
+    strict_maf_checks = args.strict_maf_checks
 
     # determine the log level for terminal and html output
     output_loglevel = logging.INFO
@@ -3105,6 +4048,27 @@ def main_validate(args):
     collapsing_text_handler.setLevel(output_loglevel)
     logger.addHandler(collapsing_text_handler)
 
+    # set default to unknown because validator can be run independently from cBioPortal
+    cbio_version = "unknown"
+
+    # get pom path to retrieve cBioPortal version
+    pom_path = get_pom_path()
+
+    try:
+        # parse xml
+        xml_root = ET.parse(pom_path).getroot()
+    except IOError:
+        logger.warning('Unable to read xml containing cBioPortal version.')
+    else:
+        for xml_child in xml_root:
+
+            # to circumvent the default namespace (possibly varying apache url) split on '}'
+            if xml_child.tag.split("}")[1] == "version":
+                cbio_version = xml_child.text
+
+                # output cBioPortal version
+                logger.info("Running validation from cBioPortal version %s" % cbio_version)
+
     collapsing_html_handler = None
     html_handler = None
     # add html table handler if applicable
@@ -3115,6 +4079,7 @@ def main_validate(args):
         html_handler = Jinja2HtmlHandler(
             study_dir,
             html_output_filename,
+            cbio_version = cbio_version,
             capacity=1e5)
         # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
         # and get rid of the duplicated buffering of messages here
@@ -3142,17 +4107,18 @@ def main_validate(args):
     if args.no_portal_checks:
         portal_instance = PortalInstance(cancer_type_dict=None,
                                          hugo_entrez_map=None,
-                                         alias_entrez_map=None)
+                                         alias_entrez_map=None,
+                                         geneset_id_list=None)
     elif args.portal_info_dir:
         portal_instance = load_portal_info(args.portal_info_dir, logger,
                                            offline=True)
     else:
         portal_instance = load_portal_info(server_url, logger)
-        
+
     if args.portal_properties:
         portal_instance.load_genome_info(args.portal_properties)
 
-    validate_study(study_dir, portal_instance, logger, relaxed_mode)
+    validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_checks)
 
     if html_handler is not None:
         collapsing_html_handler.flush()

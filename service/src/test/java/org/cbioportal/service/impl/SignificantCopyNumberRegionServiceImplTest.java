@@ -1,10 +1,12 @@
 package org.cbioportal.service.impl;
 
-import junit.framework.Assert;
 import org.cbioportal.model.Gistic;
 import org.cbioportal.model.GisticToGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SignificantCopyNumberRegionRepository;
+import org.cbioportal.service.StudyService;
+import org.cbioportal.service.exception.StudyNotFoundException;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -24,6 +26,8 @@ public class SignificantCopyNumberRegionServiceImplTest extends BaseServiceImplT
     
     @Mock
     private SignificantCopyNumberRegionRepository significantCopyNumberRegionRepository;
+    @Mock
+    private StudyService studyService;
     
     @Test
     public void getSignificantCopyNumberRegions() throws Exception {
@@ -53,6 +57,14 @@ public class SignificantCopyNumberRegionServiceImplTest extends BaseServiceImplT
         Assert.assertEquals(gisticToGene, result.get(0).getGenes().get(0));
     }
 
+    @Test(expected = StudyNotFoundException.class)
+    public void getSignificantCopyNumberRegionsStudyNotFound() throws Exception {
+        
+        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+        significantCopyNumberRegionService.getSignificantCopyNumberRegions(STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, 
+            SORT, DIRECTION);
+    }
+
     @Test
     public void getMetaSignificantCopyNumberRegions() throws Exception {
 
@@ -61,6 +73,13 @@ public class SignificantCopyNumberRegionServiceImplTest extends BaseServiceImplT
             .thenReturn(expectedBaseMeta);
         BaseMeta result = significantCopyNumberRegionService.getMetaSignificantCopyNumberRegions(STUDY_ID);
 
-        org.junit.Assert.assertEquals(expectedBaseMeta, result);
+        Assert.assertEquals(expectedBaseMeta, result);
+    }
+
+    @Test(expected = StudyNotFoundException.class)
+    public void getMetaSignificantCopyNumberRegionsStudyNotFound() throws Exception {
+        
+        Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+        significantCopyNumberRegionService.getMetaSignificantCopyNumberRegions(STUDY_ID);
     }
 }

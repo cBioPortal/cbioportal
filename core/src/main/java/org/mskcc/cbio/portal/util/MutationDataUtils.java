@@ -227,7 +227,7 @@ public class MutationDataUtils {
         String typeOfCancer = DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId()).getName();
         String cancerStudyStableId = cancerStudy.getCancerStudyStableId();
         Sample sample = DaoSample.getSampleById(mutation.getSampleId());
-        String linkToPatientView = GlobalProperties.getLinkToPatientView(sample.getStableId(), cancerStudyStableId);
+        String linkToPatientView = GlobalProperties.getLinkToSampleView(sample.getStableId(), cancerStudyStableId);
         List<String> mcgLinks;
         Boolean isHotspot;
         if (mutation.getMutationType().equalsIgnoreCase("Fusion")) {
@@ -487,7 +487,7 @@ public class MutationDataUtils {
     {
         Integer count = mutation.getNormalAltCount();
 
-        if (count == TabDelimitedFileUtil.NA_INT)
+        if (count != null && count == TabDelimitedFileUtil.NA_INT)
         {
             count = null;
         }
@@ -499,7 +499,7 @@ public class MutationDataUtils {
     {
         Integer count = mutation.getNormalRefCount();
 
-        if (count == TabDelimitedFileUtil.NA_INT)
+        if (count != null && count == TabDelimitedFileUtil.NA_INT)
         {
             count = null;
         }
@@ -511,7 +511,7 @@ public class MutationDataUtils {
     {
         Integer count = mutation.getTumorAltCount();
 
-        if (count == TabDelimitedFileUtil.NA_INT)
+        if (count != null && count == TabDelimitedFileUtil.NA_INT)
         {
             count = null;
         }
@@ -523,7 +523,7 @@ public class MutationDataUtils {
     {
         Integer count = mutation.getTumorRefCount();
 
-        if (count == TabDelimitedFileUtil.NA_INT)
+        if (count != null && count == TabDelimitedFileUtil.NA_INT)
         {
             count = null;
         }

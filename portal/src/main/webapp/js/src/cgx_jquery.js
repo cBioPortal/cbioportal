@@ -45,9 +45,20 @@ $(document).ready(function(){
 function setUpTabs() {
      // generate tabs for results page; set cookies to preserve
     // state of tabs when user navigates away from page and back
-    $('#tabs').tabs({cookie:{expires:1, name:("results-tab-" + 
-                    (typeof cancer_study_id_selected === 'undefined'? "" : cancer_study_id_selected))}});
-    $('#tabs').show();
+
+    var matchedIndex = null;
+    var matches = window.location.hash.match(/#([^&]*)/);
+    if (matches && matches.length > 1) {
+        var term = matches[1];
+        var tabs = $("#tabs > ul li a").map(function(i,a){ return $(a).attr("href").replace(/#/,'') }).toArray();
+        matchedIndex = _.findIndex(tabs, function(str){return term===str});
+    }
+     var activeIndex = (matchedIndex === -1) ? null : matchedIndex;
+
+     var summaryIsDefault = (window.isVirtualStudy && window.frontendVars.oqlGenes(serverVars.theQuery).length === 1);
+     activeIndex = (activeIndex !== null) ? activeIndex : (summaryIsDefault ? 1 : 0);
+     $('#tabs').tabs({ active:activeIndex});
+     $('#tabs').show();
 }
 
 /*
@@ -205,7 +216,7 @@ function getSessionServiceBookmark(fullURL, sessionJSON, callback) {
         var bookmark = null;
         $.ajax({
             type: 'POST',
-            url: 'api-legacy/proxy/session-service/main_session',
+            url: 'api-legacy/proxy/session/main_session',
             dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify(sessionJSON)
@@ -238,7 +249,7 @@ to be saved as a JSON string
 */
 function changeURLToSessionServiceURL(fullURL, pageTitle, sessionJSON) {
     getSessionServiceBookmark(fullURL, sessionJSON, function(bookmark) {
-        window.history.pushState({ "html": fullURL, "pageTitle": pageTitle }, "", bookmark);
+        window.history.replaceState({ "html": fullURL, "pageTitle": pageTitle }, "", bookmark);
     });
 }
 

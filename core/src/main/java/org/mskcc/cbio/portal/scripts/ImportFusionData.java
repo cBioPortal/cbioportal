@@ -37,7 +37,9 @@ import java.util.*;
 import org.mskcc.cbio.maf.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.ExtendedMutation.MutationEvent;
 import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.repository.GenePanelRepositoryLegacy;
 
 /**
  * Imports a fusion file.
@@ -50,21 +52,33 @@ public class ImportFusionData {
     public static final String FUSION = "Fusion";
     private File fusionFile;
     private int geneticProfileId;
-    private String genePanel;
+    private String genePanelID;
+    private Set<String> sampleSet  = new HashSet<>();
 
-    public ImportFusionData(File fusionFile, int geneticProfileId, String genePanel) {
+    public ImportFusionData(File fusionFile, int geneticProfileId, String genePanelID) {
         this.fusionFile = fusionFile;
         this.geneticProfileId = geneticProfileId;
-        this.genePanel = genePanel;
+        this.genePanelID = genePanelID;
     }
 
     public void importData() throws IOException, DaoException {
-        Map<ExtendedMutation.MutationEvent, ExtendedMutation.MutationEvent> existingEvents =
-                new HashMap<ExtendedMutation.MutationEvent, ExtendedMutation.MutationEvent>();
-        for (ExtendedMutation.MutationEvent event : DaoMutation.getAllMutationEvents()) {
-            existingEvents.put(event, event);
-        }
+        Map<MutationEvent, MutationEvent> existingEvents =
+                new HashMap<MutationEvent, MutationEvent>();
+        Map<ExtendedMutation,ExtendedMutation> mutations = new HashMap<ExtendedMutation,ExtendedMutation>();
         long mutationEventId = DaoMutation.getLargestMutationEventId();
+        GenePanel genePanel = null;
+        if (genePanelID != null) {
+            GenePanelRepositoryLegacy genePanelRepositoryLegacy = (GenePanelRepositoryLegacy)SpringUtil.getApplicationContext().getBean("genePanelRepositoryLegacy");
+            List<GenePanel> genePanels = genePanelRepositoryLegacy.getGenePanelByStableId(genePanelID);
+            if (genePanels != null && genePanels.size() == 1) {
+                genePanel = genePanels.get(0);
+            }
+        }
+
+        // Initialize, this makes sure that mutation_events are always loaded before mutations:
+        MySQLbulkLoader.getMySQLbulkLoader("mutation_event");
+        MySQLbulkLoader.getMySQLbulkLoader("mutation");
+
         FileReader reader = new FileReader(this.fusionFile);
         BufferedReader buf = new BufferedReader(reader);
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
@@ -86,26 +100,11 @@ public class ImportFusionData {
                 Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(
                         geneticProfile.getCancerStudyId(),
                         StableIdUtil.getSampleId(barCode));
-                if (sample == null) {
-                    ImportDataUtil.addPatients(new String[] { barCode }, geneticProfileId);
-                    // add the sample (except if it is a 'normal' sample):
-                    ImportDataUtil.addSamples(new String[] { barCode }, geneticProfileId);
-                }
-                // check again (repeated because of workaround above):
-                sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
-                        StableIdUtil.getSampleId(barCode));
                 // can be null in case of 'normal' sample:
                 if (sample == null) {
                     assert StableIdUtil.isNormal(barCode);
                     line = buf.readLine();
                     continue;
-                }
-                if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
-                    if (genePanel != null) {
-                        DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, GeneticProfileUtil.getGenePanelId(genePanel));
-                    } else {
-                        DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, null);
-                    }
                 }
                 //  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
                 String geneSymbol = record.getHugoGeneSymbol();
@@ -122,6 +121,12 @@ public class ImportFusionData {
                     ProgressMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
                             + entrezGeneId + "]. Ignoring it "
                             + "and all fusion data associated with it!");
+                    continue;
+                }
+                if (genePanel != null && !GeneticProfileUtil.geneInPanel(gene, genePanel)) {
+                    ProgressMonitor.logWarning("Gene is not profiled in gene panel:  " + geneSymbol + " ["
+                                               + entrezGeneId + "] " + genePanel.getStableId() + ". Ignoring it "
+                                               + "and all fusion data associated with it!");
                 } else {
                     // create a mutation instance with default values
                     ExtendedMutation mutation = ExtendedMutationUtil.newMutation();
@@ -133,7 +138,10 @@ public class ImportFusionData {
                     // TODO we may need get mutation type from the file
                     // instead of defining a constant
                     mutation.setMutationType(FUSION);
-                    ExtendedMutation.MutationEvent event = existingEvents.get(mutation.getEvent());
+                    MutationEvent event =
+                        existingEvents.containsKey(mutation.getEvent()) ?
+                        existingEvents.get(mutation.getEvent()) :
+                        DaoMutation.getMutationEvent(mutation.getEvent());
                     if (event != null) {
                         mutation.setEvent(event);
                         addEvent = false;
@@ -143,7 +151,19 @@ public class ImportFusionData {
                         addEvent = true;
                     }
                     // add fusion (as a mutation)
-                    DaoMutation.addMutation(mutation, addEvent);
+                    ExtendedMutation existingMutation = mutations.get(mutation);
+                    if (existingMutation != null) {
+                        ProgressMonitor.logWarning("Duplicate fusion entry found: " + mutation.getGeneSymbol() + " for " + mutation.getProteinChange() + ". Skipping.");
+                        continue;
+                    } else {
+                        // add fusion (as a mutation)
+                        DaoMutation.addMutation(mutation, addEvent);
+                        mutations.put(mutation, mutation);
+                    }
+                    if (!sampleSet.contains(sample.getStableId())) {
+                        ImportDataUtil.addSampleProfile(sample, geneticProfileId, genePanelID);
+                    }                    
+                    sampleSet.add(sample.getStableId());
                 }
             }
         }

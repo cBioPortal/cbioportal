@@ -4,15 +4,14 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.math3.stat.ranking.NaNStrategy;
 import org.apache.commons.math3.stat.ranking.NaturalRanking;
 import org.apache.commons.math3.stat.ranking.TiesStrategy;
-import org.cbioportal.model.GeneticData;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.GeneMolecularData;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MrnaPercentile;
-import org.cbioportal.service.GeneticDataService;
-import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MrnaPercentileService;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,43 +23,44 @@ import java.util.stream.Collectors;
 public class MrnaPercentileServiceImpl implements MrnaPercentileService {
 
     @Autowired
-    private GeneticDataService geneticDataService;
+    private MolecularDataService molecularDataService;
     @Autowired
-    private GeneticProfileService geneticProfileService;
+    private MolecularProfileService molecularProfileService;
+    
+    private NaturalRanking naturalRanking = new NaturalRanking(NaNStrategy.REMOVED, TiesStrategy.MAXIMUM);
 
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
-    public List<MrnaPercentile> fetchMrnaPercentile(String geneticProfileId, String sampleId,
+    public List<MrnaPercentile> fetchMrnaPercentile(String molecularProfileId, String sampleId,
                                                     List<Integer> entrezGeneIds)
-        throws GeneticProfileNotFoundException {
+        throws MolecularProfileNotFoundException {
 
-        validateGeneticProfile(geneticProfileId);
+        validateMolecularProfile(molecularProfileId);
 
-        List<GeneticData> allGeneticDataList = geneticDataService.fetchGeneticData(
-            geneticProfileId, null, entrezGeneIds, "SUMMARY");
+        List<GeneMolecularData> allMolecularDataList = molecularDataService.fetchMolecularData(molecularProfileId, null, 
+            entrezGeneIds, "SUMMARY");
 
-        List<GeneticData> geneticDataList = allGeneticDataList.stream().filter(g -> g.getSampleId().equals(sampleId))
-            .collect(Collectors.toList());
+        List<GeneMolecularData> molecularDataList = allMolecularDataList.stream().filter(g -> g.getSampleId()
+            .equals(sampleId)).collect(Collectors.toList());
 
         List<MrnaPercentile> mrnaPercentileList = new ArrayList<>();
-        for (GeneticData geneticData : geneticDataList) {
-            if (NumberUtils.isNumber(geneticData.getValue())) {
+        for (GeneMolecularData molecularData : molecularDataList) {
+            if (NumberUtils.isNumber(molecularData.getValue())) {
                 MrnaPercentile mrnaPercentile = new MrnaPercentile();
-                mrnaPercentile.setEntrezGeneId(geneticData.getEntrezGeneId());
+                mrnaPercentile.setEntrezGeneId(molecularData.getEntrezGeneId());
                 mrnaPercentile.setSampleId(sampleId);
-                mrnaPercentile.setGeneticProfileId(geneticProfileId);
-                mrnaPercentile.setzScore(new BigDecimal(geneticData.getValue()));
+                mrnaPercentile.setPatientId(molecularData.getPatientId());
+                mrnaPercentile.setStudyId(molecularData.getStudyId());
+                mrnaPercentile.setMolecularProfileId(molecularProfileId);
+                mrnaPercentile.setzScore(new BigDecimal(molecularData.getValue()));
 
-                List<GeneticData> geneticDataListOfGene = allGeneticDataList.stream().filter(g ->
-                    g.getEntrezGeneId().equals(geneticData.getEntrezGeneId()) && NumberUtils.isNumber(g.getValue()))
+                List<GeneMolecularData> molecularDataListOfGene = allMolecularDataList.stream().filter(g ->
+                    g.getEntrezGeneId().equals(molecularData.getEntrezGeneId()) && NumberUtils.isNumber(g.getValue()))
                     .collect(Collectors.toList());
 
-                double[] values = geneticDataListOfGene.stream().mapToDouble(g -> Double.parseDouble(g.getValue()))
+                double[] values = molecularDataListOfGene.stream().mapToDouble(g -> Double.parseDouble(g.getValue()))
                     .toArray();
-                
-                NaturalRanking naturalRanking = new NaturalRanking(NaNStrategy.REMOVED, TiesStrategy.MAXIMUM);
                 double[] ranks = naturalRanking.rank(values);
-                double rank = ranks[geneticDataListOfGene.indexOf(geneticData)];
+                double rank = ranks[molecularDataListOfGene.indexOf(molecularData)];
                 double percentile = (rank / ranks.length) * 100;
                 mrnaPercentile.setPercentile(BigDecimal.valueOf(percentile).setScale(2, BigDecimal.ROUND_HALF_UP));
                 mrnaPercentileList.add(mrnaPercentile);
@@ -70,14 +70,14 @@ public class MrnaPercentileServiceImpl implements MrnaPercentileService {
         return mrnaPercentileList;
     }
 
-    private void validateGeneticProfile(String geneticProfileId) throws GeneticProfileNotFoundException {
+    private void validateMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException {
         
-        GeneticProfile geneticProfile = geneticProfileService.getGeneticProfile(geneticProfileId);
+        MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
 
-        if (!geneticProfile.getGeneticAlterationType()
-            .equals(GeneticProfile.GeneticAlterationType.MRNA_EXPRESSION)) {
+        if (!molecularProfile.getMolecularAlterationType()
+            .equals(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION)) {
 
-            throw new GeneticProfileNotFoundException(geneticProfileId);
+            throw new MolecularProfileNotFoundException(molecularProfileId);
         }
     }
 }

@@ -45,15 +45,11 @@ var StudyViewClinicalTabController = (function() {
             window.iviz.datamanager.getClinicalAttributesByStudy(),
             window.iviz.datamanager.getPatientClinicalData(),
             window.iviz.datamanager.getSampleClinicalData(),
-            window.iviz.datamanager.getStudyToSampleToPatientdMap())
-            .then(function(ca, pd, sd, map) {
+            window.iviz.datamanager.getStudyToSampleToPatientMap())
+            .done(function(ca, pd, sd, map) {
                 var attr = _.extend(ca);
                 var arr = _.extend(pd, sd);
                 var data = [];
-                var mapping =
-                    iviz.datamanager
-                        .initialSetupResult
-                        .groups.group_mapping.patient.sample;
 
                 attr['CASE_ID'] = {
                     attr_id: 'CASE_ID',
@@ -80,15 +76,19 @@ var StudyViewClinicalTabController = (function() {
                     _.each(datum, function(item) {
                         if (item.attr_id !== 'CASE_ID') {
                             if (item.hasOwnProperty('patient_id')) {
-                                if (_.isArray(mapping[item.patient_id])) {
-                                    _.each(mapping[item.patient_id],
+                                var _studyId = item.study_id;
+                                if (map.hasOwnProperty(_studyId)) {
+                                    var patientToSample = map[_studyId].patient_to_sample;
+                                    _.each(patientToSample[item.patient_id],
                                         function(sample_id) {
                                             data.push({
                                                 attr_id: item.attr_id,
                                                 attr_val: item.attr_val,
                                                 CASE_ID: sample_id
                                             });
-                                        })
+                                        });
+                                } else {
+                                    // TODO: how to handle case without study id?
                                 }
                             } else {
                                 data.push({
@@ -101,24 +101,17 @@ var StudyViewClinicalTabController = (function() {
                     });
                 });
 
-                _.each(mapping, function(sampleMap, patientId) {
-                    if (patientId !== 'Composite.Element.Ref') {
-                        _.each(sampleMap, function(sampleId) {
-                            data.push({
-                                attr_id: 'PATIENT_ID',
-                                attr_val: patientId,
-                                CASE_ID: sampleId
-                            });
-                        });
-                    }
-                });
-
-                _.each(map, function(samples, studyId) {
-                    _.each(Object.keys(samples), function(sampleId) {
+                _.each(map, function(mapping, studyId) {
+                    _.each(mapping.sample_to_patient, function(patientId, sampleId) {
                         if (sampleId !== 'Composite.Element.Ref') {
                             data.push({
                                 attr_id: 'study_id',
                                 attr_val: studyId,
+                                CASE_ID: sampleId
+                            });
+                            data.push({
+                                attr_id: 'PATIENT_ID',
+                                attr_val: patientId,
                                 CASE_ID: sampleId
                             });
                         }
@@ -141,7 +134,11 @@ var StudyViewClinicalTabController = (function() {
                 });
 
                 initTable(_.values(attr), data);
-
+            })
+            .fail(function() {
+                console.log('Failed');
+            })
+            .always(function() {
                 if (_.isFunction(callback)) {
                     callback();
                 }

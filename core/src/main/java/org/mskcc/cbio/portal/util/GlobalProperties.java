@@ -37,11 +37,16 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.net.HttpURLConnection;
 import java.util.*;
 import java.net.URL;
@@ -54,7 +59,8 @@ import java.net.URL;
 public class GlobalProperties {
 
     public static final String HOME_DIR = "PORTAL_HOME";
-    private static final String propertiesFilename = "portal.properties";
+    private static final String PORTAL_PROPERTIES_FILE_NAME = "portal.properties";
+    private static final String MAVEN_PROPERTIES_FILE_NAME = "maven.properties";
 
     public static final String PATHWAY_COMMONS_URL = "pathway_commons.url";
     public static final String UCSC_CANCER_GENOMICS_URL = "ucsc_cancer_genomics.url";
@@ -66,8 +72,12 @@ public class GlobalProperties {
 	public static final String BROAD_BAM_CHECKING_URL = "broad.bam.checking.url";
 	public static final String IGV_BAM_LINKING = "igv.bam.linking";
 	public static final String IGV_BAM_LINKING_STUDIES = "igv.bam.linking.studies";
-    public static final String AUTHENTICATE = "authenticate";
-    public static final String AUTHORIZATION = "authorization";
+    private static String authenticate;
+    @Value("${authenticate:false}") // default is false
+    public void setAuthenticate(String property) { authenticate = property; }
+    private static String authorization;
+    @Value("${authorization:false}") // default is false
+    public void setAuthorization(String property) { authorization = property; }
     public static final String FILTER_GROUPS_BY_APPNAME = "filter_groups_by_appname";
     public static final String INCLUDE_NETWORKS = "include_networks";
     public static final String GOOGLE_ANALYTICS_PROFILE_ID = "google_analytics_profile_id";
@@ -98,19 +108,21 @@ public class GlobalProperties {
     public static final String SKIN_RIGHT_NAV_SHOW_DATA_SETS = "skin.right_nav.show_data_sets";
     public static final String SKIN_RIGHT_NAV_SHOW_EXAMPLES = "skin.right_nav.show_examples";
     public static final String SKIN_RIGHT_NAV_SHOW_TESTIMONIALS = "skin.right_nav.show_testimonials";
-    public static final String SKIN_AUTHORIZATION_MESSAGE = "skin.authorization_message";
-    public static final String DEFAULT_AUTHORIZATION_MESSAGE = "Access to this portal is only available to authorized users.";
+    private static String skinAuthorizationMessage;
+    @Value("${skin.authorization_message:Access to this portal is only available to authorized users.}")
+    public void setSkinAuthorizationMessage(String property) { skinAuthorizationMessage = property; }
     public static final String SKIN_EXAMPLE_STUDY_QUERIES = "skin.example_study_queries";
-    public static final String DEFAULT_SKIN_EXAMPLE_STUDY_QUERIES =
-            "tcga\n" +
-            "tcga -provisional\n" +
-            "tcga -moratorium\n" +
-            "tcga OR icgc\n" +
+    public static final String DEFAULT_SKIN_EXAMPLE_STUDY_QUERIES =        
+            "tcga pancancer atlas\n" +
+            "tcga provisional\n" +
+            "tcga -provisional -pancancer\n" +
+            "tcga or icgc\n" +
+            "msk-impact\n" +
             "-\"cell line\"\n" +
-            "prostate mskcc\n" +
+            "breast\n" +
             "esophageal OR stomach\n" +
-            "serous\n" +
-            "breast";
+            "prostate msk\n" +
+            "serous";
     public static final String SKIN_DATASETS_HEADER = "skin.data_sets_header";
     public static final String DEFAULT_SKIN_DATASETS_HEADER = "The portal currently contains data from the following " +
             "cancer genomics studies.  The table below lists the number of available samples per data type and tumor.";
@@ -120,11 +132,8 @@ public class GlobalProperties {
             "TCGA working groups directly.";
 
     public static final String PATIENT_VIEW_PLACEHOLDER = "patient_view_placeholder";
-    public static final String PATIENT_VIEW_GENOMIC_OVERVIEW_CNA_CUTOFF = "patient_view_genomic_overview_cna_cutoff";
-    public static final double[] DEFAULT_GENOMIC_OVERVIEW_CNA_CUTOFF = new double[]{0.2,1.5};
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL = "digitalslidearchive.iframe.url";
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
-    public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
 
     public static final String PATIENT_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.meta.url";
     public static final String PATIENT_VIEW_MDACC_HEATMAP_URL = "mdacc.heatmap.patient.url";
@@ -133,11 +142,16 @@ public class GlobalProperties {
     public static final String STUDY_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.study.meta.url";
 
     public static final String ONCOKB_API_URL = "oncokb.api.url";
+    public static final String ONCOKB_PUBLIC_API_URL = "oncokb.public_api.url";
     public static final String SHOW_ONCOKB = "show.oncokb";
 
     private static String sessionServiceURL;
     @Value("${session.service.url:}") // default is empty string
     public void setSessionServiceURL(String property) { sessionServiceURL = property; }
+
+    private static String frontendConfig;
+    @Value("${frontend.config:}") // default is empty string
+    public void setFrontendConfig(String property) { frontendConfig = property; }
 
     // properties for showing the right logo in the header_bar and default logo
     public static final String SKIN_RIGHT_LOGO = "skin.right_logo";
@@ -149,16 +163,10 @@ public class GlobalProperties {
     public static final String SKIN_SHOW_FAQS_TAB = "skin.show_faqs_tab";
     public static final String SKIN_SHOW_TOOLS_TAB = "skin.show_tools_tab";
     public static final String SKIN_SHOW_ABOUT_TAB = "skin.show_about_tab";
-    public static final String SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB = "skin.show_visualize_your_data_tab";
 
     // property for setting the news blurb in the right column
     public static final String SKIN_RIGHT_NAV_WHATS_NEW_BLURB = "skin.right_nav.whats_new_blurb";
-    public static final String DEFAULT_SKIN_WHATS_NEW_BLURB = 
-            "<form action=\"http://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
-            "<b>Sign up for low-volume email news alerts:</b></br> &nbsp;&nbsp;&nbsp;&nbsp;<input type=\"text\" " +
-            "name=\"email\" title=\"Subscribe to mailing list\"> <input type=\"submit\" name=\"sub\" value=\"Subscribe\"> " +
-            "</form> &nbsp;&nbsp;&nbsp;&nbsp;<b>Or follow us <a href=\"http://www.twitter.com/cbioportal\">" +
-            "<i>@cbioportal</i></a> on Twitter</b>\n";
+    public static final String DEFAULT_SKIN_WHATS_NEW_BLURB = ""; // default is in cbioportal-frontend repo
 
     // footer
     public static final String SKIN_FOOTER = "skin.footer";
@@ -170,9 +178,6 @@ public class GlobalProperties {
     public static final String DEFAULT_SKIN_LOGIN_CONTACT_HTML = "If you think you have received this message in " +
             "error, please contact us at <a style=\"color:#FF0000\" href=\"mailto:cbioportal-access@cbio.mskcc.org\">" +
             "cbioportal-access@cbio.mskcc.org</a>";
-
-    // properties for hiding/showing tabs in the patient view
-    public static final String SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB="skin.patient_view.show_drugs_tab";
 
     // property for setting the saml registration html
     public static final String SKIN_LOGIN_SAML_REGISTRATION_HTML = "skin.login.saml.registration_html";
@@ -197,12 +202,17 @@ public class GlobalProperties {
     public static final String DEFAULT_SKIN_ABOUT="About-Us.md";
     public static final String SKIN_NEWS="skin.documentation.news";
     public static final String DEFAULT_SKIN_NEWS="News.md";
+    public static final String SKIN_OQL="skin.documentation.oql";
+    public static final String DEFAULT_SKIN_OQL="Onco-Query-Language.md";
 
-    public static final String SKIN_EXAMPLES_RIGHT_COLUMN="skin.examples_right_column";
-    public static final String DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN="../../../content/examples.html";
+    public static final String SKIN_EXAMPLES_RIGHT_COLUMN_HTML="skin.examples_right_column_html";
     
     public static final String ALWAYS_SHOW_STUDY_GROUP="always_show_study_group";
 
+    // property for query component
+    public static final String SKIN_QUERY_MAX_TREE_DEPTH="skin.query.max_tree_depth";
+    public static final Number DEFAULT_QUERY_MAX_TREE_DEPTH=3;
+    
     // property for text shown at the right side of the Select Patient/Case set, which
     // links to the study view
     public static final String SKIN_STUDY_VIEW_LINK_TEXT="skin.study_view.link_text";
@@ -216,11 +226,15 @@ public class GlobalProperties {
     public static final String RECACHE_STUDY_AFTER_UPDATE = "recache_study_after_update";
     
     public static final String DB_VERSION = "db.version";
+    private static boolean suppressSchemaVersionMismatchErrors;
+    @Value("${db.suppress_schema_version_mismatch_errors:false}") // default is false
+    public void setSuppressSchemaVersionMismatchErrors(String property) { suppressSchemaVersionMismatchErrors = Boolean.parseBoolean(property); }
     
     public static final String DARWIN_AUTH_URL = "darwin.auth_url";
     public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
     public static final String CIS_USER = "cis.user";
     public static final String DISABLED_TABS = "disabled_tabs";
+    public static final String BITLY_USER = "bitly.user";
     public static final String DARWIN_REGEX = "darwin.regex";
     
     public static final String PRIORITY_STUDIES = "priority_studies";
@@ -232,19 +246,73 @@ public class GlobalProperties {
     public static final String DEFAULT_UCSC_BUILD = "hg19";
 
     public static final String ONCOPRINT_DEFAULTVIEW = "oncoprint.defaultview";
+    
+    public static final String SETSOFGENES_LOCATION = "querypage.setsofgenes.location";
 
-    public static final String SHOW_CIVIC = "show.civic";
-    public static final String CIVIC_URL = "civic.url";
+    private static boolean showCivic;
+    @Value("${show.civic:false}") // default is false
+    public void setShowCivic(String property) { showCivic = Boolean.parseBoolean(property); }
+
+    private static boolean showGenomeNexus;
+    @Value("${show.genomenexus:true}") // default is true
+    public void setShowGenomeNexus(String property) { showGenomeNexus = Boolean.parseBoolean(property); }
+
+	/*
+     * Trim whitespace of url and append / if it does not exist. Return empty
+     * string otherwise.
+     */
+	public static String parseUrl(String url)
+    {
+		String rv;
+
+        if (!url.isEmpty()) {
+            rv = url.trim();
+
+            if (!rv.endsWith("/")) {
+                rv += "/";
+            }
+        } else {
+			rv = "";
+		}
+
+		return rv;
+	}
+    
+    public static final String BINARY_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL = "oncoprint.custom_driver_annotation.binary.menu_label";
+    public static final String TIERS_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL = "oncoprint.custom_driver_annotation.tiers.menu_label";
+    public static final String ENABLE_DRIVER_ANNOTATIONS = "oncoprint.custom_driver_annotation.default";
+    public static final String ENABLE_TIERS = "oncoprint.custom_driver_tiers_annotation.default";
+    public static final String ENABLE_ONCOKB_AND_HOTSPOTS_ANNOTATIONS = "oncoprint.oncokb_hotspots.default";
+    public static final String HIDE_PASSENGER_MUTATIONS = "oncoprint.hide_vus.default";
+
+	private static String civicUrl;
+	@Value("${civic.url:https://civicdb.org/api/}") // default
+	public void setCivicUrl(String property) { civicUrl = parseUrl(property); }
+
+	private static String genomeNexusApiUrl;
+	@Value("${genomenexus.url:v1.genomenexus.org}") // default
+	public void setGenomeNexusApiUrl(String property) { genomeNexusApiUrl = parseUrl(property); }
+
+    private static String frontendUrl;
+    @Value("${frontend.url:}") // default is empty string
+    public void setFrontendUrl(String property) { frontendUrl = parseUrl(property); }
+
+    /* read frontendUrl from this file at runtime (TODO: read from URL),
+     * overrides frontend.url */
+    private static String frontendUrlRuntime;
+    @Value("${frontend.url.runtime:}") 
+    public void setFrontendUrlRuntime(String property) { frontendUrlRuntime = property; }
 
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
-    private static Properties properties = initializeProperties();
+    private static Properties portalProperties = initializeProperties(PORTAL_PROPERTIES_FILE_NAME);
+    private static Properties mavenProperties = initializeProperties(MAVEN_PROPERTIES_FILE_NAME);
 
-    private static Properties initializeProperties()
+    private static Properties initializeProperties(String propertiesFileName)
     {
-        return loadProperties(getResourceStream());
+        return loadProperties(getResourceStream(propertiesFileName));
     }
 
-    private static InputStream getResourceStream()
+    private static InputStream getResourceStream(String propertiesFileName)
     {
         String resourceFilename = null;
         InputStream resourceFIS = null;
@@ -253,7 +321,7 @@ public class GlobalProperties {
             String home = System.getenv(HOME_DIR);
             if (home != null) {
                  resourceFilename =
-                    home + File.separator + GlobalProperties.propertiesFilename;
+                    home + File.separator + propertiesFileName;
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Attempting to read properties file: " + resourceFilename);
                 }
@@ -274,7 +342,7 @@ public class GlobalProperties {
                 LOG.info("Attempting to read properties file from classpath");
             }
             resourceFIS = GlobalProperties.class.getClassLoader().
-                getResourceAsStream(GlobalProperties.propertiesFilename);
+                getResourceAsStream(propertiesFileName);
             if (LOG.isInfoEnabled()) {
                 LOG.info("Successfully read properties file");
             }
@@ -302,31 +370,31 @@ public class GlobalProperties {
 
     public static String getPathwayCommonsUrl()
 	{
-		return properties.getProperty(PATHWAY_COMMONS_URL);
+		return portalProperties.getProperty(PATHWAY_COMMONS_URL);
     }
     
     public static String getUcscCancerGenomicsUrl()
 	{
-        return properties.getProperty(UCSC_CANCER_GENOMICS_URL);
+        return portalProperties.getProperty(UCSC_CANCER_GENOMICS_URL);
     }
 
     public static String getSegfileUrl()
 	{
-        return properties.getProperty(SEGFILE_URL);
+        return portalProperties.getProperty(SEGFILE_URL);
     }
 
 	public static String getProperty(String property)
 	{
-		return (properties.containsKey(property)) ? properties.getProperty(property) : null;
+		return (portalProperties.containsKey(property)) ? portalProperties.getProperty(property) : null;
 	}
 
 	public static boolean wantIGVBAMLinking() {
-        String igvBamLinking = properties.getProperty(IGV_BAM_LINKING);
+        String igvBamLinking = portalProperties.getProperty(IGV_BAM_LINKING);
 		return igvBamLinking!=null && igvBamLinking.equals("true");
 	}
 
 	public static Collection<String> getIGVBAMLinkingStudies() {
-        String igvBamLinkingStudies = properties.getProperty(IGV_BAM_LINKING_STUDIES);
+        String igvBamLinkingStudies = portalProperties.getProperty(IGV_BAM_LINKING_STUDIES);
         if (igvBamLinkingStudies==null) {
             return Collections.emptyList();
         }
@@ -336,13 +404,12 @@ public class GlobalProperties {
 
     public static boolean usersMustAuthenticate()
     {
-        String prop = properties.getProperty(AUTHENTICATE);
-        return (!prop.isEmpty() && !prop.equals("false"));
+        return (!authenticate.isEmpty() && !authenticate.equals("false"));
     }
 
     public static String authenticationMethod()
     {
-        return properties.getProperty(AUTHENTICATE);
+        return authenticate;
     }
 
     /**
@@ -360,67 +427,80 @@ public class GlobalProperties {
         }
     }
 	public static boolean usersMustBeAuthorized() {
-        return Boolean.parseBoolean(properties.getProperty(AUTHORIZATION));
+        return Boolean.parseBoolean(authorization);
 	}
 
     public static String getAppName()
     {
-        String appName = properties.getProperty(APP_NAME);
+        String appName = portalProperties.getProperty(APP_NAME);
         return (appName == null) ? DEFAULT_APP_NAME : appName;
     }
 
     public static String getAppVersion()
     {
-        String appVersion = properties.getProperty(APP_VERSION);
+        String appVersion = mavenProperties.getProperty(APP_VERSION);
         return (appVersion == null) ? "1.0" : appVersion;
     }
     
     public static String getTitle()
     {
-        String skinTitle = properties.getProperty(SKIN_TITLE);
+        String skinTitle = portalProperties.getProperty(SKIN_TITLE);
         return (skinTitle == null) ? DEFAULT_SKIN_TITLE : skinTitle;
     }
     // updated function to use a default if nothing is specified
     public static String getBlurb()
     {
-        String skinBlurb = properties.getProperty(SKIN_BLURB);
+        String skinBlurb = portalProperties.getProperty(SKIN_BLURB);
         return (skinBlurb == null) ? DEFAULT_SKIN_BLURB : skinBlurb;
     }
     // get custom FAQ html or the default
     public static String getFaqHtml()
     {
-        String faqHtml = properties.getProperty(SKIN_FAQ);
+        String faqHtml = portalProperties.getProperty(SKIN_FAQ);
         return (faqHtml == null) ? DEFAULT_SKIN_FAQ : getContentString(faqHtml);
     }
     // get custom About html or the default
     public static String getAboutHtml()
     {
-        String aboutHtml = properties.getProperty(SKIN_ABOUT);
+        String aboutHtml = portalProperties.getProperty(SKIN_ABOUT);
         return (aboutHtml == null) ? DEFAULT_SKIN_ABOUT : getContentString(aboutHtml);
     }
     // get custom News html or the default
     public static String getNewsHtml()
     {
-        String newsHtml = properties.getProperty(SKIN_NEWS);
+        String newsHtml = portalProperties.getProperty(SKIN_NEWS);
         return (newsHtml == null) ? DEFAULT_SKIN_NEWS : getContentString(newsHtml);
+    }
+    
+    public static String getOqlHtml()
+    {
+        String oqlHtml = portalProperties.getProperty(SKIN_OQL);
+        return (oqlHtml == null) ? DEFAULT_SKIN_OQL : getContentString(oqlHtml);
     }
     // get custom News html or the default
     public static String getBaseUrl()
     {
-        String baseUrl = properties.getProperty(SKIN_BASEURL);
+        String baseUrl = portalProperties.getProperty(SKIN_BASEURL);
         return (baseUrl == null) ? DEFAULT_SKIN_BASEURL : baseUrl;
     }
     public static boolean isMarkdownDocumentation()
     {
-        String markdownFlag = properties.getProperty(SKIN_DOCUMENTATION_MARKDOWN);
+        String markdownFlag = portalProperties.getProperty(SKIN_DOCUMENTATION_MARKDOWN);
         return markdownFlag == null || Boolean.parseBoolean(markdownFlag);
+    }
+
+    //get max tree depth
+    public static Number getMaxTreeDepth()
+    {
+        String maxTreeDepth = portalProperties.getProperty(SKIN_QUERY_MAX_TREE_DEPTH);
+        return (maxTreeDepth == null) ? DEFAULT_QUERY_MAX_TREE_DEPTH : Integer.parseInt(maxTreeDepth);
     }
 
     // get custom Example Queries for the right column html or the default
     public static String getExamplesRightColumnHtml()
     {
-        String examplesRightColumnHtml = properties.getProperty(SKIN_EXAMPLES_RIGHT_COLUMN);
-        return (examplesRightColumnHtml == null) ? DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN : "../../../content/"+examplesRightColumnHtml;
+        String examplesRightColumnHtml = portalProperties.getProperty(SKIN_EXAMPLES_RIGHT_COLUMN_HTML);
+        return examplesRightColumnHtml == null? "": examplesRightColumnHtml;
     }
 
     private static String getContentString(String contentString){
@@ -431,13 +511,13 @@ public class GlobalProperties {
     // get the login contact html
     public static String getLoginContactHtml()
     {
-        String loginContactHtml = properties.getProperty(SKIN_LOGIN_CONTACT_HTML);
+        String loginContactHtml = portalProperties.getProperty(SKIN_LOGIN_CONTACT_HTML);
         return (loginContactHtml == null) ? DEFAULT_SKIN_LOGIN_CONTACT_HTML : loginContactHtml;
     }
     // get the text for the saml login button
     public static String getLoginSamlRegistrationHtml()
     {
-        String loginSamlRegistrationHtml = properties.getProperty(SKIN_LOGIN_SAML_REGISTRATION_HTML);
+        String loginSamlRegistrationHtml = portalProperties.getProperty(SKIN_LOGIN_SAML_REGISTRATION_HTML);
         return (loginSamlRegistrationHtml == null) ? DEFAULT_SKIN_LOGIN_SAML_REGISTRATION_HTML : loginSamlRegistrationHtml;
     }
     public static String getSamlIdpMetadataEntityid()
@@ -448,161 +528,137 @@ public class GlobalProperties {
     // returns whether the SAML logout should be local (at SP level) or global (at IDP level). Default: false (global)
     public static String getSamlIsLogoutLocal()
     {
-    	return properties.getProperty(SAML_IS_LOGOUT_LOCAL, "false");
+    	return portalProperties.getProperty(SAML_IS_LOGOUT_LOCAL, "false");
     }
     
     public static String getTagLineImage()
     {
-        String tagLineImage = properties.getProperty(SKIN_TAG_LINE_IMAGE);
+        String tagLineImage = portalProperties.getProperty(SKIN_TAG_LINE_IMAGE);
         return (tagLineImage == null) ? DEFAULT_SKIN_TAG_LINE_IMAGE : "images/" + tagLineImage;
     }
 
     // function for retrieving the right logo, used by the header_bar
     public static String getRightLogo()
     {
-        String rightLogo = properties.getProperty(SKIN_RIGHT_LOGO);
+        String rightLogo = portalProperties.getProperty(SKIN_RIGHT_LOGO);
         return (rightLogo == null || "".equals(rightLogo)) ? "" : "images/" + rightLogo;
     }
 
     // function for retrieving the footer text
     public static String getFooter(){
-        String footer = properties.getProperty(SKIN_FOOTER);
+        String footer = portalProperties.getProperty(SKIN_FOOTER);
         return (footer == null) ? DEFAULT_SKIN_FOOTER : footer;
     }
     // function for retrieving the studyview link text
     public static String getStudyviewLinkText(){
-        String studyviewLinkText = properties.getProperty(SKIN_STUDY_VIEW_LINK_TEXT);
+        String studyviewLinkText = portalProperties.getProperty(SKIN_STUDY_VIEW_LINK_TEXT);
         return (studyviewLinkText == null) ? DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT : studyviewLinkText;
     }
 
     public static String getEmailContact()
     {
-        String emailAddress = properties.getProperty(SKIN_EMAIL_CONTACT);
+        String emailAddress = portalProperties.getProperty(SKIN_EMAIL_CONTACT);
         return (emailAddress == null) ? DEFAULT_EMAIL_CONTACT :
             ("<span class=\"mailme\" title=\"Contact us\">" + emailAddress + "</span>");
     }
 
     public static boolean includeNetworks()
     {
-        return Boolean.parseBoolean(properties.getProperty(INCLUDE_NETWORKS));
+        return Boolean.parseBoolean(portalProperties.getProperty(INCLUDE_NETWORKS));
     }
 
     public static String getGoogleAnalyticsProfileId()
     {
-        return properties.getProperty(GOOGLE_ANALYTICS_PROFILE_ID);
+        return portalProperties.getProperty(GOOGLE_ANALYTICS_PROFILE_ID);
     }
 
     public static boolean genomespaceEnabled()
     {
-        return Boolean.parseBoolean(properties.getProperty(GENOMESPACE));
+        return Boolean.parseBoolean(portalProperties.getProperty(GENOMESPACE));
     }
 
     public static boolean showPlaceholderInPatientView()
     {
-        return Boolean.parseBoolean(properties.getProperty(PATIENT_VIEW_PLACEHOLDER));
-    }
-
-    public static double[] getPatientViewGenomicOverviewCnaCutoff()
-    {
-        String cutoff = properties.getProperty(PATIENT_VIEW_GENOMIC_OVERVIEW_CNA_CUTOFF);
-        if (cutoff==null) {
-            return DEFAULT_GENOMIC_OVERVIEW_CNA_CUTOFF;
-        }
-
-        String[] strs = cutoff.split(",");
-        return new double[]{Double.parseDouble(strs[0]), Double.parseDouble(strs[1])};
+        return Boolean.parseBoolean(portalProperties.getProperty(PATIENT_VIEW_PLACEHOLDER));
     }
 
     public static boolean showNewsTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_NEWS_TAB);
+        String showFlag = portalProperties.getProperty(SKIN_SHOW_NEWS_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
     public static boolean showDataTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_DATA_TAB);
+        String showFlag = portalProperties.getProperty(SKIN_SHOW_DATA_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
     // show or hide the web api tab in header navigation bar
     public static boolean showWebApiTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_WEB_API_TAB);
+        String showFlag = portalProperties.getProperty(SKIN_SHOW_WEB_API_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     // show or hide the r matlab tab in header navigation bar
     public static boolean showRMatlabTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_R_MATLAB_TAB);
+        String showFlag = portalProperties.getProperty(SKIN_SHOW_R_MATLAB_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     // show or hide the tutorial tab in header navigation bar
     public static boolean showTutorialsTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_TUTORIALS_TAB);
+        String showFlag = portalProperties.getProperty(SKIN_SHOW_TUTORIALS_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     // show or hide the faqs tab in header navigation bar
     public static boolean showFaqsTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_FAQS_TAB);
+        String showFlag = portalProperties.getProperty(SKIN_SHOW_FAQS_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     // show or hide the tools tab in header navigation bar
     public static boolean showToolsTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_TOOLS_TAB);
+        String showFlag = portalProperties.getProperty(SKIN_SHOW_TOOLS_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     // show or hide the about tab in header navigation bar
     public static boolean showAboutTab()
     {
-        String showFlag = properties.getProperty(SKIN_SHOW_ABOUT_TAB);
+        String showFlag = portalProperties.getProperty(SKIN_SHOW_ABOUT_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
-    }
-    // show or hide the visualize your data tab in header navigation bar
-    public static boolean showVisualizeYourDataTab()
-    {
-        String showFlag = properties.getProperty(SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB);
-        return showFlag == null || Boolean.parseBoolean(showFlag);
-    }
-    // show the drugs tab in the patient view
-    public static boolean showDrugsTab()
-    {
-        String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB);
-        return showFlag != null && Boolean.parseBoolean(showFlag);
     }
     // get the text for the What's New in the right navigation bar
     public static String getRightNavWhatsNewBlurb(){
-        String whatsNewBlurb = properties.getProperty(SKIN_RIGHT_NAV_WHATS_NEW_BLURB);
+        String whatsNewBlurb = portalProperties.getProperty(SKIN_RIGHT_NAV_WHATS_NEW_BLURB);
         return (whatsNewBlurb == null) ? DEFAULT_SKIN_WHATS_NEW_BLURB : whatsNewBlurb;
     }
     public static boolean showRightNavDataSets()
     {
-        String showFlag = properties.getProperty(SKIN_RIGHT_NAV_SHOW_DATA_SETS);
+        String showFlag = portalProperties.getProperty(SKIN_RIGHT_NAV_SHOW_DATA_SETS);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
     public static boolean showRightNavExamples()
     {
-        String showFlag = properties.getProperty(SKIN_RIGHT_NAV_SHOW_EXAMPLES);
+        String showFlag = portalProperties.getProperty(SKIN_RIGHT_NAV_SHOW_EXAMPLES);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
     public static boolean showRightNavTestimonials()
     {
-        String showFlag = properties.getProperty(SKIN_RIGHT_NAV_SHOW_TESTIMONIALS);
+        String showFlag = portalProperties.getProperty(SKIN_RIGHT_NAV_SHOW_TESTIMONIALS);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
     public static String getAuthorizationMessage()
     {
-        String authMessage = properties.getProperty(SKIN_AUTHORIZATION_MESSAGE);
-        return authMessage == null ? DEFAULT_AUTHORIZATION_MESSAGE : authMessage;
+        return skinAuthorizationMessage;
     }
 
     public static String getExampleStudyQueries() {
-        return properties.getProperty(
+        return portalProperties.getProperty(
                 SKIN_EXAMPLE_STUDY_QUERIES,
                 DEFAULT_SKIN_EXAMPLE_STUDY_QUERIES);
     }
@@ -610,43 +666,42 @@ public class GlobalProperties {
     // added usage of default data sets header
     public static String getDataSetsHeader()
     {
-        String dataSetsHeader = properties.getProperty(SKIN_DATASETS_HEADER);
+        String dataSetsHeader = portalProperties.getProperty(SKIN_DATASETS_HEADER);
         return dataSetsHeader == null ? DEFAULT_SKIN_DATASETS_HEADER : dataSetsHeader;
     }
 
     // added usage of default data sets footer
     public static String getDataSetsFooter()
     {
-        String dataSetsFooter = properties.getProperty(SKIN_DATASETS_FOOTER);
+        String dataSetsFooter = portalProperties.getProperty(SKIN_DATASETS_FOOTER);
         return dataSetsFooter == null ? DEFAULT_SKIN_DATASETS_FOOTER : dataSetsFooter;
     }
     
     public static String getSpecies(){
-    	String species = properties.getProperty(SPECIES);
+    	String species = portalProperties.getProperty(SPECIES);
     	return species == null ? DEFAULT_SPECIES : species;
     	}
 
     public static String getNCBIBuild(){
-    	String NCBIBuild = properties.getProperty(NCBI_BUILD);
+    	String NCBIBuild = portalProperties.getProperty(NCBI_BUILD);
     	return NCBIBuild == null ? DEFAULT_NCBI_BUILD : NCBIBuild;
     	}
    
     public static String getGenomicBuild(){
-    	String genomicBuild = properties.getProperty(UCSC_BUILD);
+    	String genomicBuild = portalProperties.getProperty(UCSC_BUILD);
     	return genomicBuild == null ? DEFAULT_UCSC_BUILD : genomicBuild;
     	}
 
     public static String getLinkToPatientView(String caseId, String cancerStudyId)
     {
-        return "case.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId
-                 //+ "&"+ org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID + "=" + caseId;
-                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.SAMPLE_ID + "=" + caseId;
+        return "case.do#/patient?caseId=" + caseId
+                 + "&studyId=" + cancerStudyId;
     }
 
     public static String getLinkToSampleView(String caseId, String cancerStudyId)
     {
-        return "case.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId
-                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.SAMPLE_ID + "=" + caseId;
+        return "case.do#/patient?sampleId=" + caseId
+                 + "&studyId=" + cancerStudyId;
     }
 
     public static String getLinkToCancerStudyView(String cancerStudyId)
@@ -668,50 +723,40 @@ public class GlobalProperties {
 
     public static String getDigitalSlideArchiveIframeUrl(String caseId)
     {
-        String url = properties.getProperty(PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL);
+        String url = portalProperties.getProperty(PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL);
         return url+caseId;
     }
 
     public static String getDigitalSlideArchiveMetaUrl(String caseId)
     {
-        String url = properties.getProperty(PATIENT_VIEW_DIGITAL_SLIDE_META_URL);
+        String url = portalProperties.getProperty(PATIENT_VIEW_DIGITAL_SLIDE_META_URL);
         return url+caseId;
     }
 
     public static String getStudyHeatmapMetaUrl()
     {
-        String url = properties.getProperty(STUDY_VIEW_MDACC_HEATMAP_META_URL);
+        String url = portalProperties.getProperty(STUDY_VIEW_MDACC_HEATMAP_META_URL);
         return url;
     }
 
     public static String getStudyHeatmapViewerUrl()
     {
-        String url = properties.getProperty(STUDY_VIEW_MDACC_HEATMAP_URL);
+        String url = portalProperties.getProperty(STUDY_VIEW_MDACC_HEATMAP_URL);
         return url;
     }
 
     public static String getPatientHeatmapMetaUrl(String caseId)
     {
-        String url = properties.getProperty(PATIENT_VIEW_MDACC_HEATMAP_META_URL);
+        String url = portalProperties.getProperty(PATIENT_VIEW_MDACC_HEATMAP_META_URL);
         if (url == null || url.length() == 0) return null;
         return url + caseId;
     }
 
     public static String getPatientHeatmapViewerUrl(String caseId)
     {
-        String url = properties.getProperty(PATIENT_VIEW_MDACC_HEATMAP_URL);
+        String url = portalProperties.getProperty(PATIENT_VIEW_MDACC_HEATMAP_URL);
         if (url == null || url.length() == 0) return null;
         return url + caseId;
-    }
-
-    public static String getTCGAPathReportUrl()
-    {
-        String url = GlobalProperties.getProperty(PATIENT_VIEW_TCGA_PATH_REPORT_URL);
-        if (url == null) {
-            return null;
-        }       
-        
-        return url;
     }
 
     // function for getting the custom tabs for the header
@@ -728,11 +773,34 @@ public class GlobalProperties {
     {
         return sessionServiceURL;
     }
+
+    public static String getOncoKBPublicApiUrl()
+    {
+        String oncokbApiUrl = portalProperties.getProperty(ONCOKB_PUBLIC_API_URL);
+        String showOncokb = portalProperties.getProperty(SHOW_ONCOKB);
+        
+        if(showOncokb == null || showOncokb.isEmpty()) {
+                    showOncokb = "true";
+        }
+        
+        // This only applies if there is no oncokb.api.url property in the portal.properties file.
+        // Empty string should be used if you want to disable the OncoKB annotation.
+        if(oncokbApiUrl == null || oncokbApiUrl.isEmpty()) {
+            oncokbApiUrl = "oncokb.org/api/v1";
+        }
+        
+        if(showOncokb.equals("true")) {
+           return oncokbApiUrl;
+        } else {
+           return "";
+        }
+        
+    }
  
     public static String getOncoKBApiUrl()
     {
-        String oncokbApiUrl = properties.getProperty(ONCOKB_API_URL);
-        String showOncokb = properties.getProperty(SHOW_ONCOKB);
+        String oncokbApiUrl = portalProperties.getProperty(ONCOKB_API_URL);
+        String showOncokb = portalProperties.getProperty(SHOW_ONCOKB);
 
         if(showOncokb == null || showOncokb.isEmpty()) {
             showOncokb = "true";
@@ -761,17 +829,24 @@ public class GlobalProperties {
     }
 
     public static String getCivicUrl() {
-        String civicUrl = properties.getProperty(CIVIC_URL);
-        if (civicUrl == null || civicUrl.isEmpty())
-            return "https://civic.genome.wustl.edu/api/";
-        civicUrl = civicUrl.trim();
-        if (!civicUrl.endsWith("/"))
-            civicUrl += "/";
         return civicUrl;
     }
 
+    public static String getGenomeNexusApiUrl() {
+        return genomeNexusApiUrl;
+    }
+
+    public static boolean showOncoKB() {
+        String showOncokb = portalProperties.getProperty(SHOW_ONCOKB);
+        if (showOncokb==null || showOncokb.isEmpty()) {
+            return true; // show oncoKB by default
+        } else {
+            return Boolean.parseBoolean(showOncokb);
+        }
+    }
+
     public static boolean showHotspot() {
-        String hotspot = properties.getProperty(SHOW_HOTSPOT);
+        String hotspot = portalProperties.getProperty(SHOW_HOTSPOT);
         if (hotspot==null) {
             return true; // show hotspots by default
         }
@@ -779,38 +854,66 @@ public class GlobalProperties {
         if(!hotspot.isEmpty()) {
             return Boolean.parseBoolean(hotspot);
         }else{
-            return false;
+            return true;
         }
     }
 
     public static boolean showCivic() {
-        String showCivic = properties.getProperty(SHOW_CIVIC);
-        if (showCivic == null || showCivic.isEmpty())
-            return false;  // hide CIVIC by default
-        return Boolean.parseBoolean(showCivic);
+        return showCivic;
+    }
+
+    public static boolean showGenomeNexus() {
+        return showGenomeNexus;
+    }
+
+    public static String getFrontendUrl() {
+        if (frontendUrlRuntime.length() > 0) {
+            try {
+                String url = parseUrl(new String(Files.readAllBytes(Paths.get(frontendUrlRuntime)), StandardCharsets.UTF_8).replaceAll("[\\r\\n]+", ""));
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Using frontend from " + frontendUrlRuntime + ": " + url);
+                }
+                return url;
+            } catch (IOException e) {
+                // error reading file, use existing frontendUrl
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Can't read frontend.url.runtime: " + frontendUrlRuntime);
+                }
+            }
+        }
+        return frontendUrl;
     }
 
     public static boolean showMyCancerGenomeUrl()
     {
-        String show = properties.getProperty(MYCANCERGENOME_SHOW);
+        String show = portalProperties.getProperty(MYCANCERGENOME_SHOW);
         return show != null && Boolean.parseBoolean(show);
     }
     
     public static String getOncoKBGeneStatus()
     {
-        return properties.getProperty(ONCOKB_GENE_STATUS);
+        return portalProperties.getProperty(ONCOKB_GENE_STATUS);
     }
     
     public static boolean getRecacheStudyAfterUpdate() {
-        String recacheStudyAfterUpdate = properties.getProperty(RECACHE_STUDY_AFTER_UPDATE);
+        String recacheStudyAfterUpdate = portalProperties.getProperty(RECACHE_STUDY_AFTER_UPDATE);
         if (recacheStudyAfterUpdate==null || recacheStudyAfterUpdate.isEmpty()) {
             return false;
         }
         return Boolean.parseBoolean(recacheStudyAfterUpdate);
     }
     
+    public static String getBitlyUser() {
+        String bitlyUser = portalProperties.getProperty(BITLY_USER);
+        if (bitlyUser == null || bitlyUser.trim().equals(""))
+        {
+            return null;
+        }
+        return bitlyUser;
+    }
+    
     public static String getDbVersion() {
-        String version = properties.getProperty(DB_VERSION);
+        String version = mavenProperties.getProperty(DB_VERSION);
         if (version == null)
         {
             return "0";
@@ -818,11 +921,15 @@ public class GlobalProperties {
         return version;
     }
     
+    public static boolean isSuppressSchemaVersionMismatchErrors() {
+        return suppressSchemaVersionMismatchErrors;
+    }
+
     public static String getDarwinAuthCheckUrl() {
         String darwinAuthUrl = "";
-        if (properties.containsKey(DARWIN_AUTH_URL)) {
+        if (portalProperties.containsKey(DARWIN_AUTH_URL)) {
             try{
-                darwinAuthUrl = properties.getProperty(DARWIN_AUTH_URL);
+                darwinAuthUrl = portalProperties.getProperty(DARWIN_AUTH_URL);
             }
             catch (NullPointerException e){}
         }        
@@ -831,9 +938,9 @@ public class GlobalProperties {
     
     public static String getDarwinResponseUrl() {
         String darwinResponseUrl = "";
-        if (properties.containsKey(DARWIN_RESPONSE_URL)) {
+        if (portalProperties.containsKey(DARWIN_RESPONSE_URL)) {
             try{
-                darwinResponseUrl = properties.getProperty(DARWIN_RESPONSE_URL);
+                darwinResponseUrl = portalProperties.getProperty(DARWIN_RESPONSE_URL);
             }
             catch (NullPointerException e) {}
         }
@@ -843,7 +950,7 @@ public class GlobalProperties {
     public static List<String[]> getPriorityStudies() {
 	    List<String[]> priorityStudiesObject = new LinkedList<>();
 	    try {
-		    String priorityStudies = properties.getProperty(PRIORITY_STUDIES).trim();
+		    String priorityStudies = portalProperties.getProperty(PRIORITY_STUDIES).trim();
 		    for (String priorityStudyCategory: priorityStudies.split(";")) {
 			    String[] elements = priorityStudyCategory.split("[#,]");
 			    elements = Arrays.stream(elements).filter(s -> s.length() > 0).toArray(String[]::new);
@@ -857,9 +964,9 @@ public class GlobalProperties {
     
     public static String getCisUser() {
         String cisUser = "";
-        if (properties.containsKey(CIS_USER)) {
+        if (portalProperties.containsKey(CIS_USER)) {
             try{
-                cisUser = properties.getProperty(CIS_USER);
+                cisUser = portalProperties.getProperty(CIS_USER);
             }
             catch (NullPointerException e) {}            
         }
@@ -869,9 +976,9 @@ public class GlobalProperties {
     
     public static String getDarwinRegex() {
         String darwinRegex = "";
-        if (properties.containsKey(DARWIN_REGEX)) {
+        if (portalProperties.containsKey(DARWIN_REGEX)) {
             try {
-                darwinRegex = properties.getProperty(DARWIN_REGEX);
+                darwinRegex = portalProperties.getProperty(DARWIN_REGEX);
             }
             catch (NullPointerException e) {}   
         }
@@ -881,7 +988,7 @@ public class GlobalProperties {
     public static List<String> getDisabledTabs() {
         String disabledTabs = "";
         try {
-            disabledTabs = properties.getProperty(DISABLED_TABS).trim();
+            disabledTabs = portalProperties.getProperty(DISABLED_TABS).trim();
         }
         catch (NullPointerException e) {}
         
@@ -890,15 +997,112 @@ public class GlobalProperties {
     }
     
     public static String getDefaultOncoprintView() {
-        String defaultOncoprintView = properties.getProperty(ONCOPRINT_DEFAULTVIEW);
+        String defaultOncoprintView = portalProperties.getProperty(ONCOPRINT_DEFAULTVIEW);
         if (defaultOncoprintView == null || defaultOncoprintView.isEmpty()) {
             return "patient";
         }
         return defaultOncoprintView.trim();
     }
-
+    
+    public static boolean enableDriverAnnotations() {
+        String enableDriverAnnotations = portalProperties.getProperty(ENABLE_DRIVER_ANNOTATIONS, "true");
+        if (!showBinaryCustomDriverAnnotation()) {
+            return false;  // do not enable driver annotations by default
+        }
+        return Boolean.parseBoolean(enableDriverAnnotations);
+    }
+    
+    public static boolean enableTiers() {
+        String enableTiers = portalProperties.getProperty(ENABLE_TIERS, "true");
+        if (!showTiersCustomDriverAnnotation()) {
+            return false;  // do not enable driver annotations by default
+        }
+        return Boolean.parseBoolean(enableTiers);
+    }
+    
+    public static String enableOncoKBandHotspots() {
+        String enableOncoKBandHotspots = portalProperties.getProperty(ENABLE_ONCOKB_AND_HOTSPOTS_ANNOTATIONS, "true").trim();
+        if (enableOncoKBandHotspots.equalsIgnoreCase("custom")) {
+            return "custom";
+        } else if (enableOncoKBandHotspots.equalsIgnoreCase("false")) {
+            return "false";
+        }
+        return "true";
+    }
+    
+    public static String getBinaryCustomDriverAnnotationMenuLabel()
+    {
+        return portalProperties.getProperty(BINARY_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL);
+    }
+    
+    public static String getTiersCustomDriverAnnotationMenuLabel()
+    {
+        return portalProperties.getProperty(TIERS_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL);
+    }
+    
     public static void main(String[] args)
     {
         System.out.println(getAppVersion());
+    }
+    
+    public static boolean showBinaryCustomDriverAnnotation() {
+        if (getBinaryCustomDriverAnnotationMenuLabel()==null || getBinaryCustomDriverAnnotationMenuLabel().isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+    
+    public static boolean showTiersCustomDriverAnnotation() {
+	if (getTiersCustomDriverAnnotationMenuLabel()==null || getTiersCustomDriverAnnotationMenuLabel().isEmpty()) {
+	    return false;
+	}
+        return true;
+    }
+    
+    public static boolean hidePassengerMutations() {
+	String hidePassenger = portalProperties.getProperty(HIDE_PASSENGER_MUTATIONS, "false");
+	return Boolean.parseBoolean(hidePassenger);
+    }
+
+    public static String readFile(String fileName)
+    {
+        String result = new String();
+
+        if (fileName == null || fileName.trim().equals("")) {
+            result = null;
+        } else {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(ResourceUtils.getFile(fileName)));
+                for (String line = br.readLine(); line != null; line = br.readLine()) {
+                    line = line.trim();
+                    result = result + line;
+                }
+                br.close();
+            } catch (FileNotFoundException e) {
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("frontend config file not found: " + e.getMessage());
+                }
+                return null;
+            } catch (IOException e) {
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Error reading frontend config file: " + e.getMessage());
+                }
+                return null;
+            }
+        }
+        return result;
+    }
+
+    public static String getFrontendConfig() {
+        if (frontendConfig.length() > 0) {
+            return readFile(frontendConfig);
+        } else {
+            return null;
+        }
+    }
+    
+    public static String getQuerySetsOfGenes() {
+        String fileName = portalProperties.getProperty(SETSOFGENES_LOCATION, null);
+        return readFile(fileName);
     }
 }

@@ -34,12 +34,16 @@ package org.mskcc.cbio.portal.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudy;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.httpclient.HttpException;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.nio.charset.Charset;
 
@@ -54,7 +58,7 @@ import java.net.MalformedURLException;
 import java.util.Map;
 
 /**
- * 
+ *
  * @author Manda Wilson
  */
 public class SessionServiceUtil {
@@ -68,7 +72,7 @@ public class SessionServiceUtil {
      * @param sessionId
      * @return an ServletRequest parameter map
      * @throws HttpException if session service API returns with a response code that is not 404 or 200
-     * @throws MalformedURLException 
+     * @throws MalformedURLException
      * @throws IOException
      * @see ServletRequest#getParameterMap
      */
@@ -86,8 +90,8 @@ public class SessionServiceUtil {
                 IOUtils.copy(conn.getInputStream(), stringWriter, Charset.forName("UTF-8"));
                 String contentString = stringWriter.toString();
                 LOG.debug("SessionServiceUtil.getSession(): response = '" + contentString + "'");
-                JsonNode json = new ObjectMapper().readTree(contentString); 
-                LOG.debug("SessionServiceUtil.getSession(): response.data = '" + json.get("data").getValueAsText() + "'");
+                JsonNode json = new ObjectMapper().readTree(contentString);
+                LOG.debug("SessionServiceUtil.getSession(): response.data = '" + json.get("data").textValue() + "'");
                 parameterMap = new ObjectMapper().readValue(json.get("data").toString(), new TypeReference<Map<String, String[]>>(){});
             } else {
                 LOG.warn("SessionServiceUtil.getSession(): conn.getResponseCode() = '" + conn.getResponseCode() + "'");
@@ -98,18 +102,38 @@ public class SessionServiceUtil {
                 } else {
                     throw new HttpException("Unexpected error, response code '" + conn.getResponseCode() +"'");
                 }
-            } 
-        } catch (MalformedURLException mfue) {  
+            }
+        } catch (MalformedURLException mfue) {
             LOG.warn("SessionServiceUtil.getSession(): MalformedURLException = '" + mfue.getMessage() + "'");
             throw mfue;
         } catch (IOException ioe) {
             LOG.warn("SessionServiceUtil.getSession(): IOException = '" + ioe.getMessage() + "'");
             throw ioe;
-        } finally { 
+        } finally {
             if (conn != null) {
                 conn.disconnect();
             }
         }
         return parameterMap;
+    }
+    /**
+     * Return cohort object if there is success response from 
+     * session-service API, else it would return null
+     * @param virtualStudyId
+     * @return cohort object
+     */
+    public VirtualStudy getVirtualStudyData(String virtualStudyId) {
+        if(GlobalProperties.getSessionServiceUrl() != null) {
+            String url = GlobalProperties.getSessionServiceUrl() + "virtual_study/";
+            try {
+            		return new RestTemplate().getForObject(url + virtualStudyId, VirtualStudy.class);
+            } catch (HttpStatusCodeException exception) {
+                LOG.warn("SessionServiceUtil.getVirtualCohortData(): HttpStatusCodeException = '" + exception.getStatusCode() + "'");
+            }
+            catch (Exception exception) {
+                LOG.warn("SessionServiceUtil.getVirtualCohortData(): Exception = '" + exception.getMessage() + "'");
+            }
+        }
+        return null;
     }
 }

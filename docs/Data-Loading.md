@@ -2,8 +2,6 @@
 ## Introduction
 This page is the starting point for data loading. The [General Overview](#general-overview) section below contains all the required steps to get you started. 
 
-If you're interested in getting a quick overview of the changes you will need to make to your existing data files, please check the [Data Loading: What You Need To Change](Data-Loading-What-You-Need-To-Change.md) page.
-
 ## General Overview
 Getting your study data into cBioPortal requires four steps:
 
@@ -57,5 +55,5 @@ To load the data into cBioPortal, the [metaImport script](Using-the-metaImport-s
 ## Removing a Study
 To remove a study, the [cbioportalImporter script](Development,-debugging-and-maintenance-mode-using-cbioportalImporter.md#deleting-a-study) can be used. 
 
-## Example study
-Examples for the different types of data are available on the [data examples](Data-Examples.md) page for use as reference when creating data files.
+## Example studies
+Examples for the different types of data are available on the [File Formats](File-Formats.md) page. The Provisional TCGA studies, downloadable from the [Data Sets section](http://www.cbioportal.org/data_sets.jsp) are complete studies that can be used as reference when creating data files.

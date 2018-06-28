@@ -68,6 +68,14 @@ def interface():
                         help='report status info messages while validating')
     parser.add_argument('-o', '--override_warning', action='store_true',
                         help='override warnings and continue importing')
+    parser.add_argument('-r', '--relaxed_clinical_definitions', required=False,
+                        action='store_true', default=False,
+                        help='Option to enable relaxed mode for validator when '
+                             'validating clinical data without header definitions')
+    parser.add_argument('-m', '--strict_maf_checks', required=False,
+                        action='store_true', default=False,
+                        help='Option to enable strict mode for validator when '
+                             'validating mutation data')
 
     parser = parser.parse_args()
     return parser

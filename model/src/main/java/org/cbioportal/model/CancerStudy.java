@@ -2,10 +2,12 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import javax.validation.constraints.NotNull;
 
 public class CancerStudy implements Serializable {
 
     private Integer cancerStudyId;
+    @NotNull
     private String cancerStudyIdentifier;
     private String typeOfCancerId;
     private String name;
@@ -21,6 +23,7 @@ public class CancerStudy implements Serializable {
     private Integer allSampleCount;
     private Integer sequencedSampleCount;
     private Integer cnaSampleCount;
+    private Integer mrnaRnaSeqSampleCount;
     private Integer mrnaRnaSeqV2SampleCount;
     private Integer mrnaMicroarraySampleCount;
     private Integer miRnaSampleCount;
@@ -154,6 +157,14 @@ public class CancerStudy implements Serializable {
 
     public void setCnaSampleCount(Integer cnaSampleCount) {
         this.cnaSampleCount = cnaSampleCount;
+    }
+
+    public Integer getMrnaRnaSeqSampleCount() {
+        return mrnaRnaSeqSampleCount;
+    }
+
+    public void setMrnaRnaSeqSampleCount(Integer mrnaRnaSeqSampleCount) {
+        this.mrnaRnaSeqSampleCount = mrnaRnaSeqSampleCount;
     }
 
     public Integer getMrnaRnaSeqV2SampleCount() {

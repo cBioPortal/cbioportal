@@ -1,28 +1,53 @@
 package org.cbioportal.persistence;
 
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationSampleCountByGene;
-import org.cbioportal.model.MutationSampleCountByKeyword;
-import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.model.MutationCount;
+import org.cbioportal.model.MutationCountByPosition;
+import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.meta.MutationMeta;
 
 import java.util.List;
 
 public interface MutationRepository {
 
-    List<Mutation> getMutationsInGeneticProfile(String geneticProfileId, String sampleId, String projection,
-                                                Integer pageSize, Integer pageNumber, String sortBy, String direction);
+    List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
+                                                                List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                                String projection, Integer pageSize, Integer pageNumber,
+                                                                String sortBy, String direction);
 
 
-    MutationMeta getMetaMutationsInGeneticProfile(String geneticProfileId, String sampleId);
+    MutationMeta getMetaMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
+                                                                  List<Integer> entrezGeneIds);
 
-    List<Mutation> fetchMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds,
-                                                  String projection, Integer pageSize, Integer pageNumber,
-                                                  String sortBy, String direction);
+    List<Mutation> getMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
+                                                           List<Integer> entrezGeneIds, String projection,
+                                                           Integer pageSize, Integer pageNumber,
+                                                           String sortBy, String direction);
 
-    MutationMeta fetchMetaMutationsInGeneticProfile(String geneticProfileId, List<String> sampleIds);
+    MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
+                                                             List<Integer> entrezGeneIds);
 
-    List<MutationSampleCountByGene> getSampleCountByEntrezGeneIds(String geneticProfileId, List<Integer> entrezGeneIds);
+    List<Mutation> fetchMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
+                                                    List<Integer> entrezGeneIds, Boolean snpOnly, String projection,
+                                                    Integer pageSize, Integer pageNumber, String sortBy,
+                                                    String direction);
 
-    List<MutationSampleCountByKeyword> getSampleCountByKeywords(String geneticProfileId, List<String> keywords);
+    MutationMeta fetchMetaMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
+                                                      List<Integer> entrezGeneIds);
+    
+    List<MutationCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
+                                                                        List<String> sampleIds,
+                                                                        List<Integer> entrezGeneIds);
+
+    List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
+                                                                         List<String> patientIds,
+                                                                         List<Integer> entrezGeneIds);
+
+    List<MutationCount> getMutationCountsInMolecularProfileBySampleListId(String molecularProfileId, 
+                                                                          String sampleListId);
+
+    List<MutationCount> fetchMutationCountsInMolecularProfile(String molecularProfileId, List<String> sampleIds);
+
+    MutationCountByPosition getMutationCountByPosition(Integer entrezGeneId, Integer proteinPosStart, 
+                                                       Integer proteinPosEnd);
 }

@@ -1,18 +1,21 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.SampleList;
-import org.cbioportal.model.SampleListSampleCount;
+import org.cbioportal.model.SampleListToSampleId;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.service.SampleListService;
+import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.SampleListNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,16 +23,23 @@ public class SampleListServiceImpl implements SampleListService {
 
     @Autowired
     private SampleListRepository sampleListRepository;
+    @Autowired
+    private StudyService studyService;
+    @Value("${authenticate:false}")
+    private String AUTHENTICATE;
 
     @Override
     @PostFilter("hasPermission(filterObject, 'read')")
     public List<SampleList> getAllSampleLists(String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                               String direction) {
-
-        List<SampleList> sampleLists = sampleListRepository.getAllSampleLists(projection, pageSize, pageNumber, sortBy,
-            direction);
+        
+        List<SampleList> sampleListsFromRepo = sampleListRepository.getAllSampleLists(projection, pageSize, pageNumber, sortBy,
+                                                                                      direction);
+        // copy the list before returning so @PostFilter doesn't taint the list stored in the mybatis second-level cache
+        List<SampleList> sampleLists = (AUTHENTICATE.equals("false")) ? sampleListsFromRepo : new ArrayList<SampleList>(sampleListsFromRepo);
         
         if(projection.equals("DETAILED")) {
+            addSampleIds(sampleLists);
             addSampleCounts(sampleLists);
         }
         
@@ -43,7 +53,6 @@ public class SampleListServiceImpl implements SampleListService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#sampleListId, 'SampleList', 'read')")
     public SampleList getSampleList(String sampleListId) throws SampleListNotFoundException {
 
         SampleList sampleList = sampleListRepository.getSampleList(sampleListId);
@@ -51,22 +60,26 @@ public class SampleListServiceImpl implements SampleListService {
             throw new SampleListNotFoundException(sampleListId);
         }
 
-        List<SampleListSampleCount> sampleListSampleCounts = sampleListRepository.getSampleCounts(
+        List<SampleListToSampleId> sampleListToSampleIds = sampleListRepository.getSampleListSampleIds(
             Arrays.asList(sampleList.getListId()));
-        sampleList.setSampleCount(sampleListSampleCounts.get(0).getSampleCount());
-
+        sampleList.setSampleIds(sampleListToSampleIds.stream().map(SampleListToSampleId::getSampleId)
+        .collect(Collectors.toList()));
+        sampleList.setSampleCount(sampleList.getSampleIds().size());
         return sampleList;
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<SampleList> getAllSampleListsInStudy(String studyId, String projection, Integer pageSize,
-                                                     Integer pageNumber, String sortBy, String direction) {
+                                                     Integer pageNumber, String sortBy, String direction) 
+        throws StudyNotFoundException {
+        
+        studyService.getStudy(studyId);
 
         List<SampleList> sampleLists = sampleListRepository.getAllSampleListsInStudy(studyId, projection, pageSize, 
             pageNumber, sortBy, direction);
 
         if(projection.equals("DETAILED")) {
+            addSampleIds(sampleLists);
             addSampleCounts(sampleLists);
         }
         
@@ -74,25 +87,45 @@ public class SampleListServiceImpl implements SampleListService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
-    public BaseMeta getMetaSampleListsInStudy(String studyId) {
+    public BaseMeta getMetaSampleListsInStudy(String studyId) throws StudyNotFoundException {
+
+        studyService.getStudy(studyId);
 
         return sampleListRepository.getMetaSampleListsInStudy(studyId);
     }
 
     @Override
-    @PreAuthorize("hasPermission(#sampleListId, 'SampleList', 'read')")
-    public List<String> getAllSampleIdsInSampleList(String sampleListId) {
+    public List<String> getAllSampleIdsInSampleList(String sampleListId) throws SampleListNotFoundException {
+        
+        getSampleList(sampleListId);
 
         return sampleListRepository.getAllSampleIdsInSampleList(sampleListId);
     }
 
-    private void addSampleCounts(List<SampleList> sampleLists) {
-        
-        List<SampleListSampleCount> sampleListSampleCounts = sampleListRepository.getSampleCounts(sampleLists.stream()
-            .map(SampleList::getListId).collect(Collectors.toList()));
+    @Override
+	public List<SampleList> fetchSampleLists(List<String> sampleListIds, String projection) {
 
-        sampleLists.forEach(s -> s.setSampleCount(sampleListSampleCounts.stream().filter(p -> p.getSampleListId()
-            .equals(s.getListId())).findFirst().get().getSampleCount()));
+        List<SampleList> sampleLists = sampleListRepository.getSampleLists(sampleListIds, projection);
+
+        if (projection.equals("DETAILED")) {
+            addSampleIds(sampleLists);
+            addSampleCounts(sampleLists);
+        }
+
+        return sampleLists;
+	}
+
+    private void addSampleCounts(List<SampleList> sampleLists) {
+
+        sampleLists.forEach(s -> s.setSampleCount(s.getSampleIds().size()));
+    }
+
+    private void addSampleIds(List<SampleList> sampleLists) {
+
+        List<SampleListToSampleId> sampleListToSampleIds = sampleListRepository.getSampleListSampleIds(sampleLists
+        .stream().map(SampleList::getListId).collect(Collectors.toList()));
+
+        sampleLists.forEach(s -> s.setSampleIds(sampleListToSampleIds.stream().filter(p -> p.getSampleListId()
+        .equals(s.getListId())).map(SampleListToSampleId::getSampleId).collect(Collectors.toList())));
     }
 }

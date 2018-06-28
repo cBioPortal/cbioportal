@@ -34,9 +34,14 @@ package org.cbioportal.weblegacy;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.cbioportal.model.*;
-import org.cbioportal.model.StructuralVariant;
-import org.cbioportal.service.StructuralVariantService;
+
+import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.Patient;
+import org.cbioportal.model.Sample;
+import org.mskcc.cbio.portal.model.StructuralVariant;
+import org.mskcc.cbio.portal.service.StructuralVariantService;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -115,7 +120,7 @@ public class StructuralVariantControllerTest {
     private void testFullResponse(ResultActions resultActions) throws Exception {
         resultActions
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(3)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].breakpointType").value("PRECISE"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].annotation").value("n/a"))
@@ -213,7 +218,7 @@ public class StructuralVariantControllerTest {
     private void testEmptyResponse(ResultActions resultActions) throws Exception {
         resultActions
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0)))
                 ;
     }
@@ -273,12 +278,12 @@ public class StructuralVariantControllerTest {
         sample3.setPatientId(3);
         sample3.setPatient(patient3);
         sample3.setTypeOfCancerId("brca");
-        GeneticProfile geneticProfile1 = new GeneticProfile();
-        geneticProfile1.setGeneticProfileId(7);
+        MolecularProfile geneticProfile1 = new MolecularProfile();
+        geneticProfile1.setMolecularProfileId(7);
         geneticProfile1.setStableId("study_tcga_pub_sv");
         geneticProfile1.setCancerStudy(cancerStudy1);
-        geneticProfile1.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.STRUCTURAL_VARIANT);
-        geneticProfile1.setDatatype("StructuralVariant");
+        geneticProfile1.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
+        geneticProfile1.setDatatype("SV");
         geneticProfile1.setName("Structural Variants");
         geneticProfile1.setDescription("Structural Variants detected by Illumina HiSeq sequencing.");
         geneticProfile1.setShowProfileInAnalysisTab(true);
@@ -427,9 +432,9 @@ public class StructuralVariantControllerTest {
         sample3.setSampleType(null);
         sample3.setPatientId(null);
         sample3.setTypeOfCancerId(null);
-        geneticProfile1.setGeneticProfileId(null);
+        geneticProfile1.setMolecularProfileId(null);
         geneticProfile1.setStableId(null);
-        geneticProfile1.setGeneticAlterationType(null);
+        geneticProfile1.setMolecularAlterationType(null);
         geneticProfile1.setDatatype(null);
         geneticProfile1.setName(null);
         geneticProfile1.setDescription(null);

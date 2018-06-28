@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.service.SampleListService;
 import org.cbioportal.service.exception.SampleListNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -19,13 +20,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @PublicApi
@@ -67,6 +71,7 @@ public class SampleListController {
         }
     }
 
+    @PreAuthorize("hasPermission(#sampleListId, 'SampleList', 'read')")
     @RequestMapping(value = "/sample-lists/{sampleListId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get sample list")
@@ -77,6 +82,7 @@ public class SampleListController {
         return new ResponseEntity<>(sampleListService.getSampleList(sampleListId), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/sample-lists", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all sample lists in a study")
@@ -95,7 +101,7 @@ public class SampleListController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleListSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -109,13 +115,28 @@ public class SampleListController {
         }
     }
 
+    @PreAuthorize("hasPermission(#sampleListId, 'SampleList', 'read')")
     @RequestMapping(value = "/sample-lists/{sampleListId}/sample-ids", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all sample IDs in a sample list")
     public ResponseEntity<List<String>> getAllSampleIdsInSampleList(
         @ApiParam(required = true, value = "Sample List ID e.g. acc_tcga_all")
-        @PathVariable String sampleListId) {
+        @PathVariable String sampleListId) throws SampleListNotFoundException {
 
         return new ResponseEntity<>(sampleListService.getAllSampleIdsInSampleList(sampleListId), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#sampleListIds, 'List<SampleListId>', 'read')")
+    @RequestMapping(value = "/sample-lists/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
+    produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch sample lists by ID")
+    public ResponseEntity<List<SampleList>> fetchSampleLists(
+        @ApiParam(required = true, value = "List of sample list IDs")
+        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+        @RequestBody List<String> sampleListIds,
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) {
+
+        return new ResponseEntity<>(sampleListService.fetchSampleLists(sampleListIds, projection.name()), HttpStatus.OK);
     }
 }

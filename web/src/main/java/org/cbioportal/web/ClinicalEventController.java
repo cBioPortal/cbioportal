@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.service.ClinicalEventService;
+import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -36,6 +39,7 @@ public class ClinicalEventController {
     @Autowired
     private ClinicalEventService clinicalEventService;
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/clinical-events", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical events of a patient in a study")
@@ -56,7 +60,8 @@ public class ClinicalEventController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) ClinicalEventSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException, 
+        StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();

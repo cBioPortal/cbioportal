@@ -31,7 +31,7 @@
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:applicationContext-security.xml classpath:applicationContext-business.xml classpath:applicationContext-core.xml</param-value>
+        <param-value>classpath:applicationContext-security.xml classpath:applicationContext-business.xml classpath:applicationContext-core.xml classpath:applicationContext-logging.xml</param-value>
     </context-param>
 
     <context-param>
@@ -82,7 +82,7 @@
 
     <filter-mapping>
       <filter-name>APICorsFilter</filter-name>
-      <url-pattern>/api-legacy/proxy/session-service/*</url-pattern>
+      <url-pattern>/api-legacy/proxy/session/*</url-pattern>
     </filter-mapping>
 
     <filter>
@@ -173,11 +173,25 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>url_shortener</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:applicationContext-url-shortener.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>url_shortener</servlet-name>
+        <url-pattern>/api/url-shortener</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>api</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>classpath:applicationContext-web.xml</param-value>
+            <param-value>classpath:applicationContext-web.xml classpath:applicationContext-logging.xml</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -429,7 +443,10 @@
         <servlet-name>patient_view</servlet-name>
         <url-pattern>/case.do</url-pattern>
     </servlet-mapping>
-
+    <servlet-mapping>
+        <servlet-name>patient_view</servlet-name>
+        <url-pattern>/patient</url-pattern>
+    </servlet-mapping>
     <servlet>
         <servlet-name>CrossCancerJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerJSON</servlet-class>
@@ -449,6 +466,15 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>CheckDarwinAccessServlet</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CheckDarwinAccessServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CheckDarwinAccessServlet</servlet-name>
+        <url-pattern>/checkDarwinAccess.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>MutationsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.MutationsJSON</servlet-class>
     </servlet>
@@ -456,16 +482,16 @@
         <servlet-name>MutationsJSON</servlet-name>
         <url-pattern>/mutations.json</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
-        <servlet-name>CnaJSON</servlet-name>
+    <servlet-name>CnaJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.CnaJSON</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>CnaJSON</servlet-name>
         <url-pattern>/cna.json</url-pattern>
     </servlet-mapping>
-
+    
     <servlet>
         <servlet-name>SVGtoPDFConverter</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.SvgConverter</servlet-class>
@@ -495,6 +521,20 @@
     <servlet-mapping>
         <servlet-name>cancer_study_view</servlet-name>
         <url-pattern>/study</url-pattern>
+    </servlet-mapping>
+    
+    
+    <servlet>
+        <servlet-name>cancer_study_view_v2</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CancerStudyViewV2</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>cancer_study_view_v2</servlet-name>
+        <url-pattern>/newstudy.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>cancer_study_view_v2</servlet-name>
+        <url-pattern>/newstudy</url-pattern>
     </servlet-mapping>
     
     <servlet>

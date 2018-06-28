@@ -29,62 +29,51 @@
  - You should have received a copy of the GNU Affero General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
-
-<%
-    String siteTitle = GlobalProperties.getTitle();
-%>
-
+    
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+    
+<%
+    String siteTitle = GlobalProperties.getTitle() + "::About Us";
+    String appVersion = GlobalProperties.getAppVersion();
+%>
 
-<!-- js files: -->
-<script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/underscore-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<script type="text/javascript" src="js/lib/showdown.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/showdown-github.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/url_based_content.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<t:template title="<%= siteTitle %>" defaultRightColumn="true" fixedWidth="true">
 
-<% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::About Us"); %>
+    <jsp:attribute name="head_area">
+        
+        <!-- js files: -->
+        <script type="text/javascript" src="js/lib/jquery.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/underscore-min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/backbone-min.js?${appVersion}"></script>
 
-<jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
+        <script type="text/javascript" src="js/lib/showdown.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/showdown-github.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/src/url_based_content.js?${appVersion}"></script>
+        <script>
+        window.loadReactApp({ defaultRoute: 'blank' });
+        </script>
+    </jsp:attribute>
 
-    <div id="main">
-      <table cellspacing="2px">
-        <tr>
-            <td>
-                <div id="aboutPage" class="markdown"></div>
-            </td>
-        </tr>
-    </table>
-        </div>
-    </td>
-    <td width="172">
-	<jsp:include page="WEB-INF/jsp/global/right_column.jsp" flush="true" />
-    </td>
-  </tr>
-  <tr>
-    <td colspan="3">
-	<jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
-    </td>
-  </tr>
-</table>
-</div>
-</center>
-</div>
-</form>
-<jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
-</body>
-</html>
+    <jsp:attribute name="body_area">
+        <h1>About Us</h1>
+        <div id="aboutPage"></div>
+        <div id="reactRoot" class="hidden"></div>
+    </jsp:attribute>
+
+
+</t:template>
+
 
 <script>
-    $(document).ready( function() {
-        // retrieve link for About Us and generate the page
-        var aboutLink = '<%= GlobalProperties.getAboutHtml()%>';
-        var baseUrl = '<%= GlobalProperties.getBaseUrl()%>';
-        var markdownDocumentation = '<%= GlobalProperties.isMarkdownDocumentation()%>';
-        var generatePage = new GeneratePage(baseUrl, aboutLink, markdownDocumentation, "#aboutPage");
-        generatePage.init();
-    });
+$(document).ready( function() {
+// retrieve link for About Us and generate the page
+var aboutLink = '<%= GlobalProperties.getAboutHtml()%>';
+var baseUrl = '<%= GlobalProperties.getBaseUrl()%>';
+var markdownDocumentation = '<%= GlobalProperties.isMarkdownDocumentation()%>';
+var generatePage = new GeneratePage(baseUrl, aboutLink, markdownDocumentation, "#aboutPage");
+generatePage.init();
+});
 </script>

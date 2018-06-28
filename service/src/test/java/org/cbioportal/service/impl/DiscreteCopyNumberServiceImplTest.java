@@ -1,16 +1,17 @@
 package org.cbioportal.service.impl;
 
-import junit.framework.Assert;
-import org.cbioportal.model.CopyNumberSampleCountByGene;
+import org.cbioportal.model.CopyNumberCount;
+import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneticData;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.GeneMolecularData;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
-import org.cbioportal.service.GeneticDataService;
-import org.cbioportal.service.GeneticProfileService;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.MolecularProfileService;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -31,218 +32,273 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     @Mock
     private DiscreteCopyNumberRepository discreteCopyNumberRepository;
     @Mock
-    private GeneticDataService geneticDataService;
+    private MolecularDataService molecularDataService;
     @Mock
-    private GeneticProfileService geneticProfileService;
+    private MolecularProfileService molecularProfileService;
     
     @Test
-    public void getDiscreteCopyNumbersInGeneticProfileHomdelOrAmp() throws Exception {
+    public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdHomdelOrAmp() throws Exception {
 
-        createGeneticProfile();
+        createMolecularProfile();
 
         List<DiscreteCopyNumberData> expectedDiscreteCopyNumberDataList = new ArrayList<>();
         DiscreteCopyNumberData discreteCopyNumberData = new DiscreteCopyNumberData();
         expectedDiscreteCopyNumberDataList.add(discreteCopyNumberData);
         
-        List<Integer> alterations = new ArrayList<>();
-        alterations.add(-2);
+        List<Integer> alterationTypes = new ArrayList<>();
+        alterationTypes.add(-2);
         
-        Mockito.when(discreteCopyNumberRepository.getDiscreteCopyNumbersInGeneticProfile(GENETIC_PROFILE_ID, SAMPLE_ID, 
-            alterations, PROJECTION)).thenReturn(expectedDiscreteCopyNumberDataList);
+        Mockito.when(discreteCopyNumberRepository.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
+            MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, Arrays.asList(ENTREZ_GENE_ID_1), alterationTypes, PROJECTION))
+            .thenReturn(expectedDiscreteCopyNumberDataList);
         
-        List<DiscreteCopyNumberData> result = discreteCopyNumberService.getDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, SAMPLE_ID, alterations, PROJECTION);
+        List<DiscreteCopyNumberData> result = discreteCopyNumberService
+            .getDiscreteCopyNumbersInMolecularProfileBySampleListId(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
+                Arrays.asList(ENTREZ_GENE_ID_1), alterationTypes, PROJECTION);
 
         Assert.assertEquals(expectedDiscreteCopyNumberDataList, result);
     }
 
     @Test
-    public void getDiscreteCopyNumbersInGeneticProfileNonHomdelOrAmp() throws Exception {
+    public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdNonHomdelOrAmp() throws Exception {
 
-        createGeneticProfile();
+        createMolecularProfile();
         
-        List<GeneticData> expectedGeneticDataList = new ArrayList<>();
-        GeneticData geneticData = new GeneticData();
-        geneticData.setValue("-1");
-        geneticData.setGeneticProfileId(GENETIC_PROFILE_ID);
-        geneticData.setSampleId(SAMPLE_ID);
-        geneticData.setEntrezGeneId(ENTREZ_GENE_ID);
+        List<GeneMolecularData> expectedMolecularDataList = new ArrayList<>();
+        GeneMolecularData molecularData = new GeneMolecularData();
+        molecularData.setValue("-1");
+        molecularData.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularData.setSampleId(SAMPLE_ID1);
+        molecularData.setEntrezGeneId(ENTREZ_GENE_ID_1);
         Gene gene = new Gene(); 
-        geneticData.setGene(gene);
-        expectedGeneticDataList.add(geneticData);
+        molecularData.setGene(gene);
+        expectedMolecularDataList.add(molecularData);
         
-        Mockito.when(geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_ID, null, PROJECTION))
-            .thenReturn(expectedGeneticDataList);
+        Mockito.when(molecularDataService.getMolecularData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
+            Arrays.asList(ENTREZ_GENE_ID_1), PROJECTION)).thenReturn(expectedMolecularDataList);
 
-        List<Integer> alterations = new ArrayList<>();
-        alterations.add(-1);
+        List<Integer> alterationTypes = new ArrayList<>();
+        alterationTypes.add(-1);
         
-        List<DiscreteCopyNumberData> result = discreteCopyNumberService.getDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, SAMPLE_ID, alterations, PROJECTION);
+        List<DiscreteCopyNumberData> result = discreteCopyNumberService
+            .getDiscreteCopyNumbersInMolecularProfileBySampleListId(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
+                Arrays.asList(ENTREZ_GENE_ID_1), alterationTypes, PROJECTION);
         
         Assert.assertEquals(1, result.size());
         DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
         Assert.assertEquals((Integer) (-1), discreteCopyNumberData.getAlteration());
-        Assert.assertEquals(GENETIC_PROFILE_ID, discreteCopyNumberData.getGeneticProfileId());
-        Assert.assertEquals(SAMPLE_ID, discreteCopyNumberData.getSampleId());
-        Assert.assertEquals(ENTREZ_GENE_ID, discreteCopyNumberData.getEntrezGeneId());
+        Assert.assertEquals(MOLECULAR_PROFILE_ID, discreteCopyNumberData.getMolecularProfileId());
+        Assert.assertEquals(SAMPLE_ID1, discreteCopyNumberData.getSampleId());
+        Assert.assertEquals(ENTREZ_GENE_ID_1, discreteCopyNumberData.getEntrezGeneId());
         Assert.assertEquals(gene, discreteCopyNumberData.getGene());
     }
 
     @Test
-    public void getMetaDiscreteCopyNumbersInGeneticProfileHomdelOrAmp() throws Exception {
+    public void getMetaDiscreteCopyNumbersInMolecularProfileBySampleListIdHomdelOrAmp() throws Exception {
 
-        createGeneticProfile();
+        createMolecularProfile();
 
-        List<Integer> alterations = new ArrayList<>();
-        alterations.add(-2);
+        List<Integer> alterationTypes = new ArrayList<>();
+        alterationTypes.add(-2);
 
         BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInGeneticProfile(GENETIC_PROFILE_ID, 
-            SAMPLE_ID, alterations)).thenReturn(expectedBaseMeta);
+        Mockito.when(discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(
+            MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, Arrays.asList(ENTREZ_GENE_ID_1), alterationTypes))
+            .thenReturn(expectedBaseMeta);
 
-        BaseMeta result = discreteCopyNumberService.getMetaDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, SAMPLE_ID, alterations);
+        BaseMeta result = discreteCopyNumberService.getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(
+            MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, Arrays.asList(ENTREZ_GENE_ID_1), alterationTypes);
         
         Assert.assertEquals(expectedBaseMeta, result);
     }
 
     @Test
-    public void getMetaDiscreteCopyNumbersInGeneticProfileNonHomdelOrAmp() throws Exception {
+    public void getMetaDiscreteCopyNumbersInMolecularProfileBySampleListIdNonHomdelOrAmp() throws Exception {
 
-        createGeneticProfile();
+        createMolecularProfile();
 
-        List<GeneticData> expectedGeneticDataList = new ArrayList<>();
-        GeneticData geneticData = new GeneticData();
-        geneticData.setValue("-1");
-        expectedGeneticDataList.add(geneticData);
+        List<GeneMolecularData> expectedMolecularDataList = new ArrayList<>();
+        GeneMolecularData molecularData = new GeneMolecularData();
+        molecularData.setValue("-1");
+        expectedMolecularDataList.add(molecularData);
 
-        Mockito.when(geneticDataService.getGeneticData(GENETIC_PROFILE_ID, SAMPLE_ID, null, "ID"))
-            .thenReturn(expectedGeneticDataList);
+        Mockito.when(molecularDataService.getMolecularData(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
+            Arrays.asList(ENTREZ_GENE_ID_1), "ID")).thenReturn(expectedMolecularDataList);
 
-        List<Integer> alterations = new ArrayList<>();
-        alterations.add(-1);
+        List<Integer> alterationTypes = new ArrayList<>();
+        alterationTypes.add(-1);
 
-        BaseMeta result = discreteCopyNumberService.getMetaDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, SAMPLE_ID, alterations);
+        BaseMeta result = discreteCopyNumberService.getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(
+            MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, Arrays.asList(ENTREZ_GENE_ID_1), alterationTypes);
         
         Assert.assertEquals((Integer) 1, result.getTotalCount());
     }
 
     @Test
-    public void fetchDiscreteCopyNumbersInGeneticProfileHomdelOrAmp() throws Exception {
+    public void fetchDiscreteCopyNumbersInMolecularProfileHomdelOrAmp() throws Exception {
 
-        createGeneticProfile();
+        createMolecularProfile();
 
         List<DiscreteCopyNumberData> expectedDiscreteCopyNumberDataList = new ArrayList<>();
         DiscreteCopyNumberData discreteCopyNumberData = new DiscreteCopyNumberData();
         expectedDiscreteCopyNumberDataList.add(discreteCopyNumberData);
 
-        List<Integer> alterations = new ArrayList<>();
-        alterations.add(-2);
+        List<Integer> alterationTypes = new ArrayList<>();
+        alterationTypes.add(-2);
 
-        Mockito.when(discreteCopyNumberRepository.fetchDiscreteCopyNumbersInGeneticProfile(GENETIC_PROFILE_ID, 
-            Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterations, PROJECTION)).thenReturn(expectedDiscreteCopyNumberDataList);
+        Mockito.when(discreteCopyNumberRepository.fetchDiscreteCopyNumbersInMolecularProfile(MOLECULAR_PROFILE_ID, 
+            Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1), alterationTypes, PROJECTION))
+            .thenReturn(expectedDiscreteCopyNumberDataList);
 
-        List<DiscreteCopyNumberData> result = discreteCopyNumberService.fetchDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterations, PROJECTION);
+        List<DiscreteCopyNumberData> result = discreteCopyNumberService.fetchDiscreteCopyNumbersInMolecularProfile(
+            MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1), alterationTypes, PROJECTION);
 
         Assert.assertEquals(expectedDiscreteCopyNumberDataList, result);
     }
 
     @Test
-    public void fetchDiscreteCopyNumbersInGeneticProfileNonHomdelOrAmp() throws Exception {
+    public void fetchDiscreteCopyNumbersInMolecularProfileNonHomdelOrAmp() throws Exception {
 
-        createGeneticProfile();
+        createMolecularProfile();
 
-        List<GeneticData> expectedGeneticDataList = new ArrayList<>();
-        GeneticData geneticData = new GeneticData();
-        geneticData.setValue("-1");
-        geneticData.setGeneticProfileId(GENETIC_PROFILE_ID);
-        geneticData.setSampleId(SAMPLE_ID);
-        geneticData.setEntrezGeneId(ENTREZ_GENE_ID);
+        List<GeneMolecularData> expectedMolecularDataList = new ArrayList<>();
+        GeneMolecularData molecularData = new GeneMolecularData();
+        molecularData.setValue("-1");
+        molecularData.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularData.setSampleId(SAMPLE_ID1);
+        molecularData.setEntrezGeneId(ENTREZ_GENE_ID_1);
         Gene gene = new Gene();
-        geneticData.setGene(gene);
-        expectedGeneticDataList.add(geneticData);
+        molecularData.setGene(gene);
+        expectedMolecularDataList.add(molecularData);
 
-        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID), 
-            Arrays.asList(ENTREZ_GENE_ID), PROJECTION)).thenReturn(expectedGeneticDataList);
+        Mockito.when(molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1), 
+            Arrays.asList(ENTREZ_GENE_ID_1), PROJECTION)).thenReturn(expectedMolecularDataList);
 
-        List<Integer> alterations = new ArrayList<>();
-        alterations.add(-1);
+        List<Integer> alterationTypes = new ArrayList<>();
+        alterationTypes.add(-1);
 
-        List<DiscreteCopyNumberData> result = discreteCopyNumberService.fetchDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterations, PROJECTION);
+        List<DiscreteCopyNumberData> result = discreteCopyNumberService.fetchDiscreteCopyNumbersInMolecularProfile(
+            MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1), alterationTypes, PROJECTION);
 
         Assert.assertEquals(1, result.size());
         DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
         Assert.assertEquals((Integer) (-1), discreteCopyNumberData.getAlteration());
-        Assert.assertEquals(GENETIC_PROFILE_ID, discreteCopyNumberData.getGeneticProfileId());
-        Assert.assertEquals(SAMPLE_ID, discreteCopyNumberData.getSampleId());
-        Assert.assertEquals(ENTREZ_GENE_ID, discreteCopyNumberData.getEntrezGeneId());
+        Assert.assertEquals(MOLECULAR_PROFILE_ID, discreteCopyNumberData.getMolecularProfileId());
+        Assert.assertEquals(SAMPLE_ID1, discreteCopyNumberData.getSampleId());
+        Assert.assertEquals(ENTREZ_GENE_ID_1, discreteCopyNumberData.getEntrezGeneId());
         Assert.assertEquals(gene, discreteCopyNumberData.getGene());
     }
 
     @Test
-    public void fetchMetaDiscreteCopyNumbersInGeneticProfileHomdelOrAmp() throws Exception {
+    public void fetchMetaDiscreteCopyNumbersInMolecularProfileHomdelOrAmp() throws Exception {
 
-        createGeneticProfile();
+        createMolecularProfile();
 
-        List<Integer> alterations = new ArrayList<>();
-        alterations.add(-2);
+        List<Integer> alterationTypes = new ArrayList<>();
+        alterationTypes.add(-2);
 
         BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(discreteCopyNumberRepository.fetchMetaDiscreteCopyNumbersInGeneticProfile(GENETIC_PROFILE_ID,
-            Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterations)).thenReturn(expectedBaseMeta);
+        Mockito.when(discreteCopyNumberRepository.fetchMetaDiscreteCopyNumbersInMolecularProfile(MOLECULAR_PROFILE_ID,
+            Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1), alterationTypes)).thenReturn(expectedBaseMeta);
 
-        BaseMeta result = discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterations);
+        BaseMeta result = discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInMolecularProfile(
+            MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1), alterationTypes);
 
         Assert.assertEquals(expectedBaseMeta, result);
     }
 
     @Test
-    public void fetchMetaDiscreteCopyNumbersInGeneticProfileNonHomdelOrAmp() throws Exception {
+    public void fetchMetaDiscreteCopyNumbersInMolecularProfileNonHomdelOrAmp() throws Exception {
 
-        createGeneticProfile();
+        createMolecularProfile();
 
-        List<GeneticData> expectedGeneticDataList = new ArrayList<>();
-        GeneticData geneticData = new GeneticData();
-        geneticData.setValue("-1");
-        expectedGeneticDataList.add(geneticData);
+        List<GeneMolecularData> expectedMolecularDataList = new ArrayList<>();
+        GeneMolecularData molecularData = new GeneMolecularData();
+        molecularData.setValue("-1");
+        expectedMolecularDataList.add(molecularData);
 
-        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID), 
-            Arrays.asList(ENTREZ_GENE_ID), "ID")).thenReturn(expectedGeneticDataList);
+        Mockito.when(molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1), 
+            Arrays.asList(ENTREZ_GENE_ID_1), "ID")).thenReturn(expectedMolecularDataList);
 
-        List<Integer> alterations = new ArrayList<>();
-        alterations.add(-1);
+        List<Integer> alterationTypes = new ArrayList<>();
+        alterationTypes.add(-1);
 
-        BaseMeta result = discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInGeneticProfile(
-            GENETIC_PROFILE_ID, Arrays.asList(SAMPLE_ID), Arrays.asList(ENTREZ_GENE_ID), alterations);
+        BaseMeta result = discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInMolecularProfile(
+            MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1), alterationTypes);
 
         Assert.assertEquals((Integer) 1, result.getTotalCount());
     }
 
     @Test
     public void getSampleCountByGeneAndAlteration() throws Exception {
-        
-        List<CopyNumberSampleCountByGene> expectedCopyNumberSampleCountByGeneList = new ArrayList<>();
-        expectedCopyNumberSampleCountByGeneList.add(new CopyNumberSampleCountByGene());
 
-        Mockito.when(discreteCopyNumberRepository.getSampleCountByGeneAndAlteration(GENETIC_PROFILE_ID, 
-            Arrays.asList(ENTREZ_GENE_ID), Arrays.asList(-2))).thenReturn(expectedCopyNumberSampleCountByGeneList);
+        createMolecularProfile();
         
-        List<CopyNumberSampleCountByGene> result = discreteCopyNumberService.getSampleCountByGeneAndAlteration(
-            GENETIC_PROFILE_ID, Arrays.asList(ENTREZ_GENE_ID), Arrays.asList(-2));
+        List<CopyNumberCountByGene> expectedCopyNumberSampleCountByGeneList = new ArrayList<>();
+        expectedCopyNumberSampleCountByGeneList.add(new CopyNumberCountByGene());
+
+        Mockito.when(discreteCopyNumberRepository.getSampleCountByGeneAndAlterationAndSampleIds(MOLECULAR_PROFILE_ID, 
+            null, Arrays.asList(ENTREZ_GENE_ID_1), Arrays.asList(-2)))
+            .thenReturn(expectedCopyNumberSampleCountByGeneList);
+        
+        List<CopyNumberCountByGene> result = discreteCopyNumberService
+            .getSampleCountByGeneAndAlterationAndSampleIds(MOLECULAR_PROFILE_ID, null, Arrays.asList(ENTREZ_GENE_ID_1), 
+                Arrays.asList(-2), false);
         
         Assert.assertEquals(expectedCopyNumberSampleCountByGeneList, result);
     }
 
-    private void createGeneticProfile() throws GeneticProfileNotFoundException {
+    @Test
+    public void getPatientCountByGeneAndAlterationAndPatientIds() throws Exception {
         
-        GeneticProfile geneticProfile = new GeneticProfile();
-        geneticProfile.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.COPY_NUMBER_ALTERATION);
-        geneticProfile.setDatatype("DISCRETE");
-        Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(geneticProfile);
+        List<CopyNumberCountByGene> expectedCopyNumberSampleCountByGeneList = new ArrayList<>();
+        expectedCopyNumberSampleCountByGeneList.add(new CopyNumberCountByGene());
+
+        Mockito.when(discreteCopyNumberRepository.getPatientCountByGeneAndAlterationAndPatientIds(MOLECULAR_PROFILE_ID, 
+            null, Arrays.asList(ENTREZ_GENE_ID_1), Arrays.asList(-2)))
+            .thenReturn(expectedCopyNumberSampleCountByGeneList);
+        
+        List<CopyNumberCountByGene> result = discreteCopyNumberService
+            .getPatientCountByGeneAndAlterationAndPatientIds(MOLECULAR_PROFILE_ID, null, Arrays.asList(ENTREZ_GENE_ID_1), 
+                Arrays.asList(-2));
+        
+        Assert.assertEquals(expectedCopyNumberSampleCountByGeneList, result);
+    }
+
+    @Test
+    public void fetchCopyNumberCounts() throws Exception {
+
+        List<CopyNumberCountByGene> copyNumberSampleCountByGeneList = new ArrayList<>();
+        CopyNumberCountByGene copyNumberSampleCountByGene = new CopyNumberCountByGene();
+        copyNumberSampleCountByGene.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        copyNumberSampleCountByGene.setAlteration(-2);
+        copyNumberSampleCountByGene.setCountByEntity(1);
+        copyNumberSampleCountByGeneList.add(copyNumberSampleCountByGene);
+
+        createMolecularProfile();
+
+        Mockito.when(molecularDataService.getNumberOfSamplesInMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(2);
+
+        Mockito.when(discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(MOLECULAR_PROFILE_ID, null,
+            Arrays.asList(ENTREZ_GENE_ID_1), Arrays.asList(-2), false)).thenReturn(copyNumberSampleCountByGeneList);
+
+        List<CopyNumberCount> result = discreteCopyNumberService.fetchCopyNumberCounts(MOLECULAR_PROFILE_ID,
+            Arrays.asList(ENTREZ_GENE_ID_1), Arrays.asList(-2));
+
+        Assert.assertEquals(1, result.size());
+        CopyNumberCount copyNumberCount = result.get(0);
+        Assert.assertEquals(MOLECULAR_PROFILE_ID, copyNumberCount.getMolecularProfileId());
+        Assert.assertEquals(ENTREZ_GENE_ID_1, copyNumberCount.getEntrezGeneId());
+        Assert.assertEquals((Integer) (-2), copyNumberCount.getAlteration());
+        Assert.assertEquals((Integer) 2, copyNumberCount.getNumberOfSamples());
+        Assert.assertEquals((Integer) 1, copyNumberCount.getNumberOfSamplesWithAlterationInGene());
+    }
+
+    private void createMolecularProfile() throws MolecularProfileNotFoundException {
+        
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+        molecularProfile.setDatatype("DISCRETE");
+        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
     }
 }

@@ -5,6 +5,8 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.web.parameter.ClinicalDataIdentifier;
+import org.cbioportal.web.parameter.ClinicalDataMultiStudyFilter;
+import org.cbioportal.web.parameter.ClinicalDataSingleStudyFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -82,7 +84,7 @@ public class ClinicalDataControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id/clinical-data")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
@@ -132,7 +134,7 @@ public class ClinicalDataControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/clinical-data")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
@@ -183,7 +185,7 @@ public class ClinicalDataControllerTest {
                 .param("clinicalDataType", "PATIENT")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
@@ -213,6 +215,76 @@ public class ClinicalDataControllerTest {
                 .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
 
+
+    @Test
+    public void fetchClinicalDataInStudyDefaultProjection() throws Exception {
+
+        List<ClinicalData> patientClinicalDataList = new ArrayList<>();
+        ClinicalData patientClinicalData1 = new ClinicalData();
+        patientClinicalData1.setAttrId(TEST_ATTR_ID_1);
+        patientClinicalData1.setAttrValue(TEST_ATTR_VALUE_1);
+        patientClinicalData1.setInternalId(TEST_INTERNAL_ID_1);
+        patientClinicalDataList.add(patientClinicalData1);
+        ClinicalData patientClinicalData2 = new ClinicalData();
+        patientClinicalData2.setAttrId(TEST_ATTR_ID_2);
+        patientClinicalData2.setAttrValue(TEST_ATTR_VALUE_2);
+        patientClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
+        patientClinicalDataList.add(patientClinicalData2);
+        Mockito.when(clinicalDataService.fetchAllClinicalDataInStudy(Mockito.anyString(), 
+            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString()))
+            .thenReturn(patientClinicalDataList);
+
+        List<String> ids = new ArrayList<>();
+        ids.add("test_sample_id_1");
+        ids.add("test_sample_id_2");
+        ClinicalDataSingleStudyFilter clinicalDataSingleStudyFilter = new ClinicalDataSingleStudyFilter();
+        clinicalDataSingleStudyFilter.setIds(ids);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/clinical-data/fetch")
+            .param("clinicalDataType", "SAMPLE")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(clinicalDataSingleStudyFilter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_ATTR_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute").doesNotExist());
+    }
+
+    @Test
+    public void fetchClinicalDataInStudyMetaProjection() throws Exception {
+
+        BaseMeta baseMeta = new BaseMeta();
+        baseMeta.setTotalCount(2);
+
+        Mockito.when(clinicalDataService.fetchMetaClinicalDataInStudy(Mockito.anyString(), 
+            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString()))
+            .thenReturn(baseMeta);
+
+        List<String> ids = new ArrayList<>();
+        ids.add("test_sample_id_1");
+        ids.add("test_sample_id_2");
+        ClinicalDataSingleStudyFilter clinicalDataSingleStudyFilter = new ClinicalDataSingleStudyFilter();
+        clinicalDataSingleStudyFilter.setIds(ids);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/studies/test_study_id/clinical-data/fetch")
+            .param("projection", "META")
+            .param("clinicalDataType", "SAMPLE")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(clinicalDataSingleStudyFilter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+    }
+
     @Test
     public void fetchClinicalDataDefaultProjection() throws Exception {
 
@@ -228,7 +300,7 @@ public class ClinicalDataControllerTest {
         patientClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
         patientClinicalDataList.add(patientClinicalData2);
         Mockito.when(clinicalDataService.fetchClinicalData(
-                Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString(),
+                Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
                 Mockito.anyString(), Mockito.anyString())).thenReturn(patientClinicalDataList);
 
         List<ClinicalDataIdentifier> clinicalDataIdentifiers = new ArrayList<>();
@@ -240,14 +312,16 @@ public class ClinicalDataControllerTest {
         clinicalDataIdentifier2.setStudyId("test_study2");
         clinicalDataIdentifier2.setEntityId("test_patient2");
         clinicalDataIdentifiers.add(clinicalDataIdentifier2);
+        ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter = new ClinicalDataMultiStudyFilter();
+        clinicalDataMultiStudyFilter.setIdentifiers(clinicalDataIdentifiers);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data/fetch")
                 .param("clinicalDataType", "PATIENT")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(clinicalDataIdentifiers)))
+                .content(objectMapper.writeValueAsString(clinicalDataMultiStudyFilter)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_ATTR_VALUE_1))
@@ -268,7 +342,7 @@ public class ClinicalDataControllerTest {
         baseMeta.setTotalCount(2);
 
         Mockito.when(clinicalDataService.fetchMetaClinicalData(Mockito.anyListOf(String.class),
-                Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(baseMeta);
+                Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(baseMeta);
 
         List<ClinicalDataIdentifier> clinicalDataIdentifiers = new ArrayList<>();
         ClinicalDataIdentifier clinicalDataIdentifier1 = new ClinicalDataIdentifier();
@@ -279,12 +353,14 @@ public class ClinicalDataControllerTest {
         clinicalDataIdentifier2.setStudyId("test_study2");
         clinicalDataIdentifier2.setEntityId("test_patient2");
         clinicalDataIdentifiers.add(clinicalDataIdentifier2);
+        ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter = new ClinicalDataMultiStudyFilter();
+        clinicalDataMultiStudyFilter.setIdentifiers(clinicalDataIdentifiers);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data/fetch")
                 .param("projection", "META")
                 .param("clinicalDataType", "PATIENT")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(clinicalDataIdentifiers)))
+                .content(objectMapper.writeValueAsString(clinicalDataMultiStudyFilter)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }

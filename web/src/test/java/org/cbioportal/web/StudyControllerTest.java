@@ -23,9 +23,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -72,6 +74,8 @@ public class StudyControllerTest {
     private StudyService studyService;
     private MockMvc mockMvc;
 
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     @Bean
     public StudyService studyService() {
         return Mockito.mock(StudyService.class);
@@ -86,39 +90,8 @@ public class StudyControllerTest {
 
     @Test
     public void getAllStudiesDefaultProjection() throws Exception {
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        List<CancerStudy> cancerStudyList = new ArrayList<>();
-        CancerStudy cancerStudy1 = new CancerStudy();
-        cancerStudy1.setCancerStudyId(TEST_CANCER_STUDY_ID_1);
-        cancerStudy1.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_1);
-        cancerStudy1.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_1);
-        cancerStudy1.setName(TEST_NAME_1);
-        cancerStudy1.setShortName(TEST_SHORT_NAME_1);
-        cancerStudy1.setDescription(TEST_DESCRIPTION_1);
-        cancerStudy1.setPublicStudy(TEST_PUBLIC_STUDY_1);
-        cancerStudy1.setPmid(TEST_PMID_1);
-        cancerStudy1.setCitation(TEST_CITATION_1);
-        cancerStudy1.setGroups(TEST_GROUPS_1);
-        cancerStudy1.setStatus(TEST_STATUS_1);
-        cancerStudy1.setImportDate(simpleDateFormat.parse(TEST_DATE_1));
-        cancerStudyList.add(cancerStudy1);
-        CancerStudy cancerStudy2 = new CancerStudy();
-        cancerStudy2.setCancerStudyId(TEST_CANCER_STUDY_ID_2);
-        cancerStudy2.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_2);
-        cancerStudy2.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_2);
-        cancerStudy2.setName(TEST_NAME_2);
-        cancerStudy2.setShortName(TEST_SHORT_NAME_2);
-        cancerStudy2.setDescription(TEST_DESCRIPTION_2);
-        cancerStudy2.setPublicStudy(TEST_PUBLIC_STUDY_2);
-        cancerStudy2.setPmid(TEST_PMID_2);
-        cancerStudy2.setCitation(TEST_CITATION_2);
-        cancerStudy2.setGroups(TEST_GROUPS_2);
-        cancerStudy2.setStatus(TEST_STATUS_2);
-        cancerStudy2.setImportDate(simpleDateFormat.parse(TEST_DATE_2));
-        cancerStudyList.add(cancerStudy2);
+        
+        List<CancerStudy> cancerStudyList = createExampleStudies();
 
         Mockito.when(studyService.getAllStudies(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
                 Mockito.anyString(), Mockito.anyString())).thenReturn(cancerStudyList);
@@ -126,7 +99,7 @@ public class StudyControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/studies")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId")
@@ -215,7 +188,7 @@ public class StudyControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cancerStudyId").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.citation").value(TEST_CITATION_1))
@@ -237,6 +210,86 @@ public class StudyControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.shortName")
                         .value(TEST_TYPE_OF_CANCER_SHORT_NAME))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.cancerType.parent").value(TEST_PARENT));
+    }
 
+    @Test
+    public void fetchStudies() throws Exception {
+
+        List<CancerStudy> cancerStudyList = createExampleStudies();
+
+        Mockito.when(studyService.fetchStudies(Mockito.anyListOf(String.class), Mockito.anyString()))
+            .thenReturn(cancerStudyList);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/studies/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1, 
+                TEST_CANCER_STUDY_IDENTIFIER_2))))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].citation").value(TEST_CITATION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].groups").value(TEST_GROUPS_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].importDate").value(TEST_DATE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].pmid").value(TEST_PMID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].publicStudy").value(TEST_PUBLIC_STUDY_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].shortName").value(TEST_SHORT_NAME_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].status").value(TEST_STATUS_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].citation").value(TEST_CITATION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].groups").value(TEST_GROUPS_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].importDate").value(TEST_DATE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pmid").value(TEST_PMID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].publicStudy").value(TEST_PUBLIC_STUDY_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].shortName").value(TEST_SHORT_NAME_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].status").value(TEST_STATUS_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_2));
+    }
+
+    private List<CancerStudy> createExampleStudies() throws ParseException {
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        List<CancerStudy> cancerStudyList = new ArrayList<>();
+        CancerStudy cancerStudy1 = new CancerStudy();
+        cancerStudy1.setCancerStudyId(TEST_CANCER_STUDY_ID_1);
+        cancerStudy1.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_1);
+        cancerStudy1.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_1);
+        cancerStudy1.setName(TEST_NAME_1);
+        cancerStudy1.setShortName(TEST_SHORT_NAME_1);
+        cancerStudy1.setDescription(TEST_DESCRIPTION_1);
+        cancerStudy1.setPublicStudy(TEST_PUBLIC_STUDY_1);
+        cancerStudy1.setPmid(TEST_PMID_1);
+        cancerStudy1.setCitation(TEST_CITATION_1);
+        cancerStudy1.setGroups(TEST_GROUPS_1);
+        cancerStudy1.setStatus(TEST_STATUS_1);
+        cancerStudy1.setImportDate(simpleDateFormat.parse(TEST_DATE_1));
+        cancerStudyList.add(cancerStudy1);
+        CancerStudy cancerStudy2 = new CancerStudy();
+        cancerStudy2.setCancerStudyId(TEST_CANCER_STUDY_ID_2);
+        cancerStudy2.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_2);
+        cancerStudy2.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_2);
+        cancerStudy2.setName(TEST_NAME_2);
+        cancerStudy2.setShortName(TEST_SHORT_NAME_2);
+        cancerStudy2.setDescription(TEST_DESCRIPTION_2);
+        cancerStudy2.setPublicStudy(TEST_PUBLIC_STUDY_2);
+        cancerStudy2.setPmid(TEST_PMID_2);
+        cancerStudy2.setCitation(TEST_CITATION_2);
+        cancerStudy2.setGroups(TEST_GROUPS_2);
+        cancerStudy2.setStatus(TEST_STATUS_2);
+        cancerStudy2.setImportDate(simpleDateFormat.parse(TEST_DATE_2));
+        cancerStudyList.add(cancerStudy2);
+        return cancerStudyList;
     }
 }

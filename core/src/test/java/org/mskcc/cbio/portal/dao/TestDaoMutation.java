@@ -195,10 +195,10 @@ public class TestDaoMutation {
 		assertEquals ("Sanger_PCR_WGA;Sanger_PCR_gDNA", mutation.getValidationMethod());
 		assertEquals ("NA", mutation.getScore());
 		assertEquals ("NA", mutation.getBamFile());
-		assertEquals (6, mutation.getTumorAltCount());
-		assertEquals (16, mutation.getTumorRefCount());
-		assertEquals (8, mutation.getNormalAltCount());
-		assertEquals (18, mutation.getNormalRefCount());
+		assertEquals (Integer.valueOf(6), mutation.getTumorAltCount());
+		assertEquals (Integer.valueOf(16), mutation.getTumorRefCount());
+		assertEquals (Integer.valueOf(8), mutation.getNormalAltCount());
+		assertEquals (Integer.valueOf(18), mutation.getNormalRefCount());
 		assertEquals ("rs149680468", mutation.getOncotatorDbSnpRs());
 		assertEquals ("c.(133-135)TCT>TTT", mutation.getOncotatorCodonChange());
 		assertEquals("NM_001904", mutation.getOncotatorRefseqMrnaId());

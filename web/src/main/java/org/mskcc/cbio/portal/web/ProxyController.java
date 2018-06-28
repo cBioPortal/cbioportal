@@ -32,6 +32,15 @@
 
 package org.mskcc.cbio.portal.web;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -39,16 +48,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/proxy")
@@ -56,7 +61,7 @@ public class ProxyController
 {
 	
   private String hotspotsURL;
-  @Value("${hotspots.url:http://cancerhotspots.org/api/}")
+  @Value("${hotspots.url:https://www.cancerhotspots.org/api/}")
   public void setHotspotsURL(String property) { this.hotspotsURL = property; }
   
   private String bitlyURL;
@@ -66,10 +71,6 @@ public class ProxyController
   private String sessionServiceURL;
   @Value("${session.service.url:''}") // default is empty string
   public void setSessionServiceURL(String property) { this.sessionServiceURL = property; }
-
-  private String pdbDatabaseURL;
-  @Value("${pdb.database.url}")
-  public void setPDBDatabaseURL(String property) { this.pdbDatabaseURL = property; }
 
   private String oncokbApiURL;
   @Value("${oncokb.api.url:http://oncokb.org/legacy-api/}")
@@ -97,14 +98,14 @@ public class ProxyController
   // Created by Hongxin
   @RequestMapping(value="/{path}")
   public @ResponseBody String getProxyURL(@PathVariable String path,
-                                          @RequestBody String body, HttpMethod method,
+                                          @RequestBody(required = false) String body, HttpMethod method,
                                           HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException
   {
       Map<String, String> pathToUrl = new HashMap<>();
       
       pathToUrl.put("bitly", bitlyURL);
       pathToUrl.put("cancerHotSpots", hotspotsURL + "hotspots/single/");
-      pathToUrl.put("3dHotspots", "http://3dhotspots.org/3d/api/hotspots/3d");
+      pathToUrl.put("3dHotspots", "https://www.3dhotspots.org/api/hotspots/3d/");
       pathToUrl.put("oncokbAccess", oncokbApiURL + "access");
       pathToUrl.put("oncokbSummary", oncokbApiURL + "summary.json");
 
@@ -119,7 +120,6 @@ public class ProxyController
         if (method.equals(HttpMethod.GET) && request.getQueryString() != null){
           URL += "?" + request.getQueryString();
         }
-        
         return respProxy(URL, method, body, response);
   }
 
@@ -169,26 +169,10 @@ public class ProxyController
         }
      }
 
-  @RequestMapping(value="/bitly")
-  public @ResponseBody String getBitlyURL(@RequestBody String body, HttpMethod method,
-                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException
+  @RequestMapping(value="/bitly", method = RequestMethod.GET)
+  public @ResponseBody String getBitlyURL(HttpMethod method, HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException
   {
-      return respProxy(bitlyURL + request.getQueryString(), method, body, response);
+      return respProxy(bitlyURL + request.getQueryString(), method, null, response);
   }
 
-  @RequestMapping(value="/session-service/{type}", method = RequestMethod.POST)
-  public @ResponseBody Map addSessionService(@PathVariable String type, @RequestBody JSONObject body, HttpMethod method,
-                                                HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
-  {
-    RestTemplate restTemplate = new RestTemplate();
-    URI uri = new URI(sessionServiceURL + type);
-
-    // returns {"id":"5799648eef86c0e807a2e965"}
-    // using HashMap because converter is MappingJackson2HttpMessageConverter (Jackson 2 is on classpath)
-    // was String when default converter StringHttpMessageConverter was used
-    ResponseEntity<HashMap> responseEntity =
-      restTemplate.exchange(uri, method, new HttpEntity<JSONObject>(body), HashMap.class);
-
-    return responseEntity.getBody();
-  }
 }

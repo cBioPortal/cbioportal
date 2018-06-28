@@ -2,7 +2,6 @@ package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.SampleList;
-import org.cbioportal.model.SampleListSampleCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.junit.Assert;
 import org.junit.Test;
@@ -156,6 +155,25 @@ public class SampleListMyBatisRepositoryTest {
     }
 
     @Test
+    public void getSampleLists() throws Exception {
+
+        List<SampleList> result = sampleListMyBatisRepository.getSampleLists(Arrays.asList("study_tcga_pub_all", 
+            "study_tcga_pub_acgh"), "SUMMARY");
+
+        Assert.assertEquals(2, result.size());
+        SampleList sampleList = result.get(0);
+        Assert.assertEquals((Integer) 2, sampleList.getListId());
+        Assert.assertEquals("study_tcga_pub_acgh", sampleList.getStableId());
+        Assert.assertEquals((Integer) 1, sampleList.getCancerStudyId());
+        Assert.assertEquals("study_tcga_pub", sampleList.getCancerStudyIdentifier());
+        Assert.assertEquals("other", sampleList.getCategory());
+        Assert.assertEquals("Tumors aCGH", sampleList.getName());
+        Assert.assertEquals("All tumors with aCGH data",
+            sampleList.getDescription());
+        Assert.assertNull(sampleList.getCancerStudy());
+    }
+
+    @Test
     public void getAllSampleListsInStudySummaryProjection() throws Exception {
 
         List<SampleList> result = sampleListMyBatisRepository.getAllSampleListsInStudy("study_tcga_pub",
@@ -226,19 +244,5 @@ public class SampleListMyBatisRepositoryTest {
         Assert.assertEquals("TCGA-A1-A0SF-01", result.get(3));
         Assert.assertEquals("TCGA-A1-A0SG-01", result.get(4));
         Assert.assertEquals("TCGA-A1-A0SQ-01", result.get(13));
-    }
-
-    @Test
-    public void getSampleCounts() throws Exception {
-
-        List<SampleListSampleCount> result = sampleListMyBatisRepository.getSampleCounts(Arrays.asList(1, 2));
-        
-        Assert.assertEquals(2, result.size());
-        SampleListSampleCount sampleListSampleCount1 = result.get(0);
-        Assert.assertEquals((Integer) 1, sampleListSampleCount1.getSampleListId());
-        Assert.assertEquals((Integer) 14, sampleListSampleCount1.getSampleCount());
-        SampleListSampleCount sampleListSampleCount2 = result.get(1);
-        Assert.assertEquals((Integer) 2, sampleListSampleCount2.getSampleListId());
-        Assert.assertEquals((Integer) 14, sampleListSampleCount2.getSampleCount());
     }
 }

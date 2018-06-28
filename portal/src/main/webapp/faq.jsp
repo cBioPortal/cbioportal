@@ -32,50 +32,46 @@
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
-
-<!-- js files: -->
-<script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/underscore-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
-<script type="text/javascript" src="js/lib/showdown.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/showdown-github.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/url_based_content.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
+  
 <%
-    String siteTitle = GlobalProperties.getTitle();
+    String siteTitle = GlobalProperties.getTitle() + "::FAQ";
+    String appVersion = GlobalProperties.getAppVersion();
 %>
 
-<% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::FAQ"); %>
-<jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
-<div id="main">
-    <table cellspacing="2px">
-        <tr>
-            <td>
-                <div id="faqPage" class="markdown"></div>
-            </td>
-        </tr>
-    </table>
-    </div>
-    </td>
-    <td width="172">
-	<jsp:include page="WEB-INF/jsp/global/right_column.jsp" flush="true" />
-    </td>
-  </tr>
-  <tr>
-    <td colspan="3">
-	<jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
-    </td>
-  </tr>
-</table>
-</center>
-</div>
-</form>
-<jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
-</body>
-</html>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<!-- Initialization script -->
+<t:template title="<%= siteTitle %>" defaultRightColumn="true" fixedWidth="true">
+
+    <jsp:attribute name="head_area">
+        <!-- js files: -->
+        <script type="text/javascript" src="js/lib/jquery.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/underscore-min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/backbone-min.js?${appVersion}"></script>
+
+        <script type="text/javascript" src="js/lib/showdown.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/lib/showdown-github.min.js?${appVersion}"></script>
+        <script type="text/javascript" src="js/src/url_based_content.js?${appVersion}"></script>
+        <script>
+        window.loadReactApp({ defaultRoute: 'blank' });
+        </script>
+    </jsp:attribute>
+
+    <jsp:attribute name="body_area">
+        <div id="reactRoot" class="hidden"></div>
+
+        <div id="faqPage"></div>
+    </jsp:attribute>
+
+
+</t:template>
+
+
+
+
+
+
+
+    <!-- Initialization script -->
 <script>
     $(document).ready( function() {
         // retrieve link for FAQ and generate the page

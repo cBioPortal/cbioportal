@@ -31,7 +31,7 @@ import java.util.List;
 @Configuration
 public class VariantCountControllerTest {
 
-    private static final String TEST_GENETIC_PROFILE_STABLE_ID = "test_genetic_profile_stable_id";
+    private static final String TEST_MOLECULAR_PROFILE_STABLE_ID = "test_molecular_profile_stable_id";
     private static final int TEST_ENTREZ_GENE_ID_1 = 1;
     private static final String TEST_KEYWORD_1 = "test_keyword_1";
     private static final int TEST_NUMBER_OF_SAMPLES_1 = 6;
@@ -69,7 +69,7 @@ public class VariantCountControllerTest {
 
         List<VariantCount> variantCountList = new ArrayList<>();
         VariantCount variantCount1 = new VariantCount();
-        variantCount1.setGeneticProfileId(TEST_GENETIC_PROFILE_STABLE_ID);
+        variantCount1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID);
         variantCount1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
         variantCount1.setKeyword(TEST_KEYWORD_1);
         variantCount1.setNumberOfSamples(TEST_NUMBER_OF_SAMPLES_1);
@@ -77,7 +77,7 @@ public class VariantCountControllerTest {
         variantCount1.setNumberOfSamplesWithKeyword(TEST_NUMBER_OF_SAMPLES_WITH_KEYWORD_1);
         variantCountList.add(variantCount1);
         VariantCount variantCount2 = new VariantCount();
-        variantCount2.setGeneticProfileId(TEST_GENETIC_PROFILE_STABLE_ID);
+        variantCount2.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID);
         variantCount2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         variantCount2.setKeyword(TEST_KEYWORD_2);
         variantCount2.setNumberOfSamples(TEST_NUMBER_OF_SAMPLES_2);
@@ -98,15 +98,17 @@ public class VariantCountControllerTest {
         variantCountIdentifier2.setKeyword(TEST_KEYWORD_2);
         variantCountIdentifiers.add(variantCountIdentifier2);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/genetic-profiles/test_genetic_profile_id/variant-counts/fetch")
+        mockMvc.perform(MockMvcRequestBuilders
+            .post("/molecular-profiles/test_molecular_profile_id/variant-counts/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(variantCountIdentifiers)))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticProfileId").value(TEST_GENETIC_PROFILE_STABLE_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId")
+                .value(TEST_MOLECULAR_PROFILE_STABLE_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].keyword").value(TEST_KEYWORD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].numberOfSamples").value(TEST_NUMBER_OF_SAMPLES_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].numberOfSamplesWithMutationInGene")
@@ -114,7 +116,8 @@ public class VariantCountControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].numberOfSamplesWithKeyword")
                 .value(TEST_NUMBER_OF_SAMPLES_WITH_KEYWORD_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].geneticProfileId").value(TEST_GENETIC_PROFILE_STABLE_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
+                .value(TEST_MOLECULAR_PROFILE_STABLE_ID))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].keyword").value(TEST_KEYWORD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].numberOfSamples").value(TEST_NUMBER_OF_SAMPLES_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].numberOfSamplesWithMutationInGene")

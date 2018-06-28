@@ -1,6 +1,7 @@
 package org.cbioportal.persistence;
 
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.meta.BaseMeta;
 
 import java.util.List;
@@ -26,9 +27,18 @@ public interface ClinicalDataRepository {
 
     BaseMeta getMetaAllClinicalData(String studyId, String attributeId, String clinicalDataType);
 
-    List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, String attributeId,
+    List<ClinicalData> fetchAllClinicalDataInStudy(String studyId, List<String> ids, List<String> attributeIds, 
+                                                   String clinicalDataType, String projection);
+
+    BaseMeta fetchMetaClinicalDataInStudy(String studyId, List<String> ids, List<String> attributeIds, 
+                                          String clinicalDataType);
+    
+    List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                          String clinicalDataType, String projection);
 
-    BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, String attributeId,
+    BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                    String clinicalDataType);
+
+    List<ClinicalDataCount> fetchClinicalDataCounts(String studyId, List<String> sampleIds, List<String> attributeIds, 
+        String clinicalDataType);
 }

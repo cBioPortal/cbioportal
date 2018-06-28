@@ -1,13 +1,16 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
 import java.util.List;
+import javax.validation.constraints.NotNull;
 
-public class ClinicalEvent implements Serializable {
+public class ClinicalEvent extends UniqueKeyBase {
     
     private Integer clinicalEventId;
+    @NotNull
     private String studyId;
+    @NotNull
     private String patientId;
+    @NotNull
     private String eventType;
     private Integer startDate;
     private Integer stopDate;

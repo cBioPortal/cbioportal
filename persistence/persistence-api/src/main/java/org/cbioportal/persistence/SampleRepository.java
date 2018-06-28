@@ -19,9 +19,15 @@ public interface SampleRepository {
 
     BaseMeta getMetaSamplesOfPatientInStudy(String studyId, String patientId);
 
+    List<Sample> getAllSamplesOfPatientsInStudy(String studyId, List<String> patientIds, String projection);
+    
     List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection);
 
+    List<Sample> fetchSamples(List<String> sampleListIds, String projection);
+
     BaseMeta fetchMetaSamples(List<String> studyIds, List<String> sampleIds);
+
+    BaseMeta fetchMetaSamples(List<String> sampleListIds);
 
     List<Sample> getSamplesByInternalIds(List<Integer> internalIds);
 }

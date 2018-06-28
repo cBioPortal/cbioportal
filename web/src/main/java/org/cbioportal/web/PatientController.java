@@ -6,9 +6,11 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Patient;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.exception.PatientNotFoundException;
+import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.PatientSortBy;
+import org.cbioportal.web.util.UniqueKeyExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,10 +23,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.security.access.prepost.PreAuthorize;
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +39,10 @@ public class PatientController {
     @Autowired
     private PatientService patientService;
 
+    @Autowired
+    private UniqueKeyExtractor uniqueKeyExtractor;
+
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/patients", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all patients in a study")
@@ -55,7 +61,7 @@ public class PatientController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) PatientSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) {
+        @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -69,6 +75,7 @@ public class PatientController {
         }
     }
 
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get a patient in a study")
@@ -76,37 +83,50 @@ public class PatientController {
         @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
         @PathVariable String studyId,
         @ApiParam(required = true, value = "Patient ID e.g. TCGA-OR-A5J2")
-        @PathVariable String patientId) throws PatientNotFoundException {
+        @PathVariable String patientId) throws PatientNotFoundException, StudyNotFoundException {
 
         return new ResponseEntity<>(patientService.getPatientInStudy(studyId, patientId), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#patientFilter, 'PatientFilter', 'read')")
     @RequestMapping(value = "/patients/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch patients by ID")
     public ResponseEntity<List<Patient>> fetchPatients(
         @ApiParam(required = true, value = "List of patient identifiers")
-        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-        @RequestBody List<PatientIdentifier> patientIdentifiers,
+        @Valid @RequestBody PatientFilter patientFilter,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         List<String> studyIds = new ArrayList<>();
         List<String> patientIds = new ArrayList<>();
 
-        for (PatientIdentifier patientIdentifier : patientIdentifiers) {
-            studyIds.add(patientIdentifier.getStudyId());
-            patientIds.add(patientIdentifier.getPatientId());
-        }
-
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
+            if (patientFilter.getPatientIdentifiers() != null) {
+                extractStudyAndPatientIds(patientFilter, studyIds, patientIds);
+            } else {
+                uniqueKeyExtractor.extractUniqueKeys(patientFilter.getUniquePatientKeys(), studyIds, patientIds);
+            }
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, patientService.fetchMetaPatients(studyIds, patientIds)
                 .getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
+            if (patientFilter.getPatientIdentifiers() != null) {
+                extractStudyAndPatientIds(patientFilter, studyIds, patientIds);
+            } else {
+                uniqueKeyExtractor.extractUniqueKeys(patientFilter.getUniquePatientKeys(), studyIds, patientIds);
+            }
             return new ResponseEntity<>(
                 patientService.fetchPatients(studyIds, patientIds, projection.name()), HttpStatus.OK);
+        }
+    }
+
+    private void extractStudyAndPatientIds(PatientFilter patientFilter, List<String> studyIds, List<String> patientIds) {
+        
+        for (PatientIdentifier patientIdentifier : patientFilter.getPatientIdentifiers()) {
+            studyIds.add(patientIdentifier.getStudyId());
+            patientIds.add(patientIdentifier.getPatientId());
         }
     }
 }

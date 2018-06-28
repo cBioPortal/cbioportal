@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.model;
 
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 
 import java.io.Serializable;
@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class MutationCount implements Serializable {
 
     private Integer geneticProfileId;
-    private GeneticProfile geneticProfile;
+    private MolecularProfile geneticProfile;
     private Integer sampleId;
     private Sample sample;
     private Integer mutationCount;
@@ -21,11 +21,11 @@ public class MutationCount implements Serializable {
         this.geneticProfileId = geneticProfileId;
     }
 
-    public GeneticProfile getGeneticProfile() {
+    public MolecularProfile getGeneticProfile() {
         return geneticProfile;
     }
 
-    public void setGeneticProfile(GeneticProfile geneticProfile) {
+    public void setGeneticProfile(MolecularProfile geneticProfile) {
         this.geneticProfile = geneticProfile;
     }
 

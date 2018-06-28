@@ -4,6 +4,8 @@ import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.ClinicalEventData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalEventRepository;
+import org.cbioportal.service.PatientService;
+import org.cbioportal.service.exception.PatientNotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +26,8 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
     
     @Mock
     private ClinicalEventRepository clinicalEventRepository;
+    @Mock
+    private PatientService patientService;
     
     @Test
     public void getAllClinicalEventsOfPatientInStudy() throws Exception {
@@ -33,7 +37,7 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
         clinicalEvent.setClinicalEventId(CLINICAL_EVENT_ID);
         expectedClinicalEventList.add(clinicalEvent);
 
-        Mockito.when(clinicalEventRepository.getAllClinicalEventsOfPatientInStudy(STUDY_ID, PATIENT_ID, PROJECTION,
+        Mockito.when(clinicalEventRepository.getAllClinicalEventsOfPatientInStudy(STUDY_ID, PATIENT_ID_1, PROJECTION,
             PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION)).thenReturn(expectedClinicalEventList);
 
         List<ClinicalEventData> expectedClinicalEventDataList = new ArrayList<>();
@@ -44,7 +48,7 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
         Mockito.when(clinicalEventRepository.getDataOfClinicalEvents(Arrays.asList(CLINICAL_EVENT_ID)))
             .thenReturn(expectedClinicalEventDataList);
 
-        List<ClinicalEvent> result = clinicalEventService.getAllClinicalEventsOfPatientInStudy(STUDY_ID, PATIENT_ID,
+        List<ClinicalEvent> result = clinicalEventService.getAllClinicalEventsOfPatientInStudy(STUDY_ID, PATIENT_ID_1,
             PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(1, result.size());
@@ -53,14 +57,31 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(clinicalEventData, result.get(0).getAttributes().get(0));
     }
 
+    @Test(expected = PatientNotFoundException.class)
+    public void getAllClinicalEventsOfPatientInStudyPatientNotFound() throws Exception {
+
+        Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1)).thenThrow(new PatientNotFoundException(
+            STUDY_ID, PATIENT_ID_1));
+        clinicalEventService.getAllClinicalEventsOfPatientInStudy(STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE, 
+            PAGE_NUMBER, SORT, DIRECTION);
+    }
+
     @Test
     public void getMetaPatientClinicalEvents() throws Exception {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(clinicalEventRepository.getMetaPatientClinicalEvents(STUDY_ID, PATIENT_ID))
+        Mockito.when(clinicalEventRepository.getMetaPatientClinicalEvents(STUDY_ID, PATIENT_ID_1))
             .thenReturn(expectedBaseMeta);
-        BaseMeta result = clinicalEventService.getMetaPatientClinicalEvents(STUDY_ID, PATIENT_ID);
+        BaseMeta result = clinicalEventService.getMetaPatientClinicalEvents(STUDY_ID, PATIENT_ID_1);
 
-        org.junit.Assert.assertEquals(expectedBaseMeta, result);
+        Assert.assertEquals(expectedBaseMeta, result);
+    }
+
+    @Test(expected = PatientNotFoundException.class)
+    public void getMetaPatientClinicalEventsPatientNotFound() throws Exception {
+        
+        Mockito.when(patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1)).thenThrow(new PatientNotFoundException(
+            STUDY_ID, PATIENT_ID_1));
+        clinicalEventService.getMetaPatientClinicalEvents(STUDY_ID, PATIENT_ID_1);
     }
 }

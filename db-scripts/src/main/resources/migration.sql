@@ -267,3 +267,190 @@ UPDATE info SET DB_SCHEMA_VERSION="2.0.1";
 ALTER TABLE `cancer_study` MODIFY COLUMN `TYPE_OF_CANCER_ID` varchar(63) NOT NULL;
 ALTER TABLE `sample` MODIFY COLUMN `TYPE_OF_CANCER_ID` varchar(63) NOT NULL;
 UPDATE info SET DB_SCHEMA_VERSION="2.1.0";
+
+##version: 2.2.0
+CREATE TABLE `mutation_count_by_keyword` (
+    `GENETIC_PROFILE_ID` int(11) NOT NULL,
+    `KEYWORD` varchar(50) DEFAULT NULL,
+    `ENTREZ_GENE_ID` int(11) NOT NULL,
+    `KEYWORD_COUNT` int NOT NULL,
+    `GENE_COUNT` int NOT NULL,
+    KEY (`GENETIC_PROFILE_ID`,`KEYWORD`),
+    FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
+);
+
+INSERT INTO mutation_count_by_keyword
+    SELECT g2.`GENETIC_PROFILE_ID`, mutation_event.`KEYWORD`, m2.`ENTREZ_GENE_ID`,
+        IF(mutation_event.`KEYWORD` IS NULL, 0, COUNT(*)) AS KEYWORD_COUNT, 
+        (SELECT COUNT(*) FROM `mutation` AS m1 , `genetic_profile` AS g1
+        WHERE m1.`GENETIC_PROFILE_ID` = g1.`GENETIC_PROFILE_ID`
+        AND g1.`GENETIC_PROFILE_ID`= g2.`GENETIC_PROFILE_ID` AND m1.`ENTREZ_GENE_ID` = m2.`ENTREZ_GENE_ID`
+        GROUP BY g1.`GENETIC_PROFILE_ID` , m1.`ENTREZ_GENE_ID`) AS GENE_COUNT
+    FROM `mutation` AS m2 , `genetic_profile` AS g2 , `mutation_event`
+    WHERE m2.`GENETIC_PROFILE_ID` = g2.`GENETIC_PROFILE_ID`
+          AND m2.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID`
+          AND g2.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED'
+    GROUP BY g2.`GENETIC_PROFILE_ID` , mutation_event.`KEYWORD` , m2.`ENTREZ_GENE_ID`;
+UPDATE info SET DB_SCHEMA_VERSION="2.2.0";
+
+
+##version: 2.3.0
+-- ========================== new geneset related tables =============================================
+
+CREATE TABLE `geneset` (
+  `ID` INT(11) NOT NULL auto_increment,
+  `GENETIC_ENTITY_ID` INT NOT NULL,
+  `EXTERNAL_ID` VARCHAR(200) NOT NULL,
+  `NAME` VARCHAR(200) NOT NULL,
+  `DESCRIPTION` VARCHAR(300) NOT NULL,
+  `REF_LINK` TEXT,
+  PRIMARY KEY (`ID`),
+  UNIQUE INDEX `NAME_UNIQUE` (`NAME` ASC),
+  UNIQUE INDEX `EXTERNAL_ID_COLL_UNIQUE` (`EXTERNAL_ID` ASC),
+  UNIQUE INDEX `GENESET_GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID` ASC),
+  FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `geneset_gene` (
+  `GENESET_ID` INT(11) NOT NULL,
+  `ENTREZ_GENE_ID` INT(11) NOT NULL,
+  PRIMARY KEY (`GENESET_ID`, `ENTREZ_GENE_ID`),
+  FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`GENESET_ID`) REFERENCES `geneset` (`ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `geneset_hierarchy_node` (
+  `NODE_ID` BIGINT(20) NOT NULL auto_increment,
+  `NODE_NAME` VARCHAR(200) NOT NULL,
+  `PARENT_ID` BIGINT NULL DEFAULT NULL,
+  PRIMARY KEY (`NODE_ID`),
+  UNIQUE INDEX `NODE_NAME_UNIQUE` (`NODE_NAME` ASC, `PARENT_ID` ASC)
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `geneset_hierarchy_leaf` (
+  `NODE_ID` BIGINT NOT NULL,
+  `GENESET_ID` INT NOT NULL,
+  PRIMARY KEY (`NODE_ID`, `GENESET_ID`),
+  FOREIGN KEY (`NODE_ID`) REFERENCES `geneset_hierarchy_node` (`NODE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`GENESET_ID`) REFERENCES `geneset` (`ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+ALTER TABLE `info` ADD COLUMN `GENESET_VERSION` VARCHAR(24) NULL AFTER `DB_SCHEMA_VERSION`;
+
+-- --------------------------------------------------------
+CREATE TABLE `genetic_profile_link` (
+  `REFERRING_GENETIC_PROFILE_ID` INT NOT NULL,
+  `REFERRED_GENETIC_PROFILE_ID` INT NOT NULL,
+  `REFERENCE_TYPE` VARCHAR(45) NULL,
+  PRIMARY KEY (`REFERRING_GENETIC_PROFILE_ID`, `REFERRED_GENETIC_PROFILE_ID`),
+  FOREIGN KEY (`REFERRING_GENETIC_PROFILE_ID` ) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`)  ON DELETE CASCADE,
+  FOREIGN KEY (`REFERRED_GENETIC_PROFILE_ID` ) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+UPDATE info SET DB_SCHEMA_VERSION="2.3.0";
+
+-- ========================== end of geneset related tables =============================================
+
+##version: 2.3.1
+TRUNCATE TABLE mutation_count_by_keyword;
+
+INSERT INTO mutation_count_by_keyword
+    SELECT g2.`GENETIC_PROFILE_ID`, mutation_event.`KEYWORD`, m2.`ENTREZ_GENE_ID`,
+        IF(mutation_event.`KEYWORD` IS NULL, 0, COUNT(DISTINCT(m2.SAMPLE_ID))) AS KEYWORD_COUNT,
+        (SELECT COUNT(DISTINCT(m1.SAMPLE_ID)) FROM `mutation` AS m1 , `genetic_profile` AS g1
+        WHERE m1.`GENETIC_PROFILE_ID` = g1.`GENETIC_PROFILE_ID`
+              AND g1.`GENETIC_PROFILE_ID`= g2.`GENETIC_PROFILE_ID` AND m1.`ENTREZ_GENE_ID` = m2.`ENTREZ_GENE_ID`
+        GROUP BY g1.`GENETIC_PROFILE_ID` , m1.`ENTREZ_GENE_ID`) AS GENE_COUNT
+    FROM `mutation` AS m2 , `genetic_profile` AS g2 , `mutation_event`
+    WHERE m2.`GENETIC_PROFILE_ID` = g2.`GENETIC_PROFILE_ID`
+          AND m2.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID`
+          AND g2.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED'
+    GROUP BY g2.`GENETIC_PROFILE_ID` , mutation_event.`KEYWORD` , m2.`ENTREZ_GENE_ID`;
+
+UPDATE info SET DB_SCHEMA_VERSION="2.3.1";
+
+##version: 2.4.0
+ALTER TABLE `mutation` ADD COLUMN `DRIVER_FILTER` VARCHAR(20) NULL;
+ALTER TABLE `mutation` ADD COLUMN `DRIVER_FILTER_ANNOTATION` VARCHAR(80) NULL;
+ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER` VARCHAR(50) NULL;
+ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER_ANNOTATION` VARCHAR(80) NULL;
+
+UPDATE info SET DB_SCHEMA_VERSION="2.4.0";
+
+##version: 2.4.1
+-- ========================== new reference genome genes related tables =============================================
+CREATE TABLE `reference_genome` (
+    `REFERENCE_GENOME_ID` int(4) NOT NULL AUTO_INCREMENT,
+    `SPECIES` varchar(64) NOT NULL,
+    `NAME` varchar(64) NOT NULL,
+    `BUILD_NAME` varchar(64) NOT NULL,
+    `GENOME_SIZE` bigint(20) NULL,
+    `URL` varchar(256) NOT NULL,
+    `RELEASE_DATE` datetime DEFAULT NULL,
+    PRIMARY KEY (`REFERENCE_GENOME_ID`),
+    UNIQUE INDEX `BUILD_NAME_UNIQUE` (`BUILD_NAME` ASC)
+);
+
+INSERT INTO `reference_genome` 
+VALUES (1, 'human', 'hg19', 'GRCh37', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01');
+INSERT INTO `reference_genome` 
+VALUES (2, 'human', 'hg38', 'GRCh38', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips', '2013-12-01');
+INSERT INTO `reference_genome` 
+VALUES (3, 'mouse', 'mm10', 'GRCm38', NULL, 'http://hgdownload.cse.ucsc.edu//goldenPath/mm10/bigZips', '2012-01-01');
+
+CREATE TABLE `reference_genome_gene` (
+    `ENTREZ_GENE_ID` int(11) NOT NULL,
+    `REFERENCE_GENOME_ID` int(4) NOT NULL,
+    `CHR` varchar(4) DEFAULT NULL,
+    `CYTOBAND` varchar(64) DEFAULT NULL,
+    `EXONIC_LENGTH` int(11) DEFAULT NULL,
+    `START` bigint(20) DEFAULT NULL,
+    `END` bigint(20) DEFAULT NULL,
+    `ENSEMBL_GENE_ID` varchar(64) DEFAULT NULL,
+    PRIMARY KEY (`ENTREZ_GENE_ID`,`REFERENCE_GENOME_ID`),
+    FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
+);
+
+INSERT INTO reference_genome_gene (ENTREZ_GENE_ID, CYTOBAND, EXONIC_LENGTH, CHR, REFERENCE_GENOME_ID)
+(SELECT 
+	ENTREZ_GENE_ID, 
+	CYTOBAND, 
+	LENGTH,
+    SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(gene.CYTOBAND,IF(LOCATE('p', gene.CYTOBAND), 'p', 'q'), 1),'q',1),'cen',1),
+	1 
+FROM `gene`);
+
+UPDATE info SET DB_SCHEMA_VERSION="2.4.1";
+-- ========================= end of reference genes related tables ========================================================================
+
+##version: 2.5.0
+
+CREATE TABLE `fraction_genome_altered` (
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `SAMPLE_ID` int(11) NOT NULL,
+  `VALUE` double NOT NULL,
+  PRIMARY KEY (`CANCER_STUDY_ID`,`SAMPLE_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+);
+
+INSERT INTO `fraction_genome_altered` SELECT cancer_study.`CANCER_STUDY_ID`, `SAMPLE_ID`, IF((SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2 
+WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) IS NULL, 0, 
+(SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2 WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` AND 
+ABS(c2.`SEGMENT_MEAN`) >= 0.2) / SUM(`END`-`START`)) AS `VALUE` FROM `copy_number_seg` AS c1, cancer_study WHERE 
+c1.`CANCER_STUDY_ID` = cancer_study.`CANCER_STUDY_ID` GROUP BY cancer_study.`CANCER_STUDY_ID`, `SAMPLE_ID` HAVING SUM(`END`-`START`) > 0;
+
+UPDATE info SET DB_SCHEMA_VERSION="2.5.0";
+
+##version: 2.6.0
+-- modify fkc for gistic_to_gene
+ALTER TABLE gistic_to_gene DROP FOREIGN KEY gistic_to_gene_ibfk_2;
+ALTER TABLE gistic_to_gene ADD CONSTRAINT `gistic_to_gene_ibfk_2` FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE;
+
+UPDATE info SET DB_SCHEMA_VERSION="2.6.0";

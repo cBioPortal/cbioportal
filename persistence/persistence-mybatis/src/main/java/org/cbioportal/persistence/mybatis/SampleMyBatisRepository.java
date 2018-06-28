@@ -19,7 +19,6 @@ public class SampleMyBatisRepository implements SampleRepository {
     @Autowired
     private OffsetCalculator offsetCalculator;
 
-
     @Override
     public List<Sample> getAllSamplesInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber,
                                              String sortBy, String direction) {
@@ -56,16 +55,34 @@ public class SampleMyBatisRepository implements SampleRepository {
     }
 
     @Override
+    public List<Sample> getAllSamplesOfPatientsInStudy(String studyId, List<String> patientIds, String projection) {
+
+        return sampleMapper.getSamplesOfPatients(studyId, patientIds, projection);
+    }
+
+    @Override
     public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {
 
         return sampleMapper.getSamples(studyIds, null, sampleIds, projection, 0, 0, null, null);
     }
 
     @Override
+	public List<Sample> fetchSamples(List<String> sampleListIds, String projection) {
+        
+        return sampleMapper.getSamplesBySampleListIds(sampleListIds, projection);
+	}
+
+    @Override
     public BaseMeta fetchMetaSamples(List<String> studyIds, List<String> sampleIds) {
 
         return sampleMapper.getMetaSamples(studyIds, null, sampleIds);
     }
+
+    @Override
+	public BaseMeta fetchMetaSamples(List<String> sampleListIds) {
+        
+        return sampleMapper.getMetaSamplesBySampleListIds(sampleListIds);
+	}
 
     @Override
     public List<Sample> getSamplesByInternalIds(List<Integer> internalIds) {

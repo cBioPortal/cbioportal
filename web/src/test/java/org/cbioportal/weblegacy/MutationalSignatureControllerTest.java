@@ -33,14 +33,15 @@ package org.cbioportal.weblegacy;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.cbioportal.model.*;
-import org.cbioportal.service.MutationalSignatureService;
+
+import org.mskcc.cbio.portal.service.MutationalSignatureService;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mskcc.cbio.portal.model.MutationalSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -91,7 +92,7 @@ public class MutationalSignatureControllerTest {
 			.param("study_id", "msk")
 			.param("sample_ids", sample_ids))
 			.andExpect(MockMvcResultMatchers.status().isOk())
-			.andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+			.andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
 			.andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
 			.andExpect(MockMvcResultMatchers.jsonPath("$[0].sample").value("sample1"))
 			.andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0]").value(40))
@@ -116,7 +117,7 @@ public class MutationalSignatureControllerTest {
 			.accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
 			.param("study_id", "msk"))
 			.andExpect(MockMvcResultMatchers.status().isOk())
-			.andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+			.andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
 			.andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
 			.andExpect(MockMvcResultMatchers.jsonPath("$[0].sample").value("sample1"))
 			.andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0]").value(40))

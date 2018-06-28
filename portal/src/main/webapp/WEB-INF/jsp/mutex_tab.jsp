@@ -39,25 +39,14 @@
 <%@ page import="org.apache.commons.lang.math.DoubleRange" %>
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.io.IOException" %>
-
-<script type="text/javascript" src="js/src/mutex/dataProxy.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/mutex/view.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
-
-<div class="section" id="mutex" class="mutex">
-    <div id='mutex-wrapper' style='width: 800px; margin-top: 10px; margin-left: 10px;'>
-        <div id="mutex-info-div">
-            <p>The query contains <span id='num_of_mutex' class='stat_num'></span> gene pair<span id='plu_s_mutex'></span> with mutually exclusive alterations<span id='stat_sig_mutex'> (<span id='num_of_sig_mutex' class='stat_num'></span> significant)</span>,
-            and <span id='num_of_co_oc' class='stat_num'></span> gene pair<span id='plu_s_co_oc'></span> with co-occurrent alterations<span id='stat_sig_co_oc'> (<span id='num_of_sig_co_oc' class='stat_num'></span> significant)</span>.
-        </div>
-        <div id='mutex-loading-image'>
-            <img style='padding:200px;' src='images/ajax-loader.gif' alt='loading'>
-        </div>
-        <div id="mutex-table-div" style='margin-top:10px;'></div>
-    </div>
+    
+<div class="cbioportal-frontend">
+    <div class="section" id="mutex"></div>
 </div>
-
 <script>
+
+    
+    
     $(document).ready( function() {
     	//whether this tab has already been initialized or not:
     	var tab_init = false;
@@ -65,13 +54,11 @@
     	function tabsUpdate() {
     		if ($("#mutex").is(":visible")) {
 	    		if (tab_init === false) {
-	    			//calling asynch to ensure loading gif is shown:
-	    		    window.setTimeout(MutexData.init, 0); 
-                            window.setTimeout(MutexView.resize, 0);
-		            tab_init = true;
-		        } else {
-	                MutexView.resize();
-	            }
+                    window.onReactAppReady(function(){
+                        window.renderMutExTab(document.getElementById('mutex'));
+                    });
+                    tab_init = true;
+                } 
 	    	}
     	}
         //this is for the scenario where the tab is open by default (as part of URL >> #tab_name at the end of URL),
@@ -84,30 +71,4 @@
     });    
     
 </script>
-
-<style type="text/css">
-    #mutex-info-div {
-        font-size: 10px;
-        margin-top: 10px;
-    }
-    #mutex table.dataTable thead th div.DataTables_sort_wrapper {
-        font-size: 150%;
-        position: relative;
-        padding-right: 20px;
-    }
-    #mutex table.dataTable thead th div.DataTables_sort_wrapper span {
-        position: absolute;
-        top: 50%;
-        margin-top: -8px;
-        right: 0;
-    }
-    #mutex .classMutexTable { 
-        text-align: right; 
-    }
-    #mutex .stat_num {
-        font-weight:bold;
-    }
-    #mutex .label-mutex-significant {
-        background-color: #58ACFA;
-    }
-</style>
+    

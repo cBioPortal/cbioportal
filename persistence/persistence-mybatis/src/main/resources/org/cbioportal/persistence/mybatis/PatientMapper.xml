@@ -2,16 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.PatientMapper">
-    <cache/>
+    <cache readOnly="true" size="100000"/>
 
     <sql id="select">
         patient.INTERNAL_ID AS "${prefix}internalId",
-        patient.STABLE_ID AS "${prefix}stableId"
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            ,
-            patient.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
-            cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
-        </if>
+        patient.STABLE_ID AS "${prefix}stableId",
+        patient.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
+        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
         <if test="projection == 'DETAILED'">
             ,
             <include refid="org.cbioportal.persistence.mybatis.StudyMapper.select">
@@ -31,8 +28,9 @@
                 cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
             </if>
             <if test="patientIds != null">
-                <foreach index="i" collection="patientIds" open="(" separator="OR" close=")">
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[${i}]} AND patient.STABLE_ID = #{patientIds[${i}]}
+                (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
+                <foreach index="i" collection="patientIds" open="(" separator="," close=")">
+                    (#{studyIds[${i}]}, #{patientIds[${i}]})
                 </foreach>
             </if>
         </where>
@@ -71,5 +69,14 @@
         <include refid="from"/>
         WHERE patient.STABLE_ID = #{patientId}
         AND cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+    </select>
+
+    <select id="getPatientIdsOfSamples" resultType="string">
+        SELECT DISTINCT(patient.STABLE_ID) 
+        FROM sample INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID WHERE 
+        sample.STABLE_ID IN
+        <foreach item="item" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
     </select>
 </mapper>

@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.VariantCount;
 import org.cbioportal.service.VariantCountService;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.VariantCountIdentifier;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
@@ -34,15 +35,17 @@ public class VariantCountController {
     @Autowired
     private VariantCountService variantCountService;
 
-    @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/variant-counts/fetch", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get counts of specific variants within a mutation genetic profile")
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/variant-counts/fetch", 
+        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get counts of specific variants within a mutation molecular profile")
     public ResponseEntity<List<VariantCount>> fetchVariantCounts(
-        @ApiParam(required = true, value = "Genetic Profile ID e.g. acc_tcga_mutations")
-        @PathVariable String geneticProfileId,
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
+        @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "List of variant count identifiers")
         @Size(min = 1, max = VARIANT_COUNT_MAX_PAGE_SIZE)
-        @RequestBody List<VariantCountIdentifier> variantCountIdentifiers) throws GeneticProfileNotFoundException {
+        @RequestBody List<VariantCountIdentifier> variantCountIdentifiers) throws MolecularProfileNotFoundException {
 
         List<Integer> entrezGeneIds = new ArrayList<>();
         List<String> keywords = new ArrayList<>(); 
@@ -53,7 +56,7 @@ public class VariantCountController {
             keywords.add(variantCountIdentifier.getKeyword());
         }
 
-        return new ResponseEntity<>(variantCountService.fetchVariantCounts(geneticProfileId, entrezGeneIds, keywords), 
+        return new ResponseEntity<>(variantCountService.fetchVariantCounts(molecularProfileId, entrezGeneIds, keywords), 
             HttpStatus.OK);
     }
 }

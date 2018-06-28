@@ -1,10 +1,10 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.GeneticData;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.GeneMolecularData;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MrnaPercentile;
-import org.cbioportal.service.GeneticDataService;
-import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.MolecularProfileService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,74 +24,74 @@ public class MrnaPercentileServiceImplTest extends BaseServiceImplTest {
     private MrnaPercentileServiceImpl mrnaPercentileService;
 
     @Mock
-    private GeneticDataService geneticDataService;
+    private MolecularDataService molecularDataService;
     @Mock
-    private GeneticProfileService geneticProfileService;
+    private MolecularProfileService molecularProfileService;
 
     @Test
     public void fetchMrnaPercentile() throws Exception {
 
-        List<GeneticData> geneticDataList = new ArrayList<>();
-        GeneticData geneticData1 = new GeneticData();
-        geneticData1.setGeneticProfileId(GENETIC_PROFILE_ID);
-        geneticData1.setEntrezGeneId(ENTREZ_GENE_ID);
-        geneticData1.setSampleId(SAMPLE_ID);
-        geneticData1.setValue("0.3456");
-        geneticDataList.add(geneticData1);
-        GeneticData geneticData2 = new GeneticData();
-        geneticData2.setGeneticProfileId(GENETIC_PROFILE_ID);
-        geneticData2.setEntrezGeneId(ENTREZ_GENE_ID);
-        geneticData2.setSampleId("sample_id_2");
-        geneticData2.setValue("0.2456");
-        geneticDataList.add(geneticData2);
-        GeneticData geneticData3 = new GeneticData();
-        geneticData3.setGeneticProfileId(GENETIC_PROFILE_ID);
-        geneticData3.setEntrezGeneId(ENTREZ_GENE_ID);
-        geneticData3.setSampleId("sample_id_3");
-        geneticData3.setValue("0.2457");
-        geneticDataList.add(geneticData3);
-        GeneticData geneticData4 = new GeneticData();
-        geneticData4.setGeneticProfileId(GENETIC_PROFILE_ID);
-        geneticData4.setEntrezGeneId(2);
-        geneticData4.setSampleId(SAMPLE_ID);
-        geneticData4.setValue("NA");
-        geneticDataList.add(geneticData4);
-        GeneticData geneticData5 = new GeneticData();
-        geneticData5.setGeneticProfileId(GENETIC_PROFILE_ID);
-        geneticData5.setEntrezGeneId(2);
-        geneticData5.setSampleId("sample_id_2");
-        geneticData5.setValue("0.1456");
-        geneticDataList.add(geneticData5);
-        GeneticData geneticData6 = new GeneticData();
-        geneticData6.setGeneticProfileId(GENETIC_PROFILE_ID);
-        geneticData6.setEntrezGeneId(2);
-        geneticData6.setSampleId("sample_id_3");
-        geneticData6.setValue("-0.1234");
-        geneticDataList.add(geneticData6);
+        List<GeneMolecularData> molecularDataList = new ArrayList<>();
+        GeneMolecularData molecularData1 = new GeneMolecularData();
+        molecularData1.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularData1.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        molecularData1.setSampleId(SAMPLE_ID1);
+        molecularData1.setValue("0.3456");
+        molecularDataList.add(molecularData1);
+        GeneMolecularData molecularData2 = new GeneMolecularData();
+        molecularData2.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularData2.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        molecularData2.setSampleId("sample_id_2");
+        molecularData2.setValue("0.2456");
+        molecularDataList.add(molecularData2);
+        GeneMolecularData molecularData3 = new GeneMolecularData();
+        molecularData3.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularData3.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        molecularData3.setSampleId("sample_id_3");
+        molecularData3.setValue("0.2457");
+        molecularDataList.add(molecularData3);
+        GeneMolecularData molecularData4 = new GeneMolecularData();
+        molecularData4.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularData4.setEntrezGeneId(2);
+        molecularData4.setSampleId(SAMPLE_ID1);
+        molecularData4.setValue("NA");
+        molecularDataList.add(molecularData4);
+        GeneMolecularData molecularData5 = new GeneMolecularData();
+        molecularData5.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularData5.setEntrezGeneId(2);
+        molecularData5.setSampleId("sample_id_2");
+        molecularData5.setValue("0.1456");
+        molecularDataList.add(molecularData5);
+        GeneMolecularData molecularData6 = new GeneMolecularData();
+        molecularData6.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+        molecularData6.setEntrezGeneId(2);
+        molecularData6.setSampleId("sample_id_3");
+        molecularData6.setValue("-0.1234");
+        molecularDataList.add(molecularData6);
 
-        GeneticProfile geneticProfile = new GeneticProfile();
-        geneticProfile.setGeneticAlterationType(GeneticProfile.GeneticAlterationType.MRNA_EXPRESSION);
-        Mockito.when(geneticProfileService.getGeneticProfile(GENETIC_PROFILE_ID)).thenReturn(geneticProfile);
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
         
         List<Integer> entrezGeneIds = new ArrayList<>();
-        entrezGeneIds.add(ENTREZ_GENE_ID);
+        entrezGeneIds.add(ENTREZ_GENE_ID_1);
         entrezGeneIds.add(2);
 
-        Mockito.when(geneticDataService.fetchGeneticData(GENETIC_PROFILE_ID, null, entrezGeneIds, 
-            "SUMMARY")).thenReturn(geneticDataList);
+        Mockito.when(molecularDataService.fetchMolecularData(MOLECULAR_PROFILE_ID, null, entrezGeneIds, 
+            "SUMMARY")).thenReturn(molecularDataList);
         
-        List<MrnaPercentile> result = mrnaPercentileService.fetchMrnaPercentile(GENETIC_PROFILE_ID, "sample_id_2", 
+        List<MrnaPercentile> result = mrnaPercentileService.fetchMrnaPercentile(MOLECULAR_PROFILE_ID, "sample_id_2", 
             entrezGeneIds);
 
         Assert.assertEquals(2, result.size());
         MrnaPercentile mrnaPercentile1 = result.get(0);
-        Assert.assertEquals(GENETIC_PROFILE_ID, mrnaPercentile1.getGeneticProfileId());
+        Assert.assertEquals(MOLECULAR_PROFILE_ID, mrnaPercentile1.getMolecularProfileId());
         Assert.assertEquals("sample_id_2", mrnaPercentile1.getSampleId());
-        Assert.assertEquals(ENTREZ_GENE_ID, mrnaPercentile1.getEntrezGeneId());
+        Assert.assertEquals(ENTREZ_GENE_ID_1, mrnaPercentile1.getEntrezGeneId());
         Assert.assertEquals(new BigDecimal("0.2456"), mrnaPercentile1.getzScore());
         Assert.assertEquals(new BigDecimal("33.33"), mrnaPercentile1.getPercentile());
         MrnaPercentile mrnaPercentile2 = result.get(1);
-        Assert.assertEquals(GENETIC_PROFILE_ID, mrnaPercentile2.getGeneticProfileId());
+        Assert.assertEquals(MOLECULAR_PROFILE_ID, mrnaPercentile2.getMolecularProfileId());
         Assert.assertEquals("sample_id_2", mrnaPercentile2.getSampleId());
         Assert.assertEquals((Integer) 2, mrnaPercentile2.getEntrezGeneId());
         Assert.assertEquals(new BigDecimal("0.1456"), mrnaPercentile2.getzScore());

@@ -18,6 +18,7 @@
                 <list>
                     <value>file:///${PORTAL_HOME}/portal.properties</value>
                     <value>classpath:/portal.properties</value>
+                    <value>classpath:/maven.properties</value>
                 </list>
             </property>
         </bean>
@@ -29,12 +30,12 @@
 
         <!-- these are required to get properly autowired mappers into our service classes -->
         <!-- when creating services via manually loading this context file -->
-        <bean id="genePanelMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.GenePanelMapper" />
+        <bean id="genePanelMapperLegacy" class="org.mybatis.spring.mapper.MapperFactoryBean">
+            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.GenePanelMapperLegacy" />
             <property name="sqlSessionFactory" ref="sqlSessionFactory" />
         </bean>
-        <bean id="genePanelRepository" class="org.mskcc.cbio.portal.repository.GenePanelMyBatisRepository">
-            <property name="genePanelMapper" ref="genePanelMapper" />
+        <bean id="genePanelRepositoryLegacy" class="org.mskcc.cbio.portal.repository.GenePanelMyBatisRepositoryLegacy">
+            <property name="genePanelMapper" ref="genePanelMapperLegacy" />
         </bean>
 
         <bean id="cnSegmentMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
@@ -45,10 +46,24 @@
             <property name="cnSegmentMapper" ref="cnSegmentMapper" />
         </bean>
 
+        <bean id="mutationalSignatureMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.MutationalSignatureMapper" />
+            <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+        </bean>
+        <bean id="mutationalSignatureRepository" class="org.mskcc.cbio.portal.repository.MutationalSignatureMyBatisRepository">
+            <property name="mutationalSignatureMapper" ref="mutationalSignatureMapper" />
+        </bean>
+
+        <bean id="structuralVariantMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.StructuralVariantMapper" />
+            <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+        </bean>
+        <bean id="structuralVariantRepository" class="org.mskcc.cbio.portal.repository.StructuralVariantMyBatisRepository">
+            <property name="structuralVariantMapper" ref="structuralVariantMapper" />
+        </bean>
+
         <!-- enable component scanning (beware that this does not enable mapper scanning!) -->
         <context:component-scan base-package="org.mskcc.cbio.portal.service" />
-        <context:component-scan base-package="org.cbioportal.persistence" />
-        <context:component-scan base-package="org.cbioportal.service" />
 
         <!-- enable autowire -->
         <context:annotation-config />
@@ -61,25 +76,33 @@
             <property name="dataSource" ref="businessDataSource" />
         </bean>
 
+        <bean id="customObjectFactory" class="org.cbioportal.persistence.mybatis.util.CustomMyBatisObjectFactory" />
+
         <!-- define the SqlSessionFactory -->
         <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
             <property name="dataSource" ref="businessDataSource" />
             <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
             <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler" />
+            <property name="objectFactory" ref="customObjectFactory" />
+            <property name="configuration">
+                <bean class="org.apache.ibatis.session.Configuration">
+                    <property name="cacheEnabled" value="${mybatis.cache.enabled:true}" />
+                </bean>
+            </property>
         </bean>
     </beans>
   
     <beans profile="dbcp">
         <!-- business data source -->
         <!-- setting minIdle/maxIdle to 1 doesn't limit the number of active -->
-        <bean id="businessDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+        <bean id="businessDataSource" destroy-method="close" class="org.apache.commons.dbcp2.BasicDataSource">
             <property name="driverClassName" value="${db.driver}"/>
             <property name="url" value="${db.connection_string}${db.portal_db_name}?zeroDateTimeBehavior=convertToNull"/>
             <property name="username" value="${db.user}"/>
             <property name="password" value="${db.password}"/>
             <property name="minIdle" value="0"/>
             <property name="maxIdle" value="10"/>
-            <property name="maxActive" value="100"/>
+            <property name="maxTotal" value="100"/>
             <property name="poolPreparedStatements" value="true"/>
         </bean>
         <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">

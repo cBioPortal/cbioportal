@@ -1,3 +1,4 @@
+#sequenced_samples: TCGA-AA-3665-01
 Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Verification_Status	Validation_Status	Mutation_Status	Sequencer	Chromosome	Start_position	End_position	Variant_Classification	HGVSp_Short	MA:FImpact	MA:link.MSA	MA:link.PDB
 GPR19	2842	broad.mit.edu	TCGA-AA-3665-01	Unknown	valid	Germline	Illumina GAIIx	chr12	12706312	12706312	Nonsense_Mutation	L113P	high	mutationassessor.org/?cm=msa&ty=f&p=GPR19_HUMAN&rb=82&re=330&var=L113P	mutationassessor.org/pdb.php?prot=GPR19_HUMAN&from=82&to=330&var=L113P
 SP1	6667	broad.mit.edu	TCGA-AA-3665-01	Unknown	valid	Somatic	Illumina GAIIx	chr12	52063536	52063536	Missense_Mutation	A513V	low	mutationassessor.org/?cm=msa&ty=f&p=SP1_HUMAN&rb=401&re=600&var=A513V	

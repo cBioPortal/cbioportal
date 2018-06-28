@@ -1,19 +1,28 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
 
-public class CopyNumberSeg implements Serializable {
+public class CopyNumberSeg extends UniqueKeyBase {
 
     private Integer segId;
     private Integer cancerStudyId;
+    @NotNull
     private String cancerStudyIdentifier;
     private Integer sampleId;
+    @NotNull
     private String sampleStableId;
+    @NotNull
+    private String patientId;
+    @NotNull
     private String chr;
+    @NotNull
     private Integer start;
+    @NotNull
     private Integer end;
+    @NotNull
     private Integer numProbes;
+    @NotNull
     private BigDecimal segmentMean;
 
     public Integer getSegId() {
@@ -54,6 +63,14 @@ public class CopyNumberSeg implements Serializable {
 
     public void setSampleStableId(String sampleStableId) {
         this.sampleStableId = sampleStableId;
+    }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
     }
 
     public String getChr() {

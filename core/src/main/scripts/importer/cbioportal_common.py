@@ -19,6 +19,16 @@ from subprocess import Popen, PIPE, STDOUT
 ERROR_FILE = sys.stderr
 OUTPUT_FILE = sys.stdout
 
+# global variables to check `source_stable_id` for `genomic_profile_link`
+expression_stable_ids = []
+gsva_scores_stable_id = ""
+expression_zscores_source_stable_ids = {}
+gsva_scores_source_stable_id = ""
+gsva_pvalues_source_stable_id = ""
+expression_zscores_filename = ""
+gsva_scores_filename = ""
+gsva_pvalues_filename = ""
+
 IMPORT_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.ImportCancerStudy"
 UPDATE_STUDY_STATUS_CLASS = "org.mskcc.cbio.portal.scripts.UpdateCancerStudy"
 REMOVE_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.RemoveCancerStudy"
@@ -41,11 +51,14 @@ class MetaFileTypes(object):
     MUTATION = 'meta_mutations_extended'
     METHYLATION = 'meta_methylation'
     FUSION = 'meta_fusions'
-    RPPA = 'meta_rppa'
+    PROTEIN = 'meta_protein'
     GISTIC_GENES = 'meta_gistic_genes'
     TIMELINE = 'meta_timeline'
     CASE_LIST = 'case_list'
     MUTATION_SIGNIFICANCE = 'meta_mutsig'
+    GENE_PANEL_MATRIX = 'meta_gene_panel_matrix'
+    GSVA_SCORES = 'meta_gsva_scores'
+    GSVA_PVALUES = 'meta_gsva_pvalues'
 
 # fields allowed in each meta file type, maps to True if required
 META_FIELD_MAP = {
@@ -85,7 +98,8 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_filename': True
+        'data_filename': True,
+        'gene_panel': False
     },
     MetaFileTypes.CNA_LOG2: {
         'cancer_study_identifier': True,
@@ -95,7 +109,8 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_filename': True
+        'data_filename': True,
+        'gene_panel': False
     },
     MetaFileTypes.CNA_CONTINUOUS: {
         'cancer_study_identifier': True,
@@ -105,7 +120,8 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_filename': True
+        'data_filename': True,
+        'gene_panel': False
     },
     MetaFileTypes.SEG: {
         'cancer_study_identifier': True,
@@ -125,17 +141,21 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_filename': True,
         'normal_samples_list': False,
-        'swissprot_identifier': False
+        'swissprot_identifier': False,
+        'gene_panel': False,
+        'variant_classification_filter': False
     },
     MetaFileTypes.EXPRESSION: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
         'stable_id': True,
+        'source_stable_id': False,
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_filename': True
+        'data_filename': True,
+        'gene_panel': False
     },
     MetaFileTypes.METHYLATION: {
         'cancer_study_identifier': True,
@@ -145,9 +165,10 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_filename': True
+        'data_filename': True,
+        'gene_panel': False
     },
-    MetaFileTypes.RPPA: {
+    MetaFileTypes.PROTEIN: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -155,7 +176,8 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_filename': True
+        'data_filename': True,
+        'gene_panel': False
     },
     MetaFileTypes.FUSION: {
         'cancer_study_identifier': True,
@@ -165,7 +187,8 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_filename': True
+        'data_filename': True,
+        'gene_panel': False
     },
     MetaFileTypes.GISTIC_GENES: {
         'cancer_study_identifier': True,
@@ -193,6 +216,35 @@ META_FIELD_MAP = {
         'genetic_alteration_type': True,
         'datatype': True,
         'data_filename': True
+    },
+    MetaFileTypes.GENE_PANEL_MATRIX: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'data_filename': True
+    },
+    MetaFileTypes.GSVA_PVALUES: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'source_stable_id': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+        'geneset_def_version': True
+    },
+    MetaFileTypes.GSVA_SCORES: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'source_stable_id': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+        'show_profile_in_analysis_tab': True,
+        'geneset_def_version': True
     }
 }
 
@@ -201,7 +253,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.CANCER_TYPE: IMPORT_CANCER_TYPE_CLASS,
     MetaFileTypes.SAMPLE_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
     MetaFileTypes.PATIENT_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
-    MetaFileTypes.CNA: "org.mskcc.cbio.portal.scripts.ImportProfileData", 
+    MetaFileTypes.CNA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.CNA_LOG2: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.CNA_CONTINUOUS: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.SEG: "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
@@ -209,11 +261,14 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.MUTATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.METHYLATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.FUSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    MetaFileTypes.RPPA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.PROTEIN: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.GISTIC_GENES: "org.mskcc.cbio.portal.scripts.ImportGisticData",
     MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
     MetaFileTypes.CASE_LIST: IMPORT_CASE_LIST_CLASS,
-    MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData"
+    MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData",
+    MetaFileTypes.GENE_PANEL_MATRIX: "org.mskcc.cbio.portal.scripts.ImportGenePanelProfileMap",
+    MetaFileTypes.GSVA_SCORES: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.GSVA_PVALUES: "org.mskcc.cbio.portal.scripts.ImportProfileData"
 }
 
 IMPORTER_REQUIRES_METADATA = {
@@ -222,7 +277,8 @@ IMPORTER_REQUIRES_METADATA = {
     "org.mskcc.cbio.portal.scripts.ImportGisticData" : False,
     "org.mskcc.cbio.portal.scripts.ImportMutSigData" : False,
     "org.mskcc.cbio.portal.scripts.ImportProfileData" : True,
-    "org.mskcc.cbio.portal.scripts.ImportTimelineData" : True
+    "org.mskcc.cbio.portal.scripts.ImportTimelineData" : True,
+    "org.mskcc.cbio.portal.scripts.ImportGenePanelProfileMap" : False
 }
 
 # ------------------------------------------------------------------------------
@@ -426,10 +482,20 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
 # ------------------------------------------------------------------------------
 # sub-routines
 
-def get_meta_file_type(metaDictionary, logger, filename):
+def get_meta_file_type(meta_dictionary, logger, filename):
     """
      Returns one of the metatypes found in MetaFileTypes
+
+     NB: a subset of these types (combined with allowed_data_types.txt)
+     is also tracked in org.cbioportal.model.GeneticProfile.java. If you add
+     things here, please make sure to update there as well if it regards a
+     genetic profile data type.
     """
+    # The following dictionary is required to define the MetaFileType for all
+    # combinations, which are used in validateData to determine which validator
+    # should be used. There is some redundancy with allowed_data_types.txt, which
+    # also contains genetic alteration types and datatype combinations, but is used
+    # to check if the correct stable id is used.
     # GENETIC_ALTERATION_TYPE    DATATYPE    meta
     alt_type_datatype_to_meta = {
         # cancer type
@@ -438,12 +504,13 @@ def get_meta_file_type(metaDictionary, logger, filename):
         ("CLINICAL", "PATIENT_ATTRIBUTES"): MetaFileTypes.PATIENT_ATTRIBUTES,
         ("CLINICAL", "SAMPLE_ATTRIBUTES"): MetaFileTypes.SAMPLE_ATTRIBUTES,
         ("CLINICAL", "TIMELINE"): MetaFileTypes.TIMELINE,
-        # rppa
-        ("PROTEIN_LEVEL", "LOG2-VALUE"): MetaFileTypes.RPPA,
-        ("PROTEIN_LEVEL", "Z-SCORE"): MetaFileTypes.RPPA,
+        # rppa and mass spectrometry
+        ("PROTEIN_LEVEL", "LOG2-VALUE"): MetaFileTypes.PROTEIN,
+        ("PROTEIN_LEVEL", "Z-SCORE"): MetaFileTypes.PROTEIN,
+        ("PROTEIN_LEVEL", "CONTINUOUS"): MetaFileTypes.PROTEIN,
         # cna
         ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA,
-        ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS, 
+        ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS,
         ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.CNA_LOG2,
         ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,
         # expression
@@ -455,15 +522,18 @@ def get_meta_file_type(metaDictionary, logger, filename):
         # others
         ("METHYLATION", "CONTINUOUS"): MetaFileTypes.METHYLATION,
         ("FUSION", "FUSION"): MetaFileTypes.FUSION,
+        ("GENE_PANEL_MATRIX", "GENE_PANEL_MATRIX"): MetaFileTypes.GENE_PANEL_MATRIX,
         # cross-sample molecular statistics (for gene selection)
         ("GISTIC_GENES_AMP", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,
         ("GISTIC_GENES_DEL", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,
-        ("MUTSIG", "Q-VALUE"): MetaFileTypes.MUTATION_SIGNIFICANCE
+        ("MUTSIG", "Q-VALUE"): MetaFileTypes.MUTATION_SIGNIFICANCE,
+        ("GENESET_SCORE", "GSVA-SCORE"): MetaFileTypes.GSVA_SCORES,
+        ("GENESET_SCORE", "P-VALUE"): MetaFileTypes.GSVA_PVALUES
     }
     result = None
-    if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary:
-        genetic_alteration_type = metaDictionary['genetic_alteration_type']
-        data_type = metaDictionary['datatype']
+    if 'genetic_alteration_type' in meta_dictionary and 'datatype' in meta_dictionary:
+        genetic_alteration_type = meta_dictionary['genetic_alteration_type']
+        data_type = meta_dictionary['datatype']
         if (genetic_alteration_type, data_type) in alt_type_datatype_to_meta:
             result = alt_type_datatype_to_meta[(genetic_alteration_type, data_type)]
         else:
@@ -472,11 +542,11 @@ def get_meta_file_type(metaDictionary, logger, filename):
                 extra={'filename_': filename,
                        'cause': ('genetic_alteration_type: %s, '
                                  'datatype: %s' % (
-                                     metaDictionary['genetic_alteration_type'],
-                                     metaDictionary['datatype']))})
-    elif 'cancer_study_identifier' in metaDictionary and 'type_of_cancer' in metaDictionary:
+                                     meta_dictionary['genetic_alteration_type'],
+                                     meta_dictionary['datatype']))})
+    elif 'cancer_study_identifier' in meta_dictionary and 'type_of_cancer' in meta_dictionary:
         result = MetaFileTypes.STUDY
-    elif 'type_of_cancer' in metaDictionary:
+    elif 'type_of_cancer' in meta_dictionary:
         result = MetaFileTypes.CANCER_TYPE
     else:
         logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
@@ -484,13 +554,13 @@ def get_meta_file_type(metaDictionary, logger, filename):
     return result
 
 
-def validate_types_and_id(metaDictionary, logger, filename):
+def validate_types_and_id(meta_dictionary, logger, filename):
     """Validate a genetic_alteration_type, datatype (and stable_id in some cases) against the predefined
     allowed combinations found in ./allowed_data_types.txt
     """
     result = True
     # this validation only applies to items that have genetic_alteration_type and datatype and stable_id
-    if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary and 'stable_id' in metaDictionary:
+    if 'genetic_alteration_type' in meta_dictionary and 'datatype' in meta_dictionary and 'stable_id' in meta_dictionary:
         alt_type_datatype_and_stable_id = {}
         script_dir = os.path.dirname(__file__)
         allowed_data_types_file_name = os.path.join(script_dir, "allowed_data_types.txt")
@@ -511,9 +581,9 @@ def validate_types_and_id(metaDictionary, logger, filename):
                         alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)] = []
                     alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)].append(line_cols[2])
         # init:
-        stable_id = metaDictionary['stable_id']
-        genetic_alteration_type = metaDictionary['genetic_alteration_type']
-        data_type = metaDictionary['datatype']
+        stable_id = meta_dictionary['stable_id']
+        genetic_alteration_type = meta_dictionary['genetic_alteration_type']
+        data_type = meta_dictionary['datatype']
         # validate the genetic_alteration_type/data_type combination:
         if (genetic_alteration_type, data_type) not in alt_type_datatype_and_stable_id:
             # unexpected as this is already validated in get_meta_file_type
@@ -548,17 +618,18 @@ def parse_metadata_file(filename,
 
     :param filename: name of the meta file
     :param logger: the logging.Logger instance to log warnings and errors to
-    :param study_id: (optional - set if you want study_id to be validated) 
+    :param study_id: (optional - set if you want study_id to be validated)
                     cancer study id found in previous files (or None). All subsequent
                     meta files should comply to this in the field 'cancer_study_identifier'
     :param genome_name: (optional - set if you want this to be validated)
                     supported reference genome name, for validation
     :param case_list: whether this meta file is a case list (special case)
     """
-    
+
     logger.debug('Starting validation of meta file', extra={'filename_': filename})
-    
-    metaDictionary = {}
+
+    # Read meta file
+    meta_dictionary = {}
     with open(filename, 'rU') as metafile:
         for line_index, line in enumerate(metafile):
             # skip empty lines:
@@ -570,24 +641,29 @@ def parse_metadata_file(filename,
                     {True: 'case list', False: 'meta'}[case_list],
                     extra={'filename_': filename,
                            'line_number': line_index + 1})
-                meta_file_type = None
-                return metaDictionary, meta_file_type
+                meta_dictionary['meta_file_type'] = None
+                return meta_dictionary
             key_value = line.split(':', 1)
             if len(key_value) == 2:
-                metaDictionary[key_value[0]] = key_value[1].strip()
+                meta_dictionary[key_value[0]] = key_value[1].strip()
 
+    # Determine meta file type
     if case_list:
         meta_file_type = MetaFileTypes.CASE_LIST
+        meta_dictionary['meta_file_type'] = meta_file_type
     else:
-        meta_file_type = get_meta_file_type(metaDictionary, logger, filename)
+        meta_file_type = get_meta_file_type(meta_dictionary, logger, filename)
+        meta_dictionary['meta_file_type'] = meta_file_type
         # if type could not be inferred, no further validations are possible
         if meta_file_type is None:
-            return metaDictionary, meta_file_type
+            return meta_dictionary
 
+
+    # Check for missing fields for this specific meta file type
     missing_fields = []
     for field in META_FIELD_MAP[meta_file_type]:
         mandatory = META_FIELD_MAP[meta_file_type][field]
-        if field not in metaDictionary and mandatory:
+        if field not in meta_dictionary and mandatory:
             logger.error("Missing field '%s' in %s file",
                          field,
                          {True: 'case list', False: 'meta'}[case_list],
@@ -595,65 +671,109 @@ def parse_metadata_file(filename,
             missing_fields.append(field)
 
     if missing_fields:
-        meta_file_type = None
         # all further checks would depend on these fields being present
-        return metaDictionary, meta_file_type
+        meta_dictionary['meta_file_type'] = None
+        return meta_dictionary
 
     # validate genetic_alteration_type, datatype, stable_id
     stable_id_mandatory = META_FIELD_MAP[meta_file_type].get('stable_id',
                                                              False)
     if stable_id_mandatory:
-        valid_types_and_id = validate_types_and_id(metaDictionary, logger, filename)
+        valid_types_and_id = validate_types_and_id(meta_dictionary, logger, filename)
         if not valid_types_and_id:
             # invalid meta file type
-            meta_file_type = None
-            return metaDictionary, meta_file_type
+            meta_dictionary['meta_file_type'] = None
+            return meta_dictionary
 
-    for field in metaDictionary:
+    # check for extra unrecognized fields
+    for field in meta_dictionary:
         if field not in META_FIELD_MAP[meta_file_type]:
-            logger.warning(
-                'Unrecognized field in %s file',
-                {True: 'case list', False: 'meta'}[case_list],
-                extra={'filename_': filename,
-                       'cause': field})
+
+            # Don't give warning for added 'meta_file_type'
+            if field == "meta_file_type":
+                pass
+            else:
+                logger.warning(
+                    'Unrecognized field in %s file',
+                    {True: 'case list', False: 'meta'}[case_list],
+                    extra={'filename_': filename,
+                           'cause': field})
 
     # check that cancer study identifiers across files so far are consistent.
     if (
             study_id is not None and
-            'cancer_study_identifier' in metaDictionary and
-            study_id != metaDictionary['cancer_study_identifier']):
+            'cancer_study_identifier' in meta_dictionary and
+            study_id != meta_dictionary['cancer_study_identifier']):
         logger.error(
             "Cancer study identifier is not consistent across "
             "files, expected '%s'",
             study_id,
             extra={'filename_': filename,
-                   'cause': metaDictionary['cancer_study_identifier']})
+                   'cause': meta_dictionary['cancer_study_identifier']})
         # not a valid meta file in this study
-        meta_file_type = None
-        return metaDictionary, meta_file_type
+        meta_dictionary['meta_file_type'] = None
+        return meta_dictionary
 
     # type-specific validations
     if meta_file_type in (MetaFileTypes.SEG, MetaFileTypes.GISTIC_GENES):
-        if genome_name is not None and metaDictionary['reference_genome_id'] != genome_name:
+        if genome_name is not None and meta_dictionary['reference_genome_id'] != genome_name:
             logger.error(
                 'Reference_genome_id is not %s',
                 genome_name,
                 extra={'filename_': filename,
-                       'cause': metaDictionary['reference_genome_id']})
-            meta_file_type = None
+                       'cause': meta_dictionary['reference_genome_id']})
+            #meta_file_type = None
+            meta_dictionary['meta_file_type'] = None
     if meta_file_type == MetaFileTypes.MUTATION:
-        if ('swissprot_identifier' in metaDictionary and
-                metaDictionary['swissprot_identifier'] not in ('name',
+        if ('swissprot_identifier' in meta_dictionary and
+                meta_dictionary['swissprot_identifier'] not in ('name',
                                                                'accession')):
             logger.error(
                 "Invalid swissprot_identifier specification, must be either "
                 "'name' or 'accession'",
                 extra={'filename_': filename,
-                       'cause': metaDictionary['swissprot_identifier']})
-            meta_file_type = None
+                       'cause': meta_dictionary['swissprot_identifier']})
+            meta_dictionary['meta_file_type'] = None
+
+    # Save information regarding `source_stable_id`, so that after all meta files are validated,
+    # we can validate fields between meta files in validate_dependencies() in validateData.py
+    global gsva_scores_stable_id
+    global gsva_scores_source_stable_id
+    global gsva_pvalues_source_stable_id
+    global gsva_scores_filename
+    global gsva_pvalues_filename
+
+    # save all expression `stable_id` in list
+    if meta_file_type is MetaFileTypes.EXPRESSION:
+        if 'stable_id' in meta_dictionary:
+            expression_stable_ids.append(meta_dictionary['stable_id'])
+
+            # Save all zscore expression `source_stable_id` in dictionary with their filenames.
+            # Multiple zscore expression files are possible, and we want to validate all their
+            # source_stable_ids with expression stable ids
+            if meta_dictionary['datatype'] == "Z-SCORE":
+                if 'source_stable_id' in meta_dictionary:
+                    expression_zscores_source_stable_ids[meta_dictionary['source_stable_id']] = filename
+
+    # save stable_id and source_stable_id of GSVA Scores
+    if meta_file_type is MetaFileTypes.GSVA_SCORES:
+        gsva_scores_filename = filename
+        if 'source_stable_id' in meta_dictionary:
+            gsva_scores_source_stable_id = meta_dictionary['source_stable_id']
+
+        # save 'stable_id' to check the 'source_stable_id' in GSVA_PVALUES file
+        if 'stable_id' in meta_dictionary:
+            gsva_scores_stable_id = meta_dictionary['stable_id']
+
+    # save stable_id and source_stable_id of GSVA Pvalues
+    if meta_file_type is MetaFileTypes.GSVA_PVALUES:
+        gsva_pvalues_filename = filename
+        if 'source_stable_id' in meta_dictionary:
+            gsva_pvalues_source_stable_id = meta_dictionary['source_stable_id']
 
     logger.info('Validation of meta file complete', extra={'filename_': filename})
-    return metaDictionary, meta_file_type
+
+    return meta_dictionary
 
 
 def run_java(*args):

@@ -1,22 +1,31 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
 
-public class MrnaPercentile implements Serializable {
+public class MrnaPercentile extends UniqueKeyBase {
 
-    private String geneticProfileId;
+    @NotNull
+    private String molecularProfileId;
+    @NotNull
     private String sampleId;
+    @NotNull
+    private String patientId;
+    @NotNull
+    private String studyId;
+    @NotNull
     private Integer entrezGeneId;
+    @NotNull
     private BigDecimal percentile;
+    @NotNull
     private BigDecimal zScore;
 
-    public String getGeneticProfileId() {
-        return geneticProfileId;
+    public String getMolecularProfileId() {
+        return molecularProfileId;
     }
 
-    public void setGeneticProfileId(String geneticProfileId) {
-        this.geneticProfileId = geneticProfileId;
+    public void setMolecularProfileId(String molecularProfileId) {
+        this.molecularProfileId = molecularProfileId;
     }
 
     public String getSampleId() {
@@ -25,6 +34,22 @@ public class MrnaPercentile implements Serializable {
 
     public void setSampleId(String sampleId) {
         this.sampleId = sampleId;
+    }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getStudyId() {
+        return studyId;
+    }
+
+    public void setStudyId(String studyId) {
+        this.studyId = studyId;
     }
 
     public Integer getEntrezGeneId() {

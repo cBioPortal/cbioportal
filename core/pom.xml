@@ -4,7 +4,7 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.5.1</version>
+    <version>1.14.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>core</artifactId>
@@ -26,6 +26,12 @@
     <dependency>
         <groupId>org.mskcc.cbio</groupId>
         <artifactId>db-scripts</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+    </dependency>
+   <dependency>
+        <groupId>org.mskcc.cbio</groupId>
+        <artifactId>service</artifactId>
         <version>${project.version}</version>
         <scope>test</scope>
     </dependency>
@@ -57,9 +63,9 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-        <groupId>commons-dbcp</groupId>
-        <artifactId>commons-dbcp</artifactId>
-        <version>1.4</version>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-dbcp2</artifactId>
+        <version>2.1.1</version>
     </dependency>
     <dependency>
       <groupId>commons-fileupload</groupId>
@@ -158,6 +164,13 @@
       <artifactId>opencsv</artifactId>
       <version>2.3</version>
     </dependency>
+    
+    <!--yaml parser-->
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>1.17</version>
+    </dependency>
 
     <!-- BioJava 4.x -->
     <dependency>
@@ -202,9 +215,15 @@
     <!-- Mockito -->
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
+      <artifactId>mockito-core</artifactId>
       <version>1.9.5</version>
       <scope>test</scope>
+        <exclusions>
+            <exclusion>
+                <artifactId>hamcrest-core</artifactId>
+                <groupId>org.hamcrest</groupId>
+            </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -432,6 +451,7 @@
                   <excludes>
                     <exclude>**/portal.properties.*</exclude>
                     <exclude>**/log4j.properties.*</exclude>
+                    <exclude>**/maven.properties.*</exclude>
                     <exclude>**/*.EXAMPLE</exclude>
                   </excludes>
                 </resource>
@@ -440,22 +460,6 @@
           </execution>
         </executions>
       </plugin>
-        <!-- JaCoCo Test coverage plugin -->
-        <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <version>${jacoco-maven-plugin.version}</version>
-            <executions>
-                <execution>
-                    <goals><goal>prepare-agent</goal></goals>
-                </execution>
-                <execution>
-                    <id>report</id>
-                    <phase>prepare-package</phase>
-                    <goals><goal>report</goal></goals>
-                </execution>
-            </executions>
-        </plugin>
     </plugins>
 
     <!-- prevent some resources from getting into jar -->
@@ -471,6 +475,7 @@
         <filtering>true</filtering>
         <includes>
             <include>**/portal.properties</include>
+            <include>**/maven.properties</include>
         </includes>
       </resource>
     </resources>
@@ -494,7 +499,7 @@
                                     </goals>
                                 </pluginExecutionFilter>
                                 <action>
-                                    <ignore></ignore>
+                                    <ignore />
                                 </action>
                             </pluginExecution>
                         </pluginExecutions>

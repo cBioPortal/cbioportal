@@ -19,9 +19,13 @@
              <b:list>
                <b:value>file:///${PORTAL_HOME}/portal.properties</b:value>
                <b:value>classpath:portal.properties</b:value>
+               <b:value>classpath:maven.properties</b:value>
              </b:list>
            </b:property>
         </b:bean>
+
+    <!-- We are autowiring some components from web into the customPermissionEvaluator below -->
+    <context:component-scan base-package="org.cbioportal.web.util" />
 
     <!-- support for general annotations within class definitions (used in AccessControl) -->
     <context:annotation-config/>
@@ -37,7 +41,7 @@
     </b:bean>
     <b:bean id="customPermissionEvaluator" class="org.cbioportal.security.spring.CancerStudyPermissionEvaluator"/>
 
-    <!-- static resources not processed by spring security filters -->
+    <!-- fstatic resources not processed by spring security filters -->
     <http pattern="/css/**" security="none"/>
     <http pattern="/saml/css/**" security="none"/>
     <http pattern="/images/**" security="none"/>
@@ -46,6 +50,23 @@
     <http pattern="/saml/js/**" security="none"/>
     <http pattern="/gfx/**" security="none"/>
     <http pattern="/saml/gfx/**" security="none"/>
+    <http pattern="/reactapp/**" security="none"/>
+    <http pattern="/api/swagger-resources/**" security="none"/>
+    <http pattern="/api/swagger-ui.html" security="none"/>
+        
+    <!-- This must come before the default entry point which will capture everything not matched by pattern -->
+    <http use-expressions="true" pattern="/api/**" entry-point-ref="restAuthenticationEntryPoint" create-session="never">
+        <intercept-url pattern="/**" access="isAuthenticated()"/>
+    </http>
+
+    <b:bean id="restAuthenticationEntryPoint" class="org.cbioportal.security.spring.sessionservice.RestAuthenticationEntryPoint"/>
+
+    <!-- Handler deciding where to redirect user after successful login -->
+    <b:bean id="successRedirectHandler" class="org.cbioportal.security.spring.PortalSavedRequestAwareAuthenticationSuccessHandler">
+        <b:property name="defaultTargetUrl" value="/index.do"/>
+        <b:property name="alwaysUseDefaultTargetUrl" value="false"/>
+        <b:property name="targetUrlParameter" value="spring-security-redirect"/>
+    </b:bean>
 		
     <!-- end beans shared across any authentication provider -->
     </b:beans>
@@ -54,7 +75,12 @@
     <b:beans profile="googleplus">
 
     <http entry-point-ref="authenticationEntryPoint" use-expressions="true"> 
-<intercept-url pattern="/auth/*" access="permitAll"/><intercept-url pattern="/favicon.ico" access="permitAll"/><intercept-url pattern="/login.jsp*" access="permitAll"/><intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/><intercept-url pattern="/**" access="isAuthenticated()"/>
+        <intercept-url pattern="/auth/*" access="permitAll"/>
+        <intercept-url pattern="/favicon.ico" access="permitAll"/>
+        <intercept-url pattern="/login.jsp*" access="permitAll"/>
+        <intercept-url pattern="/case.do*" access="permitAll"/>
+        <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
+        <intercept-url pattern="/**" access="isAuthenticated()"/>
         <!-- used for google+ authentication (spring social) -->
         <custom-filter ref="socialAuthenticationFilter" before="PRE_AUTH_FILTER" />
 
@@ -77,6 +103,7 @@
         <b:property name="signupUrl" value="/login.jsp" />
         <b:property name="defaultFailureUrl" value="/login.jsp?login_error=true" />
         <b:property name="postLoginUrl" value="/index.do" />
+        <b:property name="authenticationSuccessHandler" ref="successRedirectHandler"/>
         <!-- UsernameNotFoundException will be stored in session with username as message -->
         <b:property name="allowSessionCreation" value="true" />
     </b:bean>
@@ -174,6 +201,7 @@
         <intercept-url pattern="/auth/*" access="permitAll"/>
         <intercept-url pattern="/favicon.ico" access="permitAll"/>
         <intercept-url pattern="/login.jsp*" access="permitAll"/>
+        <intercept-url pattern="/case.do*" access="permitAll"/>
         <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
         <intercept-url pattern="/**" access="isAuthenticated()"/>
         <!-- used for saml authentication -->
@@ -196,11 +224,6 @@
         </filter-chain-map>
     </b:bean>
 
-    <!-- Handler deciding where to redirect user after successful login -->
-    <b:bean id="successRedirectHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
-        <b:property name="defaultTargetUrl" value="/index.do"/>
-        <b:property name="alwaysUseDefaultTargetUrl" value="false"/>
-    </b:bean>
 
     <!-- Handler deciding where to redirect user after failed login -->
     <b:bean id="failureRedirectHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
@@ -430,9 +453,17 @@
     <!-- authenticate with Active Directory -->
     <b:beans profile="ad">
         <http use-expressions="true" auto-config="true">
-            <form-login login-page="/login.jsp" login-processing-url="/j_spring_security_check" default-target-url="/index.do" />
+            <form-login login-page="/login.jsp"
+                login-processing-url="/j_spring_security_check" 
+                default-target-url="/index.do"
+                authentication-success-handler-ref="successRedirectHandler" />
             <logout     logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID" />
-<intercept-url pattern="/auth/*" access="permitAll"/><intercept-url pattern="/favicon.ico" access="permitAll"/><intercept-url pattern="/login.jsp*" access="permitAll"/><intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/><intercept-url pattern="/**" access="isAuthenticated()"/>
+            <intercept-url pattern="/auth/*" access="permitAll"/>
+            <intercept-url pattern="/favicon.ico" access="permitAll"/>
+            <intercept-url pattern="/login.jsp*" access="permitAll"/>
+            <intercept-url pattern="/case.do*" access="permitAll"/>
+            <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
+            <intercept-url pattern="/**" access="isAuthenticated()"/>
             <!-- to enable access from matlab, r, python, etc clients -->
             <session-management session-fixation-protection="none"/>
         </http>
@@ -452,11 +483,15 @@
     <b:beans profile="ldap">
 
         <http use-expressions="true" auto-config="true">
-            <form-login login-page="/login.jsp" login-processing-url="/j_spring_security_check" default-target-url="/index.do" />
+            <form-login login-page="/login.jsp"
+                login-processing-url="/j_spring_security_check"
+                default-target-url="/index.do"
+                authentication-success-handler-ref="successRedirectHandler" />
             <logout     logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID" />
             <intercept-url pattern="/auth/*" access="permitAll"/>
             <intercept-url pattern="/favicon.ico" access="permitAll"/>
             <intercept-url pattern="/login.jsp*" access="permitAll"/>
+            <intercept-url pattern="/case.do*" access="permitAll"/>
             <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
             <intercept-url pattern="/**" access="isAuthenticated()"/>
 
@@ -498,7 +533,6 @@
     <!-- authenticate is off but we have session-service beans -->
     <b:beans profile="noauthsessionservice">
         <global-method-security pre-post-annotations="disabled"/>
-        <b:bean id="restAuthenticationEntryPoint" class="org.cbioportal.security.spring.sessionservice.RestAuthenticationEntryPoint"/>
         <b:bean id="sessionSecurity" class="org.cbioportal.security.spring.sessionservice.SessionServiceSecurity"/>
         <!-- create-session is never so spring security will not create the session,
             this relies on the app creating the session -->

@@ -18,7 +18,7 @@
             <list>
                 <value>file:///${PORTAL_HOME}/portal.properties</value>
                 <value>classpath:/portal.properties</value>
-                <value>classpath:springfox.properties</value>
+                <value>classpath:/maven.properties</value>
             </list>
         </property>
     </bean>
@@ -38,5 +38,20 @@
     <mvc:resources mapping="/gfx/**" location="/gfx/"/>
     <mvc:resources mapping="/swf/**" location="/swf/"/>
     <mvc:view-controller path="/api-legacy" view-name="redirect:/api-legacy/swagger-ui.html"/>
-    <mvc:annotation-driven enable-matrix-variables="true"/>
+    
+    <bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+        <property name="favorPathExtension" value="false" />
+    </bean>
+    
+    <mvc:annotation-driven enable-matrix-variables="true" content-negotiation-manager="contentNegotiationManager">
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper">
+                    <bean class="org.mskcc.cbio.portal.web.config.CustomObjectMapper"/>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    
+    
 </beans>

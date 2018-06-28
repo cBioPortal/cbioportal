@@ -101,8 +101,8 @@ cbio.util = (function() {
             }
             fetch_promise.then(function(data) {
                 def.resolve(deepCopyObject(data));
-            }, function() {
-                def.reject();
+            }, function(error) {
+                def.reject(error);
             });
             return def.promise();
         };
@@ -279,6 +279,8 @@ cbio.util = (function() {
 
         browser.msie = /msie/.test(uagent);
 
+        browser.edge = /edge/.test(uagent);
+
         browser.version = "";
 
         // check for IE 11
@@ -422,11 +424,11 @@ cbio.util = (function() {
     }
 
     function getLinkToPatientView(cancerStudyId, patientId) {
-        return "case.do?cancer_study_id=" + cancerStudyId + "&case_id=" + patientId;
+        return "case.do#/patient?studyId=" + cancerStudyId + "&caseId=" + patientId;
     }
 
     function getLinkToSampleView(cancerStudyId, sampleId) {
-        return "case.do?cancer_study_id=" + cancerStudyId + "&sample_id=" + sampleId;
+        return "case.do#/patient?studyId=" + cancerStudyId + "&sampleId=" + sampleId;
     }
 
     /**
@@ -635,7 +637,7 @@ cbio.util = (function() {
         
         if (isHotspot)
         {
-            strBuilder.push("<a href=\"http://cancerhotspots.org/\" target=\"_blank\">http://cancerhotspots.org/</a>");
+            strBuilder.push("<a href=\"https://www.cancerhotspots.org/\" target=\"_blank\">https://www.cancerhotspots.org/</a>");
 
             if (is3dHotspot) {
                 strBuilder.push(" and ");
@@ -646,7 +648,7 @@ cbio.util = (function() {
         }
         
         if (is3dHotspot) {
-            strBuilder.push("<a href=\"http://3dhotspots.org/\" target=\"_blank\">http://3dhotspots.org/</a>.");
+            strBuilder.push("<a href=\"https://www.3dhotspots.org/\" target=\"_blank\">https://www.3dhotspots.org/</a>.");
         }
         // end links
         
@@ -674,22 +676,28 @@ cbio.util = (function() {
             return a - b;
         });
 
+
+
         /* Then find a generous IQR. This is generous because if (values.length / 4) 
          * is not an int, then really you should average the two elements on either 
          * side to find q1.
          */
         var q1 = values[Math.floor((values.length / 4))];
         // Likewise for q3. 
-        var q3 = values[(Math.ceil((values.length * (3 / 4))) > values.length - 1 ? values.length - 1 : Math.ceil((values.length * (3 / 4))))];
+        var q3 = values[(Math.floor(values.length * (3 / 4)))];
         var iqr = q3 - q1;
+
         if (values[Math.ceil((values.length * (1 / 2)))] < 0.001) {
             smallDataFlag = true;
         }
         // Then find min and max values
         var maxValue, minValue;
-        if (q3 < 1) {
-            maxValue = Number((q3 + iqr * 1.5).toFixed(2));
-            minValue = Number((q1 - iqr * 1.5).toFixed(2));
+        if (0.001 <= q3 && q3 < 1) {
+            maxValue = Number((q3 + iqr * 1.5).toFixed(3));
+            minValue = Number((q1 - iqr * 1.5).toFixed(3));
+        } else if(q3 < 0.001){// get IQR for very small number(<0.001)
+            maxValue = Number((q3 + iqr * 1.5));
+            minValue = Number((q1 - iqr * 1.5));
         } else {
             maxValue = Math.ceil(q3 + iqr * 1.5);
             minValue = Math.floor(q1 - iqr * 1.5);
@@ -718,38 +726,164 @@ cbio.util = (function() {
             }
         }
 
-        return [minValue, maxValue, smallDataFlag];
+        return [minValue, maxValue, smallDataFlag, values, iqr];
     }
 
     function getDatahubStudiesList() {
         var DATAHUB_GIT_URL =
-            'https://api.github.com/repos/cBioPortal/datahub/contents/public';
+            'proxy/download.cbioportal.org/study_list.json';
         var def = new $.Deferred();
 
         $.getJSON(DATAHUB_GIT_URL, function(data) {
-            var studies = {};
-            if (_.isArray(data)) {
-                _.each(data, function(fileInfo) {
-                    if (_.isObject(fileInfo) &&
-                        fileInfo.type === 'file' &&
-                        _.isString(fileInfo.name)) {
-                        var fileName = fileInfo.name.split('.tar.gz');
-                        if (fileName.length > 0) {
-                            studies[fileName[0]] = {
-                                name: fileName[0],
-                                htmlURL: fileInfo.html_url
-                            };
-                        }
-                    }
-                })
-            }
-            def.resolve(studies);
+            def.resolve(data);
         }).fail(function(error) {
             def.reject(error);
         });
         return def.promise();
     }
-    
+
+
+    function getDecimalExponents(data){
+        //Copy the values, rather than operating on references to existing values
+        if (!_.isArray(data) || data.length < 1) {//if data is not an array or is empty, return data
+            return data;
+        }
+
+        var values = [];
+        var minZeros = 0, maxZeros = 0;
+        var head, tail;
+        var expoents = [];
+
+        _.each(data, function(item) {
+            if (!isNaN(item)) {
+                values.push(Number(item));
+            }
+        });
+
+        // Then sort
+        values.sort(function(a, b) {
+            return a - b;
+        });
+
+        //make sure that min and max values are greater than 0.
+        for (head = 0; head < values.length; head++){
+            if (values[head] > 0) {
+                while (values[head] < 1) {
+                    values[head] *= 10;
+                    minZeros++;
+                }
+                break;
+            }
+        }
+
+        for (tail = values.length - 1; tail >= 0; tail--) {
+            if (values[tail] > 0) {
+                while (values[tail] < 1) {
+                    values[tail] *= 10;
+                    maxZeros++;
+                }
+                break;
+            }
+        }
+
+        if(head <= tail){
+            for(var i = maxZeros;i <= minZeros; i++){
+                expoents.push(-i);
+            }
+        }
+
+        return expoents;
+
+    }
+
+    /**
+     * Add cancer studies info within the combined study.
+     * 
+     * @param nameSelector - Any element selector can be accepted by jQuery
+     * @param descriptionSelector - Any element selector can be accepted by jQuery
+     * @param studies - List of cancer studies
+     * @param name - The combined study name
+     * @param description - The combined study description
+     */
+    function showCombinedStudyNameAndDescription(nameSelector, descriptionSelector, studies, name, description) {
+        var hasStudies = _.isArray(studies) && studies.length > 0;
+        var twoMoreStudies = hasStudies && studies.length > 1;
+        name = name || (twoMoreStudies ? 'Combined Study' : 'Selected Study');
+        description = description || '';
+        $(nameSelector).append(name);
+        if (hasStudies) {
+            if (description) {
+                description += ' ';
+            }
+            description += twoMoreStudies ?
+                ('This combined study contains samples from ' + studies.length + ' studies.') : getCollapseStudyName(studies);
+        }
+        $(descriptionSelector).append(description);
+        if (twoMoreStudies) {
+            var collapseStudyName = studies.map(function(study) {
+                // Remove html tags in study.description in case title of <a> not work 
+                return '<a href="' + window.cbioURL + 'study?id=' + study.id + '" title="' +
+                    study.description.replace(/(<([^>]+)>)/ig, '') + '" target="_blank">' +
+                    study.name + '</a>';
+            }).join("<br />");
+            addFoldableDescription(descriptionSelector, collapseStudyName)
+        }
+    }
+
+    function getOriginStudiesDescriptionHtml(studies) {
+        var originStudiesDescription = ['<div class="origin-studies"><div class="header">This virtual study was derived from:</div><div class="panel-group">'];
+        _.each(studies, function(study) {
+            originStudiesDescription.push(
+                '<div class="panel panel-default">' +
+                '<div class="panel-heading">' +
+                '<h4 class="panel-title"><span role="button" data-toggle="collapse" ' +
+                'data-target="#' + study.id + '-collapse-content" class="collapsed">' +
+                study.name + '</span><a target="_blank" href="' + window.cbioURL + 'study?id=' + study.id + '"><i class="fa fa-external-link" aria-hidden="true"></i></a></h4></div>' +
+                '<div id="' + study.id + '-collapse-content" ' +
+                'class="panel-collapse collapse">' +
+                '<div class="panel-body">' + study.description.replace(/\r?\n/g, '<br/>') + '</div></div></div>');
+        });
+        originStudiesDescription.push('</div></div>');
+        return originStudiesDescription.join('');
+    }
+
+    function showVShtmlDescription(descriptionSelector, str, originStudies) {
+        if (str) {
+            var lines = str.split(/\r?\n/g);
+            if (lines.length > 1) {
+                $(descriptionSelector).append(lines.shift());
+                var folableContent = lines.join('<br />');
+                if(_.isArray(originStudies) && originStudies.length > 0) {
+                    folableContent += getOriginStudiesDescriptionHtml(originStudies);
+                }
+                addFoldableDescription(descriptionSelector, folableContent);
+            } else {
+                $(descriptionSelector).append(str);
+            }
+        }
+        return str;
+    }
+
+    function getCollapseStudyName(studies) {
+        return studies.map(function(study) {
+            // Remove html tags in study.description in case title of <a> not work 
+            return '<a href="' + window.cbioURL + 'study?id=' + study.id + '" title="' +
+                study.description.replace(/(<([^>]+)>)/ig, '') + '" target="_blank">' +
+                study.name + '</a>';
+        }).join("<br />");
+    }
+
+    function addFoldableDescription(descriptionSelector, content) {
+        $(descriptionSelector).append('<span class="truncated"><br />' + content + '</span>');
+        var truncatedElm = $(descriptionSelector + ' .truncated').hide()                       // Hide the text initially
+            .before('<i class="fa fa-plus-circle combined-study-title-toggle-icon" aria-hidden="true" style="margin-left: 5px;"></i>'); /// Create toggle button
+        $(descriptionSelector).find('.combined-study-title-toggle-icon')
+            .on('click', function() {          // Attach behavior
+                $(this).toggleClass("fa-minus-circle");   // Swap the icon
+                $(truncatedElm).toggle();                    // Hide/show the text
+            });
+    }
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -777,7 +911,11 @@ cbio.util = (function() {
         findExtremes: findExtremes,
         deepCopyObject: deepCopyObject,
         makeCachedPromiseFunction: makeCachedPromiseFunction,
-        getDatahubStudiesList: getDatahubStudiesList
+        getDatahubStudiesList: getDatahubStudiesList,
+        showCombinedStudyNameAndDescription: showCombinedStudyNameAndDescription,
+        showVShtmlDescription: showVShtmlDescription,
+        getOriginStudiesDescriptionHtml: getOriginStudiesDescriptionHtml,
+        getDecimalExponents: getDecimalExponents
     };
 
 })();

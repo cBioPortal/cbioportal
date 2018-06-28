@@ -35,6 +35,7 @@ package org.mskcc.cbio.portal.model;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.mskcc.cbio.maf.MafUtil;
 
 /**
  * Encapsules Details regarding a Single Mutation.
@@ -307,17 +308,19 @@ public final class ExtendedMutation
             this.canonicalTranscript = canonicalTranscript;
         }
 
-        // the fields used here have to be the same as in sql file.
+        // The fields used here have to be the same as in sql file.
+        // The comparison has to be case insensitive, since this is how MYSQL will
+        // look at the values for the UQ constraint in DB.
         @Override
         public int hashCode() {
             int hash = 3;
             hash = 37 * hash + (this.gene != null ? this.gene.hashCode() : 0);
-            hash = 37 * hash + (this.chr != null ? this.chr.hashCode() : 0);
+            hash = 37 * hash + (this.chr != null ? this.chr.toUpperCase().hashCode() : 0);
             hash = 37 * hash + (int) (this.startPosition ^ (this.startPosition >>> 32));
             hash = 37 * hash + (int) (this.endPosition ^ (this.endPosition >>> 32));
-            hash = 37 * hash + (this.proteinChange != null ? this.proteinChange.hashCode() : 0);
-            hash = 37 * hash + (this.tumorSeqAllele != null ? this.tumorSeqAllele.hashCode() : 0);
-            hash = 37 * hash + (this.mutationType != null ? this.mutationType.hashCode() : 0);
+            hash = 37 * hash + (this.proteinChange != null ? this.proteinChange.toUpperCase().hashCode() : 0);
+            hash = 37 * hash + (this.tumorSeqAllele != null ? this.tumorSeqAllele.toUpperCase().hashCode() : 0);
+            hash = 37 * hash + (this.mutationType != null ? this.mutationType.toUpperCase().hashCode() : 0);
             return hash;
         }
 
@@ -333,7 +336,7 @@ public final class ExtendedMutation
             if (this.gene != other.gene && (this.gene == null || !this.gene.equals(other.gene))) {
                 return false;
             }
-            if ((this.chr == null) ? (other.chr != null) : !this.chr.equals(other.chr)) {
+            if ((this.chr == null) ? (other.chr != null) : !this.chr.equalsIgnoreCase(other.chr)) {
                 return false;
             }
             if (this.startPosition != other.startPosition) {
@@ -342,13 +345,13 @@ public final class ExtendedMutation
             if (this.endPosition != other.endPosition) {
                 return false;
             }
-            if ((this.proteinChange == null) ? (other.proteinChange != null) : !this.proteinChange.equals(other.proteinChange)) {
+            if ((this.proteinChange == null) ? (other.proteinChange != null) : !this.proteinChange.equalsIgnoreCase(other.proteinChange)) {
                 return false;
             }
-            if ((this.tumorSeqAllele == null) ? (other.tumorSeqAllele != null) : !this.tumorSeqAllele.equals(other.tumorSeqAllele)) {
+            if ((this.tumorSeqAllele == null) ? (other.tumorSeqAllele != null) : !this.tumorSeqAllele.equalsIgnoreCase(other.tumorSeqAllele)) {
                 return false;
             }
-            if ((this.mutationType == null) ? (other.mutationType != null) : !this.mutationType.equals(other.mutationType)) {
+            if ((this.mutationType == null) ? (other.mutationType != null) : !this.mutationType.equalsIgnoreCase(other.mutationType)) {
                 return false;
             }
             return true;
@@ -379,10 +382,14 @@ public final class ExtendedMutation
     private String score;
     private String bamFile;
 	private String aminoAcidChange;
-    private int tumorAltCount;
-    private int tumorRefCount;
-    private int normalAltCount;
-    private int normalRefCount;
+    private Integer tumorAltCount;
+    private Integer tumorRefCount;
+    private Integer normalAltCount;
+    private Integer normalRefCount;
+    private String driverFilter;
+    private String driverFilterAnn;
+    private String driverTiersFilter;
+    private String driverTiersFilterAnn;
 
     public ExtendedMutation() {
         this(new MutationEvent());
@@ -642,30 +649,22 @@ public final class ExtendedMutation
         
         
         
-        /**
-         * Set alleles. For variant allele: one of the tumor sequence alleles
-         * which is different from the reference allele.
+    /**
+     * Set alleles. 
+     * For variant allele: one of the tumor sequence alleles is selected.
+     * @see MafUtil#resolveTumorSeqAllele(String referenceAllele, String tumorSeqAllele1, String tumorSeqAllele2)
      *
      * @param varAllele1  the first variant allele
      * @param varAllele2  the second variant allele
      * @param refAllele  the reference allele
-     * @return          tumor sequence allele different from the reference allele
+     * @return tumor sequence allele
      */
     public void setAllele(String varAllele1, String varAllele2, String refAllele)
     {
-            this.setReferenceAllele(refAllele);
-            this.setTumorSeqAllele1(varAllele1);
-            this.setTumorSeqAllele2(varAllele2);
-            
-            String varAllele = varAllele1;
-
-            if (refAllele != null &&
-                    refAllele.equals(varAllele1))
-            {
-                    varAllele = varAllele2;
-            }
-
-            this.setTumorSeqAllele(varAllele);
+        this.setReferenceAllele(refAllele);
+        this.setTumorSeqAllele1(varAllele1);
+        this.setTumorSeqAllele2(varAllele2);
+        this.setTumorSeqAllele(MafUtil.resolveTumorSeqAllele(refAllele, varAllele1, varAllele2));
     }
 
     public String getDbSnpRs() {
@@ -788,35 +787,35 @@ public final class ExtendedMutation
         this.bamFile = bamFile;
     }
 
-    public int getTumorAltCount() {
+    public Integer getTumorAltCount() {
         return tumorAltCount;
     }
 
-    public void setTumorAltCount(int tumorAltCount) {
+    public void setTumorAltCount(Integer tumorAltCount) {
         this.tumorAltCount = tumorAltCount;
     }
 
-    public int getTumorRefCount() {
+    public Integer getTumorRefCount() {
         return tumorRefCount;
     }
 
-    public void setTumorRefCount(int tumorRefCount) {
+    public void setTumorRefCount(Integer tumorRefCount) {
         this.tumorRefCount = tumorRefCount;
     }
 
-    public int getNormalAltCount() {
+    public Integer getNormalAltCount() {
         return normalAltCount;
     }
 
-    public void setNormalAltCount(int normalAltCount) {
+    public void setNormalAltCount(Integer normalAltCount) {
         this.normalAltCount = normalAltCount;
     }
 
-    public int getNormalRefCount() {
+    public Integer getNormalRefCount() {
         return normalRefCount;
     }
 
-    public void setNormalRefCount(int normalRefCount) {
+    public void setNormalRefCount(Integer normalRefCount) {
         this.normalRefCount = normalRefCount;
     }
 
@@ -949,6 +948,38 @@ public final class ExtendedMutation
     public void setEvent(MutationEvent event) {
         this.event = event;
     }
+    
+    public void setDriverFilter(String driverFilter) {
+    		this.driverFilter = driverFilter;
+    }
+	
+	public String getDriverFilter() {
+		return driverFilter;
+	}
+	
+	public void setDriverFilterAnn(String driverFilterAnn) {
+		this.driverFilterAnn = driverFilterAnn;
+	}
+	
+	public String getDriverFilterAnn() {
+			return driverFilterAnn;
+	}
+	
+	public void setDriverTiersFilter(String driverTiersFilter) {
+		this.driverTiersFilter = driverTiersFilter;
+	}
+	
+	public String getDriverTiersFilter() {
+			return driverTiersFilter;
+	}
+	
+	public void setDriverTiersFilterAnn(String driverTiersFilterAnn) {
+		this.driverTiersFilterAnn = driverTiersFilterAnn;
+	}
+	
+	public String getDriverTiersFilterAnn() {
+			return driverTiersFilterAnn;
+	}
     
     @Override
     public String toString() {

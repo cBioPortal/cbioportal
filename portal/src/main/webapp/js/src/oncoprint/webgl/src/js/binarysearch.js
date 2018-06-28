@@ -11,11 +11,15 @@ module.exports = function(array, target_key, keyFn, return_closest_if_not_found)
 	    lower_incl = middle + 1;
 	} else if (target_key < middle_key) {
 	    upper_excl = middle;
+	} else {
+	    // make sure we don't infinite loop in case anything's wrong
+	    //	so that those three cases don't cover everything
+	    return -1;
 	}
     }
     if (return_closest_if_not_found) {
 	return lower_incl-1;
     } else {
-	return null;
+	return -1;
     }
 }

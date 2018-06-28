@@ -32,7 +32,13 @@
 
 package org.mskcc.cbio.maf;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import joptsimple.internal.Strings;
 
 /**
  * Utility Class for Parsing MAF Files.
@@ -41,6 +47,7 @@ import java.util.HashMap;
  */
 public class MafUtil
 {
+    private static final Pattern validNucleotidesPattern = Pattern.compile("^([ATGC]*)$");
 	// standard header column names
 	public static final String HUGO_SYMBOL = "Hugo_Symbol";
 	public static final String ENTREZ_GENE_ID = "Entrez_Gene_Id";
@@ -145,16 +152,21 @@ public class MafUtil
 	public static final String MA_LINK_PDB = "MA:link.PDB";
 	public static final String MA_PROTEIN_CHANGE = "MA:protein.change";
 
+	// custom filtering of passenger and driver mutations column names
+	public static final String DRIVER_FILTER = "cbp_driver";
+	public static final String DRIVER_FILTER_ANNOTATION = "cbp_driver_annotation";
+	public static final String DRIVER_TIERS_FILTER = "cbp_driver_tiers";
+	public static final String DRIVER_TIERS_FILTER_ANNOTATION = "cbp_driver_tiers_annotation";
 
     // standard MAF column indices
 	private int chrIndex = -1; // CHR
     private int ncbiIndex = -1; // NCBI_BUILD
     private int startPositionIndex = -1; // START_POSITION
     private int endPositionIndex = -1; // END_POSITION
-    private int hugoGeneSymbolIndex = -1; 
+    private int hugoGeneSymbolIndex = -1;
     private int entrezGeneIdIndex = -1; // ENTREZ_GENE_ID
     private int referenceAlleleIndex = -1; // REFERENCE_ALLELE
-    private int variantClassificationIndex = -1; // MUTATION_TYPE 
+    private int variantClassificationIndex = -1; // MUTATION_TYPE
     private int variantTypeIndex = -1; // VARIANT_TYPE
     private int centerIndex = -1; // CENTER
     private int strandIndex = -1; // STRAND
@@ -231,6 +243,12 @@ public class MafUtil
 	private int maLinkMsaIndex = -1; // MA:link.MSA
 	private int maLinkPdbIndex = -1; // MA:link.PDB
 	private int maProteinChangeIndex = -1; // MA:protein.change
+
+	// custom filtering of passenger and driver mutations column indices
+	private int driverIndex = -1; //cbp_driver
+	private int driverAnnIndex = -1; //cbp_driver_annotation
+	private int driverTiersIndex = -1; //cbp_driver_tiers
+	private int driverTiersAnnIndex = -1; //cbp_driver_tiers_annotation
 
 	// number of headers in the header line
     private int headerCount;
@@ -426,6 +444,14 @@ public class MafUtil
                 normalDepthIndex = i;
             } else if(header.equalsIgnoreCase(NORMAL_VAF)) {
                 normalVafIndex = i;
+            } else if(header.equalsIgnoreCase(DRIVER_FILTER)) {
+            		driverIndex = i;
+            } else if(header.equalsIgnoreCase(DRIVER_FILTER_ANNOTATION)) {
+            		driverAnnIndex = i;
+            } else if(header.equalsIgnoreCase(DRIVER_TIERS_FILTER)) {
+            		driverTiersIndex = i;
+            } else if(header.equalsIgnoreCase(DRIVER_TIERS_FILTER_ANNOTATION)) {
+            		driverTiersAnnIndex = i;
             }
         }
     }
@@ -471,8 +497,8 @@ public class MafUtil
         record.setValidationMethod(TabDelimitedFileUtil.getPartString(validationMethodIndex, parts));
         record.setScore(TabDelimitedFileUtil.getPartString(scoreIndex, parts));
         record.setBamFile(TabDelimitedFileUtil.getPartString(bamFileIndex, parts));
-        
-        record.setAminoAcidChange(TabDelimitedFileUtil.getPartString(aminoAcidChangeIndex, parts));
+
+        record.setAminoAcidChange(TabDelimitedFileUtil.getPartString(aminoAcidChangeIndex, parts).trim());
 
 	    // allele frequency (count) columns
 	    record.setTumorAltCount(TabDelimitedFileUtil.getPartInt(tumorAltCountIndex, parts));
@@ -489,7 +515,7 @@ public class MafUtil
         record.setNormalVaf(TabDelimitedFileUtil.getPartPercentage(normalVafIndex, parts));
 
 	    // custom annotator columns
-	    record.setProteinChange(TabDelimitedFileUtil.getPartString(getColumnIndex(PROTEIN_CHANGE), parts));
+	    record.setProteinChange(TabDelimitedFileUtil.getPartString(getColumnIndex(PROTEIN_CHANGE), parts).trim());
 	    record.setProteinPosition(TabDelimitedFileUtil.getPartString(getColumnIndex(PROTEIN_POSITION), parts));
 	    record.setCodons(TabDelimitedFileUtil.getPartString(getColumnIndex(CODONS), parts));
 	    record.setSwissprot(TabDelimitedFileUtil.getPartString(getColumnIndex(SWISSPROT), parts));
@@ -533,12 +559,19 @@ public class MafUtil
 	    record.setOncotatorExonAffectedBestEffect(TabDelimitedFileUtil.getPartInt(oncoExonAffectedBeIndex, parts));
 	    record.setOncotatorProteinPosStartBestEffect(TabDelimitedFileUtil.getPartInt(oncoProteinPosStartBeIndex, parts));
 	    record.setOncotatorProteinPosEndBestEffect(TabDelimitedFileUtil.getPartInt(oncoProteinPosEndBeIndex, parts));
-            
+
+	    // custom filtering of passenger and driver mutations columns
+
+	    record.setDriverFilter(TabDelimitedFileUtil.getPartStringAllowEmptyAndNA(driverIndex, parts));
+	    record.setDriverFilterAnn(TabDelimitedFileUtil.getPartStringAllowEmpty(driverAnnIndex, parts));
+	    record.setDriverTiersFilter(TabDelimitedFileUtil.getPartStringAllowEmptyAndNA(driverTiersIndex, parts));
+	    record.setDriverTiersFilterAnn(TabDelimitedFileUtil.getPartStringAllowEmpty(driverTiersAnnIndex, parts));
+
             fixEndPointForInsertion(record);
-            
+
         return record;
     }
-    
+
     private void fixEndPointForInsertion(MafRecord record) {
         if (record.getReferenceAllele().equals("-")) {
             record.setEndPosition(record.getStartPosition()+1);
@@ -672,7 +705,7 @@ public class MafUtil
 	public int getBamFileIndex() {
 		return bamFileIndex;
 	}
-        
+
 	public int getAminoAcidChange() {
             return aminoAcidChangeIndex;
         }
@@ -860,6 +893,26 @@ public class MafUtil
 		return oncoProteinPosEndBeIndex;
 	}
 
+	public int getDriverIndex()
+	{
+		return driverIndex;
+	}
+
+	public int getDriverAnnIndex()
+	{
+		return driverAnnIndex;
+	}
+
+	public int getDriverTiersIndex()
+	{
+		return driverTiersIndex;
+	}
+
+	public int getDriverTiersAnnIndex()
+	{
+		return driverTiersAnnIndex;
+	}
+
 	public int getColumnIndex(String colName)
 	{
 		Integer index = this.columnIndexMap.get(colName.toLowerCase());
@@ -923,4 +976,54 @@ public class MafUtil
 
 		return key;
 	}
+
+    /**
+     * Resolve tumor seq allele given a reference allele, tumor seq allele1, and tumor seq allele2.
+     * Valid nucleotide patterns will be preferred over "-" in cases where there is ambiguity over which tumor seq allele value (1 or 2) to use.
+     * @param referenceAllele
+     * @param tumorSeqAllele1
+     * @param tumorSeqAllele2
+     * @return
+     *
+     * @author angelicaochoa
+     */
+    public static String resolveTumorSeqAllele(String referenceAllele, String tumorSeqAllele1, String tumorSeqAllele2) {
+        // sanity check tumor seq allele 1 and 2 for valid/non-null values
+        if ((Strings.isNullOrEmpty(tumorSeqAllele1) || tumorSeqAllele1.equalsIgnoreCase("NA")) && (Strings.isNullOrEmpty(tumorSeqAllele2) || tumorSeqAllele2.equalsIgnoreCase("NA"))) {
+            return ""; // cannot resolve this case
+        }
+        if (Strings.isNullOrEmpty(tumorSeqAllele1) || tumorSeqAllele1.equals("NA") || tumorSeqAllele1.equals(referenceAllele)) {
+            return tumorSeqAllele2;
+        }
+        else if (Strings.isNullOrEmpty(tumorSeqAllele2) || tumorSeqAllele2.equals("NA") || tumorSeqAllele2.equals(referenceAllele)) {
+            return tumorSeqAllele1;
+        }
+        else if (variantContainsAmbiguousTumorSeqAllele(referenceAllele, tumorSeqAllele1, tumorSeqAllele2)) {
+            return tumorSeqAllele2.equals("-") ? tumorSeqAllele1 : tumorSeqAllele2;
+        }
+        else {
+            return tumorSeqAllele1;
+        }
+    }
+
+    /**
+     * Determines where record contains both a valid nucleotide pattern and "-".
+     * Helper function for resolveTumorSeqAllele(...)
+     * @param referenceAllele
+     * @param tumorSeqAllele1
+     * @param tumorSeqAllele2
+     * @return
+     *
+     * @author angelicaochoa
+     */
+    public static boolean variantContainsAmbiguousTumorSeqAllele(String referenceAllele, String tumorSeqAllele1, String tumorSeqAllele2) {
+        // tumor seq allele 1 or 2 is null type or equal to ref allele - return false
+        if ((Strings.isNullOrEmpty(tumorSeqAllele1) || tumorSeqAllele1.equals("NA") || tumorSeqAllele1.equals(referenceAllele)) ||
+                (Strings.isNullOrEmpty(tumorSeqAllele2) || tumorSeqAllele2.equals("NA") || tumorSeqAllele2.equals(referenceAllele))) {
+            return false;
+        }
+        // returns true if both '-' and a valid nucleotide pattern present in allele 1 and 2
+        return ((tumorSeqAllele1.equals("-") || tumorSeqAllele2.equals("-")) &&
+                (validNucleotidesPattern.matcher(tumorSeqAllele1.toUpperCase()).matches() || validNucleotidesPattern.matcher(tumorSeqAllele2.toUpperCase()).matches()));
+    }
 }

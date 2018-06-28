@@ -42,6 +42,17 @@
         padding-left: 5px;
         padding-right: 0;
     }
+    .cohort-save-button {
+        float: left;
+        font-size: 1.1em !important;
+        background: 0 0;
+        font-weight: 400;
+        color: #555;
+        padding: 5px 10px !important;
+        border: 1px solid #a9a9a9;
+        border-radius: 5px;
+        line-height: 18px;
+    }
 </style>
 
 <!-- This loading is used to before all JS/CSS files loaded -->
@@ -54,45 +65,36 @@
          :class="{'show-loading': showScreenLoad}"
          class="chart-loader" style="top: 30%; left: 30%; display: none;"><img
         src="images/ajax-loader.gif" alt="loading"></div>
-    <div id="main-header" style="display: none" :class="{show:!isloading}">
+    <div id="main-header" style="display: none" :class="{show:!isloading}" v-if="!failedToInit.status">
         <div id="iviz-header-left">
-            <div class="iviz-cohort-component" style="float: left; margin-right: 10px;">
-                <session-component :show-save-button="showSaveButton" :show-manage-button="showManageButton"
-                                   :selected-patients-num="selectedPatientsNum"
-                                   :selected-samples-num="selectedSamplesNum"
-                                   :userid="userid" :stats="stats"
-                                   :update-stats.sync="updateStats"></session-component>
-            </div>
-
-            <div class="iviz-header-left-case">
-                <span class="name" style="display: block;">Selected:</span>
+            <div class="iviz-header-left-case iviz-header-item">
+                <span class="name">Selected:</span>
                 <span class="content">
-            <span>{{ selectedSamplesNum }} samples / {{ selectedPatientsNum }} patients</span>
-          </span>
+                    <span>{{ selectedSamplesNum }} samples / {{ selectedPatientsNum }} patients</span>
+                </span>
             </div>
-            <span id="iviz-header-left-patient-select" class="iviz-header-button"
-                  @click="openCases('patient')" class="number"
-                  role="button" tabindex="0" style="display: block;"><i class="fa fa-user"
+            <virtual-study class="iviz-header-item" v-if="showShareButton || showSaveButton" :show-share-button="showShareButton"
+                           :show-save-button="showSaveButton" :stats="stats"
+                           :update-stats.sync="updateStats"></virtual-study>
+            <span id="iviz-header-left-patient-select" class="iviz-header-button iviz-header-item"
+                  @click="openCases" class="number"
+                  role="button" tabindex="0" style="display: block;"><i class="fa fa-user-circle-o"
                                                                         aria-hidden="true"></i></span>
-            <span id="iviz-header-left-case-download" class="iviz-header-button" @click="downloadCaseData()"
+            <span id="iviz-header-left-case-download" class="iviz-header-button iviz-header-item" @click="downloadCaseData()"
                   role="button"
-                  tabindex="0"><i class="fa fa-download" alt="download"></i></span>
+                  tabindex="0" :disabled="downloadingSelected">
+              <i v-if="!downloadingSelected" class="fa fa-download" alt="download"></i>
+              <i v-if="downloadingSelected" class="fa fa-spinner fa-spin"></i></span>
 
-            <span id="query-by-gene-span">
+            <span id="query-by-gene-span" class="iviz-header-item" style="padding: 0 !important;">
           <textarea id="query-by-gene-textarea" class="expand expandFocusOut" rows="1" cols="10"></textarea>
       </span>
-            <span class="iviz-header-arrow">
+            <span class="iviz-header-arrow iviz-header-item">
           <i class="fa fa-arrow-right fa-lg" aria-hidden="true"></i>
         </span>
-            <input type="button" id="iviz-header-left-1" value="Query" class="iviz-header-button" style="display: block;"
+            <input type="button" id="iviz-header-left-1" value="Query" class="iviz-header-button iviz-header-item" style="display: block;"
                    v-on:click="submitForm">
-
-        </div>
-
-        <div id="iviz-header-right">
-            <div style="display: inline-flex">
-                <custom-case-input></custom-case-input>
-            </div>
+            <custom-case-input class="iviz-header-item"  :stats="stats" :update-stats.sync="updateStats"></custom-case-input>
 
             <select id="iviz-add-chart" class="chosen-select"
                     v-select :charts="charts" v-if="showDropDown">
@@ -109,7 +111,7 @@
             </div>
 
             <span class="breadcrumb_container"
-                  v-if="customfilter.patientIds.length>0||customfilter.sampleIds.length>0">
+                  v-if="customfilter.patientUids.length>0||customfilter.sampleUids.length>0">
           <span>{{customfilter.display_name}}</span>
           <i class="fa fa-times breadcrumb_remove"
              @click="clearAllCharts(true)"></i>
@@ -126,25 +128,24 @@
             </div>
         </div>
     </div>
-    <div :class="{'start-loading': showScreenLoad}">
-        <div class="grid" id="main-grid"
-             :class="{loading:isloading}">
+    <div :class="{'start-loading': showScreenLoad}" v-if="!failedToInit.status">
+        <div class="grid" id="main-grid" v-show="!isloading">
             <main-template :groups.sync="groups" :redrawgroups.sync="redrawgroups"
-                           :selectedpatients.sync="selectedpatients"
-                           :selectedsamples.sync="selectedsamples"
+                           :selectedpatient-uIDs.sync="selectedpatientUIDs"
+                           :selectedsample-uIDs.sync="selectedsampleUIDs"
                            :hasfilters.sync="hasfilters"
                            :customfilter.sync="customfilter"
                            :showed-survival-plot="showedSurvivalPlot"
                            :clear-all="clearAll"></main-template>
         </div>
+        <progress-bar div-id="study-view-summary-page-pb" :status="studyViewSummaryPagePBStatus" v-show="isloading"></progress-bar>
     </div>
-
+    <error container-id="fail-to-init" v-if="failedToInit.status" :message="failedToInit.message"></error>
 </div>
 
 <script>
-    function initdcplots(data, opts) {
-        iViz.init(data, opts);
-
+    function initdcplots(data, opts, selectableIds) {
+        iViz.init(data, opts, selectableIds);
         QueryByGeneTextArea.init('#query-by-gene-textarea', function(genes) {
             iViz.vue.manage.getInstance().$broadcast('gene-list-updated', genes);
         });

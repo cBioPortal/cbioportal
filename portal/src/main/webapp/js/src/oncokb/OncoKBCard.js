@@ -55,7 +55,8 @@ var OncoKBCard = (function(_, $) {
     function concatAlterations(alterations) {
         var positions = {};
         var regular = [];
-        var regExp = new RegExp('^([A-Z])([0-9]+)([A-Z]$)');
+        // exactly search for the pattern of Single Letter, Number and Single Letter
+        var regExp = new RegExp('^([A-Z])([0-9]+)([A-Z]$)', 'i');
 
         _.each(alterations, function(alteration) {
             var result = regExp.exec(alteration);
@@ -129,7 +130,10 @@ var OncoKBCard = (function(_, $) {
         };
 
         if (!cardMainTemplateMeta.mutationEffect) {
-            if (cardMainTemplateMeta.oncogenicity.toLowerCase().indexOf('oncogenic') !== -1) {
+            if (cardMainTemplateMeta
+                    .oncogenicity.toLowerCase().indexOf('oncogenic') !== -1 &&
+                cardMainTemplateMeta
+                    .oncogenicity.toLowerCase() !== 'predicted oncogenic') {
                 cardMainTemplateMeta.mutationEffect = 'Pending curation';
             } else {
                 cardMainTemplateMeta.mutationEffect = 'Unknown';

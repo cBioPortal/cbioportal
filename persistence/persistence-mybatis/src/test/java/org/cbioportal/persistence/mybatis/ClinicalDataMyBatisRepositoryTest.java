@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.PersistenceConstants;
 import org.junit.Assert;
@@ -12,6 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -287,6 +289,35 @@ public class ClinicalDataMyBatisRepositoryTest {
     }
 
     @Test
+    public void fetchAllClinicalDataInStudy() throws Exception {
+
+        List<String> sampleIds = new ArrayList<>();
+        sampleIds.add("TCGA-A1-A0SB-01");
+        sampleIds.add("TCGA-A1-A0SD-01");
+        List<ClinicalData> result = clinicalDataMyBatisRepository.fetchAllClinicalDataInStudy("study_tcga_pub", sampleIds, null,
+                PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE, "SUMMARY");
+
+        Assert.assertEquals(6, result.size());
+        ClinicalData data = result.get(0);
+        Assert.assertEquals("DAYS_TO_COLLECTION", data.getAttrId());
+        Assert.assertEquals("276", data.getAttrValue());
+        Assert.assertEquals((Integer) 1, data.getInternalId());
+        Assert.assertNull(data.getClinicalAttribute());
+    }
+
+    @Test
+    public void fetchMetaClinicalDataInStudy() throws Exception {
+
+        List<String> sampleIds = new ArrayList<>();
+        sampleIds.add("TCGA-A1-A0SB-01");
+        sampleIds.add("TCGA-A1-A0SD-01");
+        BaseMeta result = clinicalDataMyBatisRepository.fetchMetaClinicalDataInStudy("study_tcga_pub", sampleIds, null,
+                PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE);
+
+        Assert.assertEquals((Integer) 6, result.getTotalCount());
+    }
+
+    @Test
     public void fetchClinicalDataNullAttributeSummaryProjection() throws Exception {
 
         List<String> studyIds = new ArrayList<>();
@@ -319,5 +350,23 @@ public class ClinicalDataMyBatisRepositoryTest {
                 PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE);
 
         Assert.assertEquals((Integer) 6, result.getTotalCount());
+    }
+
+    @Test
+    public void fetchClinicalDataCounts() throws Exception {
+
+        List<ClinicalDataCount> result = clinicalDataMyBatisRepository.fetchClinicalDataCounts("acc_tcga", 
+            Arrays.asList("TCGA-A1-B0SO-01", "TCGA-A1-A0SB-01"), Arrays.asList("OTHER_SAMPLE_ID", 
+            "DAYS_TO_COLLECTION"), "SAMPLE");
+        
+        Assert.assertEquals(2, result.size());
+        ClinicalDataCount clinicalDataCount1 = result.get(0);
+        Assert.assertEquals("DAYS_TO_COLLECTION", clinicalDataCount1.getAttributeId());
+        Assert.assertEquals("111", clinicalDataCount1.getValue());
+        Assert.assertEquals((Integer) 2, clinicalDataCount1.getCount());
+        ClinicalDataCount clinicalDataCount2 = result.get(1);
+        Assert.assertEquals("OTHER_SAMPLE_ID", clinicalDataCount2.getAttributeId());
+        Assert.assertEquals("91E7F41C-17B3-4724-96EF-D3C207B964E1", clinicalDataCount2.getValue());
+        Assert.assertEquals((Integer) 1, clinicalDataCount2.getCount());
     }
 }

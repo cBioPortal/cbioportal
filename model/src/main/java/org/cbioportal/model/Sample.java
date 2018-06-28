@@ -1,8 +1,8 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
-public class Sample implements Serializable {
+public class Sample extends UniqueKeyBase {
 
     public enum SampleType {
 
@@ -43,13 +43,18 @@ public class Sample implements Serializable {
     }
 
     private Integer internalId;
+    @NotNull
     private String stableId;
     private SampleType sampleType;
     private Integer patientId;
+    @NotNull
     private String patientStableId;
     private String typeOfCancerId;
     private Patient patient;
+    @NotNull
     private String cancerStudyIdentifier;
+    private Boolean sequenced;
+    private Boolean copyNumberSegmentPresent;
 
     public Integer getInternalId() {
         return internalId;
@@ -113,5 +118,21 @@ public class Sample implements Serializable {
 
     public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
         this.cancerStudyIdentifier = cancerStudyIdentifier;
+    }
+
+    public Boolean getSequenced() {
+        return sequenced;
+    }
+
+    public void setSequenced(Boolean sequenced) {
+        this.sequenced = sequenced;
+    }
+
+    public Boolean getCopyNumberSegmentPresent() {
+        return copyNumberSegmentPresent;
+    }
+
+    public void setCopyNumberSegmentPresent(Boolean copyNumberSegmentPresent) {
+        this.copyNumberSegmentPresent = copyNumberSegmentPresent;
     }
 }

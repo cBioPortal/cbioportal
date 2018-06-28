@@ -1054,18 +1054,13 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('mutations/data_mutations_check_special_cases_allele.maf',
                                     validateData.MutationsExtendedValidator, None, True, True)
         
-        # We expect 4 errors
-        self.assertEqual(len(record_list), 4)
+        # We expect 3 errors
+        self.assertEqual(len(record_list), 3)
         record_iterator = iter(record_list)
         # expect error for the same values in Reference_Allele, Tumor_Seq_Allele1 and Tumor_Seq_Allele2 columns
         record = record_iterator.next()
         self.assertEqual(record.line_number, 2)
         self.assertIn('All Values in columns Reference_Allele, Tumor_Seq_Allele1 and Tumor_Seq_Allele2 are equal.',
-                      record.getMessage())
-        # expect error for Reference_Allele which is not - even though Variant_type equals INS
-        record = record_iterator.next()
-        self.assertEqual(record.line_number, 3)
-        self.assertIn('Variant_Type indicates an insertion, but Reference_Allele does not equal -.',
                       record.getMessage())
         # expect error for deletion, Tumor Seq allele columns do not contain -
         # even though the lengths of the sequences are equal

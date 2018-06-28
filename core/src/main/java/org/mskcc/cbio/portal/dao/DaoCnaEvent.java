@@ -146,12 +146,16 @@ public final class DaoCnaEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
+            String geneIds = "";
+            if (entrezGeneIds != null && entrezGeneIds.size() > 0) {
+                geneIds = " AND ENTREZ_GENE_ID IN(" + StringUtils.join(entrezGeneIds,",") + ")";
+            }
             pstmt = con.prepareStatement
 		("SELECT sample_cna_event.CNA_EVENT_ID, SAMPLE_ID, GENETIC_PROFILE_ID,"
                     + " ENTREZ_GENE_ID, ALTERATION FROM sample_cna_event, cna_event"
                     + " WHERE `GENETIC_PROFILE_ID`=?"
                     + " AND sample_cna_event.CNA_EVENT_ID=cna_event.CNA_EVENT_ID"
-                    + (entrezGeneIds==null?"":" AND ENTREZ_GENE_ID IN(" + StringUtils.join(entrezGeneIds,",") + ")")
+                    + geneIds
                     + " AND ALTERATION IN (" + StringUtils.join(cnaLevels,",") + ")"
                     + " AND SAMPLE_ID in ('"+StringUtils.join(sampleIds, "','")+"')");
             pstmt.setInt(1, profileId);

@@ -1423,12 +1423,6 @@ class MutationsExtendedValidator(Validator):
                               'cause': '(%s, %s, %s)' % (ref_allele, tumor_seq_allele1, tumor_seq_allele2)}
                 self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
 
-            # Check in case of insertion if the Reference_Allele contains '-'
-            if variant_type == "INS" and '-' not in ref_allele:
-                log_message = "Variant_Type indicates an insertion, but Reference_Allele does not equal -."
-                extra_dict = {'line_number': self.line_number, 'cause': ref_allele}
-                self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
-
             # In case of deletion, check when Reference_Allele is the same length as both Tumor_Seq_Allele if at least
             # one of the Tumor_Seq_Alleles is a deletion ('-') otherwise a SNP
             if variant_type == "DEL" and len(ref_allele) == len(tumor_seq_allele1) \

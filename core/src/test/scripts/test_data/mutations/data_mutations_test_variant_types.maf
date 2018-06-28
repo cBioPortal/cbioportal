@@ -1,6 +1,6 @@
 Hugo_Symbol	Entrez_Gene_Id	Center	NCBI_Build	Chromosome	Start_Position	End_Position	Strand	Variant_Classification	Variant_Type	Reference_Allele	Tumor_Seq_Allele1	Tumor_Seq_Allele2	dbSNP_RS	dbSNP_Val_Status	Tumor_Sample_Barcode	Matched_Norm_Sample_Barcode	Match_Norm_Seq_Allele1	Match_Norm_Seq_Allele2	Tumor_Validation_Allele1	Tumor_Validation_Allele2	Match_Norm_Validation_Allele1	Match_Norm_Validation_Allele2	Verification_Status	Validation_Status	Mutation_Status	Sequencing_Phase	Sequence_Source	Validation_Method	Score	BAM_File	Sequencer	Tumor_Sample_UUID	Matched_Norm_Sample_UUID	HGVSc	HGVSp	HGVSp_Short
 INHA	3623	.	GRCh37	2	220439701	220439700	+	Unknown	INS	-	-	CT	novel		TCGA-A1-A0SB-01	TCGA-A1-A0SB-10	-	-																		p.L189Cfs*2
-INHA	3623	.	GRCh37	2	220439700	220439701	+	Unknown	INS	---	-	CT	novel		TCGA-A1-A0SB-01	TCGA-A1-A0SB-10	CTA	-																		p.L189Cfs*2
+INHA	3623	.	GRCh37	2	220439700	220439701	+	Unknown	INS	AAA	-	CT	novel		TCGA-A1-A0SB-01	TCGA-A1-A0SB-10	CTA	-																		p.L189Cfs*2
 MTOR	2475	.	GRCh37	1	11290179	11290180	+	Unknown	DEL	A	A	-	rs35067541		TCGA-A1-A0SB-01	TCGA-A1-A0SB-10	A	A																c.2779+803del		p.Tr27*
 MTOR	2475	.	GRCh37	1	11290179	11290179	+	Unknown	DEL	A	AA	-	rs35067541		TCGA-A1-A0SB-01	TCGA-A1-A0SB-10	A	AA																c.2779+803del		p.Tr27*
 CHD1L	9557	.	GRCh37	1	146728217	146728217	+	Splice_Site	SNP	GG	G	A	rs942221386		TCGA-A1-A0SB-01	TCGA-A1-A0SB-10	GG	G																c.494+1G>A		p.X165_splice

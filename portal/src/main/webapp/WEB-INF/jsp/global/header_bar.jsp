@@ -63,7 +63,47 @@
 .identity > a {
     color: #3786C2;
 }
+
+.identity .login {
+    color: #3786C2;
+    cursor: pointer;
+}
+
+.identity .login:hover{
+    text-decoration: underline !important;
+}
 </style>
+
+<script type="text/javascript">
+function openSoicalAuthWindow() {
+    var _window = open('login.jsp', '', 'width=800, height=600');
+
+    var interval = setInterval(function() {
+        try {
+            if (_window.closed) {
+                clearInterval(interval);
+            } else if (_window.document.URL.includes(location.origin) &&
+                        !_window.document.URL.includes(location.origin + '/auth') &&
+                        !_window.document.URL.includes('login.jsp')) {
+                _window.close();
+
+                setTimeout(function() {
+                    clearInterval(interval);
+                    if(window.location.pathname.includes('/study')) {
+                        $('#rightHeaderContent').load(' #rightHeaderContent');
+                        iViz.vue.manage.getInstance().showSaveButton= true
+                    } else {
+                        location.reload();
+                    }
+                }, 500);
+            }
+        } catch (err) {
+            console.log('Error while monitoring the Login window: ', err);
+        }
+    }, 500);
+};
+
+</script>
 
 <header>
         <div id="leftHeaderContent">
@@ -155,12 +195,12 @@
 	            </c:choose>
 	            </div>
 	        </sec:authorize>
-	        
+        
 	        <% if (authenticationMethod.equals("social_auth")) { %>
 	        
 		        <sec:authorize access="hasRole('ROLE_ANONYMOUS')">
 		            <div class="identity">&nbsp;
-		                <a href="login.jsp">Login</a>&nbsp;&nbsp;
+		                <span class="login" onclick="openSoicalAuthWindow();">Login</span>&nbsp;&nbsp;
 		            </div>
 	            </sec:authorize>
 	            

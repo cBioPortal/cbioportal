@@ -161,45 +161,9 @@
     }
 </style>
 
-<div class="section" id="plots">
-    <table>
-        <tr>
-            <td>
-                 <div id="plots-sidebar">
-                    <div id="plots-sidebar-x-div" class="plots">
-                        <h4>Horizontal Axis</h4>
-                        <div id="plots-x-data-type" style="padding-left:20px;">
-                            <input type="radio" name="plots-x-data-type" value="genetic_profile" title="x data type genetic profile" checked>Genetic Profile
-                            <input type="radio" name="plots-x-data-type" value="clinical_attribute" title="x data type clinical attribute">Clinical Attribute
-                        </div>
-                        <div id="plots-x-spec"></div>
-                    </div>
-                    <button id='plots-tab-swap-btn'><img src='images/swap.png' alt='swap'></button>
-                    <div id="plots-sidebar-y-div" class="plots">
-                        <h4>Vertical Axis</h4>
-                        <div id="plots-y-data-type" style="padding-left:20px;">
-                            <input type="radio" name="plots-y-data-type" value="genetic_profile" title="y data type genetic profile" checked>Genetic Profile
-                            <input type="radio" name="plots-y-data-type" value="clinical_attribute" title="y data type clinical attribute">Clinical Attribute
-                        </div>
-                        <div id="plots-y-spec"></div>
-                    </div>
-                    <div id="plots-sidebar-util-div" class="plots">
-                        <h4>Utilities</h4>
-                        <label for="case_id_search_keyword"><h5>Search Case(s)</h5></label><input type="text" id="case_id_search_keyword" name="case_id_search_keyword" placeholder="Case ID.." onkeyup="search_case_id();"><br>
-                        <label for="mutation_search_keyword"><h5>Search Mutation(s)</h5></label><input type="text" id="mutation_search_keyword" name="mutation_search_keyword" placeholder="Protein Change.." onkeyup="search_mutation();"><br>
-                        <div id="mutation_details_vs_gistic_view" class="mutation_details_vs_gistic_view" style="display:inline;"></div>
-                        <h5>Download</h5><div id="download_buttons" style="display: inline;"></div>
-                    </div>
-                </div>
-            </td>
-            <td>
-                <div id="plots-box" class="plots" style="overflow: scroll;">
-                </div>
-            </td>
-        </tr>
-    </table>
+<div class="cbioportal-frontend">
+    <div class="section" id="plots"></div>
 </div>
-
 
 <script>
     $(document).ready( function() {
@@ -207,16 +171,14 @@
     	var tab_init = false;
     	//function that will listen to tab changes and init this one when applicable:
     	function tabsUpdate() {
-	        if ($("#plots").is(":visible")) {
-	            
+	        if ($("#plots").is(":visible")) {    
 		        if (tab_init === false) {
-		            fireQuerySession();
-                    plotsTab.init();
-                    tab_init = true;
-                } 
-		        
-		        
-		        $(window).trigger("resize");
+                            window.onReactAppReady(function() {
+                                window.renderPlotsTab(document.getElementById('plots'));
+                            });
+                        tab_init = true;
+                    }     
+                    $(window).trigger("resize");
 	    	}
     	}
         //this is for the scenario where the tab is open by default (as part of URL >> #tab_name at the end of URL):

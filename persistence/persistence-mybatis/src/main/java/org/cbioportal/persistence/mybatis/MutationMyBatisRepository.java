@@ -107,10 +107,10 @@ public class MutationMyBatisRepository implements MutationRepository {
     }
 
     @Override
-    public List<MutationCount> fetchMutationCountsInMolecularProfile(String molecularProfileId, 
+    public List<MutationCount> fetchMutationCountsInMolecularProfiles(List<String> molecularProfileIds, 
                                                                      List<String> sampleIds) {
 
-        return mutationMapper.getMutationCountsBySampleIds(molecularProfileId, sampleIds);
+        return mutationMapper.getMutationCountsBySampleIds(molecularProfileIds, sampleIds);
     }
 
     @Override

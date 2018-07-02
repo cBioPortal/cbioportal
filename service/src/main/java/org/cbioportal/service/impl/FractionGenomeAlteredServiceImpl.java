@@ -21,8 +21,8 @@ public class FractionGenomeAlteredServiceImpl implements FractionGenomeAlteredSe
     }
 
     @Override
-    public List<FractionGenomeAltered> fetchFractionGenomeAltered(String studyId, List<String> sampleIds) {
+    public List<FractionGenomeAltered> fetchFractionGenomeAltered(List<String> studyIds, List<String> sampleIds) {
         
-        return fractionGenomeAlteredRepository.fetchFractionGenomeAltered(studyId, sampleIds);
+        return fractionGenomeAlteredRepository.fetchFractionGenomeAltered(studyIds, sampleIds);
     }
 }

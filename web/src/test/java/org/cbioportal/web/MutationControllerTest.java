@@ -695,7 +695,7 @@ public class MutationControllerTest {
 
         List<MutationCount> mutationCountList = createExampleMutationCounts();
 
-        Mockito.when(mutationService.fetchMutationCountsInMolecularProfile(Mockito.anyString(), 
+        Mockito.when(mutationService.fetchMutationCountsInMolecularProfiles(Mockito.anyListOf(String.class), 
             Mockito.anyListOf(String.class))).thenReturn(mutationCountList);
 
         List<String> sampleIds = new ArrayList<>();

@@ -22,11 +22,10 @@
         <include refid="select"/>
         <include refid="from"/>
         WHERE
-        cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
         <if test="sampleIds != null and !sampleIds.isEmpty()">
-            AND sample.STABLE_ID IN
-            <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                #{item}
+            (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+            <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                (#{studyIds[${i}]}, #{sampleIds[${i}]})
             </foreach>
         </if>
     </select>

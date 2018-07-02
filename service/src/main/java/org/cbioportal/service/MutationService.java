@@ -57,8 +57,7 @@ public interface MutationService {
     List<MutationCount> getMutationCountsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId) 
         throws MolecularProfileNotFoundException;
 
-    List<MutationCount> fetchMutationCountsInMolecularProfile(String molecularProfileId, List<String> sampleIds) 
-        throws MolecularProfileNotFoundException;
+    List<MutationCount> fetchMutationCountsInMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds);
 
     List<MutationCountByPosition> fetchMutationCountsByPosition(List<Integer> entrezGeneIds, 
                                                                 List<Integer> proteinPosStarts, 

@@ -8,5 +8,5 @@ public interface FractionGenomeAlteredRepository {
 
     List<FractionGenomeAltered> getFractionGenomeAltered(String studyId, String sampleListId);
 
-    List<FractionGenomeAltered> fetchFractionGenomeAltered(String studyId, List<String> sampleIds);
+    List<FractionGenomeAltered> fetchFractionGenomeAltered(List<String> studyIds, List<String> sampleIds);
 }

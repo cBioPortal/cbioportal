@@ -12,6 +12,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -324,14 +325,14 @@ public class MutationMyBatisRepositoryTest {
     }
 
     @Test
-    public void fetchMutationCountsInMolecularProfile() throws Exception {
+    public void fetchMutationCountsInMolecularProfiles() throws Exception {
 
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add("TCGA-A1-A0SH-01");
         sampleIds.add("TCGA-A1-A0SO-01");
 
-        List<MutationCount> result = mutationMyBatisRepository.fetchMutationCountsInMolecularProfile(
-            "study_tcga_pub_mutations", sampleIds);
+        List<MutationCount> result = mutationMyBatisRepository.fetchMutationCountsInMolecularProfiles(
+            Arrays.asList("study_tcga_pub_mutations", "study_tcga_pub_mutations"), sampleIds);
 
         Assert.assertEquals(2, result.size());
         MutationCount mutationCount = result.get(0);

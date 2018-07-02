@@ -11,6 +11,7 @@ import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
@@ -21,6 +22,7 @@ import org.cbioportal.web.parameter.MutationMultipleStudyFilter;
 import org.cbioportal.web.parameter.MutationPositionIdentifier;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
+import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.cbioportal.web.parameter.sort.MutationSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,8 @@ public class MutationController {
 
     @Autowired
     private MutationService mutationService;
+    @Autowired
+    private MolecularProfileService molecularProfileService;
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutations", method = RequestMethod.GET,
@@ -227,10 +231,32 @@ public class MutationController {
         @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "List of Sample IDs")
         @Size(min = 1, max = MUTATION_MAX_PAGE_SIZE)
-        @RequestBody List<String> sampleIds) throws MolecularProfileNotFoundException {
+        @RequestBody List<String> sampleIds) {
 
-        return new ResponseEntity<>(mutationService.fetchMutationCountsInMolecularProfile(molecularProfileId, sampleIds), 
-            HttpStatus.OK);
+        List<String> molecularProfileIds = new ArrayList<>();
+        sampleIds.forEach(s -> molecularProfileIds.add(molecularProfileId));
+        return new ResponseEntity<>(mutationService.fetchMutationCountsInMolecularProfiles(molecularProfileIds, 
+            sampleIds), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#sampleIdentifiers, 'List<SampleIdentifier>', 'read')")
+    @RequestMapping(value = "/mutation-counts/fetch", 
+        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch mutation counts in multiple studies by sample IDs")
+    public ResponseEntity<List<MutationCount>> fetchMutationCountsInStudies(
+        @ApiParam(required = true, value = "List of Sample Identifiers")
+        @Size(min = 1, max = MUTATION_MAX_PAGE_SIZE)
+        @RequestBody List<SampleIdentifier> sampleIdentifiers) {
+
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
+            studyIds.add(sampleIdentifier.getStudyId());
+            sampleIds.add(sampleIdentifier.getSampleId());
+        }
+        return new ResponseEntity<>(mutationService.fetchMutationCountsInMolecularProfiles(
+            molecularProfileService.getFirstMutationProfileIds(studyIds, sampleIds), sampleIds), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/mutation-counts-by-position/fetch", method = RequestMethod.POST,

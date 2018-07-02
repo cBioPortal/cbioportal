@@ -46,11 +46,11 @@ public class FractionGenomeAlteredServiceImplTest extends BaseServiceImplTest {
         FractionGenomeAltered fractionGenomeAltered = new FractionGenomeAltered();
         expectedFractionGenomeAlteredList.add(fractionGenomeAltered);
 
-        Mockito.when(fractionGenomeAlteredRepository.fetchFractionGenomeAltered(STUDY_ID, 
+        Mockito.when(fractionGenomeAlteredRepository.fetchFractionGenomeAltered(Arrays.asList(STUDY_ID, STUDY_ID), 
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2))).thenReturn(expectedFractionGenomeAlteredList);
 
-        List<FractionGenomeAltered> result = fractionGenomeAlteredService.fetchFractionGenomeAltered(STUDY_ID,
-            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2));
+        List<FractionGenomeAltered> result = fractionGenomeAlteredService.fetchFractionGenomeAltered(
+            Arrays.asList(STUDY_ID, STUDY_ID), Arrays.asList(SAMPLE_ID1, SAMPLE_ID2));
 
         Assert.assertEquals(expectedFractionGenomeAlteredList, result);
     }

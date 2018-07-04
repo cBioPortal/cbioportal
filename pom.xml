@@ -99,7 +99,7 @@
                         <available file="${basedir}/src/main/resources/portal.properties" />
                       </not>
                       <then>
-                        <copy file="${basedir}/src/main/resources/portal.properties.EXAMPLE" tofile="${basedir}/src/main/resources/portal.properties" />
+                        <copy file="/opt/cbioportal/src/cbioportal/src/main/resources/portal.properties" tofile="${basedir}/src/main/resources/portal.properties" />
                       </then>
                     </if>
                     <if>

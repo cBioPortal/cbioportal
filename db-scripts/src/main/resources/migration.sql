@@ -464,7 +464,7 @@ ALTER TABLE `mutation` ADD COLUMN `CCF_CLUSTER` VARCHAR(10) NULL AFTER `CCF`;
 
 -- ========================== add tree structure  =============================================
 
-CREATE TABLE `tree_structure` (
+CREATE TABLE `phylogenetic_tree_structure` (
   `INTERNAL_ID` INT(11) NOT NULL auto_increment,
   `PATIENT_ID` INT(11) NOT NULL,
   `CANCER_STUDY_ID` INT(11) NOT NULL,

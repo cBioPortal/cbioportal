@@ -1964,9 +1964,9 @@ class CaseListDirTestCase(PostClinicalDataFileTestCase):
         self.assertIn('add_global_case_list', record.getMessage())
 
 
-class StableIdValidationTestCase(LogBufferTestCase):
+class MetaFilesTestCase(LogBufferTestCase):
 
-    """Tests to ensure stable_id validation works correctly."""
+    """Tests for the contents of the meta files."""
 
     def test_unnecessary_and_wrong_stable_id(self):
         """Tests to check behavior when stable_id is not needed (warning) or wrong(error)."""
@@ -1995,6 +1995,20 @@ class StableIdValidationTestCase(LogBufferTestCase):
         self.assertEqual(warning.levelno, logging.WARNING)
         self.assertEqual(warning.cause, 'stable_id')
 
+    def test_exceed_maximum_length_meta_attribute_value(self):
+        """Test to check the length the attribute in meta files."""
+        self.logger.setLevel(logging.WARNING)
+        validateData.process_metadata_files(
+            'test_data/meta_files',
+            PORTAL_INSTANCE,
+            self.logger, False, False)
+        record_list = self.get_log_records()
+        # expecting 1 error:
+        self.assertEqual(len(record_list), 1)
+
+        # expecting one error about the maximum length of 'short_name' meta_study
+        record = record_list.pop()
+        self.assertEqual("The maximum length of the 'short_name' value is 64", record.getMessage())
 
 class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
 

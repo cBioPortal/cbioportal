@@ -715,6 +715,29 @@ def parse_metadata_file(filename,
         return meta_dictionary
 
     # type-specific validations
+
+    # Validate length of attributes in meta study file
+    # TODO: do this for all other meta files as well
+    meta_study_attribute_size_dict = {'cancer_study_identifier': 255,
+                                      'type_of_cancer': 63,
+                                      'name': 255,
+                                      'description': 1024,
+                                      'citation': 200,
+                                      'pmid': 20,
+                                      'groups': 200,
+                                      'short_name': 64
+                                      }
+    if meta_file_type == MetaFileTypes.STUDY:
+        for attribute in meta_study_attribute_size_dict:
+            if attribute in meta_dictionary:
+                if len(meta_dictionary[attribute]) > meta_study_attribute_size_dict[attribute]:
+                    logger.error("The maximum length of the '%s' "
+                                 "value is %s" % (attribute,
+                                                  meta_study_attribute_size_dict[attribute]),
+                                 extra={'filename_': filename,
+                                        'cause': meta_dictionary[attribute] + ' (%s)' % len(meta_dictionary[attribute])}
+                                 )
+
     if meta_file_type in (MetaFileTypes.SEG, MetaFileTypes.GISTIC_GENES):
         if genome_name is not None and meta_dictionary['reference_genome_id'] != genome_name:
             logger.error(

@@ -105,7 +105,7 @@ def main(args):
                 with open(os.path.join(study, "meta_study.txt"), 'r') as meta_study:
                     for line in meta_study:
                         if 'cancer_study_identifier' in line:
-                            study_identifier = line.split(': ')[1].strip('\n').strip('\r')
+                            study_identifier = line.split(':')[1].strip()
                             html = study_identifier + "-validation.html"
                 # If in the meta_study file no cancer_study_identifier could be found append study name from input
                 if html == "":

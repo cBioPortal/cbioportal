@@ -41,6 +41,33 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 291, copyNumberSeg.getNumProbes());
         Assert.assertEquals(new BigDecimal("0.0519"), copyNumberSeg.getSegmentMean());
     }
+    
+    @Test
+    public void fetchSamplesWithCopyNumberSegments() throws Exception {
+        List<String> studies = new ArrayList<>();
+        studies.add("acc_tcga");
+        List<String> samples = new ArrayList<>();
+        samples.add("TCGA-A1-B0SP-01");
+        List<Integer> emptyResult = copyNumberSegmentMyBatisRepository.fetchSamplesWithCopyNumberSegments(
+                studies, samples
+        );
+        Assert.assertEquals(0, emptyResult.size());
+        
+        studies = new ArrayList<>();
+        studies.add("study_tcga_pub");
+        studies.add("acc_tcga");
+        studies.add("acc_tcga");
+        samples = new ArrayList<>();
+        samples.add("TCGA-A1-A0SB-01");
+        samples.add("TCGA-A1-B0SP-01");
+        samples.add("TCGA-A1-B0SO-01");
+        List<Integer> result = copyNumberSegmentMyBatisRepository.fetchSamplesWithCopyNumberSegments(
+                studies, samples
+        );
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals((Integer)1, result.get(0));
+        Assert.assertEquals((Integer)15, result.get(1));
+    }
 
     @Test
     public void getCopyNumberSegmentsInSampleInStudyDetailedProjection() throws Exception {

@@ -17,8 +17,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -167,15 +169,18 @@ public class SampleServiceImpl implements SampleService {
                     .getAllSampleIdsInSampleList(studyId + SEQUENCED));
             }
 
-            List<CopyNumberSeg> copyNumberSegs = copyNumberSegmentRepository.fetchCopyNumberSegments(samples.stream()
-                .map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()), samples.stream()
-                .map(Sample::getStableId).collect(Collectors.toList()), "ID");
-
+            List<Integer> samplesWithCopyNumberSeg = copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
+                samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()), 
+                samples.stream().map(Sample::getStableId).collect(Collectors.toList())
+            );
+            
+            Set<Integer> samplesWithCopyNumberSegMap = new HashSet<>();
+            samplesWithCopyNumberSegMap.addAll(samplesWithCopyNumberSeg);
+           
             samples.forEach(sample -> {
                 sample.setSequenced(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier())
                     .contains(sample.getStableId()));
-                sample.setCopyNumberSegmentPresent(copyNumberSegs.stream().anyMatch(c -> c.getCancerStudyIdentifier()
-                    .equals(sample.getCancerStudyIdentifier()) && c.getSampleStableId().equals(sample.getStableId())));
+                sample.setCopyNumberSegmentPresent(samplesWithCopyNumberSegMap.contains(sample.getInternalId()));
             });
         }
     }

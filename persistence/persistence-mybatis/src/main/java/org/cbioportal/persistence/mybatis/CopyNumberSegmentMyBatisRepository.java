@@ -36,6 +36,11 @@ public class CopyNumberSegmentMyBatisRepository implements CopyNumberSegmentRepo
     }
 
     @Override
+    public List<Integer> fetchSamplesWithCopyNumberSegments(List<String> studyIds, List<String> sampleIds) {
+        return copyNumberSegmentMapper.getSamplesWithCopyNumberSegments(studyIds, sampleIds);
+    }
+    
+    @Override
     public List<CopyNumberSeg> fetchCopyNumberSegments(List<String> studyIds, List<String> sampleIds, 
                                                        String projection) {
         

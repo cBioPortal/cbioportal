@@ -121,7 +121,7 @@ public class TestIntegrationTest {
             TransactionalScripts scripts = applicationContext.getBean(TransactionalScripts.class);
             scripts.run();
 
-            //count warnings, but disregard warnings caused by gene_symbol_disambiguation.txt
+            //count the relevant warnings:
             ArrayList<String> warnings = ProgressMonitor.getWarnings();
             int countWarnings = 0;
             for (String warning: warnings) {
@@ -129,9 +129,9 @@ public class TestIntegrationTest {
                     countWarnings++;
                 }
             }
-            //check that there are no warnings:
-            assertEquals(0, countWarnings);
-
+            //check that there are only warnings for empty positions in fake data:
+            assertEquals(12, countWarnings);
+            
             //check that ALL data really got into DB correctly. In the spirit of integration tests,
             //we want to query via the same service layer as the one used by the web API here.
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId("study_es_0");

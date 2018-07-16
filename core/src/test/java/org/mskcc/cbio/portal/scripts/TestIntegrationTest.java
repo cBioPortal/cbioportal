@@ -121,7 +121,7 @@ public class TestIntegrationTest {
             TransactionalScripts scripts = applicationContext.getBean(TransactionalScripts.class);
             scripts.run();
 
-            //count the relevant warnings:
+            //count warnings, but disregard warnings caused by gene_symbol_disambiguation.txt
             ArrayList<String> warnings = ProgressMonitor.getWarnings();
             int countWarnings = 0;
             for (String warning: warnings) {
@@ -129,9 +129,9 @@ public class TestIntegrationTest {
                     countWarnings++;
                 }
             }
-            //check that there are only warnings for empty positions in fake data:
-            assertEquals(1, countWarnings);
-            
+            //check that there are no warnings:
+            assertEquals(0, countWarnings);
+
             //check that ALL data really got into DB correctly. In the spirit of integration tests,
             //we want to query via the same service layer as the one used by the web API here.
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId("study_es_0");
@@ -147,7 +147,7 @@ public class TestIntegrationTest {
             assertEquals(31, mutations.size());
 
             //===== Check FUSION data ========
-            // Are there 4 fusion entries in mutation profile, but one is off panel, so only 3 should be imported
+            // Are there 3 fusion entries in mutation profile? true
             int countFusions = 0;
             for (Mutation mutation : mutations) {
                 if (mutation.getMutationEvent().getMutationType().equals("Fusion")) {

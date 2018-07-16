@@ -5,6 +5,7 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.util.BenjaminiHochbergFDRCalculator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +31,8 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
     private MolecularDataService molecularDataService;
     @Mock
     private GeneService geneService;
+    @Mock
+    private BenjaminiHochbergFDRCalculator benjaminiHochbergFDRCalculator;
     
     @Test
     public void getCoExpressions() throws Exception {
@@ -43,22 +46,27 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Mockito.when(geneService.fetchGenes(Arrays.asList("2", "3", "4"), "ENTREZ_GENE_ID", "SUMMARY"))
             .thenReturn(genes);
 
+        Mockito.when(benjaminiHochbergFDRCalculator.calculate(new double[]{0.3333333333333333, 0.6666666666666667}))
+            .thenReturn(new double[]{0.6, 1});
+
         List<CoExpression> result = coExpressionService.getCoExpressions(MOLECULAR_PROFILE_ID,
             SAMPLE_LIST_ID, ENTREZ_GENE_ID_1, THRESHOLD);
 
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
-        Assert.assertEquals((Integer) 2, coExpression1.getEntrezGeneId());
-        Assert.assertEquals("HUGO2", coExpression1.getHugoGeneSymbol());
-        Assert.assertEquals("CYTOBAND2", coExpression1.getCytoband());
-        Assert.assertEquals(new BigDecimal("0.49999999999999994"), coExpression1.getPearsonsCorrelation());
-        Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
+        Assert.assertEquals((Integer) 3, coExpression1.getEntrezGeneId());
+        Assert.assertEquals("HUGO3", coExpression1.getHugoGeneSymbol());
+        Assert.assertEquals("CYTOBAND3", coExpression1.getCytoband());
+        Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression1.getSpearmansCorrelation());
+        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getpValue());
+        Assert.assertEquals(new BigDecimal("0.6"), coExpression1.getqValue());
         CoExpression coExpression2 = result.get(1);
-        Assert.assertEquals((Integer) 3, coExpression2.getEntrezGeneId());
-        Assert.assertEquals("HUGO3", coExpression2.getHugoGeneSymbol());
-        Assert.assertEquals("CYTOBAND3", coExpression2.getCytoband());
-        Assert.assertEquals(new BigDecimal("0.8585294073051386"), coExpression2.getPearsonsCorrelation());
-        Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
+        Assert.assertEquals((Integer) 2, coExpression2.getEntrezGeneId());
+        Assert.assertEquals("HUGO2", coExpression2.getHugoGeneSymbol());
+        Assert.assertEquals("CYTOBAND2", coExpression2.getCytoband());
+        Assert.assertEquals(new BigDecimal("0.5"), coExpression2.getSpearmansCorrelation());
+        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getpValue());
+        Assert.assertEquals(new BigDecimal("1.0"), coExpression2.getqValue());
     }
 
     @Test
@@ -73,22 +81,27 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Mockito.when(geneService.fetchGenes(Arrays.asList("2", "3", "4"), "ENTREZ_GENE_ID", "SUMMARY"))
             .thenReturn(genes);
 
+        Mockito.when(benjaminiHochbergFDRCalculator.calculate(new double[]{0.3333333333333333, 0.6666666666666667}))
+            .thenReturn(new double[]{0.6, 1});
+
         List<CoExpression> result = coExpressionService.fetchCoExpressions(MOLECULAR_PROFILE_ID,
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), ENTREZ_GENE_ID_1, THRESHOLD);
 
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
-        Assert.assertEquals((Integer) 2, coExpression1.getEntrezGeneId());
-        Assert.assertEquals("HUGO2", coExpression1.getHugoGeneSymbol());
-        Assert.assertEquals("CYTOBAND2", coExpression1.getCytoband());
-        Assert.assertEquals(new BigDecimal("0.49999999999999994"), coExpression1.getPearsonsCorrelation());
-        Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
+        Assert.assertEquals((Integer) 3, coExpression1.getEntrezGeneId());
+        Assert.assertEquals("HUGO3", coExpression1.getHugoGeneSymbol());
+        Assert.assertEquals("CYTOBAND3", coExpression1.getCytoband());
+        Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression1.getSpearmansCorrelation());
+        Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getpValue());
+        Assert.assertEquals(new BigDecimal("0.6"), coExpression1.getqValue());
         CoExpression coExpression2 = result.get(1);
-        Assert.assertEquals((Integer) 3, coExpression2.getEntrezGeneId());
-        Assert.assertEquals("HUGO3", coExpression2.getHugoGeneSymbol());
-        Assert.assertEquals("CYTOBAND3", coExpression2.getCytoband());
-        Assert.assertEquals(new BigDecimal("0.8585294073051386"), coExpression2.getPearsonsCorrelation());
-        Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
+        Assert.assertEquals((Integer) 2, coExpression2.getEntrezGeneId());
+        Assert.assertEquals("HUGO2", coExpression2.getHugoGeneSymbol());
+        Assert.assertEquals("CYTOBAND2", coExpression2.getCytoband());
+        Assert.assertEquals(new BigDecimal("0.5"), coExpression2.getSpearmansCorrelation());
+        Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getpValue());
+        Assert.assertEquals(new BigDecimal("1.0"), coExpression2.getqValue());
     }
 
     private List<GeneMolecularData> createGeneMolecularData() {

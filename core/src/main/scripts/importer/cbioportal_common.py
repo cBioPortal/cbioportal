@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python3
 
 # ------------------------------------------------------------------------------
 # Common components used by various cbioportal scripts.
@@ -446,7 +446,7 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
 
         aggregated_buffer = []
         # for each list of same-message records
-        for record_list in grouping_dict.values():
+        for record_list in list(grouping_dict.values()):
             # make a dict to collect the fields for the aggregate record
             aggregated_field_dict = {}
             # for each field found in (the first of) the records
@@ -573,7 +573,7 @@ def validate_types_and_id(meta_dictionary, logger, filename):
                 data_line_nr += 1
                 # skip header, so if line is not header then process as tab separated:
                 if (data_line_nr > 1):
-                    line_cols = csv.reader([line], delimiter='\t').next()
+                    line_cols = next(csv.reader([line], delimiter='\t'))
                     genetic_alteration_type = line_cols[0]
                     data_type = line_cols[1]
                     # add to map:
@@ -821,7 +821,7 @@ def run_java(*args):
     while process.poll() is None:
         line = process.stdout.readline()
         if line != '' and line.endswith('\n'):
-            print >> OUTPUT_FILE, line.strip()
+            print(line.strip(), file=OUTPUT_FILE)
             ret.append(line[:-1])
     ret.append(process.returncode)
     # if cmd line parameters error:

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 __author__ = 'priti'
 
@@ -11,8 +11,8 @@ import sys
 import argparse
 import logging
 
-import validateData
-import cbioportalImporter
+from . import validateData
+from . import cbioportalImporter
 
 
 # ----------------------------------------------------------------------------
@@ -100,16 +100,16 @@ if __name__ == '__main__':
     study_dir = args.study_directory
 
     # Validate the study directory.
-    print >> sys.stderr, "Starting validation...\n"
+    print("Starting validation...\n", file=sys.stderr)
     try:
         exitcode = validateData.main_validate(args)
     except KeyboardInterrupt:
-        print >> sys.stderr, Color.BOLD + "\nProcess interrupted. " + Color.END
-        print >> sys.stderr, "#" * 71 + "\n"
+        print(Color.BOLD + "\nProcess interrupted. " + Color.END, file=sys.stderr)
+        print("#" * 71 + "\n", file=sys.stderr)
         raise
     except:
-        print >> sys.stderr, "!" * 71
-        print >> sys.stderr, Color.RED + "Error occurred during validation step:" + Color.END
+        print("!" * 71, file=sys.stderr)
+        print(Color.RED + "Error occurred during validation step:" + Color.END, file=sys.stderr)
         raise
     finally:
         # make sure all log messages are flushed
@@ -120,30 +120,30 @@ if __name__ == '__main__':
 
     # Depending on validation results, load the study or notify the user
     try:
-        print "\n"
-        print >> sys.stderr, "#" * 71
+        print("\n")
+        print("#" * 71, file=sys.stderr)
         if exitcode == 1:
-            print >> sys.stderr, Color.RED + "One or more errors reported above. Please fix your files accordingly" + Color.END
-            print >> sys.stderr, "!" * 71
+            print(Color.RED + "One or more errors reported above. Please fix your files accordingly" + Color.END, file=sys.stderr)
+            print("!" * 71, file=sys.stderr)
         elif exitcode == 3:
             if args.override_warning:
-                print >> sys.stderr, Color.BOLD + "Overriding Warnings. Importing study now" + Color.END
-                print >> sys.stderr, "#" * 71 + "\n"
+                print(Color.BOLD + "Overriding Warnings. Importing study now" + Color.END, file=sys.stderr)
+                print("#" * 71 + "\n", file=sys.stderr)
                 cbioportalImporter.main(args)
                 exitcode = 0
             else:
-                print >> sys.stderr, Color.BOLD + "Warnings. Please fix your files or import with override warning option" + Color.END
-                print >> sys.stderr, "#" * 71
+                print(Color.BOLD + "Warnings. Please fix your files or import with override warning option" + Color.END, file=sys.stderr)
+                print("#" * 71, file=sys.stderr)
         elif exitcode == 0:
-            print >> sys.stderr, Color.BOLD + "Everything looks good. Importing study now" + Color.END
-            print >> sys.stderr, "#" * 71 + "\n"
+            print(Color.BOLD + "Everything looks good. Importing study now" + Color.END, file=sys.stderr)
+            print("#" * 71 + "\n", file=sys.stderr)
             cbioportalImporter.main(args)
     except KeyboardInterrupt:
-        print >> sys.stderr, Color.BOLD + "\nProcess interrupted. You will have to run this again to make sure study is completely loaded." + Color.END
-        print >> sys.stderr, "#" * 71
+        print(Color.BOLD + "\nProcess interrupted. You will have to run this again to make sure study is completely loaded." + Color.END, file=sys.stderr)
+        print("#" * 71, file=sys.stderr)
         raise
     except:
-        print >> sys.stderr, "!" * 71
-        print >> sys.stderr, Color.RED + "Error occurred during data loading step. Please fix the problem and run this again to make sure study is completely loaded." + Color.END
+        print("!" * 71, file=sys.stderr)
+        print(Color.RED + "Error occurred during data loading step. Please fix the problem and run this again to make sure study is completely loaded." + Color.END, file=sys.stderr)
         raise
     sys.exit(exitcode)

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 #
 # Copyright (c) 2016 The Hyve B.V.
@@ -42,7 +42,7 @@ import json
 import xml.etree.ElementTree as ET
 import re
 
-import cbioportal_common
+from . import cbioportal_common
 
 
 # ------------------------------------------------------------------------------
@@ -253,7 +253,7 @@ class PortalInstance(object):
         self.entrez_set = set()
         for entrez_map in (hugo_entrez_map, alias_entrez_map):
             if entrez_map is not None:
-                for entrez_list in entrez_map.values():
+                for entrez_list in list(entrez_map.values()):
                     for entrez_id in entrez_list:
                         self.entrez_set.add(entrez_id)
         #Set defaults for genome version and species
@@ -404,11 +404,11 @@ class Validator(object):
                 return
 
             # parse the first non-commented line as the tsv header
-            header_cols = csv.reader(
+            header_cols = next(csv.reader(
                                      [header_line],
                                      delimiter='\t',
                                      quoting=csv.QUOTE_NONE,
-                                     strict=True).next()
+                                     strict=True))
             if self.checkHeader(header_cols) > 0:
                 if not self.relaxed_mode:
                     self.logger.error(
@@ -583,7 +583,7 @@ class Validator(object):
 
     def _checkLineBreaks(self):
         """Checks line breaks, reports to user."""
-        if self.newlines not in("\r\n","\r","\n"):
+        if self.newlines not in("\r\n", "\r", "\n"):
             self.logger.error('No line breaks recognized in file',
                               extra={'cause': repr(self.newlines)[1:-1]})
 
@@ -991,7 +991,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
             if hugo_symbol == '':
                 hugo_symbol = None
             # In case of CNA data the Hugo Symbol should be split when gene symbol contains pipe
-            if (type(self) is CNAValidator or type(self) is CNAContinuousValuesValidator) and '|' in hugo_symbol:
+            if (isinstance(self, CNAValidator) or isinstance(self, CNAContinuousValuesValidator)) and '|' in hugo_symbol:
                 hugo_symbol = hugo_symbol.split('|')[0]
         if 'Entrez_Gene_Id' in self.nonsample_cols:
             entrez_index = self.nonsample_cols.index('Entrez_Gene_Id')
@@ -1856,7 +1856,7 @@ class ClinicalValidator(Validator):
 
     REQUIRE_COLUMN_ORDER = False
     PROP_IS_PATIENT_ATTRIBUTE = None
-    NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", "", "na"]
+    NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]", "[completed]", "[null]", "", "na"]
     ALLOW_BLANKS = True
     METADATA_LINES = ('display_name',
                       'description',
@@ -2225,7 +2225,7 @@ class SampleClinicalValidator(ClinicalValidator):
         """Initialize the validator to track sample ids defined."""
         super(SampleClinicalValidator, self).__init__(*args, **kwargs)
         self.sample_id_lines = {}
-        self.sampleIds = self.sample_id_lines.viewkeys()
+        self.sampleIds = self.sample_id_lines.keys()
         self.patient_ids = set()
 
     def checkLine(self, data):
@@ -2429,7 +2429,7 @@ class SegValidator(Validator):
                 else:
                     self.logger.error(
                         ('Unknown chromosome, must be one of (%s)' %
-                         '|'.join(self.chromosome_lengths.keys())),
+                         '|'.join(list(self.chromosome_lengths.keys()))),
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
@@ -3624,12 +3624,12 @@ def validate_dependencies(validators_by_meta_type, logger):
             else:
                 # Validate that GSVA_SCORES 'source_stable_id' is also a 'source_stable_id'
                 # in a Z-SCORE expression file
-                if not gsva_scores_source_stable_id in expression_zscores_source_stable_ids.keys():
+                if not gsva_scores_source_stable_id in list(expression_zscores_source_stable_ids.keys()):
                     logger.error(
                         "source_stable_id does not match source_stable_id from Z-Score expression files. "
                         "Please make sure sure that Z-Score expression file is added for '" +
                         gsva_scores_source_stable_id + "'. Current Z-Score source stable ids found are ['" +
-                        "', '".join(expression_zscores_source_stable_ids.keys()) +"'].",
+                        "', '".join(list(expression_zscores_source_stable_ids.keys())) +"'].",
                         extra={'filename_': gsva_scores_filename,
                                'cause': gsva_scores_source_stable_id})
 
@@ -3769,7 +3769,7 @@ def load_portal_info(path, logger, offline=False):
         if parsed_json is not None and transform_function is not None:
             parsed_json = transform_function(parsed_json)
         portal_dict[api_name] = parsed_json
-    if all(d is None for d in portal_dict.values()):
+    if all(d is None for d in list(portal_dict.values())):
         raise IOError('No portal information found at {}'.format(
                           path))
     return PortalInstance(cancer_type_dict = portal_dict['cancertypes'],
@@ -3960,8 +3960,8 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
                 prev_stableid_files=defined_case_list_fns)
 
     validate_defined_caselists(
-        study_id, defined_case_list_fns.keys(),
-        file_types=validators_by_meta_type.keys(),
+        study_id, list(defined_case_list_fns.keys()),
+        file_types=list(validators_by_meta_type.keys()),
         logger=logger)
 
     logger.info('Validation complete')
@@ -4001,7 +4001,7 @@ def main_validate(args):
 
     # check existence of directory
     if not os.path.exists(study_dir):
-        print >> sys.stderr, 'directory cannot be found: ' + study_dir
+        print('directory cannot be found: ' + study_dir, file=sys.stderr)
         return 2
 
     # set default message handler
@@ -4107,9 +4107,9 @@ if __name__ == '__main__':
     finally:
         logging.shutdown()
         del logging._handlerList[:]  # workaround for harmless exceptions on exit
-    print >>sys.stderr, ('Validation of study {status}.'.format(
+    print(('Validation of study {status}.'.format(
         status={0: 'succeeded',
                 1: 'failed',
                 2: 'not performed as problems occurred',
-                3: 'succeeded with warnings'}.get(exit_status, 'unknown')))
+                3: 'succeeded with warnings'}.get(exit_status, 'unknown'))), file=sys.stderr)
     sys.exit(exit_status)

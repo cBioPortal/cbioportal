@@ -1190,15 +1190,17 @@ class MutationsExtendedValidator(Validator):
         self.checkAlleleSpecialCases(data)
         self.checkValidationColumns(data)
 
-        for col_name in self.CHECK_FUNCTION_MAP:
-            # if optional column was found, validate it:
-            if col_name in self.cols:
+        for col_index, col_name in enumerate(self.cols):
+            # validate the column if there's a function defined for it
+            try:
+                check_function_name = self.CHECK_FUNCTION_MAP[col_name]
+            except KeyError:
+                pass
+            else:
                 col_index = self.cols.index(col_name)
                 value = data[col_index]
-                # get the checking method for this column if available, or None
-                checking_function = getattr(
-                    self,
-                    self.CHECK_FUNCTION_MAP[col_name])
+                # get the checking method for this column
+                checking_function = getattr(self, check_function_name)
                 if not checking_function(value):
                     self.printDataInvalidStatement(value, col_index)
                 elif self.extra_exists or self.extra:
@@ -3515,19 +3517,19 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
 
         # Check for any duplicate sample IDs
         sample_ids = [x.strip() for x in meta_dictionary['case_list_ids'].split('\t')]
-        seen_sample_ids = set()
-        dupl_sample_ids = set()
+        seen_sample_ids = OrderedDict()
+        dupl_sample_ids = OrderedDict()
         for sample_id in sample_ids:
             if sample_id not in seen_sample_ids:
-                seen_sample_ids.add(sample_id)
+                seen_sample_ids[sample_id] = True
             else:
-                dupl_sample_ids.add(sample_id)
+                dupl_sample_ids[sample_id] = True
         # Duplicate samples IDs are removed by the importer, therefore this is
         # only a warning.
         if len(dupl_sample_ids) > 0:
             logger.warning('Duplicate Sample ID in case list',
                            extra={'filename_': case,
-                           'cause': ', '.join(dupl_sample_ids)})
+                           'cause': ', '.join(dupl_sample_ids.keys())})
 
         for value in seen_sample_ids:
             # Compare case list sample ids with clinical file
@@ -3948,13 +3950,15 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
                 validators_by_meta_type[
                     cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES])})
 
-    # next validate all other data files
-    for meta_file_type in validators_by_meta_type:
+    # next validate all other data files, from meta_aaa to meta_zzz
+    for meta_file_type in sorted(validators_by_meta_type):
         # skip cancer type and clinical files, they have already been validated
         if meta_file_type in (cbioportal_common.MetaFileTypes.CANCER_TYPE,
                               cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES):
             continue
-        for validator in validators_by_meta_type[meta_file_type]:
+        for validator in sorted(
+                validators_by_meta_type[meta_file_type],
+                key=lambda validator: validator and validator.filename):
             # if there was no validator for this meta file
             if validator is None:
                 continue

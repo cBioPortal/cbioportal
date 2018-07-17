@@ -629,7 +629,7 @@ def parse_metadata_file(filename,
     logger.debug('Starting validation of meta file', extra={'filename_': filename})
 
     # Read meta file
-    meta_dictionary = {}
+    meta_dictionary = OrderedDict()
     with open(filename, 'r') as metafile:
         for line_index, line in enumerate(metafile):
             # skip empty lines:
@@ -642,7 +642,7 @@ def parse_metadata_file(filename,
                     extra={'filename_': filename,
                            'line_number': line_index + 1})
                 meta_dictionary['meta_file_type'] = None
-                return meta_dictionary
+                return dict(meta_dictionary)
             key_value = line.split(':', 1)
             if len(key_value) == 2:
                 meta_dictionary[key_value[0]] = key_value[1].strip()
@@ -656,7 +656,7 @@ def parse_metadata_file(filename,
         meta_dictionary['meta_file_type'] = meta_file_type
         # if type could not be inferred, no further validations are possible
         if meta_file_type is None:
-            return meta_dictionary
+            return dict(meta_dictionary)
 
 
     # Check for missing fields for this specific meta file type
@@ -673,7 +673,7 @@ def parse_metadata_file(filename,
     if missing_fields:
         # all further checks would depend on these fields being present
         meta_dictionary['meta_file_type'] = None
-        return meta_dictionary
+        return dict(meta_dictionary)
 
     # validate genetic_alteration_type, datatype, stable_id
     stable_id_mandatory = META_FIELD_MAP[meta_file_type].get('stable_id',
@@ -683,7 +683,7 @@ def parse_metadata_file(filename,
         if not valid_types_and_id:
             # invalid meta file type
             meta_dictionary['meta_file_type'] = None
-            return meta_dictionary
+            return dict(meta_dictionary)
 
     # check for extra unrecognized fields
     for field in meta_dictionary:
@@ -712,7 +712,7 @@ def parse_metadata_file(filename,
                    'cause': meta_dictionary['cancer_study_identifier']})
         # not a valid meta file in this study
         meta_dictionary['meta_file_type'] = None
-        return meta_dictionary
+        return dict(meta_dictionary)
 
     # type-specific validations
 

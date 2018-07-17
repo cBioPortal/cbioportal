@@ -9,6 +9,10 @@ version 3, or (at your option) any later version.
 import unittest
 import sys
 import logging.handlers
+import textwrap
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
 from importer import cbioportal_common
 from importer import validateData
 
@@ -1991,6 +1995,57 @@ class CaseListDirTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertIn('spam_all', record.getMessage())
         self.assertIn('add_global_case_list', record.getMessage())
+
+    def test_undefined_cases_listed_in_file_order(self):
+        """Test if undefined cases are reported in the order encountered."""
+        with TemporaryDirectory() as study_dir_name:
+            study_dir = Path(study_dir_name)
+            with open(study_dir / 'meta_study.txt', 'w', encoding='utf-8') as meta_study:
+                meta_study.write(textwrap.dedent('''\
+                    cancer_study_identifier: spam
+                    type_of_cancer: brca
+                    name: Spam (spam)
+                    description: Baked beans
+                    short_name: Spam
+                    '''))
+            with open(study_dir / 'meta_samples.txt', 'w', encoding='utf-8') as meta_samples:
+                meta_samples.write(textwrap.dedent('''\
+                    cancer_study_identifier: spam
+                    genetic_alteration_type: CLINICAL
+                    datatype: SAMPLE_ATTRIBUTES
+                    data_filename: data_samples.txt
+                    '''))
+            with open(study_dir / 'data_samples.txt', 'w', encoding='utf-8') as data_samples:
+                data_samples.write(textwrap.dedent('''\
+                    #Patient Identifier\tSample Identifier
+                    #PatID\tSampId
+                    #STRING\tSTRING
+                    #1\t1
+                    PATIENT_ID\tSAMPLE_ID
+                    Patient1\tPatient1-Sample1
+                    '''))
+            case_list_folder = study_dir / 'case_lists'
+            case_list_folder.mkdir()
+            with open(case_list_folder / 'cases_all.txt', 'w', encoding='utf-8') as cases_all:
+                cases_all.write(textwrap.dedent('''\
+                    cancer_study_identifier: spam
+                    stable_id: spam_all
+                    case_list_name: All tumors
+                    case_list_description: All tumor samples (4 samples)
+                    case_list_ids: Patient0-Sample1\tPatient2-Sample3\tPatient1-Sample1\tPatient1-Sample2
+                    '''))
+            self.logger.setLevel(logging.WARNING)
+            validateData.validate_study(
+                study_dir,
+                PORTAL_INSTANCE,
+                self.logger,
+                relaxed_mode=False,
+                strict_maf_checks=False)
+            record_list = self.get_log_records()
+            reported_sample_ids = [record.cause for record in record_list]
+            self.assertEqual(
+                reported_sample_ids,
+                ['Patient0-Sample1', 'Patient2-Sample3', 'Patient1-Sample2'])
 
 
 class MetaFilesTestCase(LogBufferTestCase):

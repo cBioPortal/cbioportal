@@ -60,14 +60,15 @@ public class MolecularDataController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
 
+        List<NumericGeneMolecularData> result = filterNonNumberMolecularData(molecularDataService.getMolecularData(
+            molecularProfileId, sampleListId, Arrays.asList(entrezGeneId), projection.name()));
+
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, molecularDataService.getMetaMolecularData(
-                molecularProfileId, sampleListId, Arrays.asList(entrezGeneId)).getTotalCount().toString());
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(filterNonNumberMolecularData(molecularDataService.getMolecularData(molecularProfileId, sampleListId, 
-                Arrays.asList(entrezGeneId), projection.name())), HttpStatus.OK);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         }
     }
 
@@ -84,30 +85,21 @@ public class MolecularDataController {
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
 
+        List<NumericGeneMolecularData> result;
+        if (molecularDataFilter.getSampleListId() != null) {
+            result = filterNonNumberMolecularData(molecularDataService.getMolecularData(molecularProfileId,
+                molecularDataFilter.getSampleListId(), molecularDataFilter.getEntrezGeneIds(), projection.name()));
+        } else {
+            result = filterNonNumberMolecularData(molecularDataService.fetchMolecularData(molecularProfileId,
+                molecularDataFilter.getSampleIds(), molecularDataFilter.getEntrezGeneIds(), projection.name()));
+        }
+
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            BaseMeta baseMeta;
-
-            if (molecularDataFilter.getSampleListId() != null) {
-                baseMeta = molecularDataService.getMetaMolecularData(molecularProfileId, 
-                    molecularDataFilter.getSampleListId(), molecularDataFilter.getEntrezGeneIds());
-            } else {
-                baseMeta = molecularDataService.fetchMetaMolecularData(molecularProfileId, 
-                    molecularDataFilter.getSampleIds(), molecularDataFilter.getEntrezGeneIds());
-            }
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, baseMeta.getTotalCount().toString());
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            List<GeneMolecularData> geneMolecularDataList;
-            if (molecularDataFilter.getSampleListId() != null) {
-                geneMolecularDataList = molecularDataService.getMolecularData(molecularProfileId,
-                    molecularDataFilter.getSampleListId(), molecularDataFilter.getEntrezGeneIds(), projection.name());
-            } else {
-                geneMolecularDataList = molecularDataService.fetchMolecularData(molecularProfileId,
-                    molecularDataFilter.getSampleIds(), molecularDataFilter.getEntrezGeneIds(), projection.name());
-            }
-
-            return new ResponseEntity<>(filterNonNumberMolecularData(geneMolecularDataList), HttpStatus.OK);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         }
     }
 
@@ -121,41 +113,27 @@ public class MolecularDataController {
         @Valid @RequestBody MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
+
+        List<NumericGeneMolecularData> result;
+        if (molecularDataMultipleStudyFilter.getMolecularProfileIds() != null) {
+            result = filterNonNumberMolecularData(molecularDataService.getMolecularDataInMultipleMolecularProfiles(
+                molecularDataMultipleStudyFilter.getMolecularProfileIds(), null, 
+                molecularDataMultipleStudyFilter.getEntrezGeneIds(), projection.name()));
+        } else {
+
+            List<String> molecularProfileIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            extractMolecularProfileAndSampleIds(molecularDataMultipleStudyFilter, molecularProfileIds, sampleIds);
+            result = filterNonNumberMolecularData(molecularDataService.getMolecularDataInMultipleMolecularProfiles(molecularProfileIds,
+                sampleIds, molecularDataMultipleStudyFilter.getEntrezGeneIds(), projection.name()));
+        }
         
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            BaseMeta baseMeta;
-
-            if (molecularDataMultipleStudyFilter.getMolecularProfileIds() != null) {
-                baseMeta = molecularDataService.getMetaMolecularDataInMultipleMolecularProfiles(
-                    molecularDataMultipleStudyFilter.getMolecularProfileIds(), null, 
-                    molecularDataMultipleStudyFilter.getEntrezGeneIds());
-            } else {
-
-                List<String> molecularProfileIds = new ArrayList<>();
-                List<String> sampleIds = new ArrayList<>();
-                extractMolecularProfileAndSampleIds(molecularDataMultipleStudyFilter, molecularProfileIds, sampleIds);
-                baseMeta = molecularDataService.getMetaMolecularDataInMultipleMolecularProfiles(molecularProfileIds,
-                    sampleIds, molecularDataMultipleStudyFilter.getEntrezGeneIds());
-            }
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, baseMeta.getTotalCount().toString());
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            List<GeneMolecularData> geneMolecularDataList;
-            if (molecularDataMultipleStudyFilter.getMolecularProfileIds() != null) {
-                geneMolecularDataList = molecularDataService.getMolecularDataInMultipleMolecularProfiles(
-                    molecularDataMultipleStudyFilter.getMolecularProfileIds(), null, 
-                    molecularDataMultipleStudyFilter.getEntrezGeneIds(), projection.name());
-            } else {
-
-                List<String> molecularProfileIds = new ArrayList<>();
-                List<String> sampleIds = new ArrayList<>();
-                extractMolecularProfileAndSampleIds(molecularDataMultipleStudyFilter, molecularProfileIds, sampleIds);
-                geneMolecularDataList = molecularDataService.getMolecularDataInMultipleMolecularProfiles(molecularProfileIds,
-                    sampleIds, molecularDataMultipleStudyFilter.getEntrezGeneIds(), projection.name());
-            }
-
-            return new ResponseEntity<>(filterNonNumberMolecularData(geneMolecularDataList), HttpStatus.OK);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         }
     }
 

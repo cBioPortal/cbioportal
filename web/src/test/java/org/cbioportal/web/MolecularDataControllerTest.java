@@ -99,11 +99,14 @@ public class MolecularDataControllerTest {
     @Test
     public void getAllMolecularDataInMolecularProfileMetaProjection() throws Exception {
 
-        BaseMeta baseMeta = new BaseMeta();
-        baseMeta.setTotalCount(2);
+        List<GeneMolecularData> geneMolecularDataList = createExampleMolecularData();
+        GeneMolecularData geneMolecularData1 = new GeneMolecularData();
+        geneMolecularDataList.add(geneMolecularData1);
+        GeneMolecularData geneMolecularData2 = new GeneMolecularData();
+        geneMolecularDataList.add(geneMolecularData2);
 
-        Mockito.when(molecularDataService.getMetaMolecularData(Mockito.anyString(), Mockito.anyString(), 
-            Mockito.anyListOf(Integer.class))).thenReturn(baseMeta);
+        Mockito.when(molecularDataService.getMolecularData(Mockito.anyString(), Mockito.anyString(), 
+            Mockito.anyListOf(Integer.class), Mockito.anyString())).thenReturn(geneMolecularDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/molecular-data")
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
@@ -149,11 +152,14 @@ public class MolecularDataControllerTest {
     @Test
     public void fetchAllMolecularDataInMolecularProfileMetaProjection() throws Exception {
 
-        BaseMeta baseMeta = new BaseMeta();
-        baseMeta.setTotalCount(2);
+        List<GeneMolecularData> geneMolecularDataList = createExampleMolecularData();
+        GeneMolecularData geneMolecularData1 = new GeneMolecularData();
+        geneMolecularDataList.add(geneMolecularData1);
+        GeneMolecularData geneMolecularData2 = new GeneMolecularData();
+        geneMolecularDataList.add(geneMolecularData2);
 
-        Mockito.when(molecularDataService.fetchMetaMolecularData(Mockito.anyString(), Mockito.anyListOf(String.class), 
-            Mockito.anyListOf(Integer.class))).thenReturn(baseMeta);
+        Mockito.when(molecularDataService.fetchMolecularData(Mockito.anyString(), Mockito.anyListOf(String.class), 
+            Mockito.anyListOf(Integer.class), Mockito.anyString())).thenReturn(geneMolecularDataList);
 
         MolecularDataFilter molecularDataFilter = createMolecularDataFilter();
 

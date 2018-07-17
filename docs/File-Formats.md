@@ -784,6 +784,8 @@ A fusion data file is a two dimensional matrix with one gene per row.  For each 
 8. **Method**: Fusion detected algorithm/tool.
 9. **Frame**: "in-frame" or "frameshift".
 
+**Note:** If a fusion event includes a gene, e.g., Hugo_Symbol or Entrez_Gene_Id, that is not profiled, the event will be filter out during import into the database.
+
 An example data file which includes the required column header would look like:
 ```
 Hugo_Symbol<TAB>Entrez_Gene_Id<TAB>Center<TAB>Tumor_Sample_Barcode<TAB>Fusion<TAB>DNA_support<TAB>RNA_support<TAB>Method<TAB>Frame>

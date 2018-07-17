@@ -41,6 +41,7 @@ import requests
 import json
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from base64 import urlsafe_b64encode
 
 # configure relative imports if running as a script; see PEP 366
 if __name__ == "__main__" and __package__ is None:
@@ -188,11 +189,16 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
             # trim whitespace around Jinja2 operators
             trim_blocks=True,
             lstrip_blocks=True)
-        # refer to this function so that it can be used in the template:
+        # register these functions to be used as filters in the template
+        def url_b64(unsafe_string):
+            """Encode a string as a base64 string with only id-safe chars."""
+            encoded_bytes = unsafe_string.encode('utf8')
+            b64_bytes = urlsafe_b64encode(encoded_bytes)
+            return b64_bytes.decode('ascii').rstrip('=')
+        j_env.filters['url_b64'] = url_b64
         j_env.filters['os.path.relpath'] = os.path.relpath
         template = j_env.get_template('validation_report_template.html.jinja')
-        # pylint falsely infers template to be a string -- trust me, it's not
-        doc = template.render(   # pylint: disable=no-member
+        doc = template.render(
             study_dir=self.study_dir,
             cbio_version=self.cbio_version,
             max_reported_values=self.max_reported_values,

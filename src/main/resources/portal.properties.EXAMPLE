@@ -71,7 +71,7 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 authorization=false
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=
-## which method of authentication to use (false, googleplus, saml, openid, ad, ldap, noauthsessionservice)
+## which method of authentication to use (false, googleplus, social_auth, saml, openid, ad, ldap, noauthsessionservice)
 authenticate=false
 ## Should the permissions for groups and users be filtered by this instance's app.name?
 ## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)

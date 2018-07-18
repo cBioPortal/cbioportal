@@ -40,7 +40,15 @@ import itertools
 import requests
 import json
 import xml.etree.ElementTree as ET
-import re
+from pathlib import Path
+
+# configure relative imports if running as a script; see PEP 366
+if __name__ == "__main__" and __package__ is None:
+    # replace the script's location in the Python search path by the main
+    # scripts/ folder, above it, so that the importer package folder is in
+    # scope and *not* directly in sys.path; see PEP 395
+    sys.path[0] = str(Path(sys.path[0]).resolve().parent)
+    __package__ = 'importer'
 
 from . import cbioportal_common
 
@@ -2770,7 +2778,9 @@ class CancerTypeValidator(Validator):
 
     def checkHeader(self, cols):
         """Check the first uncommented line just like any other data line."""
-        return self.checkLine(cols)
+        self.checkLine(cols)
+        # the number of 'header errors' that break TSV parsing is always zero
+        return 0
 
     def checkLine(self, data):
         """Check a data line in a cancer type file."""
@@ -3671,7 +3681,7 @@ def read_portal_json_file(dir_path, api_name, logger):
     if os.path.isfile(json_fn):
         logger.debug('Reading portal information from %s',
                     json_fn)
-        with open(json_fn, 'rU') as json_file:
+        with open(json_fn, 'r') as json_file:
             parsed_json = json.load(json_file)
     return parsed_json
 

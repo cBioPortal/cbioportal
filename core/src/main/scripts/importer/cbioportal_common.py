@@ -630,7 +630,7 @@ def parse_metadata_file(filename,
 
     # Read meta file
     meta_dictionary = {}
-    with open(filename, 'rU') as metafile:
+    with open(filename, 'r') as metafile:
         for line_index, line in enumerate(metafile):
             # skip empty lines:
             if line.strip() == '':

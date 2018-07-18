@@ -360,8 +360,8 @@ class Validator(object):
         self.logger.debug('Starting validation of file')
 
         try:
-            opened_file = open(self.filename, 'rU')
-        except IOError:
+            opened_file = open(self.filename, 'r', newline=None)
+        except OSError:
             self.logger.error('File could not be opened')
             return
         with opened_file as data_file:
@@ -2533,6 +2533,10 @@ class SegValidator(Validator):
         the mitochondrial chromosome.
         """
 
+        class InvalidAPIResponse(ValueError):
+            def __init__(self, chrom_size_url, line):
+                super().__init__('Unexpected response from {}: {}'.format(
+                    chrom_size_url, repr(line)))
         chrom_size_dict = {}
         chrom_size_url = (
             'http://hgdownload.cse.ucsc.edu'
@@ -2544,38 +2548,34 @@ class SegValidator(Validator):
         try:
             r.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            raise IOError('Error retrieving chromosome lengths from UCSC: ' +
-                          e.message)
+            raise ConnectionError(
+                'Error retrieving chromosome lengths from UCSC'
+            ) from e
         for line in r.text.splitlines():
-            try:
-                # skip comment lines
-                if line.startswith('#'):
-                    continue
-                cols = line.split('\t', 1)
-                if not (len(cols) == 2 and
-                        cols[0].startswith('chr')):
-                    raise IOError()
-                # skip unplaced sequences
-                if cols[0].endswith('_random') or cols[0].startswith('chrUn_'):
-                    continue
-                # skip entries for alternative haplotypes
-                if re.search(r'_hap[0-9]+$', cols[0]):
-                    continue
-                # skip the mitochondrial chromosome
-                if cols[0] == 'chrM':
-                    continue
+            # skip comment lines
+            if line.startswith('#'):
+                continue
+            cols = line.split('\t', 1)
+            if not (len(cols) == 2 and
+                    cols[0].startswith('chr')):
+                raise InvalidAPIResponse(chrom_size_url, line)
+            # skip unplaced sequences
+            if cols[0].endswith('_random') or cols[0].startswith('chrUn_'):
+                continue
+            # skip entries for alternative haplotypes
+            if re.search(r'_hap[0-9]+$', cols[0]):
+                continue
+            # skip the mitochondrial chromosome
+            if cols[0] == 'chrM':
+                continue
 
-                # remove the 'chr' prefix
-                chrom_name = cols[0][3:]
-                try:
-                    chrom_size = int(cols[1])
-                except ValueError:
-                    raise IOError()
-                chrom_size_dict[chrom_name] = chrom_size
-            except IOError:
-                raise IOError(
-                    "Unexpected response from {url}: {line}".format(
-                        url=chrom_size_url, line=repr(line)))
+            # remove the 'chr' prefix
+            chrom_name = cols[0][3:]
+            try:
+                chrom_size = int(cols[1])
+            except ValueError as e:
+                raise InvalidAPIResponse(chrom_size_url, line) from e
+            chrom_size_dict[chrom_name] = chrom_size
         return chrom_size_dict
 
 
@@ -3669,10 +3669,9 @@ def request_from_portal_api(server_url, api_name, logger):
     try:
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        raise IOError(
-            'Connection error for URL: {url}. Administrator: please check if '
-            '[{url}] is accessible. Message: {msg}'.format(url=service_url,
-                                                           msg=e.message))
+        raise ConnectionError(
+            'Failed to fetch metadata from the portal at [{}]'.format(service_url)
+        ) from e
     return response.json()
 
 
@@ -3786,8 +3785,7 @@ def load_portal_info(path, logger, offline=False):
             parsed_json = transform_function(parsed_json)
         portal_dict[api_name] = parsed_json
     if all(d is None for d in list(portal_dict.values())):
-        raise IOError('No portal information found at {}'.format(
-                          path))
+        raise LookupError('No portal information found at {}'.format(path))
     return PortalInstance(cancer_type_dict = portal_dict['cancertypes'],
                           hugo_entrez_map = portal_dict['genes'],
                           alias_entrez_map = portal_dict['genesaliases'],
@@ -4040,8 +4038,8 @@ def main_validate(args):
     try:
         # parse xml
         xml_root = ET.parse(pom_path).getroot()
-    except IOError:
-        logger.warning('Unable to read xml containing cBioPortal version.')
+    except OSError:
+        logger.info('Unable to read xml containing cBioPortal version.')
     else:
         for xml_child in xml_root:
 

@@ -53,8 +53,8 @@ class ValidateDataSystemTester(unittest.TestCase):
     def assertFileGenerated(self, tmp_file_name, expected_file_name):
         """Assert that a file has been generated with the expected contents."""
         self.assertTrue(os.path.exists(tmp_file_name))
-        with open(tmp_file_name, 'rU') as out_file, \
-             open(expected_file_name, 'rU') as ref_file:
+        with open(tmp_file_name, 'r') as out_file, \
+             open(expected_file_name, 'r') as ref_file:
             base_filename = os.path.basename(tmp_file_name)
             diff_result = difflib.context_diff(
                     ref_file.readlines(),

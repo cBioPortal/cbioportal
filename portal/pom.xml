@@ -107,7 +107,7 @@
                 <artifactItem>
                   <groupId>com.github.cbioportal</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
-                  <version>223b318bc9155fb955626b5313694be36588e284</version>
+                  <version>d1490e42fc603d927ab47cbe8e6ff64e764a2d8c</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>

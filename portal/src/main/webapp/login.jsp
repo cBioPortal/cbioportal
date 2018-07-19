@@ -162,7 +162,7 @@
                   </p>
                 </fieldset>
 
-                <% } else if (authenticationMethod.equals("googleplus")) { %>
+                <% } else if (authenticationMethod.equals("googleplus") || authenticationMethod.equals("social_auth")) { %>
                   <p>
                     <button onclick="window.location = 'auth/google'" style="padding: 0; border:none; background: none" >
                         <!-- we need alt != "Google+" because otherwise it gets hidden by Ad Block Plus chrome plugin -->

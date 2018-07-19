@@ -8808,6 +8808,11 @@ window.LogRankTest = (function(jStat) {
         default: false
       }
     },
+    watch: {
+      showSaveButton: function(){
+        this.createQtip()
+      }
+    },
     data: function() {
       return {
         savedVS: null

@@ -44,74 +44,76 @@ import java.util.HashMap;
  */
 public class FusionFileUtil
 {
-	public static final String FUSION = "Fusion";
-	public static final String DNA_SUPPORT = "DNA_support";
-	public static final String RNA_SUPPORT = "RNA_support";
-	public static final String METHOD = "Method";
-	public static final String FRAME = "Frame";
+    public static final String FUSION = "Fusion";
+    public static final String DNA_SUPPORT = "DNA_support";
+    public static final String RNA_SUPPORT = "RNA_support";
+    public static final String METHOD = "Method";
+    public static final String FRAME = "Frame";
+    public static final String FUSION_STATUS = "Fusion_Status";
 
-	// number of headers in the header line
-	private int headerCount;
+    // number of headers in the header line
+    private int headerCount;
 
-	// mapping for all column names (both standard and custom columns)
-	private HashMap<String, Integer> columnIndexMap;
+    // mapping for all column names (both standard and custom columns)
+    private HashMap<String, Integer> columnIndexMap;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param headerLine    Header Line.
-	 */
-	public FusionFileUtil(String headerLine)
-	{
-		// init column index map
-		this.columnIndexMap = new HashMap<String, Integer>();
+    /**
+     * Constructor.
+     *
+     * @param headerLine    Header Line.
+     */
+    public FusionFileUtil(String headerLine)
+    {
+        // init column index map
+        this.columnIndexMap = new HashMap<String, Integer>();
 
-		// split header names
-		String parts[] = headerLine.split("\t");
+        // split header names
+        String parts[] = headerLine.split("\t");
 
-		// update header count
-		this.headerCount = parts.length;
+        // update header count
+        this.headerCount = parts.length;
 
-		// find required header indices
-		for (int i=0; i<parts.length; i++)
-		{
-			String header = parts[i];
+        // find required header indices
+        for (int i=0; i<parts.length; i++)
+        {
+                String header = parts[i];
 
-			// put the index to the map
-			this.columnIndexMap.put(header.toLowerCase(), i);
-		}
-	}
+                // put the index to the map
+                this.columnIndexMap.put(header.toLowerCase(), i);
+        }
+    }
 
-	public FusionRecord parseRecord(String line)
-	{
-		String parts[] = line.split("\t", -1);
+    public FusionRecord parseRecord(String line)
+    {
+        String parts[] = line.split("\t", -1);
 
-		FusionRecord record = new FusionRecord();
+        FusionRecord record = new FusionRecord();
 
-		record.setHugoGeneSymbol(TabDelimitedFileUtil.getPartStringAllowEmpty(this.getColumnIndex(MafUtil.HUGO_SYMBOL), parts));
-		record.setEntrezGeneId(TabDelimitedFileUtil.getPartLong(this.getColumnIndex(MafUtil.ENTREZ_GENE_ID), parts));
-		record.setCenter(TabDelimitedFileUtil.getPartString(this.getColumnIndex(MafUtil.CENTER), parts));
-		record.setTumorSampleID(TabDelimitedFileUtil.getPartString(this.getColumnIndex(MafUtil.TUMOR_SAMPLE_BARCODE), parts));
-		record.setFusion(TabDelimitedFileUtil.getPartString(this.getColumnIndex(FUSION), parts));
-		record.setDnaSupport(TabDelimitedFileUtil.getPartString(this.getColumnIndex(DNA_SUPPORT), parts));
-		record.setRnaSupport(TabDelimitedFileUtil.getPartString(this.getColumnIndex(RNA_SUPPORT), parts));
-		record.setMethod(TabDelimitedFileUtil.getPartString(this.getColumnIndex(METHOD), parts));
-		record.setFrame(TabDelimitedFileUtil.getPartString(this.getColumnIndex(FRAME), parts));
+        record.setHugoGeneSymbol(TabDelimitedFileUtil.getPartStringAllowEmpty(this.getColumnIndex(MafUtil.HUGO_SYMBOL), parts));
+        record.setEntrezGeneId(TabDelimitedFileUtil.getPartLong(this.getColumnIndex(MafUtil.ENTREZ_GENE_ID), parts));
+        record.setCenter(TabDelimitedFileUtil.getPartString(this.getColumnIndex(MafUtil.CENTER), parts));
+        record.setTumorSampleID(TabDelimitedFileUtil.getPartString(this.getColumnIndex(MafUtil.TUMOR_SAMPLE_BARCODE), parts));
+        record.setFusion(TabDelimitedFileUtil.getPartString(this.getColumnIndex(FUSION), parts));
+        record.setDnaSupport(TabDelimitedFileUtil.getPartString(this.getColumnIndex(DNA_SUPPORT), parts));
+        record.setRnaSupport(TabDelimitedFileUtil.getPartString(this.getColumnIndex(RNA_SUPPORT), parts));
+        record.setMethod(TabDelimitedFileUtil.getPartString(this.getColumnIndex(METHOD), parts));
+        record.setFrame(TabDelimitedFileUtil.getPartString(this.getColumnIndex(FRAME), parts));
+        record.setFusionStatus(TabDelimitedFileUtil.getPartString(this.getColumnIndex(FUSION_STATUS), parts));
 
-		return record;
-	}
+        return record;
+    }
 
-	// TODO this is a duplicate (MafUtil has the same method)
-	// try to factor out it into TabDelimitedFileUtil
-	public int getColumnIndex(String colName)
-	{
-		Integer index = this.columnIndexMap.get(colName.toLowerCase());
+    // TODO this is a duplicate (MafUtil has the same method)
+    // try to factor out it into TabDelimitedFileUtil
+    public int getColumnIndex(String colName)
+    {
+        Integer index = this.columnIndexMap.get(colName.toLowerCase());
 
-		if (index == null)
-		{
-			index = -1;
-		}
+        if (index == null)
+        {
+                index = -1;
+        }
 
-		return index;
-	}
+        return index;
+    }
 }

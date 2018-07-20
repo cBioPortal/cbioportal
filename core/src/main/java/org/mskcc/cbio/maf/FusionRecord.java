@@ -39,103 +39,114 @@ package org.mskcc.cbio.maf;
  */
 public class FusionRecord
 {
-	private String hugoGeneSymbol;
-	private long entrezGeneId;
-	private String center; // sequencing center
-	private String tumorSampleID;
-	private String fusion;
-	private String dnaSupport;
-	private String rnaSupport;
-	private String method;
-	private String frame;
+    private String hugoGeneSymbol;
+    private long entrezGeneId;
+    private String center; // sequencing center
+    private String tumorSampleID;
+    private String fusion;
+    private String dnaSupport;
+    private String rnaSupport;
+    private String method;
+    private String frame;
+    private String fusionStatus;
 
-	public String getHugoGeneSymbol()
-	{
-		return hugoGeneSymbol;
-	}
+    public String getHugoGeneSymbol()
+    {
+            return hugoGeneSymbol;
+    }
 
-	public void setHugoGeneSymbol(String hugoGeneSymbol)
-	{
-		this.hugoGeneSymbol = hugoGeneSymbol;
-	}
+    public void setHugoGeneSymbol(String hugoGeneSymbol)
+    {
+            this.hugoGeneSymbol = hugoGeneSymbol;
+    }
 
-	public long getEntrezGeneId()
-	{
-		return entrezGeneId;
-	}
+    public long getEntrezGeneId()
+    {
+            return entrezGeneId;
+    }
 
-	public void setEntrezGeneId(long entrezGeneId)
-	{
-		this.entrezGeneId = entrezGeneId;
-	}
+    public void setEntrezGeneId(long entrezGeneId)
+    {
+            this.entrezGeneId = entrezGeneId;
+    }
 
-	public String getCenter()
-	{
-		return center;
-	}
+    public String getCenter()
+    {
+            return center;
+    }
 
-	public void setCenter(String center)
-	{
-		this.center = center;
-	}
+    public void setCenter(String center)
+    {
+            this.center = center;
+    }
 
-	public String getTumorSampleID()
-	{
-		return tumorSampleID;
-	}
+    public String getTumorSampleID()
+    {
+            return tumorSampleID;
+    }
 
-	public void setTumorSampleID(String tumorSampleID)
-	{
-		this.tumorSampleID = tumorSampleID;
-	}
+    public void setTumorSampleID(String tumorSampleID)
+    {
+            this.tumorSampleID = tumorSampleID;
+    }
 
-	public String getFusion()
-	{
-		return fusion;
-	}
+    public String getFusion()
+    {
+            return fusion;
+    }
 
-	public void setFusion(String fusion)
-	{
-		this.fusion = fusion;
-	}
+    public void setFusion(String fusion)
+    {
+            this.fusion = fusion;
+    }
 
-	public String getDnaSupport()
-	{
-		return dnaSupport;
-	}
+    public String getDnaSupport()
+    {
+            return dnaSupport;
+    }
 
-	public void setDnaSupport(String dnaSupport)
-	{
-		this.dnaSupport = dnaSupport;
-	}
+    public void setDnaSupport(String dnaSupport)
+    {
+            this.dnaSupport = dnaSupport;
+    }
 
-	public String getRnaSupport()
-	{
-		return rnaSupport;
-	}
+    public String getRnaSupport()
+    {
+            return rnaSupport;
+    }
 
-	public void setRnaSupport(String rnaSupport)
-	{
-		this.rnaSupport = rnaSupport;
-	}
+    public void setRnaSupport(String rnaSupport)
+    {
+            this.rnaSupport = rnaSupport;
+    }
 
-	public String getMethod()
-	{
-		return method;
-	}
+    public String getMethod()
+    {
+            return method;
+    }
 
-	public void setMethod(String method)
-	{
-		this.method = method;
-	}
+    public void setMethod(String method)
+    {
+            this.method = method;
+    }
 
-	public String getFrame()
-	{
-		return frame;
-	}
+    public String getFrame()
+    {
+            return frame;
+    }
 
-	public void setFrame(String frame)
-	{
-		this.frame = frame;
-	}
+    public void setFrame(String frame)
+    {
+            this.frame = frame;
+    }
+
+    public String getFusionStatus()
+    {
+        return fusionStatus;
+    }
+
+    public void setFusionStatus(String fusionStatus)
+    {
+        this.fusionStatus = fusionStatus;
+    }
 }

@@ -783,6 +783,7 @@ A fusion data file is a two dimensional matrix with one gene per row.  For each 
 7. **RNA_support**: Fusion detected from RNA sequence data, "yes" or "no".
 8. **Method**: Fusion detected algorithm/tool.
 9. **Frame**: "in-frame" or "frameshift".
+10. **Fusion_Status (OPTIONAL)**: An assessment of the mutation type (i.e., "SOMATIC", "GERMLINE", "UNKNOWN", or empty)
 
 **Note:** If a fusion event includes a gene, e.g., Hugo_Symbol or Entrez_Gene_Id, that is not profiled, the event will be filter out during import into the database.
 

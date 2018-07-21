@@ -131,11 +131,12 @@ def main(args):
             exit_status_study = 2
 
         # Check exit status and print result
-        if exit_status_study == 1 or exit_status_study == 2:
-            print '\x1b[0m' + "Result: " + '\x1b[31m' + possible_exit_status[exit_status_study] + '\x1b[0m'
-            validation_exit_status = 1  # When invalid check the exit status to one, for failing circleCI
+        exit_status_message = possible_exit_status.get(exit_status_study, 'Unknown status: {}'.format(exit_status_study))
+        if exit_status_study == 0 or exit_status_study == 3:
+            print '\x1b[0m' + "Result: %s" % exit_status_message
         else:
-            print '\x1b[0m' + "Result: %s" % possible_exit_status[exit_status_study]
+            print '\x1b[0m' + "Result: " + '\x1b[31m' + exit_status_message + '\x1b[0m'
+            validation_exit_status = 1  # When invalid check the exit status to one, for failing circleCI
 
     return validation_exit_status
 

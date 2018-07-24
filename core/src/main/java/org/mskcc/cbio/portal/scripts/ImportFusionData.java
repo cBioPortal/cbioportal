@@ -138,6 +138,7 @@ public class ImportFusionData {
                     // TODO we may need get mutation type from the file
                     // instead of defining a constant
                     mutation.setMutationType(FUSION);
+                    mutation.setMutationStatus(record.getFusionStatus().toUpperCase());
                     MutationEvent event =
                         existingEvents.containsKey(mutation.getEvent()) ?
                         existingEvents.get(mutation.getEvent()) :

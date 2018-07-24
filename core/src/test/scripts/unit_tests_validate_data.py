@@ -11,6 +11,7 @@ import sys
 import logging.handlers
 import textwrap
 from pathlib import Path
+from contextlib import contextmanager, suppress
 from tempfile import TemporaryDirectory
 
 from importer import cbioportal_common
@@ -42,6 +43,26 @@ def setUpModule():
     PORTAL_INSTANCE = validateData.load_portal_info('test_data/api_json_unit_tests/',
                                                     logger,
                                                     offline=True)
+
+
+@contextmanager
+def temp_inputfolder(file_dict):
+    """Context manager that creates the specified files in a temporary folder.
+
+    The keys of the dictionary (pathlikes or strings) are used as the file
+    names, and the values as the corresponding file contents.
+    """
+    with TemporaryDirectory() as study_dir_name:
+        study_dir = Path(study_dir_name)
+        for filename, contents in file_dict.items():
+            # create the directory to make the file in, if it's not there yet
+            file_directory = (study_dir / filename).parent
+            with suppress(FileExistsError):
+                file_directory.mkdir(parents=True)
+            # write the contents to the file
+            with open(study_dir / filename, 'w', encoding='utf-8') as f:
+                f.write(contents)
+        yield study_dir
 
 
 class LogBufferTestCase(unittest.TestCase):
@@ -1998,42 +2019,36 @@ class CaseListDirTestCase(PostClinicalDataFileTestCase):
 
     def test_undefined_cases_listed_in_file_order(self):
         """Test if undefined cases are reported in the order encountered."""
-        with TemporaryDirectory() as study_dir_name:
-            study_dir = Path(study_dir_name)
-            with open(study_dir / 'meta_study.txt', 'w', encoding='utf-8') as meta_study:
-                meta_study.write(textwrap.dedent('''\
-                    cancer_study_identifier: spam
-                    type_of_cancer: brca
-                    name: Spam (spam)
-                    description: Baked beans
-                    short_name: Spam
-                    '''))
-            with open(study_dir / 'meta_samples.txt', 'w', encoding='utf-8') as meta_samples:
-                meta_samples.write(textwrap.dedent('''\
-                    cancer_study_identifier: spam
-                    genetic_alteration_type: CLINICAL
-                    datatype: SAMPLE_ATTRIBUTES
-                    data_filename: data_samples.txt
-                    '''))
-            with open(study_dir / 'data_samples.txt', 'w', encoding='utf-8') as data_samples:
-                data_samples.write(textwrap.dedent('''\
-                    #Patient Identifier\tSample Identifier
-                    #PatID\tSampId
-                    #STRING\tSTRING
-                    #1\t1
-                    PATIENT_ID\tSAMPLE_ID
-                    Patient1\tPatient1-Sample1
-                    '''))
-            case_list_folder = study_dir / 'case_lists'
-            case_list_folder.mkdir()
-            with open(case_list_folder / 'cases_all.txt', 'w', encoding='utf-8') as cases_all:
-                cases_all.write(textwrap.dedent('''\
-                    cancer_study_identifier: spam
-                    stable_id: spam_all
-                    case_list_name: All tumors
-                    case_list_description: All tumor samples (4 samples)
-                    case_list_ids: Patient0-Sample1\tPatient2-Sample3\tPatient1-Sample1\tPatient1-Sample2
-                    '''))
+        with temp_inputfolder({
+            'meta_study.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                type_of_cancer: brca
+                name: Spam (spam)
+                description: Baked beans
+                short_name: Spam
+                '''),
+            'meta_samples.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                genetic_alteration_type: CLINICAL
+                datatype: SAMPLE_ATTRIBUTES
+                data_filename: data_samples.txt
+                '''),
+            'data_samples.txt': textwrap.dedent('''\
+                #Patient Identifier\tSample Identifier
+                #PatID\tSampId
+                #STRING\tSTRING
+                #1\t1
+                PATIENT_ID\tSAMPLE_ID
+                Patient1\tPatient1-Sample1
+                '''),
+            Path('case_lists', 'cases_all.txt'): textwrap.dedent('''\
+                cancer_study_identifier: spam
+                stable_id: spam_all
+                case_list_name: All tumors
+                case_list_description: All tumor samples (4 samples)
+                case_list_ids: Patient0-Sample1\tPatient2-Sample3\tPatient1-Sample1\tPatient1-Sample2
+                ''')
+        }) as study_dir:
             self.logger.setLevel(logging.WARNING)
             validateData.validate_study(
                 study_dir,

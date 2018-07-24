@@ -4036,7 +4036,7 @@ def main_validate(args):
     text_handler.setFormatter(
         cbioportal_common.LogfileStyleFormatter(study_dir))
     collapsing_text_handler = cbioportal_common.CollapsingLogMessageHandler(
-        capacity=1e6,
+        capacity=5e5,
         flushLevel=logging.CRITICAL,
         target=text_handler)
     collapsing_text_handler.setLevel(output_loglevel)
@@ -4078,7 +4078,7 @@ def main_validate(args):
         # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
         # and get rid of the duplicated buffering of messages here
         collapsing_html_handler = cbioportal_common.CollapsingLogMessageHandler(
-            capacity=1e6,
+            capacity=5e5,
             flushLevel=logging.CRITICAL,
             target=html_handler)
         collapsing_html_handler.setLevel(output_loglevel)
@@ -4090,7 +4090,7 @@ def main_validate(args):
         # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
         # and get rid of the duplicated buffering of messages here
         coll_errfile_handler = cbioportal_common.CollapsingLogMessageHandler(
-            capacity=1e6,
+            capacity=5e5,
             flushLevel=logging.CRITICAL,
             target=errfile_handler)
         coll_errfile_handler.setLevel(logging.WARNING)

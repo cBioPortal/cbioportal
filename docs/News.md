@@ -225,7 +225,7 @@ ARC-Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *9
 ## January 12, 2016
 *   **New features**:
     *   Visualization of multiple samples in a patient
-    *   Visualization of timeline data of a patient ([example](http://www.cbioportal.org/case.do#/patient?studyId=lgg_ucsf_2014&caseId=P04))<br/>
+    *   Visualization of timeline data of a patient ([example](http://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P04))<br/>
         ![timeline-example](https://cloud.githubusercontent.com/assets/840895/12055606/cca26160-aefc-11e5-93f9-2ecfe7e95caf.png)
 *   All **TCGA data** updated to the latest Firehose run of August 21, 2015
 *   **New TCGA studies**:
@@ -452,7 +452,7 @@ ARC-Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *9
 
 *   Multi-gene correlation plots.
 *   Variant allele frequency distribution plots for individual tumor samples.
-*   Tissue images for TCGA samples in the patient view, via [Digital Slide Archive](http://cancer.digitalslidearchive.net/). [Example](http://www.cbioportal.org/case.do#/patient?studyId=ucec_tcga&caseId=TCGA-BK-A0CC&tab=tissueImageTab).
+*   Tissue images for TCGA samples in the patient view, via [Digital Slide Archive](http://cancer.digitalslidearchive.net/). [Example](http://www.cbioportal.org/patient?studyId=ucec_tcga&caseId=TCGA-BK-A0CC&tab=tissueImageTab).
 
 ## July 16, 2013
 

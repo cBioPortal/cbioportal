@@ -93,7 +93,7 @@ Below you can find the complete list of all the available skin properties.
       <tr>
          <td>skin.examples_right_column_html</td>
          <td>set the Examples Queries section in the right navigation bar</td>
-         <td>&lt;ul&gt;&lt;li&gt;&lt;a href="case.do#/patient?studyId=ucec_tcga_pub&caseId=TCGA-BK-A0CC"&gt;Patient view of an endometrial cancer case&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;</td>
+         <td>&lt;ul&gt;&lt;li&gt;&lt;a href="patient?studyId=ucec_tcga_pub&caseId=TCGA-BK-A0CC"&gt;Patient view of an endometrial cancer case&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;</td>
          <td>Any HTML text</td>
       </tr>
 		<tr>
@@ -253,6 +253,6 @@ If your documentation contains a relative link, cBioPortal will assume it uses t
 Please be aware that the links may be case-sensitive! E.g. https://github.com/cBioPortal/cbioportal/wiki/News.md is not the same as https://github.com/cBioPortal/cbioportal/wiki/news.md
 
 # Custom styling of the patient view's clinical data
-The [Patient View](http://www.cbioportal.org/case.do#/patient?studyId=lgg_ucsf_2014&caseId=P04) shows several [clinical attributes](File-Formats.md#clinical-data) at the top of the page, e.g. `AGE`, `SEX`:
+The [Patient View](http://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P04) shows several [clinical attributes](File-Formats.md#clinical-data) at the top of the page, e.g. `AGE`, `SEX`:
 ![test](../test/end-to-end/screenshots/firefox/patient_view_lgg_ucsf_2014_case_id_P04.png)
 The order, styling and visibility of those [attributes](File-Formats.md#clinical-data) at the top can be changed by editing the [patient view's clinical attributes CSS file](../portal/src/main/webapp/css/patient-view/clinical-attributes.css).

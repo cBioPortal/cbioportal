@@ -7,6 +7,7 @@ import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.ChromosomeCalculator;
+import org.cbioportal.service.util.GeneFrequencyCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +17,16 @@ import java.util.List;
 @Service
 public class MutationServiceImpl implements MutationService {
 
+    private static final String SEQUENCED_LIST_SUFFIX = "_sequenced";
+
     @Autowired
     private MutationRepository mutationRepository;
     @Autowired
     private MolecularProfileService molecularProfileService;
     @Autowired
     private ChromosomeCalculator chromosomeCalculator;
+    @Autowired
+    private GeneFrequencyCalculator geneFrequencyCalculator;
 
     @Override
     public List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
@@ -102,13 +107,20 @@ public class MutationServiceImpl implements MutationService {
     @Override
     public List<MutationCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
                                                                                List<String> sampleIds,
-                                                                               List<Integer> entrezGeneIds)
+                                                                               List<Integer> entrezGeneIds,
+                                                                               boolean includeFrequency)
         throws MolecularProfileNotFoundException {
 
-        validateMolecularProfile(molecularProfileId);
+        MolecularProfile molecularProfile = validateMolecularProfile(molecularProfileId);
 
-        return mutationRepository.getSampleCountByEntrezGeneIdsAndSampleIds(molecularProfileId, sampleIds, 
-            entrezGeneIds);
+        List<MutationCountByGene> result = mutationRepository.getSampleCountByEntrezGeneIdsAndSampleIds(
+            molecularProfileId, sampleIds, entrezGeneIds);
+        
+        if (includeFrequency) {
+            geneFrequencyCalculator.calculate(molecularProfile, sampleIds, result, SEQUENCED_LIST_SUFFIX);
+        }
+
+        return result;
     }
 
     @Override
@@ -158,7 +170,7 @@ public class MutationServiceImpl implements MutationService {
         return mutationCountByPositionList;
     }
 
-    private void validateMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException {
+    private MolecularProfile validateMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException {
 
         MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
 
@@ -167,5 +179,7 @@ public class MutationServiceImpl implements MutationService {
 
             throw new MolecularProfileNotFoundException(molecularProfileId);
         }
+
+        return molecularProfile;
     }
 }

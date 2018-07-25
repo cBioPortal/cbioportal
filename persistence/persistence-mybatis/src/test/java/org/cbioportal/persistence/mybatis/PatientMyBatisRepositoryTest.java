@@ -12,6 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -173,5 +174,15 @@ public class PatientMyBatisRepositoryTest {
         BaseMeta result = patientMyBatisRepository.fetchMetaPatients(studyIds, patientIds);
 
         Assert.assertEquals((Integer) 2, result.getTotalCount());
+    }
+
+    @Test
+    public void getPatientIdsOfSamples() throws Exception {
+
+        List<String> result = patientMyBatisRepository.getPatientIdsOfSamples(Arrays.asList("TCGA-A1-A0SB-01", 
+            "TCGA-A1-A0SD-01", "TCGA-A1-A0SB-02"));
+        
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(Arrays.asList("TCGA-A1-A0SD", "TCGA-A1-A0SB"), result);
     }
 }

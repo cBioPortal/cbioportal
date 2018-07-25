@@ -32,13 +32,15 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -146,12 +148,11 @@ public class ExtendedMutationUtil
 		if (position == TabDelimitedFileUtil.NA_INT)
 		{
 			// try to extract it from protein change value
-			Pattern p = Pattern.compile(".*[A-Z]([0-9]+)[^0-9]+");
-			Matcher m = p.matcher(proteinChange);
+			Map<String, Integer> annotation = annotateProteinChange(proteinChange);
 
-			if (m.find())
+			if (annotation.get("start") != null)
 			{
-				position = Integer.parseInt(m.group(1));
+				position = annotation.get("start");
 			}
 		}
 
@@ -169,7 +170,12 @@ public class ExtendedMutationUtil
 		// then use start position as end position
 		if (end == -1)
 		{
-			end = getProteinPosStart(proteinPosition, proteinChange);
+            Map<String, Integer> annotation = annotateProteinChange(proteinChange);
+
+            if (annotation.get("end") != null)
+            {
+                end = annotation.get("end");
+            }
 		}
 
 		return end;
@@ -354,4 +360,99 @@ public class ExtendedMutationUtil
 
 		return mutation;
 	}
+
+    private static Map<String, Integer> annotateProteinChange(String proteinChange) {
+        int start = -1;
+        int end = -1;
+        Map<String, Integer> annotation = new HashMap<>();
+        annotation.put("start", start);
+        annotation.put("end", end);
+
+        if (proteinChange == null) {
+            return annotation;
+        }
+
+        if (proteinChange.startsWith("p.")) {
+            proteinChange = proteinChange.substring(2);
+        }
+
+        if (proteinChange.indexOf("[") != -1) {
+            proteinChange = proteinChange.substring(0, proteinChange.indexOf("["));
+        }
+
+        proteinChange = proteinChange.trim();
+
+        Pattern p = Pattern.compile("^([A-Z\\*]+)([0-9]+)([A-Z\\*\\?]*)$");
+        Matcher m = p.matcher(proteinChange);
+        if (m.matches()) {
+            String ref = m.group(1);
+            String var = m.group(3);
+            Integer refL = ref.length();
+
+            start = Integer.valueOf(m.group(2));
+
+            if (ref.equals(var)) {
+                end = start;
+            } else if (ref.equals("*")) {
+                end = start;
+            } else if (var.equals("*")) {
+                end = start;
+            } else if (start == 1) {
+                end = start;
+            } else if (var.equals("?")) {
+                end = start;
+            } else {
+                end = start + refL - 1;
+            }
+        } else {
+            p = Pattern.compile("[A-Z]?([0-9]+)(_[A-Z]?([0-9]+))?(delins|ins)([A-Z]+)");
+            m = p.matcher(proteinChange);
+            if (m.matches()) {
+                start = Integer.valueOf(m.group(1));
+                if (m.group(3) != null) {
+                    end = Integer.valueOf(m.group(3));
+                } else {
+                    end = start;
+                }
+            } else {
+                p = Pattern.compile("[A-Z]?([0-9]+)(_[A-Z]?([0-9]+))?(_)?splice");
+                m = p.matcher(proteinChange);
+                if (m.matches()) {
+                    start = Integer.valueOf(m.group(1));
+                    if (m.group(3) != null) {
+                        end = Integer.valueOf(m.group(3));
+                    } else {
+                        end = start;
+                    }
+                } else {
+                    p = Pattern.compile("[A-Z]?([0-9]+)_[A-Z]?([0-9]+)(.+)");
+                    m = p.matcher(proteinChange);
+                    if (m.matches()) {
+                        start = Integer.valueOf(m.group(1));
+                        end = Integer.valueOf(m.group(2));
+                    } else {
+                        // Check for frameshift variant
+                        p = Pattern.compile("([A-Z\\*])([0-9]+)[A-Z]?fs.*");
+                        m = p.matcher(proteinChange);
+                        if (m.matches()) {
+                            start = Integer.valueOf(m.group(2));
+                            end = start;
+                        } else {
+                            // Check for inframe insertion, deletion or duplication
+                            p = Pattern.compile("([A-Z]+)?([0-9]+)((ins)|(del)|(dup))");
+                            m = p.matcher(proteinChange);
+                            if (m.matches()) {
+                                start = Integer.valueOf(m.group(2));
+                                end = start;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        annotation.put("start", start);
+        annotation.put("end", end);
+        return annotation;
+    }
 }

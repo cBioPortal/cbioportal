@@ -97,9 +97,8 @@ public class CopyNumberEnrichmentControllerTest {
         alterationEnrichments.add(alterationEnrichment2);
 
         Mockito.when(copyNumberEnrichmentService.getCopyNumberEnrichments(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class),
-            Mockito.anyString()))
-            .thenReturn(alterationEnrichments);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), 
+            Mockito.anyListOf(Integer.class), Mockito.anyString())).thenReturn(alterationEnrichments);
 
         EnrichmentFilter enrichmentFilter = new EnrichmentFilter();
         enrichmentFilter.setAlteredIds(Arrays.asList("test_sample_id_1"));

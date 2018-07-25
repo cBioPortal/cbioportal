@@ -18,8 +18,8 @@ DEFINED_SAMPLE_IDS = None
 DEFINED_SAMPLE_ATTRIBUTES = None
 PATIENTS_WITH_SAMPLES = None
 PORTAL_INSTANCE = None
-GSVA_SAMPLE_IDS = None
-GSVA_GENESET_IDS = None
+prior_validated_sample_ids = None
+prior_validated_geneset_ids = None
 
 def setUpModule():
     """Initialise mock data used throughout the module."""
@@ -84,14 +84,15 @@ class DataFileTestCase(LogBufferTestCase):
     particular validator class and collect the log records emitted.
     """
 
-    def validate(self, data_filename, validator_class, extra_meta_fields=None, relaxed_mode=False):
+    def validate(self, data_filename, validator_class, extra_meta_fields=None, relaxed_mode=False, strict_maf_checks=False):
         """Validate a file with a Validator and return the log records."""
         meta_dict = {'data_filename': data_filename}
         if extra_meta_fields is not None:
             meta_dict.update(extra_meta_fields)
         validator = validator_class('test_data', meta_dict,
                                     PORTAL_INSTANCE,
-                                    self.logger, relaxed_mode)
+                                    self.logger, relaxed_mode,
+                                    strict_maf_checks)
         validator.validate()
         return self.get_log_records()
 
@@ -114,19 +115,19 @@ class PostClinicalDataFileTestCase(DataFileTestCase):
         self.orig_patients_with_samples = validateData.PATIENTS_WITH_SAMPLES
         validateData.PATIENTS_WITH_SAMPLES = PATIENTS_WITH_SAMPLES
 
-        # reset all GSVA global variables when starting a test
-        self.orig_gsva_sample_ids = validateData.GSVA_SAMPLE_IDS
-        validateData.GSVA_SAMPLE_IDS = GSVA_SAMPLE_IDS
-        self.orig_gsva_geneset_ids = validateData.GSVA_GENESET_IDS
-        validateData.GSVA_GENESET_IDS = GSVA_GENESET_IDS
+        # reset all gene set global variables when starting a test
+        self.orig_prior_validated_sample_ids = validateData.prior_validated_sample_ids
+        validateData.prior_validated_sample_ids = prior_validated_sample_ids
+        self.orig_prior_validated_geneset_ids = validateData.prior_validated_geneset_ids
+        validateData.prior_validated_geneset_ids = prior_validated_geneset_ids
 
     def tearDown(self):
         """Restore the environment to before setUp() was called."""
         validateData.DEFINED_SAMPLE_IDS = self.orig_defined_sample_ids
         validateData.DEFINED_SAMPLE_ATTRIBUTES = self.orig_defined_sample_attributes
         validateData.PATIENTS_WITH_SAMPLES = self.orig_patients_with_samples
-        validateData.GSVA_SAMPLE_IDS = self.orig_gsva_sample_ids
-        validateData.GSVA_GENESET_IDS = self.orig_gsva_geneset_ids
+        validateData.prior_validated_sample_ids = self.orig_prior_validated_sample_ids
+        validateData.prior_validated_geneset_ids = self.orig_prior_validated_geneset_ids
         super(PostClinicalDataFileTestCase, self).tearDown()
 
 
@@ -282,21 +283,17 @@ class ClinicalValuesTestCase(DataFileTestCase):
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_clin_wrong_ids.txt',
                                     validateData.SampleClinicalValidator)
-        self.assertEqual(len(record_list), 5)
+        self.assertEqual(len(record_list), 6)
         record_iterator = iter(record_list)
         record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 6)
-        self.assertIn('White space', record.getMessage())
-        record = record_iterator.next()
-        self.assertEqual(record.levelno, logging.ERROR)
-        self.assertEqual(record.line_number, 7)
-        self.assertIn('special characters', record.getMessage())
+        self.assertIn('can only contain letters, numbers, points, underscores and/or hyphens', record.getMessage())
         # last one:
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
-        self.assertEqual(record.line_number, 11)
-        self.assertIn('special characters', record.getMessage())
+        self.assertEqual(record.line_number, 12)
+        self.assertIn('can only contain letters, numbers, points, underscores and/or hyphens', record.getMessage())
 
 
 
@@ -368,6 +365,40 @@ class PatientAttrFileTestCase(PostClinicalDataFileTestCase):
                       'will be excluded from survival curve and month of death '
                       'will not be shown on patient view timeline.',
                       record.getMessage())
+        
+    def test_patient_with_invalid_characters_in_patient_id(self):
+        """Test when a invalid characters are found in PATIENT_ID."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_clin_wrong_patient_id.txt',
+                                    validateData.PatientClinicalValidator)
+        self.assertEqual(len(record_list), 24)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 6)
+        self.assertIn('can only contain letters, numbers, points, underscores and/or hyphens', record.getMessage())
+
+    def test_date_in_nondate_column(self):
+        """Test when a sample is defined twice in the same file."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_clin_date_in_nondate_column.txt',
+                                    validateData.PatientClinicalValidator)
+        self.assertEqual(len(record_list), 2)
+        record_iterator = iter(record_list)
+        # First record contains 'Jan-14'
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 8)
+        self.assertEqual(record.column_number, 6)
+        self.assertEqual(record.cause, 'Jan-14')
+        self.assertIn('Date found when no date was expected', record.getMessage())
+        # Second record contains '4-Oct'
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 9)
+        self.assertEqual(record.column_number, 6)
+        self.assertEqual(record.cause, '4-Oct')
+        self.assertIn('Date found when no date was expected', record.getMessage())
 
 
 # TODO: make tests in this testcase check the number of properly defined types
@@ -527,6 +558,21 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         # expecting these to be the cause:
         self.assertEqual(record_list[0].cause, 'XXACAP3')
         self.assertEqual(record_list[1].cause, 'XXAGRN')
+
+    def test_both_name_and_entrez_but_hugo_starts_with_integer(self):
+        """Test when a file has both the Hugo name and Entrez ID columns,
+        but hugo is invalid because starts with integer."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_genecol_presence_both_invalid_hugo_integer.txt',
+                                    validateData.CNAValidator,
+                                    extra_meta_fields={'meta_file_type': 'CNA'})
+        # expecting two error messages:
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        # expecting these to be the cause:
+        self.assertEqual(record_list[0].cause, '1-ACAP3')
+        self.assertEqual(record_list[1].cause, '2-AGRN')
 
     def test_both_name_and_entrez_but_invalid_entrez(self):
         """Test when a file has both the Hugo name and Entrez ID columns, but entrez is invalid."""
@@ -839,19 +885,31 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
 
         ### Error should appear when the second file is validated
         record_list1 = self.validate('data_gsva_pvalues_missing_row.txt',
-                                    validateData.GsvaPvalueValidator)
+                                     validateData.GsvaPvalueValidator)
 
         record_list2 = self.validate('data_gsva_scores_missing_row.txt',
-                                    validateData.GsvaScoreValidator)
+                                     validateData.GsvaScoreValidator)
         self.assertEqual(len(record_list1), 0)
         self.assertEqual(len(record_list2), 1)
         for record in record_list2:
             self.assertEqual(record.levelno, logging.ERROR)
-        self.assertIn('first column', record.getMessage().lower())
-        self.assertIn('not equal', record.getMessage().lower())
+        self.assertEqual('Gene sets column in score and p-value file are not equal', record.getMessage())
         return
-#
-#
+
+    def test_geneset_not_in_database(self):
+        """Test if an error is issued if the score and pvalue table does not have same rownames"""
+
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_gsva_scores_geneset_not_in_database.txt',
+                                    validateData.GsvaScoreValidator)
+        self.assertEqual(len(record_list), 1)
+        record_iterator = iter(record_list)
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 3)
+        self.assertIn(record.cause, 'HYVE_TEST_GENE_SET')
+        self.assertEqual('Gene set not found in database, please make sure to import gene sets prior to study loading',
+                         record.getMessage())
+        return
 
     # TODO: test other subclasses of FeatureWiseValidator
 
@@ -925,6 +983,140 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertIn("hgvsp_short", record_list[0].getMessage().lower())
         self.assertIn("invalid column header", record_list[1].getMessage().lower())
 
+    def test_maf_file_checks(self):
+        """Test errors for MAF file which is not according MAF file checks #6, #10 and #11"""
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        # Test file is a variant on test_output.custom_isoforms.maf from vcf2maf
+        record_list = self.validate('mutations/data_mutations_test_variant_types.maf',
+                                    validateData.MutationsExtendedValidator, None, True, True)
+        # we expect 11 errors
+        self.assertEqual(len(record_list), 11)
+        record_iterator = iter(record_list)
+        # expect error for bigger start than end position
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 2)
+        self.assertIn('Start_Position should be smaller than or equal to End_Position.', record.getMessage())
+        # expect error for not correct start and end position in INS
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 2)
+        self.assertIn('Variant_Type indicates insertion, but difference in Start_Position and End_Position does '
+                      'not equal to 1 or the length or the Reference_Allele.', record.getMessage())
+        # expect error for incorrect length of reference allele with variant_type INS
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 3)
+        self.assertIn('Variant_Type indicates insertion, but length of Reference_Allele is bigger than the length '
+                      'of the Tumor_Seq_Allele1 and/or 2 and therefore indicates deletion.', record.getMessage())
+        # expect error for not correct start and end position in DEL
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 4)
+        self.assertIn('Variant_Type indicates deletion, but the difference between Start_Position and End_Position '
+                      'are not equal to the length of the Reference_Allele.',record.getMessage())
+        # expect error for incorrect length of  allele with variant_type DEL
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 5)
+        self.assertIn('Variant_Type indicates deletion, but length of Reference_Allele is smaller than the length '
+                      'of Tumor_Seq_Allele1 and/or Tumor_Seq_Allele2, indicating an insertion.', record.getMessage())
+        # expect error for incorrect length of allele with variant_type SNP
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 6)
+        self.assertIn('Variant_Type indicates a SNP, but length of Reference_Allele, Tumor_Seq_Allele1 '
+                      'and/or Tumor_Seq_Allele2 do not equal 1.', record.getMessage())
+        # expect error for incorrect Allele with variant_type SNP
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 7)
+        self.assertIn('Variant_Type indicates a SNP, but Reference_Allele, Tumor_Seq_Allele1 '
+                      'and/or Tumor_Seq_Allele2 contain deletion (-).', record.getMessage())
+        # expect error for incorrect length of allele with variant_type DNP
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 8)
+        self.assertIn('Variant_Type indicates a DNP, but length of Reference_Allele, Tumor_Seq_Allele1 '
+                      'and/or Tumor_Seq_Allele2 do not equal 2.', record.getMessage())
+        # expect error for incorrect length of allele with variant_type TNP
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 9)
+        self.assertIn('Variant_Type indicates a TNP, but length of Reference_Allele, Tumor_Seq_Allele1 '
+                      'and/or Tumor_Seq_Allele2 do not equal 3.', record.getMessage())
+        # expect error for incorrect length of allele with variant_type ONP
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 10)
+        self.assertIn('Variant_Type indicates a ONP, but length of Reference_Allele, '
+                      'Tumor_Seq_Allele1 and 2 are not bigger than 3 or are of unequal lengths.', record.getMessage())
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 11)
+        self.assertIn('Allele Based column Reference_Allele contains invalid character.', record.getMessage())
+        
+    def test_special_allele_cases(self):
+        """Test errors in mutation file which contain special cases of the Allele Based columns"""
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        # Test file is a variant on test_output.custom_isoforms.maf from vcf2maf
+        record_list = self.validate('mutations/data_mutations_check_special_cases_allele.maf',
+                                    validateData.MutationsExtendedValidator, None, True, True)
+        
+        # We expect 3 errors
+        self.assertEqual(len(record_list), 3)
+        record_iterator = iter(record_list)
+        # expect error for the same values in Reference_Allele, Tumor_Seq_Allele1 and Tumor_Seq_Allele2 columns
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 2)
+        self.assertIn('All Values in columns Reference_Allele, Tumor_Seq_Allele1 and Tumor_Seq_Allele2 are equal.',
+                      record.getMessage())
+        # expect error for deletion, Tumor Seq allele columns do not contain -
+        # even though the lengths of the sequences are equal
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 4)
+        self.assertIn('Variant_Type indicates a deletion, Allele based columns are the same length, '
+                      'but Tumor_Seq_Allele columns do not contain -, indicating a SNP.', record.getMessage())
+        # expect error for ONP, lengths of sequences in Reference_Allele,
+        # Tumor_Seq_Allele1 and Tumor_Seq_Allele2 are not equal
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 5)
+        self.assertIn('Variant_Type indicates a ONP, but length of Reference_Allele, '
+                      'Tumor_Seq_Allele1 and 2 are not bigger than 3 or are of unequal lengths.', record.getMessage())
+
+    def test_validation_status_MAF_checks(self):
+        """Test errors for MAF file which is not according MAF file checks #7, #8, #9 and #13"""
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        # Test file is a variant on mutation file from study_es_0
+        record_list = self.validate('mutations/data_mutations_validation_status.maf',
+                                    validateData.MutationsExtendedValidator, None, True, True)
+        
+        # We expect 6 errors
+        self.assertEqual(len(record_list), 6)
+        record_iterator = iter(record_list)
+        # expect error for empty validation allele columns
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 2)
+        self.assertIn('Validation Status is valid, but Validation Allele columns are empty.', record.getMessage())
+        # expect error for invalid character in allele based column
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 3)
+        self.assertIn('At least one of the Validation Allele Based columns (Tumor_Validation_Allele1, '
+                      'Tumor_Validation_Allele2, Match_Norm_Validation_Allele1, Match_Norm_Validation_Allele2) '
+                      'contains invalid character.', record.getMessage())
+        # expect error for not equal tumor and normal allele columns when Validation_Status is invalid
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 4)
+        self.assertIn('When Validation_Status is invalid the Tumor_Validation_Allele and Match_Norm_'
+                      'Validation_Allele columns should be equal.', record.getMessage())
+        # expect error for undefined Validation_Method when Validation_Status is valid or invalid
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 5)
+        self.assertIn('Validation Status is invalid, but Validation_Method is not defined.', record.getMessage())
+        # expect error for incorrect Validation Allele Columns when Mutation_Status is Germline
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 6)
+        self.assertIn('When Validation_Status is valid and Mutation_Status is Germline, the Tumor_Validation_Allele '
+                      'should be equal to the Match_Norm_Validation_Allele.', record.getMessage())
+        # expect error for incorrect Validation Allele Columns when Mutation_Status is Germline
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 7)
+        self.assertIn('When Validation_Status is valid and Mutation_Status is Somatic, the Match_Norm_Validation_Allele'
+                      ' columns should be equal to the Reference Allele and one of the Tumor_Validation_Allele columns'
+                      ' should not be.', record.getMessage())
+
     def test_warning_for_missing_SWISSPROT(self):
         """If SWISSPROT is missing (or present and empty), user should be warned about it"""
         # set level according to this test case:
@@ -939,7 +1131,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                       record_list[0].getMessage().lower())
 
     def test_unknown_or_invalid_swissprot(self):
-        """Test errors for invalid and unknown accessions under SWISSPROT."""
+        """Test warnings for invalid and unknown accessions under SWISSPROT."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate(
                 'mutations/data_mutations_invalid_swissprot.maf',
@@ -950,13 +1142,13 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         record_iterator = iter(record_list)
         # used a name instead of an accession
         record = record_iterator.next()
-        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.line_number, 3)
         self.assertEqual(record.cause, 'A1CF_HUMAN')
         self.assertNotIn('portal', record.getMessage().lower())
         # neither a name nor an accession
         record = record_iterator.next()
-        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.line_number, 5)
         self.assertEqual(record.cause, 'P99999,Z9ZZZ9ZZZ9')
         self.assertNotIn('portal', record.getMessage().lower())
@@ -1147,7 +1339,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         """Test if proper warnings/errors are given for wrong/blank gene positions 
         (Start_Position and End_Position) change vals."""
         # set level according to this test case:
-        self.logger.setLevel(logging.WARNING)
+        self.logger.setLevel(logging.ERROR)
         record_list = self.validate(
                 'mutations/data_mutations_wrong_gene_position.maf',
                 validateData.MutationsExtendedValidator,
@@ -1159,22 +1351,22 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertIn('The start position of this variant is not '
-                    'an integer', record.getMessage())
+                      'an integer', record.getMessage())
         # second is an error about wrong value in End_Position:
         record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertIn('The end position of this variant is not '
-                    'an integer', record.getMessage())
+                      'an integer', record.getMessage())
         # third is an error about no value in Start_Position:
         record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertIn('The start position of this variant is not '
-                    'an integer', record.getMessage())
+                      'an integer', record.getMessage())
         # forth is an error about no value in End_Position:
         record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertIn('The end position of this variant is not '
-                    'an integer', record.getMessage())
+                      'an integer', record.getMessage())
         
     def test_absence_custom_values_columns_when_custom_annotation_columns(self):
         """Test that the validator raises an error when the 
@@ -1343,13 +1535,13 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         # Validation Status error
         record = record_iterator.next()
         self.assertEqual(record.levelno, logging.WARNING)
-        self.assertEqual(record.line_number, 3)
+        self.assertEqual(record.line_number, 2)
         self.assertEqual(record.cause, '---')
         self.assertEqual(record.getMessage(), "Value in 'Validation_Status' not in MAF format")
         # Verification status error
         record = record_iterator.next()
         self.assertEqual(record.levelno, logging.WARNING)
-        self.assertEqual(record.line_number, 4)
+        self.assertEqual(record.line_number, 3)
         self.assertEqual(record.cause, 'Test')
         self.assertEqual(record.getMessage(), "Value in 'Verification_Status' not in MAF format")
 
@@ -1366,7 +1558,7 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
 
         # Check warning message
         self.assertEqual(record_list[0].levelno, logging.WARNING)
-        self.assertEqual(record_list[0].line_number, 3)
+        self.assertEqual(record_list[0].line_number, 2)
         self.assertEqual(record_list[0].cause, 'test')
         self.assertEqual(record_list[0].getMessage(), "Mutation_Status value is not in MAF format")
 
@@ -1644,6 +1836,19 @@ class GisticGenesValidationTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.cause, '')
 
+class GenePanelMatrixValidationTestCase(PostClinicalDataFileTestCase):
+
+    """Test for validations in Gene Panel Matrix."""
+
+    def test_duplicate_sample(self):
+        """Test if duplicate samples are detected"""
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_gene_matrix_duplicate_sample.txt',
+                                    validateData.GenePanelMatrixValidator)
+
+        self.assertEqual(len(record_list), 1)
+        self.assertIn("duplicated sample id.", record_list[0].getMessage().lower())
 
 class StudyCompositionTestCase(LogBufferTestCase):
 
@@ -1669,7 +1874,7 @@ class StudyCompositionTestCase(LogBufferTestCase):
         validateData.validate_study(
             'test_data/study_cancertype_two_files',
             PORTAL_INSTANCE,
-            self.logger, False)
+            self.logger, False, False)
         record_list = self.get_log_records()
         # expecting two errors: one about the two cancer type files, and
         # about the cancer type of the study not having been defined
@@ -1729,6 +1934,19 @@ class CaseListDirTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertIn('invalid', record.getMessage().lower())
 
+    def test_duplicate_category(self):
+        """Test if an error is issued for an duplicate case list category"""
+        self.logger.setLevel(logging.WARNING)
+        validateData.processCaseListDirectory(
+            'test_data/case_lists_duplicate_category',
+            'brca_tcga_pub',
+            self.logger)
+        record_list = self.get_log_records()
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertIn('used in other case list', record.getMessage().lower())
+
     def test_missing_caselists(self):
         """Test if errors are issued if certain case lists are not defined."""
         self.logger.setLevel(logging.ERROR)
@@ -1736,7 +1954,7 @@ class CaseListDirTestCase(PostClinicalDataFileTestCase):
                 'test_data/study_missing_caselists',
                 PORTAL_INSTANCE,
                 self.logger,
-                False)
+                False, False)
         record_list = self.get_log_records()
         self.assertEqual(len(record_list), 1)
         # <study ID>_all
@@ -1746,9 +1964,9 @@ class CaseListDirTestCase(PostClinicalDataFileTestCase):
         self.assertIn('add_global_case_list', record.getMessage())
 
 
-class StableIdValidationTestCase(LogBufferTestCase):
+class MetaFilesTestCase(LogBufferTestCase):
 
-    """Tests to ensure stable_id validation works correctly."""
+    """Tests for the contents of the meta files."""
 
     def test_unnecessary_and_wrong_stable_id(self):
         """Tests to check behavior when stable_id is not needed (warning) or wrong(error)."""
@@ -1756,7 +1974,7 @@ class StableIdValidationTestCase(LogBufferTestCase):
         validateData.process_metadata_files(
             'test_data/study_metastableid',
             PORTAL_INSTANCE,
-            self.logger, False)
+            self.logger, False, False)
         record_list = self.get_log_records()
         # expecting 1 warning, 1 error:
         self.assertEqual(len(record_list), 3)
@@ -1777,6 +1995,20 @@ class StableIdValidationTestCase(LogBufferTestCase):
         self.assertEqual(warning.levelno, logging.WARNING)
         self.assertEqual(warning.cause, 'stable_id')
 
+    def test_exceed_maximum_length_meta_attribute_value(self):
+        """Test to check the length the attribute in meta files."""
+        self.logger.setLevel(logging.WARNING)
+        validateData.process_metadata_files(
+            'test_data/meta_files',
+            PORTAL_INSTANCE,
+            self.logger, False, False)
+        record_list = self.get_log_records()
+        # expecting 1 error:
+        self.assertEqual(len(record_list), 1)
+
+        # expecting one error about the maximum length of 'short_name' meta_study
+        record = record_list.pop()
+        self.assertEqual("The maximum length of the 'short_name' value is 64", record.getMessage())
 
 class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
 

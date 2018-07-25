@@ -65,16 +65,16 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
     @Test(expected = ClinicalAttributeNotFoundException.class)
     public void getClinicalAttributeNotFound() throws Exception {
         
-        Mockito.when(clinicalAttributeRepository.getClinicalAttribute(STUDY_ID, CLINICAL_ATTRIBUTE_ID))
+        Mockito.when(clinicalAttributeRepository.getClinicalAttribute(STUDY_ID, CLINICAL_ATTRIBUTE_ID_1))
             .thenReturn(null);
-        clinicalAttributeService.getClinicalAttribute(STUDY_ID, CLINICAL_ATTRIBUTE_ID);
+        clinicalAttributeService.getClinicalAttribute(STUDY_ID, CLINICAL_ATTRIBUTE_ID_1);
     }
 
     @Test(expected = StudyNotFoundException.class)
     public void getClinicalAttributeStudyNotFound() throws Exception {
         
         Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
-        clinicalAttributeService.getClinicalAttribute(STUDY_ID, CLINICAL_ATTRIBUTE_ID);
+        clinicalAttributeService.getClinicalAttribute(STUDY_ID, CLINICAL_ATTRIBUTE_ID_1);
     }
 
     @Test
@@ -82,10 +82,10 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
         
         ClinicalAttribute expectedClinicalAttribute = new ClinicalAttribute();
         
-        Mockito.when(clinicalAttributeRepository.getClinicalAttribute(STUDY_ID, CLINICAL_ATTRIBUTE_ID))
+        Mockito.when(clinicalAttributeRepository.getClinicalAttribute(STUDY_ID, CLINICAL_ATTRIBUTE_ID_1))
             .thenReturn(expectedClinicalAttribute);
         
-        ClinicalAttribute result = clinicalAttributeService.getClinicalAttribute(STUDY_ID, CLINICAL_ATTRIBUTE_ID);
+        ClinicalAttribute result = clinicalAttributeService.getClinicalAttribute(STUDY_ID, CLINICAL_ATTRIBUTE_ID_1);
         
         Assert.assertEquals(expectedClinicalAttribute, result);
     }

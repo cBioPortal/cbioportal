@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
 import org.cbioportal.service.ClinicalDataService;
@@ -13,7 +14,10 @@ import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ClinicalDataServiceImpl implements ClinicalDataService {
@@ -122,4 +126,45 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
 
         return clinicalDataRepository.fetchMetaClinicalData(studyIds, ids, attributeIds, clinicalDataType);
     }
+
+	@Override
+	public Map<String, List<ClinicalDataCount>> fetchClinicalDataCounts(String studyId, List<String> sampleIds,
+			List<String> attributeIds, String clinicalDataType) {
+
+        List<ClinicalDataCount> clinicalDataCounts = clinicalDataRepository.fetchClinicalDataCounts(studyId, sampleIds,
+            attributeIds, clinicalDataType).stream().filter(c -> !c.getValue().toUpperCase().equals("NA") && 
+            !c.getValue().toUpperCase().equals("NAN") && !c.getValue().toUpperCase().equals("N/A")).collect(Collectors.toList());
+
+        Map<String, List<ClinicalDataCount>> result = clinicalDataCounts.stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId));
+
+        attributeIds.forEach(a -> {
+
+            int naCount = 0;
+            int totalCount = 0; 
+            List<ClinicalDataCount> counts = result.get(a);
+            if (counts != null) {
+                totalCount = counts.stream().mapToInt(ClinicalDataCount::getCount).sum();
+            } else {
+                counts = new ArrayList<>();
+                result.put(a, counts);
+            }
+
+            if (clinicalDataType.equals("SAMPLE")) {
+                naCount = sampleIds.size() - totalCount;
+            } else {
+                List<String> patientIds = patientService.getPatientIdsOfSamples(sampleIds);
+                naCount = patientIds.size() - totalCount;
+            }
+            
+            if (naCount > 0) {
+                ClinicalDataCount clinicalDataCount = new ClinicalDataCount();
+                clinicalDataCount.setAttributeId(a);
+                clinicalDataCount.setValue("NA");
+                clinicalDataCount.setCount(naCount);
+                counts.add(clinicalDataCount);
+            }
+        });
+        
+        return result;
+	}
 }

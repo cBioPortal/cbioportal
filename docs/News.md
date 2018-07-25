@@ -1,3 +1,9 @@
+## June 20, 2018
+ *   The seventh phase of the cBioPortal architectural upgrade is now complete: The _Enrichments_ and _Co-Expression_ tabs have been moved to the new architecture.
+ *   Supported merged gene tracks in OncoPrint and [Onco Query Language](http://www.cbioportal.org/onco_query_lang_desc.jsp) -- see [example](http://www.cbioportal.org/index.do?session_id=5b2bedca498eb8b3d566ab60)
+ 
+![image](https://user-images.githubusercontent.com/840895/41738366-def14850-755f-11e8-8a7c-deb789dc03da.png)
+
 ## May 10, 2018
  *   Enhanced OncoPrint to show germline mutations -- see [example](http://www.cbioportal.org/index.do?session_id=5af5a304498eb8b3d56615b6)
  
@@ -20,6 +26,7 @@
      *    [Colorectal Cancer (MSK, Cancer Cell 2018)](http://www.cbioportal.org/study?id=crc_msk_2018#summary) *1134 samples*
      *    [Metastatic Esophagogastric Cancer (MSK,Cancer Discovery 2017)](http://www.cbioportal.org/study?id=egc_msk_2017#summary) *341 samples*
      * [Bladder Cancer (TCGA, Cell 2017)](http://www.cbioportal.org/study?id=blca_tcga_pub_2017#summary) *413 samples*
+
 ## April 05, 2018
  *   **Added data** from the TCGA PanCanAtlas project with >10,000 samples from 33 tumor types:
      *   [Adrenocortical Carcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=acc_tcga_pan_can_atlas_2018)
@@ -55,6 +62,7 @@
      *   [Uterine Corpus Endometrial Carcinoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=ucec_tcga_pan_can_atlas_2018)
      *   [Uterine Carcinosarcoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=ucs_tcga_pan_can_atlas_2018)
      *   [Uveal Melanoma (TCGA, PanCancer Atlas)](http://www.cbioportal.org/study?id=uvm_tcga_pan_can_atlas_2018)
+
 ## March 20, 2018
  *   The sixth phase of the cBioPortal architectural upgrade is now complete: The _Download_ tab has been moved to the new architecture.
  *   Data can now be downloaded in [tabular format](http://blog.thehyve.nl/blog/downloading-data-from-the-cbioportal-oncoprint-view) from OncoPrint.

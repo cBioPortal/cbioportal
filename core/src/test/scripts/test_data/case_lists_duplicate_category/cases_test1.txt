@@ -1,0 +1,6 @@
+cancer_study_identifier: brca_tcga_pub
+stable_id: brca_tcga_pub_mrna1
+case_list_name: All Tumors 1
+case_list_description: All tumor samples (825 samples) 1
+case_list_category: all_cases_with_mrna_rnaseq_data
+case_list_ids: TCGA-A1-A0SB-01	TCGA-A1-A0SD-01	TCGA-A1-A0SE-01	TCGA-A1-A0SH-01	TCGA-A2-A04U-01	TCGA-B6-A0RS-01	TCGA-BH-A0HP-01	TCGA-BH-A18P-01	TCGA-BH-A18H-01	TCGA-C8-A138-01	TCGA-A2-A0EY-01	TCGA-A8-A08G-01

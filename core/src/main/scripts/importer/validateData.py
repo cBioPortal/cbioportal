@@ -31,6 +31,7 @@ Run with the command line option --help for usage information.
 # imports
 import sys
 import os
+import importlib
 import logging.handlers
 from collections import OrderedDict
 import argparse
@@ -50,6 +51,9 @@ if __name__ == "__main__" and __package__ is None:
     # scope and *not* directly in sys.path; see PEP 395
     sys.path[0] = str(Path(sys.path[0]).resolve().parent)
     __package__ = 'importer'
+    # explicitly import the package, which is needed on CPython 3.4 because it
+    # doesn't include https://github.com/python/cpython/pull/2639
+    importlib.import_module(__package__)
 
 from . import cbioportal_common
 

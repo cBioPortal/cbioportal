@@ -60,9 +60,9 @@ def temp_inputfolder(file_dict):
             with suppress(FileExistsError):
                 file_directory.mkdir(parents=True)
             # write the contents to the file
-            with open(study_dir / filename, 'w', encoding='utf-8') as f:
+            with (study_dir / filename).open('w', encoding='utf-8') as f:
                 f.write(contents)
-        yield study_dir
+        yield str(study_dir)
 
 
 class LogBufferTestCase(unittest.TestCase):

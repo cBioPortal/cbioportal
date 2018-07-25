@@ -8,6 +8,7 @@ __author__ = 'priti'
 
 
 import sys
+import importlib
 import argparse
 import logging
 from pathlib import Path
@@ -19,6 +20,9 @@ if __name__ == "__main__" and __package__ is None:
     # scope and *not* directly in sys.path; see PEP 395
     sys.path[0] = str(Path(sys.path[0]).resolve().parent)
     __package__ = 'importer'
+    # explicitly import the package, which is needed on CPython 3.4 because it
+    # doesn't include https://github.com/python/cpython/pull/2639
+    importlib.import_module(__package__)
 
 from . import validateData
 from . import cbioportalImporter

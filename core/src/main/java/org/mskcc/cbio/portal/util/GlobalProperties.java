@@ -404,7 +404,8 @@ public class GlobalProperties {
 
     public static boolean usersMustAuthenticate()
     {
-        return (!authenticate.isEmpty() && !authenticate.equals("false"));
+        // authentication for social_auth is optional
+        return (!authenticate.isEmpty() && !authenticate.equals("false") && !authenticate.equals("social_auth"));
     }
 
     public static String authenticationMethod()

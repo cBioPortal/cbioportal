@@ -76,7 +76,7 @@
 
 <script type="text/javascript">
 function openSoicalAuthWindow() {
-    var _window = open('login.jsp', '', 'width=800, height=600');
+    var _window = open('login.jsp', '', 'width=1000, height=800');
 
     var interval = setInterval(function() {
         try {
@@ -199,8 +199,15 @@ function openSoicalAuthWindow() {
 	        <% if (authenticationMethod.equals("social_auth")) { %>
 	        
 		        <sec:authorize access="hasRole('ROLE_ANONYMOUS')">
-		            <div class="identity">&nbsp;
-		                <span class="login" onclick="openSoicalAuthWindow();">Login</span>&nbsp;&nbsp;
+		            <div class="identity">
+		                &nbsp;
+		                <span
+		                    class="login"
+		                    title="Optional login via Google allows you to save cohorts"
+		                    onclick="openSoicalAuthWindow();">
+		                    Login
+		                </span>
+		                &nbsp;&nbsp;
 		            </div>
 	            </sec:authorize>
 	            

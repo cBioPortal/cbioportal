@@ -130,7 +130,7 @@
 
                 <fieldset id="login-fieldset">
                   <legend>
-                      Login to Portal:
+                      Login to cBioPortal:
                   </legend>
                   <p>
                     <span style="color:#666666;font-family:verdana,arial,sans-serif;font-size:145%">

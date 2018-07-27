@@ -1420,7 +1420,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var _url = '';
 
       _url = window.cbioURL +
-        'case.do#/patient?studyId=' +
+        'patient?studyId=' +
         _study_id +
         '&caseId=' +
         _selectedCaseIds[0] +

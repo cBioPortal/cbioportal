@@ -699,13 +699,13 @@ public class GlobalProperties {
 
     public static String getLinkToPatientView(String caseId, String cancerStudyId)
     {
-        return "case.do#/patient?caseId=" + caseId
+        return "patient?caseId=" + caseId
                  + "&studyId=" + cancerStudyId;
     }
 
     public static String getLinkToSampleView(String caseId, String cancerStudyId)
     {
-        return "case.do#/patient?sampleId=" + caseId
+        return "patient?sampleId=" + caseId
                  + "&studyId=" + cancerStudyId;
     }
 

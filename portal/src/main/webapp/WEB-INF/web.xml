@@ -658,4 +658,24 @@
         <url-pattern>/ln</url-pattern>
     </servlet-mapping>
 
+
+    <servlet>
+        <servlet-name>SiteMapIndex</servlet-name>
+        <jsp-file>/sitemap_index.jsp</jsp-file>
+    </servlet>
+    <!--mapping-->
+    <servlet-mapping>
+        <servlet-name>SiteMapIndex</servlet-name>
+        <url-pattern>/sitemap_index.xml</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>SiteMapStudy</servlet-name>
+        <jsp-file>/sitemap_study.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SiteMapStudy</servlet-name>
+        <url-pattern>/sitemap_study.xml</url-pattern>
+    </servlet-mapping>
+
 </web-app>

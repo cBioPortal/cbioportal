@@ -253,6 +253,10 @@ public class GlobalProperties {
     @Value("${show.civic:false}") // default is false
     public void setShowCivic(String property) { showCivic = Boolean.parseBoolean(property); }
 
+    private static boolean sitemaps;
+    @Value("${sitemaps:false}") // default is false
+    public void setSitemaps(String property) { sitemaps = Boolean.parseBoolean(property); }
+
     private static boolean showGenomeNexus;
     @Value("${show.genomenexus:true}") // default is true
     public void setShowGenomeNexus(String property) { showGenomeNexus = Boolean.parseBoolean(property); }
@@ -857,6 +861,10 @@ public class GlobalProperties {
         }else{
             return true;
         }
+    }
+
+    public static boolean showSitemaps() {
+       return sitemaps;
     }
 
     public static boolean showCivic() {

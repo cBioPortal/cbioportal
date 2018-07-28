@@ -42,8 +42,8 @@
 
 * Multi-gene correlation plots.
 * Variant allele frequency distribution plots for individual tumor samples.
-* Tissue images for TCGA samples in the patient view, via [Digital Slide Archive](http://cancer.digitalslidearchive.net/). [Example](case.do#/patient?studyId=prad_tcga&caseId=TCGA-CH-5788&tab=tissueImageTab).
-* Support for multiple tumor samples for a single patient. [Example](case.do#/patient?studyId=prad_mich&caseId=WA43).
+* Tissue images for TCGA samples in the patient view, via [Digital Slide Archive](http://cancer.digitalslidearchive.net/). [Example](patient?studyId=prad_tcga&caseId=TCGA-CH-5788&tab=tissueImageTab).
+* Support for multiple tumor samples for a single patient. [Example](patient?studyId=prad_mich&caseId=WA43).
 
 # July 16, 2013
 

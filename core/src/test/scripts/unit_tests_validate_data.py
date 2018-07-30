@@ -679,6 +679,16 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         record = record_iterator.next()
         self.assertIn('cannot be parsed', record.getMessage().lower())
 
+    def test_cytoband_column(self):
+        """Test that the validator will not fail for a column for Cytoband. This column is default outputted by GISTIC2
+         and ignored in the importer."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_cna_cytoband.txt',
+                                    validateData.CNAValidator)
+        # expecting zero warning messages:
+        self.assertEqual(len(record_list), 0)
+
+
     # TODO - add extra unit tests for the genesaliases scenarios (now only test_name_only_but_ambiguous tests part of this)
 
 

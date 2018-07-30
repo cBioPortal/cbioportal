@@ -220,36 +220,28 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('data_clin_coldefs_hardcoded_attrs.txt',
                                     validateData.PatientClinicalValidator)
         self.assertEqual(len(record_list), 3)
-        osmonths_records = []
-        other_sid_records = []
-        other_warn_records = []
-        for record in record_list:
-            self.assertNotIn('portal', record.getMessage().lower())
-            if 'OS_MONTHS' in record.getMessage():
-                osmonths_records.append(record)
-            if hasattr(record, 'cause') and record.cause == 'OTHER_SAMPLE_ID':
-                other_sid_records.append(record)
-            if 'details will be missing' in record.getMessage():
-                other_warn_records.append(record)
+        record_iterator = iter(record_list)
 
-        self.assertEqual(len(osmonths_records), 1)
-        record = osmonths_records.pop()
+        # Expect error for OS_MONTHS being a STRING instead of NUMBER
+        record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 3)
         self.assertEqual(record.column_number, 2)
+        self.assertIn(record.cause, 'STRING')
 
-        self.assertEqual(len(other_sid_records), 1)
-        record = other_sid_records.pop()
+        # Expect warning for sample attribute in patient clinical data
+        record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 5)
         self.assertEqual(record.column_number, 6)
+        self.assertIn(record.cause, 'OTHER_SAMPLE_ID')
 
-        self.assertEqual(len(other_warn_records), 1)
-        record = other_warn_records.pop()
-        self.assertEqual(record.levelno, logging.WARNING)
+        # Expect warning for sample attribute in patient clinical data
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 5)
         self.assertEqual(record.column_number, 7)
-
+        self.assertIn(record.cause, 'METASTATIC_SITE')
 
 
 class ClinicalValuesTestCase(DataFileTestCase):

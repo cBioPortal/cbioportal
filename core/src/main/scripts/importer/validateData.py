@@ -1001,6 +1001,8 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
 class CNAValidator(GenewiseFileValidator):
 
     """Sub-class CNA validator."""
+
+    OPTIONAL_HEADERS = ['Cytoband'] + GenewiseFileValidator.OPTIONAL_HEADERS
     ALLOWED_VALUES = ['-2', '-1.5', '-1', '0', '1', '2'] + GenewiseFileValidator.NULL_VALUES
 
     def checkValue(self, value, col_index):
@@ -2619,8 +2621,9 @@ class ContinuousValuesValidator(GenewiseFileValidator):
 
 class CNAContinuousValuesValidator(ContinuousValuesValidator):
 
-    """Sub-class CNA validator. No validations different from ContinuousValuesValidator yet."""
-    pass
+    """Sub-class CNA validator."""
+
+    OPTIONAL_HEADERS = ['Cytoband'] + GenewiseFileValidator.OPTIONAL_HEADERS
 
 
 class FusionValidator(Validator):

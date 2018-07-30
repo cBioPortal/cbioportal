@@ -33,7 +33,7 @@ TRUNCATE TABLE gene_alias;
 DELETE from genetic_entity;
 DELETE from geneset_hierarchy_node;
 ALTER TABLE `genetic_entity` AUTO_INCREMENT = 1;
-ALTER TABLE `geneset_hiefarchy_node` AUTO_INCREMENT = 1;
+ALTER TABLE `geneset_hierarchy_node` AUTO_INCREMENT = 1;
 ALTER TABLE `geneset` AUTO_INCREMENT = 1;
 ```
 

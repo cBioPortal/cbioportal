@@ -24,7 +24,6 @@
      *   Somatic alterations in 18,980 tumor samples from 18,500 patients sequenced at eight different institutions.
      *   Data is available for download from [Sage Bionetworks](http://synapse.org/genie).
 
-<a name="terms-of-use"></a>
 ## AACR Project GENIE cBioPortal Terms of Use
 *   I will not attempt to identify or contact individual participants from whom these data were collected by any means.
 *   I will not redistribute the data without express written permission from the AACR Project GENIE Coordinating Center (info at aacrgenie dot org).

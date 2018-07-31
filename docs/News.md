@@ -26,9 +26,9 @@
 
 ## AACR Project GENIE cBioPortal Terms of Use
 *   I will not attempt to identify or contact individual participants from whom these data were collected by any means.
-*   I will not redistribute the data without express written permission from the AACR Project GENIE Coordinating Center (send email to: info@aacrgenie.org).
+*   I will not redistribute the data without express written permission from the AACR Project GENIE Coordinating Center (info at aacrgenie dot org).
 *   When publishing or presenting work using or referencing the AACR Project GENIE dataset please include the following attributions:
      *  Please cite: AACR Project GENIE Consortium. AACR Project GENIE: Powering Precision Medicine Through an International Consortium, Cancer Discov. 2017 Aug;7(8):818-831 and include the version of the dataset used.
      *  Include the following acknowledgement: The authors would like to acknowledge the American Association for Cancer Research and its financial and material support in the development of the AACR Project GENIE registry, as well as members of the consortium for their commitment to data sharing. Interpretations are the responsibility of study authors.
-*   Should you decide at any point in the future to stop using the AACR Project GENIE cBioPortal, send email to: genie-cbioportal-access@cbio.mskcc.org and we will remove your user id and any other information provided during new user registration from our systems.
+*   Should you decide at any point in the future to stop using the AACR Project GENIE cBioPortal, send request: genie-cbioportal-access at cbio dot mskcc dot org and we will remove your user id and any other information provided during new user registration from our systems.
 *   For more information see [terms of access](http://www.aacr.org/Documents/Terms%20of%20Access.pdf) on the AACR website.

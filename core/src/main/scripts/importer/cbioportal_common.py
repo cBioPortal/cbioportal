@@ -76,7 +76,8 @@ META_FIELD_MAP = {
         'citation': False,
         'pmid': False,
         'groups': False,
-        'add_global_case_list': False
+        'add_global_case_list': False,
+        'tags_file': False
     },
     MetaFileTypes.SAMPLE_ATTRIBUTES: {
         'cancer_study_identifier': True,

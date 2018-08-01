@@ -4,6 +4,9 @@ INSERT INTO type_of_cancer (TYPE_OF_CANCER_ID,NAME,CLINICAL_TRIAL_KEYWORDS,DEDIC
 INSERT INTO cancer_study (CANCER_STUDY_ID,CANCER_STUDY_IDENTIFIER,TYPE_OF_CANCER_ID,NAME,SHORT_NAME,DESCRIPTION,PUBLIC,PMID,CITATION,GROUPS,STATUS,IMPORT_DATE) VALUES(1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC',0,'2011-12-18 13:17:17+00:00');
 INSERT INTO cancer_study (CANCER_STUDY_ID,CANCER_STUDY_IDENTIFIER,TYPE_OF_CANCER_ID,NAME,SHORT_NAME,DESCRIPTION,PUBLIC,PMID,CITATION,GROUPS,STATUS,IMPORT_DATE) VALUES(2,'acc_tcga','acc','Adrenocortical Carcinoma (TCGA, Provisional)','ACC (TCGA)','TCGA Adrenocortical Carcinoma; raw data at the <A HREF="https://tcga-data.nci.nih.gov/">NCI</A>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC',0,'2013-10-12 11:11:15+00:00');
 
+INSERT INTO cancer_study_tags (CANCER_STUDY_ID,TAGS) VALUES(1,'{"Analyst": {"Name": "Jack", "Email": "jack@something.com"}, "Load id": 35}');
+INSERT INTO cancer_study_tags (CANCER_STUDY_ID,TAGS) VALUES(2,'{"Load id": 36}');
+
 INSERT INTO genetic_entity (ID,ENTITY_TYPE) VALUES(1,'GENE');
 INSERT INTO genetic_entity (ID,ENTITY_TYPE) VALUES(2,'GENE');
 INSERT INTO genetic_entity (ID,ENTITY_TYPE) VALUES(3,'GENE');

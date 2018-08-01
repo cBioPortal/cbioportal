@@ -110,5 +110,15 @@
         WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
         GROUP BY cancer_study.CANCER_STUDY_ID
     </select>
+    
+    <select id="getTags" resultType="org.cbioportal.model.CancerStudyTags">
+        SELECT
+        cancer_study_tags.CANCER_STUDY_ID AS cancerStudyId,
+        cancer_study_tags.TAGS AS tags
+        FROM cancer_study_tags
+        WHERE cancer_study_tags.CANCER_STUDY_ID in (
+            SELECT cancer_study.CANCER_STUDY_ID FROM cancer_study WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        )
+    </select>
 
 </mapper>

@@ -80,7 +80,7 @@ def main(args):
             validator_args.append(args.portal_properties)
             
         # Append argument for strict mode when supplied by user
-        if args.strict_mutation_checks is not False:
+        if args.strict_maf_checks is not False:
             validator_args.append('-m')
 
         # Append argument for maximum reported line numbers and encountered values in HTML
@@ -176,17 +176,17 @@ def interface(args=None):
                         help='portal.properties file path (default: assumed hg19)',
                         required=False)
 
-    parser.add_argument('-m', '--strict_mutation_checks', required=False,
+    parser.add_argument('-m', '--strict_maf_checks', required=False,
                         action='store_true', default=False,
                         help='Option to enable strict mode for validator when '
                              'validating mutation data')
     parser.add_argument('-a', '--max_reported_values', required=False,
                         type=int, default = 3,
-                        help='Cutoff in report for the maximum number of line numbers '
-                             'and values encountered to report for each message in the HTML '
-                             'report. For example, set this to a high number to '
+                        help='Cutoff in HTML report for the maximum number of line numbers '
+                             'and values encountered to report for each message. '
+                             'For example, set this to a high number to '
                              'report all genes that could not be loaded, instead '
-                             'of reporting "(GeneA, GeneB, GeneC, 213 more)".')
+                             'of reporting "GeneA, GeneB, GeneC, 213 more"')
 
     args = parser.parse_args(args)
 

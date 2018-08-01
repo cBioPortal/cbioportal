@@ -175,10 +175,10 @@
               <tr class="{{ record_class }}">
                 {% macro format_aggregated(record, attr_name) %}
                     {% if record[attr_name + '_list'] is defined -%}
-                      {% if (record['show_all_values'] is not defined or record['show_all_values'] == False) and (record[attr_name + '_list']|length) > 3 -%}
-                              {{ (record[attr_name + '_list'][:3]|join(', ') +
+                      {% if (record['show_all_values'] is not defined or record['show_all_values'] == False) and (record[attr_name + '_list']|length) > max_reported_values -%}
+                              {{ (record[attr_name + '_list'][:max_reported_values]|join(', ') +
                                   ', (' +
-                                  record[attr_name + '_list'][3:]|length|string +
+                                  record[attr_name + '_list'][max_reported_values:]|length|string +
                                   ' more)')|e }}
                           {%- else -%}
                                   {{ (record[attr_name + '_list']|join(', '))|e }}

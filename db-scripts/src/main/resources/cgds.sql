@@ -129,6 +129,14 @@ CREATE TABLE `cancer_study` (
 );
 
 -- --------------------------------------------------------
+CREATE TABLE `cancer_study_tags` (
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `TAGS` text,
+  UNIQUE (`CANCER_STUDY_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
 CREATE TABLE `users` (
   `EMAIL` varchar(128) NOT NULL,
   `NAME` varchar(255) NOT NULL,
@@ -798,4 +806,4 @@ CREATE TABLE `info` (
   `GENESET_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.7.2', NULL);
+INSERT INTO info VALUES ('2.7.3', NULL);

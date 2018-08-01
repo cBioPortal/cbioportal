@@ -204,6 +204,7 @@
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <jacoco-maven-plugin.version>0.7.6.201602180812</jacoco-maven-plugin.version>
     <mockito.version>1.10.19</mockito.version>
+    <session.timeout>720</session.timeout>
 
     <final.war.name>cbioportal-${project.version}</final.war.name>
 

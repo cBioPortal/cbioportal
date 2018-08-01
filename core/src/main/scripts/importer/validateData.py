@@ -3818,11 +3818,11 @@ def interface(args=None):
                              'validating mutation data')
     parser.add_argument('-a', '--max_reported_values', required=False,
                         type=int, default=3,
-                        help='Cutoff in report for the maximum number of line numbers '
-                             'and values encountered to report for each message in the HTML '
-                             'report. For example, set this to a high number to '
+                        help='Cutoff in HTML report for the maximum number of line numbers '
+                             'and values encountered to report for each message. '
+                             'For example, set this to a high number to '
                              'report all genes that could not be loaded, instead '
-                             'of reporting "(GeneA, GeneB, GeneC, 213 more)".')
+                             'of reporting "GeneA, GeneB, GeneC, 213 more"')
 
     parser = parser.parse_args(args)
     return parser

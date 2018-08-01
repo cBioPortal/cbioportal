@@ -1,7 +1,6 @@
 ## July 31, 2018
  *   The eighth phase of the cBioPortal architectural upgrade is now complete: The _Plots_, _Expression_, _Network_, and _Bookmarks_ tabs, and therefore all analysis tabs in the _results page_ have been moved to the new architecture.
  *   Updated the [MutationMapper tool](http://www.cbioportal.org/mutation_mapper.jsp), now connecting to [Genome Nexus](https://genomenexus.org/) for annotating mutations on the fly.
- *   Enhanced clinical attribute selector for OncoPrint, now showing sample counts per attribute.
 
 ## June 20, 2018
  *   The seventh phase of the cBioPortal architectural upgrade is now complete: The _Enrichments_ and _Co-Expression_ tabs have been moved to the new architecture.

@@ -1424,7 +1424,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
         _study_id +
         '&caseId=' +
         _selectedCaseIds[0] +
-        '&navCaseIds=' + getNavCaseIdsStr(_selectedCasesMap, _selectedCaseIds, false).str;
+        '#navCaseIds=' + getNavCaseIdsStr(_selectedCasesMap, _selectedCaseIds, false).str;
 
       // The IE URL limitation is 2083
       // https://blogs.msdn.microsoft.com/ieinternals/2014/08/13/url-length-limits/

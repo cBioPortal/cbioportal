@@ -1,6 +1,10 @@
-## August 2, 2018
+## August 6, 2018
  *   The eighth phase of the cBioPortal architectural upgrade is now complete: The _Plots_, _Expression_, _Network_, and _Bookmarks_ tabs, and therefore all analysis tabs in the _results page_ have been moved to the new architecture.
  *   Updated the [MutationMapper tool](http://www.cbioportal.org/mutation_mapper.jsp), now connecting to [Genome Nexus](https://genomenexus.org/) for annotating mutations on the fly.
+ *   `Total Mutations` and `Fraction Genome Altered` are now available in _Plots_ tab for analysis.
+ 
+ ![image](https://user-images.githubusercontent.com/840895/43609786-ec946d64-9672-11e8-8218-4e63bd5007e8.png)
+
 
 ## July 27, 2018
  *   **Added data**  of 2787 samples from 10 studies:

@@ -7,7 +7,7 @@
     <!-- general settings -->
 
     <session-config>
-      <session-timeout>${session.timeout}</session-timeout>
+      <session-timeout>${tomcat.session.timeout}</session-timeout>
     </session-config>
     <mime-mapping>
         <extension>wsdl</extension>

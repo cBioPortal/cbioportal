@@ -313,6 +313,14 @@ AGRN<TAB>375790<TAB>2<TAB>0<TAB>...
 ...
 ```
 
+#### GISTIC2 Format
+GISTIC2 outputs a tabular file similarly formatted to the cBioPortal format, called `<prefix>_all_thresholded.by_genes.txt`.
+In this file the gene symbol is found in the `Gene Symbol` column, while Entrez gene IDs are in the `Gene ID` or 
+`Locus ID` column. Please rename `Gene Symbol` to `Hugo_Symbol` and `Gene ID` or `Locus ID` to `Entrez_Gene_Id`. The 
+`Cytoband` column can be kept in the table, but note that these values are ignored in cBioPortal. cBioPortal uses 
+cytoband annotations from the `map_location` column in NCBI's `Homo_sapiens.gene_info.gz` when loading genes into 
+the seed database.
+
 ## Continuous Copy Number Data
 
 #### Meta file
@@ -349,6 +357,14 @@ data_filename: data_log2CNA.txt
 #### Data file
 
 The log2 copy number data file follows the same format as expression data files.  See [Expression Data](#expression-data) for a description of the expression data file format.
+
+#### GISTIC2 Format
+GISTIC2 outputs a tabular file similarly formatted to the cBioPortal format, called `<prefix>_all_data_by_genes.txt`. 
+In this file the gene symbol is found in the `Gene Symbol` column, while Entrez gene IDs are in the `Gene ID` or 
+`Locus ID` column. Please rename `Gene Symbol` to `Hugo_Symbol` and `Gene ID` or `Locus ID` to `Entrez_Gene_Id`. The 
+`Cytoband` column can be kept in the table, but note that these values are ignored in cBioPortal. cBioPortal uses 
+cytoband annotations from the `map_location` column in NCBI's `Homo_sapiens.gene_info.gz` when loading genes into 
+the seed database.
 
 
 ## Segmented Data

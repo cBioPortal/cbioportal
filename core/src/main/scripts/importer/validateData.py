@@ -144,11 +144,12 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
 
     """Logging handler that formats aggregated HTML reports using Jinja2."""
 
-    def __init__(self, study_dir, output_filename, cbio_version, *args, **kwargs):
+    def __init__(self, study_dir, output_filename, cbio_version, max_reported_values, *args, **kwargs):
         """Set study directory name, output filename and buffer size."""
         self.study_dir = study_dir
         self.output_filename = output_filename
         self.cbio_version = cbio_version
+        self.max_reported_values = max_reported_values
         self.max_level = logging.NOTSET
         self.closed = False
         # get the directory name of the currently running script,
@@ -186,6 +187,7 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         doc = template.render(   # pylint: disable=no-member
             study_dir=self.study_dir,
             cbio_version=self.cbio_version,
+            max_reported_values=self.max_reported_values,
             record_list=self.buffer,
             max_level=logging.getLevelName(self.max_level))
         with open(self.output_filename, 'w') as f:
@@ -1001,6 +1003,8 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
 class CNAValidator(GenewiseFileValidator):
 
     """Sub-class CNA validator."""
+
+    OPTIONAL_HEADERS = ['Cytoband'] + GenewiseFileValidator.OPTIONAL_HEADERS
     ALLOWED_VALUES = ['-2', '-1.5', '-1', '0', '1', '2'] + GenewiseFileValidator.NULL_VALUES
 
     def checkValue(self, value, col_index):
@@ -1857,26 +1861,16 @@ class ClinicalValidator(Validator):
                       'datatype',
                       'priority')
 
-    # Attributes required to have certain properties because of hard-coded use.
-    # Note: the 'when_wrong' property (found in some attributes like METASTATIC_SITE),
-    # can be set to WARNING to indicate that only a WARNING should be given
-    # if this attribute is found in the "wrong" file (e.g. a PATIENT attribute found
-    # in a SAMPLE file or vice-versa).
+    # Only a core set of attributes must be either specific in the patient or sample clinical data.
     PREDEFINED_ATTRIBUTES = {
         'AGE': {
             'is_patient_attribute': '1',
             'datatype': 'NUMBER'
         },
         'CANCER_TYPE': {
-            'is_patient_attribute': '0',
             'datatype': 'STRING'
         },
         'CANCER_TYPE_DETAILED': {
-            'is_patient_attribute': '0',
-            'datatype': 'STRING'
-        },
-        'DETAILED_CANCER_TYPE': {
-            'is_patient_attribute': '0',
             'datatype': 'STRING'
         },
         'DFS_STATUS': {
@@ -1888,38 +1882,28 @@ class ClinicalValidator(Validator):
             'datatype': 'NUMBER'
         },
         'DRIVER_MUTATIONS': {
-            'is_patient_attribute': '0'
         },
         'ERG_FUSION_ACGH': {
-            'is_patient_attribute': '0'
         },
         'ETS_RAF_SPINK1_STATUS': {
-            'is_patient_attribute': '0'
         },
         'GENDER': {
             'is_patient_attribute': '1',
             'datatype': 'STRING'
         },
         'GLEASON_SCORE': {
-            'is_patient_attribute': '0',
-            'when_wrong': 'WARNING'
-        },
-        'GLEASON_SCORE_1': {
-            'is_patient_attribute': '0'
-        },
-        'GLEASON_SCORE_2': {
-            'is_patient_attribute': '0'
         },
         'HISTOLOGY': {
-            'is_patient_attribute': '0'
+            'datatype': 'STRING',
         },
         'KNOWN_MOLECULAR_CLASSIFIER': {
-            'is_patient_attribute': '0'
+            'datatype': 'STRING',
         },
         'METASTATIC_SITE': {
             'is_patient_attribute': '0',
             'datatype': 'STRING',
-            'when_wrong': 'WARNING'
+        },
+        'MOUSE_STRAIN': {
         },
         'OS_STATUS': {
             'is_patient_attribute': '1',
@@ -1940,7 +1924,6 @@ class ClinicalValidator(Validator):
         'PRIMARY_SITE': {
             'is_patient_attribute': '0',
             'datatype': 'STRING',
-            'when_wrong': 'WARNING'
         },
         'SAMPLE_CLASS': {
             'is_patient_attribute': '0',
@@ -1955,41 +1938,32 @@ class ClinicalValidator(Validator):
             'datatype': 'STRING'
         },
         'SERUM_PSA': {
-            'is_patient_attribute': '0'
         },
         'SEX': {
             'is_patient_attribute': '1',
             'datatype': 'STRING'
         },
         'TMPRSS2_ERG_FUSION_STATUS': {
-            'is_patient_attribute': '0'
         },
         'TUMOR_GRADE': {
-            'is_patient_attribute': '0'
         },
         'TUMOR_SITE': {
             'is_patient_attribute': '0',
             'datatype': 'STRING',
-            'when_wrong': 'WARNING'
         },
         'TUMOR_STAGE_2009': {
-            'is_patient_attribute': '0'
         },
         'TUMOR_TISSUE_SITE': {
             'is_patient_attribute': '0',
             'datatype': 'STRING',
-            'when_wrong': 'WARNING'
         },
         'TUMOR_TYPE': {
             'is_patient_attribute': '0',
             'datatype': 'STRING'
         },
-        'TYPE_OF_CANCER': {
-            'is_patient_attribute': '0',
-            'datatype': 'STRING'
-        },
     }
     INVALID_ID_CHARACTERS = r'[^A-Za-z0-9._-]'
+
 
     def __init__(self, *args, **kwargs):
         """Initialize the instance attributes of the data file validator."""
@@ -2137,26 +2111,14 @@ class ClinicalValidator(Validator):
             if col_name in self.PREDEFINED_ATTRIBUTES:
                 for attr_property in self.PREDEFINED_ATTRIBUTES[col_name]:
                     if attr_property == 'is_patient_attribute':
-                        expected_level = \
-                            self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
+                        expected_level = self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
                         if self.PROP_IS_PATIENT_ATTRIBUTE != expected_level:
-                            # check if only warning should be given:
-                            if ('when_wrong' in self.PREDEFINED_ATTRIBUTES[col_name] and
-                            self.PREDEFINED_ATTRIBUTES[col_name]['when_wrong'] == 'WARNING'):
-                                self.logger.warning(
-                                    'Attribute expected to be a %s-level attribute. Some *minor* details will be '
-                                    'missing in patient/sample view for this study',
-                                    {'0': 'sample', '1': 'patient'}[expected_level],
-                                    extra={'line_number': self.line_number,
-                                           'column_number': col_index + 1,
-                                           'cause': col_name})
-                            else:
-                                self.logger.error(
-                                    'Attribute must be a %s-level attribute',
-                                    {'0': 'sample', '1': 'patient'}[expected_level],
-                                    extra={'line_number': self.line_number,
-                                           'column_number': col_index + 1,
-                                           'cause': col_name})
+                            self.logger.error(
+                                'Attribute must to be a %s-level attribute',
+                                {'0': 'sample', '1': 'patient'}[expected_level],
+                                extra={'line_number': self.line_number,
+                                       'column_number': col_index + 1,
+                                       'cause': col_name})
                     # check pre-header datatype property:
                     if attr_property == 'datatype':
                         # check pre-header metadata if applicable -- if these were
@@ -2619,8 +2581,9 @@ class ContinuousValuesValidator(GenewiseFileValidator):
 
 class CNAContinuousValuesValidator(ContinuousValuesValidator):
 
-    """Sub-class CNA validator. No validations different from ContinuousValuesValidator yet."""
-    pass
+    """Sub-class CNA validator."""
+
+    OPTIONAL_HEADERS = ['Cytoband'] + GenewiseFileValidator.OPTIONAL_HEADERS
 
 
 class FusionValidator(Validator):
@@ -3853,6 +3816,13 @@ def interface(args=None):
                         action='store_true', default=False,
                         help='Option to enable strict mode for validator when '
                              'validating mutation data')
+    parser.add_argument('-a', '--max_reported_values', required=False,
+                        type=int, default=3,
+                        help='Cutoff in HTML report for the maximum number of line numbers '
+                             'and values encountered to report for each message. '
+                             'For example, set this to a high number to '
+                             'report all genes that could not be loaded, instead '
+                             'of reporting "GeneA, GeneB, GeneC, 213 more"')
 
     parser = parser.parse_args(args)
     return parser
@@ -4020,6 +3990,7 @@ def main_validate(args):
     html_output_filename = args.html_table
     relaxed_mode = args.relaxed_clinical_definitions
     strict_maf_checks = args.strict_maf_checks
+    max_reported_values = args.max_reported_values
 
     # determine the log level for terminal and html output
     output_loglevel = logging.INFO
@@ -4073,7 +4044,8 @@ def main_validate(args):
         html_handler = Jinja2HtmlHandler(
             study_dir,
             html_output_filename,
-            cbio_version = cbio_version,
+            cbio_version=cbio_version,
+            max_reported_values=max_reported_values,
             capacity=1e5)
         # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
         # and get rid of the duplicated buffering of messages here

@@ -49,10 +49,11 @@ script:
       source ~/python-env-validator/bin/activate
       trap 'deactivate' EXIT
       export PYTHONPATH="$PORTAL_HOME/core/src/main/scripts:$PYTHONPATH" && \
-      cd $PORTAL_HOME/core/src/test/scripts/ && \
+      pushd $PORTAL_HOME/core/src/test/scripts/ && \
       python $PORTAL_HOME/core/src/test/scripts/unit_tests_validate_data.py && \
-      python $PORTAL_HOME/core/src/test/scripts/./system_tests_validate_data.py && \
-      cd $PORTAL_HOME
+      python $PORTAL_HOME/core/src/test/scripts/system_tests_validate_data.py && \
+      python $PORTAL_HOME/core/src/test/scripts/system_tests_validate_studies.py && \
+      popd
   fi
 - |
   if [[ "${TEST}" == core ]]

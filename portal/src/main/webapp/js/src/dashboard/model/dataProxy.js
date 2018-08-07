@@ -1496,6 +1496,8 @@ window.DataManagerForIviz = (function($, _) {
             });
             _def.resolve(geneSampleMap);
           }
+        }, function() {
+          _def.reject();
         });
         return _def.promise();
       },

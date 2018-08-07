@@ -48,6 +48,6 @@ public interface ClinicalDataService {
     BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                    String clinicalDataType);
 
-    Map<String, List<ClinicalDataCount>> fetchClinicalDataCounts(String studyId, List<String> sampleIds, List<String> attributeIds, 
+    Map<String, List<ClinicalDataCount>> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds, List<String> attributeIds, 
         String clinicalDataType);
 }

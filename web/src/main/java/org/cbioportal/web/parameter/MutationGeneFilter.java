@@ -4,16 +4,7 @@ import java.util.List;
 
 public class MutationGeneFilter {
 
-    private String molecularProfileId;
     private List<Integer> entrezGeneIds;
-
-	public String getMolecularProfileId() {
-		return molecularProfileId;
-	}
-
-	public void setMolecularProfileId(String molecularProfileId) {
-		this.molecularProfileId = molecularProfileId;
-	}
 
 	public List<Integer> getEntrezGeneIds() {
 		return entrezGeneIds;

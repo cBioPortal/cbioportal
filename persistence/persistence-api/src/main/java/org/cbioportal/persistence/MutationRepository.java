@@ -39,6 +39,10 @@ public interface MutationRepository {
                                                                         List<String> sampleIds,
                                                                         List<Integer> entrezGeneIds);
 
+    List<MutationCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
+                                                                        List<String> sampleIds,
+                                                                        List<Integer> entrezGeneIds);
+
     List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
                                                                          List<String> patientIds,
                                                                          List<Integer> entrezGeneIds);
@@ -46,7 +50,7 @@ public interface MutationRepository {
     List<MutationCount> getMutationCountsInMolecularProfileBySampleListId(String molecularProfileId, 
                                                                           String sampleListId);
 
-    List<MutationCount> fetchMutationCountsInMolecularProfile(String molecularProfileId, List<String> sampleIds);
+    List<MutationCount> fetchMutationCountsInMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds);
 
     MutationCountByPosition getMutationCountByPosition(Integer entrezGeneId, Integer proteinPosStart, 
                                                        Integer proteinPosEnd);

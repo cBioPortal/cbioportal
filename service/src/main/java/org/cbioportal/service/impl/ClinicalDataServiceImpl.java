@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.Patient;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
@@ -128,10 +129,10 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
 	@Override
-	public Map<String, List<ClinicalDataCount>> fetchClinicalDataCounts(String studyId, List<String> sampleIds,
+	public Map<String, List<ClinicalDataCount>> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds,
 			List<String> attributeIds, String clinicalDataType) {
 
-        List<ClinicalDataCount> clinicalDataCounts = clinicalDataRepository.fetchClinicalDataCounts(studyId, sampleIds,
+        List<ClinicalDataCount> clinicalDataCounts = clinicalDataRepository.fetchClinicalDataCounts(studyIds, sampleIds,
             attributeIds, clinicalDataType).stream().filter(c -> !c.getValue().toUpperCase().equals("NA") && 
             !c.getValue().toUpperCase().equals("NAN") && !c.getValue().toUpperCase().equals("N/A")).collect(Collectors.toList());
 
@@ -152,8 +153,8 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
             if (clinicalDataType.equals("SAMPLE")) {
                 naCount = sampleIds.size() - totalCount;
             } else {
-                List<String> patientIds = patientService.getPatientIdsOfSamples(sampleIds);
-                naCount = patientIds.size() - totalCount;
+                List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);
+                naCount = patients.size() - totalCount;
             }
             
             if (naCount > 0) {

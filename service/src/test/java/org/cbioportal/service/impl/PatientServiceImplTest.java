@@ -121,13 +121,20 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getPatientIdsOfSamples() throws Exception {
+    public void getPatientsOfSamples() throws Exception {
+        
+        List<Patient> patients = new ArrayList<>();
+        Patient patient = new Patient();
+        patient.setStableId(PATIENT_ID_1);
+        patient.setCancerStudyIdentifier(STUDY_ID);
+        patients.add(patient);
 
-        Mockito.when(patientRepository.getPatientIdsOfSamples(Arrays.asList(SAMPLE_ID1))).thenReturn(Arrays.asList(PATIENT_ID_1));
+        Mockito.when(patientRepository.getPatientsOfSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1)))
+            .thenReturn(patients);
 
-        List<String> result = patientService.getPatientIdsOfSamples(Arrays.asList(SAMPLE_ID1));
+        List<Patient> result = patientService.getPatientsOfSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1));
         
         Assert.assertEquals(1, result.size());
-        Assert.assertEquals(PATIENT_ID_1, result.get(0));
+        Assert.assertEquals(PATIENT_ID_1, result.get(0).getStableId());
     }
 }

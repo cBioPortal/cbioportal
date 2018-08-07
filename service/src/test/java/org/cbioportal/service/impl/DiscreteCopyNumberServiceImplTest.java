@@ -243,7 +243,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         
         List<CopyNumberCountByGene> result = discreteCopyNumberService
             .getSampleCountByGeneAndAlterationAndSampleIds(MOLECULAR_PROFILE_ID, null, Arrays.asList(ENTREZ_GENE_ID_1), 
-                Arrays.asList(-2), false);
+                Arrays.asList(-2));
         
         Assert.assertEquals(expectedCopyNumberSampleCountByGeneList, result);
     }
@@ -280,7 +280,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         Mockito.when(molecularDataService.getNumberOfSamplesInMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(2);
 
         Mockito.when(discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(MOLECULAR_PROFILE_ID, null,
-            Arrays.asList(ENTREZ_GENE_ID_1), Arrays.asList(-2), false)).thenReturn(copyNumberSampleCountByGeneList);
+            Arrays.asList(ENTREZ_GENE_ID_1), Arrays.asList(-2))).thenReturn(copyNumberSampleCountByGeneList);
 
         List<CopyNumberCount> result = discreteCopyNumberService.fetchCopyNumberCounts(MOLECULAR_PROFILE_ID,
             Arrays.asList(ENTREZ_GENE_ID_1), Arrays.asList(-2));

@@ -35,4 +35,7 @@ public interface MolecularProfileService {
 
     List<MolecularProfile> getMolecularProfilesReferringTo(String referredMolecularProfileId) 
         throws MolecularProfileNotFoundException;
+
+    List<String> getFirstMutationProfileIds(List<String> studyIds, List<String> sampleIds);
+    List<String> getFirstDiscreteCNAProfileIds(List<String> studyIds, List<String> sampleIds);
 }

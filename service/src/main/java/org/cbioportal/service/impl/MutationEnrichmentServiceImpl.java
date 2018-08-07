@@ -43,7 +43,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
         
         if (enrichmentType.equals("SAMPLE")) {
             mutationCountByGeneListFromRepo = mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(molecularProfileId, 
-                allIds, null, false);
+                allIds, null);
             mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileId, alteredIds, null, null, 
                 "ID", null, null, null, null);
         } else {

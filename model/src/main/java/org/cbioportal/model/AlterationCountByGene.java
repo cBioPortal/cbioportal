@@ -10,6 +10,7 @@ public class AlterationCountByGene implements Serializable {
     private Integer countByEntity;
 	private Integer totalCount;
 	private BigDecimal frequency;
+	private BigDecimal qValue;
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -49,5 +50,13 @@ public class AlterationCountByGene implements Serializable {
 
 	public void setFrequency(BigDecimal frequency) {
 		this.frequency = frequency;
+	}
+
+	public BigDecimal getqValue() {
+		return qValue;
+	}
+
+	public void setqValue(BigDecimal qValue) {
+		this.qValue = qValue;
 	}	
 }

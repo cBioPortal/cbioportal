@@ -19,7 +19,7 @@ skin.authorization_message=Access to this portal is only available to authorized
 skin.example_study_queries=tcga\ntcga -provisional\ntcga -moratorium\ntcga OR icgc\n-"cell line"\nprostate mskcc\nesophageal OR stomach\nserous\nbreast
 skin.data_sets_header=The portal currently contains data from the following cancer genomics studies.  The table below lists the number of available samples per data type and tumor.
 skin.data_sets_footer=Data sets of TCGA studies were downloaded from Broad Firehose (http://gdac.broadinstitute.org) and updated monthly. In some studies, data sets were from the TCGA working groups directly.
-#skin.examples_right_column_html=<ul><li><a href="case.do#/patient?studyId=ucec_tcga_pub&caseId=TCGA-BK-A0CC">Patient view of an endometrial cancer case</a></li></ul>
+#skin.examples_right_column_html=<ul><li><a href="patient?studyId=ucec_tcga_pub&caseId=TCGA-BK-A0CC">Patient view of an endometrial cancer case</a></li></ul>
 
 # documentation pages
 skin.documentation.baseurl=https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/
@@ -71,7 +71,7 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 authorization=false
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=
-## which method of authentication to use (false, googleplus, saml, openid, ad, ldap, noauthsessionservice)
+## which method of authentication to use (false, googleplus, social_auth, saml, openid, ad, ldap, noauthsessionservice)
 authenticate=false
 ## Should the permissions for groups and users be filtered by this instance's app.name?
 ## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)

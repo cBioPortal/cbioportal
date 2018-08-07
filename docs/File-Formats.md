@@ -173,7 +173,7 @@ Following the metadata rows comes a tab delimited list of clinical attributes (c
 The file containing the patient attributes has one **required** column:
 - **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
 
-The following columns are used by the study view as well as the patient view. In the [study view](http://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header](http://www.cbioportal.org/case.do#/patient?studyId=lgg_ucsf_2014&caseId=P05). 
+The following columns are used by the study view as well as the patient view. In the [study view](http://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header](http://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P05). 
 - **OS_STATUS**:  Overall patient survival status
     - Possible values: DECEASED, LIVING
     - In the patient view, LIVING creates a green label, DECEASED a red label.
@@ -209,7 +209,7 @@ The file containing the sample attributes has two **required** columns:
 - **PATIENT_ID (required)**: A patient ID. This field can only contain numbers, letters, points, underscores and hyphens.
 - **SAMPLE_ID (required)**: A sample ID. This field can only contain numbers, letters, points, underscores and hyphens.
 
-By adding `PATIENT_ID` here, cBioPortal will map the given sample to this patient. This enables one to associate multiple samples to one patient. For example, a single patient may have had multiple biopsies, each of which has been genomically profiled. See [this example for a patient with multiple samples](http://www.cbioportal.org/case.do#/patient?studyId=lgg_ucsf_2014&caseId=P04).
+By adding `PATIENT_ID` here, cBioPortal will map the given sample to this patient. This enables one to associate multiple samples to one patient. For example, a single patient may have had multiple biopsies, each of which has been genomically profiled. See [this example for a patient with multiple samples](http://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P04).
 
 The following columns are required if you want the [pan-cancer summary statistics tab in a pan-cancer study](http://www.cbioportal.org/index.do?cancer_study_list=cellline_ccle_broad&cancer_study_id=cellline_ccle_broad&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=cellline_ccle_broad_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=cellline_ccle_broad_CNA&Z_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=cellline_ccle_broad_cnaseq&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=SOX9+RAN+TNK2+EP300+PXN+NCOA2+AR+NRIP1+NCOR1+NCOR2&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#pancancer_study_summary):
 - **CANCER_TYPE**: Cancer Type
@@ -369,7 +369,7 @@ the seed database.
 
 ## Segmented Data
 
-A SEG file (segmented data; .seg or .cbs) is a tab-delimited text file that lists loci and associated numeric values. The segmented data file format is the output of the Circular Binary Segmentation algorithm (Olshen et al., 2004).  **Segment data for import into the cBioPortal should be based on build 37 (hg19)**. This Segment data enables the 'CNA' lane in the Genomic overview of the Patient view (as [can be seen in this example](http://www.cbioportal.org/case.do#/patient?sampleId=TCGA-BH-A0E6-01&studyId=brca_tcga)). 
+A SEG file (segmented data; .seg or .cbs) is a tab-delimited text file that lists loci and associated numeric values. The segmented data file format is the output of the Circular Binary Segmentation algorithm (Olshen et al., 2004).  **Segment data for import into the cBioPortal should be based on build 37 (hg19)**. This Segment data enables the 'CNA' lane in the Genomic overview of the Patient view (as [can be seen in this example](http://www.cbioportal.org/patient?sampleId=TCGA-BH-A0E6-01&studyId=brca_tcga)). 
 
 #### Meta file
 The segmented metadata file should contain the following fields:

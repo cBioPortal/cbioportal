@@ -161,6 +161,9 @@ public class QueryBuilder extends HttpServlet {
     protected void doPost(HttpServletRequest httpServletRequest,
                           HttpServletResponse httpServletResponse) throws ServletException,
         IOException {
+        
+        // JON - Attempt to force tomcat to use UTF-8
+        response.setContentType("text/html;charset=UTF-8");
 
         XDebug xdebug = new XDebug( httpServletRequest );
         xdebug.startTimer();

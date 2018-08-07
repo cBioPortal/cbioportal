@@ -15,6 +15,9 @@ public interface SampleService {
 
     BaseMeta getMetaSamplesInStudy(String studyId) throws StudyNotFoundException;
 
+    List<Sample> getAllSamplesInStudies(List<String> studyIds, String projection, Integer pageSize, Integer pageNumber,
+                                      String sortBy, String direction);
+
     Sample getSampleInStudy(String studyId, String sampleId) throws SampleNotFoundException, StudyNotFoundException;
 
     List<Sample> getAllSamplesOfPatientInStudy(String studyId, String patientId, String projection, Integer pageSize,
@@ -25,6 +28,8 @@ public interface SampleService {
         throws StudyNotFoundException, PatientNotFoundException;
 
     List<Sample> getAllSamplesOfPatientsInStudy(String studyId, List<String> patientIds, String projection);
+
+    List<Sample> getSamplesOfPatientsInMultipleStudies(List<String> studyIds, List<String> patientIds, String projection);
     
     List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection);
 

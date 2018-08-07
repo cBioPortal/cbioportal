@@ -65,8 +65,8 @@ public class PatientServiceImpl implements PatientService {
     }
 
 	@Override
-	public List<String> getPatientIdsOfSamples(List<String> sampleIds) {
+	public List<Patient> getPatientsOfSamples(List<String> studyIds, List<String> sampleIds) {
         
-        return patientRepository.getPatientIdsOfSamples(sampleIds);
+        return patientRepository.getPatientsOfSamples(studyIds, sampleIds);
 	}
 }

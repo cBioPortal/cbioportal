@@ -39,7 +39,7 @@ public class FractionGenomeAlteredMyBatisRepositoryTest {
     public void fetchFractionGenomeAltered() throws Exception {
 
         List<FractionGenomeAltered> result = fractionGenomeAlteredMyBatisRepository.fetchFractionGenomeAltered(
-            "study_tcga_pub", Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01"));
+            Arrays.asList("study_tcga_pub", "study_tcga_pub"), Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01"));
         
         Assert.assertEquals(2, result.size());
         FractionGenomeAltered fractionGenomeAltered = result.get(0);

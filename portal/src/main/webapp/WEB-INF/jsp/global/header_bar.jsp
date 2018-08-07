@@ -41,7 +41,10 @@
     if (authenticationMethod.equals("openid") || authenticationMethod.equals("ldap")) {
         principal = "principal.name";
     }
-    else if (authenticationMethod.equals("googleplus") || authenticationMethod.equals("saml") || authenticationMethod.equals("ad")) {
+    else if (authenticationMethod.equals("googleplus") ||
+	    		authenticationMethod.equals("saml") ||
+	    		authenticationMethod.equals("ad") ||
+	    		authenticationMethod.equals("social_auth")) {
         principal = "principal.username";
     }
     pageContext.setAttribute("principal", principal);
@@ -55,6 +58,52 @@
 <c:url var="samlLogoutUrl" value="/saml/logout">
     <c:param name="local" value="${samlLogoutLocal}" />
 </c:url>
+
+<style type="text/css">
+.identity > a {
+    color: #3786C2;
+}
+
+.identity .login {
+    color: #3786C2;
+    cursor: pointer;
+}
+
+.identity .login:hover{
+    text-decoration: underline !important;
+}
+</style>
+
+<script type="text/javascript">
+function openSoicalAuthWindow() {
+    var _window = open('login.jsp', '', 'width=1000, height=800');
+
+    var interval = setInterval(function() {
+        try {
+            if (_window.closed) {
+                clearInterval(interval);
+            } else if (_window.document.URL.includes(location.origin) &&
+                        !_window.document.URL.includes(location.origin + '/auth') &&
+                        !_window.document.URL.includes('login.jsp')) {
+                _window.close();
+
+                setTimeout(function() {
+                    clearInterval(interval);
+                    if(window.location.pathname.includes('/study')) {
+                        $('#rightHeaderContent').load(' #rightHeaderContent');
+                        iViz.vue.manage.getInstance().showSaveButton= true
+                    } else {
+                        location.reload();
+                    }
+                }, 500);
+            }
+        } catch (err) {
+            console.log('Error while monitoring the Login window: ', err);
+        }
+    }, 500);
+};
+
+</script>
 
 <header>
         <div id="leftHeaderContent">
@@ -134,24 +183,37 @@
 
         <div id="rightHeaderContent">
         <%-- Display Sign Out Button for Real (Non-Anonymous) User --%>
-        <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
-            <div class="userControls">
-            <span class="username"><i class="fa fa-cog" aria-hidden="true"></i></span>&nbsp;
-                
-                <div class="identity">Logged in as <sec:authentication property="${principal}" />&nbsp;|&nbsp;
-                <c:choose>
-                    <c:when test="${authenticationMethod == 'saml'}">
-                        <a href="${samlLogoutUrl}">Sign out</a>
-                    </c:when>
-                    <c:otherwise>
-                        <a href="j_spring_security_logout">Sign out</a>
-                    </c:otherwise>
-                </c:choose>
-                &nbsp;&nbsp;
-                <i class="fa fa-cog" aria-hidden="true"></i>
-                </div>
-            </div>
-        </sec:authorize>
+	        <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
+	            <div class="identity">Logged in as <sec:authentication property="${principal}" />&nbsp;|&nbsp;
+	            <c:choose>
+	                <c:when test="${authenticationMethod == 'saml'}">
+	                    <a href="${samlLogoutUrl}">Sign out</a>
+	                </c:when>
+	                <c:otherwise>
+	                    <a href="j_spring_security_logout">Sign out</a>
+	                </c:otherwise>
+	            </c:choose>
+	            </div>
+	        </sec:authorize>
+        
+	        <% if (authenticationMethod.equals("social_auth")) { %>
+	        
+		        <sec:authorize access="hasRole('ROLE_ANONYMOUS')">
+		            <div class="identity">
+		                &nbsp;
+		                <span
+		                    class="login"
+		                    title="Optional login via Google allows you to save cohorts"
+		                    onclick="openSoicalAuthWindow();">
+		                    Login
+		                </span>
+		                &nbsp;&nbsp;
+		            </div>
+	            </sec:authorize>
+	            
+	        <% } %>
+	        
+	        
 
         <c:if test="${rightLogo != ''}">
             <img id="institute-logo" src="<c:url value="${rightLogo}"/>" alt="Institute Logo" />

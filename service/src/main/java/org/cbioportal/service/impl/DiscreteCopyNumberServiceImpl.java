@@ -96,6 +96,17 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     @Override
+    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfiles(List<String> molecularProfileIds, 
+                                                                                          List<String> sampleIds, 
+                                                                                          List<Integer> entrezGeneIds,
+                                                                                          List<Integer> alterationTypes, 
+                                                                                          String projection) {
+        
+        return discreteCopyNumberRepository.getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileIds, 
+            sampleIds, entrezGeneIds, alterationTypes, projection);
+	}
+
+    @Override
     public BaseMeta fetchMetaDiscreteCopyNumbersInMolecularProfile(String molecularProfileId,
                                                                    List<String> sampleIds,
                                                                    List<Integer> entrezGeneIds,
@@ -121,21 +132,30 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     public List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String molecularProfileId,
                                                                                      List<String> sampleIds,
                                                                                      List<Integer> entrezGeneIds,
-                                                                                     List<Integer> alterations,
-                                                                                     boolean includeFrequency) 
+                                                                                     List<Integer> alterations) 
         throws MolecularProfileNotFoundException {
 
-        MolecularProfile molecularProfile = validateMolecularProfile(molecularProfileId);
+        validateMolecularProfile(molecularProfileId);
         
         List<CopyNumberCountByGene> result =  discreteCopyNumberRepository
             .getSampleCountByGeneAndAlterationAndSampleIds(molecularProfileId, sampleIds, entrezGeneIds, alterations);
         
+        return result;
+    }
+
+    @Override
+	public List<CopyNumberCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
+			List<String> sampleIds, List<Integer> entrezGeneIds, List<Integer> alterations, boolean includeFrequency) {
+        
+        List<CopyNumberCountByGene> result =  discreteCopyNumberRepository
+            .getSampleCountInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds, alterations);
+        
         if (includeFrequency) {
-            geneFrequencyCalculator.calculate(molecularProfile, sampleIds, result, CNA_LIST_SUFFIX);
+            geneFrequencyCalculator.calculate(molecularProfileIds, sampleIds, result);
         }
 
         return result;
-    }
+	}
 
     @Override
     public List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId, 
@@ -157,7 +177,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
         Integer numberOfSamplesInMolecularProfile = molecularDataService.getNumberOfSamplesInMolecularProfile(
             molecularProfileId);
         List<CopyNumberCountByGene> copyNumberSampleCountByGeneList =
-            getSampleCountByGeneAndAlterationAndSampleIds(molecularProfileId, null, entrezGeneIds, alterations, false);
+            getSampleCountByGeneAndAlterationAndSampleIds(molecularProfileId, null, entrezGeneIds, alterations);
 
         List<CopyNumberCount> copyNumberCounts = new ArrayList<>();
         for (int i = 0; i < alterations.size(); i++) {

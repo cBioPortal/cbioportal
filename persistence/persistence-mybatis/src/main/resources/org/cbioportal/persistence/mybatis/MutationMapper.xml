@@ -233,6 +233,20 @@
         GROUP BY mutation.ENTREZ_GENE_ID
     </select>
 
+    <select id="getSampleCountInMultipleMolecularProfiles" resultType="org.cbioportal.model.MutationCountByGene">
+        SELECT
+        mutation.ENTREZ_GENE_ID AS entrezGeneId,
+        gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+        COUNT(*) AS totalCount,
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS countByEntity
+        FROM mutation
+        INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        <include refid="whereInMultipleMolecularProfiles"/>
+        GROUP BY mutation.ENTREZ_GENE_ID
+    </select>
+
     <select id="getPatientCountByEntrezGeneIdsAndSampleIds" resultType="org.cbioportal.model.MutationCountByGene">
         SELECT
         mutation.ENTREZ_GENE_ID AS entrezGeneId,
@@ -298,11 +312,11 @@
         INNER JOIN sample ON mutation_count.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        WHERE genetic_profile.STABLE_ID = #{molecularProfileId}
+        WHERE
         <if test="sampleIds != null and !sampleIds.isEmpty()">
-            AND sample.STABLE_ID IN
-            <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                #{item}
+            (genetic_profile.STABLE_ID, sample.STABLE_ID) IN
+            <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                (#{molecularProfileIds[${i}]}, #{sampleIds[${i}]})
             </foreach>
         </if>
     </select>

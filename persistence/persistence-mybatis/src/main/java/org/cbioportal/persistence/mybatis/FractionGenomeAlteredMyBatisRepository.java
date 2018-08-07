@@ -20,8 +20,8 @@ public class FractionGenomeAlteredMyBatisRepository implements FractionGenomeAlt
 	}
 
 	@Override
-	public List<FractionGenomeAltered> fetchFractionGenomeAltered(String studyId, List<String> sampleIds) {
+	public List<FractionGenomeAltered> fetchFractionGenomeAltered(List<String> studyIds, List<String> sampleIds) {
         
-        return fractionGenomeAlteredMapper.getFractionGenomeAltered(studyId, sampleIds);
+        return fractionGenomeAlteredMapper.getFractionGenomeAltered(studyIds, sampleIds);
 	}
 }

@@ -253,6 +253,10 @@ public class GlobalProperties {
     @Value("${show.civic:false}") // default is false
     public void setShowCivic(String property) { showCivic = Boolean.parseBoolean(property); }
 
+    private static boolean sitemaps;
+    @Value("${sitemaps:false}") // default is false
+    public void setSitemaps(String property) { sitemaps = Boolean.parseBoolean(property); }
+
     private static boolean showGenomeNexus;
     @Value("${show.genomenexus:true}") // default is true
     public void setShowGenomeNexus(String property) { showGenomeNexus = Boolean.parseBoolean(property); }
@@ -404,7 +408,8 @@ public class GlobalProperties {
 
     public static boolean usersMustAuthenticate()
     {
-        return (!authenticate.isEmpty() && !authenticate.equals("false"));
+        // authentication for social_auth is optional
+        return (!authenticate.isEmpty() && !authenticate.equals("false") && !authenticate.equals("social_auth"));
     }
 
     public static String authenticationMethod()
@@ -694,13 +699,13 @@ public class GlobalProperties {
 
     public static String getLinkToPatientView(String caseId, String cancerStudyId)
     {
-        return "case.do#/patient?caseId=" + caseId
+        return "patient?caseId=" + caseId
                  + "&studyId=" + cancerStudyId;
     }
 
     public static String getLinkToSampleView(String caseId, String cancerStudyId)
     {
-        return "case.do#/patient?sampleId=" + caseId
+        return "patient?sampleId=" + caseId
                  + "&studyId=" + cancerStudyId;
     }
 
@@ -856,6 +861,10 @@ public class GlobalProperties {
         }else{
             return true;
         }
+    }
+
+    public static boolean showSitemaps() {
+       return sitemaps;
     }
 
     public static boolean showCivic() {

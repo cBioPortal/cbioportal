@@ -55,16 +55,18 @@ def get_db_cursor(portal_properties):
             user = portal_properties.database_user,
             passwd = portal_properties.database_pw,
             db = portal_properties.database_name)
-    except MySQLdb.Error as msg:
-        print(msg, file=ERROR_FILE)
+    except MySQLdb.Error as exception:
+        print(exception, file=ERROR_FILE)
         port_info = ''
         if portal_properties.database_host.strip() != 'localhost':
             # only add port info if host is != localhost (since with localhost apparently sockets are used and not the given port) TODO - perhaps this applies for all names vs ips?
             port_info = " on port " + str(portal_properties.database_port)
-        print(
-            "--> Error connecting to server " + portal_properties.database_host + port_info,
-            file=ERROR_FILE)
-        return None
+        message = (
+            "--> Error connecting to server "
+            + portal_properties.database_host
+            + port_info)
+        print(message, file=ERROR_FILE)
+        raise ConnectionError(message) from exception
 
     if connection is not None:
         return connection, connection.cursor()

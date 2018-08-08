@@ -1,6 +1,6 @@
 # Advanced cancer genomic data visualization: Onco Query Language (OQL)
 
-You can use the Onco Query Language (OQL) to select specific types of alterations on the cBioPortal for Cancer Genomics. OQL-specified alterations will be reflected on most tabs, including OncoPrint, but are not currently reflected on the Plots or Mutations tabs. Note that OQL assumes any word that it doesn't recognize is a mutation code.
+You can use the Onco Query Language (OQL) to select specific types of alterations on the cBioPortal for Cancer Genomics. OQL-specified alterations will be reflected on most tabs, including OncoPrint, but are not currently reflected on the Plots, Mutations, Co-Expression or Expression tabs. Note that OQL assumes any word that it doesn't recognize is a mutation code.
 
 <!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 

@@ -37,11 +37,11 @@ if (GlobalProperties.showSitemaps()) {
 
 <c:if test = "${GlobalProperties.showSitemaps()}">
 <?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <c:forEach items="${patientList}" var="patient">
         <url>
-            <loc><%=protocol%>://<%=request.getServerName()%>/patient?studyId=${studyId}&amp;caseId=<c:out value="${patient.get('patientId')}"/></loc> 
+            <loc><%=protocol%>://<%=request.getServerName()%>/patient?studyId=${studyId}&amp;caseId=<c:out value="${patient.get('patientId')}"/></loc>
           </url>
     </c:forEach>
-</sitemapindex>
+</urlset>
 </c:if>

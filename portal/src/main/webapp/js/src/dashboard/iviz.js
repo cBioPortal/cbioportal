@@ -1068,7 +1068,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
             _.each(_clinicalAttributeData, function(_dataObj) {
               var caseIndex = self_.getCaseIndex(type, _dataObj.study_id, _dataObj[idType]);
 
-              // Filter 'undefined' case index    
+              // Filter 'undefined' case index		
               if (caseIndex !== undefined) {
                 _data[caseIndex] = _data[caseIndex] || {};
                 _data[caseIndex][_dataObj.attr_id] = _dataObj.attr_val;
@@ -7300,7 +7300,7 @@ window.LogRankTest = (function(jStat) {
     _lineColor) {
     var _self = this;
     
-    // Filter points with negative value    
+    // Filter points with negative value 		
     var _data = _.sortBy(_.filter(data, function(point) {
       return point.time >= 0 && point.survival_rate >= 0;
     }), 'time');
@@ -8603,11 +8603,8 @@ window.LogRankTest = (function(jStat) {
                 _self.processTableData(_tableData);
               }, 0);
             }, function() {
-              _self.loadingBar.status = 1;
-              setTimeout(function() {
-                _self.genePanelMap = {};
-                _self.processTableData(_tableData);
-              }, 0);
+              _self.failedToInit = true;
+              _self.showLoad = false;
             });
         }, function() {
           _self.setDisplayTitle();

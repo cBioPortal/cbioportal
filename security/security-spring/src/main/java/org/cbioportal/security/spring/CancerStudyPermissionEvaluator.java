@@ -33,43 +33,20 @@
 package org.cbioportal.security.spring;
 
 // imports
+import java.util.*;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.Collection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 
-import org.cbioportal.model.CancerStudy;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.SampleList;
-import org.cbioportal.persistence.MolecularProfileRepository;
-import org.cbioportal.persistence.SampleRepository;
-import org.cbioportal.persistence.SampleListRepository;
-import org.cbioportal.persistence.SecurityRepository;
-import org.cbioportal.persistence.StudyRepository;
-import org.cbioportal.web.parameter.ClinicalAttributeFilter;
-import org.cbioportal.web.parameter.ClinicalDataMultiStudyFilter;
-import org.cbioportal.web.parameter.ClinicalDataIdentifier;
-import org.cbioportal.web.parameter.GenePanelMultipleStudyFilter;
-import org.cbioportal.web.parameter.SampleMolecularIdentifier;
-import org.cbioportal.web.parameter.MolecularDataMultipleStudyFilter;
-import org.cbioportal.web.parameter.MolecularProfileFilter;
-import org.cbioportal.web.parameter.MutationMultipleStudyFilter;
-import org.cbioportal.web.parameter.PatientFilter;
-import org.cbioportal.web.parameter.PatientIdentifier;
-import org.cbioportal.web.parameter.SampleFilter;
-import org.cbioportal.web.parameter.SampleIdentifier;
+import org.cbioportal.model.*;
+import org.cbioportal.persistence.*;
+import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.util.UniqueKeyExtractor;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.PermissionEvaluator;
+import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
@@ -81,20 +58,26 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * @author Benjamin Gross
  */
 class CancerStudyPermissionEvaluator implements PermissionEvaluator {
-
+    
+    private static final String ALL_CANCER_STUDIES_ID = "all";
+    private static final String ALL_TCGA_CANCER_STUDIES_ID = "all_tcga";
+    private static final String ALL_TARGET_CANCER_STUDIES_ID = "all_nci_target";
+    private static final String MULTIPLE_CANCER_STUDIES_ID = "multiple";
     private static Log log = LogFactory.getLog(CancerStudyPermissionEvaluator.class);
 
+    // can't find another way to pull in the required mapper dependency at runtime for initCacheMemory
     @Autowired
-    private SecurityRepository securityRepository;
+    private PatientRepository patientRepository;
+
+    // can't find another way to pull in the required mapper dependency at runtime for initCacheMemory
+    @Autowired
+    private CancerTypeRepository cancerTypeRepository;
 
     @Autowired
     private StudyRepository studyRepository;
 
     @Autowired
     private MolecularProfileRepository molecularProfileRepository;
-
-    @Autowired
-    private SampleRepository sampleRepository;
 
     @Autowired
     private SampleListRepository sampleListRepository;
@@ -120,11 +103,48 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             PUBLIC_CANCER_STUDIES_GROUP = null;
         } 
     }
+
+    // maps used to cache required relationships - in all maps stable ids are key
+    private Map<String, MolecularProfile> molecularProfiles = new HashMap();
+    private Map<String, SampleList>  sampleLists = new HashMap();
+    private Map<String, CancerStudy>  cancerStudies = new HashMap();
  
-    private static final String ALL_CANCER_STUDIES_ID = "all";
-    private static final String ALL_TCGA_CANCER_STUDIES_ID = "all_tcga";
-    private static final String ALL_TARGET_CANCER_STUDIES_ID = "all_nci_target";
-    private static final String MULTIPLE_CANCER_STUDIES_ID = "multiple";
+    @PostConstruct
+    private void initializeCacheMemory() {
+        populateMolecularProfileMap();
+        populateSampleListMap();
+        populateCancerStudyMap();
+    }
+
+    private void populateMolecularProfileMap() {
+        for (MolecularProfile mp : molecularProfileRepository.getAllMolecularProfiles("SUMMARY",
+                                                                                      PagingConstants.MAX_PAGE_SIZE,
+                                                                                      PagingConstants.MIN_PAGE_NUMBER,
+                                                                                      null,
+                                                                                      "ASC")) {
+            molecularProfiles.put(mp.getStableId(), mp);
+        }
+    }
+
+    private void populateSampleListMap() {
+        for (SampleList sl : sampleListRepository.getAllSampleLists("SUMMARY",
+                                                                                      PagingConstants.MAX_PAGE_SIZE,
+                                                                                      PagingConstants.MIN_PAGE_NUMBER,
+                                                                                      null,
+                                                                                      "ASC")) {
+            sampleLists.put(sl.getStableId(), sl);
+        }
+    }
+
+    private void populateCancerStudyMap() {
+        for (CancerStudy cs : studyRepository.getAllStudies("SUMMARY",
+                                                                                      PagingConstants.MAX_PAGE_SIZE,
+                                                                                      PagingConstants.MIN_PAGE_NUMBER,
+                                                                                      null,
+                                                                                      "ASC")) {
+            cancerStudies.put(cs.getCancerStudyIdentifier(), cs);
+        }
+    }
 
     /**
      * Implementation of {@code PermissionEvaluator}.
@@ -167,21 +187,21 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             if (targetId.toString().equalsIgnoreCase(ALL_CANCER_STUDIES_ID)) {
                 return true;
             }
-            CancerStudy cancerStudy = studyRepository.getStudy(targetId.toString(), "ID");
+            CancerStudy cancerStudy = cancerStudies.get(targetId.toString());
             if (cancerStudy == null) { 
                 return false;
             }
             return hasPermission(authentication, cancerStudy, permission);
         }
         else if ("MolecularProfile".equals(targetType) || "GeneticProfile".equals(targetType)) {
-            MolecularProfile molecularProfile = molecularProfileRepository.getMolecularProfile(targetId.toString());
+            MolecularProfile molecularProfile = molecularProfiles.get(targetId.toString());
             if (molecularProfile == null) {
                 return false;
             }
             return hasPermission(authentication, molecularProfile, permission);
         }
         else if ("SampleList".equals(targetType)) {
-            SampleList sampleList = sampleListRepository.getSampleList(targetId.toString());
+            SampleList sampleList = sampleLists.get(targetId.toString());
             if (sampleList == null) {
                 return false;
             }
@@ -276,13 +296,13 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             cancerStudy = ((MolecularProfile) targetDomainObject).getCancerStudy(); 
             if (cancerStudy == null) {
                 // cancer study was not included so get it
-                cancerStudy = studyRepository.getStudy(((MolecularProfile) targetDomainObject).getCancerStudyIdentifier(), "ID");
+                cancerStudy = cancerStudies.get(((MolecularProfile) targetDomainObject).getCancerStudyIdentifier());
             }
         } else if (targetDomainObject instanceof SampleList) {
             cancerStudy = ((SampleList) targetDomainObject).getCancerStudy();
             if (cancerStudy == null) {
                 // cancer study was not included so get it
-                cancerStudy = studyRepository.getStudy(((SampleList) targetDomainObject).getCancerStudyIdentifier(), "ID");
+                cancerStudy = cancerStudies.get(((SampleList) targetDomainObject).getCancerStudyIdentifier());
             }
         } else { 
             if (log.isDebugEnabled()) {
@@ -319,7 +339,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     {
         String sampleListId = clinicalAttributeFilter.getSampleListId();
         if (sampleListId != null) {
-            SampleList sampleList = sampleListRepository.getSampleList(sampleListId);
+            SampleList sampleList = sampleLists.get(sampleListId);
             if (sampleList == null || !hasPermission(authentication, sampleList, permission)) {
                 return false;
             }
@@ -410,7 +430,8 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     {
         List<String> profileIds = (molecularProfileIds instanceof List) ?
             (List<String>)molecularProfileIds : new ArrayList<String>(molecularProfileIds);
-        for (MolecularProfile molecularProfile : molecularProfileRepository.getMolecularProfiles(profileIds, "DETAILED")) {
+        for (String molecularProfileId : profileIds) {
+            MolecularProfile molecularProfile = molecularProfiles.get(molecularProfileId);
             if (molecularProfile == null || !hasPermission(authentication, molecularProfile, permission)) {
                 return false;
             }
@@ -420,7 +441,8 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
     private boolean hasAccessToSampleLists(Authentication authentication, List<String> sampleListIds, Object permission)
     {
-        for (SampleList sampleList : sampleListRepository.getSampleLists(sampleListIds, "DETAILED")) {
+        for (String sampleListId : sampleListIds) {
+            SampleList sampleList = sampleLists.get(sampleListId);
             if (sampleList == null || !hasPermission(authentication, sampleList, permission)) {
                 return false;
             }
@@ -480,8 +502,8 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         }
 
         // check if user is in study groups
-        // we don't want the groups from the cached cancer study
-        Set<String> groups = securityRepository.getCancerStudyGroups(cancerStudy.getCancerStudyId());
+        // performance now takes precedence over group accuracy (minimal risk to caching cancer study groups)
+        Set<String> groups = new HashSet(Arrays.asList(cancerStudy.getGroups().split(";")));
         if (!Collections.disjoint(groups, grantedAuthorities)) {
             if (log.isDebugEnabled()) {
                 log.debug("hasPermission(), user has access by groups return true");

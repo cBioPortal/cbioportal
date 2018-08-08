@@ -1948,7 +1948,7 @@ class ClinicalValidator(Validator):
         'TUMOR_GRADE': {
         },
         'TUMOR_SITE': {
-            'is_patient_attribute': '0',
+            'is_patient_attribute': '1',
             'datatype': 'STRING',
         },
         'TUMOR_STAGE_2009': {

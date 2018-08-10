@@ -178,17 +178,21 @@ public class GenePanelServiceImpl implements GenePanelService {
             Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
         List<String> studyIds = new ArrayList<>();
         List<String> sequencedSampleListIds = new ArrayList<>();
-        List<String> copyMolecularProfileIds = new ArrayList<>(molecularProfileIds);
+        List<String> molecularProfileIdsToRemove = new ArrayList<>();
+        List<String> sampleIdsToRemove = new ArrayList<>();
         
-        for (int i = 0; i < copyMolecularProfileIds.size(); i++) {
-            String molecularProfileId = copyMolecularProfileIds.get(i);
+        for (int i = 0; i < molecularProfileIds.size(); i++) {
+            String molecularProfileId = molecularProfileIds.get(i);
             if (molecularProfileMap.containsKey(molecularProfileId)) {
                 studyIds.add(molecularProfileMap.get(molecularProfileId).getCancerStudyIdentifier());
             } else {
-                molecularProfileIds.remove(i);
-                sampleIds.remove(i);
+                molecularProfileIdsToRemove.add(molecularProfileId);
+                sampleIdsToRemove.add(sampleIds.get(i));
             }
         }
+        
+        molecularProfileIds.removeAll(molecularProfileIdsToRemove);
+        sampleIds.removeAll(sampleIdsToRemove);
 
         MultiKeyMap samples = createSampleMap(studyIds, sampleIds);
         studyIds.stream().distinct().forEach(s -> sequencedSampleListIds.add(s + SEQUENCED_LIST_SUFFIX));

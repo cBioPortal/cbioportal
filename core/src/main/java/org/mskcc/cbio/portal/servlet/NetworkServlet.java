@@ -808,8 +808,12 @@ public class NetworkServlet extends HttpServlet {
         String netSize = req.getParameter("netsize");
         String nLinker = req.getParameter("linkers");
         String strDiffusion = req.getParameter("diffusion");
+        
+        
+        String url = req.getRequestURL().toString();
+        String baseURL = url.substring(0, url.length() - req.getRequestURI().length()) + req.getContextPath();
 
-        String ret = "network.do?"+QueryBuilder.GENE_LIST+"="+geneListStr
+        String ret = baseURL + "/network.do?"+QueryBuilder.GENE_LIST+"="+geneListStr
                 +"&"+QueryBuilder.GENETIC_PROFILE_IDS+"="+geneticProfileIdsStr
                 +"&"+QueryBuilder.CANCER_STUDY_ID+"="+cancerStudyId
                 +"&"+QueryBuilder.CASE_SET_ID+"="+caseSetId

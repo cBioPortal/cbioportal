@@ -678,4 +678,13 @@
         <url-pattern>/sitemap_study.xml</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>RobotsIndex</servlet-name>
+        <jsp-file>/robots.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RobotsIndex</servlet-name>
+        <url-pattern>/robots.txt</url-pattern>
+    </servlet-mapping>
+
 </web-app>

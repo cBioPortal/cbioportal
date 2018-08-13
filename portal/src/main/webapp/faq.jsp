@@ -46,12 +46,28 @@
         <!-- js files: -->
         <script>
         window.loadReactApp({ defaultRoute: 'blank' });
+        
+        var to;
+        
+        window.addEventListener("resize", function() {
+            clearTimeout(to);
+            
+            to = setTimeout(function(){
+            console.log("moo");
+                document.getElementById("faqIframe").style.height=(window.innerHeight - 250) + "px";
+            },200);
+        });
+        
+        //$(document).ready(function(){
+        //    .getElementById("faqIframe").style.height=window.innerHeight - 100;
+        //});
+        
         </script>
     </jsp:attribute>
 
     <jsp:attribute name="body_area">
         <div id="reactRoot" class="hidden"></div>
-        <iframe style="height:5000px;width:100%;border:1px solid #ddd;" src="https://docs.google.com/document/d/e/2PACX-1vSWTtIJZF2tuBimihr8ke-d00DpKh7fydFIQb5xYpE_bMYM9hZyY9OP1Vz1Ts0ow7ob-3h2S19cuB5O/pub?embedded=true"></iframe>
+        <iframe id="faqIframe" style="width:100%;border:1px solid #ddd;" src="https://docs.google.com/document/d/e/2PACX-1vSWTtIJZF2tuBimihr8ke-d00DpKh7fydFIQb5xYpE_bMYM9hZyY9OP1Vz1Ts0ow7ob-3h2S19cuB5O/pub?embedded=true"></iframe>
     </jsp:attribute>
 
 

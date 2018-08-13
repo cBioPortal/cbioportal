@@ -49,18 +49,22 @@
         
         var to;
         
+        function setIframeHeight() {
+            document.getElementById("faqIframe").style.height=(window.innerHeight - 250) + "px";
+        }
+        
         window.addEventListener("resize", function() {
             clearTimeout(to);
             
             to = setTimeout(function(){
-            console.log("moo");
-                document.getElementById("faqIframe").style.height=(window.innerHeight - 250) + "px";
+                setIframeHeight();
             },200);
         });
         
-        //$(document).ready(function(){
-        //    .getElementById("faqIframe").style.height=window.innerHeight - 100;
-        //});
+        
+        window.addEventListener("load", function(){
+            setIframeHeight();
+        });
         
         </script>
     </jsp:attribute>

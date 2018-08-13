@@ -1,6 +1,5 @@
 package org.cbioportal.web.parameter;
 
-import javax.validation.constraints.AssertTrue;
 import java.io.Serializable;
 
 public class ClinicalDataIntervalFilterValue implements Serializable
@@ -8,11 +7,6 @@ public class ClinicalDataIntervalFilterValue implements Serializable
     private Double start;
     private Double end;
     private String value;
-
-    @AssertTrue
-    public boolean isEitherValueOrRangePresent() {
-        return value != null ^ (start != null || end != null);
-    }
     
     public Double getStart() {
         return start;

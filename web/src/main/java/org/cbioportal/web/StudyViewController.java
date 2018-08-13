@@ -59,7 +59,7 @@ public class StudyViewController {
     @Autowired
     private DataBinner dataBinner;
     @Autowired
-    StudyViewFilterUtil studyViewFilterUtil;
+    private StudyViewFilterUtil studyViewFilterUtil;
 
     @RequestMapping(value = "/attributes/{attributeId}/clinical-data-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

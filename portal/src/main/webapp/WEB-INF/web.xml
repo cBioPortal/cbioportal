@@ -687,4 +687,15 @@
         <url-pattern>/robots.txt</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>SiteConfiguration</servlet-name>
+        <jsp-file>/config_service.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SiteConfiguration</servlet-name>
+        <url-pattern>/config_service.json</url-pattern>
+    </servlet-mapping>
+    
+    
+
 </web-app>

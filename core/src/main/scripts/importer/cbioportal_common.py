@@ -739,14 +739,24 @@ def parse_metadata_file(filename,
                                  )
 
     if meta_file_type in (MetaFileTypes.SEG, MetaFileTypes.GISTIC_GENES):
-        if genome_name is not None and meta_dictionary['reference_genome_id'] != genome_name:
+        # Todo: Restore validation for reference genome in segment files
+        # Validation can be restored to normal when hg18 data on public portal and data hub has been
+        # liftovered to hg19. It was decided in the data hub call of August 14 2018 to remove validation until then.
+        valid_segment_reference_genomes = ['hg18', 'hg19']
+        if meta_dictionary['reference_genome_id'] not in valid_segment_reference_genomes:
             logger.error(
                 'Reference_genome_id is not %s',
-                genome_name,
+                ' or '.join(valid_segment_reference_genomes),
                 extra={'filename_': filename,
                        'cause': meta_dictionary['reference_genome_id']})
-            #meta_file_type = None
             meta_dictionary['meta_file_type'] = None
+        elif meta_dictionary['reference_genome_id'] == 'hg18':
+            logger.warning(
+                'Reference_genome_id is hg18. This is temporary approved to be loaded in cBioPortal, until the data '
+                'curation team has converted hg18 coordinates to hg19 in public datasets with liftOver. When this is '
+                'done, validation will be restored to only allow reference genome hg19.',
+                extra={'filename_': filename})
+
     if meta_file_type == MetaFileTypes.MUTATION:
         if ('swissprot_identifier' in meta_dictionary and
                 meta_dictionary['swissprot_identifier'] not in ('name',

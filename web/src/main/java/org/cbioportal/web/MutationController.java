@@ -8,7 +8,6 @@ import java.util.List;
 
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.MolecularProfileService;
@@ -205,58 +204,6 @@ public class MutationController {
 
             return new ResponseEntity<>(mutations, HttpStatus.OK);
         }
-    }
-
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutation-counts", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get mutation counts in a molecular profile by Sample List ID")
-    public ResponseEntity<List<MutationCount>> getMutationCountsInMolecularProfileBySampleListId(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
-        @PathVariable String molecularProfileId,
-        @ApiParam(required = true, value = "Sample List ID e.g. acc_tcga_all")
-        @RequestParam String sampleListId) throws MolecularProfileNotFoundException {
-
-        return new ResponseEntity<>(mutationService.getMutationCountsInMolecularProfileBySampleListId(
-            molecularProfileId, sampleListId), HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutation-counts/fetch", 
-        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch mutation counts in a molecular profile by sample IDs")
-    public ResponseEntity<List<MutationCount>> fetchMutationCountsInMolecularProfile(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
-        @PathVariable String molecularProfileId,
-        @ApiParam(required = true, value = "List of Sample IDs")
-        @Size(min = 1, max = MUTATION_MAX_PAGE_SIZE)
-        @RequestBody List<String> sampleIds) {
-
-        List<String> molecularProfileIds = new ArrayList<>();
-        sampleIds.forEach(s -> molecularProfileIds.add(molecularProfileId));
-        return new ResponseEntity<>(mutationService.fetchMutationCountsInMolecularProfiles(molecularProfileIds, 
-            sampleIds), HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasPermission(#sampleIdentifiers, 'List<SampleIdentifier>', 'read')")
-    @RequestMapping(value = "/mutation-counts/fetch", 
-        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch mutation counts in multiple studies by sample IDs")
-    public ResponseEntity<List<MutationCount>> fetchMutationCountsInStudies(
-        @ApiParam(required = true, value = "List of Sample Identifiers")
-        @Size(min = 1, max = MUTATION_MAX_PAGE_SIZE)
-        @RequestBody List<SampleIdentifier> sampleIdentifiers) {
-
-        List<String> studyIds = new ArrayList<>();
-        List<String> sampleIds = new ArrayList<>();
-        for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
-            studyIds.add(sampleIdentifier.getStudyId());
-            sampleIds.add(sampleIdentifier.getSampleId());
-        }
-        return new ResponseEntity<>(mutationService.fetchMutationCountsInMolecularProfiles(
-            molecularProfileService.getFirstMutationProfileIds(studyIds, sampleIds), sampleIds), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/mutation-counts-by-position/fetch", method = RequestMethod.POST,

@@ -652,9 +652,11 @@ class Validator(object):
                 if gene_symbol[0] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
                     # In case portal properties are defined check if the gene symbol that starts
                     # with an integer is in the alias table, if not report an error
-                    if self.portal.alias_entrez_map is not None:
-                        if gene_symbol not in self.portal.alias_entrez_map:
-                            self.logger.error('Hugo Symbol is not in alias table and cannot start with a number.',
+                    if self.portal.hugo_entrez_map is not None and self.portal.alias_entrez_map is not None:
+                        if gene_symbol not in self.portal.hugo_entrez_map and \
+                                gene_symbol not in self.portal.alias_entrez_map:
+                            self.logger.error('Hugo Symbol is not in gene or alias table and starts with a '
+                                              'number. This can be caused by unintentional gene conversion in Excel.',
                                               extra={'line_number': self.line_number, 'cause': gene_symbol})
                     # If alias table cannot be checked report warning that hugo symbols normally do not start
                     # with a number

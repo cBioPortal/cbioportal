@@ -552,8 +552,13 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].cause, 'XXAGRN')
 
     def test_both_name_and_entrez_but_hugo_starts_with_integer(self):
-        """Test when a file has both the Hugo name and Entrez ID columns,
-        but hugo is invalid because starts with integer."""
+        """Test when gene symbol is invalid because starts with integer.
+
+        Test when a file has both the Hugo name and Entrez ID columns, but gene symbol is invalid because it starts with
+        an integer. Also '20MER2', '3.8-1.4' and "5'URS" are added to this dataset, which are some of the few exceptions
+        that are allowed to start with an integer. This validation step was added to catch unintentional gene conversion
+         by Excel, for example SEPT9 -> 9-Sep
+        """
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_hugo_integer.txt',
                                     validateData.CNAValidator,
@@ -564,7 +569,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
             self.assertEqual(record.levelno, logging.ERROR)
         # expecting these to be the cause:
         self.assertEqual(record_list[0].cause, '1-ACAP3')
-        self.assertEqual(record_list[1].cause, '2-AGRN')
+        self.assertEqual(record_list[1].cause, '9-SEP')
 
     def test_both_name_and_entrez_but_invalid_entrez(self):
         """Test when a file has both the Hugo name and Entrez ID columns, but entrez is invalid."""

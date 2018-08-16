@@ -86,7 +86,7 @@
             <property name="objectFactory" ref="customObjectFactory" />
             <property name="configuration">
                 <bean class="org.apache.ibatis.session.Configuration">
-                    <property name="cacheEnabled" value="${mybatis.cache.enabled:true}" />
+                    <property name="cacheEnabled" value="${mybatis.cache.enabled:false}" />
                 </bean>
             </property>
         </bean>

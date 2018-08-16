@@ -55,6 +55,10 @@ You must create a `cbioportal` database and a `cgds_test` database within MySQL,
     mysql>  flush privileges;
     Query OK, 0 rows affected (0.00 sec)
 
+## Change MySQL config
+
+Depending on your needs one can improve the performance of MySQL by finetuning the configuration parameters, we use the following `mysql.cnf` file: https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_mysql_db_values.yml. Notably the `innodb_buffer_pool_size` can affect performance quite drastically, pick one that fits with your setup: https://scalegrid.io/blog/calculating-innodb-buffer-pool-size-for-your-mysql-server/.
+
 ## Create a Maven Settings File
 
 In order to access your database, you must create a Maven settings.xml file, and populate it with your database username and password.

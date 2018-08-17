@@ -46,6 +46,7 @@ import java.util.regex.*;
  */
 public final class DaoMutation {
     public static final String NAN = "NaN";
+    private static final String MUTATION_COUNT_ATTR_ID = "MUTATION_COUNT";
 
     public static int addMutation(ExtendedMutation mutation, boolean newMutationEvent) throws DaoException {
         if (!MySQLbulkLoader.isBulkLoad()) {
@@ -130,21 +131,35 @@ public final class DaoMutation {
         return 1;
     }
 
-    public static int calculateMutationCount (int profileId) throws DaoException {
+    public static void createMutationCountClinicalData(GeneticProfile geneticProfile) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement(
-                    "INSERT INTO mutation_count " +
-                    "SELECT genetic_profile.`GENETIC_PROFILE_ID`, `SAMPLE_ID`, COUNT(*) AS MUTATION_COUNT " +
+                    "SELECT `SAMPLE_ID`, COUNT(*) AS MUTATION_COUNT " +
                     "FROM `mutation` , `genetic_profile` " +
                     "WHERE mutation.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID` " +
                     "AND genetic_profile.`GENETIC_PROFILE_ID`=? " +
                     "GROUP BY genetic_profile.`GENETIC_PROFILE_ID` , `SAMPLE_ID`;");
-            pstmt.setInt(1, profileId);
-            return pstmt.executeUpdate();
+            pstmt.setInt(1, geneticProfile.getGeneticProfileId());
+            Map<Integer, String> mutationCounts = new HashMap<Integer, String>();
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                mutationCounts.put(rs.getInt(1), rs.getString(2));
+            }
+
+            ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum(MUTATION_COUNT_ATTR_ID, geneticProfile.getCancerStudyId());
+            if (clinicalAttribute == null) {
+                ClinicalAttribute attr = new ClinicalAttribute(MUTATION_COUNT_ATTR_ID, "Mutation Count", "Mutation Count", "NUMBER",
+                    false, "30", geneticProfile.getCancerStudyId());
+                DaoClinicalAttributeMeta.addDatum(attr);
+            }
+            
+            for (Map.Entry<Integer, String> mutationCount : mutationCounts.entrySet()) {
+                DaoClinicalData.addSampleDatum(mutationCount.getKey(), MUTATION_COUNT_ATTR_ID, mutationCount.getValue());
+            }
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -797,46 +812,6 @@ public final class DaoMutation {
                 return rs.getInt(1);
             }
             return 0;
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
-        }
-    }
-
-    /**
-     * return the number of mutations for each sample
-     * @param sampleIds if null, return all case available
-     * @param profileId
-     * @return Map &lt; sample id, mutation count &gt;
-     * @throws DaoException
-     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
-     */
-    @Deprecated
-    public static Map<Integer, Integer> countMutationEvents(int profileId, Collection<Integer> sampleIds) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoMutation.class);
-            String sql;
-            if (sampleIds==null) {
-                sql = "SELECT `SAMPLE_ID`, `MUTATION_COUNT` FROM mutation_count" +
-                        " WHERE `GENETIC_PROFILE_ID`=" + profileId;
-            } else {
-                sql = "SELECT `SAMPLE_ID`, `MUTATION_COUNT` FROM mutation_count" +
-                        " WHERE `GENETIC_PROFILE_ID`=" + profileId +
-                        " AND `SAMPLE_ID` IN ('" + StringUtils.join(sampleIds,"','") + "')";
-            }
-            pstmt = con.prepareStatement(sql);
-            Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-                map.put(rs.getInt(1), rs.getInt(2));
-            }
-            return map;
-        } catch (NullPointerException e) {
-            throw new DaoException(e);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

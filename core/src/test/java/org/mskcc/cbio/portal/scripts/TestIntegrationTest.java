@@ -198,10 +198,11 @@ public class TestIntegrationTest {
             assertEquals(273, count0506);
             
             //===== Check CLINICAL data ========
-            //in total 5 clinical attributes should be added (4 "patient type" 
-            //and 1 "sample type" attributes) - see also "assumptions" section at start of this test case
+            //in total 7 clinical attributes should be added (4 "patient type" 
+            //and 3 "sample type" attributes including MUTATION_COUNT and FRACTION_GENOME_ALTERED) 
+            //see also "assumptions" section at start of this test case
             List<DBClinicalField> clinicalAttributes = apiService.getSampleClinicalAttributes();
-            assertEquals(1, clinicalAttributes.size());
+            assertEquals(3, clinicalAttributes.size());
             clinicalAttributes = apiService.getPatientClinicalAttributes();
             assertEquals(4, clinicalAttributes.size());
             

@@ -1,25 +1,23 @@
-package org.cbioportal.model;
+package org.mskcc.cbio.portal.model;
 
 import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
-public class MutationalSignature implements Serializable {
-
+public class MutationalSignatureMeta implements Serializable {
+    
     @NotNull
-    private Integer internalId; //primary key
+    private String mutationalSignatureId; //e.g. mutational_signature_1
     @NotNull
     private Integer geneticEntityId; //genetic id/foreign key
-    @NotNull
-    private String mutationalSignatureId; //e.g. mutationalsignature1
-    private String name; //e.g. "Mutational Signature 1"
     private String description; //e.g. "weight of mutational signature 1 in sample's signature"
-
-    public Integer getInternalId(){
-        return internalId;
+    
+    public MutationalSignatureMeta(){
+        
     }
-
-    public void setInternalId(Integer internalId) {
-		this.internalId = internalId;
+    
+    public MutationalSignatureMeta(String mutationalSignatureId, String description){
+        this.mutationalSignatureId = mutationalSignatureId;
+        this.description = description;
     }
     
     public String getMutationalSignatureId(){
@@ -27,23 +25,15 @@ public class MutationalSignature implements Serializable {
     }
 
     public void setMutationalSignatureId(String mutationalSignatureId){
-        this.mutationalSignature = mutationalSignatureId;
+        this.mutationalSignatureId = mutationalSignatureId;
     }
 
-    public String getGeneticEntityId(){
+    public Integer getGeneticEntityId(){
         return geneticEntityId;
     }
 
-    public void setGeneticEntityId(String geneticEntityId){
+    public void setGeneticEntityId(Integer geneticEntityId){
         this.geneticEntityId = geneticEntityId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getDescription() {

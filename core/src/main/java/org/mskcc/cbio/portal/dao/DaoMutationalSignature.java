@@ -36,8 +36,8 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.MutationalSignature;
-import org.mskcc.cbio.portal.scripts.ImportMutationalSignatureData;
+import org.mskcc.cbio.portal.model.MutationalSignatureMeta;
+import org.mskcc.cbio.portal.scripts.ImportMutationalSignatureMetaData;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.sql.*;
@@ -51,30 +51,30 @@ public class DaoMutationalSignature {
 
     /**
      * Adds a new Mutational Signature record to the database.
-     * @param mutationalSignature
+     * @param mutationalSignatureMeta
      * @return number of records successfully added
      * @throws DaoException 
      */
-    public static MutationalSignature addMutationalSignature(MutationalSignature mutationalSignature) throws DaoException {
+    public static MutationalSignatureMeta addMutationalSignature(MutationalSignatureMeta mutationalSignatureMeta) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             // new mutational signature so add genetic entity first
             int geneticEntityId = DaoGeneticEntity.addNewGeneticEntity(DaoGeneticEntity.EntityTypes.MUTATIONAL_SIGNATURE);
-            mutationalSignature.setGeneticEntityId(geneticEntityId);
+            mutationalSignatureMeta.setGeneticEntityId(geneticEntityId);
             
             
             con = JdbcUtil.getDbConnection(DaoMutationalSignature.class);
             pstmt = con.prepareStatement("INSERT INTO mutational_signature " 
                     + "(`MUTATIONAL_SIGNATURE_ID`, `GENETIC_ENTITY_ID`, `DESCRIPTION`) "
                     + "VALUES(?,?,?)", Statement.RETURN_GENERATED_KEYS);
-            pstmt.setString(1, mutationalSignature.getMutationalSignatureId());
-            pstmt.setInt(2, mutationalSignature.getGeneticEntityId());
-            pstmt.setString(3, mutationalSignature.getDescription());
+            pstmt.setString(1, mutationalSignatureMeta.getMutationalSignatureId());
+            pstmt.setInt(2, mutationalSignatureMeta.getGeneticEntityId());
+            pstmt.setString(3, mutationalSignatureMeta.getDescription());
             pstmt.executeUpdate();
             
-            return mutationalSignature;
+            return mutationalSignatureMeta;
         }
         catch (SQLException e) {
             throw new DaoException(e);
@@ -91,7 +91,7 @@ public class DaoMutationalSignature {
      * @throws DaoException
      */
     
-    public static MutationalSignature getMutationalSignatureById(String mutationalSignatureId) throws DaoException{
+    public static MutationalSignatureMeta getMutationalSignatureById(String mutationalSignatureId) throws DaoException{
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -117,7 +117,8 @@ public class DaoMutationalSignature {
         }
     }
 
-    public static void updateMutationalSignature(MutationalSignature mutationalSignature, boolean updateMutationalSignature) throws DaoException {
+    //only updates description of mutational signature
+    public static void updateMutationalSignature(MutationalSignatureMeta mutationalSignatureMeta) throws DaoException {
         String SQL = "UPDATE mutational_signature SET " +
             "`DESCRIPTION` = ?" +
             "WHERE `MUTATIONAL_SIGNATURE` = ?";
@@ -128,7 +129,7 @@ public class DaoMutationalSignature {
         try {
             con = JdbcUtil.getDbConnection(DaoMutationalSignature.class);
             pstmt = con.prepareStatement(SQL);
-            pstmt.setString(1, mutationalSignature.getDescription());
+            pstmt.setString(1, mutationalSignatureMeta.getDescription());
             pstmt.executeUpdate();
         }
         catch (SQLException e) {
@@ -146,17 +147,17 @@ public class DaoMutationalSignature {
      * @throws SQLException
      * @throws DaoException
      */
-    private static MutationalSignature extractMutationalSignature(ResultSet rs) throws SQLException, DaoException {
+    private static MutationalSignatureMeta extractMutationalSignature(ResultSet rs) throws SQLException, DaoException {
         String mutationalSignatureId = rs.getString("MUTATIONAL_SIGNATURE_ID");
         Integer geneticEntityId = rs.getInt("GENETIC_ENTITY_ID");
         String description = rs.getString("DESCRIPTION");
 
-        MutationalSignature mutationalSignature = new MutationalSignature();
-        mutationalSignature.setMutationalSignatureId(mutationalSignatureId);
-        mutationalSignature.setGeneticEntityId(geneticEntityId);
-        mutationalSignature.setDescription(description);
+        MutationalSignatureMeta mutationalSignatureMeta = new MutationalSignatureMeta();
+        mutationalSignatureMeta.setMutationalSignatureId(mutationalSignatureId);
+        mutationalSignatureMeta.setGeneticEntityId(geneticEntityId);
+        mutationalSignatureMeta.setDescription(description);
 
-        return mutationalSignature;
+        return mutationalSignatureMeta;
     }
     
 

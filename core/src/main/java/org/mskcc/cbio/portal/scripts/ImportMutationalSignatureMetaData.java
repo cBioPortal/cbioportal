@@ -34,7 +34,7 @@ package org.mskcc.cbio.portal.scripts;
 
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.MutationalSignature;
+import org.mskcc.cbio.portal.model.MutationalSignatureMeta;
 import org.mskcc.cbio.portal.util.*;
 
 import joptsimple.OptionException;
@@ -48,21 +48,21 @@ import java.io.*;
 import java.util.*;
 
 
-public class ImportMutationalSignatureData extends ConsoleRunnable {
+public class ImportMutationalSignatureMetaData extends ConsoleRunnable {
 
     @Override
     public void run() {
         try {
-            String progName = "ImportMutationalSignatures";
-            String description = "Import mutational signature data files.";
+            String progName = "ImportMutationalSignatureMetaData";
+            String description = "Import mutational signature metadata file.";
 
-            Options options = ImportMutationalSignatureData.getOptions(args);
+            Options options = ImportMutationalSignatureMetaData.getOptions(args);
             CommandLineParser parser = new DefaultParser();
             CommandLine commandLine = null;
             commandLine = parser.parse(options, args);
 
             if(commandLine.hasOption( "h" ) ){
-                System.out.println("Command line arguments are: 'h' for help, 'mut-sig-file' for the mutational signature file, 'replace' to replace data already in the database");
+                System.out.println("Command line arguments are: 'h' for help, 'mut-sig-meta-file' for the mutational signature metadata file, 'replace' to replace data already in the database");
             }
             
             // Check options
@@ -70,16 +70,16 @@ public class ImportMutationalSignatureData extends ConsoleRunnable {
 
             ProgressMonitor.setConsoleMode(true);
 
-            File mutationalSignatureFile;
+            File mutationalSignatureMetaFile;
             int numLines;
-            if(commandLine.hasOption("mut-sig-file")) {
-                mutationalSignatureFile = new File((String) commandLine.getOptionValue("mut-sig-file"));
+            if(commandLine.hasOption("mut-sig-meta-file")) {
+                mutationalSignatureMetaFile = new File((String) commandLine.getOptionValue("mut-sig-meta-file"));
 
-                System.out.println("Reading gene data from:  " + mutationalSignatureFile.getAbsolutePath());
-                numLines = FileUtil.getNumLines(mutationalSignatureFile);
+                System.out.println("Reading gene data from:  " + mutationalSignatureMetaFile.getAbsolutePath());
+                numLines = FileUtil.getNumLines(mutationalSignatureMetaFile);
                 System.out.println(" --> total number of lines:  " + numLines);
                 ProgressMonitor.setMaxValue(numLines);
-                ImportMutationalSignatureData.importData(mutationalSignatureFile, replace);
+                ImportMutationalSignatureMetaData.importData(mutationalSignatureMetaFile, replace);
             }
             
         } 
@@ -96,14 +96,15 @@ public class ImportMutationalSignatureData extends ConsoleRunnable {
     /**
      * Adds the mutational signatures parsed from the file into the Database.
      * This is for importing mutational signature metadata
-     * @param mutationalSignatureFile File with mutational signature information
+     * MetaData file has first column as mutational_signature_id and second column as description, each row is a new signature
+     * @param mutationalSignatureMetaFile File with mutational signature information
      * @throws IOException
      * @throws DaoException
      */
     
-    public static void importData (File mutationalSignatureFile, boolean replace) throws IOException, DaoException{
+    public static void importData (File mutationalSignatureMetaFile, boolean replace) throws IOException, DaoException{
         try{
-            FileReader reader = new FileReader(mutationalSignatureFile);
+            FileReader reader = new FileReader(mutationalSignatureMetaFile);
             BufferedReader buf = new BufferedReader(reader);
             String line;
             while ((line = buf.readLine()) != null){
@@ -124,40 +125,27 @@ public class ImportMutationalSignatureData extends ConsoleRunnable {
 
                 if (!arrayIsEmpty){
                     //assume mutational signature id and description are first two columns in file
-                    MutationalSignature mutationalSignature = new MutationalSignature();
-                    mutationalSignature.setMutationalSignatureId(parts[0]);
-                    mutationalSignature.setDescription(parts[1]);
+                    MutationalSignatureMeta mutationalSignatureMeta = new MutationalSignatureMeta();
+                    mutationalSignatureMeta.setMutationalSignatureId(parts[0]);
+                    mutationalSignatureMeta.setDescription(parts[1]);
 
-                    //check if mutational signature already exists by the mutational signature id
-                    MutationalSignature existingMutationalSignature = DaoMutationalSignature.getMutationalSignatureById(mutationalSignature.getMutationalSignatureId());
-
-                    // only replaces description
-                    if (replace) {
-                        if ( existingMutationalSignature == null) {
-                            ProgressMonitor.logWarning("Could not find mutational signature: " + parts[0] + " in DB. Record will be skipped.");
-                        } else {
-                            ProgressMonitor.setCurrentMessage("Updating mutational signature: " + parts[0]);
-
-                            // Get mutational signature id for the already existing gene
-                            mutationalSignature.setMutationalSignatureId(existingMutationalSignature.getMutationalSignatureId());
-                            DaoMutationalSignature.updateMutationalSignature(mutationalSignature, true);
-                        }
-
-                        // Add a new mutational signature
-                    } else {
-                        if (existingMutationalSignature == null){
-                            ProgressMonitor.setCurrentMessage("Adding: " + mutationalSignature.getMutationalSignatureId());
-                            DaoMutationalSignature.addMutationalSignature(mutationalSignature);
-                        }
-                        else{
-                            ProgressMonitor.logWarning("Mutational Signature" + existingMutationalSignature.getMutationalSignatureId() + " already exists in the database");
-                        }
+                    //check if mutational signature already exists in database by the mutational signature id
+                    MutationalSignatureMeta existingMutationalSignature = DaoMutationalSignature.getMutationalSignatureById(mutationalSignatureMeta.getMutationalSignatureId());
+                    
+                    if (existingMutationalSignature == null){ //add a new mutational signature if database does not contain it
+                        ProgressMonitor.setCurrentMessage("Adding: " + mutationalSignatureMeta.getMutationalSignatureId());
+                        DaoMutationalSignature.addMutationalSignature(mutationalSignatureMeta);
                     }
+                    else{//if it already exists, either replace description or do nothing
+                        if (replace){
+                            ProgressMonitor.setCurrentMessage("Updating mutational signature: " + parts[0]);
+                            DaoMutationalSignature.updateMutationalSignature(mutationalSignatureMeta);
+                            }
+                        } 
                 }
                 else{
                     ProgressMonitor.logWarning("File does not contain data.");
                 }
-                
             }
         }
         catch(Exception e){
@@ -173,13 +161,13 @@ public class ImportMutationalSignatureData extends ConsoleRunnable {
     private static Options getOptions(String[] args) {
         Options options = new Options();
         options.addOption("h", "help", false, "print this help info.")
-            .addOption("mut-sig-file", "mutational-signatures-file", true, "import mutational signatures metadata file")
+            .addOption("mut-sig-meta-file", "mutational-signatures-meta-file", true, "import mutational signatures metadata file")
             .addOption("replace", true, "replace mutational signatures info");
         return options;
         
     }
     
-    public ImportMutationalSignatureData(String[] args){
+    public ImportMutationalSignatureMetaData(String[] args){
         super(args);
     }
     
@@ -189,7 +177,7 @@ public class ImportMutationalSignatureData extends ConsoleRunnable {
      * @param args  the arguments given on the command line
      */
     public static void main(String[] args) {
-        ConsoleRunnable runner = new ImportMutationalSignatureData(args);
+        ConsoleRunnable runner = new ImportMutationalSignatureMetaData(args);
         runner.runInConsole();
     }
 

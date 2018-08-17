@@ -18,7 +18,8 @@ public class DaoGeneticEntity {
     {
         GENE,
         GENESET,
-        PHOSPHOPROTEIN;
+        PHOSPHOPROTEIN,
+        MUTATIONAL_SIGNATURE;
     }
     
     /**

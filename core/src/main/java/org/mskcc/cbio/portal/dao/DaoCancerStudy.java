@@ -60,6 +60,7 @@ public final class DaoCancerStudy {
     private static final Map<Integer, java.util.Date> cacheDateByInternalId = new HashMap<Integer, java.util.Date>();
     private static final Map<String,CancerStudy> byStableId = new HashMap<String,CancerStudy>();
     private static final Map<Integer,CancerStudy> byInternalId = new HashMap<Integer,CancerStudy>();
+    private static final long THREAD_SLEEP_AFTER_ADD_STUDY_MILLISECONDS = 5000L;
 
     static {
         SpringUtil.initDataSource();
@@ -264,27 +265,36 @@ public final class DaoCancerStudy {
     }
 
     /**
+     * Attempts a sleep for a number of milliseconds
+     * Attempts a sleep for a number of milliseconds, may be interrupted
+     *
+     * @param millis milliseconds to sleep
+     */
+    public static void tryToSleepFor(long millis) {
+        try {
+            Thread.sleep(millis);
+            return;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Adds a cancer study to the Database.
      * @param cancerStudy
      * @param overwrite if true, overwrite if exist.
      * @throws DaoException
      */
     public static void addCancerStudy(CancerStudy cancerStudy, boolean overwrite) throws DaoException {
-        // make sure that cancerStudy refers to a valid TypeOfCancerId
-        // TODO: have a foreign key constraint do this; why not?
-        TypeOfCancer aTypeOfCancer = DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId());
-        if (null == aTypeOfCancer) {
-            throw new DaoException("cancerStudy.getTypeOfCancerId() '" + cancerStudy.getTypeOfCancerId() + "' does not refer to a TypeOfCancer.");
-        }
         // CANCER_STUDY_IDENTIFIER cannot be null
         String stableId = cancerStudy.getCancerStudyStableId();
         if (stableId == null) {
             throw new DaoException("Cancer study stable ID cannot be null.");
         }
         CancerStudy existing = getCancerStudyByStableId(stableId);
-        if (existing!=null) {
+        if (existing != null) {
             if (overwrite) {
-                //setStatus(Status.UNAVAILABLE, stableId);
                 deleteCancerStudy(existing.getInternalId());
             } else {
                 throw new DaoException("Cancer study " + stableId + "is already imported.");
@@ -314,8 +324,6 @@ public final class DaoCancerStudy {
                 pstmt.setString(8, StringUtils.join(groups, ";"));
             }
             pstmt.setString(9, cancerStudy.getShortName());
-            //status is UNAVAILABLE until other data is loaded for this study. Once all is loaded, the
-            //data loading process can set this to AVAILABLE:
             //TODO - use this field in parts of the system that build up the list of studies to display in home page:
             pstmt.setInt(10, Status.UNAVAILABLE.ordinal());
             pstmt.setDate(11, java.sql.Date.valueOf(LocalDate.now()));
@@ -325,12 +333,12 @@ public final class DaoCancerStudy {
                 int autoId = rs.getInt(1);
                 cancerStudy.setInternalId(autoId);
             }
-            cacheCancerStudy(cancerStudy, new java.util.Date());
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
+        tryToSleepFor(THREAD_SLEEP_AFTER_ADD_STUDY_MILLISECONDS);
         reCacheAll();
     }
 

@@ -196,6 +196,38 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
 
         Assert.assertEquals(expectedSampleList, result);
     }
+    
+    @Test
+    public void fetchSamplesDetailed() throws Exception {
+        List<Sample> expectedSampleList = new ArrayList<>();
+        Sample sample1 = new Sample();
+        Sample sample2 = new Sample();
+        expectedSampleList.add(sample1);
+        expectedSampleList.add(sample2);
+        
+        sample1.setCancerStudyIdentifier(STUDY_ID);
+        sample1.setStableId(SAMPLE_ID1);
+        sample1.setInternalId(SAMPLE_INTERNAL_ID);
+        sample2.setCancerStudyIdentifier(STUDY_ID);
+        sample2.setStableId(SAMPLE_ID2);
+        sample2.setInternalId(SAMPLE_INTERNAL_ID2);
+        
+        List<Integer> expectedInternalIdList = new ArrayList<>();
+        expectedInternalIdList.add(SAMPLE_INTERNAL_ID);
+       
+        
+        Mockito.when(sampleRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED"))
+                .thenReturn(expectedSampleList);
+        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
+            .thenReturn(new ArrayList<>());
+        Mockito.when(copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(Mockito.anyListOf(String.class),
+            Mockito.anyListOf(String.class))).thenReturn(expectedInternalIdList);
+        
+        List<Sample> result = sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED");
+        Assert.assertEquals(2, result.size());
+        Assert.assertTrue(result.get(0).getCopyNumberSegmentPresent());
+        Assert.assertFalse(result.get(1).getCopyNumberSegmentPresent());
+    }
 
     @Test
     public void fetchSamplesBySampleListIds() throws Exception {

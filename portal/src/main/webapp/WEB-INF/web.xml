@@ -7,7 +7,7 @@
     <!-- general settings -->
 
     <session-config>
-      <session-timeout>720</session-timeout>
+      <session-timeout>${tomcat.session.timeout}</session-timeout>
     </session-config>
     <mime-mapping>
         <extension>wsdl</extension>
@@ -656,6 +656,35 @@
     <servlet-mapping>
         <servlet-name>link_out</servlet-name>
         <url-pattern>/ln</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>SiteMapIndex</servlet-name>
+        <jsp-file>/sitemap_index.jsp</jsp-file>
+    </servlet>
+    <!--mapping-->
+    <servlet-mapping>
+        <servlet-name>SiteMapIndex</servlet-name>
+        <url-pattern>/sitemap_index.xml</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>SiteMapStudy</servlet-name>
+        <jsp-file>/sitemap_study.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SiteMapStudy</servlet-name>
+        <url-pattern>/sitemap_study.xml</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RobotsIndex</servlet-name>
+        <jsp-file>/robots.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RobotsIndex</servlet-name>
+        <url-pattern>/robots.txt</url-pattern>
     </servlet-mapping>
 
 </web-app>

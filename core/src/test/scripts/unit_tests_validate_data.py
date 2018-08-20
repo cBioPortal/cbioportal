@@ -220,36 +220,28 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('data_clin_coldefs_hardcoded_attrs.txt',
                                     validateData.PatientClinicalValidator)
         self.assertEqual(len(record_list), 3)
-        osmonths_records = []
-        other_sid_records = []
-        other_warn_records = []
-        for record in record_list:
-            self.assertNotIn('portal', record.getMessage().lower())
-            if 'OS_MONTHS' in record.getMessage():
-                osmonths_records.append(record)
-            if hasattr(record, 'cause') and record.cause == 'OTHER_SAMPLE_ID':
-                other_sid_records.append(record)
-            if 'details will be missing' in record.getMessage():
-                other_warn_records.append(record)
+        record_iterator = iter(record_list)
 
-        self.assertEqual(len(osmonths_records), 1)
-        record = osmonths_records.pop()
+        # Expect error for OS_MONTHS being a STRING instead of NUMBER
+        record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 3)
         self.assertEqual(record.column_number, 2)
+        self.assertIn(record.cause, 'STRING')
 
-        self.assertEqual(len(other_sid_records), 1)
-        record = other_sid_records.pop()
+        # Expect warning for sample attribute in patient clinical data
+        record = record_iterator.next()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 5)
         self.assertEqual(record.column_number, 6)
+        self.assertIn(record.cause, 'OTHER_SAMPLE_ID')
 
-        self.assertEqual(len(other_warn_records), 1)
-        record = other_warn_records.pop()
-        self.assertEqual(record.levelno, logging.WARNING)
+        # Expect warning for sample attribute in patient clinical data
+        record = record_iterator.next()
+        self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 5)
         self.assertEqual(record.column_number, 7)
-
+        self.assertIn(record.cause, 'METASTATIC_SITE')
 
 
 class ClinicalValuesTestCase(DataFileTestCase):
@@ -560,8 +552,13 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].cause, 'XXAGRN')
 
     def test_both_name_and_entrez_but_hugo_starts_with_integer(self):
-        """Test when a file has both the Hugo name and Entrez ID columns,
-        but hugo is invalid because starts with integer."""
+        """Test when gene symbol is invalid because starts with integer.
+
+        Test when a file has both the Hugo name and Entrez ID columns, but gene symbol is invalid because it starts with
+        an integer. Also '20MER2', '3.8-1.4' and "5'URS" are added to this dataset, which are some of the few exceptions
+        that are allowed to start with an integer. This validation step was added to catch unintentional gene conversion
+         by Excel, for example SEPT9 -> 9-Sep
+        """
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_hugo_integer.txt',
                                     validateData.CNAValidator,
@@ -572,7 +569,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
             self.assertEqual(record.levelno, logging.ERROR)
         # expecting these to be the cause:
         self.assertEqual(record_list[0].cause, '1-ACAP3')
-        self.assertEqual(record_list[1].cause, '2-AGRN')
+        self.assertEqual(record_list[1].cause, '9-SEP')
 
     def test_both_name_and_entrez_but_invalid_entrez(self):
         """Test when a file has both the Hugo name and Entrez ID columns, but entrez is invalid."""
@@ -678,6 +675,16 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.assertIn('white space in sample_id', record.getMessage().lower())
         record = record_iterator.next()
         self.assertIn('cannot be parsed', record.getMessage().lower())
+
+    def test_cytoband_column(self):
+        """Test that the validator will not fail for a column for Cytoband. This column is default outputted by GISTIC2
+         and ignored in the importer."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_cna_cytoband.txt',
+                                    validateData.CNAValidator)
+        # expecting zero warning messages:
+        self.assertEqual(len(record_list), 0)
+
 
     # TODO - add extra unit tests for the genesaliases scenarios (now only test_name_only_but_ambiguous tests part of this)
 
@@ -1054,18 +1061,13 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('mutations/data_mutations_check_special_cases_allele.maf',
                                     validateData.MutationsExtendedValidator, None, True, True)
         
-        # We expect 4 errors
-        self.assertEqual(len(record_list), 4)
+        # We expect 3 errors
+        self.assertEqual(len(record_list), 3)
         record_iterator = iter(record_list)
         # expect error for the same values in Reference_Allele, Tumor_Seq_Allele1 and Tumor_Seq_Allele2 columns
         record = record_iterator.next()
         self.assertEqual(record.line_number, 2)
         self.assertIn('All Values in columns Reference_Allele, Tumor_Seq_Allele1 and Tumor_Seq_Allele2 are equal.',
-                      record.getMessage())
-        # expect error for Reference_Allele which is not - even though Variant_type equals INS
-        record = record_iterator.next()
-        self.assertEqual(record.line_number, 3)
-        self.assertIn('Variant_Type indicates an insertion, but Reference_Allele does not equal -.',
                       record.getMessage())
         # expect error for deletion, Tumor Seq allele columns do not contain -
         # even though the lengths of the sequences are equal
@@ -1623,18 +1625,29 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
         super(SegFileValidationTestCase, cls).setUpClass()
         @staticmethod
         def load_chromosome_lengths(genome_build, _):
-            if genome_build != 'hg19':
+            if genome_build == 'hg19':
+                return {u'1': 249250621, u'10': 135534747, u'11': 135006516,
+                        u'12': 133851895, u'13': 115169878, u'14': 107349540,
+                        u'15': 102531392, u'16': 90354753, u'17': 81195210,
+                        u'18': 78077248, u'19': 59128983, u'2': 243199373,
+                        u'20': 63025520, u'21': 48129895, u'22': 51304566,
+                        u'3': 198022430, u'4': 191154276, u'5': 180915260,
+                        u'6': 171115067, u'7': 159138663, u'8': 146364022,
+                        u'9': 141213431, u'X': 155270560, u'Y': 59373566}
+            #Todo: Remove hg18 when all public data is liftOvered to hg18. See validator.
+            elif genome_build == 'hg18':
+                return {u'1': 247249719, u'10': 135374737, u'11': 134452384,
+                        u'12': 132349534, u'13': 114142980, u'14': 106368585,
+                        u'15': 100338915, u'16': 88827254, u'17': 78774742,
+                        u'18': 76117153, u'19': 63811651, u'2': 242951149,
+                        u'20': 62435964, u'21': 46944323, u'22': 49691432,
+                        u'3': 199501827, u'4': 191273063, u'5': 180857866,
+                        u'6': 170899992, u'7': 158821424, u'8': 146274826,
+                        u'9': 140273252, u'X': 154913754, u'Y': 57772954}
+            else:
                 raise ValueError(
-                        "load_chromosome_lengths() called with genome build '{}'".format(
-                            genome_build))
-            return {u'1': 249250621, u'10': 135534747, u'11': 135006516,
-                    u'12': 133851895, u'13': 115169878, u'14': 107349540,
-                    u'15': 102531392, u'16': 90354753, u'17': 81195210,
-                    u'18': 78077248, u'19': 59128983, u'2': 243199373,
-                    u'20': 63025520, u'21': 48129895, u'22': 51304566,
-                    u'3': 198022430, u'4': 191154276, u'5': 180915260,
-                    u'6': 171115067, u'7': 159138663, u'8': 146364022,
-                    u'9': 141213431, u'X': 155270560, u'Y': 59373566}
+                    "load_chromosome_lengths() called with genome build '{}'".format(
+                        genome_build))
         cls.orig_chromlength_method = validateData.SegValidator.load_chromosome_lengths
         validateData.SegValidator.load_chromosome_lengths = load_chromosome_lengths
 
@@ -1650,6 +1663,17 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
                                     validateData.SegValidator,
                                     extra_meta_fields={'reference_genome_id':
                                                            'hg19'})
+        # expecting only status messages about the file being validated
+        self.assertEqual(len(record_list), 3)
+        for record in record_list:
+            self.assertLessEqual(record.levelno, logging.INFO)
+
+    def test_valid_ref_genome_hg18(self):
+        """Validate a segment file which uses hg18 as reference genome"""
+        record_list = self.validate('data_seg_valid_hg18.seg',
+                                    validateData.SegValidator,
+                                    extra_meta_fields={'reference_genome_id':
+                                                           'hg18'})
         # expecting only status messages about the file being validated
         self.assertEqual(len(record_list), 3)
         for record in record_list:
@@ -1969,9 +1993,9 @@ class CaseListDirTestCase(PostClinicalDataFileTestCase):
         self.assertIn('add_global_case_list', record.getMessage())
 
 
-class StableIdValidationTestCase(LogBufferTestCase):
+class MetaFilesTestCase(LogBufferTestCase):
 
-    """Tests to ensure stable_id validation works correctly."""
+    """Tests for the contents of the meta files."""
 
     def test_unnecessary_and_wrong_stable_id(self):
         """Tests to check behavior when stable_id is not needed (warning) or wrong(error)."""
@@ -2000,6 +2024,20 @@ class StableIdValidationTestCase(LogBufferTestCase):
         self.assertEqual(warning.levelno, logging.WARNING)
         self.assertEqual(warning.cause, 'stable_id')
 
+    def test_exceed_maximum_length_meta_attribute_value(self):
+        """Test to check the length the attribute in meta files."""
+        self.logger.setLevel(logging.WARNING)
+        validateData.process_metadata_files(
+            'test_data/meta_files',
+            PORTAL_INSTANCE,
+            self.logger, False, False)
+        record_list = self.get_log_records()
+        # expecting 1 error:
+        self.assertEqual(len(record_list), 1)
+
+        # expecting one error about the maximum length of 'short_name' meta_study
+        record = record_list.pop()
+        self.assertEqual("The maximum length of the 'short_name' value is 64", record.getMessage())
 
 class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
 

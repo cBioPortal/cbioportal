@@ -1,3 +1,25 @@
+## August 7, 2018
+ *   The eighth phase of the cBioPortal architectural upgrade is now complete: The _Plots_, _Expression_, _Network_, and _Bookmarks_ tabs, and therefore all analysis tabs in the _results page_, have been moved to the new architecture.
+ *   Updated the [MutationMapper tool](http://www.cbioportal.org/mutation_mapper.jsp), now connecting to [Genome Nexus](https://genomenexus.org/) for annotating mutations on the fly.
+ *   _Total Mutations_ and _Fraction Genome Altered_ are now available in _Plots_ tab for visualization and analysis.
+ *   Enhanced clinical attribute selector for OncoPrint, now showing sample counts per attribute.
+ 
+ ![image](https://user-images.githubusercontent.com/840895/43609786-ec946d64-9672-11e8-8218-4e63bd5007e8.png)
+
+
+## July 27, 2018
+ *   **Added data**  of 2787 samples from 10 studies:
+     *   [Mixed Tumors (PIP-Seq 2017)](http://www.cbioportal.org/study?id=mixed_pipseq_2017#summary) *103 samples*
+     *   [Nonmuscle Invasive Bladder Cancer (MSK Eur Urol 2017)](http://www.cbioportal.org/study?id=blca_nmibc_2017#summary) *105 samples*
+     *   [Pediatric Neuroblastoma (TARGET, 2018)](http://www.cbioportal.org/study?id=nbl_target_2018_pub) *1089 samples*
+     *   [Pediatric Pan-Cancer (DKFZ - German Cancer Consortium, 2017)](http://www.cbioportal.org/study?id=pediatric_dkfz_2017) *961 samples*
+     *   [Skin Cutaneous Melanoma (Broad, Cancer Discov 2014)](http://www.cbioportal.org/study?id=skcm_broad_brafresist_2012) *78 samples*
+     *   [Cutaneous Squamous Cell Carcinoma (MD Anderson, Clin Cancer Res 2014)](http://www.cbioportal.org/study?id=cscc_hgsc_bcm_2014#summary) *39 samples*
+     *   [Diffuse Large B-cell Lymphoma (BCGSC, Blood 2013)](http://www.cbioportal.org/study?id=nhl_bcgsc_2013#summary) *53 samples*
+     *   [Non-Hodgkin Lymphoma (BCGSC, Nature 2011)](http://www.cbioportal.org/study?id=nhl_bcgsc_2011#summary) *14 samples* 
+     *   [Chronic lymphocytic leukemia (ICGA, Nat 2011)](http://www.cbioportal.org/study?id=cllsll_icgc_2011#summary) *105 samples* 
+     *   [Neuroblastoma (Broad Institute 2013)](http://www.cbioportal.org/study?id=nbl_broad_2013#summary) *240 samples* 
+
 ## June 20, 2018
  *   The seventh phase of the cBioPortal architectural upgrade is now complete: The _Enrichments_ and _Co-Expression_ tabs have been moved to the new architecture.
  *   Supported merged gene tracks in OncoPrint and [Onco Query Language](http://www.cbioportal.org/onco_query_lang_desc.jsp) -- see [example](http://www.cbioportal.org/index.do?session_id=5b2bedca498eb8b3d566ab60)
@@ -220,7 +242,7 @@ ARC-Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *9
 ## January 12, 2016
 *   **New features**:
     *   Visualization of multiple samples in a patient
-    *   Visualization of timeline data of a patient ([example](http://www.cbioportal.org/case.do#/patient?studyId=lgg_ucsf_2014&caseId=P04))<br/>
+    *   Visualization of timeline data of a patient ([example](http://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P04))<br/>
         ![timeline-example](https://cloud.githubusercontent.com/assets/840895/12055606/cca26160-aefc-11e5-93f9-2ecfe7e95caf.png)
 *   All **TCGA data** updated to the latest Firehose run of August 21, 2015
 *   **New TCGA studies**:
@@ -447,7 +469,7 @@ ARC-Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *9
 
 *   Multi-gene correlation plots.
 *   Variant allele frequency distribution plots for individual tumor samples.
-*   Tissue images for TCGA samples in the patient view, via [Digital Slide Archive](http://cancer.digitalslidearchive.net/). [Example](http://www.cbioportal.org/case.do#/patient?studyId=ucec_tcga&caseId=TCGA-BK-A0CC&tab=tissueImageTab).
+*   Tissue images for TCGA samples in the patient view, via [Digital Slide Archive](http://cancer.digitalslidearchive.net/). [Example](http://www.cbioportal.org/patient?studyId=ucec_tcga&caseId=TCGA-BK-A0CC&tab=tissueImageTab).
 
 ## July 16, 2013
 

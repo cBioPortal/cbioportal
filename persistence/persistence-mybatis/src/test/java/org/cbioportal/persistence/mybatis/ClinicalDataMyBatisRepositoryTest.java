@@ -355,18 +355,18 @@ public class ClinicalDataMyBatisRepositoryTest {
     @Test
     public void fetchClinicalDataCounts() throws Exception {
 
-        List<ClinicalDataCount> result = clinicalDataMyBatisRepository.fetchClinicalDataCounts("acc_tcga", 
+        List<ClinicalDataCount> result = clinicalDataMyBatisRepository.fetchClinicalDataCounts(Arrays.asList("acc_tcga", "acc_tcga"), 
             Arrays.asList("TCGA-A1-B0SO-01", "TCGA-A1-A0SB-01"), Arrays.asList("OTHER_SAMPLE_ID", 
             "DAYS_TO_COLLECTION"), "SAMPLE");
         
         Assert.assertEquals(2, result.size());
         ClinicalDataCount clinicalDataCount1 = result.get(0);
-        Assert.assertEquals("DAYS_TO_COLLECTION", clinicalDataCount1.getAttributeId());
-        Assert.assertEquals("111", clinicalDataCount1.getValue());
-        Assert.assertEquals((Integer) 2, clinicalDataCount1.getCount());
+        Assert.assertEquals("OTHER_SAMPLE_ID", clinicalDataCount1.getAttributeId());
+        Assert.assertEquals("91E7F41C-17B3-4724-96EF-D3C207B964E1", clinicalDataCount1.getValue());
+        Assert.assertEquals((Integer) 1, clinicalDataCount1.getCount());
         ClinicalDataCount clinicalDataCount2 = result.get(1);
-        Assert.assertEquals("OTHER_SAMPLE_ID", clinicalDataCount2.getAttributeId());
-        Assert.assertEquals("91E7F41C-17B3-4724-96EF-D3C207B964E1", clinicalDataCount2.getValue());
-        Assert.assertEquals((Integer) 1, clinicalDataCount2.getCount());
+        Assert.assertEquals("DAYS_TO_COLLECTION", clinicalDataCount2.getAttributeId());
+        Assert.assertEquals("111", clinicalDataCount2.getValue());
+        Assert.assertEquals((Integer) 2, clinicalDataCount2.getCount());
     }
 }

@@ -71,12 +71,16 @@
         AND cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
     </select>
 
-    <select id="getPatientIdsOfSamples" resultType="string">
-        SELECT DISTINCT(patient.STABLE_ID) 
-        FROM sample INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID WHERE 
-        sample.STABLE_ID IN
-        <foreach item="item" collection="list" open="(" separator="," close=")">
-            #{item}
+    <select id="getPatientsOfSamples" resultType="org.cbioportal.model.Patient">
+        SELECT DISTINCT(patient.STABLE_ID) AS stableId,
+        cancer_study.CANCER_STUDY_IDENTIFIER AS cancerStudyIdentifier
+        FROM sample 
+        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID 
+        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        WHERE
+        (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+        <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+            (#{studyIds[${i}]}, #{sampleIds[${i}]})
         </foreach>
     </select>
 </mapper>

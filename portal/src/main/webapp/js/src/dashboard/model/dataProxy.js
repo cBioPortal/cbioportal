@@ -1061,7 +1061,7 @@ window.DataManagerForIviz = (function($, _) {
                   patient_to_uid[_studyId][data[i].patientId] = _patient_uid.toString();
                   _patient_uid++;
                 }
-                if (!patient_to_sample.hasOwnProperty(data[i].patientId)) {
+                if (!patient_to_sample[_studyId].hasOwnProperty(data[i].patientId)) {
                   patient_to_sample[_studyId][data[i].patientId] = {};
                 }
                 patient_to_sample[_studyId][data[i].patientId][data[i].sampleId] = 1;
@@ -1496,6 +1496,8 @@ window.DataManagerForIviz = (function($, _) {
             });
             _def.resolve(geneSampleMap);
           }
+        }, function() {
+          _def.reject();
         });
         return _def.promise();
       },

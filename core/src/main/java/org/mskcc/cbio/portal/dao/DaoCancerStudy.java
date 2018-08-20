@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2017 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2018 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -340,7 +340,7 @@ public final class DaoCancerStudy {
      * @param cancerStudyID     Internal (int) Cancer Study ID.
      * @return Cancer Study Object, or null if there's no such study.
      */
-    public static CancerStudy getCancerStudyByInternalId(int internalId) throws DaoException {
+    public static CancerStudy getCancerStudyByInternalId(int internalId) {
         return byInternalId.get(internalId);
     }
 
@@ -350,7 +350,7 @@ public final class DaoCancerStudy {
      * @param cancerStudyStableId Cancer Study Stable ID.
      * @return the CancerStudy, or null if there's no such study.
      */
-    public static CancerStudy getCancerStudyByStableId(String stableId) throws DaoException {
+    public static CancerStudy getCancerStudyByStableId(String stableId) {
         return byStableId.get(stableId);
     }
 

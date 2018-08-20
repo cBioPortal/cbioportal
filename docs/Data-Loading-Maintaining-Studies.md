@@ -1,12 +1,16 @@
-## Development, debugging and maintenance mode using cbioportalImporter
-For developers and specific testing and maintenance purposes, an extra script, cbioportalImporter.py, is available which imports data regardless of validation results and includes extra functionality, such as deleting a study. 
+## Maintaining Studies
+For data curators and developers cbioportalImporter.py is available. This script can import data regardless of validation results. If data format is incorrect, the importer will either stop with an error or crash. This can be used to test importing specific data types. This script can also be used to delete studies.
 
-* [Running the cbioportalImporter script](#running-the-cbioportalimporter-script)
-* [Importing a complete study automatically](#importing-a-complete-study-automatically)
-* [Importing a complete study manually](#importing-a-complete-study-manually)
-* [Deleting a study](#deleting-a-study)
+<!-- TOC depthFrom:3 depthTo:3 withLinks:1 updateOnSave:1 orderedList:0 -->
 
-###Running the cbioportalImporter script
+- [Running the cbioportalImporter script](#running-the-cbioportalimporter-script)
+- [Importing a study without validation](#importing-a-study-without-validation)
+- [Importing file by file](#importing-file-by-file)
+- [Deleting a study](#deleting-a-study)
+
+<!-- /TOC -->
+
+### Running the cbioportalImporter script
 To run the importer type the following commands when in the folder `<your_cbioportal_dir>/core/src/main/scripts/importer`: 
 
 ```
@@ -44,8 +48,8 @@ optional arguments:
 ```
 Note that the -data option is deprecated and should not be used, as the filename has to be specified in the meta file.
 
-### Importing a complete study automatically 
-To import a complete study run: 
+### Importing a study without validation 
+To import a study without validation, run: 
 ```
 ./cbioportalImporter.py -s <path to study directory>
 ```
@@ -55,8 +59,8 @@ To import a complete study run:
 ./cbioportalImporter.py -s ../../../test/scripts/test_data/study_es_0/
 ```
  
-### Importing a complete study manually 
-To import a complete study manually, you will need the following commands:
+### Importing file by file
+To import a study file by file, you will need the following commands:
 
 First, if your cancer type does not yet exist, you need to create it:
 ```
@@ -91,11 +95,11 @@ Finally, after you've imported all data, import your case lists:
 ```
 
 ### Deleting a study
-To remove a study run: 
+To remove a study, run: 
 ```
-./cbioportalImporter.py -c remove-study -meta <path to study directory>/<name of meta study file>
+./cbioportalImporter.py -c remove-study -meta <path to study directory>/meta_study.txt
 ```
-The meta file should be the meta file used to create the study.
+The `meta_study.txt` file should contain the study ID in `cancer_study_identifier: ` of the study you would like to remove.
 
 #### Example:
 ```

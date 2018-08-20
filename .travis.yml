@@ -82,11 +82,6 @@ script:
           -e -DPORTAL_HOME=$PORTAL_HOME \
           -Ppublic -DskipTests \
           -Dfinal.war.name=cbioportal \
-          -Ddb.user=cbio_user \
-          -Ddb.password=cbio_pass \
-          -Ddb.portal_db_name=public_test \
-          -Ddb.connection_string=jdbc:mysql://devdb.cbioportal.org:3306/ \
-          -Ddb.host=devdb.cbioportal.org \
           clean install
   fi
 - |

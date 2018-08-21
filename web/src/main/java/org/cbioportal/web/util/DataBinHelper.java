@@ -246,11 +246,11 @@ public class DataBinHelper
     {
         int length = 0;
 
-        if (value.trim().startsWith(">") || value.trim().startsWith("<")) {
-            length = 1;
-        }
-        else if (value.trim().startsWith(">=") || value.trim().startsWith("<=")) {
+        if (value.trim().startsWith(">=") || value.trim().startsWith("<=")) {
             length = 2;
+        }
+        else if (value.trim().startsWith(">") || value.trim().startsWith("<")) {
+            length = 1;
         }
 
         return value.trim().substring(length);

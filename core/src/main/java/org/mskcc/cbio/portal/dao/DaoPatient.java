@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2018 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,12 +32,34 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.*;
-
-import org.apache.commons.collections.map.MultiKeyMap;
-
 import java.sql.*;
 import java.util.*;
+import org.apache.commons.collections.map.MultiKeyMap;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.Patient;
+
+/**
+ * Helper class for reCache() method
+ */
+class PrimitivePatientRecord {
+    private int cancerStudyId;
+    private String stableId;
+    private int internalId;
+    public PrimitivePatientRecord(int cancerStudyId, String stableId, int internalId) {
+        this.cancerStudyId = cancerStudyId;
+        this.stableId = stableId;
+        this.internalId = internalId;
+    }
+    public int getCancerStudyId() {
+        return cancerStudyId;
+    }
+    public String getStableId() {
+        return stableId;
+    }
+    public int getInternalId() {
+        return internalId;
+    }
+}
 
 /**
  * DAO to `patient`.
@@ -60,7 +82,7 @@ public class DaoPatient {
     public static synchronized void reCache()
     {
         clearCache();
-
+        ArrayList<PrimitivePatientRecord> patientRecordsRetrieved = new ArrayList<>();
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -68,12 +90,12 @@ public class DaoPatient {
             con = JdbcUtil.getDbConnection(DaoPatient.class);
             pstmt = con.prepareStatement("SELECT * FROM patient");
             rs = pstmt.executeQuery();
-            ArrayList<Patient> list = new ArrayList<Patient>();
             while (rs.next()) {
-                Patient p = extractPatient(rs);
-                if (p != null) {
-                    cachePatient(p, p.getCancerStudy().getInternalId());
-                }
+                int cancerStudyId = rs.getInt("CANCER_STUDY_ID");
+                String stableId = rs.getString("STABLE_ID");
+                int internalId = rs.getInt("INTERNAL_ID");
+                PrimitivePatientRecord primitivePatientRecord = new PrimitivePatientRecord(cancerStudyId, stableId, internalId);
+                patientRecordsRetrieved.add(primitivePatientRecord);
             }
         }
         catch (SQLException e) {
@@ -82,20 +104,29 @@ public class DaoPatient {
         finally {
             JdbcUtil.closeAll(DaoPatient.class, con, pstmt, rs);
         }
+        for (PrimitivePatientRecord primitivePatientRecord : patientRecordsRetrieved) {
+            int cancerStudyId = primitivePatientRecord.getCancerStudyId();
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+            if (cancerStudy != null) {
+                Patient patient = new Patient(cancerStudy, primitivePatientRecord.getStableId(), primitivePatientRecord.getInternalId());
+                cachePatient(patient);
+            }
+        }
     }
 
-    public static void cachePatient(Patient patient, int cancerStudyId)
+    public static void cachePatient(Patient patient)
     {
+        int cancerStudyId = patient.getCancerStudy().getInternalId();
         if (!byInternalId.containsKey(patient.getInternalId())) {
             byInternalId.put(patient.getInternalId(), patient);
         } 
-        if (byInternalCancerStudyId.containsKey(patient.getCancerStudy().getInternalId())) {
-            byInternalCancerStudyId.get(patient.getCancerStudy().getInternalId()).add(patient);
+        if (byInternalCancerStudyId.containsKey(cancerStudyId)) {
+            byInternalCancerStudyId.get(cancerStudyId).add(patient);
         }
         else {
             Set<Patient> patientList = new HashSet<Patient>();
             patientList.add(patient);
-            byInternalCancerStudyId.put(patient.getCancerStudy().getInternalId(), patientList);
+            byInternalCancerStudyId.put(cancerStudyId, patientList);
         }
 
         if (!byCancerIdAndStablePatientId.containsKey(cancerStudyId, patient.getStableId())) {
@@ -117,7 +148,7 @@ public class DaoPatient {
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
-                cachePatient(new Patient(patient.getCancerStudy(), patient.getStableId(), rs.getInt(1)), patient.getCancerStudy().getInternalId());
+                cachePatient(new Patient(patient.getCancerStudy(), patient.getStableId(), rs.getInt(1)));
                 return rs.getInt(1);
             }
             return -1;
@@ -173,17 +204,4 @@ public class DaoPatient {
         clearCache();
     }
 
-    private static Patient extractPatient(ResultSet rs) throws SQLException
-    {
-		try {
-			CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(rs.getInt("CANCER_STUDY_ID"));
-			if (cancerStudy == null) return null;
-			return new Patient(cancerStudy,
-							   rs.getString("STABLE_ID"),
-							   rs.getInt("INTERNAL_ID"));
-		}
-		catch (DaoException e) {
-			throw new SQLException(e);
-		}
-    }
 }

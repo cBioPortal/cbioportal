@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2018 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -796,28 +796,24 @@ public class QueryBuilder extends HttpServlet {
         Set<VirtualStudy> studies = new HashSet<>();
         SessionServiceUtil sessionServiceUtil = new SessionServiceUtil();
         for (String inputCohortId: inputCohortIds) {
-            try {
-                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(inputCohortId);
-                // is virtual study
-                if (cancerStudy == null) {
-                    VirtualStudy virtualStudy = sessionServiceUtil.getVirtualStudyData(inputCohortId);
-                    if (virtualStudy != null && virtualStudy.getData().getStudies().size() > 0) {
-                        studies.add(virtualStudy);
-                    }
-                    // is regular study
-                } else {
-                    VirtualStudy study = new VirtualStudy();
-                    VirtualStudySamples studySamples = new VirtualStudySamples();
-                    studySamples.setId(inputCohortId);
-                    studySamples.setSamples(new HashSet<>());
-                    VirtualStudyData studyData = new VirtualStudyData();
-                    studyData.setStudies(Collections.singleton(studySamples));
-                    study.setId(cancerStudy.getCancerStudyStableId());
-                    study.setData(studyData);
-                    studies.add(study);
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(inputCohortId);
+            // is virtual study
+            if (cancerStudy == null) {
+                VirtualStudy virtualStudy = sessionServiceUtil.getVirtualStudyData(inputCohortId);
+                if (virtualStudy != null && virtualStudy.getData().getStudies().size() > 0) {
+                    studies.add(virtualStudy);
                 }
-            } catch (DaoException e) {
-                throw e;
+                // is regular study
+            } else {
+                VirtualStudy study = new VirtualStudy();
+                VirtualStudySamples studySamples = new VirtualStudySamples();
+                studySamples.setId(inputCohortId);
+                studySamples.setSamples(new HashSet<>());
+                VirtualStudyData studyData = new VirtualStudyData();
+                studyData.setStudies(Collections.singleton(studySamples));
+                study.setId(cancerStudy.getCancerStudyStableId());
+                study.setData(studyData);
+                studies.add(study);
             }
         }
         return studies;

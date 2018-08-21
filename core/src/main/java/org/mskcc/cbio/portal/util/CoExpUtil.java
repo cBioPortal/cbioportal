@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2018 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -42,8 +42,8 @@ import org.mskcc.cbio.portal.dao.*;
 public class CoExpUtil {
 
     public static ArrayList<String> getSampleIds(String sampleSetId, String sampleIdsKeys) {
-		try {
-			DaoSampleList daoSampleList = new DaoSampleList();
+        try {
+            DaoSampleList daoSampleList = new DaoSampleList();
             SampleList sampleList;
             ArrayList<String> sampleIdList = new ArrayList<String>();
             if (sampleSetId.equals("-1")) {
@@ -56,36 +56,31 @@ public class CoExpUtil {
                 sampleList = daoSampleList.getSampleListByStableId(sampleSetId);
                 sampleIdList = sampleList.getSampleList();
             }
-			return sampleIdList;
+            return sampleIdList;
         } catch (DaoException e) {
             System.out.println("Caught Dao Exception: " + e.getMessage());
-			return null;
+            return null;
         }
     }
 
-	public static GeneticProfile getPreferedGeneticProfile(String cancerStudyIdentifier) {
-		try {
-			CancerStudy cs = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
-			ArrayList<GeneticProfile> gps = DaoGeneticProfile.getAllGeneticProfiles(cs.getInternalId());
-			GeneticProfile final_gp = null;
-			for (GeneticProfile gp : gps) {
-				// TODO: support miRNA later
-				if (gp.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION) {
-					//rna seq profile (no z-scores applied) holds the highest priority)
-					if (gp.getStableId().toLowerCase().contains("rna_seq") &&
-					   !gp.getStableId().toLowerCase().contains("zscores")) {
-						final_gp = gp;
-						break;
-					} else if (!gp.getStableId().toLowerCase().contains("zscores")) {
-						final_gp = gp;
-					}
-				}
-			}
-			return final_gp;
-		}
-		catch (DaoException e) {
-			return null;
-		}
+    public static GeneticProfile getPreferedGeneticProfile(String cancerStudyIdentifier) {
+        CancerStudy cs = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+        ArrayList<GeneticProfile> gps = DaoGeneticProfile.getAllGeneticProfiles(cs.getInternalId());
+        GeneticProfile final_gp = null;
+        for (GeneticProfile gp : gps) {
+            // TODO: support miRNA later
+            if (gp.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION) {
+                //rna seq profile (no z-scores applied) holds the highest priority)
+                if (gp.getStableId().toLowerCase().contains("rna_seq") &&
+                   !gp.getStableId().toLowerCase().contains("zscores")) {
+                    final_gp = gp;
+                    break;
+                } else if (!gp.getStableId().toLowerCase().contains("zscores")) {
+                    final_gp = gp;
+                }
+            }
+        }
+        return final_gp;
     }
 
     public static Map<Long,double[]> getExpressionMap(int profileId, String sampleSetId, String sampleIdsKeys) throws DaoException {
@@ -123,5 +118,5 @@ public class CoExpUtil {
 
         return map;
     }
-	
+
 }

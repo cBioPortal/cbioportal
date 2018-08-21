@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2018 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -50,11 +50,6 @@ public final class DaoGeneticProfile {
     private static final Map<String,GeneticProfile> byStableId = new HashMap<String,GeneticProfile>();
     private static final Map<Integer,GeneticProfile> byInternalId = new HashMap<Integer,GeneticProfile>();
     private static final Map<Integer,List<GeneticProfile>> byStudy = new HashMap<Integer,List<GeneticProfile>>();
-
-    static {
-        SpringUtil.initDataSource();
-        reCache();
-    }
 
     public static synchronized void reCache() {
         byStableId.clear();

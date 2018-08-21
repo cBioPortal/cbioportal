@@ -457,3 +457,67 @@ ALTER TABLE gistic_to_gene ADD CONSTRAINT `gistic_to_gene_ibfk_2` FOREIGN KEY (`
 ALTER TABLE `mutation_event` MODIFY COLUMN `KEYWORD` VARCHAR(255);
 ALTER TABLE `mutation_count_by_keyword` MODIFY COLUMN `KEYWORD` VARCHAR(255);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.6.1";
+
+##version: 2.6.2
+-- add mutational signature table
+CREATE TABLE `mutational_signature` (
+  `MUTATIONAL_SIGNATURE_ID` VARCHAR (30) NOT NULL,
+  `GENETIC_ENTITY_ID` INT NULL,
+  `DESCRIPTION` VARCHAR(300) NOT NULL,
+  PRIMARY KEY (`MUTATIONAL_SIGNATURE_ID`)
+);
+
+-- insert mutational signature id and description
+INSERT INTO `mutational_signature` 
+VALUES ('mutational_signature_1', NULL, 'Signature 1 has been found in all cancer types and in most cancer samples.'),
+('mutational_signature_2', NULL, 'Signature 2 has been found in 22 cancer types, but most commonly in cervical and bladder cancers. In most of these 22 cancer types, Signature 2 is present in at least 10% of samples.'),
+('mutational_signature_3', NULL, 'Signature 3 has been found in breast, ovarian, and pancreatic cancers.'),
+('mutational_signature_4', NULL, 'Signature 4 has been found in head and neck cancer, liver cancer, lung adenocarcinoma, lung squamous carcinoma, small cell lung carcinoma, and oesophageal cancer.'),
+('mutational_signature_5', NULL, 'Signature 5 has been found in all cancer types and most cancer samples.'),
+('mutational_signature_6', NULL, 'Signature 6 has been found in 17 cancer types and is most common in colorectal and uterine cancers. In most other cancer types, Signature 6 is found in less than 3% of examined samples.'),
+('mutational_signature_7', NULL, 'Signature 7 has been found predominantly in skin cancers and in cancers of the lip categorized as head and neck or oral squamous cancers.'),
+('mutational_signature_8', NULL, 'Signature 8 has been found in breast cancer and medulloblastoma.'),
+('mutational_signature_9', NULL, 'Signature 9 has been found in chronic lymphocytic leukaemias and malignant B-cell lymphomas.'),
+('mutational_signature_10', NULL, 'Signature 10 has been found in six cancer types, notably colorectal and uterine cancer, usually generating huge numbers of mutations in small subsets of samples.'),
+('mutational_signature_11', NULL, 'Signature 11 has been found in melanoma and glioblastoma.'),
+('mutational_signature_12', NULL, 'Signature 12 has been found in liver cancer.'),
+('mutational_signature_13', NULL, 'Signature 13 has been found in 22 cancer types and seems to be commonest in cervical and bladder cancers. In most of these 22 cancer types, Signature 13 is present in at least 10% of samples.'),
+('mutational_signature_14', NULL, 'Signature 14 has been observed in four uterine cancers and a single adult low-grade glioma sample.'),
+('mutational_signature_15', NULL, 'Signature 15 has been found in several stomach cancers and a single small cell lung carcinoma.'),
+('mutational_signature_16', NULL, 'Signature 16 has been found in liver cancer.'),
+('mutational_signature_17', NULL, 'Signature 17 has been found in oesophagus cancer, breast cancer, liver cancer, lung adenocarcinoma, B-cell lymphoma, stomach cancer and melanoma.'),
+('mutational_signature_18', NULL, 'Signature 18 has been found commonly in neuroblastoma. Additionally, Signature 18 has been also observed in breast and stomach carcinomas.'),
+('mutational_signature_19', NULL, 'Signature 19 has been found only in pilocytic astrocytoma.'),
+('mutational_signature_20', NULL, 'Signature 20 has been found in stomach and breast cancers.'),
+('mutational_signature_21', NULL, 'Signature 21 has been found only in stomach cancer.'),
+('mutational_signature_22', NULL, 'Signature 22 has been found in urothelial (renal pelvis) carcinoma and liver cancers.'),
+('mutational_signature_23', NULL, 'Signature 23 has been found only in a single liver cancer sample.'),
+('mutational_signature_24', NULL, 'Signature 24 has been observed in a subset of liver cancers.'),
+('mutational_signature_25', NULL, 'Signature 25 has been observed in Hodgkin lymphomas.'),
+('mutational_signature_26', NULL, 'Signature 26 has been found in breast cancer, cervical cancer, stomach cancer and uterine carcinoma.'),
+('mutational_signature_27', NULL, 'Signature 27 has been observed in a subset of kidney clear cell carcinomas.'),
+('mutational_signature_28', NULL, 'Signature 28 has been observed in a subset of stomach cancers.'),
+('mutational_signature_29', NULL, 'Signature 29 has been observed only in gingivo-buccal oral squamous cell carcinoma.'),
+('mutational_signature_30', NULL, 'Signature 30 has been observed in a small subset of breast cancers.');
+
+--add temporary column in genetic_entity to support migration
+ALTER TABLE `genetic_entity` 
+ADD COLUMN `TMP_MUTATIONAL_SIGNATURE_ID` VARCHAR (30) NULL AFTER `ENTITY_TYPE`;
+
+--autoincrement genetic_entity table and add mutational signatures as new genetic entities
+INSERT INTO genetic_entity (ENTITY_TYPE, TMP_MUTATIONAL_SIGNATURE_ID) 
+(SELECT 'MUTATIONAL_SIGNATURE', MUTATIONAL_SIGNATURE_ID FROM mutational_signature);
+
+--update mutational signature table to have GENETIC_ENTITY_ID match the correct one in the genetic_entity table
+UPDATE mutational_signature INNER JOIN genetic_entity on mutational_signature.mutational_signature_id = 
+genetic_entity.TMP_MUTATIONAL_SIGNATURE_ID SET GENETIC_ENTITY_ID = genetic_entity.ID;
+
+--make GENETIC_ENTITY_ID a foreign key
+ALTER TABLE mutational_signature CHANGE COLUMN `GENETIC_ENTITY_ID` `GENETIC_ENTITY_ID` INT NOT NULL,
+ADD UNIQUE INDEX `MUTATIONAL_SIGNATURE_GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID` ASC),
+ADD FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE;
+
+-- drop temporary column:
+ALTER TABLE `genetic_entity` DROP COLUMN `TMP_MUTATIONAL_SIGNATURE_ID`;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.6.2";

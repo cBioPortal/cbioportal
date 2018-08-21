@@ -37,8 +37,6 @@
 package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.model.MutationalSignatureMeta;
-import org.mskcc.cbio.portal.scripts.ImportMutationalSignatureMetaData;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.sql.*;
 import java.util.*;
@@ -121,7 +119,7 @@ public class DaoMutationalSignature {
     public static void updateMutationalSignature(MutationalSignatureMeta mutationalSignatureMeta) throws DaoException {
         String SQL = "UPDATE mutational_signature SET " +
             "`DESCRIPTION` = ?" +
-            "WHERE `MUTATIONAL_SIGNATURE` = ?";
+            "WHERE `MUTATIONAL_SIGNATURE_ID` = ?";
 
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -130,6 +128,7 @@ public class DaoMutationalSignature {
             con = JdbcUtil.getDbConnection(DaoMutationalSignature.class);
             pstmt = con.prepareStatement(SQL);
             pstmt.setString(1, mutationalSignatureMeta.getDescription());
+            pstmt.setString(2, mutationalSignatureMeta.getMutationalSignatureId());
             pstmt.executeUpdate();
         }
         catch (SQLException e) {

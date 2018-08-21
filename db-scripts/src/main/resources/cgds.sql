@@ -97,7 +97,7 @@ DROP TABLE IF EXISTS `type_of_cancer`;
 DROP TABLE IF EXISTS `geneset_hierarchy_leaf`;
 DROP TABLE IF EXISTS `geneset_hierarchy_node`;
 DROP TABLE IF EXISTS `geneset`;
-DROP TABLE IF EXISTS 'mutational_signature';
+DROP TABLE IF EXISTS `mutational_signature`;
 DROP TABLE IF EXISTS `genetic_entity`;
 DROP TABLE IF EXISTS `reference_genome`;
 

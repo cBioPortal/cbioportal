@@ -563,8 +563,13 @@ public class GlobalProperties {
     public static String getEmailContact()
     {
         String emailAddress = portalProperties.getProperty(SKIN_EMAIL_CONTACT);
-        return (emailAddress == null) ? DEFAULT_EMAIL_CONTACT :
-            ("<span class=\"mailme\" title=\"Contact us\">" + emailAddress + "</span>");
+        if (emailAddress == null)
+            emailAddress = DEFAULT_EMAIL_CONTACT;
+        return (
+                "<span class=\"mailme\" title=\"Contact us\">" +
+                emailAddress +
+                "</span>"
+        );
     }
 
     public static boolean includeNetworks()

@@ -1,3 +1,8 @@
+## Auguest 20, 2018
+ *   Now you can log in on the public cBioPortal with your Google account and save your virtual studies for quick analysis.
+
+![image](https://user-images.githubusercontent.com/840895/44370286-902a8700-a4a7-11e8-9c8f-dfda87fbd66b.png)
+
 ## August 7, 2018
  *   The eighth phase of the cBioPortal architectural upgrade is now complete: The _Plots_, _Expression_, _Network_, and _Bookmarks_ tabs, and therefore all analysis tabs in the _results page_, have been moved to the new architecture.
  *   Updated the [MutationMapper tool](http://www.cbioportal.org/mutation_mapper.jsp), now connecting to [Genome Nexus](https://genomenexus.org/) for annotating mutations on the fly.

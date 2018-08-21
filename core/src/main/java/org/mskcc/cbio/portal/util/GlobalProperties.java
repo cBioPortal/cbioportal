@@ -1005,6 +1005,18 @@ public class GlobalProperties {
         return (tabs.length > 0 && disabledTabs.length() > 0) ? Arrays.asList(tabs) : new ArrayList<String>();
     }
     
+    public static String getDisabledTabList() {
+        String disabledTabs = "";
+        try {
+            disabledTabs = portalProperties.getProperty(DISABLED_TABS).trim();
+        }
+        catch (NullPointerException e) {}
+        
+        return disabledTabs;
+
+    }
+    
+   
     public static String getDefaultOncoprintView() {
         String defaultOncoprintView = portalProperties.getProperty(ONCOPRINT_DEFAULTVIEW);
         if (defaultOncoprintView == null || defaultOncoprintView.isEmpty()) {

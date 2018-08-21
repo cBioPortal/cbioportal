@@ -65,6 +65,7 @@ studies += "}";
     priorityStudies : <%=studies%>,
     sessionServiceIsEnabled: '<%=GlobalProperties.getSessionServiceUrl()%>' !== "",
     baseUrl:"<%=baseURL%>",
-    fontendCongfigOveride:JSON.parse('<%=GlobalProperties.getFrontendConfig()%>')
+    fontendCongfigOveride:JSON.parse('<%=GlobalProperties.getFrontendConfig()%>'),
+    disabledTabs: '<%=GlobalProperties.getDisabledTabList()%>'.split("|") 
 });
 

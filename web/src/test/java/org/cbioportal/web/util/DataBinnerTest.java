@@ -371,7 +371,7 @@ public class DataBinnerTest
     }
 
     @Test
-    public void scientificDataBinner()
+    public void testScientificDataBinner()
     {
         String studyId = "blca_dfarber_mskcc_2014";
         String attributeId = "SILENT_RATE";

@@ -25,8 +25,8 @@
     "sequenced": 60,
     "has_cna_data": 50,
     "sample_count_patient": 40,
-    "mutation_count": 30,
-    "copy_number_alterations": 20,
+    "MUTATION_COUNT": 30,
+    "FRACTION_GENOME_ALTERED": 20,
     "GENDER": 9,
     "SEX": 9,
     "AGE": 9

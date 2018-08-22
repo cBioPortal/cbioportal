@@ -7,19 +7,15 @@ Make sure that you have cloned the last code, and make sure you are on the ```ma
 	git clone https://github.com/cBioPortal/cbioportal.git
 	git checkout master
 
-## Prepare Property Files
-
-The portal requires two properties files:  one for global configuration (`portal.properties`) and one for logging (`log4j.properties`).  Example files are available within GitHub, but you must take the following steps to prepare them.
-
-    cd src/main/resources
-    cp portal.properties.EXAMPLE portal.properties
-    cp log4j.properties.EXAMPLE log4j.properties
-
-For more information about the `portal.properties` file, see the following [reference](portal.properties-Reference.md) page.
-
 ## Prepare the log4j.properties File
 
-Update the following lines with paths that make sense for your local system.
+This file configures logging for the portal.
+An example file is available within GitHub:
+
+    cd src/main/resources
+    cp log4j.properties.EXAMPLE log4j.properties
+
+But you must update the following lines with paths that make sense for the systems your build should target.
 
     log4j.appender.a.rollingPolicy.FileNamePattern = ${catalina.base}/logs/public-portal.log.%d.gz
     log4j.appender.a.File = ${catalina.base}/logs/public-portal.log
@@ -72,14 +68,5 @@ A sample file is shown below:
         </server>
       </servers>
     </settings>
-
-## Set the PORTAL_HOME Variable
-
-Prior to building, you must specify an environment variable for `PORTAL_HOME`.  This must point to the root directory containing the portal source code.
-
-For example, add the following to your `.bash_profile`:
-
-    export PORTAL_HOME=/Users/ecerami/dev/cbioportal
-
 
 [Next Step: Building From Source](Build-from-Source.md)

@@ -2,7 +2,14 @@
 
 cBioPortal contains a number of properties that allow you to customize your cBioPortal instance. 
 
-This page focuses on the skin properties, which allow you to customize the web page cosmetics, such as custom images, texts, which tabs are visible, etc. Nearly all the skins properties have defaults, which can be overwritten by changing the `portal.properties` file, located in `{PORTAL_HOME}/src/main/resources/portal.properties`. If your cBioPortal instance does not yet contain a `portal.properties` file, you can copy the `portal.properties.EXAMPLE` and edit it. 
+This page focuses on the skin properties, which allow you to
+customize the web page cosmetics, such as custom images,
+texts, which tabs are visible, etc.
+Nearly all the skins properties have defaults, which can be overwritten by
+changing the `portal.properties` file located in `$PORTAL_HOME`--see
+[the deployment manual](Deploying.md). If your cBioPortal instance
+does not yet contain a `portal.properties` file, you can copy
+`src/main/resources/portal.properties.EXAMPLE` and edit it.
 
 Below you can find the complete list of all the available skin properties.
 

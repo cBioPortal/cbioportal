@@ -990,9 +990,10 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
             # treat empty string as a missing value
             if hugo_symbol == '':
                 hugo_symbol = None
-            # In case of CNA data the Hugo Symbol should be split when gene symbol contains pipe
-            if (type(self) is CNAValidator or type(self) is CNAContinuousValuesValidator) and '|' in hugo_symbol:
-                hugo_symbol = hugo_symbol.split('|')[0]
+            if hugo_symbol is not None:
+                # In case of CNA data the Hugo Symbol should be split when gene symbol contains pipe
+                if (type(self) is CNAValidator or type(self) is CNAContinuousValuesValidator) and '|' in hugo_symbol:
+                    hugo_symbol = hugo_symbol.split('|')[0]
         if 'Entrez_Gene_Id' in self.nonsample_cols:
             entrez_index = self.nonsample_cols.index('Entrez_Gene_Id')
             entrez_id = nonsample_col_vals[entrez_index].strip()

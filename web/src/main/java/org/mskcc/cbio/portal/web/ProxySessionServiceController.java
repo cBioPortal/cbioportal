@@ -12,6 +12,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONObject;
 import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudy;
 import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudyData;
@@ -41,7 +42,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequestMapping("/proxy/session")
 public class ProxySessionServiceController {
 
-    @Value("${session.service.url:''}")
+    @Value("${session.service.url:}")
     private String sessionServiceURL;
     
     
@@ -79,7 +80,7 @@ public class ProxySessionServiceController {
     public @ResponseBody List<VirtualStudy> getUserStudies() {
         List<VirtualStudy> virtualStudies = new ArrayList<>();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+        if (!StringUtils.isEmpty(sessionServiceURL) && authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<VirtualStudy[]> responseEntity = restTemplate.getForEntity(
                     sessionServiceURL + "virtual_study/query?field=data.users&value=" + 
@@ -112,7 +113,7 @@ public class ProxySessionServiceController {
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
-        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+        if (!StringUtils.isEmpty(sessionServiceURL) && authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
                 updateVirutalStudyUser(id,
                                        ((UserDetails)authentication.getPrincipal()).getUsername(),
                                        Operation.add,
@@ -129,7 +130,7 @@ public class ProxySessionServiceController {
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
-        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+        if (!StringUtils.isEmpty(sessionServiceURL) && authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             updateVirutalStudyUser(id,
                                    ((UserDetails)authentication.getPrincipal()).getUsername(),
                                    Operation.delete,

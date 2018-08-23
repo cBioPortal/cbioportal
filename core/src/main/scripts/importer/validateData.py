@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 #
 # Copyright (c) 2016 The Hyve B.V.
@@ -31,6 +31,7 @@ Run with the command line option --help for usage information.
 # imports
 import sys
 import os
+import importlib
 import logging.handlers
 from collections import OrderedDict
 import argparse
@@ -40,9 +41,21 @@ import itertools
 import requests
 import json
 import xml.etree.ElementTree as ET
-import re
+from pathlib import Path
+from base64 import urlsafe_b64encode
 
-import cbioportal_common
+# configure relative imports if running as a script; see PEP 366
+if __name__ == "__main__" and __package__ is None:
+    # replace the script's location in the Python search path by the main
+    # scripts/ folder, above it, so that the importer package folder is in
+    # scope and *not* directly in sys.path; see PEP 395
+    sys.path[0] = str(Path(sys.path[0]).resolve().parent)
+    __package__ = 'importer'
+    # explicitly import the package, which is needed on CPython 3.4 because it
+    # doesn't include https://github.com/python/cpython/pull/2639
+    importlib.import_module(__package__)
+
+from . import cbioportal_common
 
 
 # ------------------------------------------------------------------------------
@@ -180,11 +193,16 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
             # trim whitespace around Jinja2 operators
             trim_blocks=True,
             lstrip_blocks=True)
-        # refer to this function so that it can be used in the template:
+        # register these functions to be used as filters in the template
+        def url_b64(unsafe_string):
+            """Encode a string as a base64 string with only id-safe chars."""
+            encoded_bytes = unsafe_string.encode('utf8')
+            b64_bytes = urlsafe_b64encode(encoded_bytes)
+            return b64_bytes.decode('ascii').rstrip('=')
+        j_env.filters['url_b64'] = url_b64
         j_env.filters['os.path.relpath'] = os.path.relpath
         template = j_env.get_template('validation_report_template.html.jinja')
-        # pylint falsely infers template to be a string -- trust me, it's not
-        doc = template.render(   # pylint: disable=no-member
+        doc = template.render(
             study_dir=self.study_dir,
             cbio_version=self.cbio_version,
             max_reported_values=self.max_reported_values,
@@ -253,7 +271,7 @@ class PortalInstance(object):
         self.entrez_set = set()
         for entrez_map in (hugo_entrez_map, alias_entrez_map):
             if entrez_map is not None:
-                for entrez_list in entrez_map.values():
+                for entrez_list in list(entrez_map.values()):
                     for entrez_id in entrez_list:
                         self.entrez_set.add(entrez_id)
         #Set defaults for genome version and species
@@ -346,8 +364,8 @@ class Validator(object):
         self.logger.debug('Starting validation of file')
 
         try:
-            opened_file = open(self.filename, 'rU')
-        except IOError:
+            opened_file = open(self.filename, 'r', newline=None)
+        except OSError:
             self.logger.error('File could not be opened')
             return
         with opened_file as data_file:
@@ -404,11 +422,11 @@ class Validator(object):
                 return
 
             # parse the first non-commented line as the tsv header
-            header_cols = csv.reader(
+            header_cols = next(csv.reader(
                                      [header_line],
                                      delimiter='\t',
                                      quoting=csv.QUOTE_NONE,
-                                     strict=True).next()
+                                     strict=True))
             if self.checkHeader(header_cols) > 0:
                 if not self.relaxed_mode:
                     self.logger.error(
@@ -583,7 +601,7 @@ class Validator(object):
 
     def _checkLineBreaks(self):
         """Checks line breaks, reports to user."""
-        if self.newlines not in("\r\n","\r","\n"):
+        if self.newlines not in("\r\n", "\r", "\n"):
             self.logger.error('No line breaks recognized in file',
                               extra={'cause': repr(self.newlines)[1:-1]})
 
@@ -991,7 +1009,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
             if hugo_symbol == '':
                 hugo_symbol = None
             # In case of CNA data the Hugo Symbol should be split when gene symbol contains pipe
-            if (type(self) is CNAValidator or type(self) is CNAContinuousValuesValidator) and '|' in hugo_symbol:
+            if (isinstance(self, CNAValidator) or isinstance(self, CNAContinuousValuesValidator)) and '|' in hugo_symbol:
                 hugo_symbol = hugo_symbol.split('|')[0]
         if 'Entrez_Gene_Id' in self.nonsample_cols:
             entrez_index = self.nonsample_cols.index('Entrez_Gene_Id')
@@ -1176,15 +1194,17 @@ class MutationsExtendedValidator(Validator):
         self.checkAlleleSpecialCases(data)
         self.checkValidationColumns(data)
 
-        for col_name in self.CHECK_FUNCTION_MAP:
-            # if optional column was found, validate it:
-            if col_name in self.cols:
+        for col_index, col_name in enumerate(self.cols):
+            # validate the column if there's a function defined for it
+            try:
+                check_function_name = self.CHECK_FUNCTION_MAP[col_name]
+            except KeyError:
+                pass
+            else:
                 col_index = self.cols.index(col_name)
                 value = data[col_index]
-                # get the checking method for this column if available, or None
-                checking_function = getattr(
-                    self,
-                    self.CHECK_FUNCTION_MAP[col_name])
+                # get the checking method for this column
+                checking_function = getattr(self, check_function_name)
                 if not checking_function(value):
                     self.printDataInvalidStatement(value, col_index)
                 elif self.extra_exists or self.extra:
@@ -1856,7 +1876,7 @@ class ClinicalValidator(Validator):
 
     REQUIRE_COLUMN_ORDER = False
     PROP_IS_PATIENT_ATTRIBUTE = None
-    NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]","[completed]","[null]", "", "na"]
+    NULL_VALUES = ["[not applicable]", "[not available]", "[pending]", "[discrepancy]", "[completed]", "[null]", "", "na"]
     ALLOW_BLANKS = True
     METADATA_LINES = ('display_name',
                       'description',
@@ -2225,7 +2245,7 @@ class SampleClinicalValidator(ClinicalValidator):
         """Initialize the validator to track sample ids defined."""
         super(SampleClinicalValidator, self).__init__(*args, **kwargs)
         self.sample_id_lines = {}
-        self.sampleIds = self.sample_id_lines.viewkeys()
+        self.sampleIds = self.sample_id_lines.keys()
         self.patient_ids = set()
 
     def checkLine(self, data):
@@ -2429,7 +2449,7 @@ class SegValidator(Validator):
                 else:
                     self.logger.error(
                         ('Unknown chromosome, must be one of (%s)' %
-                         '|'.join(self.chromosome_lengths.keys())),
+                         '|'.join(list(self.chromosome_lengths.keys()))),
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
@@ -2519,6 +2539,10 @@ class SegValidator(Validator):
         the mitochondrial chromosome.
         """
 
+        class InvalidAPIResponse(ValueError):
+            def __init__(self, chrom_size_url, line):
+                super().__init__('Unexpected response from {}: {}'.format(
+                    chrom_size_url, repr(line)))
         chrom_size_dict = {}
         chrom_size_url = (
             'http://hgdownload.cse.ucsc.edu'
@@ -2530,38 +2554,34 @@ class SegValidator(Validator):
         try:
             r.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            raise IOError('Error retrieving chromosome lengths from UCSC: ' +
-                          e.message)
+            raise ConnectionError(
+                'Error retrieving chromosome lengths from UCSC'
+            ) from e
         for line in r.text.splitlines():
-            try:
-                # skip comment lines
-                if line.startswith('#'):
-                    continue
-                cols = line.split('\t', 1)
-                if not (len(cols) == 2 and
-                        cols[0].startswith('chr')):
-                    raise IOError()
-                # skip unplaced sequences
-                if cols[0].endswith('_random') or cols[0].startswith('chrUn_'):
-                    continue
-                # skip entries for alternative haplotypes
-                if re.search(r'_hap[0-9]+$', cols[0]):
-                    continue
-                # skip the mitochondrial chromosome
-                if cols[0] == 'chrM':
-                    continue
+            # skip comment lines
+            if line.startswith('#'):
+                continue
+            cols = line.split('\t', 1)
+            if not (len(cols) == 2 and
+                    cols[0].startswith('chr')):
+                raise InvalidAPIResponse(chrom_size_url, line)
+            # skip unplaced sequences
+            if cols[0].endswith('_random') or cols[0].startswith('chrUn_'):
+                continue
+            # skip entries for alternative haplotypes
+            if re.search(r'_hap[0-9]+$', cols[0]):
+                continue
+            # skip the mitochondrial chromosome
+            if cols[0] == 'chrM':
+                continue
 
-                # remove the 'chr' prefix
-                chrom_name = cols[0][3:]
-                try:
-                    chrom_size = int(cols[1])
-                except ValueError:
-                    raise IOError()
-                chrom_size_dict[chrom_name] = chrom_size
-            except IOError:
-                raise IOError(
-                    "Unexpected response from {url}: {line}".format(
-                        url=chrom_size_url, line=repr(line)))
+            # remove the 'chr' prefix
+            chrom_name = cols[0][3:]
+            try:
+                chrom_size = int(cols[1])
+            except ValueError as e:
+                raise InvalidAPIResponse(chrom_size_url, line) from e
+            chrom_size_dict[chrom_name] = chrom_size
         return chrom_size_dict
 
 
@@ -2770,7 +2790,9 @@ class CancerTypeValidator(Validator):
 
     def checkHeader(self, cols):
         """Check the first uncommented line just like any other data line."""
-        return self.checkLine(cols)
+        self.checkLine(cols)
+        # the number of 'header errors' that break TSV parsing is always zero
+        return 0
 
     def checkLine(self, data):
         """Check a data line in a cancer type file."""
@@ -3499,19 +3521,19 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
 
         # Check for any duplicate sample IDs
         sample_ids = [x.strip() for x in meta_dictionary['case_list_ids'].split('\t')]
-        seen_sample_ids = set()
-        dupl_sample_ids = set()
+        seen_sample_ids = OrderedDict()
+        dupl_sample_ids = OrderedDict()
         for sample_id in sample_ids:
             if sample_id not in seen_sample_ids:
-                seen_sample_ids.add(sample_id)
+                seen_sample_ids[sample_id] = True
             else:
-                dupl_sample_ids.add(sample_id)
+                dupl_sample_ids[sample_id] = True
         # Duplicate samples IDs are removed by the importer, therefore this is
         # only a warning.
         if len(dupl_sample_ids) > 0:
             logger.warning('Duplicate Sample ID in case list',
                            extra={'filename_': case,
-                           'cause': ', '.join(dupl_sample_ids)})
+                           'cause': ', '.join(dupl_sample_ids.keys())})
 
         for value in seen_sample_ids:
             # Compare case list sample ids with clinical file
@@ -3624,12 +3646,12 @@ def validate_dependencies(validators_by_meta_type, logger):
             else:
                 # Validate that GSVA_SCORES 'source_stable_id' is also a 'source_stable_id'
                 # in a Z-SCORE expression file
-                if not gsva_scores_source_stable_id in expression_zscores_source_stable_ids.keys():
+                if not gsva_scores_source_stable_id in list(expression_zscores_source_stable_ids.keys()):
                     logger.error(
                         "source_stable_id does not match source_stable_id from Z-Score expression files. "
                         "Please make sure sure that Z-Score expression file is added for '" +
                         gsva_scores_source_stable_id + "'. Current Z-Score source stable ids found are ['" +
-                        "', '".join(expression_zscores_source_stable_ids.keys()) +"'].",
+                        "', '".join(list(expression_zscores_source_stable_ids.keys())) +"'].",
                         extra={'filename_': gsva_scores_filename,
                                'cause': gsva_scores_source_stable_id})
 
@@ -3653,10 +3675,9 @@ def request_from_portal_api(server_url, api_name, logger):
     try:
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        raise IOError(
-            'Connection error for URL: {url}. Administrator: please check if '
-            '[{url}] is accessible. Message: {msg}'.format(url=service_url,
-                                                           msg=e.message))
+        raise ConnectionError(
+            'Failed to fetch metadata from the portal at [{}]'.format(service_url)
+        ) from e
     return response.json()
 
 
@@ -3671,7 +3692,7 @@ def read_portal_json_file(dir_path, api_name, logger):
     if os.path.isfile(json_fn):
         logger.debug('Reading portal information from %s',
                     json_fn)
-        with open(json_fn, 'rU') as json_file:
+        with open(json_fn, 'r') as json_file:
             parsed_json = json.load(json_file)
     return parsed_json
 
@@ -3769,9 +3790,8 @@ def load_portal_info(path, logger, offline=False):
         if parsed_json is not None and transform_function is not None:
             parsed_json = transform_function(parsed_json)
         portal_dict[api_name] = parsed_json
-    if all(d is None for d in portal_dict.values()):
-        raise IOError('No portal information found at {}'.format(
-                          path))
+    if all(d is None for d in list(portal_dict.values())):
+        raise LookupError('No portal information found at {}'.format(path))
     return PortalInstance(cancer_type_dict = portal_dict['cancertypes'],
                           hugo_entrez_map = portal_dict['genes'],
                           alias_entrez_map = portal_dict['genesaliases'],
@@ -3934,13 +3954,15 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
                 validators_by_meta_type[
                     cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES])})
 
-    # next validate all other data files
-    for meta_file_type in validators_by_meta_type:
+    # next validate all other data files, from meta_aaa to meta_zzz
+    for meta_file_type in sorted(validators_by_meta_type):
         # skip cancer type and clinical files, they have already been validated
         if meta_file_type in (cbioportal_common.MetaFileTypes.CANCER_TYPE,
                               cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES):
             continue
-        for validator in validators_by_meta_type[meta_file_type]:
+        for validator in sorted(
+                validators_by_meta_type[meta_file_type],
+                key=lambda validator: validator and validator.filename):
             # if there was no validator for this meta file
             if validator is None:
                 continue
@@ -3960,8 +3982,8 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
                 prev_stableid_files=defined_case_list_fns)
 
     validate_defined_caselists(
-        study_id, defined_case_list_fns.keys(),
-        file_types=validators_by_meta_type.keys(),
+        study_id, list(defined_case_list_fns.keys()),
+        file_types=list(validators_by_meta_type.keys()),
         logger=logger)
 
     logger.info('Validation complete')
@@ -4001,7 +4023,7 @@ def main_validate(args):
 
     # check existence of directory
     if not os.path.exists(study_dir):
-        print >> sys.stderr, 'directory cannot be found: ' + study_dir
+        print('directory cannot be found: ' + study_dir, file=sys.stderr)
         return 2
 
     # set default message handler
@@ -4024,8 +4046,8 @@ def main_validate(args):
     try:
         # parse xml
         xml_root = ET.parse(pom_path).getroot()
-    except IOError:
-        logger.warning('Unable to read xml containing cBioPortal version.')
+    except OSError:
+        logger.info('Unable to read xml containing cBioPortal version.')
     else:
         for xml_child in xml_root:
 
@@ -4107,9 +4129,9 @@ if __name__ == '__main__':
     finally:
         logging.shutdown()
         del logging._handlerList[:]  # workaround for harmless exceptions on exit
-    print >>sys.stderr, ('Validation of study {status}.'.format(
+    print(('Validation of study {status}.'.format(
         status={0: 'succeeded',
                 1: 'failed',
                 2: 'not performed as problems occurred',
-                3: 'succeeded with warnings'}.get(exit_status, 'unknown')))
+                3: 'succeeded with warnings'}.get(exit_status, 'unknown'))), file=sys.stderr)
     sys.exit(exit_status)

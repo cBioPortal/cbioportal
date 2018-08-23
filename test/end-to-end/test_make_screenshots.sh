@@ -69,6 +69,10 @@ screenshots_failed=()
 echo "Running screenshot tests"
 for ((i=0; i < ${#config_screenshot_names[@]}; i++)); do
     name=${config_screenshot_names[$i]}
+    if [[ "$name" == -skipped-* ]]; then
+        echo -e "${YELLOW}WARNING: $NC$name"
+        continue
+    fi
     url="${config_portal_url}${config_screenshot_urls[$i]}"
     max_retries=${config_screenshot_retry[$i]}
 

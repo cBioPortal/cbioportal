@@ -596,7 +596,8 @@ public class GlobalProperties {
         String studyviewLinkText = portalProperties.getProperty(SKIN_STUDY_VIEW_LINK_TEXT);
         return (studyviewLinkText == null) ? DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT : studyviewLinkText;
     }
-
+    
+    // defunct.  see below
     public static String getEmailContact()
     {
         String emailAddress = portalProperties.getProperty(SKIN_EMAIL_CONTACT);
@@ -607,6 +608,11 @@ public class GlobalProperties {
                 emailAddress +
                 "</span>"
         );
+    }
+    
+    public static String getContactEmailAddress()
+    {
+        return portalProperties.getProperty(SKIN_EMAIL_CONTACT);
     }
 
     public static boolean includeNetworks()

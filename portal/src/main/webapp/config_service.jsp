@@ -65,6 +65,24 @@ studies += "}";
     priorityStudies : <%=studies%>,
     sessionServiceIsEnabled: '<%=GlobalProperties.getSessionServiceUrl()%>' !== "",
     baseUrl:"<%=baseURL%>",
-    fontendCongfigOveride:JSON.parse('<%=GlobalProperties.getFrontendConfig()%>')
+    fontendCongfigOveride:JSON.parse('<%=GlobalProperties.getFrontendConfig()%>'),
+    skinShowDataTabSets: (<%=GlobalProperties.showDataTab()%> === true),
+    skinShowNewsTab: (<%=GlobalProperties.showNewsTab()%> === true),
+    skinShowFAQSTab: (<%=GlobalProperties.showFaqsTab()%> === true),
+    skinShowToolsTab: (<%=GlobalProperties.showToolsTab()%> === true),
+    skinShowAboutTab: (<%=GlobalProperties.showAboutTab()%> === true),
+    skinShowWebAPITab: (<%=GlobalProperties.showWebApiTab()%> === true),
+    skinShowRmatLABTab : (<%=GlobalProperties.showRMatlabTab()%> === true),
+    skinShowTutorialsTab: (<%=GlobalProperties.showTutorialsTab()%> === true),
+    emailContactAddress: "<%=GlobalProperties.getContactEmailAddress()%>",
+    skinDocumentationBaseUrl: "<%=GlobalProperties.getBaseUrl()%>",
+    skinIsMarkdownDocumentation: (<%=GlobalProperties.isMarkdownDocumentation()%> === true),
+    skinFaqSourceURL: "<%=GlobalProperties.getFaqHtml()%>",
+    skinAboutSourceURL: "<%=GlobalProperties.getAboutHtml()%>",
+    skinNewsSourceURL: "<%=GlobalProperties.getNewsHtml()%>",
+    skinOQLSourceURL: "<%=GlobalProperties.getOqlHtml()%>",
+  
+    
+  
 });
 

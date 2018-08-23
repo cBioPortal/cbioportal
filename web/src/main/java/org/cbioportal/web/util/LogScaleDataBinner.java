@@ -38,7 +38,37 @@ public class LogScaleDataBinner
             }
         }
 
-        return dataBinHelper.initDataBins(
-            attributeId, values, intervals, lowerOutlier, upperOutlier);
+        List<Double> filteredIntervals = dataBinHelper.filterIntervals(intervals, lowerOutlier, upperOutlier);
+
+        // we don't want intervals start or end with non-integer powers of 10, so adjust if needed
+        if (filteredIntervals.size() > 0)
+        {
+            Double first = filteredIntervals.get(0);
+            Double last = filteredIntervals.get(filteredIntervals.size() - 1);
+            
+            if (first != 1 && first % 10 != 0) {
+                first = Math.pow(10, Math.floor(Math.log10(first)));
+                
+                if (!lowerOutlier.equals(boxRange.lowerEndpoint()) && first < lowerOutlier) {
+                    filteredIntervals.remove(0);
+                }
+                else {
+                    filteredIntervals.add(0, first);
+                }
+            }
+            
+            if (last != 1 && last % 10 != 0) {
+                last = Math.pow(10, Math.ceil(Math.log10(last)));
+                
+                if (!upperOutlier.equals(boxRange.upperEndpoint()) && last > upperOutlier) {
+                    filteredIntervals.remove(filteredIntervals.size() - 1);
+                }
+                else {
+                    filteredIntervals.add(last);
+                }
+            }
+        }
+        
+        return dataBinHelper.initDataBins(attributeId, values, filteredIntervals);
     }
 }

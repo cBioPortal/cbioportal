@@ -121,7 +121,13 @@ public class DataBinHelper
         return Range.closed(minValue, maxValue);
     }
     
-    
+    public List<Double> filterIntervals(List<Double> intervals, Double lowerOutlier, Double upperOutlier)
+    {
+        // remove values that fall outside the lower and upper outlier limits
+        return intervals.stream()
+            .filter(d -> (lowerOutlier == null || d > lowerOutlier) && (upperOutlier == null || d < upperOutlier))
+            .collect(Collectors.toList());
+    }
     
     public List<DataBin> initDataBins(String attributeId,
                                       List<Double> values,
@@ -129,15 +135,19 @@ public class DataBinHelper
                                       Double lowerOutlier,
                                       Double upperOutlier)
     {
-        // remove values that fall outside the lower and upper outlier limits
-        intervals = intervals.stream()
-            .filter(d -> (lowerOutlier == null || d > lowerOutlier) && (upperOutlier == null || d < upperOutlier))
-            .collect(Collectors.toList());
+        return initDataBins(attributeId,
+            values,
+            filterIntervals(intervals, lowerOutlier, upperOutlier));
+    }
 
+    public List<DataBin> initDataBins(String attributeId,
+                                      List<Double> values,
+                                      List<Double> intervals)
+    {
         List<DataBin> dataBins = initDataBins(attributeId, intervals);
 
         calcCounts(dataBins, values);
-        
+
         return dataBins;
     }
     

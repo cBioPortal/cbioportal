@@ -95,6 +95,8 @@ public class StudyViewController {
         @RequestParam(defaultValue = "SAMPLE") ClinicalDataType clinicalDataType,
         @ApiParam("Method for data binning")
         @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
+        @ApiParam("Whether to disable log scaling")
+        @RequestParam(defaultValue = "false") Boolean disableLogScale,
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody StudyViewFilter studyViewFilter) {
 
@@ -118,12 +120,13 @@ public class StudyViewController {
             
             if (unfilteredClinicalData != null) {
                 clinicalDataBins = dataBinner.calculateClinicalDataBins(
-                    attributeId, filteredClinicalData, unfilteredClinicalData, filteredIds, unfilteredIds);
+                    attributeId, filteredClinicalData, unfilteredClinicalData, filteredIds, unfilteredIds, disableLogScale);
             }
         }
         else { // dataBinMethod == DataBinMethod.DYNAMIC
             if (filteredClinicalData != null) {
-                clinicalDataBins = dataBinner.calculateClinicalDataBins(attributeId, filteredClinicalData, filteredIds);
+                clinicalDataBins = dataBinner.calculateClinicalDataBins(
+                    attributeId, filteredClinicalData, filteredIds, disableLogScale);
             }
         }
         

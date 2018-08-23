@@ -41,8 +41,20 @@ public class DataBinner
                                                    List<String> filteredIds,
                                                    List<String> unfilteredIds)
     {
+        return calculateClinicalDataBins(
+            attributeId, filteredClinicalData, unfilteredClinicalData, filteredIds, unfilteredIds, false);
+    }
+    
+    public List<DataBin> calculateClinicalDataBins(String attributeId,
+                                                   List<ClinicalData> filteredClinicalData,
+                                                   List<ClinicalData> unfilteredClinicalData,
+                                                   List<String> filteredIds,
+                                                   List<String> unfilteredIds,
+                                                   Boolean disableLogScale)
+    {
         // calculate data bins for unfiltered clinical data
-        List<DataBin> clinicalDataBins = calculateClinicalDataBins(attributeId, unfilteredClinicalData, unfilteredIds);
+        List<DataBin> clinicalDataBins = calculateClinicalDataBins(
+            attributeId, unfilteredClinicalData, unfilteredIds, disableLogScale);
         
         // recount
         return recalcBinCount(clinicalDataBins, filteredClinicalData, filteredIds);
@@ -88,12 +100,22 @@ public class DataBinner
         return clinicalDataBins;
     }
 
-    public List<DataBin> calculateClinicalDataBins(String attributeId, List<ClinicalData> clinicalData, List<String> ids)
+    public List<DataBin> calculateClinicalDataBins(String attributeId,
+                                                   List<ClinicalData> clinicalData,
+                                                   List<String> ids)
+    {
+        return calculateClinicalDataBins(attributeId, clinicalData, ids, false);
+    }
+    
+    public List<DataBin> calculateClinicalDataBins(String attributeId, 
+                                                   List<ClinicalData> clinicalData, 
+                                                   List<String> ids,
+                                                   Boolean disableLogScale)
     {
         DataBin upperOutlierBin = calcUpperOutlierBin(attributeId, clinicalData);
         DataBin lowerOutlierBin = calcLowerOutlierBin(attributeId, clinicalData);
         Collection<DataBin> numericalBins = calcNumericalClinicalDataBins(
-            attributeId, clinicalData, lowerOutlierBin, upperOutlierBin);
+            attributeId, clinicalData, lowerOutlierBin, upperOutlierBin, disableLogScale);
         
         List<DataBin> dataBins = new ArrayList<>();
         
@@ -161,12 +183,14 @@ public class DataBinner
     public Collection<DataBin> calcNumericalClinicalDataBins(String attributeId, 
                                                              List<ClinicalData> clinicalData, 
                                                              DataBin lowerOutlierBin, 
-                                                             DataBin upperOutlierBin)
+                                                             DataBin upperOutlierBin, 
+                                                             Boolean disableLogScale)
     {
         return calcNumericalDataBins(attributeId, 
             filterNumericalValues(clinicalData), 
             lowerOutlierBin, 
-            upperOutlierBin);
+            upperOutlierBin,
+            disableLogScale);
     }
     
     public List<Double> filterNumericalValues(List<ClinicalData> clinicalData)
@@ -181,7 +205,8 @@ public class DataBinner
     public Collection<DataBin> calcNumericalDataBins(String attributeId,
                                                      List<Double> numericalValues, 
                                                      DataBin lowerOutlierBin, 
-                                                     DataBin upperOutlierBin)
+                                                     DataBin upperOutlierBin,
+                                                     Boolean disableLogScale)
     {
         Predicate<Double> isLowerOutlier = new Predicate<Double>() {
             @Override
@@ -241,7 +266,8 @@ public class DataBinner
             Double upperOutlier = upperOutlierBin.getStart() == null ?
                 boxRange.upperEndpoint() : Math.min(boxRange.upperEndpoint(), upperOutlierBin.getStart());
             
-            if (boxRange.upperEndpoint() - boxRange.lowerEndpoint() > 1000)
+            if (boxRange.upperEndpoint() - boxRange.lowerEndpoint() > 1000 && 
+                (disableLogScale == null || !disableLogScale))
             {
                 dataBins = logScaleDataBinner.calculateDataBins(attributeId,
                     boxRange,
@@ -269,26 +295,43 @@ public class DataBinner
                     upperOutlier);
             }
 
-            // adjust the outlier limits
+            // adjust the outlier limits: 
+            // 
+            // - when there is no special outlier values within the original data (like "<=20", ">80")
+            // then prioritize dataBin values over box range values
+            // 
+            // - when there is special outlier values within the original data,
+            // then prioritize special outlier values over dataBin values
 
-            if (lowerOutlierBin.getEnd() == null ||
-                boxRange.lowerEndpoint() > lowerOutlierBin.getEnd() ||
-                (dataBins != null && dataBins.size() > 0 && dataBins.get(0).getStart() > lowerOutlierBin.getEnd()))
-            {
-                Double end = dataBins != null && dataBins.size() > 0 ?
-                    Math.max(boxRange.lowerEndpoint(), dataBins.get(0).getStart()) : boxRange.lowerEndpoint();
+            if (lowerOutlierBin.getEnd() == null) {
+                 
+                Double end = dataBins != null && dataBins.size() > 0 ? dataBins.get(0).getStart() : 
+                    boxRange.lowerEndpoint();
 
                 lowerOutlierBin.setEnd(end);
             }
+            else if (dataBins != null && dataBins.size() > 0) {
+                if (dataBins.get(0).getStart() > lowerOutlierBin.getEnd()) {
+                    lowerOutlierBin.setEnd(dataBins.get(0).getStart());
+                }
+                else {
+                    dataBins.get(0).setStart(lowerOutlierBin.getEnd());
+                }
+            }
 
-            if (upperOutlierBin.getStart() == null ||
-                boxRange.upperEndpoint() < upperOutlierBin.getStart() ||
-                (dataBins != null && dataBins.size() > 0 && dataBins.get(dataBins.size()-1).getEnd() < upperOutlierBin.getStart()))
-            {
-                Double start = dataBins != null && dataBins.size() > 0 ?
-                    Math.min(boxRange.upperEndpoint(), dataBins.get(dataBins.size()-1).getEnd()) : boxRange.upperEndpoint();
+            if (upperOutlierBin.getStart() == null) {
+                Double start = dataBins != null && dataBins.size() > 0 ? dataBins.get(dataBins.size()-1).getEnd() :
+                    boxRange.upperEndpoint();
 
                 upperOutlierBin.setStart(start);
+            }
+            else if (dataBins != null && dataBins.size() > 0) {
+                if (dataBins.get(dataBins.size()-1).getEnd() < upperOutlierBin.getStart()) {
+                    upperOutlierBin.setStart(dataBins.get(dataBins.size()-1).getStart());
+                }
+                else {
+                    dataBins.get(dataBins.size()-1).setEnd(upperOutlierBin.getStart());
+                }
             }
         }
         

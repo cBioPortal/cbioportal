@@ -16,14 +16,15 @@ Getting your study data into cBioPortal requires four steps:
 If you have a git clone of cBioPortal, the relevant scripts can be found in the folder: `<your_cbioportal_dir>/core/src/main/scripts/importer`
 
 ### Dependencies
-The scripts run in `python 2`, and they require the module `requests`. You can use this command to install the module:
+The scripts run in Python 3.4 or newer, and they require the module `requests`.
+You can use this command to install the module:
 ```console
-$ sudo pip2 install requests
+$ sudo python3 -m pip install requests
 ```
 
-If you want the scripts to be able to generate html reports (recommended way for reading the validation errors, if any), then you will also need to install `jinja2`. You can use this command: 
+If you want the scripts to be able to generate html reports (recommended way for reading the validation errors, if any), then you will also need to install `Jinja2`. You can use this command:
 ```console
-$ sudo pip2 install jinja2
+$ sudo python3 -m pip install Jinja2
 ```
 
 ## Preparing Study Data 

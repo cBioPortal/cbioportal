@@ -8,10 +8,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
         libmysql-java \
         patch \
-        python \
-        python-jinja2 \
-        python-mysqldb \
-        python-requests \
+        python3 \
+        python3-jinja2 \
+        python3-mysqldb \
+        python3-requests \
         maven \
         openjdk-8-jdk \
     && ln -s /usr/share/java/mysql-connector-java.jar "$CATALINA_HOME"/lib/ \

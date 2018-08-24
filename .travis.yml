@@ -26,7 +26,11 @@ install:
 - |
   if [[ "${TEST}" == python-validator ]]
   then
-      sudo -H pip install -r requirements.txt
+      sudo apt-get install python3.4-venv
+      python3.4 -m venv ~/python-env-validator
+      source ~/python-env-validator/bin/activate
+      trap 'deactivate' EXIT
+      pip install -r requirements.txt
   fi
 before_script:
 - |
@@ -42,11 +46,14 @@ script:
 - |
   if [[ "${TEST}" == python-validator ]]
   then
-      export PYTHONPATH=$PYTHONPATH:$PORTAL_HOME/core/src/main/scripts:/usr/local/lib/python2.7/dist-packages:/usr/lib/python2.7/dist-packages && \
-      cd $PORTAL_HOME/core/src/test/scripts/ && \
-      $PORTAL_HOME/core/src/test/scripts/./unit_tests_validate_data.py && \
-      $PORTAL_HOME/core/src/test/scripts/./system_tests_validate_data.py && \
-      cd $PORTAL_HOME
+      source ~/python-env-validator/bin/activate
+      trap 'deactivate' EXIT
+      export PYTHONPATH="$PORTAL_HOME/core/src/main/scripts:$PYTHONPATH" && \
+      pushd $PORTAL_HOME/core/src/test/scripts/ && \
+      python $PORTAL_HOME/core/src/test/scripts/unit_tests_validate_data.py && \
+      python $PORTAL_HOME/core/src/test/scripts/system_tests_validate_data.py && \
+      python $PORTAL_HOME/core/src/test/scripts/system_tests_validate_studies.py && \
+      popd
   fi
 - |
   if [[ "${TEST}" == core ]]

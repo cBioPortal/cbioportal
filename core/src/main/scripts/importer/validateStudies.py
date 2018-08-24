@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 """
 Copyright (c) 2018 The Hyve B.V.
@@ -46,13 +46,13 @@ def main(args):
     output_folder = args.html_folder
     if output_folder is not None:
         if not os.path.exists(output_folder):
-            print "HTML output folder did not exist, so is created: %s" % output_folder
+            print("HTML output folder did not exist, so is created: %s" % output_folder)
             os.makedirs(output_folder)
         logfilename = os.path.join(output_folder, only_logfilename)
     else:
         # Get systems temp directory and write log file
         logfilename = os.path.join(tempfile.gettempdir(), only_logfilename)
-    print '\nWriting validation logs to: {}'.format(logfilename)
+    print('\nWriting validation logs to: {}'.format(logfilename))
 
     # Make dictionary of possible exit status from validateData and values that should be printed in the console
     # when these exit statuses occur
@@ -64,7 +64,7 @@ def main(args):
     # Go through list of studies and run validation
     for study in list_studies:
         # Write to stdout and log file that we are validating this particular study
-        print "\n=== Validating study %s" %study
+        print("\n=== Validating study %s" %study)
 
         # Check which portal info variable is given as input, and set correctly in the arguments for validateData
         if args.portal_info_dir is not None:
@@ -111,9 +111,9 @@ def main(args):
             # file or when there is no cancer_study_identifier and it will not create the HTML file at all.
             except:
                 var_traceback = traceback.format_exc()
-                print '\x1b[31m' + "Error occurred during creating html file name:"
-                print var_traceback
-                print "Validation from study " + study + " will not be written to HTML file" + '\x1b[0m'
+                print('\x1b[31m' + "Error occurred during creating html file name:")
+                print(var_traceback)
+                print("Validation from study " + study + " will not be written to HTML file" + '\x1b[0m')
 
         # Get the path to the validator , in the same directory as this script
         validation_script = os.path.join(
@@ -137,9 +137,9 @@ def main(args):
         # Check exit status and print result
         exit_status_message = possible_exit_status.get(exit_status_study, 'Unknown status: {}'.format(exit_status_study))
         if exit_status_study == 0 or exit_status_study == 3:
-            print '\x1b[0m' + "Result: %s" % exit_status_message
+            print('\x1b[0m' + "Result: %s" % exit_status_message)
         else:
-            print '\x1b[0m' + "Result: " + '\x1b[31m' + exit_status_message + '\x1b[0m'
+            print('\x1b[0m' + "Result: " + '\x1b[31m' + exit_status_message + '\x1b[0m')
             validation_exit_status = 1  # When invalid check the exit status to one, for failing circleCI
 
     return validation_exit_status
@@ -201,6 +201,6 @@ if __name__ == '__main__':
     parsed_args = interface()
     exit_status = main(parsed_args)
 
-    print "\n\nOverall exit status: %s" %exit_status
+    print("\n\nOverall exit status: %s" %exit_status)
     sys.exit(exit_status)
 

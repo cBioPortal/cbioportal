@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 """
 Copyright (c) 2018 The Hyve B.V.
@@ -11,7 +11,7 @@ import sys
 import os
 import glob
 from contextlib import contextmanager
-from StringIO import StringIO
+from io import StringIO
 import logging.handlers
 import tempfile
 import shutil
@@ -61,57 +61,57 @@ class ValidateStudiesSystemTester(unittest.TestCase):
         """
 
         # Build up arguments and run
-        print "===study 0"
+        print("===study 0")
         args = ['--list-of-studies', 'test_data/study_es_0/',
                 '--portal_info_dir', PORTAL_INFO_DIR]
         args = validateStudies.interface(args)
         exit_status = validateStudies.main(args)
-        self.assertEquals(0, exit_status)
+        self.assertEqual(0, exit_status)
 
     def test_exit_status_failure(self):
         """study 1 : errors, expected exit_status = 1."""
 
         # Build up arguments and run
-        print "===study 1"
+        print("===study 1")
         args = ['--list-of-studies', 'test_data/study_es_1/',
                 '--portal_info_dir', PORTAL_INFO_DIR]
         args = validateStudies.interface(args)
         exit_status = validateStudies.main(args)
-        self.assertEquals(1, exit_status)
+        self.assertEqual(1, exit_status)
 
     def test_exit_status_invalid(self):
         """test to fail: study directory not existing, so cannot run validation, expected exit_status = 1."""
 
         # Build up arguments and run
-        print "===study invalid"
+        print("===study invalid")
         args = ['--list-of-studies', 'test_data/study_es_invalid/',
                 '--portal_info_dir', PORTAL_INFO_DIR]
         args = validateStudies.interface(args)
         exit_status = validateStudies.main(args)
-        self.assertEquals(1, exit_status)
+        self.assertEqual(1, exit_status)
 
     def test_exit_status_warnings(self):
         """study 3 : warnings only, expected exit_status = 0."""
 
         # Build up arguments and run
-        print "===study 3"
-        args = ['--list-of-studies','test_data/study_es_3/',
+        print("===study 3")
+        args = ['--list-of-studies', 'test_data/study_es_3/',
                 '--portal_info_dir', PORTAL_INFO_DIR]
         args = validateStudies.interface(args)
         exit_status = validateStudies.main(args)
-        self.assertEquals(0, exit_status)
+        self.assertEqual(0, exit_status)
 
     def test_exit_status_multiple_studies(self):
         """Running validateStudies for four studies tested above, expected exit_status = 1."""
 
         # Build up arguments and run
-        print "===study0,1,invalid,3"
+        print("===study0,1,invalid,3")
         args = ['--root-directory', 'test_data',
                 '--list-of-studies', 'study_es_0,study_es_1,study_es_invalid,study_es_3',
                 '--portal_info_dir', PORTAL_INFO_DIR]
         args = validateStudies.interface(args)
         exit_status = validateStudies.main(args)
-        self.assertEquals(1, exit_status)
+        self.assertEqual(1, exit_status)
 
     def test_logs_study_label_before_validation_messages(self):
         """The log file should start with a line describing the study.
@@ -159,7 +159,7 @@ class ValidateStudiesWithEagerlyFlushingCollapser(unittest.TestCase):
                 """Set the buffer capacity to 3 regardless of args."""
                 # leave out any capacity argument from args and kwargs
                 args = args[1:]
-                kwargs = {k: v for k, v in kwargs.items() if k != 'capacity'}
+                kwargs = {k: v for k, v in list(kwargs.items()) if k != 'capacity'}
                 # pass 3 as the capacity argument
                 super(EagerFlusher, self).__init__(3, *args, **kwargs)
         class EagerFlushingCollapser(

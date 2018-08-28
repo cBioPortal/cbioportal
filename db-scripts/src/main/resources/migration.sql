@@ -458,3 +458,27 @@ UPDATE info SET DB_SCHEMA_VERSION="2.6.0";
 ALTER TABLE `mutation_event` MODIFY COLUMN `KEYWORD` VARCHAR(255);
 ALTER TABLE `mutation_count_by_keyword` MODIFY COLUMN `KEYWORD` VARCHAR(255);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.6.1";
+
+##version: 2.7.0
+DELETE FROM `clinical_attribute_meta` WHERE clinical_attribute_meta.`ATTR_ID` = 'MUTATION_COUNT';
+INSERT INTO `clinical_attribute_meta` SELECT 'MUTATION_COUNT', 'Mutation Count', 'Mutation Count', 'NUMBER', 0, '30', 
+genetic_profile.`CANCER_STUDY_ID` FROM mutation_count INNER JOIN genetic_profile ON 
+mutation_count.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID` GROUP BY genetic_profile.`CANCER_STUDY_ID`;
+
+DELETE FROM `clinical_sample` WHERE clinical_sample.`ATTR_ID` = 'MUTATION_COUNT';
+INSERT INTO `clinical_sample` SELECT mutation_count.`SAMPLE_ID`, 'MUTATION_COUNT', mutation_count.`MUTATION_COUNT` 
+FROM mutation_count;
+
+DELETE FROM `clinical_attribute_meta` WHERE clinical_attribute_meta.`ATTR_ID` = 'FRACTION_GENOME_ALTERED';
+INSERT INTO `clinical_attribute_meta` SELECT 'FRACTION_GENOME_ALTERED', 'Fraction Genome Altered', 
+'Fraction Genome Altered', 'NUMBER', 0, '20', fraction_genome_altered.`CANCER_STUDY_ID` FROM fraction_genome_altered 
+GROUP BY fraction_genome_altered.`CANCER_STUDY_ID`;
+
+DELETE FROM `clinical_sample` WHERE clinical_sample.`ATTR_ID` = 'FRACTION_GENOME_ALTERED';
+INSERT INTO `clinical_sample` SELECT fraction_genome_altered.`SAMPLE_ID`, 'FRACTION_GENOME_ALTERED', 
+fraction_genome_altered.`VALUE` FROM fraction_genome_altered;
+
+DROP TABLE IF EXISTS mutation_count;
+DROP TABLE IF EXISTS fraction_genome_altered;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.0";

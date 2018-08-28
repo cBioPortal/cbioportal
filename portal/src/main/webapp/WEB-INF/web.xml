@@ -69,22 +69,7 @@
       <filter-name>CorsFilter</filter-name>
       <url-pattern>/*</url-pattern>
     </filter-mapping>
-
-    <filter>
-      <filter-name>APICorsFilter</filter-name>
-      <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
-      <init-param>
-        <param-name>cors.allowed.origins</param-name>
-        <!-- limit to portal server -->
-        <param-value>${session.service.origin}</param-value>
-      </init-param>
-    </filter>
-
-    <filter-mapping>
-      <filter-name>APICorsFilter</filter-name>
-      <url-pattern>/api-legacy/proxy/session/*</url-pattern>
-    </filter-mapping>
-
+    
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -686,5 +671,16 @@
         <servlet-name>RobotsIndex</servlet-name>
         <url-pattern>/robots.txt</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SiteConfiguration</servlet-name>
+        <jsp-file>/config_service.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SiteConfiguration</servlet-name>
+        <url-pattern>/config_service.json</url-pattern>
+    </servlet-mapping>
+    
+    
 
 </web-app>

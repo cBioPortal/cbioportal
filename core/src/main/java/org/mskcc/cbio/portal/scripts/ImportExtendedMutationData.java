@@ -431,41 +431,40 @@ public class ImportExtendedMutationData{
             }
         }
 
-                for (MutationEvent event : newEvents) {
-                    try {
-                        DaoMutation.addMutationEvent(event);
-                    } catch (DaoException ex) {
-                        throw ex;
-                    }
-                }
+        for (MutationEvent event : newEvents) {
+            try {
+                DaoMutation.addMutationEvent(event);
+            } catch (DaoException ex) {
+                throw ex;
+            }
+        }
 
-                for (ExtendedMutation mutation : mutations.values()) {
-                    try {
-                        DaoMutation.addMutation(mutation,false);
-                    } catch (DaoException ex) {
-                        throw ex;
-                    }
-                }
+        for (ExtendedMutation mutation : mutations.values()) {
+            try {
+                DaoMutation.addMutation(mutation,false);
+            } catch (DaoException ex) {
+                throw ex;
+            }
+        }
+
+        DaoMutation.createMutationCountClinicalData(geneticProfile);
+        DaoMutation.calculateMutationCountByKeyword(geneticProfileId);
 
         if( MySQLbulkLoader.isBulkLoad()) {
             MySQLbulkLoader.flushAll();
         }
 
-                // calculate mutation count for every sample
-                DaoMutation.calculateMutationCount(geneticProfileId);
-                DaoMutation.calculateMutationCountByKeyword(geneticProfileId);
+        if (entriesSkipped > 0) {
+            ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped (see table below):  " + entriesSkipped);
+        }
+        ProgressMonitor.setCurrentMessage(" --> total number of samples: " + sampleSet.size());
+        if (samplesSkipped > 0) {
+            ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + samplesSkipped);
+        }
+        ProgressMonitor.setCurrentMessage(" --> total number of genes for which one or more mutation events were stored:  " + geneSet.size());
 
-                if (entriesSkipped > 0) {
-                    ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped (see table below):  " + entriesSkipped);
-                }
-                ProgressMonitor.setCurrentMessage(" --> total number of samples: " + sampleSet.size());
-                if (samplesSkipped > 0) {
-                    ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + samplesSkipped);
-                }
-                ProgressMonitor.setCurrentMessage(" --> total number of genes for which one or more mutation events were stored:  " + geneSet.size());
-
-                ProgressMonitor.setCurrentMessage("Filtering table:\n-----------------");
-                ProgressMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
+        ProgressMonitor.setCurrentMessage("Filtering table:\n-----------------");
+        ProgressMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
     }
 
     /**

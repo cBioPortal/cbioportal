@@ -182,9 +182,6 @@ recache_study_after_update=false
 # WARNING: do not use session service with authenticate=false
 #  either use authentication or change to authenticate=noauthsessionservice
 session.service.url=
-# Only allow requests from here:
-#  e.g. session.service.origin=http://dashi-dev.cbio.mskcc.org:8080
-session.service.origin=*
 
 # disabled tabs, | delimited
 # possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV

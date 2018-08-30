@@ -457,10 +457,7 @@
         <servlet-name>patient_view</servlet-name>
         <url-pattern>/case.do</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>patient_view</servlet-name>
-        <url-pattern>/patient</url-pattern>
-    </servlet-mapping>
+
     <servlet>
         <servlet-name>CrossCancerJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerJSON</servlet-class>
@@ -672,7 +669,20 @@
         <url-pattern>/ln</url-pattern>
     </servlet-mapping>
 
-
+    <servlet>
+        <servlet-name>SinglePageApplication</servlet-name>
+        <jsp-file>/index.jsp</jsp-file>
+    </servlet>
+    <!--mapping-->
+    <servlet-mapping>
+        <servlet-name>SinglePageApplication</servlet-name>
+        <url-pattern>/results/*</url-pattern>
+        <url-pattern>/s/*</url-pattern>
+        <url-pattern>/patient/*</url-pattern>
+        <url-pattern>/newstudy/*</url-pattern>
+        <url-pattern>/mutation_mapper/*</url-pattern>
+    </servlet-mapping>
+    
     <servlet>
         <servlet-name>SiteMapIndex</servlet-name>
         <jsp-file>/sitemap_index.jsp</jsp-file>

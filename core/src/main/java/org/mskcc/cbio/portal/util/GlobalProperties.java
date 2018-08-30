@@ -849,7 +849,7 @@ public class GlobalProperties {
         }
         
     }
- 
+    
     public static String getOncoKBApiUrl()
     {
         String oncokbApiUrl = portalProperties.getProperty(ONCOKB_API_URL);

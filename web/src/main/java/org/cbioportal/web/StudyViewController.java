@@ -207,23 +207,12 @@ public class StudyViewController {
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample IDs by study view filter")
     public ResponseEntity<List<Sample>> fetchFilteredSamples(
-        @ApiParam("Filter type")
-        @RequestParam(defaultValue = "INCLUSION") FilterType filterType,
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody StudyViewFilter studyViewFilter) {
         
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
-        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
-        if (filterType == FilterType.EXCLUSION) {
-            List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.getUnfilteredSamples(studyViewFilter);
-            filteredSampleIdentifiers.forEach(f -> sampleIdentifiers.removeIf(s -> s.getStudyId().equals(f.getStudyId()) && 
-                s.getSampleId().equals(f.getSampleId())));
-            studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
-        } else {
-            studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-        }
-
+        studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(studyViewFilter), studyIds, sampleIds);
         List<Sample> result = new ArrayList<>();
         if (!sampleIds.isEmpty()) {
             result = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name());
@@ -233,7 +222,7 @@ public class StudyViewController {
 
     @RequestMapping(value = "/sample-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch sample counts by study view filter")
+    @ApiOperation("Fetch sample IDs by study view filter")
     public ResponseEntity<MolecularProfileSampleCount> fetchMolecularProfileSampleCounts(
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody StudyViewFilter studyViewFilter) {

@@ -8,6 +8,7 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.web.parameter.ClinicalDataEqualityFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.cbioportal.web.parameter.FilterType;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +29,8 @@ public class ClinicalDataEqualityFilterApplier extends ClinicalDataFilterApplier
     public Integer apply(List<ClinicalDataEqualityFilter> attributes,
                          MultiKeyMap clinicalDataMap,
                          String entityId,
-                         String studyId)
+                         String studyId,
+                         FilterType filterType)
     {
         Integer count = 0;
 
@@ -37,12 +39,12 @@ public class ClinicalDataEqualityFilterApplier extends ClinicalDataFilterApplier
             if (entityClinicalData != null) {
                 Optional<ClinicalData> clinicalData = entityClinicalData.stream().filter(c -> c.getAttrId()
                     .equals(s.getAttributeId())).findFirst();
-                if (clinicalData.isPresent() && s.getValues().contains(clinicalData.get().getAttrValue())) {
+                if (clinicalData.isPresent() && (filterType == FilterType.EXCLUSION ^ s.getValues().contains(clinicalData.get().getAttrValue()))) {
                     count++;
-                } else if (!clinicalData.isPresent() && s.getValues().contains("NA")) {
+                } else if (!clinicalData.isPresent() && (filterType == FilterType.EXCLUSION ^ s.getValues().contains("NA"))) {
                     count++;
                 }
-            } else if (s.getValues().contains("NA")) {
+            } else if (filterType == FilterType.EXCLUSION ^ s.getValues().contains("NA")) {
                 count++;
             }
         }

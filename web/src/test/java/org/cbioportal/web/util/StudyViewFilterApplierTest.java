@@ -346,7 +346,7 @@ public class StudyViewFilterApplierTest {
             MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2), updatedSampleIds, 
             Arrays.asList(ENTREZ_GENE_ID_2), Arrays.asList(-2), "ID")).thenReturn(discreteCopyNumberDataList);
         
-        List<SampleIdentifier> result = studyViewFilterApplier.apply(studyViewFilter, FilterType.INCLUSION);
+        List<SampleIdentifier> result = studyViewFilterApplier.apply(studyViewFilter);
         Assert.assertEquals(2, result.size());
         Assert.assertEquals(SAMPLE_ID1, result.get(0).getSampleId());
         Assert.assertEquals(SAMPLE_ID2, result.get(1).getSampleId());
@@ -463,7 +463,7 @@ public class StudyViewFilterApplierTest {
         clinicalDataIntervalFilters.add(clinicalDataIntervalFilter1);
         studyViewFilter.setClinicalDataIntervalFilters(clinicalDataIntervalFilters);
         
-        List<SampleIdentifier> result1 = studyViewFilterApplier.apply(studyViewFilter, FilterType.INCLUSION);
+        List<SampleIdentifier> result1 = studyViewFilterApplier.apply(studyViewFilter);
         Assert.assertEquals(1, result1.size());
 
         ClinicalDataIntervalFilterValue filterValue2 = new ClinicalDataIntervalFilterValue();
@@ -471,7 +471,7 @@ public class StudyViewFilterApplierTest {
         filterValue2.setEnd(66.6);
         clinicalDataIntervalFilter1.setValues(Arrays.asList(filterValue1, filterValue2));
         
-        List<SampleIdentifier> result2 = studyViewFilterApplier.apply(studyViewFilter, FilterType.INCLUSION);
+        List<SampleIdentifier> result2 = studyViewFilterApplier.apply(studyViewFilter);
         Assert.assertEquals(2, result2.size());
 
         ClinicalDataIntervalFilterValue filterValue3 = new ClinicalDataIntervalFilterValue();
@@ -479,21 +479,21 @@ public class StudyViewFilterApplierTest {
         filterValue3.setEnd(666.0);
         clinicalDataIntervalFilter1.setValues(Arrays.asList(filterValue1, filterValue2, filterValue3));
 
-        List<SampleIdentifier> result3 = studyViewFilterApplier.apply(studyViewFilter, FilterType.INCLUSION);
+        List<SampleIdentifier> result3 = studyViewFilterApplier.apply(studyViewFilter);
         Assert.assertEquals(2, result3.size());
 
         ClinicalDataIntervalFilterValue filterValue4 = new ClinicalDataIntervalFilterValue();
         filterValue4.setValue("na");
         clinicalDataIntervalFilter1.setValues(Arrays.asList(filterValue3, filterValue4));
 
-        List<SampleIdentifier> result4 = studyViewFilterApplier.apply(studyViewFilter, FilterType.INCLUSION);
+        List<SampleIdentifier> result4 = studyViewFilterApplier.apply(studyViewFilter);
         Assert.assertEquals(3, result4.size());
 
         ClinicalDataIntervalFilterValue filterValue5 = new ClinicalDataIntervalFilterValue();
         filterValue5.setValue("something_else");
         clinicalDataIntervalFilter1.setValues(Arrays.asList(filterValue1, filterValue5));
 
-        List<SampleIdentifier> result5 = studyViewFilterApplier.apply(studyViewFilter, FilterType.INCLUSION);
+        List<SampleIdentifier> result5 = studyViewFilterApplier.apply(studyViewFilter);
         Assert.assertEquals(2, result5.size());
     }
 }

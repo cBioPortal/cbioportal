@@ -35,8 +35,7 @@ public abstract class ClinicalDataFilterApplier<T extends ClinicalDataFilter>
 
     public List<SampleIdentifier> apply(List<SampleIdentifier> sampleIdentifiers,
                                         List<T> attributes,
-                                        ClinicalDataType filterClinicalDataType,
-                                        FilterType filterType) {
+                                        ClinicalDataType filterClinicalDataType) {
         List<ClinicalData> clinicalDataList = new ArrayList<>();
         if (!attributes.isEmpty() && !sampleIdentifiers.isEmpty()) {
             List<String> studyIds = new ArrayList<>();
@@ -83,7 +82,12 @@ public abstract class ClinicalDataFilterApplier<T extends ClinicalDataFilter>
             for (String entityId : filterClinicalDataType.equals(ClinicalDataType.PATIENT) ? patientIds : sampleIds) {
                 String studyId = filterClinicalDataType.equals(ClinicalDataType.PATIENT) ? studyIdsOfPatients.get(index) : studyIds.get(index);
 
-                int count = apply(attributes, clinicalDataMap, entityId, studyId, filterType);
+                int count = 0;
+                
+                if (!attributes.isEmpty()) {
+                    count = apply(attributes, clinicalDataMap, entityId, studyId);
+                }
+
                 if (count == attributes.size()) {
                     ids.add(entityId);
                     studyIdsOfIds.add(studyId);
@@ -116,5 +120,5 @@ public abstract class ClinicalDataFilterApplier<T extends ClinicalDataFilter>
     }
     
     // Must be overridden by child classes
-    protected abstract Integer apply(List<T> attributes, MultiKeyMap clinicalDataMap, String entityId, String studyId, FilterType filterType);
+    protected abstract Integer apply(List<T> attributes, MultiKeyMap clinicalDataMap, String entityId, String studyId);
 }

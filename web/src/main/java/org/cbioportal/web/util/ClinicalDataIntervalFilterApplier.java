@@ -10,7 +10,6 @@ import org.cbioportal.web.parameter.ClinicalDataIntervalFilter;
 import org.cbioportal.web.parameter.ClinicalDataIntervalFilterValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.cbioportal.web.parameter.FilterType;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,8 +32,7 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
     public Integer apply(List<ClinicalDataIntervalFilter> attributes,
                          MultiKeyMap clinicalDataMap,
                          String entityId,
-                         String studyId,
-                         FilterType filterType)
+                         String studyId)
     {
         int count = 0;
 
@@ -60,17 +58,16 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
                         .map(f -> f.getValue().toUpperCase())
                         .collect(Collectors.toList());
                     
-                    if (rangeValue != null) {
-                        if (filterType == FilterType.EXCLUSION ^ ranges.stream().anyMatch(r -> r.encloses(rangeValue))) {
-                            count++;
-                        }
-                    } else if (filterType == FilterType.EXCLUSION ^ specialValues.contains(attrValue.toUpperCase())) {
+                    if ((rangeValue != null && ranges.stream().anyMatch(r -> r.encloses(rangeValue))) ||
+                        specialValues.contains(attrValue.toUpperCase()) ||
+                        isNA(attrValue) && containsNA(filter)) 
+                    {
                         count++;
                     }
-                } else if (filterType == FilterType.EXCLUSION ^ containsNA(filter)) {
+                } else if (containsNA(filter)) {
                     count++;
                 }
-            } else if (filterType == FilterType.EXCLUSION ^ containsNA(filter)) {
+            } else if (containsNA(filter)) {
                 count++;
             }
         }
@@ -146,5 +143,12 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
     {
         return filter.getValues().stream().anyMatch(
             r -> r.getValue() != null && r.getValue().toUpperCase().equals("NA"));
+    }
+    
+    private Boolean isNA(String attrValue)
+    {
+        String value = attrValue.toUpperCase(); 
+        
+        return value.equals("NA") || value.equals("NAN") || value.equals("N/A"); 
     }
 }

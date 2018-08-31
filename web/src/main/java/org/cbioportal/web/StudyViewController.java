@@ -73,7 +73,7 @@ public class StudyViewController {
         @Valid @RequestBody StudyViewFilter studyViewFilter) {
 
         studyViewFilterUtil.removeSelfFromFilter(attributeId, studyViewFilter);
-        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter, FilterType.INCLUSION);
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
 
         if (filteredSampleIdentifiers.isEmpty()) {
             return new ResponseEntity<>(null, HttpStatus.OK);
@@ -140,7 +140,7 @@ public class StudyViewController {
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody StudyViewFilter studyViewFilter) throws StudyNotFoundException {
 
-        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter, FilterType.INCLUSION);
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
         List<MutationCountByGene> result = new ArrayList<>();
         if (!filteredSampleIdentifiers.isEmpty()) {
             List<String> studyIds = new ArrayList<>();
@@ -172,7 +172,7 @@ public class StudyViewController {
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody StudyViewFilter studyViewFilter) throws StudyNotFoundException {
 
-        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter, FilterType.INCLUSION);
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
         List<CopyNumberCountByGene> result = new ArrayList<>();
         if (!filteredSampleIdentifiers.isEmpty()) {
             List<String> studyIds = new ArrayList<>();
@@ -214,7 +214,16 @@ public class StudyViewController {
         
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
-        studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(studyViewFilter, filterType), studyIds, sampleIds);
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
+        if (filterType == FilterType.EXCLUSION) {
+            List<SampleIdentifier> sampleIdentifiers = studyViewFilterApplier.getUnfilteredSamples(studyViewFilter);
+            filteredSampleIdentifiers.forEach(f -> sampleIdentifiers.removeIf(s -> s.getStudyId().equals(f.getStudyId()) && 
+                s.getSampleId().equals(f.getSampleId())));
+            studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+        } else {
+            studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+        }
+
         List<Sample> result = new ArrayList<>();
         if (!sampleIds.isEmpty()) {
             result = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name());
@@ -231,7 +240,7 @@ public class StudyViewController {
         
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
-        studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(studyViewFilter, FilterType.INCLUSION), studyIds, sampleIds);
+        studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(studyViewFilter), studyIds, sampleIds);
         MolecularProfileSampleCount molecularProfileSampleCount = new MolecularProfileSampleCount();
         if (sampleIds.isEmpty()) {
             molecularProfileSampleCount.setNumberOfMutationProfiledSamples(0);
@@ -259,7 +268,7 @@ public class StudyViewController {
                                                  StudyViewFilter studyViewFilter,
                                                  List<String> ids)
     {
-        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter, FilterType.INCLUSION);
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
 
         if (filteredSampleIdentifiers.isEmpty()) {
             return null;

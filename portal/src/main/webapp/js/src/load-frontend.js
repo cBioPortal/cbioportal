@@ -14,7 +14,7 @@ function showFrontendPopup(url) {
         newDiv.innerHTML = '<div style="">' +
             '<div class="alert alert-warning">' +
             '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
-            'cbioportal-frontend dev mode, using ' + url +
+            'cbioportal-frontend dev mode, using ' + url + '&nbsp;<a onclick="javascript:clearDevState();window.reload()">clear</a>' +
             '</div>' +
             '</div>';
         newDiv.onclick=function(){

@@ -15,7 +15,7 @@
         <mime-type>text/xml</mime-type>
     </mime-mapping>
     <welcome-file-list>
-        <welcome-file>index.do</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
     <display-name>Cancer Genomics Portal</display-name>
 

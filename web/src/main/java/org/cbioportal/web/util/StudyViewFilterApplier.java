@@ -63,27 +63,23 @@ public class StudyViewFilterApplier {
         }
     };
 
-    public List<SampleIdentifier> getUnfilteredSamples(StudyViewFilter studyViewFilter) {
-
-        if (studyViewFilter != null && studyViewFilter.getSampleIdentifiers() != null && !studyViewFilter.getSampleIdentifiers().isEmpty()) {
-            List<String> studyIds = new ArrayList<>();
-            List<String> sampleIds = new ArrayList<>();
-            studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilter.getSampleIdentifiers(), studyIds, sampleIds);
-            return sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name()).stream()
-                .map(sampleToSampleIdentifier).collect(Collectors.toList());
-        } else {
-            return sampleService.getAllSamplesInStudies(studyViewFilter.getStudyIds(), Projection.ID.name(), 
-                null, null, null, null).stream().map(sampleToSampleIdentifier).collect(Collectors.toList());
-        }
-    }
-
     public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter) {
 
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
         if (studyViewFilter == null) {
             return sampleIdentifiers;
         }
-        sampleIdentifiers = getUnfilteredSamples(studyViewFilter);
+
+        if (studyViewFilter != null && studyViewFilter.getSampleIdentifiers() != null && !studyViewFilter.getSampleIdentifiers().isEmpty()) {
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilter.getSampleIdentifiers(), studyIds, sampleIds);
+            sampleIdentifiers = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name()).stream()
+                .map(sampleToSampleIdentifier).collect(Collectors.toList());;
+        } else {
+            sampleIdentifiers = sampleService.getAllSamplesInStudies(studyViewFilter.getStudyIds(), Projection.ID.name(), 
+                null, null, null, null).stream().map(sampleToSampleIdentifier).collect(Collectors.toList());
+        }
         
         List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters = studyViewFilter.getClinicalDataEqualityFilters();
         if (clinicalDataEqualityFilters != null) {

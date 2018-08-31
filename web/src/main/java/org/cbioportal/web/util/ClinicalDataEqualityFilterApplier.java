@@ -28,7 +28,8 @@ public class ClinicalDataEqualityFilterApplier extends ClinicalDataFilterApplier
     public Integer apply(List<ClinicalDataEqualityFilter> attributes,
                          MultiKeyMap clinicalDataMap,
                          String entityId,
-                         String studyId)
+                         String studyId,
+                         Boolean negateFilters)
     {
         Integer count = 0;
 
@@ -37,12 +38,12 @@ public class ClinicalDataEqualityFilterApplier extends ClinicalDataFilterApplier
             if (entityClinicalData != null) {
                 Optional<ClinicalData> clinicalData = entityClinicalData.stream().filter(c -> c.getAttrId()
                     .equals(s.getAttributeId())).findFirst();
-                if (clinicalData.isPresent() && s.getValues().contains(clinicalData.get().getAttrValue())) {
+                if (clinicalData.isPresent() && (negateFilters ^ s.getValues().contains(clinicalData.get().getAttrValue()))) {
                     count++;
-                } else if (!clinicalData.isPresent() && s.getValues().contains("NA")) {
+                } else if (!clinicalData.isPresent() && (negateFilters ^ s.getValues().contains("NA"))) {
                     count++;
                 }
-            } else if (s.getValues().contains("NA")) {
+            } else if (negateFilters ^ s.getValues().contains("NA")) {
                 count++;
             }
         }

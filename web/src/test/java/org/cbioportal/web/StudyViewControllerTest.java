@@ -22,11 +22,13 @@ import org.cbioportal.service.MutationService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.parameter.FilterType;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mockito.Matchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -113,7 +115,7 @@ public class StudyViewControllerTest {
         sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
         sampleIdentifier.setStudyId(TEST_STUDY_ID);
         filteredSampleIdentifiers.add(sampleIdentifier);
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject(), Matchers.any(FilterType.class))).thenReturn(filteredSampleIdentifiers);
 
         Map<String, List<ClinicalDataCount>> clinicalDataCountMap = new HashMap<>();
         List<ClinicalDataCount> clinicalDataCounts1 = new ArrayList<>();
@@ -161,7 +163,7 @@ public class StudyViewControllerTest {
         sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
         sampleIdentifier.setStudyId(TEST_STUDY_ID);
         filteredSampleIdentifiers.add(sampleIdentifier);
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject(), Matchers.any(FilterType.class))).thenReturn(filteredSampleIdentifiers);
 
         List<MutationCountByGene> mutationCounts = new ArrayList<>();
         MutationCountByGene mutationCount1 = new MutationCountByGene();
@@ -211,7 +213,7 @@ public class StudyViewControllerTest {
         sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
         sampleIdentifier.setStudyId(TEST_STUDY_ID);
         filteredSampleIdentifiers.add(sampleIdentifier);
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject(), Matchers.any(FilterType.class))).thenReturn(filteredSampleIdentifiers);
 
         List<CopyNumberCountByGene> cnaCounts = new ArrayList<>();
         CopyNumberCountByGene cnaCount1 = new CopyNumberCountByGene();
@@ -265,7 +267,7 @@ public class StudyViewControllerTest {
         sampleIdentifier.setStudyId(TEST_STUDY_ID);
         filteredSampleIdentifiers.add(sampleIdentifier);
 
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject(), Matchers.any(FilterType.class))).thenReturn(filteredSampleIdentifiers);
 
         List<Sample> filteredSamples = new ArrayList<>();
         Sample sample1 = new Sample();
@@ -319,7 +321,7 @@ public class StudyViewControllerTest {
         sampleIdentifier3.setSampleId(TEST_SAMPLE_ID_3);
         sampleIdentifier3.setStudyId(TEST_STUDY_ID);
         filteredSampleIdentifiers.add(sampleIdentifier3);
-        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject(), Matchers.any(FilterType.class))).thenReturn(filteredSampleIdentifiers);
 
         List<GenePanelData> genePanelDataList = new ArrayList<>();
         GenePanelData genePanelData1 = new GenePanelData();

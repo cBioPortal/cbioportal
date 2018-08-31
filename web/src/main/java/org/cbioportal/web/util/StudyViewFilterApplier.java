@@ -63,7 +63,7 @@ public class StudyViewFilterApplier {
         }
     };
 
-    public List<SampleIdentifier> getUnfilteredSamples(StudyViewFilter studyViewFilter) {
+    private List<SampleIdentifier> getUnfilteredSamples(StudyViewFilter studyViewFilter) {
 
         if (studyViewFilter != null && studyViewFilter.getSampleIdentifiers() != null && !studyViewFilter.getSampleIdentifiers().isEmpty()) {
             List<String> studyIds = new ArrayList<>();
@@ -77,7 +77,7 @@ public class StudyViewFilterApplier {
         }
     }
 
-    public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter) {
+    public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter, FilterType filterType) {
 
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
         if (studyViewFilter == null) {
@@ -87,14 +87,14 @@ public class StudyViewFilterApplier {
         
         List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters = studyViewFilter.getClinicalDataEqualityFilters();
         if (clinicalDataEqualityFilters != null) {
-            sampleIdentifiers = equalityFilterClinicalData(sampleIdentifiers, clinicalDataEqualityFilters, ClinicalDataType.SAMPLE);
-            sampleIdentifiers = equalityFilterClinicalData(sampleIdentifiers, clinicalDataEqualityFilters, ClinicalDataType.PATIENT);
+            sampleIdentifiers = equalityFilterClinicalData(sampleIdentifiers, clinicalDataEqualityFilters, ClinicalDataType.SAMPLE, filterType);
+            sampleIdentifiers = equalityFilterClinicalData(sampleIdentifiers, clinicalDataEqualityFilters, ClinicalDataType.PATIENT, filterType);
         }
 
         List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters = studyViewFilter.getClinicalDataIntervalFilters();
         if (clinicalDataIntervalFilters != null) {
-            sampleIdentifiers = intervalFilterClinicalData(sampleIdentifiers, clinicalDataIntervalFilters, ClinicalDataType.SAMPLE);
-            sampleIdentifiers = intervalFilterClinicalData(sampleIdentifiers, clinicalDataIntervalFilters, ClinicalDataType.PATIENT);
+            sampleIdentifiers = intervalFilterClinicalData(sampleIdentifiers, clinicalDataIntervalFilters, ClinicalDataType.SAMPLE, filterType);
+            sampleIdentifiers = intervalFilterClinicalData(sampleIdentifiers, clinicalDataIntervalFilters, ClinicalDataType.PATIENT, filterType);
         }
 
         List<MutationGeneFilter> mutatedGenes = studyViewFilter.getMutatedGenes();
@@ -158,21 +158,23 @@ public class StudyViewFilterApplier {
     
     private List<SampleIdentifier> intervalFilterClinicalData(List<SampleIdentifier> sampleIdentifiers,
                                                               List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters, 
-                                                              ClinicalDataType filterClinicalDataType)
+                                                              ClinicalDataType filterClinicalDataType,
+                                                              FilterType filterType)
     {
         List<ClinicalDataIntervalFilter> attributes = clinicalDataIntervalFilters.stream()
             .filter(c-> c.getClinicalDataType().equals(filterClinicalDataType)).collect(Collectors.toList());
         
-        return clinicalDataIntervalFilterApplier.apply(sampleIdentifiers, attributes, filterClinicalDataType);
+        return clinicalDataIntervalFilterApplier.apply(sampleIdentifiers, attributes, filterClinicalDataType, filterType);
     }
 
     private List<SampleIdentifier> equalityFilterClinicalData(List<SampleIdentifier> sampleIdentifiers, 
                                                               List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters, 
-                                                              ClinicalDataType filterClinicalDataType) 
+                                                              ClinicalDataType filterClinicalDataType,
+                                                              FilterType filterType) 
     {
         List<ClinicalDataEqualityFilter> attributes = clinicalDataEqualityFilters.stream()
             .filter(c-> c.getClinicalDataType().equals(filterClinicalDataType)).collect(Collectors.toList());
 
-        return clinicalDataEqualityFilterApplier.apply(sampleIdentifiers, attributes, filterClinicalDataType);
+        return clinicalDataEqualityFilterApplier.apply(sampleIdentifiers, attributes, filterClinicalDataType, filterType);
     }
 }

@@ -16,6 +16,7 @@
             configurationServiceUrl:"//" + '<%=baseUrl%>' +  "/config_service.jsp",
             sessionServiceUrl:'http://www.cbioportal.org/rc/api-legacy/proxy/session/',
             frontendUrl: '//'+ '<%=baseUrl%>/', 
+            appVersion: '<%=GlobalProperties.getAppVersion()%>',
             apiRoot: '//'+ '<%=baseUrl%>/',
             baseUrl: '<%=baseUrl%>',
             basePath: '<%=request.getContextPath()%>',

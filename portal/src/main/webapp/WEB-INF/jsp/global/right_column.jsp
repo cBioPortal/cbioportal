@@ -43,7 +43,7 @@
     <!-- replaced the hard-coded what's new with a call to GlobalProperties
     <!-- Should the "What's New" itself stay? -->
     <div id="whats-new" class="sidebar-box">
-        <h3>What's New</h3>
+        <h3>Follow Us</h3>
         <%= GlobalProperties.getRightNavWhatsNewBlurb() %>
     </div>
 

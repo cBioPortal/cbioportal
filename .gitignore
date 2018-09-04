@@ -96,3 +96,4 @@ portal/META-INF/*
 portal/reactapp/*
 package.json
 .vscode/
+*.tramp_history

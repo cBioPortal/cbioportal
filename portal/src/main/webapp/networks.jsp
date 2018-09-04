@@ -38,7 +38,7 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 
-<% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::What's New"); %>
+<% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Follow Us!"); %>
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
 <div id="main">
     <table cellspacing="2px">

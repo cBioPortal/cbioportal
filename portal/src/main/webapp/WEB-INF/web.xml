@@ -8,6 +8,7 @@
 
     <session-config>
       <session-timeout>${tomcat.session.timeout}</session-timeout>
+      <tracking-mode>COOKIE</tracking-mode>
     </session-config>
     <mime-mapping>
         <extension>wsdl</extension>

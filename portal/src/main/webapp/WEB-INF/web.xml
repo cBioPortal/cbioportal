@@ -15,7 +15,7 @@
         <mime-type>text/xml</mime-type>
     </mime-mapping>
     <welcome-file-list>
-        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>/index.jsp</welcome-file>
     </welcome-file-list>
     <display-name>Cancer Genomics Portal</display-name>
 
@@ -204,19 +204,19 @@
         <url-pattern>/proxy/*</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>query_builder</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.QueryBuilder</servlet-class>
-        <init-param>
-            <param-name>pathway_commons_url</param-name>
-            <param-value>${pathway_commons.url}</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>query_builder</servlet-name>
-        <url-pattern>/index.do</url-pattern>
-    </servlet-mapping>
+    <!--<servlet>-->
+        <!--<servlet-name>query_builder</servlet-name>-->
+        <!--<servlet-class>org.mskcc.cbio.portal.servlet.QueryBuilder</servlet-class>-->
+        <!--<init-param>-->
+            <!--<param-name>pathway_commons_url</param-name>-->
+            <!--<param-value>${pathway_commons.url}</param-value>-->
+        <!--</init-param>-->
+        <!--<load-on-startup>1</load-on-startup>-->
+    <!--</servlet>-->
+    <!--<servlet-mapping>-->
+        <!--<servlet-name>query_builder</servlet-name>-->
+        <!--<url-pattern>/index.do</url-pattern>-->
+    <!--</servlet-mapping>-->
 
     <servlet>
         <servlet-name>webservice</servlet-name>
@@ -227,14 +227,14 @@
         <url-pattern>/webservice.do</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>cross_cancer_query</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerStudyServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>cross_cancer_query</servlet-name>
-        <url-pattern>/cross_cancer.do</url-pattern>
-    </servlet-mapping>
+    <!--<servlet>-->
+        <!--<servlet-name>cross_cancer_query</servlet-name>-->
+        <!--<servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerStudyServlet</servlet-class>-->
+    <!--</servlet>-->
+    <!--<servlet-mapping>-->
+        <!--<servlet-name>cross_cancer_query</servlet-name>-->
+        <!--<url-pattern>/cross_cancer.do</url-pattern>-->
+    <!--</servlet-mapping>-->
 
     <servlet>
         <servlet-name>portal_meta_data_json</servlet-name>
@@ -254,6 +254,7 @@
 		<url-pattern>/portalMetadata.json</url-pattern>
 	</servlet-mapping>
 
+    <!-- need to keep this for legacy network page -->
     <servlet>
         <servlet-name>network</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.NetworkServlet</servlet-class>
@@ -695,7 +696,10 @@
         <servlet-name>SiteConfiguration</servlet-name>
         <url-pattern>/config_service.json</url-pattern>
     </servlet-mapping>
-    
-    
+
+    <error-page>
+        <error-code>404</error-code>
+        <location>/index.jsp</location>
+    </error-page>
 
 </web-app>

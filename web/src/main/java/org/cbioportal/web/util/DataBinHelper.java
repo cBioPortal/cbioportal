@@ -242,7 +242,9 @@ public class DataBinHelper
     
     public boolean isSmallData(List<Double> sortedValues)
     {
-        return sortedValues.get((int) Math.ceil((sortedValues.size() * (1.0 / 2.0)))) < 0.001;
+        Double median = sortedValues.get((int) Math.ceil((sortedValues.size() * (1.0 / 2.0))));
+        
+        return 0.001 > median && median > -0.001;
     }
 
     public Integer calcExponent(Double value)

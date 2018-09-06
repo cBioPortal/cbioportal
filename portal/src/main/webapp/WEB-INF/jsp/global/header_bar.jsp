@@ -58,7 +58,7 @@
 
 <header>
         <div id="leftHeaderContent">
-        <a id="cbioportal-logo" href="index.do"><img src="<c:url value="/images/cbioportal_logo.png"/>" alt="cBioPortal Logo" /></a>    
+        <a id="cbioportal-logo" href="index.do"><img src="<c:url value="/images/tracerx_logo.png"/>" alt="cBioPortal Logo" /></a>    
     
         <nav id="main-nav">
             <ul>

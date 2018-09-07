@@ -362,10 +362,70 @@ embed {
 .study-view-bar-chart g.brush rect.background {
     z-index: -999;
 }
-.header {
-    font-size:10px;
-    width:3000px;
+
+#study_desc {
+    max-height: 300px;
+    overflow-y: auto;
+    display: inline-block;
+    width: 100%;
 }
+
+#study_desc .origin-studies {
+    margin-top: 10px;
+}
+
+#study_desc .origin-studies .header {
+    font-weight: bold;
+    font-size: 12px;
+    font-family: sans-serif;
+}
+
+#study_desc .origin-studies .panel-group {
+    margin-top: 5px;
+    margin-bottom: 0;
+    max-height: 100%;
+    overflow-y: hidden;
+}
+
+#study_desc .origin-studies .panel-group .panel.panel-default {
+    border-radius: 0;
+}
+
+#study_desc .origin-studies .panel-group .panel.panel-default .panel-heading {
+    padding: 8px 10px;
+    background-color: white;
+}
+
+#study_desc .origin-studies .panel-group .panel.panel-default .panel-heading .panel-title span:before {
+    content: "\f056";
+    font-family: "FontAwesome";
+    margin: 0 5px 0 0;
+    color: #000;
+    padding: 0;
+}
+
+#study_desc .origin-studies .panel-group .panel.panel-default .panel-heading .panel-title span.collapsed:before {
+    content: "\f055";
+    font-family: "FontAwesome";
+}
+
+#study_desc .origin-studies .panel-group .panel.panel-default .panel-heading h4 {
+    font-size: 12px;
+    font-weight: 400;
+    color: #000;
+    font-family: sans-serif;
+    letter-spacing: normal;
+}
+
+#study_desc .origin-studies .panel-group .panel.panel-default .panel-heading h4 i.fa-external-link {
+    margin-left: 5px;
+    color: #000;
+}
+
+#study_desc .origin-studies .panel-group .panel.panel-default .panel-body {
+    padding: 10px;
+}
+
 .dc-table-group {
     background-color:lightblue;
 }
@@ -1067,32 +1127,6 @@ div.DTTT_print_info {
     padding: 0px 10px 0px 0px;
     margin-top: 2px;
 }
-textarea.expand{
-    margin: 0 5px 0 0;
-    font-family: Verdana,Arial,sans-serif;
-    background: none;
-    font-weight: normal;
-    color: darkgrey;
-    padding: 5px 10px;
-    margin-top: -3px;
-    margin-right: 10px;
-    border: solid 1px;
-    border-radius: 5px;
-    border-color: darkgrey;
-    outline-offset: -2px;
-    /*vertical-align: middle;*/
-}
-textarea.expandFocusOut{
-    width: 175px;
-    font-size: 0.8em;
-    height: 18px;
-    line-height: 17px;
-}
-textarea.expandFocusIn{
-    height: 5em;
-    width: 200px;
-    font-size: 1.0em;
-}
 #query-by-gene-span{
     float: left;
     padding: 0 10px 0 0;
@@ -1157,7 +1191,6 @@ cursor: pointer;
     display: inline-block;
     padding: 6px 12px;
     margin-bottom: 0;
-    font-size: 14px;
     font-weight: normal;
     line-height: 1.42857143;
     text-align: center;

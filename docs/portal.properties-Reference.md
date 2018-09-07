@@ -20,12 +20,19 @@ This page describes the main properties within portal.properties.
 db.user=
 db.password=
 db.host=[e.g. localhost to connect via socket, or e.g. 127.0.0.1:3307 to connect to a different port like 3307. Used by Java data import layer]
-db.portal_db_name=[the database name in myslq, e.g. cbiodb]
+db.portal_db_name=[the database name in mysql, e.g. cbiodb]
 db.driver=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver]
+```
+
+Include `db_connection_string` with the format specified below, and replace `localhost` by the value of `db.host`:
+```
 db.connection_string=jdbc:mysql://localhost/
+```
+
+db.tomcat_resource_name is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
+```
 db.tomcat_resource_name=jdbc/cbioportal
 ```
-db.tomcat_resource_name is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
 
 # Segment File URL
 
@@ -127,7 +134,42 @@ oncoprint.hide_vus.default=true|false
 ```
 
 # Gene sets used for gene querying
-To change the gene sets used for gene querying, create a JSON file and add gene sets in line with the format of [gene_lists.ts](https://github.com/cBioPortal/cbioportal-frontend/blob/master/src/shared/components/query/gene_lists.ts). The JSON file should contain a structure equal to the part after `const gene_lists = `. Set the path to this file (e.g. `file:/cbioportal/custom_gene_sets.json`) in the following property and restart Tomcat to apply the update.
+To change the gene sets used for gene querying, create a JSON file and add gene sets, following the format specified in the examples below. Set the path to this file (e.g. `file:/cbioportal/custom_gene_sets.json`) in the following property and restart Tomcat to apply the update. The default gene sets will be replaced by the ones in `custom_gene_sets.json`.
 ```
 querypage.setsofgenes.location=file:/<path>
+```
+
+## Example with gene names
+In this example, two gene sets will appear in the query page, under the names "Prostate Cancer: AR Signaling" and "Prostate Cancer: AR and steroid synthesis enzymes".
+```
+[{
+	"id": "Prostate Cancer: AR Signaling",
+	"genes": ["SOX9", "RAN", "TNK2", "EP300", "PXN", "NCOA2", "AR", "NRIP1", "NCOR1", "NCOR2"]
+}, {
+	"id": "Prostate Cancer: AR and steroid synthesis enzymes",
+	"genes": ["AKR1C3", "AR", "CYB5A", "CYP11A1", "CYP11B1", "CYP11B2", "CYP17A1", "CYP19A1", "CYP21A2", "HSD17B1", "HSD17B10", "HSD17B11", "HSD17B12", "HSD17B13", "HSD17B14", "HSD17B2", "HSD17B3", "HSD17B4", "HSD17B6", "HSD17B7", "HSD17B8", "HSD3B1", "HSD3B2", "HSD3B7", "RDH5", "SHBG", "SRD5A1", "SRD5A2", "SRD5A3", "STAR"]
+}]
+```
+
+## Example with specific alterations
+In this example, only one gene set will appear in the query page, under the name "Genes with alterations", which will add the different genetic alterations stated below in the query box.
+```
+[{
+	"id": "Genes with alterations",
+	"genes": ["TP53: MUT=R273C;", "KRAS: HOMDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;"]
+}]
+```
+
+## Example with merged gene tracks
+In this example, only one gene set will appear in the query page, under the name "BRCA genes test", containing the merged gene track called "BRCA genes".
+```
+[{
+	"id": "BRCA genes test",
+	"genes": ["[\\\"BRCA genes\\\" BRCA1: MUT=E1258D;", "BRCA2: HOMDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;]"]
+}]
+```
+
+This gene set will add the following in the query box:
+```
+"BRCA genes" BRCA1: MUT=E1258D; BRCA2: HOMDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;
 ```

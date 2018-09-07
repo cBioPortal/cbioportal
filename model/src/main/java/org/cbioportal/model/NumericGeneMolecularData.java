@@ -1,10 +1,14 @@
 package org.cbioportal.model;
 
-import java.io.Serializable;
+import java.math.BigDecimal;
+
 import javax.validation.constraints.NotNull;
 
-public class MutationCount extends UniqueKeyBase {
+public class NumericGeneMolecularData extends UniqueKeyBase {
 
+    @NotNull
+    private Integer entrezGeneId;
+    private Gene gene;
     @NotNull
     private String molecularProfileId;
     @NotNull
@@ -14,7 +18,23 @@ public class MutationCount extends UniqueKeyBase {
     @NotNull
     private String studyId;
     @NotNull
-    private Integer mutationCount;
+    private BigDecimal value;
+
+    public Integer getEntrezGeneId() {
+        return entrezGeneId;
+    }
+
+    public void setEntrezGeneId(Integer entrezGeneId) {
+        this.entrezGeneId = entrezGeneId;
+    }
+
+    public Gene getGene() {
+        return gene;
+    }
+
+    public void setGene(Gene gene) {
+        this.gene = gene;
+    }
 
     public String getMolecularProfileId() {
         return molecularProfileId;
@@ -32,14 +52,14 @@ public class MutationCount extends UniqueKeyBase {
         this.sampleId = sampleId;
     }
 
-	public String getPatientId() {
-		return patientId;
-	}
-
-	public void setPatientId(String patientId) {
-		this.patientId = patientId;
+    public String getPatientId() {
+        return patientId;
     }
-    
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }
+
     public String getStudyId() {
         return studyId;
     }
@@ -48,11 +68,11 @@ public class MutationCount extends UniqueKeyBase {
         this.studyId = studyId;
     }
 
-    public Integer getMutationCount() {
-        return mutationCount;
+    public BigDecimal getValue() {
+        return value;
     }
 
-    public void setMutationCount(Integer mutationCount) {
-        this.mutationCount = mutationCount;
+    public void setValue(BigDecimal value) {
+        this.value = value;
     }
 }

@@ -33,18 +33,17 @@ public class AlterationEnrichmentUtilTest {
     @Mock
     private GeneService geneService;
 
-
     @Test
     public void createAlterationEnrichments() throws Exception {
         
         List<AlterationCountByGene> alterationSampleCountByGenes = new ArrayList<>();
         AlterationCountByGene alterationSampleCountByGene1 = new AlterationCountByGene();
         alterationSampleCountByGene1.setEntrezGeneId(2);
-        alterationSampleCountByGene1.setCount(3);
+        alterationSampleCountByGene1.setCountByEntity(3);
         alterationSampleCountByGenes.add(alterationSampleCountByGene1);
         AlterationCountByGene alterationSampleCountByGene2 = new AlterationCountByGene();
         alterationSampleCountByGene2.setEntrezGeneId(3);
-        alterationSampleCountByGene2.setCount(2);
+        alterationSampleCountByGene2.setCountByEntity(2);
         alterationSampleCountByGenes.add(alterationSampleCountByGene2);
 
         List<Gene> genes = new ArrayList<>();

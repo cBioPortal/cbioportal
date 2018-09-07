@@ -89,10 +89,11 @@ public class TestImportProfileData {
         String studyStableId = "study_tcga_pub";
         studyId = DaoCancerStudy.getCancerStudyByStableId(studyStableId).getInternalId();
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
+        int secondSampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3665-01").getInternalId();
         geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations").getGeneticProfileId();
         validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "T433A");
         // data for this sample should not exist before loading the next data file
-        assertNull(DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3665-01"));
+        assertEquals(DaoMutation.getMutations(geneticProfileId, secondSampleId).size(), 0);
         // load a second mutation data file
         String[] secondArgs = {
                 "--data","src/test/resources/data_mutations_extended_continued.txt",
@@ -101,8 +102,6 @@ public class TestImportProfileData {
         };
         ImportProfileData secondRunner = new ImportProfileData(secondArgs);
         secondRunner.run();
-        // again, the sample is added on the fly
-        int secondSampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3665-01").getInternalId();
         validateMutationAminoAcid (geneticProfileId, secondSampleId, 2842, "L113P");
     }
 

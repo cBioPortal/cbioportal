@@ -380,6 +380,8 @@ ALTER TABLE `mutation` ADD COLUMN `DRIVER_FILTER_ANNOTATION` VARCHAR(80) NULL;
 ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER` VARCHAR(50) NULL;
 ALTER TABLE `mutation` ADD COLUMN `DRIVER_TIERS_FILTER_ANNOTATION` VARCHAR(80) NULL;
 
+UPDATE info SET DB_SCHEMA_VERSION="2.4.0";
+
 ##version: 2.4.1
 -- ========================== new reference genome genes related tables =============================================
 CREATE TABLE `reference_genome` (
@@ -426,3 +428,57 @@ FROM `gene`);
 
 UPDATE info SET DB_SCHEMA_VERSION="2.4.1";
 -- ========================= end of reference genes related tables ========================================================================
+
+##version: 2.5.0
+
+CREATE TABLE `fraction_genome_altered` (
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `SAMPLE_ID` int(11) NOT NULL,
+  `VALUE` double NOT NULL,
+  PRIMARY KEY (`CANCER_STUDY_ID`,`SAMPLE_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+);
+
+INSERT INTO `fraction_genome_altered` SELECT cancer_study.`CANCER_STUDY_ID`, `SAMPLE_ID`, IF((SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2 
+WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) IS NULL, 0, 
+(SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2 WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` AND 
+ABS(c2.`SEGMENT_MEAN`) >= 0.2) / SUM(`END`-`START`)) AS `VALUE` FROM `copy_number_seg` AS c1, cancer_study WHERE 
+c1.`CANCER_STUDY_ID` = cancer_study.`CANCER_STUDY_ID` GROUP BY cancer_study.`CANCER_STUDY_ID`, `SAMPLE_ID` HAVING SUM(`END`-`START`) > 0;
+
+UPDATE info SET DB_SCHEMA_VERSION="2.5.0";
+
+##version: 2.6.0
+-- modify fkc for gistic_to_gene
+ALTER TABLE gistic_to_gene DROP FOREIGN KEY gistic_to_gene_ibfk_2;
+ALTER TABLE gistic_to_gene ADD CONSTRAINT `gistic_to_gene_ibfk_2` FOREIGN KEY (`GISTIC_ROI_ID`) REFERENCES `gistic` (`GISTIC_ROI_ID`) ON DELETE CASCADE;
+UPDATE info SET DB_SCHEMA_VERSION="2.6.0";
+
+##version: 2.6.1
+ALTER TABLE `mutation_event` MODIFY COLUMN `KEYWORD` VARCHAR(255);
+ALTER TABLE `mutation_count_by_keyword` MODIFY COLUMN `KEYWORD` VARCHAR(255);
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.6.1";
+
+##version: 2.7.0
+DELETE FROM `clinical_attribute_meta` WHERE clinical_attribute_meta.`ATTR_ID` = 'MUTATION_COUNT';
+INSERT INTO `clinical_attribute_meta` SELECT 'MUTATION_COUNT', 'Mutation Count', 'Mutation Count', 'NUMBER', 0, '30', 
+genetic_profile.`CANCER_STUDY_ID` FROM mutation_count INNER JOIN genetic_profile ON 
+mutation_count.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID` GROUP BY genetic_profile.`CANCER_STUDY_ID`;
+
+DELETE FROM `clinical_sample` WHERE clinical_sample.`ATTR_ID` = 'MUTATION_COUNT';
+INSERT INTO `clinical_sample` SELECT mutation_count.`SAMPLE_ID`, 'MUTATION_COUNT', mutation_count.`MUTATION_COUNT` 
+FROM mutation_count;
+
+DELETE FROM `clinical_attribute_meta` WHERE clinical_attribute_meta.`ATTR_ID` = 'FRACTION_GENOME_ALTERED';
+INSERT INTO `clinical_attribute_meta` SELECT 'FRACTION_GENOME_ALTERED', 'Fraction Genome Altered', 
+'Fraction Genome Altered', 'NUMBER', 0, '20', fraction_genome_altered.`CANCER_STUDY_ID` FROM fraction_genome_altered 
+GROUP BY fraction_genome_altered.`CANCER_STUDY_ID`;
+
+DELETE FROM `clinical_sample` WHERE clinical_sample.`ATTR_ID` = 'FRACTION_GENOME_ALTERED';
+INSERT INTO `clinical_sample` SELECT fraction_genome_altered.`SAMPLE_ID`, 'FRACTION_GENOME_ALTERED', 
+fraction_genome_altered.`VALUE` FROM fraction_genome_altered;
+
+DROP TABLE IF EXISTS mutation_count;
+DROP TABLE IF EXISTS fraction_genome_altered;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.0";

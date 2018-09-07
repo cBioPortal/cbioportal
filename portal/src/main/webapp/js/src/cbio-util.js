@@ -279,6 +279,8 @@ cbio.util = (function() {
 
         browser.msie = /msie/.test(uagent);
 
+        browser.edge = /edge/.test(uagent);
+
         browser.version = "";
 
         // check for IE 11
@@ -422,11 +424,11 @@ cbio.util = (function() {
     }
 
     function getLinkToPatientView(cancerStudyId, patientId) {
-        return "case.do#/patient?studyId=" + cancerStudyId + "&caseId=" + patientId;
+        return "patient?studyId=" + cancerStudyId + "&caseId=" + patientId;
     }
 
     function getLinkToSampleView(cancerStudyId, sampleId) {
-        return "case.do#/patient?studyId=" + cancerStudyId + "&sampleId=" + sampleId;
+        return "patient?studyId=" + cancerStudyId + "&sampleId=" + sampleId;
     }
 
     /**
@@ -635,7 +637,7 @@ cbio.util = (function() {
         
         if (isHotspot)
         {
-            strBuilder.push("<a href=\"http://cancerhotspots.org/\" target=\"_blank\">http://cancerhotspots.org/</a>");
+            strBuilder.push("<a href=\"https://www.cancerhotspots.org/\" target=\"_blank\">https://www.cancerhotspots.org/</a>");
 
             if (is3dHotspot) {
                 strBuilder.push(" and ");
@@ -646,7 +648,7 @@ cbio.util = (function() {
         }
         
         if (is3dHotspot) {
-            strBuilder.push("<a href=\"http://3dhotspots.org/\" target=\"_blank\">http://3dhotspots.org/</a>.");
+            strBuilder.push("<a href=\"https://www.3dhotspots.org/\" target=\"_blank\">https://www.3dhotspots.org/</a>.");
         }
         // end links
         
@@ -729,27 +731,11 @@ cbio.util = (function() {
 
     function getDatahubStudiesList() {
         var DATAHUB_GIT_URL =
-            'https://api.github.com/repos/cBioPortal/datahub/contents/public';
+            'proxy/download.cbioportal.org/study_list.json';
         var def = new $.Deferred();
 
         $.getJSON(DATAHUB_GIT_URL, function(data) {
-            var studies = {};
-            if (_.isArray(data)) {
-                _.each(data, function(fileInfo) {
-                    if (_.isObject(fileInfo) &&
-                        fileInfo.type === 'file' &&
-                        _.isString(fileInfo.name)) {
-                        var fileName = fileInfo.name.split('.tar.gz');
-                        if (fileName.length > 0) {
-                            studies[fileName[0]] = {
-                                name: fileName[0],
-                                htmlURL: fileInfo.html_url
-                            };
-                        }
-                    }
-                })
-            }
-            def.resolve(studies);
+            def.resolve(data);
         }).fail(function(error) {
             def.reject(error);
         });
@@ -815,7 +801,7 @@ cbio.util = (function() {
      * 
      * @param nameSelector - Any element selector can be accepted by jQuery
      * @param descriptionSelector - Any element selector can be accepted by jQuery
-     * @param studies - List of cancer studies 
+     * @param studies - List of cancer studies
      * @param name - The combined study name
      * @param description - The combined study description
      */
@@ -830,32 +816,72 @@ cbio.util = (function() {
                 description += ' ';
             }
             description += twoMoreStudies ?
-                ('This combined study contains samples from ' + studies.length + ' studies.') : '';
+                ('This combined study contains samples from ' + studies.length + ' studies.') : getCollapseStudyName(studies);
+        }
+        $(descriptionSelector).append(description);
+        if (twoMoreStudies) {
             var collapseStudyName = studies.map(function(study) {
                 // Remove html tags in study.description in case title of <a> not work 
                 return '<a href="' + window.cbioURL + 'study?id=' + study.id + '" title="' +
                     study.description.replace(/(<([^>]+)>)/ig, '') + '" target="_blank">' +
                     study.name + '</a>';
             }).join("<br />");
+            addFoldableDescription(descriptionSelector, collapseStudyName)
+        }
+    }
 
-            if (twoMoreStudies) {
-                description += '<span class="truncated"><br />' + collapseStudyName + '</span>';
+    function getOriginStudiesDescriptionHtml(studies) {
+        var originStudiesDescription = ['<div class="origin-studies"><div class="header">This virtual study was derived from:</div><div class="panel-group">'];
+        _.each(studies, function(study) {
+            originStudiesDescription.push(
+                '<div class="panel panel-default">' +
+                '<div class="panel-heading">' +
+                '<h4 class="panel-title"><span role="button" data-toggle="collapse" ' +
+                'data-target="#' + study.id + '-collapse-content" class="collapsed">' +
+                study.name + '</span><a target="_blank" href="' + window.cbioURL + 'study?id=' + study.id + '"><i class="fa fa-external-link" aria-hidden="true"></i></a></h4></div>' +
+                '<div id="' + study.id + '-collapse-content" ' +
+                'class="panel-collapse collapse">' +
+                '<div class="panel-body">' + study.description.replace(/\r?\n/g, '<br/>') + '</div></div></div>');
+        });
+        originStudiesDescription.push('</div></div>');
+        return originStudiesDescription.join('');
+    }
+
+    function showVShtmlDescription(descriptionSelector, str, originStudies) {
+        if (str) {
+            var lines = str.split(/\r?\n/g);
+            if (lines.length > 1) {
+                $(descriptionSelector).append(lines.shift());
+                var folableContent = lines.join('<br />');
+                if(_.isArray(originStudies) && originStudies.length > 0) {
+                    folableContent += getOriginStudiesDescriptionHtml(originStudies);
+                }
+                addFoldableDescription(descriptionSelector, folableContent);
             } else {
-                description += '<span>' + collapseStudyName + '</span>';
+                $(descriptionSelector).append(str);
             }
         }
-        $(descriptionSelector).append(description);
-        if (hasStudies) {
-            if (twoMoreStudies) {
-                var trncatedElm = $('.truncated').hide()                       // Hide the text initially
-                    .before('<i class="fa fa-plus-circle combined-study-title-toggle-icon" aria-hidden="true"></i>'); /// Create toggle button
-                $(descriptionSelector).find('.combined-study-title-toggle-icon')
-                    .on('click', function() {          // Attach behavior
-                        $(this).toggleClass("fa-minus-circle");   // Swap the icon
-                        $(trncatedElm).toggle();                    // Hide/show the text
-                    });
-            }
-        }
+        return str;
+    }
+
+    function getCollapseStudyName(studies) {
+        return studies.map(function(study) {
+            // Remove html tags in study.description in case title of <a> not work 
+            return '<a href="' + window.cbioURL + 'study?id=' + study.id + '" title="' +
+                study.description.replace(/(<([^>]+)>)/ig, '') + '" target="_blank">' +
+                study.name + '</a>';
+        }).join("<br />");
+    }
+
+    function addFoldableDescription(descriptionSelector, content) {
+        $(descriptionSelector).append('<span class="truncated"><br />' + content + '</span>');
+        var truncatedElm = $(descriptionSelector + ' .truncated').hide()                       // Hide the text initially
+            .before('<i class="fa fa-plus-circle combined-study-title-toggle-icon" aria-hidden="true" style="margin-left: 5px;"></i>'); /// Create toggle button
+        $(descriptionSelector).find('.combined-study-title-toggle-icon')
+            .on('click', function() {          // Attach behavior
+                $(this).toggleClass("fa-minus-circle");   // Swap the icon
+                $(truncatedElm).toggle();                    // Hide/show the text
+            });
     }
 
     return {
@@ -887,6 +913,8 @@ cbio.util = (function() {
         makeCachedPromiseFunction: makeCachedPromiseFunction,
         getDatahubStudiesList: getDatahubStudiesList,
         showCombinedStudyNameAndDescription: showCombinedStudyNameAndDescription,
+        showVShtmlDescription: showVShtmlDescription,
+        getOriginStudiesDescriptionHtml: getOriginStudiesDescriptionHtml,
         getDecimalExponents: getDecimalExponents
     };
 

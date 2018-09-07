@@ -1,7 +1,7 @@
 ## Importing Data into cBioPortal
 The metaImport script should be used to automate the process of validating and loading datasets. It also has some nice features like an extra option to only load datasets that completely pass validation (i.e. with no errors, while warnings can be explicitly allowed by the user). 
 
-####Running the metaImport Script
+#### Running the metaImport Script
 To run the metaImport script first go to the importer folder
 `<your_cbioportal_dir>/core/src/main/scripts/importer` 
 and then run the following command:
@@ -36,6 +36,12 @@ optional arguments:
   -v, --verbose         report status info messages while validating
   -o, --override_warning
                         override warnings and continue importing
+  -r, --relaxed-clinical_definitions
+                        Option to enable relaxed mode for validator when validating
+                        clinical data without header definitions
+  -m, --strict_maf_checks
+                        Option to enable strict mode for validator when validating
+                        mutation data
 ```
 
 #### Example of Importing a study
@@ -45,7 +51,7 @@ Export PORTAL_HOME, e.g.
 export PORTAL_HOME=<your_cbioportal_home_dir>
 ```
 
-and then run (this simple command only works if your cBioPortal is running at http://localhost/cbioportal - if this is not the case, follow the next example):
+and then run (this simple command only works if your cBioPortal is running at http://localhost/cbioportal - if this is not the case, follow the advanced example):
 
 ```
 ./metaImport.py -s ../../../test/scripts/test_data/study_es_0/
@@ -56,6 +62,8 @@ This example imports the study to the localhost, creates an html report and show
 ```
 ./metaImport.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080/cbioportal -html myReport.html -v
 ```
+
+By adding `-o`, warnings will be overridden and import will start after validation.
 
 ## Development / debugging mode
 For developers and specific testing purposes, an extra script, cbioportalImporter.py, is available which imports data regardless of validation results. Check [this](Development,-debugging-and-maintenance-mode-using-cbioportalImporter.md) page for more information on how to use it.

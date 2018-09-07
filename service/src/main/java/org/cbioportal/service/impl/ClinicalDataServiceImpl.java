@@ -1,6 +1,8 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.Patient;
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
 import org.cbioportal.service.ClinicalDataService;
@@ -11,11 +13,12 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ClinicalDataServiceImpl implements ClinicalDataService {
@@ -30,7 +33,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     private SampleService sampleService;
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId, String attributeId, 
                                                                 String projection, Integer pageSize, Integer pageNumber,
                                                                 String sortBy, String direction)
@@ -43,7 +45,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaSampleClinicalData(String studyId, String sampleId, String attributeId)
         throws SampleNotFoundException, StudyNotFoundException {
 
@@ -53,7 +54,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<ClinicalData> getAllClinicalDataOfPatientInStudy(String studyId, String patientId, String attributeId, 
                                                                  String projection, Integer pageSize, 
                                                                  Integer pageNumber, String sortBy, String direction)
@@ -66,7 +66,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaPatientClinicalData(String studyId, String patientId, String attributeId)
         throws PatientNotFoundException, StudyNotFoundException {
 
@@ -76,7 +75,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<ClinicalData> getAllClinicalDataInStudy(String studyId, String attributeId, String clinicalDataType, 
                                                         String projection, Integer pageSize, Integer pageNumber,
                                                         String sortBy, String direction) throws StudyNotFoundException {
@@ -88,7 +86,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaAllClinicalData(String studyId, String attributeId, String clinicalDataType) 
         throws StudyNotFoundException {
 
@@ -118,7 +115,6 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     public List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds, 
                                                 String clinicalDataType, String projection) {
 
@@ -126,10 +122,50 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
     public BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds, 
                                           String clinicalDataType) {
 
         return clinicalDataRepository.fetchMetaClinicalData(studyIds, ids, attributeIds, clinicalDataType);
     }
+
+	@Override
+	public Map<String, List<ClinicalDataCount>> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds,
+			List<String> attributeIds, String clinicalDataType) {
+
+        List<ClinicalDataCount> clinicalDataCounts = clinicalDataRepository.fetchClinicalDataCounts(studyIds, sampleIds,
+            attributeIds, clinicalDataType).stream().filter(c -> !c.getValue().toUpperCase().equals("NA") && 
+            !c.getValue().toUpperCase().equals("NAN") && !c.getValue().toUpperCase().equals("N/A")).collect(Collectors.toList());
+
+        Map<String, List<ClinicalDataCount>> result = clinicalDataCounts.stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId));
+
+        attributeIds.forEach(a -> {
+
+            int naCount = 0;
+            int totalCount = 0; 
+            List<ClinicalDataCount> counts = result.get(a);
+            if (counts != null) {
+                totalCount = counts.stream().mapToInt(ClinicalDataCount::getCount).sum();
+            } else {
+                counts = new ArrayList<>();
+                result.put(a, counts);
+            }
+
+            if (clinicalDataType.equals("SAMPLE")) {
+                naCount = sampleIds.size() - totalCount;
+            } else {
+                List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);
+                naCount = patients.size() - totalCount;
+            }
+            
+            if (naCount > 0) {
+                ClinicalDataCount clinicalDataCount = new ClinicalDataCount();
+                clinicalDataCount.setAttributeId(a);
+                clinicalDataCount.setValue("NA");
+                clinicalDataCount.setCount(naCount);
+                counts.add(clinicalDataCount);
+            }
+        });
+        
+        return result;
+	}
 }

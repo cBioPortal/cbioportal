@@ -17,7 +17,6 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.BenjaminiHochbergFDRCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -45,9 +44,9 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     private BenjaminiHochbergFDRCalculator benjaminiHochbergFDRCalculator;
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public List<ExpressionEnrichment> getExpressionEnrichments(String molecularProfileId, List<String> alteredIds, 
-                                                               List<String> unalteredIds, String enrichmentType) 
+                                                               List<String> unalteredIds, List<Integer> queryGenes, 
+                                                               String enrichmentType) 
         throws MolecularProfileNotFoundException {
         
         if (enrichmentType.equals("PATIENT")) {
@@ -61,6 +60,10 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
         Map<Integer, List<GeneMolecularData>> alteredMolecularDataMap = molecularDataService.fetchMolecularData(
             molecularProfileId, alteredIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(
                 GeneMolecularData::getEntrezGeneId));
+                
+        for (Integer entrezGeneId : queryGenes) {
+            alteredMolecularDataMap.remove(entrezGeneId);
+        }
         
         Map<Integer, List<GeneMolecularData>> unalteredMolecularDataMap = molecularDataService.fetchMolecularData(
             molecularProfileId, unalteredIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(
@@ -88,6 +91,9 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
             
             double[] alteredValues = getAlterationValues(alteredMolecularData, molecularProfileId);
             double[] unalteredValues = getAlterationValues(unalteredMolecularData, molecularProfileId);
+            if (alteredValues.length < 2 || unalteredValues.length < 2) {
+                continue;
+            }
             
             double alteredMean = calculateMean(alteredValues);
             double unalteredMean = calculateMean(unalteredValues);

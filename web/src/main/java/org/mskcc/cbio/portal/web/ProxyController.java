@@ -32,32 +32,28 @@
 
 package org.mskcc.cbio.portal.web;
 
-import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudyData;
-import org.json.simple.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 
 @Controller
 @RequestMapping("/proxy")
@@ -65,7 +61,7 @@ public class ProxyController
 {
 	
   private String hotspotsURL;
-  @Value("${hotspots.url:http://cancerhotspots.org/api/}")
+  @Value("${hotspots.url:https://www.cancerhotspots.org/api/}")
   public void setHotspotsURL(String property) { this.hotspotsURL = property; }
   
   private String bitlyURL;
@@ -109,7 +105,7 @@ public class ProxyController
       
       pathToUrl.put("bitly", bitlyURL);
       pathToUrl.put("cancerHotSpots", hotspotsURL + "hotspots/single/");
-      pathToUrl.put("3dHotspots", "http://3dhotspots.org/3d/api/hotspots/3d");
+      pathToUrl.put("3dHotspots", "https://www.3dhotspots.org/api/hotspots/3d/");
       pathToUrl.put("oncokbAccess", oncokbApiURL + "access");
       pathToUrl.put("oncokbSummary", oncokbApiURL + "summary.json");
 
@@ -179,42 +175,4 @@ public class ProxyController
       return respProxy(bitlyURL + request.getQueryString(), method, null, response);
   }
 
-    @RequestMapping(value = "/session-service/{type}/{key}", method = RequestMethod.GET)
-    public
-    @ResponseBody
-    String getSessionService(@PathVariable String type, @PathVariable String key,
-                             HttpMethod method,HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
-        return respProxy(sessionServiceURL + type + "/" + key, method, null, response);
-    }
-    
-  @RequestMapping(value="/session-service/{type}", method = RequestMethod.POST)
-  public @ResponseBody Map addSessionService(@PathVariable String type, @RequestBody JSONObject body, HttpMethod method,
-                                                HttpServletRequest request, HttpServletResponse response) throws IOException
-  {
-	  HttpEntity httpEntity = new HttpEntity<JSONObject>(body);
-	  if(type.equals("virtual_study")) {
-			ObjectMapper mapper = new ObjectMapper();
-			  //JSON from file to Object
-			VirtualStudyData virtualStudyData = mapper.readValue(body.toString(), VirtualStudyData.class);
-			  Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-			  if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-				  virtualStudyData.setOwner(authentication.getName());
-				  httpEntity = new HttpEntity<VirtualStudyData>(virtualStudyData);
-			  }
-	  }
-	    // returns {"id":"5799648eef86c0e807a2e965"}
-	    // using HashMap because converter is MappingJackson2HttpMessageConverter (Jackson 2 is on classpath)
-	    // was String when default converter StringHttpMessageConverter was used
-    	  	RestTemplate restTemplate = new RestTemplate();
-    	  	
-    	    ResponseEntity<HashMap> responseEntity =
-    	    	      restTemplate
-    	    	      		  .exchange(sessionServiceURL + type, 
-    	    	      					method, 
-    	    	      					new HttpEntity<JSONObject>(body), 
-    	    	      					HashMap.class);
-
-    	    	return responseEntity.getBody();
-    	    	
-  }
 }

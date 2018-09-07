@@ -13,4 +13,6 @@ public interface PatientMapper {
     BaseMeta getMetaPatients(List<String> studyIds, List<String> patientIds);
 
     Patient getPatient(String studyId, String patientId, String projection);
+
+	List<Patient> getPatientsOfSamples(List<String> studyIds, List<String> sampleIds);
 }

@@ -229,20 +229,19 @@
     <select id="countMutationEvents" resultType="org.mskcc.cbio.portal.model.MutationCount">
         select
 
-        SAMPLE_ID as sampleId,
-        MUTATION_COUNT as mutationCount
+        INTERNAL_ID as sampleId,
+        CONVERT(SUBSTRING_INDEX(ATTR_VALUE,'-',-1),UNSIGNED INTEGER) as mutationCount
 
-        from mutation_count
+        from clinical_sample
 
-        where GENETIC_PROFILE_ID = #{geneticProfileId}
+        where ATTR_ID = 'MUTATION_COUNT'
 
         <if test="sampleIds != null and !sampleIds.isEmpty()">
-            and SAMPLE_ID in
+            and INTERNAL_ID in
             <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
                 #{item}
             </foreach>
         </if>
-
     </select>
 
     <select id="countSamplesWithMutatedGenes" resultType="org.mskcc.cbio.portal.model.MutatedGeneSampleCount">

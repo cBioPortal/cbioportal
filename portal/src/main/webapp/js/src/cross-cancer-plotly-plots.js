@@ -50,13 +50,18 @@ var ccPlots = (function (Plotly, _, $) {
         
         $.when(ccPlots.util.getGeneticProfiles_(_queriedStudyIds)).then(function(_profiles) {
             
-            var _param_mrna_profile_arr = _.map(_queriedStudyIds, function (_sid) {
+            var _param_mrna_profile_arr = _.reduce(_queriedStudyIds, function (memo, _sid) {
                 if ($("#cc_plots_profile_list").val() === 'v1') {
-                    return _sid + "_rna_seq_mrna";
+                    memo.push( _sid + "_rna_seq_mrna" );
+                    //return _sid + ""
                 } else if ($("#cc_plots_profile_list").val() === 'v2') {
-                    return _sid + "_rna_seq_v2_mrna";
+                    //return _sid + "_rna_seq_v2_mrna";
+                    memo.push(_sid + "_rna_seq_v2_mrna");
+                    memo.push(_sid + "_rna_seq_v2_mrna_median");
+                    //return _sid + "_rna_seq_v2_mrna_median";
                 }
-            });
+                return memo;
+            },[]);
             var _param_mut_profile_arr = _.map(_queriedStudyIds, function (_sid) {
                 return _sid + "_mutations";
             });
@@ -460,7 +465,6 @@ var ccPlots = (function (Plotly, _, $) {
     }
     
     var renderStudySelBox = function() {
-        
             // generate the content of the study selection expendable section
             $("#cc_plots_study_selection_btn").attr("data-toggle", "collapse");
             $("#cc_plots_study_selection_btn").removeClass("disabled");
@@ -469,10 +473,19 @@ var ccPlots = (function (Plotly, _, $) {
                 // html 
                 $("#cc_plots_select_study_box").append("select <a href='#' id='cc_plots_select_tcga_provisional'>TCGA provisional</a> / <a href='#' id='cc_plots_select_all'>all</a> / <a href='#' id='cc_plots_select_none'>none</a><br><br>");
                 var _fg = false; // no studies is selected in the box
+                
+                var onlyPanCan = _.every(study_meta,(study)=>/pan_can_atlas/.test(study.id));
+               
                 _.each(study_meta, function(_study_meta_obj) {
                     var _checked = ''; //by default select only TCGA provisional studies
-                    if (_study_meta_obj.name.toLowerCase().indexOf("tcga") !== -1 && _study_meta_obj.name.toLowerCase().indexOf("provisional") !== -1) {
+                    // if we don't only have pan can, then we're going to default all provisional studies
+                    if (!onlyPanCan &&_study_meta_obj.name.toLowerCase().indexOf("tcga") !== -1 && _study_meta_obj.name.toLowerCase().indexOf("provisional") !== -1) {
                         _checked = 'checked';
+                        _fg = true;
+                    }
+                    // if we're only pan can, turn all pan on
+                    if (onlyPanCan) {
+                        _checked = "checked";
                         _fg = true;
                     }
                     $("#cc_plots_select_study_box").append("<input type='checkbox' id='cc_plots_" + _study_meta_obj.id + "_sel' name='cc_plots_selected_studies' value='" + _study_meta_obj.id + "' title='Select "+_study_meta_obj.name+"' " + _checked + ">" + _study_meta_obj.name + "<br>");
@@ -515,10 +528,12 @@ var ccPlots = (function (Plotly, _, $) {
 
     return {
         init: function() {
-            var tmp = setInterval(function () {timer();}, 1000);
+            //var tmp = setInterval(function () {timer();}, 1000);
             function timer() {
                 if (window.QuerySession.cancer_study_ids.length > 0) {
 
+                    return;
+                    
                     clearInterval(tmp);
 
                     $.when(ccPlots.util.getGeneticProfiles_(window.QuerySession.cancer_study_ids)).then(function(_profiles) {

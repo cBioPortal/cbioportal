@@ -121,7 +121,7 @@ public class TestIntegrationTest {
             TransactionalScripts scripts = applicationContext.getBean(TransactionalScripts.class);
             scripts.run();
 
-            //count the relevant warnings:
+            //count warnings, but disregard warnings caused by gene_symbol_disambiguation.txt
             ArrayList<String> warnings = ProgressMonitor.getWarnings();
             int countWarnings = 0;
             for (String warning: warnings) {
@@ -129,9 +129,9 @@ public class TestIntegrationTest {
                     countWarnings++;
                 }
             }
-            //check that there no warnings:
+            //check that there are no warnings:
             assertEquals(0, countWarnings);
-            
+
             //check that ALL data really got into DB correctly. In the spirit of integration tests,
             //we want to query via the same service layer as the one used by the web API here.
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId("study_es_0");
@@ -142,9 +142,9 @@ public class TestIntegrationTest {
             List<String> geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_mutations");
             List<Mutation> mutations = mutationMapperLegacy.getMutationsDetailed(geneticProfileStableIds,null,null,null);
-            //there are 13 records in the mutation file, of which 3 are filtered, and there are 3 extra records added from fusion
-            //so we expect 13 records in DB:
-            assertEquals(13, mutations.size());
+            //there are 31 records in the mutation file, of which 3 are filtered, and there are 3 extra records added from fusion
+            //so we expect 31 records in DB:
+            assertEquals(31, mutations.size());
 
             //===== Check FUSION data ========
             // Are there 3 fusion entries in mutation profile? true
@@ -198,10 +198,11 @@ public class TestIntegrationTest {
             assertEquals(273, count0506);
             
             //===== Check CLINICAL data ========
-            //in total 5 clinical attributes should be added (4 "patient type" 
-            //and 1 "sample type" attributes) - see also "assumptions" section at start of this test case
+            //in total 7 clinical attributes should be added (4 "patient type" 
+            //and 3 "sample type" attributes including MUTATION_COUNT and FRACTION_GENOME_ALTERED) 
+            //see also "assumptions" section at start of this test case
             List<DBClinicalField> clinicalAttributes = apiService.getSampleClinicalAttributes();
-            assertEquals(1, clinicalAttributes.size());
+            assertEquals(3, clinicalAttributes.size());
             clinicalAttributes = apiService.getPatientClinicalAttributes();
             assertEquals(4, clinicalAttributes.size());
             

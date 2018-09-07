@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.SampleMapper">
-    <cache/>
+    <cache readOnly="true" size="100000"/>
 
     <sql id="select">
         sample.INTERNAL_ID AS "${prefix}internalId",
@@ -32,7 +32,10 @@
     <sql id="where">
         <where>
             <if test="sampleIds == null">
-                cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
+                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
             </if>
             <if test="sampleIds != null">
                 (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
@@ -152,5 +155,18 @@
                 #{item}
             </foreach>
         </if>
+    </select>
+
+    <select id="getSamplesOfPatientsInMultipleStudies" resultType="org.cbioportal.model.Sample">
+        SELECT
+        <include refid="select">
+            <property name="prefix" value=""/>
+        </include>
+        <include refid="from"/>
+        WHERE
+        (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
+        <foreach index="i" collection="patientIds" open="(" separator="," close=")">
+            (#{studyIds[${i}]}, #{patientIds[${i}]})
+        </foreach>
     </select>
 </mapper>

@@ -9,6 +9,8 @@ public interface CopyNumberSegmentMapper {
     
     List<CopyNumberSeg> getCopyNumberSegments(List<String> studyIds, List<String> sampleIds, String projection, 
                                               Integer limit, Integer offset, String sortBy, String direction);
+    
+    List<Integer> getSamplesWithCopyNumberSegments(List<String> studyIds, List<String> sampleIds);
 
     BaseMeta getMetaCopyNumberSegments(List<String> studyIds, List<String> sampleIds);
     

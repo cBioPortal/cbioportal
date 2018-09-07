@@ -47,6 +47,7 @@ import java.util.*;
  * @author jj
  */
 public class ImportCopyNumberSegmentData extends ConsoleRunnable {
+
     private int entriesSkipped;
     
     private void importData(File file, int cancerStudyId) throws IOException, DaoException {
@@ -103,7 +104,7 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
 	            }
 	            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), chrom, start, end, numProbes, segMean);
 	            cns.setSegId(++segId);
-	            DaoCopyNumberSegment.addCopyNumberSegment(cns);
+                DaoCopyNumberSegment.addCopyNumberSegment(cns);
 	        }
 	        MySQLbulkLoader.flushAll();
         }
@@ -133,14 +134,14 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
 		    }
 		
 		    importCopyNumberSegmentFileMetadata(cancerStudy, properties);
-		    importCopyNumberSegmentFileData(cancerStudy, dataFile);
+            importCopyNumberSegmentFileData(cancerStudy, dataFile);
+            DaoCopyNumberSegment.createFractionGenomeAlteredClinicalData(cancerStudy.getInternalId());
         } catch (RuntimeException e) {
             throw e;
         } catch (IOException|DaoException e) {
             throw new RuntimeException(e);
         }
     }
-
 
     private static CancerStudy getCancerStudy(Properties properties) throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(properties.getProperty("cancer_study_identifier").trim());

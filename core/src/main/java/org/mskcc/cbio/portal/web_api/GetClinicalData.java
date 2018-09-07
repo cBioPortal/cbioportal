@@ -129,15 +129,17 @@ public class GetClinicalData {
         ClinicalData c = data.get(0);
         return "" + c.getStableId() + "\t" + c.getAttrId() + "\t" + c.getAttrVal();
     }
-
+    
     /**
      * Creates a json object with data and attributes fields that correspond to the data
-     * in the clinicals and the set of attributes that exist in the clinicals
+     * in the clinicals and the set of attributes that exist in the clinicals, filtered
+     * by the defined cancer study ID.
      * @param clinicals
+     * @param cancer_study_id
      * @return
      * @throws DaoException
      */
-    public static JSONObject generateJson(List<ClinicalData> clinicals) throws DaoException {
+    public static JSONObject generateJson(List<ClinicalData> clinicals, Integer cancer_study_id) throws DaoException {
         Set<JSONObject> attrs = new HashSet<JSONObject>();
         JSONObject toReturn = new JSONObject();
         JSONArray data = new JSONArray();
@@ -149,8 +151,8 @@ public class GetClinicalData {
             attrIds.add(c.getAttrId());
 //            }
         }
-        
-        for (ClinicalAttribute attr : DaoClinicalAttributeMeta.getDatum(attrIds)) {
+
+        for (ClinicalAttribute attr : DaoClinicalAttributeMeta.getDatum(attrIds, cancer_study_id)) {
             attrs.add(reflectToMap(attr));
         }
 
@@ -176,7 +178,7 @@ public class GetClinicalData {
     public static JSONObject getJSON(int cancerStudyId, List<String> sampleIds) throws DaoException {
         List<ClinicalData> clinicals = DaoClinicalData.getSampleAndPatientData(cancerStudyId, sampleIds);
 
-        return generateJson(clinicals);
+        return generateJson(clinicals, cancerStudyId);
     }
 
     public static JSONObject getJSON(int cancerStudyId, List<String> sampleIds, String attrId) throws DaoException {
@@ -184,7 +186,7 @@ public class GetClinicalData {
         ClinicalAttribute attr = DaoClinicalAttributeMeta.getDatum(attrId, cancerStudyId);
         List<ClinicalData> clinicals = DaoClinicalData.getSampleAndPatientData(cancerStudyId, sampleIds, attr);
 
-        return generateJson(clinicals);
+        return generateJson(clinicals, cancerStudyId);
     }
 
     

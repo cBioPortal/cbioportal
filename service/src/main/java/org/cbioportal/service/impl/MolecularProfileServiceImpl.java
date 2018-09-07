@@ -8,11 +8,14 @@ import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @Service
 public class MolecularProfileServiceImpl implements MolecularProfileService {
@@ -21,13 +24,17 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     private MolecularProfileRepository molecularProfileRepository;
     @Autowired
     private StudyService studyService;
+    @Value("${authenticate:false}")
+    private String AUTHENTICATE;
 
     @Override
     @PostFilter("hasPermission(filterObject, 'read')")
     public List<MolecularProfile> getAllMolecularProfiles(String projection, Integer pageSize, Integer pageNumber,
                                                           String sortBy, String direction) {
 
-        return molecularProfileRepository.getAllMolecularProfiles(projection, pageSize, pageNumber, sortBy, direction);
+        List<MolecularProfile> molecularProfiles = molecularProfileRepository.getAllMolecularProfiles(projection, pageSize, pageNumber, sortBy, direction);
+        // copy the list before returning so @PostFilter doesn't taint the list stored in the mybatis second-level cache
+        return (AUTHENTICATE.equals("false")) ? molecularProfiles : new ArrayList<MolecularProfile>(molecularProfiles);
     }
 
     @Override
@@ -37,7 +44,6 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
     public MolecularProfile getMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException {
 
         MolecularProfile molecularProfile = molecularProfileRepository.getMolecularProfile(molecularProfileId);
@@ -49,21 +55,18 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
 	public List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection) {
         
         return molecularProfileRepository.getMolecularProfiles(molecularProfileIds, projection);
     }
     
     @Override
-    @PreAuthorize("hasPermission(#molecularProfileIds, 'List<MolecularProfileId>', 'read')")
 	public BaseMeta getMetaMolecularProfiles(List<String> molecularProfileIds) {
         
         return molecularProfileRepository.getMetaMolecularProfiles(molecularProfileIds);
 	}
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public List<MolecularProfile> getAllMolecularProfilesInStudy(String studyId, String projection, Integer pageSize,
                                                                  Integer pageNumber, String sortBy, String direction) 
         throws StudyNotFoundException {
@@ -75,7 +78,6 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
     public BaseMeta getMetaMolecularProfilesInStudy(String studyId) throws StudyNotFoundException {
 
         studyService.getStudy(studyId);
@@ -84,14 +86,12 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
 	public List<MolecularProfile> getMolecularProfilesInStudies(List<String> studyIds, String projection) {
         
         return molecularProfileRepository.getMolecularProfilesInStudies(studyIds, projection);
 	}
 
     @Override
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
 	public BaseMeta getMetaMolecularProfilesInStudies(List<String> studyIds) {
         
         return molecularProfileRepository.getMetaMolecularProfilesInStudies(studyIds);
@@ -113,5 +113,45 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
         //validate (throws exception if profile not found):
         this.getMolecularProfile(referredMolecularProfileId);
         return molecularProfileRepository.getMolecularProfilesReferringTo(referredMolecularProfileId);
+	}
+
+	@Override
+	public List<String> getFirstMutationProfileIds(List<String> studyIds, List<String> sampleIds) {
+        
+        List<String> molecularProfileIds = new ArrayList<>();
+        Map<String, List<MolecularProfile>> mapByStudyId = getMolecularProfilesInStudies(studyIds, "SUMMARY")
+            .stream().filter(m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED))
+            .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
+        int removedSampleCount = 0;
+        for (int i = 0; i < studyIds.size(); i++) {
+            String studyId = studyIds.get(i);
+            if (mapByStudyId.containsKey(studyId)) {
+                molecularProfileIds.add(mapByStudyId.get(studyId).get(0).getStableId());
+            } else {
+                sampleIds.remove(i - removedSampleCount);
+                removedSampleCount++;
+            }
+        }
+        return molecularProfileIds;
+	}
+
+	@Override
+	public List<String> getFirstDiscreteCNAProfileIds(List<String> studyIds, List<String> sampleIds) {
+
+        List<String> molecularProfileIds = new ArrayList<>();
+        Map<String, List<MolecularProfile>> mapByStudyId = getMolecularProfilesInStudies(studyIds, "SUMMARY")
+            .stream().filter(m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION) && 
+            m.getDatatype().equals("DISCRETE")).collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
+        int removedSampleCount = 0;
+        for (int i = 0; i < studyIds.size(); i++) {
+            String studyId = studyIds.get(i);
+            if (mapByStudyId.containsKey(studyId)) {
+                molecularProfileIds.add(mapByStudyId.get(studyId).get(0).getStableId());
+            } else {
+                sampleIds.remove(i - removedSampleCount);
+                removedSampleCount++;
+            }
+        }
+        return molecularProfileIds;
 	}
 }

@@ -11,7 +11,10 @@ If you would like to know how to setup a private instance of the portal and/or g
 If you are interested in coordinating the development of new features, please contact cbioportal@cbio.mskcc.org.
 
 ## Test status
-[![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=master)](https://travis-ci.org/cBioPortal/cbioportal)
+| | bugfix integration branch | feature integration branch |
+| --- | --- | --- |
+| Branch name | [`master`](https://github.com/cBioPortal/cbioportal/tree/master) | [`rc`](https://github.com/cBioPortal/cbioportal/tree/rc) |
+| Status | [![master build status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=master)](https://travis-ci.org/cBioPortal/cbioportal) | [![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=rc)](https://travis-ci.org/cBioPortal/cbioportal) |
 
 ## Code Quality
 [![codebeat badge](https://codebeat.co/badges/0738d3c9-5ffe-4b61-80c4-abb5698d8d44)](https://codebeat.co/projects/github-com-cbioportal-cbioportal)

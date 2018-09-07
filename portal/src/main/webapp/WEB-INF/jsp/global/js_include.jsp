@@ -108,7 +108,3 @@
 <script type="text/javascript" src="js/src/cross-cancer-plotly-plots.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js"></script>
-
-<!-- iViz session integration libraries START-->
-<script type="text/javascript" src="js/lib/vc-session.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<!-- iViz session integration libraries END-->

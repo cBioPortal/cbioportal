@@ -55,7 +55,7 @@ function setUpTabs() {
     }
      var activeIndex = (matchedIndex === -1) ? null : matchedIndex;
 
-     var summaryIsDefault = (window.isVirtualStudy && window.oql_parser.parse(serverVars.theQuery).length === 1);
+     var summaryIsDefault = (window.isVirtualStudy && window.frontendVars.oqlGenes(serverVars.theQuery).length === 1);
      activeIndex = (activeIndex !== null) ? activeIndex : (summaryIsDefault ? 1 : 0);
      $('#tabs').tabs({ active:activeIndex});
      $('#tabs').show();
@@ -216,7 +216,7 @@ function getSessionServiceBookmark(fullURL, sessionJSON, callback) {
         var bookmark = null;
         $.ajax({
             type: 'POST',
-            url: 'api-legacy/proxy/session-service/main_session',
+            url: 'api-legacy/proxy/session/main_session',
             dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify(sessionJSON)

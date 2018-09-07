@@ -1,21 +1,28 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.Patient;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
+import org.cbioportal.persistence.PatientRepository;
 import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
     @Autowired
     private ClinicalDataMapper clinicalDataMapper;
+    @Autowired
+    private PatientRepository patientRepository;
     @Autowired
     private OffsetCalculator offsetCalculator;
 
@@ -144,4 +151,19 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
         return baseMeta;
     }
+
+	@Override
+	public List<ClinicalDataCount> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds,
+			List<String> attributeIds, String clinicalDataType) {
+
+        if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
+            return clinicalDataMapper.fetchSampleClinicalDataCounts(studyIds, sampleIds, attributeIds);
+        } else {
+            List<Patient> patients = patientRepository.getPatientsOfSamples(studyIds, sampleIds);
+            List<String> patientStudyIds = new ArrayList<>();
+            patients.forEach(p -> patientStudyIds.add(p.getCancerStudyIdentifier()));
+            return clinicalDataMapper.fetchPatientClinicalDataCounts(patientStudyIds, 
+                patients.stream().map(Patient::getStableId).collect(Collectors.toList()), attributeIds);
+        }
+	}
 }

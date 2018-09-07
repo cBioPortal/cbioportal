@@ -119,4 +119,22 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
 
         Assert.assertEquals(expectedBaseMeta, result);
     }
+
+    @Test
+    public void getPatientsOfSamples() throws Exception {
+        
+        List<Patient> patients = new ArrayList<>();
+        Patient patient = new Patient();
+        patient.setStableId(PATIENT_ID_1);
+        patient.setCancerStudyIdentifier(STUDY_ID);
+        patients.add(patient);
+
+        Mockito.when(patientRepository.getPatientsOfSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1)))
+            .thenReturn(patients);
+
+        List<Patient> result = patientService.getPatientsOfSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1));
+        
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals(PATIENT_ID_1, result.get(0).getStableId());
+    }
 }

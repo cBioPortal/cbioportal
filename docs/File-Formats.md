@@ -105,7 +105,7 @@ An example metadata file, e.g. named meta_clinical_sample.txt, would be:
 cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: CLINICAL
 datatype: SAMPLE_ATTRIBUTES
-data_filename: data_clinical_samples.txt
+data_filename: data_clinical_sample.txt
 ```
 
 An example metadata file, e.g. named meta_clinical_patient.txt, would be:
@@ -113,7 +113,7 @@ An example metadata file, e.g. named meta_clinical_patient.txt, would be:
 cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: CLINICAL
 datatype: PATIENT_ATTRIBUTES
-data_filename: data_clinical_patients.txt
+data_filename: data_clinical_patient.txt
 ```
 
 #### Data files
@@ -151,9 +151,10 @@ The first four rows of the clinical data file contain tab-delimited metadata abo
     
     Please see [here](Study-View.md) for more detailed information about how study view utilize priority and how the layout is calculated based on priority.
 - Row 5: **The attribute name for the database**: This name should be in upper case.
-    
+- Row 6: This is the first row that contains actual data.
 
-#### Example metadata rows
+
+#### Example clinical header
 Below is an example of the first 4 rows with the respective metadata for the attributes defined in the 5th row. 
 ```
 #Patient Identifier<TAB>Overall Survival Status<TAB>Overall Survival (Months)<TAB>Disease Free Status<TAB>Disease Free (Months)<TAB>...
@@ -166,14 +167,11 @@ data - see examples below
 ....
 ```
 
-Following the metadata rows comes a tab delimited list of clinical attributes (column headers). The sixth row is the first row to contain actual data. 
-
-##### The patient file
-
+#### Clinical patient columns
 The file containing the patient attributes has one **required** column:
-- **PATIENT_ID (required)**: a unique patient ID.
+- **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
 
-The following columns are used by the study view as well as the patient view. In the [study view](http://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header](http://www.cbioportal.org/case.do#/patient?studyId=lgg_ucsf_2014&caseId=P05). 
+The following columns are used by the study view as well as the patient view. In the [study view](http://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header](http://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P05). 
 - **OS_STATUS**:  Overall patient survival status
     - Possible values: DECEASED, LIVING
     - In the patient view, LIVING creates a green label, DECEASED a red label.
@@ -188,6 +186,7 @@ These columns, when provided, add additional information to the patient descript
 - **PATIENT_DISPLAY_NAME**: Patient display name (string)
 - **GENDER** or **SEX**: Gender or sex of the patient (string)
 - **AGE**: Age at which the condition or disease was first diagnosed, in years (number)
+- **TUMOR_SITE**
 
 Optional attributes:
 - **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above, for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and display.
@@ -204,12 +203,12 @@ PATIENT_ID_2<TAB>LIVING<TAB>63.01<TAB>DiseaseFree<TAB>63.01<TAB>...
 ...
 ```
 
-##### The samples file
+##### Clinical sample columns
 The file containing the sample attributes has two **required** columns:
-- **PATIENT_ID (required)**: A patient ID.
-- **SAMPLE_ID (required)**: A sample ID.
+- **PATIENT_ID (required)**: A patient ID. This field can only contain numbers, letters, points, underscores and hyphens.
+- **SAMPLE_ID (required)**: A sample ID. This field can only contain numbers, letters, points, underscores and hyphens.
 
-By adding `PATIENT_ID` here, cBioPortal will map the given sample to this patient. This enables one to associate multiple samples to one patient. For example, a single patient may have had multiple biopsies, each of which has been genomically profiled. See [this example for a patient with multiple samples](http://www.cbioportal.org/case.do#/patient?studyId=lgg_ucsf_2014&caseId=P04).
+By adding `PATIENT_ID` here, cBioPortal will map the given sample to this patient. This enables one to associate multiple samples to one patient. For example, a single patient may have had multiple biopsies, each of which has been genomically profiled. See [this example for a patient with multiple samples](http://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P04).
 
 The following columns are required if you want the [pan-cancer summary statistics tab in a pan-cancer study](http://www.cbioportal.org/index.do?cancer_study_list=cellline_ccle_broad&cancer_study_id=cellline_ccle_broad&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=cellline_ccle_broad_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=cellline_ccle_broad_CNA&Z_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=cellline_ccle_broad_cnaseq&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=SOX9+RAN+TNK2+EP300+PXN+NCOA2+AR+NRIP1+NCOR1+NCOR2&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#pancancer_study_summary):
 - **CANCER_TYPE**: Cancer Type
@@ -217,21 +216,8 @@ The following columns are required if you want the [pan-cancer summary statistic
 
 The following columns affect the header of the patient view by adding text to the samples in the header:
 - **SAMPLE_DISPLAY_NAME**: displayed in addition to the ID
-- **TYPE_OF_CANCER**: Overrides CANCER_TYPE in the header
-- **DETAILED_CANCER_TYPE**: Overrides CANCER_TYPE_DETAILED in the header
-- **KNOWN_MOLECULAR_CLASSIFIER**
-- **TUMOR_SITE**
-- **METASTATIC_SITE** or **PRIMARY_SITE**: Override TUMOR_SITE depending on sample type
 - **SAMPLE_CLASS**
-- **GLEASON_SCORE**: Radical prostatectomy Gleason score for prostate cancer
-- **HISTOLOGY**
-- **TUMOR_STAGE_2009**
-- **TUMOR_GRADE**
-- **ETS_RAF_SPINK1_STATUS**
-- **TMPRSS2_ERG_FUSION_STATUS**
-- **ERG_FUSION_ACGH**
-- **SERUM_PSA**
-- **DRIVER_MUTATIONS**
+- **METASTATIC_SITE** or **PRIMARY_SITE**: Override TUMOR_SITE (patient level attribute) depending on sample type
 
 The following columns additionally affect the [Timeline data](#timeline-data) visualization:
 - **OTHER_SAMPLE_ID**: sometimes the timeline data (see the [timeline data section](#timeline-data)) will not have the SAMPLE_ID but instead an alias to the sample (in the field `SPECIMEN_REFERENCE_NUMBER`). To ensure that the timeline data field `SPECIMEN_REFERENCE_NUMBER` is correctly linked to this sample, be sure to add this column `OTHER_SAMPLE_ID` as an attribute to your sample attributes file.  
@@ -239,10 +225,6 @@ The following columns additionally affect the [Timeline data](#timeline-data) vi
     - If set to `recurrence`, `recurred`, `progression` or `progressed`: orange
     - If set to `metastatic` or `metastasis`: red
     - If set to `primary` or otherwise: black
-
-Optional attributes
-- **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute you have tracked and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above (for the header lines), for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and display.
-
 
 ###### Example sample data file
 ```
@@ -255,6 +237,24 @@ PATIENT_ID_1<TAB>SAMPLE_ID_1<TAB>basal-like<TAB>...
 PATIENT_ID_2<TAB>SAMPLE_ID_2<TAB>Her2 enriched<TAB>...
 ...
 ```
+
+##### Other columns with specific functionality
+These columns can be in either the patient or sample file.
+- **CANCER_TYPE**: Overrides study wide cancer type
+- **CANCER_TYPE_DETAILED**
+- **KNOWN_MOLECULAR_CLASSIFIER**
+- **GLEASON_SCORE**: Radical prostatectomy Gleason score for prostate cancer
+- **HISTOLOGY**
+- **TUMOR_STAGE_2009**
+- **TUMOR_GRADE**
+- **ETS_RAF_SPINK1_STATUS**
+- **TMPRSS2_ERG_FUSION_STATUS**
+- **ERG_FUSION_ACGH**
+- **SERUM_PSA**
+- **DRIVER_MUTATIONS**
+
+##### Other columns without specific functionality
+You can add any additional columns with clinical data to either the patient or sample file. If correctly formatted with the 5-row header, cBioPortal will add them to the database. Be sure to provide the correct `Datatype`, as described above (for the header lines), for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and visualization.
 
 ## Discrete Copy Number Data
 The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC can be [installed](http://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](http://genepattern.broadinstitute.org/gp/pages/login.jsf). For some help on using GISTIC, check the [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md) page.
@@ -313,6 +313,14 @@ AGRN<TAB>375790<TAB>2<TAB>0<TAB>...
 ...
 ```
 
+#### GISTIC2 Format
+GISTIC2 outputs a tabular file similarly formatted to the cBioPortal format, called `<prefix>_all_thresholded.by_genes.txt`.
+In this file the gene symbol is found in the `Gene Symbol` column, while Entrez gene IDs are in the `Gene ID` or 
+`Locus ID` column. Please rename `Gene Symbol` to `Hugo_Symbol` and `Gene ID` or `Locus ID` to `Entrez_Gene_Id`. The 
+`Cytoband` column can be kept in the table, but note that these values are ignored in cBioPortal. cBioPortal uses 
+cytoband annotations from the `map_location` column in NCBI's `Homo_sapiens.gene_info.gz` when loading genes into 
+the seed database.
+
 ## Continuous Copy Number Data
 
 #### Meta file
@@ -350,10 +358,18 @@ data_filename: data_log2CNA.txt
 
 The log2 copy number data file follows the same format as expression data files.  See [Expression Data](#expression-data) for a description of the expression data file format.
 
+#### GISTIC2 Format
+GISTIC2 outputs a tabular file similarly formatted to the cBioPortal format, called `<prefix>_all_data_by_genes.txt`. 
+In this file the gene symbol is found in the `Gene Symbol` column, while Entrez gene IDs are in the `Gene ID` or 
+`Locus ID` column. Please rename `Gene Symbol` to `Hugo_Symbol` and `Gene ID` or `Locus ID` to `Entrez_Gene_Id`. The 
+`Cytoband` column can be kept in the table, but note that these values are ignored in cBioPortal. cBioPortal uses 
+cytoband annotations from the `map_location` column in NCBI's `Homo_sapiens.gene_info.gz` when loading genes into 
+the seed database.
+
 
 ## Segmented Data
 
-A SEG file (segmented data; .seg or .cbs) is a tab-delimited text file that lists loci and associated numeric values. The segmented data file format is the output of the Circular Binary Segmentation algorithm (Olshen et al., 2004).  **Segment data for import into the cBioPortal should be based on build 37 (hg19)**. This Segment data enables the 'CNA' lane in the Genomic overview of the Patient view (as [can be seen in this example](http://www.cbioportal.org/case.do#/patient?sampleId=TCGA-BH-A0E6-01&studyId=brca_tcga)). 
+A SEG file (segmented data; .seg or .cbs) is a tab-delimited text file that lists loci and associated numeric values. The segmented data file format is the output of the Circular Binary Segmentation algorithm (Olshen et al., 2004).  **Segment data for import into the cBioPortal should be based on build 37 (hg19)**. This Segment data enables the 'CNA' lane in the Genomic overview of the Patient view (as [can be seen in this example](http://www.cbioportal.org/patient?sampleId=TCGA-BH-A0E6-01&studyId=brca_tcga)). 
 
 #### Meta file
 The segmented metadata file should contain the following fields:
@@ -384,7 +400,7 @@ The first row contains column headings and each subsequent row contains a locus 
 
 An example data file which includes the required column header would look like:
 ```
-'ID<TAB>chrom<TAB>loc.start<TAB>loc.end<TAB>num.mark<TAB>seg.mean
+ID<TAB>chrom<TAB>loc.start<TAB>loc.end<TAB>num.mark<TAB>seg.mean
 SAMPLE_ID_1<TAB>1<TAB>3208470<TAB>245880329<TAB>128923<TAB>0.0025
 SAMPLE_ID_2<TAB>2<TAB>474222<TAB>5505492<TAB>2639<TAB>-0.0112
 SAMPLE_ID_2<TAB>2<TAB>5506070<TAB>5506204<TAB>2<TAB>-1.5012
@@ -514,12 +530,8 @@ AGRN<TAB>0.142<TAB>0.091<TAB>...
 
 
 ## Mutation Data
-The mutation data file extends the [Mutation Annotation Format](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification) (MAF) created as part of the [Cancer Genome Atlas](https://wiki.nci.nih.gov/display/TCGA/TCGA+Home) project, by adding *extra annotations* to each mutation record.  If your mutation data is already in [VCF](http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41) format (which by default most variant callers produce) you can use this  [vcf2maf](https://github.com/ckandoth/vcf2maf) converter.
-**Please note that all data should be mapped to UniProt canonical isoforms.** This can be done by calling the vcf2maf or maf2maf with the ```--custom-enst``` flag and the mapping file available [here](https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot). This will ensure the SWISSPROT column, which contains the UniProt canonical isoform, can be used correctly by cBioPortal.
 
-In mouse, the "chromosome plot" displayed in the Patient View is not fully supported ([see issue](https://github.com/cBioPortal/cbioportal-frontend/issues/410)).
-
-#### Meta file
+### Meta file
 The mutation metadata file should contain the following fields:
 
 1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
@@ -531,13 +543,21 @@ The mutation metadata file should contain the following fields:
 7. **profile_description**: A description of the mutation data, e.g., "Mutation data from whole exome sequencing.".
 8. **data_filename**: your data file
 9. **gene_panel (optional)**:  gene panel stable id
-10. **swissprot_identifier (optional)**: either `accession` or `name`, indicating the type of identifier in the `SWISSPROT` column
-11. **variant_classification_filter (optional)**: mutation types to be filtered out, separated by commas, using the allowed values specified below. By default, cBioPortal filters out the following mutation types: Silent, Intron, IGR, 3'UTR, 5'UTR, 3'Flank and 5'Flank, except the promoter mutations for the TERT gene. If no types want to be filtered out, include this field in the metadata file, but do not specify any type. If you want the cBioPortal default filtering, do not include this field in the metadata file.
+10. **swissprot_identifier (optional)**: `accession` or `name`, indicating the type of identifier in the `SWISSPROT` column
+11. **variant_classification_filter (optional)**: List of `Variant_Classifications` values to be filtered out.
 
+#### Variant classification filter
+The `variant_classification_filter` field can be used to filter out specific mutations. This field should contain a comma separated list of `Variant_Classification` values. By default, cBioPortal filters out `Silent, Intron, IGR, 3'UTR, 5'UTR, 3'Flank and 5'Flank`, except for the promoter mutations of the TERT gene. For no filtering, include this field in the metadata file, but leave it empty. For cBioPortal default filtering, do not include this field in the metadata file.
 Allowed values to filter out (mainly from [Mutation Annotation Format page](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification)): `Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame, Splice_Region and Unknown`
 
-An example metadata file would be:
+#### Tumor seq allele ambiguity
+Bugs may exist in MAF data that make it ambiguous as to whether `Tumor_Seq_Allele1` or `Tumor_Seq_Allele2` should be seen as the variant allele to be used when a new mutation record is created and imported in cBioPortal. In such cases, preference is given to the tumor seq allele value that matches a valid nucleotide pattern `^[ATGC]*$` versus a null or empty value, or "-".
+For example, given `Reference_Allele` = "G", `Tumor_Seq_Allele` = "-", and `Tumor_Seq_Allele2` = "A", preference will be given to `Tumor_Seq_Allele2`. Using this same example with `Tumor_Seq_Allele1` = "T", preference will be given to `Tumor_Seq_Allele1` if it does not match `Reference_Allele`, which in this case it does not.
 
+When curating MAF data, it is best practice to leave `Tumor_Seq_Allele1` empty if this information is not provided in your data source to avoid this ambiguity.
+
+#### Example
+An example metadata file would be:
 ```
 cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: MUTATION_EXTENDED
@@ -549,84 +569,98 @@ profile_name: Mutations
 data_filename: brca_tcga_pub.maf
 ```
 
-#### Data file
-A minimal mutation annotations file can contain just three of the MAF columns plus one annotation column, which is normally added to the end of each MAF row:
+### Data file
+The mutation data file extends the [Mutation Annotation Format](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification) (MAF) created as part of [The Cancer Genome Atlas](https://wiki.nci.nih.gov/display/TCGA/TCGA+Home) project, by adding *extra annotations* to each mutation record. This section describes two types of MAF files:
+1. A minimal MAF file with only the columns required for cBioPortal.
+2. An extended MAF file created with [vcf2maf or maf2maf](https://github.com/mskcc/vcf2maf).
 
-* **Hugo_Symbol**: (MAF column) A [HUGO](http://www.genenames.org/) gene symbol.
-* **Tumor_Sample_Barcode**: (MAF column) This is the sample ID as listed in the clinical data file.
-* **Variant_Classification**: (MAF column) Translational effect of variant allele. Allowed values (from [Mutation Annotation Format page](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification)): `Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame`. cBioPortal skips the following types during the import: `Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR and RNA`. Two extra values are allowed by cBioPortal here as well: `Splice_Region, Unknown`. :warning: the values should be in the correct case. E.g. `missense_mutation` is not allowed, while `Missense_Mutation` is.
-* **HGVSp_Short**: (annotation column) Amino Acid Change, e.g. p.V600E.
+#### Minimal MAF format
+A minimal mutation annotations file can contain just three of the MAF columns plus one annotation column. From this minimal MAF, it is possible to create an extended MAF by running maf2maf.
+1. **Hugo_Symbol (Required)**: (MAF column) A [HUGO](http://www.genenames.org/) gene symbol.
+2. **Tumor_Sample_Barcode (Required)**: (MAF column) This is the sample ID as listed in the clinical data file.
+3. **Variant_Classification (Required)**: (MAF column) Translational effect of variant allele. Allowed values (from [Mutation Annotation Format page](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification)): `Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame`. cBioPortal skips the following types during the import: `Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR and RNA`. Two extra values are allowed by cBioPortal here as well: `Splice_Region, Unknown`. :warning: the values should be in the correct case. E.g. `missense_mutation` is not allowed, while `Missense_Mutation` is.
+4. **HGVSp_Short (Required)**: (annotation column) Amino Acid Change, e.g. p.V600E.
 
-Note: next to Hugo_Symbol, it is recommended to have the Entrez gene ID:
+Next to Hugo_Symbol, it is recommended to have the Entrez gene ID:
 
-* **Entrez_Gene_Id (Optional, but recommended)**: An [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
-
-Special case for **Entrez_Gene_Id=0** and **Hugo_Symbol=Unknown**: when this combination is given, the record is parsed in the same way as **Variant_Classification=IGR** and therefore filtered out.  
+5. **Entrez_Gene_Id (Optional, but recommended)** : An [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
  
-The following extra annotation columns are also important for making sure mutation specific UI functionality works well in the portal:
+The following extra annotation columns are important for making sure mutation specific UI functionality works well in the portal:
 
-* **Protein_position**: (annotation column) Required to initialize the 3D viewer in [mutations view](http://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details)
-* **SWISSPROT**: (annotation column) UniProtKB/SWISS-PROT name (formerly called ID) or accession code depending on the value of the `swissprot_identifier` metadatum, e.g. O11H1_HUMAN or Q8NG94. Is not absolutely required, but not having it may result in inconsistent PDB structure matching in [mutations view](http://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details).
+6. **Protein_position (Optional)**: (annotation column) Required to initialize the 3D viewer in [mutations view](http://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details)
+7. **SWISSPROT (Optional)**: (annotation column) UniProtKB/SWISS-PROT name (formerly called ID) or accession code depending on the value of the `swissprot_identifier` metadatum, e.g. O11H1_HUMAN or Q8NG94. Is not required, but not having it may result in inconsistent PDB structure matching in [mutations view](http://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details).
 
-##### Extending the MAF format
-**Attention**: for the list of ***required*** and ***recommended*** fields, check the subsection above. The section below only describes some of the *extra* fields you can have in your mutations file.
+#### Creating an extended MAF file with vcf2maf or maf2maf
+If your mutation data is already in [VCF](http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41) format (which most variant callers produce by default) you can use the [vcf2maf](https://github.com/mskcc/vcf2maf) converter. This tool parses VCF and MAF files, runs Ensembl Variant Effect Predictor (VEP) and selects a single effect per variant. Protein identifiers should be mapped to UniProt canonical isoforms by adding the `--custom-enst` flag and [this mapping file](https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot). This will override the Ensembl canonical isoforms with UniProt canonical isoforms, which ensures the SWISSPROT column can be used correctly by cBioPortal.
 
-*Adding your mutation annotation columns to the complete MAF rows* can also be done. In this way, the portal will parse and store the MAF fields as well. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](http://mutationassessor.org/), which leads to a 'Mutation Assessor” column in the [mutation table](http://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
-
-The MAF format recognized by the portal (excluding the annotation columns already mentioned above) has:
+#### Extended MAF format
+The extended MAF format recognized by the portal has:
 * 32 columns from the [TCGA MAF format](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification).
 * 1 column with the amino acid change.
 * 4 columns with information on reference and variant allele counts in tumor and normal samples. 
-* 4 columns with custom annotation of driver and passenger mutations (find more information [here](portal.properties-Reference.md#oncoprint). 
 
-A more detailed example MAF can be found in [study_es_0](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/core/src/test/scripts/test_data/study_es_0/brca_tcga_pub.maf). The description of each column is provided below:
 1. **Hugo_Symbol (Required)**: A [HUGO](http://www.genenames.org/) gene symbol.
-2. **Entrez_Gene_Id (Optional, but desired)**: A [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
+2. **Entrez_Gene_Id (Optional, but recommended)**: A [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
 3. **Center (Optional)**: The sequencing center.
-4. **NCBI_Build (Optional)**: Must be "GRCh37" for human, and "GRCm38" for mouse.
+4. **NCBI_Build (Optional)<sup>1</sup>**: Must be "GRCh37" for human, and "GRCm38" for mouse.
 5. **Chromosome (Optional)**: A chromosome number, e.g., "7".
 6. **Start_Position (Optional)**: Start position of event.
 7. **End_Position (Optional)**: End position of event.
 8. **Strand (Optional)**: We assume that the mutation is reported for the + strand.
 9. **Variant_Classification (Required)**: Translational effect of variant allele, e.g. Missense_Mutation, Silent, etc.
-10. **Variant_Type (Optional)**: Variant Type, e.g. SNP, DNP, etc.
-11. **Reference_Allele  (Optional)**: The plus strand reference allele at this position.
+10. **Variant_Type <sup>1</sup>(Optional)**: Variant Type, e.g. SNP, DNP, etc.
+11. **Reference_Allele (Optional)**: The plus strand reference allele at this position.
 12. **Tumor_Seq_Allele1 (Optional)**: Primary data genotype.
 13. **Tumor_Seq_Allele2 (Optional)**: Primary data genotype.
-14. **dbSNP_RS (Optional)**: Latest dbSNP rs ID.
-15. **dbSNP_Val_Status (Optional)**: dbSNP validation status.
+14. **dbSNP_RS<sup>1</sup> (Optional)**: Latest dbSNP rs ID.
+15. **dbSNP_Val_Status<sup>1</sup> (Optional)**: dbSNP validation status.
 16. **Tumor_Sample_Barcode (Required)**: This is the sample ID. Either a TCGA barcode (patient identifier will be extracted), or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file.
-17. **Matched_Norm_Sample_Barcode (Optional)**: The sample ID for the matched normal sample.
+17. **Matched_Norm_Sample_Barcode<sup>1</sup> (Optional)**: The sample ID for the matched normal sample.
 18. **Match_Norm_Seq_Allele1 (Optional)**: Primary data.
 19. **Match_Norm_Seq_Allele2 (Optional)**: Primary data.
 20. **Tumor_Validation_Allele1 (Optional)**: Secondary data from orthogonal technology.
 21. **Tumor_Validation_Allele2 (Optional)**: Secondary data from orthogonal technology.
-22. **Match_Norm_Validation_Allele1 (Optional)**: Secondary data from orthogonal technology.
-23. **Match_Norm_Validation_Allele2 (Optional)**: Secondary data from orthogonal technology.
-24. **Verification_Status (Optional)**: Second pass results from independent attempt using same methods as primary data source.
-25. **Validation_Status (Optional)**:  -- "Valid" or "Unknown".
-26. **Mutation_Status (Optional)**: Ideally "Somatic".
-27. **Sequencing_Phase (Optional)**: Indicates current sequencing phase.
-28. **Sequence_Source (Optional)**: Molecular assay type used to produce the analytes used for sequencing.
-29. **Validation_Method (Optional)**: The assay platforms used for the validation call.
-30. **Score (Optional)**: Not in use.
-31. **BAM_File (Optional)**: Not used.
-32. **Sequencer (Optional)**: Instrument used to produce primary data.
+22. **Match_Norm_Validation_Allele1<sup>1</sup> (Optional)**: Secondary data from orthogonal technology.
+23. **Match_Norm_Validation_Allele2<sup>1</sup> (Optional)**: Secondary data from orthogonal technology.
+24. **Verification_Status<sup>1</sup> (Optional)**: Second pass results from independent attempt using same methods as primary data source. "Verified", "Unknown" or "NA".
+25. **Validation_Status (Optional)**: Second pass results from orthogonal technology. "Valid", "Invalid", "Untested", "Inconclusive", "Redacted", "Unknown" or "NA".
+26. **Mutation_Status (Optional)**: "Somatic" or "Germline" are supported by the UI in Mutations tab. "None", "LOH" and "Wildtype" will not be loaded. Other values will be displayed as text.
+27. **Sequencing_Phase<sup>1</sup> (Optional)**: Indicates current sequencing phase.
+28. **Sequence_Source<sup>1</sup> (Optional)**: Molecular assay type used to produce the analytes used for sequencing.
+29. **Validation_Method<sup>1</sup> (Optional)**: The assay platforms used for the validation call.
+30. **Score<sup>1</sup> (Optional)**: Not used.
+31. **BAM_File<sup>1</sup> (Optional)**: Not used.
+32. **Sequencer<sup>1</sup> (Optional)**: Instrument used to produce primary data.
 33. **HGVSp_Short (Required)**: Amino Acid Change, e.g. p.V600E.
 34. **t_alt_count (Optional)**: Variant allele count (tumor). 
 35. **t_ref_count (Optional)**: Reference allele count (tumor).
 36. **n_alt_count (Optional)**: Variant allele count (normal).
 37. **n_ref_count (Optional)**: Reference allele count (normal).
-38. **cbp_driver (Optional)**: "Putative_Passenger", "Putative_Driver", "Unknown", "NA" or "" (empty value).
-39. **cbp_driver_annotation (Optional)**: field to give more information about the cbp_driver value (limited to 80 characters). This field can only be present if the cbp_driver is also present in the MAF file. This field is free text. Example values for this field are: "Pathogenic" or "VUS".
-40. **cbp_driver_tiers (Optional)**: free label/category that marks the mutation as a putative driver (limited to 20 characters). This field is free text. Example values for this field are: "Tier 1", Tier 2"... In the Oncoprint menu, the tiers are be ordered alphabetically. If you do not want to put specific mutations in any category, leave the field blank or type "NA".
-41. **cbp_driver_tiers_annotation (Optional)**: field to give more information about the cbp_driver_tiers value (limited to 80 characters). This field can only be present if the cbp_driver_tiers is also present in the MAF file. This field is free text. Example values for this field are: "Highly Actionable", "Potentially Actionable", "Not currently actionable"...
 
-⚠️ Please make sure that, even if you are using the MAF format, all 4 required columns specified in the beginning of the Data File section are present!
+<sup>**1**</sup> These columns are currently not shown in the Mutation tab and Patient view.
 
-##### Custom Putative Driver/Passenger mutations
-The "cbp_driver" columns are used in the OncoPrint, providing two customized annotations of driver and passenger mutations. The first one, `cbp_driver`, allows to define the mutation only as driver or passenger, whereas the second one (`cbp_driver_tiers`), allows to assign a tier to the mutation. When the tier where the mutation belongs is selected, the mutation is higlighted as driver. Both columns contain a second column with the suffix `_annotation`, to add more information about the classification. This information is displayed in the tooltip that appears when hovering over the mutation in the OncoPrint. You can learn more about the configuration of those annotations [here](). When properly configured, the customized annotations appear in the "Mutation Color" menu of the OncoPrint: \
+#### Custom driver annotations
+It is possible to manually add columns for defining custom driver annotations. These annotations can be used to complement or replace default driver annotation resources OncoKB and HotSpots.
+
+38. **cbp_driver (Optional)**: "Putative_Driver", "Putative_Passenger", "Unknown", "NA" or "" (empty value).
+39. **cbp_driver_annotation (Optional)**: Description field for the cbp_driver value (limited to 80 characters). This field can only be present if the cbp_driver is also present in the MAF file. This field is free text. Example values for this field are: "Pathogenic" or "VUS".
+40. **cbp_driver_tiers (Optional)**: Free label/category that marks the mutation as a putative driver such as "Driver", "Highly actionable", "Potential drug target". In the OncoPrint view's Mutation Color dropdown menu, these tiers are ordered alphabetically. This field is free text and limited to 20 characters. For mutations without a custom annotation, leave the field blank or type "NA".
+41. **cbp_driver_tiers_annotation (Optional)**: Description field for the cbp_driver_tiers value (limited to 80 characters). This field can only be present if the cbp_driver_tiers is also present in the MAF file.
+
+The `cbp_driver` column flags the mutation as either driver or passenger. In cBioPortal, passenger mutations are also known as variants of unknown significance (VUS). The `cbp_driver_tiers` column assigns an annotation tier to the mutation, such as "Driver", "Highly actionable" or "Potential drug target". When a tier is selected, mutations with that annotation are highlighted as driver. Both types of custom annotations contain a second column with the suffix `_annotation`, to add a description. This is displayed in the tooltip that appears when hovering over the sample's custom annotation icon in the OncoPrint view.
+
+You can learn more about configuring these annotations in the [portal.properties documentation](portal.properties-Reference.md#custom-annotation). When properly configured, the customized annotations appear in the "Mutation Color" menu of the OncoPrint view: \
 ![schreenshot mutation color menu](images/screenshot-mutation-color-menu.png) 
+
+#### Adding your own mutation annotation columns
+Adding additional mutation annotation columns to the extended MAF rows can also be done. In this way, the portal will parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](http://mutationassessor.org/), which leads to a "Mutation Assessor" column in the [mutation table](http://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
+
+#### Example MAF
+An example MAF can be found in the cBioPortal test study [study_es_0](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/core/src/test/scripts/test_data/study_es_0/brca_tcga_pub.maf).
+
+#### Filtered mutations
+A special case for **Entrez_Gene_Id=0** and **Hugo_Symbol=Unknown**: when this combination is given, the record is parsed in the same way as **Variant_Classification=IGR** and therefore filtered out.
+
 
 ## Methylation Data
 The Portal expects a single value for each gene in each sample, usually a beta-value from the Infinium methylation array platform.
@@ -765,6 +799,9 @@ A fusion data file is a two dimensional matrix with one gene per row.  For each 
 7. **RNA_support**: Fusion detected from RNA sequence data, "yes" or "no".
 8. **Method**: Fusion detected algorithm/tool.
 9. **Frame**: "in-frame" or "frameshift".
+10. **Fusion_Status (OPTIONAL)**: An assessment of the mutation type (i.e., "SOMATIC", "GERMLINE", "UNKNOWN", or empty)
+
+**Note:** If a fusion event includes a gene, e.g., Hugo_Symbol or Entrez_Gene_Id, that is not profiled, the event will be filter out during import into the database.
 
 An example data file which includes the required column header would look like:
 ```
@@ -1148,7 +1185,7 @@ profile_name: GSVA scores on oncogenic signatures gene sets
 profile_description: GSVA scores on oncogenic signatures gene sets using mRNA expression data calculated with GSVA version x with parameters x and y.
 data_filename: data_gsva_scores.txt
 show_profile_in_analysis_tab: true
-geneset_def_version: 1
+geneset_def_version: msigdb_6.1
 ```
 
 ### GSVA score data file
@@ -1192,7 +1229,7 @@ source_stable_id: gsva_scores
 profile_name: GSVA p-values for GSVA scores on oncogenic signatures gene sets
 profile_description: GSVA p-values for GSVA scores on oncogenic signatures gene sets using mRNA expression data calculated with the bootstrapping method in GSVA version x with parameters x and y.
 data_filename: data_gsva_pvalues.txt
-geneset_def_version: 1
+geneset_def_version: msigdb_6.1
 ```
 
 ### GSVA p-value data file

@@ -4,12 +4,11 @@ import org.cbioportal.model.Alteration;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.CopyNumberSeg;
-import org.cbioportal.model.FractionGenomeAltered;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.MolecularData;
 import org.cbioportal.model.MrnaPercentile;
-import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationSpectrum;
+import org.cbioportal.model.NumericGeneMolecularData;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
 import org.springframework.core.MethodParameter;
@@ -64,13 +63,6 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
                         copyNumberSeg.getCancerStudyIdentifier()));
                     copyNumberSeg.setUniquePatientKey(calculateBase64(copyNumberSeg.getPatientId(), 
                         copyNumberSeg.getCancerStudyIdentifier()));
-                } else if (object instanceof FractionGenomeAltered) {
-                    
-                    FractionGenomeAltered fractionGenomeAltered = (FractionGenomeAltered) object;
-                    fractionGenomeAltered.setUniqueSampleKey(calculateBase64(fractionGenomeAltered.getSampleId(), 
-                        fractionGenomeAltered.getStudyId()));
-                    fractionGenomeAltered.setUniquePatientKey(calculateBase64(fractionGenomeAltered.getPatientId(), 
-                        fractionGenomeAltered.getStudyId()));
                 } else if (object instanceof GenePanelData) {
                     
                     GenePanelData genePanelData = (GenePanelData) object;
@@ -92,13 +84,6 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
                         mrnaPercentile.getStudyId()));
                     mrnaPercentile.setUniquePatientKey(calculateBase64(mrnaPercentile.getPatientId(), 
                         mrnaPercentile.getStudyId()));
-                } else if (object instanceof MutationCount) {
-                    
-                    MutationCount mutationCount = (MutationCount) object;
-                    mutationCount.setUniqueSampleKey(calculateBase64(mutationCount.getSampleId(), 
-                        mutationCount.getStudyId()));
-                    mutationCount.setUniquePatientKey(calculateBase64(mutationCount.getPatientId(), 
-                        mutationCount.getStudyId()));
                 } else if (object instanceof MutationSpectrum) {
                     
                     MutationSpectrum mutationSpectrum = (MutationSpectrum) object;
@@ -106,7 +91,14 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
                         mutationSpectrum.getStudyId()));
                     mutationSpectrum.setUniquePatientKey(calculateBase64(mutationSpectrum.getPatientId(), 
                         mutationSpectrum.getStudyId()));
-                } else if (object instanceof Patient) {
+                } else if (object instanceof NumericGeneMolecularData) {
+                    
+                    NumericGeneMolecularData numericGeneMolecularData = (NumericGeneMolecularData) object;
+                    numericGeneMolecularData.setUniqueSampleKey(calculateBase64(numericGeneMolecularData.getSampleId(), 
+                        numericGeneMolecularData.getStudyId()));
+                    numericGeneMolecularData.setUniquePatientKey(calculateBase64(numericGeneMolecularData.getPatientId(), 
+                        numericGeneMolecularData.getStudyId()));
+                }else if (object instanceof Patient) {
                     
                     Patient patient = (Patient) object;
                     patient.setUniquePatientKey(calculateBase64(patient.getStableId(), 

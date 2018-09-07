@@ -13,7 +13,7 @@
 <br/><br/>
 <a href="ln?q=BRAF:MUT=V600E">BRAF V600E mutations across cancer types</a>
 <br/><br/>
-<a href="case.do#/patient?caseId=TCGA-BK-A0CC&studyId=ucec_tcga">Patient view of an endometrial cancer case</a>
+<a href="patient?caseId=TCGA-BK-A0CC&studyId=ucec_tcga">Patient view of an endometrial cancer case</a>
 </p>
 
 

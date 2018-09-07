@@ -138,18 +138,18 @@
       {% endif %}
       <div class="panel panel-{{ file_level }}">
         <div class="panel-heading" role="tab"
-             {{ {'id': 'heading_%s'|format(filename.__hash__())}|xmlattr }}>
+             id="{{ 'heading_%s'|format(filename|url_b64) }}">
           <span class="header-icon">{{ level_icon(file_level) }}</span>
           <a role="button" data-toggle="collapse" aria-expanded="true"
-             {{ {'href': '#collapse_%s'|format(filename.__hash__()),
-                 'aria-controls': 'collapse_%s'|format(filename.__hash__())}|xmlattr }}>
+             href="{{ '#collapse_%s'|format(filename|url_b64) }}",
+             aria-controls="{{ 'collapse_%s'|format(filename|url_b64) }}">
             <span class="badge">{{ file_level_list|length }}</span>
             <h4 class="panel-title">{{ filename|e }}</h4>
           </a>
         </div>
         <div class="panel-collapse collapse" role="tabpanel"
-             {{ {'id':  'collapse_%s'|format(filename.__hash__()),
-                 'aria-labelledby': 'heading_%s'|format(filename.__hash__())}|xmlattr }}>
+             id="{{ 'collapse_%s'|format(filename|url_b64) }}"
+             aria-labelledby="{{ 'heading_%s'|format(filename|url_b64) }}">
           <div class="panel-body">
             <table class="table">
             <thead>
@@ -175,10 +175,10 @@
               <tr class="{{ record_class }}">
                 {% macro format_aggregated(record, attr_name) %}
                     {% if record[attr_name + '_list'] is defined -%}
-                      {% if (record['show_all_values'] is not defined or record['show_all_values'] == False) and (record[attr_name + '_list']|length) > 3 -%}
-                              {{ (record[attr_name + '_list'][:3]|join(', ') +
+                      {% if (record['show_all_values'] is not defined or record['show_all_values'] == False) and (record[attr_name + '_list']|length) > max_reported_values -%}
+                              {{ (record[attr_name + '_list'][:max_reported_values]|join(', ') +
                                   ', (' +
-                                  record[attr_name + '_list'][3:]|length|string +
+                                  record[attr_name + '_list'][max_reported_values:]|length|string +
                                   ' more)')|e }}
                           {%- else -%}
                                   {{ (record[attr_name + '_list']|join(', '))|e }}

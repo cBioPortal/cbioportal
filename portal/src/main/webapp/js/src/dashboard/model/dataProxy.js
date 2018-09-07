@@ -89,7 +89,7 @@ window.DataManagerForIviz = (function($, _) {
           $.when(self.getGeneticProfiles(), self.getCaseLists(),
             self.getClinicalAttributesByStudy())
             .done(function(_geneticProfiles, _caseLists,
-              _clinicalAttributes) {
+                           _clinicalAttributes) {
               vueInstance.increaseStudyViewSummaryPagePBStatus();
               var _result = {};
               var _patientData = [];
@@ -541,55 +541,35 @@ window.DataManagerForIviz = (function($, _) {
                 }
               };
 
-              // add Mutation count vs. CNA fraction
-              _hasSampleAttrData.copy_number_alterations = '';
-              _hasSampleAttrData.cna_fraction = '';
-              var _mutCntAttrMeta = {};
-              _mutCntAttrMeta.attr_id = 'MUT_CNT_VS_CNA';
-              _mutCntAttrMeta.datatype = 'SCATTER_PLOT';
-              _mutCntAttrMeta.view_type = 'scatter_plot';
-              _mutCntAttrMeta.layout = [-1, 4];
-              _mutCntAttrMeta.description = '';
-              _mutCntAttrMeta.display_name = 'Mutation Count vs. CNA';
-              _mutCntAttrMeta.filter = [];
-              _mutCntAttrMeta.keys = {};
-              _mutCntAttrMeta.numOfDatum = 0;
-              _mutCntAttrMeta.priority =
-                iViz.priorityManager
-                  .getDefaultPriority('MUT_CNT_VS_CNA', true);
-              _mutCntAttrMeta.show = _mutCntAttrMeta.priority !== 0;
-              _mutCntAttrMeta.addChartBy = 'default';
-              _mutCntAttrMeta.attrList = ['mutation_count', 'cna_fraction'];
-              // This attribute is used for getScatterData()
-              // This should not be added into attribute meta and should be saved into main.js 
-              // (Centralized place storing all data for sharing across directives)
-              // This needs to be updated after merging into virtual study branch
-              _mutCntAttrMeta.sequencedCaseUIdsMap = _sequencedCaseUIdsMap;
-              _mutCntAttrMeta.study_ids = _allStudyIds;
-              _sampleAttributes[_mutCntAttrMeta.attr_id] = _mutCntAttrMeta;
-
-              // add mutation count
-              _hasSampleAttrData.mutation_count = '';
-              var _MutationCountMeta = {};
-              _MutationCountMeta.datatype = 'NUMBER';
-              _MutationCountMeta.description = '';
-              _MutationCountMeta.display_name = 'Mutation Count';
-              _MutationCountMeta.attr_id = 'mutation_count';
-              _MutationCountMeta.view_type = 'bar_chart';
-              _MutationCountMeta.layout = [-1, 2, 'h'];
-              _MutationCountMeta.filter = [];
-              _MutationCountMeta.keys = {};
-              _MutationCountMeta.numOfDatum = 0;
-              _MutationCountMeta.priority =
-                iViz.priorityManager
-                  .getDefaultPriority(_MutationCountMeta.attr_id);
-              _MutationCountMeta.show = _MutationCountMeta.priority !== 0;
-              _MutationCountMeta.addChartBy = 'default';
-              _MutationCountMeta.attrList = [_MutationCountMeta.attr_id];
-              // This attribute is used for getMutationCountData()
-              _MutationCountMeta.sequencedCaseUIdsMap = _sequencedCaseUIdsMap;
-              _MutationCountMeta.study_ids = _allStudyIds;
-              _sampleAttributes[_MutationCountMeta.attr_id] = _MutationCountMeta;
+              var _allSampleSttrs = _.pluck(_sampleAttributes, 'attr_id');
+              if (_.all(['MUTATION_COUNT', 'FRACTION_GENOME_ALTERED'], function(item) {
+                  return _.includes(_allSampleSttrs, item);
+                })) {
+                // add Mutation count vs. CNA fraction
+                var _mutCntAttrMeta = {};
+                _mutCntAttrMeta.attr_id = 'MUT_CNT_VS_CNA';
+                _mutCntAttrMeta.datatype = 'SCATTER_PLOT';
+                _mutCntAttrMeta.view_type = 'scatter_plot';
+                _mutCntAttrMeta.layout = [-1, 4];
+                _mutCntAttrMeta.description = '';
+                _mutCntAttrMeta.display_name = 'Mutation Count vs. CNA';
+                _mutCntAttrMeta.filter = [];
+                _mutCntAttrMeta.keys = {};
+                _mutCntAttrMeta.numOfDatum = 0;
+                _mutCntAttrMeta.priority =
+                  iViz.priorityManager
+                    .getDefaultPriority('MUT_CNT_VS_CNA', true);
+                _mutCntAttrMeta.show = _mutCntAttrMeta.priority !== 0;
+                _mutCntAttrMeta.addChartBy = 'default';
+                _mutCntAttrMeta.attrList = ['MUTATION_COUNT', 'FRACTION_GENOME_ALTERED'];
+                // This attribute is used for getScatterData()
+                // This should not be added into attribute meta and should be saved into main.js 
+                // (Centralized place storing all data for sharing across directives)
+                // This needs to be updated after merging into virtual study branch
+                _mutCntAttrMeta.sequencedCaseUIdsMap = _sequencedCaseUIdsMap;
+                _mutCntAttrMeta.study_ids = _allStudyIds;
+                _sampleAttributes[_mutCntAttrMeta.attr_id] = _mutCntAttrMeta;
+              }
 
               if (_allStudyIds.length > 1) {
                 _result.groups.patient.attr_meta =
@@ -783,6 +763,12 @@ window.DataManagerForIviz = (function($, _) {
       portalUrl: _portalUrl,
       studyCasesMap: _study_cases_map,
       initialSetup: initialSetup,
+      getCNAProfileIdByStudyId: function(studyId) {
+        return this.cnaProfileIdsMap[studyId];
+      },
+      getMutationProfileIdByStudyId: function(studyId) {
+        return this.mutationProfileIdsMap[studyId];
+      },
       hasMutationData: function() {
         return Object.keys(this.mutationProfileIdsMap).length > 0;
       },
@@ -799,6 +785,7 @@ window.DataManagerForIviz = (function($, _) {
         return window.cbio.util.deepCopyObject(this.studyCasesMap);
       },
       data: {
+        studies: {},
         clinical: {
           sample: {},
           patient: {}
@@ -810,6 +797,11 @@ window.DataManagerForIviz = (function($, _) {
           lists: {}
         }
       },
+      apiStatus: {
+        allPhysicalStudies: '',
+        allVirtualStudies: ''
+      },
+      unknownSamples: [],
       // The reason to separate style variable into individual json is
       // that the scss file can also rely on this file.
       getConfigs: window.cbio.util.makeCachedPromiseFunction(
@@ -817,7 +809,7 @@ window.DataManagerForIviz = (function($, _) {
           if (_.isObject(configs_)) {
             fetch_promise.resolve(configs_);
           } else {
-            $.getJSON(window.cbioResourceURL + 'configs.json')
+            $.getJSON(window.cbioResourceURL + 'configs.json?' + window.appVersion)
               .then(function(data) {
                 var configs = {
                   styles: {
@@ -933,12 +925,15 @@ window.DataManagerForIviz = (function($, _) {
                 // Always check for all lists, the API call may fail partially
                 if (_.isArray(self.data.sampleLists[studyId][studyId + '_sequenced'])) {
                   _responseStudyCaseList[studyId].sequencedSampleIds = iViz.util.intersection(self.data.sampleLists[studyId][studyId + '_sequenced'], self.studyCasesMap[studyId].samples);
+                  self.data.sampleLists.sequenced[studyId] = _responseStudyCaseList[studyId].sequencedSampleIds;
                 }
                 if (_.isArray(self.data.sampleLists[studyId][studyId + '_cna'])) {
                   _responseStudyCaseList[studyId].cnaSampleIds = iViz.util.intersection(self.data.sampleLists[studyId][studyId + '_cna'], self.studyCasesMap[studyId].samples);
+                  self.data.sampleLists.cna[studyId] = _responseStudyCaseList[studyId].cnaSampleIds;
                 }
                 if (_.isArray(self.data.sampleLists[studyId][studyId + '_all'])) {
                   _responseStudyCaseList[studyId].allSampleIds = iViz.util.intersection(self.data.sampleLists[studyId][studyId + '_all'], self.studyCasesMap[studyId].samples);
+                  self.data.sampleLists.all[studyId] = _responseStudyCaseList[studyId].allSampleIds;
                 }
               });
               fetch_promise.resolve(_responseStudyCaseList);
@@ -947,7 +942,7 @@ window.DataManagerForIviz = (function($, _) {
               fetch_promise.reject(error);
             });
         }),
-      
+
       // Server side uses uppercase clinical attribute ID as convention but the rule is not strictly followed yet.
       // Manually convert all IDs in front-end to prevent any discrepancy between clinical meta and clinical sample/patient data
       // In the refactoring effort, this needs to be verified again with backend team.
@@ -1046,7 +1041,7 @@ window.DataManagerForIviz = (function($, _) {
                   patient_to_uid[_studyId][data[i].patientId] = _patient_uid.toString();
                   _patient_uid++;
                 }
-                if (!patient_to_sample.hasOwnProperty(data[i].patientId)) {
+                if (!patient_to_sample[_studyId].hasOwnProperty(data[i].patientId)) {
                   patient_to_sample[_studyId][data[i].patientId] = {};
                 }
                 patient_to_sample[_studyId][data[i].patientId][data[i].sampleId] = 1;
@@ -1087,11 +1082,9 @@ window.DataManagerForIviz = (function($, _) {
           var _sampleLists = [];
           _.each(self.getCancerStudyIds(), function(studyId) {
             self.data.sampleLists[studyId] = self.data.sampleLists[studyId] || {};
-            if (!_.isArray(self.studyCasesMap[studyId].samples)) {
-              var _existLists = self.data.sampleLists.lists[studyId] || [];
-              if (_existLists.indexOf(studyId + '_all') !== -1) {
-                _sampleLists.push(studyId + '_all');
-              }
+            var _existLists = self.data.sampleLists.lists[studyId] || [];
+            if (_existLists.indexOf(studyId + '_all') !== -1) {
+              _sampleLists.push(studyId + '_all');
             }
           });
 
@@ -1111,6 +1104,29 @@ window.DataManagerForIviz = (function($, _) {
                   self.studyCasesMap[studyId].samples =
                     self.data.sampleLists[studyId].hasOwnProperty(studyId + '_all') ?
                       self.data.sampleLists[studyId][studyId + '_all'] : [];
+                } else {
+                  var studySamples = self.data.sampleLists[studyId].hasOwnProperty(studyId + '_all') ?
+                    self.data.sampleLists[studyId][studyId + '_all'] : [];
+                  var studySamplesSet = _.reduce(studySamples, function(acc, next) {
+                    acc[next] = true;
+                    return acc;
+                  }, {});
+                  var inputStudySamples = self.studyCasesMap[studyId].samples;
+                  var unknownSamples = [];
+                  var filteredSamples = _.filter(inputStudySamples, function(sample) {
+                    if (!studySamplesSet[sample]) {
+                      unknownSamples.push(sample);
+                    }
+                    return studySamplesSet[sample];
+                  });
+
+                  if (unknownSamples.length > 0) {
+                    self.unknownSamples.push({
+                      studyId: studyId,
+                      samples: unknownSamples
+                    });
+                  }
+                  self.studyCasesMap[studyId].samples = filteredSamples;
                 }
               });
               getSamplesCall()
@@ -1180,6 +1196,22 @@ window.DataManagerForIviz = (function($, _) {
             def.reject(error);
           });
         return def.promise();
+      },
+      getAllMutatedGeneSamples: function() {
+        var samples = {};
+        var self = this;
+        _.each(Object.keys(self.studyCasesMap), function(studyId) {
+          samples[studyId] = self.data.sampleLists.sequenced[studyId] || self.data.sampleLists.all[studyId]
+        });
+        return samples;
+      },
+      getAllCNASamples: function() {
+        var samples = {};
+        var self = this;
+        _.each(Object.keys(self.studyCasesMap), function(studyId) {
+          samples[studyId] = self.data.sampleLists.cna[studyId] || self.data.sampleLists.all[studyId]
+        });
+        return samples;
       },
       getCnaFractionData: window.cbio.util.makeCachedPromiseFunction(
         function(self, fetch_promise) {
@@ -1367,102 +1399,97 @@ window.DataManagerForIviz = (function($, _) {
         return isPatientAttributes ? this.getPatientClinicalData(attribute_ids) :
           this.getSampleClinicalData(attribute_ids);
       },
-      getAllGenePanelSampleIds: window.cbio.util.makeCachedPromiseFunction(
-        function(self, fetch_promise) {
-          var _map = {};
-          var asyncAjaxCalls = [];
-          var responses = [];
-          _.each(self.getCancerStudyIds(), function(_studyId) {
-            asyncAjaxCalls.push(
-              $.ajax({
-                url: window.cbioURL + 'api-legacy/genepanel/data',
-                contentType: 'application/json',
-                data: ['profile_id=' + _studyId + '_mutations', 'genes='].join('&'),
-                type: 'GET',
-                success: function(_res) {
-                  responses.push(_res);
-                }
-              })
-            );
+      getGenePanelMap: function(hugoSymbols, map) {
+        var _def = new $.Deferred();
+        var panelSamplesMap = {};
+        var geneSampleMap = {};
+        var isProfiledPanelId = 'profiled';
+
+        $.ajax({
+          type: 'POST',
+          url: window.cbioURL + 'api/gene-panel-data/fetch',
+          data: JSON.stringify({
+            "sampleMolecularIdentifiers": map
+          }),
+          dataType: 'json',
+          contentType: "application/json; charset=utf-8",
+        }).then(function(data) {
+          _.each(data, function(datum) {
+            var _panelId = datum.genePanelId;
+            if (!_panelId & datum.profiled) {
+              _panelId = isProfiledPanelId;
+            }
+            if (_panelId) {
+              if (!panelSamplesMap[_panelId]) {
+                panelSamplesMap[_panelId] = [];
+              }
+              panelSamplesMap[_panelId].push(iViz.getCaseIndex('sample', datum.studyId, datum.sampleId));
+            }
           });
-          $.when.apply($, asyncAjaxCalls).done(function() {
-            var _panelMetaArr = _.flatten(responses);
-            _.each(_panelMetaArr, function(_panelMeta) {
-              _map[_panelMeta.stableId] = {};
-              var _sorted = (_panelMeta.samples).sort();
-              _map[_panelMeta.stableId].samples = _sorted;
-              _map[_panelMeta.stableId].sel_samples = _sorted;
-            });
-            fetch_promise.resolve(_map);
-          }).fail(function() {
-            // Silently fail gene panel sample id calls
-            fetch_promise.resolve({});
+          var _panels = _.filter(Object.keys(panelSamplesMap), function(item) {
+            return item !== isProfiledPanelId;
           });
-        }
-      ),
-      getGenePanelMap: window.cbio.util.makeCachedPromiseFunction(
-        function(self, fetch_promise) {
-          self.getAllGenePanelSampleIds().then(function(_panelSampleMap) {
-            self.panelSampleMap = _panelSampleMap;
-            var asyncAjaxCalls = [];
-            var responses = [];
-            _.each(Object.keys(_panelSampleMap), function(_panelId) {
-              asyncAjaxCalls.push(
-                $.ajax({
-                  url: window.cbioURL + 'api-legacy/genepanel',
-                  contentType: 'application/json',
-                  data: {panel_id: _panelId},
-                  type: 'GET',
-                  success: function(_res) {
-                    responses.push(_res);
-                  }
-                })
-              );
-            });
-            $.when.apply($, asyncAjaxCalls).done(function() {
-              var _panelMetaArr = _.map(responses, function(responseArr) {
-                return responseArr[0];
-              });
-              var _map = {};
-              _.each(_panelMetaArr, function(_panelMeta) {
-                _.each(_panelMeta.genes, function(_gene) {
-                  if (!_map.hasOwnProperty(_gene.hugoGeneSymbol)) {
-                    _map[_gene.hugoGeneSymbol] = {};
-                    _map[_gene.hugoGeneSymbol].panel_id = [];
-                    _map[_gene.hugoGeneSymbol].sample_num = 0;
-                  }
-                  _map[_gene.hugoGeneSymbol].panel_id.push(_panelMeta.stableId);
-                  _map[_gene.hugoGeneSymbol].sample_num += _panelSampleMap[_panelMeta.stableId].samples.length;
+
+          if (_panels.length > 0) {
+            $.ajax({
+              type: 'POST',
+              url: window.cbioURL + 'api/gene-panels/fetch?projection=DETAILED',
+              data: JSON.stringify(_panels),
+              dataType: 'json',
+              contentType: "application/json; charset=utf-8",
+              success: function(panels) {
+                _.each(panels, function(panel) {
+                  _.each(panel.genes, function(gene) {
+                    if (!geneSampleMap[gene.hugoGeneSymbol]) {
+                      geneSampleMap[gene.hugoGeneSymbol] = {
+                        sampleUids: []
+                      }
+                    }
+                    geneSampleMap[gene.hugoGeneSymbol].sampleUids = geneSampleMap[gene.hugoGeneSymbol].sampleUids.concat(panelSamplesMap[panel.genePanelId]);
+                  })
                 });
-              });
-              fetch_promise.resolve(_map);
-            }).fail(function() {
-              // Silently fail gene panel calls
-              fetch_promise.resolve({});
+                if (panelSamplesMap.hasOwnProperty(isProfiledPanelId)) {
+                  _.each(geneSampleMap, function(item) {
+                    item.sampleUids = item.sampleUids.concat(panelSamplesMap[isProfiledPanelId]);
+                  });
+                }
+
+                var _sortedMap = {};
+                _.each(geneSampleMap, function(item) {
+                  var _json = JSON.stringify(item.sampleUids);
+                  if (_sortedMap.hasOwnProperty(_json)) {
+                    item.sampleUids = _sortedMap[_json];
+                  } else {
+                    item.sampleUids = item.sampleUids.sort();
+                    _sortedMap[_json] = item.sampleUids;
+                  }
+                });
+                _def.resolve(geneSampleMap);
+              },
+              fail: function() {
+                _def.reject();
+              }
             });
-          }, function() {
-            fetch_promise.reject();
-          });
-        }
-      ),
-      updateGenePanelMap: function(_map, _selectedSampleIds) {
-        var _self = this;
-        if (typeof _selectedSampleIds === 'undefined') {
-          return _map;
-        }
-        // update panel sample count map
-        _selectedSampleIds = _selectedSampleIds.sort();
-        _.each(Object.keys(_self.panelSampleMap), function(_panelId) {
-          _self.panelSampleMap[_panelId].sel_samples =
-            content.util.intersection(_self.panelSampleMap[_panelId].samples, _selectedSampleIds);
+          } else {
+            _.each(geneSampleMap, function(item) {
+              item.sampleUids = panelSamplesMap[isProfiledPanelId].sort();
+            });
+            _def.resolve(geneSampleMap);
+          }
+        }, function() {
+          _def.reject();
         });
-        _.each(Object.keys(_map), function(_gene) {
-          var _sampleNumPerGene = 0;
-          _.each(_map[_gene].panel_id, function(_panelId) {
-            _sampleNumPerGene += _self.panelSampleMap[_panelId].sel_samples.length;
-          });
-          _map[_gene].sample_num = _sampleNumPerGene;
+        return _def.promise();
+      },
+      updateGenePanelMap: function(_map, _selectedSampleUids) {
+        if (_selectedSampleUids) {
+          _selectedSampleUids = _selectedSampleUids.sort();
+        }
+
+        _.each(_map, function(item) {
+          item.sampleNum = content.util.intersection(item.sampleUids, _selectedSampleUids).length;
         });
+
         return _map;
       },
 
@@ -1475,7 +1502,7 @@ window.DataManagerForIviz = (function($, _) {
        * @return {boolean} Whether input attribute passed the criteria.
        */
       isPreSelectedClinicalAttr: function(attr) {
-        var result = attr.match(/(os_survival)|(dfs_survival)|(mut_cnt_vs_cna)|(mutated_genes)|(cna_details)|(^age)|(gender)|(sex)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(sample_type)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(mutation_count)|(copy_number_alterations)|(.*(site|grade|stage).*)/i);
+        var result = attr.match(/(os_survival)|(dfs_survival)|(mut_cnt_vs_cna)|(mutated_genes)|(cna_details)|(^age)|(gender)|(sex)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(sample_type)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(mutation_count)|(fraction_genome_altered)|(.*(site|grade|stage).*)/i);
         return _.isArray(result) && result.length > 0;
       },
 
@@ -1595,30 +1622,92 @@ window.DataManagerForIviz = (function($, _) {
         return array;
       },
 
-      getCancerStudyDisplayName: function(_cancerStudyStableIds) {
+      getAllVirtualStudies: function() {
         var _def = new $.Deferred();
-        var _asyncAjaxCalls = [];
-        var _responses = [];
-        _.each(_cancerStudyStableIds, function(_csId) {
-          _asyncAjaxCalls.push(
-            $.ajax({
-              url: window.cbioURL + 'api/studies/' + _csId,
-              contentType: "application/json",
-              type: 'GET',
-              success: function(_res) {
-                _responses.push(_res);
-              }
+        var _self = this;
+        if (_self.apiStatus.allVirtualStudies === 'fetched') {
+          _def.resolve(_.filter(_self.data.studies, function(t) {
+            return t.studyType === 'vs';
+          }));
+        } else {
+          $.get(window.cbioURL + 'api-legacy/proxy/session/virtual_study')
+            .done(function(virtualStudies) {
+              _.each(virtualStudies, function(study) {
+                study.studyType = 'vs';
+                _self.data.studies[study.id] = study;
+              });
+              _def.resolve(virtualStudies);
             })
-          );
-        });
-        $.when.apply($, _asyncAjaxCalls).done(function() {
-          var _map = {};
-          _.each(_responses, function(_res) {
-            _map[_res.studyId] = _res.shortName;
-          });
-          _def.resolve(_map);
-        });
+            .fail(function(error) {
+              _def.resolve([]);
+            })
+            .always(function() {
+              _self.apiStatus.allVirtualStudies = 'fetched';
+            });
+        }
         return _def.promise();
+      },
+
+      getVirtualStudy: function(id) {
+        var def = new $.Deferred();
+        var self = this;
+        if (self.data.studies[id]) {
+          def.resolve(self.data.studies[id]);
+        } else {
+          $.get(window.cbioURL + 'api-legacy/proxy/session/virtual_study/' + id)
+            .done(function(response) {
+              response.studyType = 'vs';
+              self.data.studies[id] = response;
+              def.resolve(response);
+            })
+            .fail(function(error) {
+              def.reject(error);
+            });
+        }
+        return def.promise();
+      },
+
+      getAllPhysicalStudies: function() {
+        var _def = new $.Deferred();
+        var _self = this;
+        if (_self.apiStatus.allPhysicalStudies === 'fetched') {
+          _def.resolve(_.filter(_self.data.studies, function(t) {
+            return t.studyType === 'regular';
+          }));
+        } else {
+          $.get(window.cbioURL + 'api/studies')
+            .done(function(response) {
+              _.each(response, function(study) {
+                study.studyType = 'regular';
+                _self.data.studies[study.studyId] = study;
+              });
+              _def.resolve(response);
+            })
+            .fail(function(error) {
+              _def.reject(error);
+            })
+            .always(function() {
+              _self.apiStatus.allPhysicalStudies = 'fetched';
+            });
+        }
+        return _def.promise();
+      },
+
+      getStudyById: function(id) {
+        return this.data.studies[id];
+      },
+
+      getCancerStudyDisplayName: function(_cancerStudyStableIds) {
+        var _map = {};
+        var _self = this;
+        _.each(_cancerStudyStableIds, function(_csId) {
+          if (_self.data.studies.hasOwnProperty(_csId)) {
+            var _study = _self.data.studies[_csId];
+            var _id = _study.studyType === 'vs' ? _study.id : _study.studyId;
+            _map[_id] = _study.studyType === 'vs' ? _study.data.name : _study.name;
+          }
+        });
+        return _map;
       }
     };
   };

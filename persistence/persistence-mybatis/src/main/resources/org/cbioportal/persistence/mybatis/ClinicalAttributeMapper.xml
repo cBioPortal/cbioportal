@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.ClinicalAttributeMapper">
-    <cache/>
+    <cache readOnly="true"/>
 
     <sql id="select">
         clinical_attribute_meta.ATTR_ID AS "${prefix}attrId",
@@ -40,14 +40,14 @@
     
     <sql id="joinPatient">
     		INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        LEFT JOIN clinical_patient ON clinical_attribute_meta.ATTR_ID = clinical_patient.ATTR_ID
-        LEFT JOIN patient ON clinical_attribute_meta.CANCER_STUDY_ID = patient.CANCER_STUDY_ID 
+        INNER JOIN clinical_patient ON clinical_attribute_meta.ATTR_ID = clinical_patient.ATTR_ID
+        INNER JOIN patient ON clinical_attribute_meta.CANCER_STUDY_ID = patient.CANCER_STUDY_ID 
         		AND clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
     </sql>
     
     <sql id="joinSample">
     		INNER JOIN cancer_study ON clinical_attribute_meta.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        LEFT JOIN clinical_sample ON clinical_attribute_meta.ATTR_ID = clinical_sample.ATTR_ID
+        INNER JOIN clinical_sample ON clinical_attribute_meta.ATTR_ID = clinical_sample.ATTR_ID
     </sql>
     
     <sql id="groupBy">
@@ -137,7 +137,7 @@
         </include>
         FROM clinical_attribute_meta
         <include refid="joinPatient"/>
-        LEFT JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID 
+        INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID 
         		AND (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
         		<foreach index="i" collection="sampleIds" open="(" separator="," close=")"> 
         			(#{studyIds[${i}]}, #{sampleIds[${i}]}) 
@@ -157,12 +157,12 @@
         </include>
         FROM clinical_attribute_meta
         <include refid="joinSample"/>
-        LEFT JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID 
+        INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID 
         		AND (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN 
 			<foreach index="i" collection="sampleIds" open="(" separator="," close=")"> 
 				(#{studyIds[${i}]}, #{sampleIds[${i}]}) 
 			</foreach>
-		LEFT JOIN patient ON clinical_attribute_meta.CANCER_STUDY_ID = patient.CANCER_STUDY_ID 
+		INNER JOIN patient ON clinical_attribute_meta.CANCER_STUDY_ID = patient.CANCER_STUDY_ID 
 			AND sample.PATIENT_ID = patient.INTERNAL_ID 
         WHERE clinical_attribute_meta.PATIENT_ATTRIBUTE = 0
 	        	AND cancer_study.CANCER_STUDY_IDENTIFIER IN
@@ -180,7 +180,7 @@
         </include>
         FROM clinical_attribute_meta
         <include refid="joinPatient"/>
-        LEFT JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID 
+        INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID 
         		AND (cancer_study.CANCER_STUDY_ID, sample.INTERNAL_ID) IN
         		<include refid="subQuerySampleList"/>
         WHERE clinical_attribute_meta.PATIENT_ATTRIBUTE = 1 
@@ -196,10 +196,10 @@
         </include>
         FROM clinical_attribute_meta
         <include refid="joinSample"/>
-        LEFT JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID 
+        INNER JOIN sample ON clinical_sample.INTERNAL_ID = sample.INTERNAL_ID 
         		AND (cancer_study.CANCER_STUDY_ID, sample.INTERNAL_ID) IN 
         		<include refid="subQuerySampleList"/>
-		LEFT JOIN patient ON clinical_attribute_meta.CANCER_STUDY_ID = patient.CANCER_STUDY_ID 
+		INNER JOIN patient ON clinical_attribute_meta.CANCER_STUDY_ID = patient.CANCER_STUDY_ID 
 			AND sample.PATIENT_ID = patient.INTERNAL_ID 
         WHERE clinical_attribute_meta.PATIENT_ATTRIBUTE = 0
 	        	AND cancer_study.CANCER_STUDY_ID IN 

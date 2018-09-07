@@ -24,4 +24,9 @@ public class GeneMolecularData extends MolecularData implements Serializable {
     public void setGene(Gene gene) {
         this.gene = gene;
     }
+
+    @Override
+    public String getStableId() {
+        return entrezGeneId.toString();
+    }
 }

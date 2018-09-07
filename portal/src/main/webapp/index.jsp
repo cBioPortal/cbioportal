@@ -20,6 +20,7 @@
             apiRoot: '//'+ '<%=baseUrl%>/',
             baseUrl: '<%=baseUrl%>',
             basePath: '<%=request.getContextPath()%>',
+            googleAnalyticsProfile:'UA-85438068-3',
             skinFaqSourceURL:"https://docs.google.com/document/d/e/2PACX-1vSWTtIJZF2tuBimihr8ke-d00DpKh7fydFIQb5xYpE_bMYM9hZyY9OP1Vz1Ts0ow7ob-3h2S19cuB5O/pub?embedded=true",
               // customTabs:[
                         //     {

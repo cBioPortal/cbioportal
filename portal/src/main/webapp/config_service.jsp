@@ -81,6 +81,7 @@ studies += "}";
     skinAboutSourceURL: "<%=GlobalProperties.getAboutHtml()%>",
     skinNewsSourceURL: "<%=GlobalProperties.getNewsHtml()%>",
     skinOQLSourceURL: "<%=GlobalProperties.getOqlHtml()%>",
+    googleAnalyticsProfile: "<%=GlobalProperties.getGoogleAnalyticsProfileId()%>",
   
     
   

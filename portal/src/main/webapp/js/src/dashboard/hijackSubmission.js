@@ -1,16 +1,18 @@
 
 function handleLegacySubmission(url, query){
+
+    query.cancer_study_list = query.cancer_study_list.join(',');
+    
+    const fixedQuery = JSON.stringify(query);
     
     try {
-        localStorage.setItem("legacyStudySubmission", JSON.stringify(query));
+        localStorage.setItem("legacyStudySubmission", fixedQuery);
     } catch (ex){ // probably because too much in localstorage
         localStorage.clear();
-        localStorage.setItem("legacyStudySubmission", JSON.stringify(query));
+        localStorage.setItem("legacyStudySubmission", fixedQuery);
     }
    
     if (query.Action) {
-
-        //console.log(window.location.protocol + "//" +  window.frontendConfig.baseUrl + "/results");
         
         window.open(window.location.protocol + "//" +  window.frontendConfig.baseUrl + "/results/legacy_submission");
         

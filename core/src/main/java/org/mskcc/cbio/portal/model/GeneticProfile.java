@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.model;
 
+import java.io.Serializable;
 import java.util.Properties;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -39,7 +40,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * Class for genetic profile
  */
-public class GeneticProfile {
+public class GeneticProfile implements Serializable {
     private int geneticProfileId;
     private String stableId;
     private int cancerStudyId;

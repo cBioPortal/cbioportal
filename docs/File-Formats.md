@@ -701,7 +701,7 @@ The methylation data file follows the same format as expression data files. See 
 
 ## Protein level Data
 
-Protein expression measured by reverse-phase protein array or mass spectrometry. Antibody-sample pairs, with a real number representing the protein level for that sample.
+Protein levels measured by reverse-phase protein array or mass spectrometry.
 
 #### Meta file
 
@@ -744,20 +744,40 @@ profile_name: Protein expression Z-scores (RPPA)
 
 #### Data file
 
-A protein level data file is a two dimensional matrix with a RPPA antibody per row and a sample per column. For each antibody-sample pair, a real number represents the protein level for that sample.  The antibody information can contain one or more HUGO gene symbols and/or entrez gene identifiers, separated by a space, and an antibody ID pair separated by the "|" symbol.
+A protein level data file is a two dimensional matrix with a gene or gene-antibody per row and a sample per column.
 
-#### Example 
+##### Composite.Element.REF row identifier
+Unlike other data formats in cBioPortal, the identifier column is not Entrez ID or gene symbol, but 
+ `Composite.Element.REF`. This column contains two parts split by '|':
+- Part 1: One or more gene symbols, separated by a space.
+- Part 2: Antibody name, possibly containing phosphorylated site.
 
-An example data file which includes the required column header would look like:
+Examples of `Composite.Element.REF` identifiers:
+- `AKT1 AKT2 AKT3|Akt`
+- `AKT1 AKT2 AKT3|Akt_pS473`
+- `MTOR|mTOR_pS2448`
+- `GSK3A GSK3B|GSK3-alpha-beta`
 
+Note that both parts of the values in `Composite.Element.REF` must be unique and cannot be empty.
+
+If the antibody name contains two values divided by '\_', for example `MTOR|mTOR_pS2448`, this entry is considered a phosphogene
+ and added to the database as new gene entry. In the database's gene table, this entry receives a unique, artificial, negative Entrez
+ ID as stable id, and the antibody name, (`mTOR_PS2448` in this example) is saved as gene symbol. This symbol can be  
+ queried on the Query page and visualized in both OncoPrint and Plots tab. 
+ 
+If the antibody name does not contain '\_', for example in `GSK3A GSK3B|GSK3-alpha-beta`, the part before '|' is used as gene id. If this part contains more than 1 symbol, the entry will be duplicated and
+ saved in the database for every symbol. 
+
+##### Example data file
 ```
 Composite.Element.REF<TAB>SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>...
-BRAF|B-Raf-M-NA<TAB>1.09506676325<TAB>0.5843256495...
-MAPK1 MAPK3|MAPK_PT202_Y204<TAB>1.70444582025<TAB>1.0982864685...
-AKT1 AKT2 10000|AKT<TAB>0.17071492725<TAB>0.264067254391
-...
+-BRAF|B-Raf-M-NA<TAB>1.09506676325<TAB>0.5843256495...
+-MAPK1 MAPK3|MAPK_PT202_Y204<TAB>1.70444582025<TAB>1.0982864685...
+-AKT1 AKT2 10000|AKT<TAB>0.17071492725<TAB>0.264067254391
 ```
 
+Another example of protein level data can be found in the 
+[TCGA BRCA study](https://github.com/cBioPortal/datahub/blob/master/public/brca_tcga/data_rppa.txt).
 
 ## Fusion Data  
 

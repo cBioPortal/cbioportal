@@ -78,6 +78,18 @@
 {"entrez_gene_id":"4313", "hugo_gene_symbol":"MMP2"},
 {"entrez_gene_id":"23051", "hugo_gene_symbol":"ZHX3"},
 
+{"_comment": "genes for rppa data_rrpa.txt",
+ "entrez_gene_id":"1978", "hugo_gene_symbol":"EIF4EBP1"},
+{"entrez_gene_id":"7158", "hugo_gene_symbol":"TP53BP1"},
+{"entrez_gene_id":"3", "hugo_gene_symbol":"ACACA"},
+{"entrez_gene_id":"32", "hugo_gene_symbol":"ACACB"},
+{"entrez_gene_id":"207", "hugo_gene_symbol":"AKT1"},
+{"entrez_gene_id":"208", "hugo_gene_symbol":"AKT2"},
+{"entrez_gene_id":"10000", "hugo_gene_symbol":"AKT3"},
+
+{"_comment": "genes for mass spec data data_protein_quantification.txt",
+ "entrez_gene_id":"553", "hugo_gene_symbol":"BRAF"},
+
 {"_comment": "genes for data_methylation_hm27.txt",
  "entrez_gene_id":"389", "hugo_gene_symbol":"RHOC"},
 {"entrez_gene_id":"487", "hugo_gene_symbol":"ATP2A1"},

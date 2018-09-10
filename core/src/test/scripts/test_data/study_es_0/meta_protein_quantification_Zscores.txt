@@ -1,0 +1,8 @@
+cancer_study_identifier: study_es_0
+genetic_alteration_type: PROTEIN_LEVEL
+datatype: Z-SCORE
+stable_id: protein_quantification_zscores
+show_profile_in_analysis_tab: true
+profile_description: Protein level Z-scores measured with mass spectrometry by the Clinical Proteomic Tumor Analysis Consortium (CPTAC)
+profile_name: Protein level Z-scores (mass spectrometry by CPTAC)
+data_filename: data_protein_quantification_Zscores.txt

@@ -607,7 +607,11 @@ public class ImportTabDelimData {
         for (String symbol : symbolsNotFound) {
         	ProgressMonitor.logWarning("Gene " + symbol + " not found in DB. Record will be skipped for this gene.");
         }
-        
+
+        // If the antibody name contains two values divided by '_', for example `MTOR|mTOR_pS2448`, this entry is considered a phosphogene
+        // and added to the database as new gene entry. In the database's gene table, this entry receives a unique, artificial, negative Entrez
+        // ID as stable id, and the antibody name, (`mTOR_PS2448` in this example) is saved as gene symbol. This symbol can be
+        // queried on the Query page and visualized in both OncoPrint and Plots tab.
         Pattern p = Pattern.compile("(p[STY][0-9]+(?:_[STY][0-9]+)*)");
         Matcher m = p.matcher(arrayId);
         String residue;
@@ -632,7 +636,7 @@ public class ImportTabDelimData {
             String phosphoSymbol = gene.getStandardSymbol()+"_"+residue;
             CanonicalGene phosphoGene = daoGene.getGene(phosphoSymbol);
             if (phosphoGene==null) {
-            	ProgressMonitor.logWarning("Phosphoprotein " + phosphoSymbol + " not yet known in DB. Adding it to `gene` table with 3 aliases in `gene_alias` table.");
+            	ProgressMonitor.logInfo("Phosphoprotein " + phosphoSymbol + " not yet known in DB. Adding it to `gene` table with 3 aliases in `gene_alias` table.");
                 phosphoGene = new CanonicalGene(phosphoSymbol, aliases);
                 phosphoGene.setType(CanonicalGene.PHOSPHOPROTEIN_TYPE);
                 phosphoGene.setCytoband(gene.getCytoband());

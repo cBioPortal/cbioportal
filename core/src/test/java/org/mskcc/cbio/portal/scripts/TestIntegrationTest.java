@@ -222,7 +222,10 @@ public class TestIntegrationTest {
                 }
             }
             assertEquals(50, countGte2Lt3);
-            
+
+            //===== Check RPPA and Protein Quantification data ========
+            // TODO
+
             //===== check cancer_type
             List<DBCancerType> cancerTypes = apiService.getCancerTypes(Arrays.asList("brca-es0"));
             assertEquals(1, cancerTypes.size());

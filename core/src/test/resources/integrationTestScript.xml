@@ -117,7 +117,18 @@
                     <value>bulkload</value>
                     <value>--noprogress</value>
                 </list>
-                            
+
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_expression_median_Zscores.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_expression_median_Zscores.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+
                 <!-- data_fusions -->
                 <list>
                     <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
@@ -163,7 +174,53 @@
                     <value>bulkload</value>
                     <value>--noprogress</value>
                 </list>
-                            
+
+                <!-- data_rppa -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_rppa.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_rppa.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_rppa_Zscores.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_rppa_Zscores.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+
+                <!-- data_protein_quantification -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_protein_quantification.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_protein_quantification.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_protein_quantification_Zscores.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_protein_quantification_Zscores.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+                
                 <!-- gene sets gsva scores data -->
                 <list>
                     <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>

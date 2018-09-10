@@ -1,0 +1,8 @@
+cancer_study_identifier: study_es_0
+genetic_alteration_type: PROTEIN_LEVEL
+datatype: LOG2-VALUE
+data_filename: data_rppa.txt
+stable_id: rppa
+show_profile_in_analysis_tab: false
+profile_description: Protein expression measured by reverse-phase protein array
+profile_name: Protein expression (RPPA)

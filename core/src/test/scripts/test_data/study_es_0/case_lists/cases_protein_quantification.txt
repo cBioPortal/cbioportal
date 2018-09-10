@@ -1,0 +1,5 @@
+cancer_study_identifier: study_es_0
+stable_id: study_es_0_protein_quantification
+case_list_name: Protein Quantification (Mass Spec)
+case_list_description: All samples with mass spec protein quantification data
+case_list_ids: TCGA-C8-A12T-01	TCGA-A2-A0D2-01

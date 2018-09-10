@@ -788,6 +788,21 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         for record in record_list:
             self.assertLessEqual(record.levelno, logging.INFO)
 
+    def test_missing_composite_element_ref_rppa(self):
+        """Check if RPPA file contains Composite.Element.REF as gene ID column."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_rppa_missing_composite_element_ref.txt',
+                                    validateData.ProteinLevelValidator)
+        # expecting 3 error messages. The first one is regarding missing column.
+        # 2nd and 3rd error message are a consequence of this error.
+        self.assertEqual(3, len(record_list))
+        for record in record_list:
+            self.assertLessEqual(record.levelno, logging.ERROR)
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+        self.assertEqual(record.line_number, 1)
+        self.assertEqual(record.message, 'Missing column: Composite.Element.REF')
+
     def test_invalid_rppa(self):
         """Check an RPPA file with values that should yield errors."""
         self.logger.setLevel(logging.ERROR)

@@ -54,7 +54,9 @@ public class ProgressMonitor {
     private boolean consoleMode;
     private boolean showProgress;
     private TreeSet<String> warnings = new TreeSet<>();
+    private TreeSet<String> infos = new TreeSet<>();
     private HashMap<String, Integer> warningCounts = new HashMap<>();
+    private HashMap<String, Integer> infoCounts = new HashMap<>();
     private List<String> debugMessages = new ArrayList<>();
 
     private static final ProgressMonitor progressMonitor = new ProgressMonitor();
@@ -216,6 +218,17 @@ public class ProgressMonitor {
         if (progressMonitor.consoleMode) {
             System.out.println(currentMessage);
         }
+    }
+
+    public static void logInfo(String info) {
+        logger.log(Level.INFO, info);
+        if (isRunningOnServer())
+            return;
+        progressMonitor.infos.add(info);
+        if (!progressMonitor.infoCounts.containsKey(info)) {
+            progressMonitor.infoCounts.put(info, 0);
+        }
+        progressMonitor.infoCounts.put(info, progressMonitor.infoCounts.get(info)+1);
     }
 
     public static void logWarning(String warning) {

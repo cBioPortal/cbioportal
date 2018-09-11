@@ -268,6 +268,22 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.column_number, 7)
         self.assertIn(record.cause, 'METASTATIC_SITE')
 
+    def test_banned_attribute(self):
+        """Test when attribute is is not allowed."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_clin_coldefs_banned_attribute.txt',
+                                    validateData.PatientClinicalValidator)
+        # expecting 1 error message
+        self.assertEqual(len(record_list), 1)
+        record_iterator = iter(record_list)
+        record = next(record_iterator)
+
+        # error about the banned value of mutation count column
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 5)
+        self.assertEqual(record.column_number, 6)
+        self.assertIn('MUTATION_COUNT and FRACTION_GENOME_ALTERED are calculated in cBioPortal',
+                      record.getMessage())
 
 class ClinicalValuesTestCase(DataFileTestCase):
 

@@ -33,36 +33,40 @@
 package org.mskcc.cbio.portal.servlet;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.batik.transcoder.Transcoder;
-import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.fop.svg.PDFTranscoder;
 import org.apache.batik.transcoder.image.PNGTranscoder;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.fileupload.FileItem;
-import org.mskcc.cbio.portal.util.FileUploadRequestWrapper;
 import org.mskcc.cbio.portal.util.XDebug;
 import org.mskcc.cbio.portal.util.XssRequestWrapper;
-import org.owasp.validator.html.PolicyException;
 
 public class SvgConverter extends HttpServlet {
 
     private Pattern svgXPosPattern;
-    private static String DEFAULT_FILENAME = "result";
+    private static Map<String, String> REPLACEMENT = initReplacementMap();
+    
+    private static Map<String, String> initReplacementMap() {
+        Map<String, String> map = new HashMap<>();
 
+        //map.put("≤", "&#8804;"); // TODO replacing unicode with HTML decimal code results with the same output
+        map.put("≤", "&lt;=");
+        map.put("≥", "&gt;=");
+        
+        return map;
+    }
+    
     /**
      * Initializes the servlet.
      *
@@ -134,7 +138,7 @@ public class SvgConverter extends HttpServlet {
 		OutputStream out = response.getOutputStream();
 		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 		try {
-			InputStream is = new ByteArrayInputStream(xml.getBytes());
+			InputStream is = new ByteArrayInputStream(clean(Base64.decodeBase64(xml)));
 			TranscoderInput input = new TranscoderInput(is);
 			TranscoderOutput output = new TranscoderOutput(byteOut);
 			Transcoder transcoder = new PDFTranscoder();
@@ -155,7 +159,7 @@ public class SvgConverter extends HttpServlet {
 		OutputStream out = response.getOutputStream();
 		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 		try {
-			InputStream is = new ByteArrayInputStream(xml.getBytes());
+			InputStream is = new ByteArrayInputStream(clean(Base64.decodeBase64(xml)));
 			TranscoderInput input = new TranscoderInput(is);
 			TranscoderOutput output = new TranscoderOutput(byteOut);
 			Transcoder transcoder = new PNGTranscoder();
@@ -166,4 +170,27 @@ public class SvgConverter extends HttpServlet {
 			System.err.println(e.toString());
 		}
 	}
+
+    /**
+     * Replaces the unknown/problematic characters with alternative forms.
+     * Introduced as a temporary workaround to address unicode character incompatibilities. 
+     */
+	private byte[] clean(byte[] bytes)
+    {
+        String xml = new String(bytes);
+        StringBuilder builder = new StringBuilder();
+        
+        for (int i = 0; i < xml.length(); i++) {
+            String replacementChar = REPLACEMENT.get(Character.toString(xml.charAt(i)));
+            
+            if (replacementChar != null) {
+                builder.append(replacementChar);
+            }
+            else {
+                builder.append(xml.charAt(i));
+            }
+        }
+        
+        return StringUtils.getBytesUtf8(builder.toString());
+    }
 }

@@ -32,12 +32,13 @@
 
 package org.mskcc.cbio.portal.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Encapsulates a Download Link.
  */
-public class DownloadLink {
+public class DownloadLink implements Serializable {
     private GeneticProfile profile;
     private ArrayList<String> geneList;
     private String caseIds;

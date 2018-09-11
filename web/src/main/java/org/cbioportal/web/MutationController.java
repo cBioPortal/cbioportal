@@ -82,9 +82,9 @@ public class MutationController {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT,
-                mutationService.getMetaMutationsInMolecularProfileBySampleListId(molecularProfileId, sampleListId, null)
-                    .getTotalCount().toString());
+            MutationMeta mutationMeta = mutationService.getMetaMutationsInMolecularProfileBySampleListId(molecularProfileId, sampleListId, null);
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
+            responseHeaders.add(HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
@@ -129,6 +129,7 @@ public class MutationController {
                     mutationFilter.getSampleIds(), mutationFilter.getEntrezGeneIds());
             }
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
+            responseHeaders.add(HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             List<Mutation> mutations;
@@ -184,6 +185,7 @@ public class MutationController {
                     sampleIds, mutationMultipleStudyFilter.getEntrezGeneIds());
             }
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
+            responseHeaders.add(HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             List<Mutation> mutations;

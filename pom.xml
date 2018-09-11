@@ -206,6 +206,22 @@
               </execution>
             </executions>
           </plugin>
+		  <!-- don't generate git.properties on heroku (unf doesn't work, since
+			   .git directory is not accessible during build) -->
+          <plugin>
+            <groupId>pl.project13.maven</groupId>
+            <artifactId>git-commit-id-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+						<phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>validate-the-git-infos</id>
+						<phase>none</phase>
+                    </execution>
+                </executions>
+          </plugin>
         </plugins>
       </build>
     </profile>

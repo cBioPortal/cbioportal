@@ -330,6 +330,7 @@ public class MutationControllerTest {
 
         MutationMeta mutationMeta = new MutationMeta();
         mutationMeta.setTotalCount(2);
+        mutationMeta.setSampleCount(3);
 
         Mockito.when(mutationService.getMetaMutationsInMolecularProfileBySampleListId(Mockito.anyString(), 
             Mockito.anyString(), Mockito.anyListOf(Integer.class))).thenReturn(mutationMeta);
@@ -338,7 +339,8 @@ public class MutationControllerTest {
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"))
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.SAMPLE_COUNT, "3"));
     }
 
     @Test
@@ -647,6 +649,7 @@ public class MutationControllerTest {
 
         MutationMeta mutationMeta = new MutationMeta();
         mutationMeta.setTotalCount(2);
+        mutationMeta.setSampleCount(3);
 
         Mockito.when(mutationService.fetchMetaMutationsInMolecularProfile(Mockito.anyString(), 
             Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class))).thenReturn(mutationMeta);
@@ -662,7 +665,8 @@ public class MutationControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mutationFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"))
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.SAMPLE_COUNT, "3"));
     }
 
     @Test

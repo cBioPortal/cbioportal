@@ -5,6 +5,7 @@
 %>
 
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ taglib prefix='c' uri='http://java.sun.com/jsp/jstl/core' %>
 <%
     String principal = "";
     String authenticationMethod = GlobalProperties.authenticationMethod();
@@ -68,7 +69,7 @@
              window.frontendConfig.authUserName = ${principal};
             <c:choose>
                 <c:when test="${authenticationMethod == 'saml'}">
-                     window.frontendConfig.authLogoutUrl = "/saml/logout"};
+                     window.frontendConfig.authLogoutUrl = "/saml/logout";
                 </c:when>
                 <c:otherwise>
                      window.frontendConfig.authLogoutUrl = "j_spring_security_logout";

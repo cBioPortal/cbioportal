@@ -41,8 +41,11 @@
             window.frontendConfig.frontendUrl = ['//',localStorage.heroku,'.herokuapp.com','/'].join('');
             localStorage.setItem("e2etest", "true");
         } 
-
+       
     </script>
+    
+    <%@ include file="./auth_include.jsp" %>
+             
     <script type="text/javascript" src="//<%=baseUrl%>/js/src/load-frontend.js?<%=GlobalProperties.getAppVersion()%>"></script>       
     <script>
         window.frontendConfig.customTabs && window.frontendConfig.customTabs.forEach(function(tab){
@@ -62,5 +65,8 @@
 
 <body>
     <div id="reactRoot"></div>
+    
+    
+    
 </body>
 </html>

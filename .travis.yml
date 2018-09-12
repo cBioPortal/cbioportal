@@ -85,8 +85,8 @@ script:
           -Ddb.user=cbio_user \
           -Ddb.password=cbio_pass \
           -Ddb.portal_db_name=public_test \
-          -Ddb.connection_string=jdbc:mysql://sm4sa6ozhn5ya6.cuooweljyhix.us-east-1.rds.amazonaws.com:3306/ \
-          -Ddb.host=sm4sa6ozhn5ya6.cuooweljyhix.us-east-1.rds.amazonaws.com \
+          -Ddb.connection_string=jdbc:mysql://devdb.cbioportal.org:3306/ \
+          -Ddb.host=devdb.cbioportal.org \
           clean install
   fi
 - |

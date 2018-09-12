@@ -68,10 +68,10 @@
              window.frontendConfig.authUserName = ${principal};
             <c:choose>
                 <c:when test="${authenticationMethod == 'saml'}">
-                     window.frontendConfig.authLogoutUrl = ${samlLogoutUrl};
+                     window.frontendConfig.authLogoutUrl = "/saml/logout"};
                 </c:when>
                 <c:otherwise>
-                     window.frontendConfig.authLogoutUrl = j_spring_security_logout;
+                     window.frontendConfig.authLogoutUrl = "j_spring_security_logout";
                 </c:otherwise>
             </c:choose>
         </sec:authorize>

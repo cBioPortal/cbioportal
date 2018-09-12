@@ -66,7 +66,7 @@
         } 
         
         <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
-             window.frontendConfig.authUserName = ${principal};
+             window.frontendConfig.authUserName = "<sec:authentication property="${principal}" />";
             <c:choose>
                 <c:when test="${authenticationMethod == 'saml'}">
                      window.frontendConfig.authLogoutUrl = "/saml/logout";

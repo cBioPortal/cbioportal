@@ -4,6 +4,23 @@
     baseUrl = baseUrl.replace("https://", "").replace("http://", "");
 %>
 
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%
+    String principal = "";
+    String authenticationMethod = GlobalProperties.authenticationMethod();
+    pageContext.setAttribute("authenticationMethod", authenticationMethod);
+    if (authenticationMethod.equals("openid") || authenticationMethod.equals("ldap")) {
+        principal = "principal.name";
+    }
+    else if (authenticationMethod.equals("googleplus") ||
+	    		authenticationMethod.equals("saml") ||
+	    		authenticationMethod.equals("ad") ||
+	    		authenticationMethod.equals("social_auth")) {
+        principal = "principal.username";
+    }
+    pageContext.setAttribute("principal", principal);
+%>
+
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <!DOCTYPE html>
 <html class="cbioportal-frontend">
@@ -46,7 +63,59 @@
             window.frontendConfig.frontendUrl = ['//',localStorage.heroku,'.herokuapp.com','/'].join('');
             localStorage.setItem("e2etest", "true");
         } 
+        
+        <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">
+             window.frontendConfig.authUserName = ${principal};
+            <c:choose>
+                <c:when test="${authenticationMethod == 'saml'}">
+                     window.frontendConfig.authLogoutUrl = ${samlLogoutUrl};
+                </c:when>
+                <c:otherwise>
+                     window.frontendConfig.authLogoutUrl = j_spring_security_logout;
+                </c:otherwise>
+            </c:choose>
+        </sec:authorize>
+        
+      
+        
+        <% if (authenticationMethod.equals("social_auth")) { %>
 
+            <sec:authorize access="hasRole('ROLE_ANONYMOUS')">
+                window.frontendConfig.authGoogleLogin = true; 
+            </sec:authorize>
+    
+        <% } %> 
+        
+
+    </script>
+    <script type="text/javascript">
+    function openSoicalAuthWindow() {
+        var _window = open('login.jsp', '', 'width=1000, height=800');
+    
+        var interval = setInterval(function() {
+            try {
+                if (_window.closed) {
+                    clearInterval(interval);
+                } else if (_window.document.URL.includes(location.origin) &&
+                            !_window.document.URL.includes(location.origin + '/auth') &&
+                            !_window.document.URL.includes('login.jsp')) {
+                    _window.close();
+    
+                    setTimeout(function() {
+                        clearInterval(interval);
+                        if(window.location.pathname.includes('/study')) {
+                            $('#rightHeaderContent').load(' #rightHeaderContent');
+                            iViz.vue.manage.getInstance().showSaveButton= true
+                        } else {
+                            location.reload();
+                        }
+                    }, 500);
+                }
+            } catch (err) {
+                console.log('Error while monitoring the Login window: ', err);
+            }
+        }, 500);
+    };
     </script>
     <script type="text/javascript" src="//<%=baseUrl%>/js/src/load-frontend.js?<%=GlobalProperties.getAppVersion()%>"></script>       
     <script>
@@ -67,5 +136,8 @@
 
 <body>
     <div id="reactRoot"></div>
+    
+    
+    
 </body>
 </html>

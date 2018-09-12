@@ -198,6 +198,7 @@
                     <exclude>**/portal.properties.*</exclude>
                     <exclude>**/log4j.properties.*</exclude>
                     <exclude>**/maven.properties.*</exclude>
+                    <exclude>**/git.properties.*</exclude>
                     <exclude>**/*.EXAMPLE</exclude>
                   </excludes>
                 </resource>

@@ -12,8 +12,7 @@
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
             sample.SAMPLE_TYPE AS "${prefix}sampleType",
-            sample.PATIENT_ID AS "${prefix}patientId",
-            sample.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId"
+            sample.PATIENT_ID AS "${prefix}patientId"
         </if>
         <if test="projection == 'DETAILED'">
             ,

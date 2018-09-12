@@ -224,7 +224,7 @@ Below you can find the complete list of all the available skin properties.
 
 Creating you own local news/about or FAQ page involves three steps. For example, to create your own news page:
 
-1. Copy `{PORTAL_HOME}/portal/src/main/webapp/content/news.html` to `news_XXXX.html`
+1. Copy `<cbioportal_source_folder>/portal/src/main/webapp/content/news.html` to `news_XXXX.html`
 2. Modify `news_XXXX.html` as needed.
 3. Edit the `portal.properties` file and change the `skin.documentation.news` property, giving it the name of your news HTML component.
 

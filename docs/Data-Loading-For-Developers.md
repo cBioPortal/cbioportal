@@ -1,15 +1,15 @@
 # Importing single data files for development
 In some cases, for example during development, it may be useful to import a single data file into an existing study. To import one data file at a time, you can use the following command. Note that this process will not validate the data.
 
-This can be done by running `cbioportalImporter.py` from `$PORTAL_HOME/core/src/main/scripts/importer/`.
+This can be done by running `cbioportalImporter.py` from `<cbioportal_source_folder>/core/src/main/scripts/importer/`.
 
 ## Requirements
-This script requires `PORTAL_HOME` to point to your cBioPortal repository. This can be done with:
-```
-export PORTAL_HOME=<your_cbioportal_dir>
-```
 
-The script itself can be found in `$PORTAL_HOME/core/src/main/scripts/importer`.
+This script requires `$PORTAL_HOME` to point to the folder containing your
+cBioPortal configuration. This can be done with:
+```
+export PORTAL_HOME=<cbioportal_configuration_folder>
+```
 
 ## Workflow
 

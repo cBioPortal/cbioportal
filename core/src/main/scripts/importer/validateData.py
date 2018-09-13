@@ -2144,16 +2144,15 @@ class ClinicalValidator(Validator):
                         if self.PROP_IS_PATIENT_ATTRIBUTE != expected_level:
                             if col_name in self.WARNING_ATTRIBUTES:
                                 self.logger.warning(
-                                    'Clinical Data Dictionary defines this as a %s-level attribute. '
-                                    'See GET /api/ at http://oncotree.mskcc.org/cdd/swagger-ui.html#/',
+                                    'Clinical Data Dictionary defines this as a %s-level attribute. Ignoring '
+                                    'this definition might lead to issues when comparing this data to other studies.',
                                     {'0': 'sample', '1': 'patient'}[expected_level],
                                     extra={'line_number': self.line_number,
                                            'column_number': col_index + 1,
                                            'cause': col_name})
                             else:
                                 self.logger.error(
-                                    'According to Clinical Data Dictionary, this attribute must to be a %s-level '
-                                    'attribute. See GET /api/ at http://oncotree.mskcc.org/cdd/swagger-ui.html#/',
+                                    'This attribute must to be a %s-level attribute.',
                                     {'0': 'sample', '1': 'patient'}[expected_level],
                                     extra={'line_number': self.line_number,
                                            'column_number': col_index + 1,

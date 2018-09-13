@@ -179,7 +179,7 @@ public class StudyViewController {
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
             result = discreteCopyNumberService.getSampleCountInMultipleMolecularProfiles(molecularProfileService
-                .getFirstDiscreteCNAProfileIds(studyIds, sampleIds), sampleIds, null, Arrays.asList(-2, 2), true);
+                .getFirstDiscreteCNAProfileIds(studyIds, sampleIds), sampleIds, null, Arrays.asList(-2, 2), false);
             result.sort((a, b) -> b.getCountByEntity() - a.getCountByEntity());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1) {

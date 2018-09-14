@@ -40,45 +40,41 @@
 
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<t:template title="<%= siteTitle %>" defaultRightColumn="true" fixedWidth="true">
+<t:template title="<%= siteTitle %>" defaultRightColumn="false" fixedWidth="true">
 
     <jsp:attribute name="head_area">
         <!-- js files: -->
-        <script type="text/javascript" src="js/lib/jquery.min.js?${appVersion}"></script>
-        <script type="text/javascript" src="js/lib/underscore-min.js?${appVersion}"></script>
-        <script type="text/javascript" src="js/lib/backbone-min.js?${appVersion}"></script>
-
-        <script type="text/javascript" src="js/lib/showdown.min.js?${appVersion}"></script>
-        <script type="text/javascript" src="js/lib/showdown-github.min.js?${appVersion}"></script>
-        <script type="text/javascript" src="js/src/url_based_content.js?${appVersion}"></script>
         <script>
         window.loadReactApp({ defaultRoute: 'blank' });
+        
+        var to;
+        
+        function setIframeHeight() {
+            document.getElementById("faqIframe").style.height=(window.innerHeight - 250) + "px";
+        }
+        
+        window.addEventListener("resize", function() {
+            clearTimeout(to);
+            
+            to = setTimeout(function(){
+                setIframeHeight();
+            },200);
+        });
+        
+        
+        window.addEventListener("load", function(){
+            setIframeHeight();
+        });
+        
         </script>
     </jsp:attribute>
 
     <jsp:attribute name="body_area">
         <div id="reactRoot" class="hidden"></div>
-
-        <div id="faqPage"></div>
+        <iframe id="faqIframe" style="width:100%;border:1px solid #ddd;" src="https://docs.google.com/document/d/e/2PACX-1vSWTtIJZF2tuBimihr8ke-d00DpKh7fydFIQb5xYpE_bMYM9hZyY9OP1Vz1Ts0ow7ob-3h2S19cuB5O/pub?embedded=true"></iframe>
     </jsp:attribute>
 
 
 </t:template>
 
 
-
-
-
-
-
-    <!-- Initialization script -->
-<script>
-    $(document).ready( function() {
-        // retrieve link for FAQ and generate the page
-        var faqLink = '<%= GlobalProperties.getFaqHtml()%>';
-        var baseUrl = '<%= GlobalProperties.getBaseUrl()%>';
-        var markdownDocumentation = '<%= GlobalProperties.isMarkdownDocumentation()%>';
-        var generatePage = new GeneratePage(baseUrl, faqLink, markdownDocumentation, "#faqPage");
-        generatePage.init();
-    });
-</script>

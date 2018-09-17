@@ -16,8 +16,9 @@ Please subscribe to our low-volume [news mailing list](http://groups.google.com/
 We support and test on the following web browsers: Safari, Google Chrome, Firefox 3.0 and above, as well as Internet Explorer 11.0 and above. If you notice any incompatibilities, please let us know.
 ### How do I cite the cBioPortal?
 Please cite the following portal papers:
-Cerami et al. The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data. Cancer Discovery. May 2012 2; 401. [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/22588877).
-Gao et al. Integrative analysis of complex cancer genomics and clinical profiles using the cBioPortal. Sci. Signal. 6, pl1 (2013). [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/22588877).
+* Cerami et al. The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data. Cancer Discovery. May 2012 2; 401. [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/22588877).
+* Gao et al. Integrative analysis of complex cancer genomics and clinical profiles using the cBioPortal. Sci. Signal. 6, pl1 (2013). [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/22588877).
+
 Remember to also cite the source of the data if you are using a publicly available dataset.
 ### Can I use figures from the cBioPortal in my publications or presentations?
 Yes, you are free to use any of the figures from the portal in your publications or presentations (many are available in SVG or PDF format for easier scaling and editing). When you do, please cite Cerami et al., Cancer Discov. 2012, and Gao et al., Sci. Signal. 2013 (see the previous question for full citations).
@@ -59,7 +60,7 @@ Check out the [Data Sets Page](http://www.cbioportal.org/data_sets.jsp) where yo
 ### Can I download all data at once?
 You can download all data for individual studies on the [Data Sets Page](http://www.cbioportal.org/data_sets.jsp) or the study view page for the study of interest. You can also download all studies from our [Data Hub](https://github.com/cBioPortal/datahub).
 ### How do I access data from AACR Project GENIE?
-Data from AACR Project GENIE are provided in a dedicated instance of [cBioPortal](http://www.cbioportal.org/genie/). You can also download GENIE data from the [Synapse Platform](http://synapse.org/genie). Note that you will need to register before accessing the data. Additional information about AACR Project GENIE can be found on the [AACR website](http://www.aacr.org/Research/Research/Pages/aacr-project-genie.aspx).
+Data from AACR Project GENIE are provided in a [dedicated instance of cBioPortal](http://www.cbioportal.org/genie/). You can also download GENIE data from the [Synapse Platform](http://synapse.org/genie). Note that you will need to register before accessing the data. Additional information about AACR Project GENIE can be found on the [AACR website](http://www.aacr.org/Research/Research/Pages/aacr-project-genie.aspx).
 
 ## TCGA
 ### How does TCGA data in cBioPortal compare to TCGA data in Genome Data Commons?
@@ -88,11 +89,12 @@ Protein domain definitions come from [PFAM](http://pfam.xfam.org/).
 A “splice site” mutation occurs in an intron, in a splice acceptor or donor site (2bp into an intron adjacent to the intron/exon junction), defined by [Sequence Ontology](http://www.sequenceontology.org/browser/current_svn/term/SO:0001629). “Splice region” mutations are mutations that occur near the intron/exon junction, defined by [Sequence Ontology](http://www.sequenceontology.org/browser/current_svn/term/SO:0001630). While synonymous mutations are generally excluded from cBioPortal, these “splice region” synonymous mutations are included due to their potential impact on splicing.
 ### What do “Amplification”, “Gain”, “Deep Deletion”, “Shallow Deletion” and "-2", "-1", "0", "1", and "2" mean in the copy-number data?
 These levels are derived from copy-number analysis algorithms like GISTIC or RAE, and indicate the copy-number level per gene:
--2 or Deep Deletion indicates a deep loss, possibly a homozygous deletion
--1 or Shallow Deletion indicates a shallow loss, possible a heterozygous deletion
-0 is diploid
-1 or Gain indicates a low-level gain (a few additional copies copies, often broad)
-2 or Amplification indicate a high-level amplification (more copies, often focal)
+* -2 or Deep Deletion indicates a deep loss, possibly a homozygous deletion
+* -1 or Shallow Deletion indicates a shallow loss, possible a heterozygous deletion
+* 0 is diploid
+* 1 or Gain indicates a low-level gain (a few additional copies copies, often broad)
+* 2 or Amplification indicate a high-level amplification (more copies, often focal)
+
 Note that these calls are putative. We consider the deep deletions and amplifications as biologically relevant for individual genes by default. Note that these calls are usually not manually reviewed, and due to differences in purity and ploidy between samples, there may be false positives and false negatives.
 ### What is GISTIC? What is RAE?
 Copy number data sets within the portal are often generated by the [GISTIC](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837) algorithms. Both algorithms attempt to identify significantly altered regions of amplification or deletion across sets of patients. Both algorithms also generate putative gene/patient copy number specific calls, which are then input into the portal.
@@ -146,19 +148,13 @@ There is currently no way to definitively determine whether a mutation is hetero
 
 Specifically in the case of TCGA samples with two mutations in the same gene, you can also obtain access to the aligned sequencing reads from the [GDC](https://portal.gdc.cancer.gov/) and check if the mutations are in cis or in trans (if the mutations are close enough to each other).
 ### How can I query over/under expression of a gene?
-cBioPortal supports Onco Query Language (OQL) which can be used to query over/under expression of a gene. When writing a query, select an mRNA expression profile. By default, samples with expression z-scores >2 or <-2 in any queried genes are considered altered. Alternate cut-offs can be defined using OQL, for example:
-EGFR: EXP>2
-will query for samples with an EGFR expression z-score >2. Review for the [OQL specification page](http://www.cbioportal.org/onco_query_lang_desc.jsp) for more specifics and examples.
+cBioPortal supports Onco Query Language (OQL) which can be used to query over/under expression of a gene. When writing a query, select an mRNA expression profile. By default, samples with expression z-scores >2 or <-2 in any queried genes are considered altered. Alternate cut-offs can be defined using OQL, for example: "EGFR: EXP>2" will query for samples with an EGFR expression z-score >2. Review for the [OQL specification page](http://www.cbioportal.org/onco_query_lang_desc.jsp) for more specifics and examples.
 ### How can I compare outcomes in patients with high vs low expression of a gene?
 To compare outcomes in patients with high vs low expression of a gene (excluding those patients with intermediate levels of expression), we will follow a 2 step process that builds on the approach described above in [How can I query/explore a select subset of samples?](#how-can-i-query-explore-a-select-subset-of-samples), utilizing [OQL](http://www.cbioportal.org/onco_query_lang_desc.jsp) to first identify and then stratify that cases of interest.
 
-First, identify the sample set using OQL. For example, to stratify patients based on expression of EGFR, add an mRNA profile to the query, and write
-EGFR: EXP>2 EXP<-2
-in the gene set box. After running the query, go to the Download tab and copy/download the “Samples affected” list.
+First, identify the sample set using OQL. For example, to stratify patients based on expression of EGFR, add an mRNA profile to the query, and write "EGFR: EXP>2 EXP<-2" in the gene set box. After running the query, go to the Download tab and copy/download the “Samples affected” list.
 
-Second, return to the homepage and paste the list of sample IDs from the previous step into the “User-defined Case List” in the “Select Patient/Case Set:” dropdown. This query will now only look at samples with high or low expression. To now stratify into high vs low for survival analysis, enter
-	EGFR: EXP>2
-in the gene set box (don’t forget to select the same mRNA profile). Run the query and click over to the Survival tab. The “cases with alteration” are patients with high expression of EGFR and the cases without alteration are those with low expression of EGFR.
+Second, return to the homepage and paste the list of sample IDs from the previous step into the “User-defined Case List” in the “Select Patient/Case Set:” dropdown. This query will now only look at samples with high or low expression. To now stratify into high vs low for survival analysis, enter "EGFR: EXP>2" in the gene set box (don’t forget to select the same mRNA profile). Run the query and click over to the Survival tab. The “cases with alteration” are patients with high expression of EGFR and the cases without alteration are those with low expression of EGFR.
 
 We use 2 and -2 as example thresholds above, but it is also a good idea to look at the distribution of expression data and select a threshold based on that. Plots tab can be useful for analyzing the expression distribution.
 # Results View

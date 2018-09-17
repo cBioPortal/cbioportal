@@ -210,7 +210,7 @@ The file containing the sample attributes has two **required** columns:
 
 By adding `PATIENT_ID` here, cBioPortal will map the given sample to this patient. This enables one to associate multiple samples to one patient. For example, a single patient may have had multiple biopsies, each of which has been genomically profiled. See [this example for a patient with multiple samples](http://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P04).
 
-The following columns are required for the pan-cancer summary statistics tab.
+The following columns are required for the pan-cancer summary statistics tab ([example](http://www.cbioportal.org/index.do?cancer_study_id=msk_impact_2017&Z_SCORE_THRESHOLD=2&RPPA_SCORE_THRESHOLD=2&data_priority=0&case_set_id=msk_impact_2017_cnaseq&gene_list=BRAF&geneset_list=+&tab_index=tab_visualize&Action=Submit&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna)).
 - **CANCER_TYPE**: Cancer Type
 - **CANCER_TYPE_DETAILED**: Cancer Type Detailed, a sub-type of the specified CANCER_TYPE
 

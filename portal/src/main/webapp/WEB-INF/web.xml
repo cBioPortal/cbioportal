@@ -539,14 +539,6 @@
         <servlet-name>cancer_study_view_v2</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.CancerStudyViewV2</servlet-class>
     </servlet>
-    <servlet-mapping>
-        <servlet-name>cancer_study_view_v2</servlet-name>
-        <url-pattern>/newstudy.do</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>cancer_study_view_v2</servlet-name>
-        <url-pattern>/newstudy</url-pattern>
-    </servlet-mapping>
     
     <servlet>
         <servlet-name>DrugsJSON</servlet-name>

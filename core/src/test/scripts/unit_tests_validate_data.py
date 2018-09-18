@@ -541,7 +541,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
     def test_both_name_and_entrez(self):
         """Test when a file has both the Hugo name and Entrez ID columns."""
         record_list = self.validate('data_cna_genecol_presence_both.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # expecting only status messages about the file being validated
         self.assertEqual(len(record_list), 3)
         for record in record_list:
@@ -551,7 +551,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         """Test when a file has a Hugo name column but none for Entrez IDs."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_hugo_only.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # expecting 1 warning
         self.assertEqual(len(record_list), 1)
         for record in record_list:
@@ -560,7 +560,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
     def test_entrez_only(self):
         """Test when a file has an Entrez ID column but none for Hugo names."""
         record_list = self.validate('data_cna_genecol_presence_entrez_only.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # expecting only status messages about the file being validated
         self.assertEqual(len(record_list), 3)
         for record in record_list:
@@ -569,7 +569,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
     def test_neither_name_nor_entrez(self):
         """Test when a file lacks both the Entrez ID and Hugo name columns."""
         record_list = self.validate('data_cna_genecol_presence_neither.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # two errors after the info: the first makes the file unparsable
         self.assertEqual(len(record_list), 3)
         for record in record_list[1:]:
@@ -583,7 +583,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         """Test when a file has both the Hugo name and Entrez ID columns, but hugo is invalid."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_hugo.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # expecting two error messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
@@ -602,8 +602,8 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         """
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_hugo_integer.txt',
-                                    validateData.CNAValidator,
-                                    extra_meta_fields={'meta_file_type': 'CNA'})
+                                    validateData.CNADiscreteValidator,
+                                    extra_meta_fields={'meta_file_type': 'CNA_DISCRETE'})
         # expecting two error messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
@@ -616,7 +616,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         """Test when a file has both the Hugo name and Entrez ID columns, but entrez is invalid."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_entrez.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # expecting two warning messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
@@ -629,7 +629,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         """Test when a file has both the Hugo name and Entrez ID columns, both valid, but association is invalid."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_couple.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # expecting two error messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
@@ -642,7 +642,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         """Test when a file has a Hugo name column but none for Entrez IDs, and hugo is wrong."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_hugo_only_invalid.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # expecting two warning messages:
         self.assertEqual(len(record_list), 3)
         for record in record_list:
@@ -658,7 +658,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         where ambiguity could arise (in gene table Hugo symbol is now unique)"""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_hugo_only_ambiguous.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # expecting one error message
         self.assertEqual(len(record_list), 2)
         record = record_list.pop()
@@ -670,7 +670,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         """Test when a file has an Entrez ID column but none for Hugo names, and entrez is wrong."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_entrez_only_invalid.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # expecting two warning messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
@@ -687,7 +687,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         """
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_hugo_only_possible_alias.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # expecting one error message
         self.assertEqual(len(record_list), 2)
         record = record_list.pop()
@@ -699,7 +699,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         """Test whether an error is issued if a column has a blank name."""
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_cna_blank_heading.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         self.assertEqual(len(record_list), 4)
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
@@ -722,7 +722,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
          and ignored in the importer."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_cytoband.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # expecting zero warning messages:
         self.assertEqual(len(record_list), 0)
 
@@ -738,7 +738,7 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         """Check a valid discrete CNA file that should yield no errors."""
         self.logger.setLevel(logging.DEBUG)
         record_list = self.validate('data_cna_genecol_presence_both.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # expecting only status messages about the file being validated
         self.assertEqual(len(record_list), 3)
         for record in record_list:
@@ -748,7 +748,7 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         """Test if a warning is issued and the line is skipped if duplicate."""
         self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_duplicate_gene.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # expecting a warning about the duplicate gene,
         # but no errors about values
         self.assertEqual(len(record_list), 1)
@@ -761,7 +761,7 @@ class FeatureWiseValuesTestCase(PostClinicalDataFileTestCase):
         """Check a discrete CNA file with values that should yield errors."""
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_cna_invalid_values.txt',
-                                    validateData.CNAValidator)
+                                    validateData.CNADiscreteValidator)
         # expecting various errors about data values, about one per line
         self.assertEqual(len(record_list), 6)
         for record in record_list:
@@ -2026,12 +2026,26 @@ class CaseListDirTestCase(PostClinicalDataFileTestCase):
                 self.logger,
                 False, False)
         record_list = self.get_log_records()
-        self.assertEqual(len(record_list), 1)
-        # <study ID>_all
-        record = record_list.pop()
+
+        # Test if there are 3 warnings, for 3 missing case lists
+        self.assertEqual(len(record_list), 3)
+        record_iterator = iter(record_list)
+
+        # Test the missing global case list
+        record = next(record_iterator)
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertIn('spam_all', record.getMessage())
         self.assertIn('add_global_case_list', record.getMessage())
+
+        # Test the missing global _sequenced list
+        record = next(record_iterator)
+        self.assertIn('spam_sequenced', record.getMessage())
+        self.assertIn('please add this case list', record.getMessage())
+
+        # Test the missing global _cna list
+        record = next(record_iterator)
+        self.assertIn('spam_cna', record.getMessage())
+        self.assertIn('please add this case list', record.getMessage())
 
     def test_undefined_cases_listed_in_file_order(self):
         """Test if undefined cases are reported in the order encountered."""
@@ -2077,7 +2091,6 @@ class CaseListDirTestCase(PostClinicalDataFileTestCase):
             self.assertEqual(
                 reported_sample_ids,
                 ['Patient0-Sample1', 'Patient2-Sample3', 'Patient1-Sample2'])
-
 
 class MetaFilesTestCase(LogBufferTestCase):
 

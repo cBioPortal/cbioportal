@@ -1,0 +1,5 @@
+cancer_study_identifier: brca_tcga_pub
+stable_id: brca_tcga_pub_cnaseq
+case_list_name: Samples profiled for mutations and CNA
+case_list_description: This is this case list that contains all samples that are profiled for mutations and CNA.
+case_list_ids: TCGA-A1-A0SB-01	TCGA-A1-A0SD-01	TCGA-A1-A0SE-01	TCGA-A1-A0SF-01

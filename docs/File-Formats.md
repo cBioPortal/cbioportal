@@ -210,7 +210,7 @@ The file containing the sample attributes has two **required** columns:
 
 By adding `PATIENT_ID` here, cBioPortal will map the given sample to this patient. This enables one to associate multiple samples to one patient. For example, a single patient may have had multiple biopsies, each of which has been genomically profiled. See [this example for a patient with multiple samples](http://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P04).
 
-The following columns are required if you want the [pan-cancer summary statistics tab in a pan-cancer study](http://www.cbioportal.org/index.do?cancer_study_list=cellline_ccle_broad&cancer_study_id=cellline_ccle_broad&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=cellline_ccle_broad_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=cellline_ccle_broad_CNA&Z_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=cellline_ccle_broad_cnaseq&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=SOX9+RAN+TNK2+EP300+PXN+NCOA2+AR+NRIP1+NCOR1+NCOR2&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#pancancer_study_summary):
+The following columns are required for the pan-cancer summary statistics tab ([example](http://www.cbioportal.org/index.do?cancer_study_id=msk_impact_2017&Z_SCORE_THRESHOLD=2&RPPA_SCORE_THRESHOLD=2&data_priority=0&case_set_id=msk_impact_2017_cnaseq&gene_list=BRAF&geneset_list=+&tab_index=tab_visualize&Action=Submit&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna)).
 - **CANCER_TYPE**: Cancer Type
 - **CANCER_TYPE_DETAILED**: Cancer Type Detailed, a sub-type of the specified CANCER_TYPE
 
@@ -518,7 +518,7 @@ Entrez_Gene_Id<TAB>SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>...
 ...
 ```
 
-An example data file which includes both Hugo_Symbo and Entrez_Gene_Id would look like (supported, but not recommended as it increases the chances of errors regarding [ambiguous Hugo symbols](Data-Loading-How-the-loader-deals-with-Hugo-symbols.md)):
+An example data file which includes both Hugo_Symbo and Entrez_Gene_Id would look like (supported, but not recommended as it increases the chances of errors regarding ambiguous gene symbols):
 ```
 Hugo_Symbol<TAB>Entrez_Gene_Id<TAB>SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>...
 ACAP3<TAB>116983<TAB>-0.005<TAB>-0.550<TAB>...
@@ -527,7 +527,7 @@ AGRN<TAB>375790<TAB>0.142<TAB>0.091<TAB>...
 ...
 ```
 
-An example data file with only Hugo_Symbol column (supported, but not recommended as it increases the chances of errors regarding [ambiguous Hugo symbols](Data-Loading-How-the-loader-deals-with-Hugo-symbols.md):
+An example data file with only Hugo_Symbol column (supported, but not recommended as it increases the chances of errors regarding ambiguous gene symbols):
 ```
 Hugo_Symbol<TAB>SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>...
 ACAP3<TAB>-0.005<TAB>-0.550<TAB>...
@@ -1009,7 +1009,7 @@ This will lead to a timeline track for Lab_test with an additional subtrack spec
 
 
 ## Gistic Data
-Running GISTIC 2.0 on e.g. GenePattern not only provides the [Discrete Copy Number Data](#discrete-copy-number-data), but also provides an amp_genes and a del_genes file. These cannot be directly imported into cBioPortal, but first have to be converted to a different file format. Currently, there is no easy way available to do this. However, the cBioPortal team is aiming to make the necessary [cbioportal_pipelines](https://github.com/cBioPortal/cbioportal-pipelines/blob/master/importer/src/main/java/org/mskcc/cbio/importer/converter/internal/GisticGenesConverterImpl.java) functionality available via issue [#873](https://github.com/cBioPortal/cbioportal/issues/873). 
+Running GISTIC 2.0 on e.g. GenePattern not only provides the [Discrete Copy Number Data](#discrete-copy-number-data), but also provides an amp_genes and a del_genes file. These cannot be directly imported into cBioPortal, but first have to be converted to a different file format. An example can be found in the [ACC TCGA study](https://github.com/cBioPortal/datahub/blob/master/public/acc_tcga/data_gistic_genes_amp.txt) on cBioPortal Datahub.
 
 After uploading a gistic_amp and/or gistic_del file, a new button becomes available in the Enter Gene Set section, called "Select Genes from Recurrent CNAs (Gistic)". 
 
@@ -1161,7 +1161,7 @@ In both of these cases, the sample-profile matrix file does not need to be provi
 ## Gene Set Data
 A description of importing gene sets (which are required before loading gene set study) can be found [here](Import-Gene-Sets.md). This page also contains a decription to import gene set hierarchy data, which is required to show a hierarchical tree on the query page to select gene sets.
 
-cBioPortal supports GSVA scores and GSVA-like scores, such as ssGSEA. The [Gene Set Variation Analysis]([http://www.bioconductor.org/packages/release/bioc/html/GSVA.html]) method in R (GSVA, [Hänzelmann, 2013](http://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-14-7)) can calculate several types of scores (specified with the `methods=` argument) and outputs a score between -1 and 1. The GSVA method also calculates a p-value per score using a boothstrapping method. 
+cBioPortal supports GSVA scores and GSVA-like scores, such as ssGSEA. The [Gene Set Variation Analysis](http://www.bioconductor.org/packages/release/bioc/html/GSVA.html) method in R (GSVA, [Hänzelmann, 2013](http://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-14-7)) can calculate several types of scores (specified with the `methods=` argument) and outputs a score between -1 and 1. The GSVA method also calculates a p-value per score using a bootstrapping method.
 
 To import the GSVA(-like) data, a score and p-value data file are required. It is important that the dimensions of the score and p-value file are the same and that they contain the same gene sets and samples. Both data files require a meta file.
 

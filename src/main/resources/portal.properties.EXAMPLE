@@ -118,6 +118,11 @@ ldap.attributes.last_name=sn
 ldap.attributes.given_name=givenName
 ldap.attributes.email=mail
 
+# data access token settings
+jwt.secret.key=
+jwt.ttl_seconds=
+jwt.issuer=
+
 # study view settings
 # always show studies with this group
 always_show_study_group=

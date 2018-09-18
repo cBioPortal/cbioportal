@@ -46,7 +46,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.security.spring.authentication.token;
+package org.cbioportal.service.util;
+//TODO package org.cbioportal.security.spring.authentication.token;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -60,11 +61,12 @@ import io.jsonwebtoken.SignatureException;
 import java.util.*;
 import javax.crypto.SecretKey;
 import org.apache.commons.logging.*;
-import org.cbioportal.security.exception.InvalidDataAccessTokenException;
+import org.cbioportal.service.exception.InvalidDataAccessTokenException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-
-class JwtUtils {
+@Component
+public class JwtUtils {
 
     private byte[] decodedSecretKey;
     @Value("${jwt.secret.key}")
@@ -96,7 +98,7 @@ class JwtUtils {
             .setSubject(subject)
             .setIssuedAt(creationDate)
             .setExpiration(expirationDate)
-            .setNotBefore(expirationDate)
+            .setNotBefore(notBeforeDate)
             .signWith(SignatureAlgorithm.HS256, decodedSecretKey).compact();
         return jws;
     }

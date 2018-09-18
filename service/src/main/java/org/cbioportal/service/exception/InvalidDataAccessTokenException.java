@@ -46,7 +46,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.security.exception;
+// TODO move back package org.cbioportal.security.exception;
+package org.cbioportal.service.exception;
 
 public class InvalidDataAccessTokenException extends Exception {
 

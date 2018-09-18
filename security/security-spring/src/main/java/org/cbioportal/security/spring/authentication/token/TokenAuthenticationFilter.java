@@ -43,15 +43,31 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.cbioportal.service.DataAccessTokenService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.stereotype.Component; // TODO is this the correct one to use?
+import org.springframework.util.StringUtils;
 
 /**
  *
  * @author Manda Wilson
  */
+@Component
 public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+
+    @Autowired
+    // use @Qualifier to ensure we get tokenService bean from applicationContext-security.xml
+    // tokenSerice bean in security.xml file has same name so would be picked anyway by default,
+    // but this avoids a NoUniqueBeanDefinitionException
+    @Qualifier("tokenService")
+    private DataAccessTokenService tokenService;
 
     private static final String BEARER = "Bearer";
 
@@ -78,18 +94,17 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
         final HttpServletRequest request,
         final HttpServletResponse response) {
 
-        String param = request.getHeader(AUTHORIZATION);
+        String token = extractHeaderToken(request);
 
-        log.debug("attemptAuthentication(), header - " + param);
-
-        // TODO strip out token
-        //String token = param;
-        //Authentication auth = new UsernamePasswordAuthenticationToken(token, token);
+        if (token == null || !tokenService.isValid(token)) {
+            // TODO should this be a custom subclass of AuthenticationException?
+            throw new BadCredentialsException("Invalid token");
+        }
 
         // when DaoAuthenticationProvider does authentication on user returned by PortalUserDetailsService
         // which has password "unused", this password won't match, and then there is a BadCredentials exception thrown
         // this is a good way to catch that the wrong authetication provider is being used
-        Authentication auth = new UsernamePasswordAuthenticationToken("fakeuser@mskcc.org", "does not match unused");
+        Authentication auth = new UsernamePasswordAuthenticationToken(tokenService.getUsername(token), "does not match unused");
         return getAuthenticationManager().authenticate(auth);
     }
 
@@ -101,5 +116,22 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
         final Authentication authResult) throws IOException, ServletException {
         super.successfulAuthentication(request, response, chain, authResult);
         chain.doFilter(request, response);
+    }
+
+    /**
+     * Extract the bearer token from a header.
+     * 
+     * @param request
+     * @return The token, or null if no authorization header was supplied
+     */
+    protected String extractHeaderToken(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        if (!StringUtils.isEmpty(authorizationHeader)) {
+            if ((authorizationHeader.toLowerCase().startsWith(BEARER.toLowerCase()))) {
+                return authorizationHeader.substring(BEARER.length()).trim();
+            }
+        }
+
+        return null;
     }
 }

@@ -36,6 +36,7 @@ import java.util.*;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,10 @@ import org.springframework.web.client.HttpClientErrorException;
 public class DataAccessTokenController {
 
     @Autowired
+    // use @Qualifier to ensure we get tokenService bean from applicationContext-security.xml
+    // tokenSerice bean in security.xml file has same name so would be picked anyway by default,
+    // but this avoids a NoUniqueBeanDefinitionException
+    @Qualifier("tokenService")
     private DataAccessTokenService dataAccessTokenService;
 
 //      TODO: figure out how to read this from the properties file

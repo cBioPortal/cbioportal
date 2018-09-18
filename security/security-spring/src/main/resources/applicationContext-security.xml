@@ -67,6 +67,8 @@
         <b:property name="authenticationSuccessHandler" ref="tokenSuccessRedirectHandler"/>
     </b:bean>
 
+    <b:bean id="tokenService" class="org.cbioportal.service.impl.JwtDataAccessTokenServiceImpl"/>
+
     <!-- WARNING: if you define another authentication-manager AFTER this one, this one
         will be overridden, even if you use <http ... pattern="/api/**" ... authentication-manager-ref="tokenAuthenticationManager">
         AND even though the authenticationManager is defined as a property of tokenAuthenticationFilter

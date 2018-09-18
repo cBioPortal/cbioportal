@@ -40,6 +40,8 @@ public interface DataAccessTokenService {
     public String getDataAccessToken(String username);
     public List<String> getAllDataAccessTokens(String username);
     public void revokeAllDataAccessTokens(String username);
+    public String getUsername(String token);
+    public Date getExpiration(String token);
 
     /** tests token validity
      *  token is valid if not yet expired and not revoked and can be verfied as issued through this service via signature

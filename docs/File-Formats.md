@@ -260,7 +260,7 @@ You can add any additional columns with clinical data to either the patient or s
 `MUTATION_COUNT` and `FRACTION_GENOME_ALTERED` are auto populated clinical attributes, and should therefore not be present in clinical data files.
 
 ## Discrete Copy Number Data
-The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC can be [installed](http://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](http://genepattern.broadinstitute.org/gp/pages/login.jsf). For some help on using GISTIC, check the [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md) page.
+The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC can be [installed](http://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](http://genepattern.broadinstitute.org/gp/pages/login.jsf). For some help on using GISTIC, check the [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).
 
 ##### Meta file 
 The meta file is comprised of the following fields:
@@ -533,6 +533,7 @@ AGRN<TAB>0.142<TAB>0.091<TAB>...
 
 
 ## Mutation Data
+When loading mutation data, the `_sequenced` case list is required. See the [case list section](#case-lists).
 
 ### Meta file
 The mutation metadata file should contain the following fields:
@@ -818,11 +819,7 @@ RET<TAB>5979<TAB>center.edu<TAB>SAMPLE_ID_3<TAB>Fusion<TAB>unknown<TAB>yes<TAB>u
 
 ## Case Lists
 
-There should be 1 or more case lists associated with each cancer study. You should provide **at least one case list which contains all sample ids** (the importer can generate this for your if you set the attribute `add_global_case_list` to `true` in the [Study metadata](#cancer-study).
-
-When **not** using the `add_global_case_list` attribute in [Study metadata](#cancer-study), or if you want to add custom case lists:
-- the case list files should be placed in a sub-directory called `case_lists` which exists alongside all the other cancer study data.
-
+Case lists are used to define sample lists that can be selected on the query page. Some case lists have specific functionality, but it's also possible to add custom case lists. The case list files should be placed in a sub-directory called `case_lists` which exists alongside all the other cancer study data. 
 The case list file should contain the following fields:
 
 1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
@@ -845,9 +842,8 @@ case_list_ids: SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>SAMPLE_ID_3<TAB>...
 #### Case list stable id suffixes
 In order for sample counts to propagate to the data sets widget on the home page and the table on the [Data Sets](http://www.cbioportal.org/public-portal/data_sets.jsp) page, the following case list suffixes need to be used in the stable_id property (e.g. `brca_tcga_pub_sequenced`). This is also needed for correct statistics in the Study view page when calculating the frequency of CNA and of mutations per gene in the respective summary tables.
 
-* **Sequenced**: `_sequenced` . When only a mutation profile is selected on the query page, this is the default case list.
-* **CNA**: `_acgh`. When only a CNA profile is selected on the query page, this is the default case list.
-* **CNA**: `_cna`.
+* **Sequenced**: `_sequenced` . When only a mutation profile is selected on the query page, this is the default case list. Also used in the Study Summary to calculate the proportion of samples with mutations.
+* **CNA**: `_cna`. When only a CNA profile is selected on the query page, this is the default case list. Also used in the Study Summary to calculate the proportion of samples with CNA.
 * **Sequenced and CNA**: `_cnaseq`. When a mutation and CNA genetic profile are selected on the query page, this is the default case list.
 * **mRNA (microarray)**: `_mrna`. When only a mRNA (microarray) profile is selected on the query page, this is the default case list.
 * **mRNA (RNA-Seq)**: `_rna_seq_mrna`. When only a mRNA (RNA-Seq) profile is selected on the query page, this is the default case list.
@@ -859,8 +855,12 @@ In order for sample counts to propagate to the data sets widget on the home page
 * **Sequenced, CNA and mRNA**: `_3way_complete` When a mutation, CNA and mRNA profile are selected on the query page, this is the default case list.
 * **All**: `_all`. If you are not using *add_global_case_list* attribute in [Study metadata](#cancer-study), you need to add this case list.
 
-#### Study view table calculations based on case lists
-This `_sequenced` and `_cna` lists are used to determine the percentage of samples with mutations and CNA in tables on the Study View. If these case list are not given, the system will assume that *all* samples have been sequenced / CNA measured and will calculate the frequency accordingly.
+#### Required case lists
+Some case lists are required:
+
+- `_all`. This can be generated by the importer if you set the attribute `add_global_case_list` to `true` in the [Study metadata](#cancer-study).
+- `_sequenced`. This case list is required when loading mutation data.
+- `_cna`. This case list is required when loading discrete cna data.
 
 #### Case list categories
 These are the valid case lists categories for `case_list_category: ` in the meta file.

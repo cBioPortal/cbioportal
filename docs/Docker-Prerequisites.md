@@ -13,7 +13,7 @@ The latest cBioPortal Seed files are available from the [cBioPortal Datahub](htt
 You can download these files by using the links below:
 
 - **Schema 2.6.0**: [SQL file with create table statements for cBioPortal 1.12.0 or higher](https://raw.githubusercontent.com/cBioPortal/cbioportal/v1.13.1/db-scripts/src/main/resources/cgds.sql)
-- **Seed data**: [cbioportal-seed SQL (.gz) file containing genes, gene aliases and cancer types](https://github.com/cBioPortal/datahub/raw/054429f83529a4e5229c1f7670d1d4c891cd8a90/seedDB/seed-cbioportal_hg19_v2.6.0.sql.gz)
+- **Seed data**: [cbioportal-seed SQL (.gz) file containing genes, gene aliases and cancer types](https://github.com/cBioPortal/datahub/raw/219cf5fc9a553dbc2bfa28a18283087def4a5cf4/seedDB/seed-cbioportal_hg19_v2.6.0.sql.gz)
 
 ## 3. Prepare Configuration Files
 

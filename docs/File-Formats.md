@@ -89,7 +89,7 @@ brca<TAB>Breast Invasive Carcinoma<TAB>breast,breast invasive<TAB>HotPink<TAB>Br
 
 The clinical data is used to capture both clinical attributes and the mapping between patient and sample ids. The software supports multiple samples per patient.  
 
-As of March 2016, the clinical file is split into a patient file and a clinical file. The *sample* file is required, whereas the *patient* file is optional.
+As of March 2016, the clinical file is split into a patient file and a clinical file. The *sample* file is required, whereas the *patient* file is optional. cBioPortal has specific functionality for a core set of patient and sample columns, but can also display custom columns (see section ["Custom columns in clinical data"](#custom-columns-in-clinical-data)).
 
 #### Meta files
 The two clinical metadata files (or just one metadata file if you choose to leave the *patient* file out) have to contain the following fields:
@@ -188,8 +188,8 @@ These columns, when provided, add additional information to the patient descript
 - **AGE**: Age at which the condition or disease was first diagnosed, in years (number)
 - **TUMOR_SITE**
 
-Optional attributes:
-- **Other Clinical Attribute Headers**: Clinical attribute headers are free-form. You can add any additional clinical attribute and cBioPortal will add them to the database. Be sure to provide the correct `'Datatype'`, as described above, for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and display.
+Custom attributes:
+- **Custom Clinical Attribute Headers**: Any other custom attribute can be added as well. See section ["Custom columns in clinical data"](#custom-columns-in-clinical-data).
 
 ###### Example *patient* data file
 ```
@@ -226,6 +226,9 @@ The following columns additionally affect the [Timeline data](#timeline-data) vi
     - If set to `metastatic` or `metastasis`: red
     - If set to `primary` or otherwise: black
 
+Custom attributes:
+- **Custom Clinical Attribute Headers**: Any other custom attribute can be added as well. See section ["Custom columns in clinical data"](#custom-columns-in-clinical-data).
+
 ###### Example sample data file
 ```
 #Patient Identifier<TAB>Sample Identifier<TAB>Subtype<TAB>...
@@ -238,7 +241,7 @@ PATIENT_ID_2<TAB>SAMPLE_ID_2<TAB>Her2 enriched<TAB>...
 ...
 ```
 
-##### Other columns with specific functionality
+##### Columns with specific functionality
 These columns can be in either the patient or sample file.
 - **CANCER_TYPE**: Overrides study wide cancer type
 - **CANCER_TYPE_DETAILED**
@@ -253,8 +256,10 @@ These columns can be in either the patient or sample file.
 - **SERUM_PSA**
 - **DRIVER_MUTATIONS**
 
-##### Other columns without specific functionality
-You can add any additional columns with clinical data to either the patient or sample file. If correctly formatted with the 5-row header, cBioPortal will add them to the database. Be sure to provide the correct `Datatype`, as described above (for the header lines), for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and visualization.
+##### Custom columns in clinical data
+cBioPortal supports custom columns with clinical data in either the patient or sample file. They should follow the previously described 5-row header format. Be sure to provide the correct `Datatype`, for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and visualization.
+
+The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and should be followed to make the clinical data comparable between studies. This dictionary provides a definition whether an attribute should be defined on the patient or sample level, as well as provides a name, description and datatype. The data curator can choose to ignore these proposed definitions, but not following this dictionary might make comparing data between studies more difficult. It should however not break any cBioPortal functionality. See GET /api/ at [http://oncotree.mskcc.org/cdd/swagger-ui.html#/](http://oncotree.mskcc.org/cdd/swagger-ui.html#/) for the data dictionary of all known clinical attributes.
 
 ##### Banned column names
 `MUTATION_COUNT` and `FRACTION_GENOME_ALTERED` are auto populated clinical attributes, and should therefore not be present in clinical data files.
@@ -1194,7 +1199,7 @@ geneset_def_version: msigdb_6.1
 ### GSVA score data file
 The data file will be a simple tab separated format, similar to the expression data file: each sample is a column, each gene set a row, each cell contains the GSVA score for that sample x gene set combination.
 
-The first column is the `geneset_id` and contains the name of the gene sets. Gene set names should be formatted in uppercase. The other columns are sample columns: An additional column for each sample in the dataset using the sample id as the column header.
+The first column is `geneset_id` and contains the names of the gene sets. Gene set names should be formatted in uppercase. The other columns are sample columns: An additional column for each sample in the dataset using the sample id as the column header.
 
 The cells contain the GSVA(-like) score: which is real number, between -1.0 and 1.0, representing the score for the gene set in the respective sample, or NA when the score for the gene set in the respective sample could not be (or was not) calculated. Example with 2 gene sets and 3 samples: 
 
@@ -1238,7 +1243,7 @@ geneset_def_version: msigdb_6.1
 ### GSVA p-value data file
 The data file will be a simple tab separated format, similar to the score file: each sample is a column, each gene set a row, each cell contains the p-value for the score found for sample x gene set combination.
 
-The first column is the `geneset_id` and contains the name of the gene sets. Gene set names should be formatted in uppercase. The other columns are sample columns: An additional column for each sample in the dataset using the sample id as the column header.
+The first column is `geneset_id` and contains the names of the gene sets. Gene set names should be formatted in uppercase. The other columns are sample columns: An additional column for each sample in the dataset using the sample id as the column header.
 
 The cells contain the p-value for the GSVA score: A real number, between 0.0 and 1.0, representing the p-value for the GSVA score calculated for the gene set in the respective sample, or NA when the score for the gene is also NA. Example with 2 gene sets and 3 samples: 
 

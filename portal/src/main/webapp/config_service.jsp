@@ -1,5 +1,6 @@
-<%@ page language="java" contentType="application/json; charset=UTF-8"
+<%@ page language="java" contentType="text/javascript; charset=UTF-8"
     pageEncoding="UTF-8"%>
+    
 <%@ page import="java.util.List" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.CheckDarwinAccessServlet" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>

@@ -263,7 +263,7 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
 
         # Expect warning for sample attribute in patient clinical data
         record = next(record_iterator)
-        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.levelno, logging.WARNING)
         self.assertEqual(record.line_number, 5)
         self.assertEqual(record.column_number, 7)
         self.assertIn(record.cause, 'METASTATIC_SITE')

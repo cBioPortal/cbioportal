@@ -1987,6 +1987,11 @@ class ClinicalValidator(Validator):
     INVALID_ID_CHARACTERS = r'[^A-Za-z0-9._-]'
     BANNED_ATTRIBUTES = ['MUTATION_COUNT', 'FRACTION_GENOME_ALTERED']
 
+    # For some attributes, a warning instead of error should be reported when they are in the wrong data file.
+    # This was added to successfully validate TCGA Provisional studies, for which it is not worth the effort of
+    # correcting the data considering the gain of function.
+    WARNING_ATTRIBUTES = ['PRIMARY_SITE', 'METASTATIC_SITE', 'TUMOR_TISSUE_SITE']
+
     def __init__(self, *args, **kwargs):
         """Initialize the instance attributes of the data file validator."""
         super(ClinicalValidator, self).__init__(*args, **kwargs)
@@ -2135,12 +2140,21 @@ class ClinicalValidator(Validator):
                     if attr_property == 'is_patient_attribute':
                         expected_level = self.PREDEFINED_ATTRIBUTES[col_name][attr_property]
                         if self.PROP_IS_PATIENT_ATTRIBUTE != expected_level:
-                            self.logger.error(
-                                'Attribute must to be a %s-level attribute',
-                                {'0': 'sample', '1': 'patient'}[expected_level],
-                                extra={'line_number': self.line_number,
-                                       'column_number': col_index + 1,
-                                       'cause': col_name})
+                            if col_name in self.WARNING_ATTRIBUTES:
+                                self.logger.warning(
+                                    'Clinical Data Dictionary defines this as a %s-level attribute. Ignoring '
+                                    'this definition might lead to issues when comparing this data to other studies.',
+                                    {'0': 'sample', '1': 'patient'}[expected_level],
+                                    extra={'line_number': self.line_number,
+                                           'column_number': col_index + 1,
+                                           'cause': col_name})
+                            else:
+                                self.logger.error(
+                                    'This attribute must to be a %s-level attribute.',
+                                    {'0': 'sample', '1': 'patient'}[expected_level],
+                                    extra={'line_number': self.line_number,
+                                           'column_number': col_index + 1,
+                                           'cause': col_name})
                     # check pre-header datatype property:
                     if attr_property == 'datatype':
                         # check pre-header metadata if applicable -- if these were

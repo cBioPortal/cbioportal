@@ -145,11 +145,11 @@
         <filter-class>org.mskcc.cbio.portal.util.SessionServiceFilter</filter-class>
     </filter>
 
-    <!--<filter-mapping>-->
-        <!--<filter-name>SessionServiceFilter</filter-name>-->
-        <!--<url-pattern>/index.do</url-pattern>-->
-        <!--<url-pattern>/cross_cancer.do</url-pattern>-->
-    <!--</filter-mapping>-->
+    <filter-mapping>
+        <filter-name>SessionServiceFilter</filter-name>
+        <url-pattern>/data_download</url-pattern>
+        <url-pattern>/cross_cancer.do</url-pattern>
+    </filter-mapping>
 
     <!-- make sure XssFilter runs last, so that any new parameters added
          (for example in SessionServiceFilter) are also cleaned -->
@@ -239,7 +239,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>query_builder</servlet-name>
-        <url-pattern>/index.do</url-pattern>
+        <url-pattern>/data_download</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -251,14 +251,14 @@
         <url-pattern>/webservice.do</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>cross_cancer_query</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerStudyServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>cross_cancer_query</servlet-name>
-        <url-pattern>/cross_cancer.do</url-pattern>
-    </servlet-mapping>
+    <!--<servlet>-->
+        <!--<servlet-name>cross_cancer_query</servlet-name>-->
+        <!--<servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerStudyServlet</servlet-class>-->
+    <!--</servlet>-->
+    <!--<servlet-mapping>-->
+        <!--<servlet-name>cross_cancer_query</servlet-name>-->
+        <!--<url-pattern>/cross_cancer.do</url-pattern>-->
+    <!--</servlet-mapping>-->
 
     <servlet>
         <servlet-name>portal_meta_data_json</servlet-name>
@@ -278,6 +278,7 @@
 		<url-pattern>/portalMetadata.json</url-pattern>
 	</servlet-mapping>
 
+    <!-- need to keep this for legacy network page -->
     <servlet>
         <servlet-name>network</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.NetworkServlet</servlet-class>
@@ -712,7 +713,10 @@
         <servlet-name>SiteConfiguration</servlet-name>
         <url-pattern>/config_service.json</url-pattern>
     </servlet-mapping>
-    
-    
+
+    <error-page>
+        <error-code>404</error-code>
+        <location>/index.jsp</location>
+    </error-page>
 
 </web-app>

@@ -451,8 +451,15 @@ public class ImportExtendedMutationData{
             }
         }
 
-        DaoMutation.createMutationCountClinicalData(geneticProfile);
-        DaoMutation.calculateMutationCountByKeyword(geneticProfileId);
+        /*
+         * At MSKCC there are some MUTATION_EXTENDED_UNCALLED and FUSION
+         * profiles that shouldn't be included when determining the number of
+         * mutations for a sample
+         */
+        if (geneticProfile.getGeneticAlterationType().equals("MUTATION_EXTENDED")) {
+            DaoMutation.createMutationCountClinicalData(geneticProfile);
+            DaoMutation.calculateMutationCountByKeyword(geneticProfileId);
+        }
 
         if( MySQLbulkLoader.isBulkLoad()) {
             MySQLbulkLoader.flushAll();

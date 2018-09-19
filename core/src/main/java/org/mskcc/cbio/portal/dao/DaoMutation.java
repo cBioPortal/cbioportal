@@ -145,6 +145,7 @@ public final class DaoMutation {
                     "AND mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` " +
                     "AND mutation.`MUTATION_STATUS` <> 'GERMLINE' " +
                     "AND genetic_profile.`GENETIC_PROFILE_ID`=? " +
+                    "AND genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED' " +
                     "GROUP BY genetic_profile.`GENETIC_PROFILE_ID` , `SAMPLE_ID`;");
             pstmt.setInt(1, geneticProfile.getGeneticProfileId());
             Map<Integer, String> mutationCounts = new HashMap<Integer, String>();
@@ -186,6 +187,7 @@ public final class DaoMutation {
                     "GROUP BY g1.`GENETIC_PROFILE_ID` , m1.`ENTREZ_GENE_ID`) AS GENE_COUNT " +
                     "FROM `mutation` AS m2 , `genetic_profile` AS g2 , `mutation_event` " +
                     "WHERE m2.`GENETIC_PROFILE_ID` = g2.`GENETIC_PROFILE_ID` " +
+                    "AND g2.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED' " +
                     "AND m2.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` " +
                     "AND g2.`GENETIC_PROFILE_ID`=? " +
                     "GROUP BY g2.`GENETIC_PROFILE_ID` , mutation_event.`KEYWORD` , m2.`ENTREZ_GENE_ID`;");

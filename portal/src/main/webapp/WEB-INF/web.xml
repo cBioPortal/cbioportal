@@ -121,11 +121,11 @@
         <filter-class>org.mskcc.cbio.portal.util.SessionServiceFilter</filter-class>
     </filter>
 
-    <!--<filter-mapping>-->
-        <!--<filter-name>SessionServiceFilter</filter-name>-->
-        <!--<url-pattern>/index.do</url-pattern>-->
-        <!--<url-pattern>/cross_cancer.do</url-pattern>-->
-    <!--</filter-mapping>-->
+    <filter-mapping>
+        <filter-name>SessionServiceFilter</filter-name>
+        <url-pattern>/data_download</url-pattern>
+        <url-pattern>/cross_cancer.do</url-pattern>
+    </filter-mapping>
 
     <!-- make sure XssFilter runs last, so that any new parameters added
          (for example in SessionServiceFilter) are also cleaned -->
@@ -204,19 +204,19 @@
         <url-pattern>/proxy/*</url-pattern>
     </servlet-mapping>
 
-    <!--<servlet>-->
-        <!--<servlet-name>query_builder</servlet-name>-->
-        <!--<servlet-class>org.mskcc.cbio.portal.servlet.QueryBuilder</servlet-class>-->
-        <!--<init-param>-->
-            <!--<param-name>pathway_commons_url</param-name>-->
-            <!--<param-value>${pathway_commons.url}</param-value>-->
-        <!--</init-param>-->
-        <!--<load-on-startup>1</load-on-startup>-->
-    <!--</servlet>-->
-    <!--<servlet-mapping>-->
-        <!--<servlet-name>query_builder</servlet-name>-->
-        <!--<url-pattern>/index.do</url-pattern>-->
-    <!--</servlet-mapping>-->
+    <servlet>
+        <servlet-name>query_builder</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.QueryBuilder</servlet-class>
+        <init-param>
+            <param-name>pathway_commons_url</param-name>
+            <param-value>${pathway_commons.url}</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>query_builder</servlet-name>
+        <url-pattern>/data_download</url-pattern>
+    </servlet-mapping>
 
     <servlet>
         <servlet-name>webservice</servlet-name>

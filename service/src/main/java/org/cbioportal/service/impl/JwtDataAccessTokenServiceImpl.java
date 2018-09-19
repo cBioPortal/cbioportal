@@ -35,7 +35,6 @@ package org.cbioportal.service.impl;
 import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.InvalidDataAccessTokenException;
 import org.cbioportal.service.util.JwtUtils;
@@ -53,8 +52,13 @@ public class JwtDataAccessTokenServiceImpl implements DataAccessTokenService {
     private Set<String> usersWhoRevoked = new HashSet<>();
 
     @Override
-    public String getDataAccessToken(String username) {
+    public String createDataAccessToken(String username, boolean allowRevocationOfOtherTokens) {
         return jwtUtils.createToken(username);
+    }
+
+    @Override
+    public String getDataAccessToken(String username) {
+        throw new UnsupportedOperationException("this implementation of (pure) JWT Data Access Tokens does not allow retrieval of stored tokens");
     }
 
     @Override

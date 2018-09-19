@@ -452,7 +452,7 @@ public class ImportExtendedMutationData{
         }
 
         /*
-         * At MSKCC there are some MUTATION_EXTENDED_UNCALLED and FUSION
+         * At MSKCC there are some MUTATION_UNCALLED and FUSION
          * profiles that shouldn't be included when determining the number of
          * mutations for a sample
          */

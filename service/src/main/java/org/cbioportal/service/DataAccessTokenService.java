@@ -33,10 +33,10 @@
 package org.cbioportal.service;
 
 import java.util.*;
-import org.cbioportal.model.DataAccessToken;
 
 public interface DataAccessTokenService {
 
+    public String createDataAccessToken(String username, boolean allowRevocationOfOtherTokens);
     public String getDataAccessToken(String username);
     public List<String> getAllDataAccessTokens(String username);
     public void revokeAllDataAccessTokens(String username);
@@ -44,7 +44,11 @@ public interface DataAccessTokenService {
     public Date getExpiration(String token);
 
     /** tests token validity
-     *  token is valid if not yet expired and not revoked and can be verfied as issued through this service via signature
+     *
+     *  token is valid if:
+     *      - not yet expired and
+     *      - not revoked and 
+     *      - can be verfied as issued through this service (maybe via signature)
      */
     public Boolean isValid(String dataAccessToken);
 

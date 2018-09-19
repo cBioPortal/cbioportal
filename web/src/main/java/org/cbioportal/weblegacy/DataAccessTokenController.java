@@ -32,12 +32,13 @@
 
 package org.cbioportal.weblegacy;
 
+import java.net.*;
 import java.util.*;
-import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -68,10 +69,22 @@ public class DataAccessTokenController {
         usersWhoCannotUseTokenSet = new HashSet<>(Arrays.asList(USERS_WHO_CANNOT_USE_TOKENS));
     }
 
+    @RequestMapping(method = RequestMethod.POST, value = "/dataAccessToken")
+    public ResponseEntity<String> createDataAccessToken(Authentication authentication,
+                                    @RequestParam(required = false) Boolean allowRevocationOfOtherTokens) {
+        HttpHeaders responseHeaders = new HttpHeaders();
+        String createdToken = dataAccessTokenService.createDataAccessToken(getAuthenticatedUser(authentication), allowRevocationOfOtherTokens);
+        if (createdToken == null) {
+            return new ResponseEntity<String>("Unable to create a new token.", responseHeaders, HttpStatus.NOT_FOUND);
+        }
+        URI location = constructLocationForDataAccessToken(createdToken);
+        responseHeaders.setLocation(location);
+        String responseBody = "Data Access Token successfully created:\n" + createdToken + "\nadditional information for this resource accessible here:\n" + location.toString() + "\n";
+        return new ResponseEntity<String>(responseBody, responseHeaders, HttpStatus.CREATED);
+    }
+
     @RequestMapping(method = RequestMethod.GET, value = "/dataAccessToken")
     public String getDataAccessToken(Authentication authentication,
-                                    @RequestParam(required = false) Boolean allowNewlyGeneratedToken,
-                                    @RequestParam(required = false) Boolean allowRevocationOfOtherTokens,
                                     @RequestParam(required = false) Long minimumTimeBeforeExpiration) {
         return dataAccessTokenService.getDataAccessToken(getAuthenticatedUser(authentication));
     }
@@ -99,6 +112,19 @@ public class DataAccessTokenController {
             throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "you are not authorized to use data access tokens");
         }
         return username;
+    }
+
+    private URI constructLocationForDataAccessToken(String createdToken) {
+        URI location = null;
+        String urlEncodedString = URLEncoder.encode(createdToken); 
+        try { 
+            location = new URI("/api-legacy/dataAccessToken/" + urlEncodedString);
+        } catch (URISyntaxException e) {
+        }
+        if (location == null) {
+            return null;
+        }
+        return location;
     }
 
 }

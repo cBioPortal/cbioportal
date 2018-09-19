@@ -49,7 +49,6 @@ public class Sample extends UniqueKeyBase {
     private Integer patientId;
     @NotNull
     private String patientStableId;
-    private String typeOfCancerId;
     private Patient patient;
     @NotNull
     private String cancerStudyIdentifier;
@@ -94,14 +93,6 @@ public class Sample extends UniqueKeyBase {
 
     public void setPatientStableId(String patientStableId) {
         this.patientStableId = patientStableId;
-    }
-
-    public String getTypeOfCancerId() {
-        return typeOfCancerId;
-    }
-
-    public void setTypeOfCancerId(String typeOfCancerId) {
-        this.typeOfCancerId = typeOfCancerId;
     }
 
     public Patient getPatient() {

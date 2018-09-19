@@ -18,6 +18,4 @@ public class SampleMixin {
     private Patient patient;
     @JsonProperty("studyId")
     private String cancerStudyIdentifier;
-    @JsonProperty("cancerTypeId")
-    private String typeOfCancerId;
 }

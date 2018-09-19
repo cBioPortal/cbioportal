@@ -133,6 +133,32 @@
               </dependency>
             </dependencies>
           </plugin>
+          <plugin>
+            <groupId>pl.project13.maven</groupId>
+            <artifactId>git-commit-id-plugin</artifactId>
+            <version>2.2.4</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <!-- *NOTE*: The default phase of revision is initialize, but in case you want to change it, you can do so by adding the phase here -->
+                        <phase>initialize</phase>
+                    </execution>
+                    <execution>
+                        <id>validate-the-git-infos</id>
+                        <goals>
+                            <goal>validateRevision</goal>
+                        </goals>
+                        <!-- *NOTE*: The default phase of validateRevision is verify, but in case you want to change it, you can do so by adding the phase here -->
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            <configuration>
+                <generateGitPropertiesFile>true</generateGitPropertiesFile>
+            </configuration>
+          </plugin>
     </plugins>
     </build>
     </profile>
@@ -180,6 +206,22 @@
                 </configuration>
               </execution>
             </executions>
+          </plugin>
+		  <!-- don't generate git.properties on heroku (unf doesn't work, since
+			   .git directory is not accessible during build) -->
+          <plugin>
+            <groupId>pl.project13.maven</groupId>
+            <artifactId>git-commit-id-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+						<phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>validate-the-git-infos</id>
+						<phase>none</phase>
+                    </execution>
+                </executions>
           </plugin>
         </plugins>
       </build>
@@ -439,6 +481,7 @@
         <includes>
           <include>**/portal.properties</include>
           <include>**/maven.properties</include>
+          <include>**/git.properties</include>
         </includes>
       </resource>
       <resource>
@@ -447,6 +490,7 @@
         <excludes>
           <exclude>**/portal.properties</exclude>
           <exclude>**/maven.properties</exclude>
+          <exclude>**/git.properties</exclude>
         </excludes>
       </resource>
     </resources>

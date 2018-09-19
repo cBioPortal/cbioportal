@@ -207,12 +207,17 @@ public class StudyViewController {
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample IDs by study view filter")
     public ResponseEntity<List<Sample>> fetchFilteredSamples(
+        @ApiParam("Whether to negate the study view filters")
+        @RequestParam(defaultValue = "false") Boolean negateFilters,
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody StudyViewFilter studyViewFilter) {
         
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
-        studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(studyViewFilter), studyIds, sampleIds);
+        
+        studyViewFilterUtil.extractStudyAndSampleIds(
+            studyViewFilterApplier.apply(studyViewFilter, negateFilters), studyIds, sampleIds);
+        
         List<Sample> result = new ArrayList<>();
         if (!sampleIds.isEmpty()) {
             result = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name());
@@ -222,7 +227,7 @@ public class StudyViewController {
 
     @RequestMapping(value = "/sample-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch sample IDs by study view filter")
+    @ApiOperation("Fetch sample counts by study view filter")
     public ResponseEntity<MolecularProfileSampleCount> fetchMolecularProfileSampleCounts(
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody StudyViewFilter studyViewFilter) {

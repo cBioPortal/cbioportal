@@ -32,7 +32,8 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
     public Integer apply(List<ClinicalDataIntervalFilter> attributes,
                          MultiKeyMap clinicalDataMap,
                          String entityId,
-                         String studyId)
+                         String studyId,
+                         Boolean negateFilters)
     {
         int count = 0;
 
@@ -57,17 +58,19 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
                         .filter(f -> f.getValue() != null)
                         .map(f -> f.getValue().toUpperCase())
                         .collect(Collectors.toList());
-                    
-                    if ((rangeValue != null && ranges.stream().anyMatch(r -> r.encloses(rangeValue))) ||
-                        specialValues.contains(attrValue.toUpperCase()) ||
-                        isNA(attrValue) && containsNA(filter)) 
-                    {
+
+                    if (rangeValue != null) {
+                        if (negateFilters ^ ranges.stream().anyMatch(r -> r.encloses(rangeValue))) {
+                            count++;
+                        }
+                    } 
+                    else if (negateFilters ^ specialValues.contains(attrValue.toUpperCase())) {
                         count++;
                     }
-                } else if (containsNA(filter)) {
+                } else if (negateFilters ^ containsNA(filter)) {
                     count++;
                 }
-            } else if (containsNA(filter)) {
+            } else if (negateFilters ^ containsNA(filter)) {
                 count++;
             }
         }
@@ -143,12 +146,5 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
     {
         return filter.getValues().stream().anyMatch(
             r -> r.getValue() != null && r.getValue().toUpperCase().equals("NA"));
-    }
-    
-    private Boolean isNA(String attrValue)
-    {
-        String value = attrValue.toUpperCase(); 
-        
-        return value.equals("NA") || value.equals("NAN") || value.equals("N/A"); 
     }
 }

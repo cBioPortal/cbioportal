@@ -154,11 +154,15 @@ public class ImportExtendedMutationData{
                 // can be null in case of 'normal' sample:
                 // (if data files are run through validator, this condition should be minimal)
                 if (sample == null) {
-                    assert StableIdUtil.isNormal(barCode);
-                    //if new sample:
-                    if (sampleSet.add(barCode))
-                        samplesSkipped++;
-                    continue;
+                    if (StableIdUtil.isNormal(barCode)) {
+                        //if new sample:
+                        if (sampleSet.add(barCode))
+                            samplesSkipped++;
+                        continue;
+                    }
+                    else {
+                        throw new RuntimeException("Unknown sample id '" + StableIdUtil.getSampleId(barCode) + "' found in MAF file: " + this.mutationFile.getCanonicalPath());
+                    }
                 }
 
                 String validationStatus = record.getValidationStatus();

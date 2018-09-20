@@ -478,7 +478,7 @@ mutation_event.`END_POSITION`, mutation_event.`REFERENCE_ALLELE`, mutation_event
 FROM `mutation` , `genetic_profile`, `mutation_event` WHERE genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED'
 AND mutation.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID`
 AND mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` AND mutation.`MUTATION_STATUS` <> 'GERMLINE' 
-AND mutation.`MUTATION_TYPE` <> 'Fusion'
+AND mutation_event.`MUTATION_TYPE` <> 'Fusion'
 GROUP BY genetic_profile.`GENETIC_PROFILE_ID` , `SAMPLE_ID`;
 
 -- recalculate fraction genome altered

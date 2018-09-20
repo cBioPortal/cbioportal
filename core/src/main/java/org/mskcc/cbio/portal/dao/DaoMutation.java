@@ -146,7 +146,7 @@ public final class DaoMutation {
                     "WHERE mutation.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID` " +
                     "AND mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` " +
                     "AND mutation.`MUTATION_STATUS` <> 'GERMLINE' " +
-                    "AND mutation.`MUTATION_TYPE` <> 'Fusion' " +
+                    "AND mutation_event.`MUTATION_TYPE` <> 'Fusion' " +
                     "AND genetic_profile.`GENETIC_PROFILE_ID`=? " +
                     "AND genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED' " +
                     "GROUP BY genetic_profile.`GENETIC_PROFILE_ID` , `SAMPLE_ID`;");

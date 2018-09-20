@@ -137,6 +137,8 @@ public final class DaoMutation {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
+            // do not include germline and fusions (msk internal) when counting
+            // mutations
             pstmt = con.prepareStatement(
                     "SELECT `SAMPLE_ID`, COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`, " +
                     "mutation_event.`END_POSITION`, mutation_event.`REFERENCE_ALLELE`, mutation_event.`TUMOR_SEQ_ALLELE`) AS MUTATION_COUNT " +
@@ -144,6 +146,7 @@ public final class DaoMutation {
                     "WHERE mutation.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID` " +
                     "AND mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` " +
                     "AND mutation.`MUTATION_STATUS` <> 'GERMLINE' " +
+                    "AND mutation.`MUTATION_TYPE` <> 'Fusion' " +
                     "AND genetic_profile.`GENETIC_PROFILE_ID`=? " +
                     "AND genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED' " +
                     "GROUP BY genetic_profile.`GENETIC_PROFILE_ID` , `SAMPLE_ID`;");
@@ -187,7 +190,6 @@ public final class DaoMutation {
                     "GROUP BY g1.`GENETIC_PROFILE_ID` , m1.`ENTREZ_GENE_ID`) AS GENE_COUNT " +
                     "FROM `mutation` AS m2 , `genetic_profile` AS g2 , `mutation_event` " +
                     "WHERE m2.`GENETIC_PROFILE_ID` = g2.`GENETIC_PROFILE_ID` " +
-                    "AND g2.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED' " +
                     "AND m2.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` " +
                     "AND g2.`GENETIC_PROFILE_ID`=? " +
                     "GROUP BY g2.`GENETIC_PROFILE_ID` , mutation_event.`KEYWORD` , m2.`ENTREZ_GENE_ID`;");

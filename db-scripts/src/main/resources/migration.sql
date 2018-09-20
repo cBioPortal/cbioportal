@@ -471,12 +471,14 @@ mutation_count.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID` GROUP
 update genetic_profile set GENETIC_ALTERATION_TYPE = 'MUTATION_UNCALLED' where stable_id like '%_uncalled';
 
 -- recalculate mutation counts
+-- exclude germline and fusions (msk internal)
 DELETE FROM `clinical_sample` WHERE clinical_sample.`ATTR_ID` = 'MUTATION_COUNT';
 INSERT INTO `clinical_sample` SELECT `SAMPLE_ID`, 'MUTATION_COUNT', COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`, 
 mutation_event.`END_POSITION`, mutation_event.`REFERENCE_ALLELE`, mutation_event.`TUMOR_SEQ_ALLELE`) AS MUTATION_COUNT 
 FROM `mutation` , `genetic_profile`, `mutation_event` WHERE genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED'
 AND mutation.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID`
 AND mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` AND mutation.`MUTATION_STATUS` <> 'GERMLINE' 
+AND mutation.`MUTATION_TYPE` <> 'Fusion'
 GROUP BY genetic_profile.`GENETIC_PROFILE_ID` , `SAMPLE_ID`;
 
 -- recalculate fraction genome altered

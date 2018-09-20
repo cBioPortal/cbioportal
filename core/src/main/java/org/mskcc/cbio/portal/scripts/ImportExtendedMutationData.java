@@ -458,8 +458,10 @@ public class ImportExtendedMutationData{
          */
         if (geneticProfile.getGeneticAlterationType().equals("MUTATION_EXTENDED")) {
             DaoMutation.createMutationCountClinicalData(geneticProfile);
-            DaoMutation.calculateMutationCountByKeyword(geneticProfileId);
         }
+        // the mutation count by keyword is on a per genetic profile basis so
+        // fine to calculate for any genetic profile
+        DaoMutation.calculateMutationCountByKeyword(geneticProfileId);
 
         if( MySQLbulkLoader.isBulkLoad()) {
             MySQLbulkLoader.flushAll();

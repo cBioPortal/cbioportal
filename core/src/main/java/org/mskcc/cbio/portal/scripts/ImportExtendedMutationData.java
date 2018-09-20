@@ -456,7 +456,7 @@ public class ImportExtendedMutationData{
          * profiles that shouldn't be included when determining the number of
          * mutations for a sample
          */
-        if (geneticProfile.getGeneticAlterationType().equals("MUTATION_EXTENDED")) {
+        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
             DaoMutation.createMutationCountClinicalData(geneticProfile);
         }
         // the mutation count by keyword is on a per genetic profile basis so

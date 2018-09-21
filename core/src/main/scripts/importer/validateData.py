@@ -1985,7 +1985,7 @@ class ClinicalValidator(Validator):
         },
     }
     INVALID_ID_CHARACTERS = r'[^A-Za-z0-9._-]'
-
+    BANNED_ATTRIBUTES = ['MUTATION_COUNT', 'FRACTION_GENOME_ALTERED']
 
     def __init__(self, *args, **kwargs):
         """Initialize the instance attributes of the data file validator."""
@@ -2163,6 +2163,15 @@ class ClinicalValidator(Validator):
                                                         attr_property) + 1,
                                            'column_number': col_index + 1,
                                            'cause': value})
+
+            # Check for banned column names
+            if col_name in self.BANNED_ATTRIBUTES:
+                self.logger.error(
+                    "%s is not allowed in data. MUTATION_COUNT and FRACTION_GENOME_ALTERED are calculated in cBioPortal"
+                    "",
+                    extra={'line_number': self.line_number,
+                           'column_number': col_index + 1,
+                           'cause': col_name})
 
             self.defined_attributes.add(col_name)
         return num_errors

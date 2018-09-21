@@ -1,0 +1,13 @@
+#Patient Identifier	Overall Survival (Months)	Overall Survival Status	Disease Free (Months)	Disease Free Status	Mutation Count
+#Identifier to uniquely specify a patient.	Overall survival in months since initial diagnosis.	Overall patient survival status.	Disease free (months) since initial treatment.	Disease free status since initial treatment.	Mutation Count in the data instead of calculated in cBioPortal
+#STRING	NUMBER	STRING	NUMBER	STRING	NUMBER
+#1	1	1	1	1	1
+PATIENT_ID	OS_MONTHS	OS_STATUS	DFS_MONTHS	DFS_STATUS	MUTATION_COUNT
+TEST-PAT1	272	LIVING	272	Recurred/Progressed	2
+TEST-PAT3	208	LIVING	208	Recurred/Progressed	3
+TEST-PAT4	60	DECEASED	60	Recurred/Progressed	100
+TEST-PAT6	151	LIVING	151	Recurred/Progressed	1702
+TEST-PAT5	290	LIVING	290	Recurred/Progressed	1
+TEST-PAT7	88	LIVING	88	Recurred/Progressed	22
+TEST-PAT9	72	LIVING	72	Recurred/Progressed	42
+TEST-PAT2	161	DECEASED	161	NA	16

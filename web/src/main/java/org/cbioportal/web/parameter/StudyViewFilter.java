@@ -1,6 +1,7 @@
 package org.cbioportal.web.parameter;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
@@ -12,12 +13,28 @@ public class StudyViewFilter {
 	@Size(min = 1)
 	private List<String> studyIds;
     private List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters;
+    private List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters;
 	private List<MutationGeneFilter> mutatedGenes;
 	private List<CopyNumberGeneFilter> cnaGenes;
 
 	@AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
         return sampleIdentifiers != null ^ studyIds != null;
+    }
+
+    @AssertTrue
+    private boolean isEitherValueOrRangePresentInClinicalDataIntervalFilters() {
+        long invalidCount = 0;
+
+        if (clinicalDataIntervalFilters != null) {
+            invalidCount = clinicalDataIntervalFilters.stream()
+                .flatMap(f -> f.getValues().stream())
+                .filter(Objects::nonNull)
+                .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
+                .count();
+        }
+
+        return invalidCount == 0;
     }
 	
 	public List<SampleIdentifier> getSampleIdentifiers() {
@@ -44,7 +61,15 @@ public class StudyViewFilter {
 		this.clinicalDataEqualityFilters = clinicalDataEqualityFilters;
 	}
 
-	public List<MutationGeneFilter> getMutatedGenes() {
+    public List<ClinicalDataIntervalFilter> getClinicalDataIntervalFilters() {
+        return clinicalDataIntervalFilters;
+    }
+
+    public void setClinicalDataIntervalFilters(List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters) {
+        this.clinicalDataIntervalFilters = clinicalDataIntervalFilters;
+    }
+
+    public List<MutationGeneFilter> getMutatedGenes() {
 		return mutatedGenes;
 	}
 

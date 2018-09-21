@@ -3,7 +3,6 @@ package org.cbioportal.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.MutationService;
@@ -331,6 +330,7 @@ public class MutationControllerTest {
 
         MutationMeta mutationMeta = new MutationMeta();
         mutationMeta.setTotalCount(2);
+        mutationMeta.setSampleCount(3);
 
         Mockito.when(mutationService.getMetaMutationsInMolecularProfileBySampleListId(Mockito.anyString(), 
             Mockito.anyString(), Mockito.anyListOf(Integer.class))).thenReturn(mutationMeta);
@@ -339,7 +339,8 @@ public class MutationControllerTest {
             .param("sampleListId", TEST_SAMPLE_LIST_ID)
             .param("projection", "META"))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"))
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.SAMPLE_COUNT, "3"));
     }
 
     @Test
@@ -648,6 +649,7 @@ public class MutationControllerTest {
 
         MutationMeta mutationMeta = new MutationMeta();
         mutationMeta.setTotalCount(2);
+        mutationMeta.setSampleCount(3);
 
         Mockito.when(mutationService.fetchMetaMutationsInMolecularProfile(Mockito.anyString(), 
             Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class))).thenReturn(mutationMeta);
@@ -663,61 +665,8 @@ public class MutationControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mutationFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
-    }
-    
-    @Test
-    public void getMutationCountsInMolecularProfileBySampleListId() throws Exception {
-        
-        List<MutationCount> mutationCountList = createExampleMutationCounts();
-        
-        Mockito.when(mutationService.getMutationCountsInMolecularProfileBySampleListId(Mockito.anyString(), 
-            Mockito.anyString())).thenReturn(mutationCountList);
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/mutation-counts")
-            .param("sampleListId", TEST_SAMPLE_LIST_ID)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId")
-                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutationCount").value(TEST_MUTATION_COUNT_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").
-                value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationCount").value(TEST_MUTATION_COUNT_2));
-    }
-    
-    @Test
-    public void fetchMutationCountsInMolecularProfile() throws Exception {
-
-        List<MutationCount> mutationCountList = createExampleMutationCounts();
-
-        Mockito.when(mutationService.fetchMutationCountsInMolecularProfiles(Mockito.anyListOf(String.class), 
-            Mockito.anyListOf(String.class))).thenReturn(mutationCountList);
-
-        List<String> sampleIds = new ArrayList<>();
-        sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
-        sampleIds.add(TEST_SAMPLE_STABLE_ID_2);
-
-        mockMvc.perform(MockMvcRequestBuilders
-            .post("/molecular-profiles/test_molecular_profile_id/mutation-counts/fetch")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(sampleIds)))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId")
-                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].mutationCount").value(TEST_MUTATION_COUNT_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
-                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationCount").value(TEST_MUTATION_COUNT_2));
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"))
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.SAMPLE_COUNT, "3"));
     }
 
     @Test
@@ -768,23 +717,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosStart").value(TEST_ONCOTATOR_PROTEIN_POS_START_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd").value(TEST_ONCOTATOR_PROTEIN_POS_END_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(TEST_MUTATION_COUNT_2));
-    }
-    
-    private List<MutationCount> createExampleMutationCounts() {
-        
-        List<MutationCount> mutationCountList = new ArrayList<>();
-        MutationCount mutationCount1 = new MutationCount();
-        mutationCount1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_1);
-        mutationCount1.setSampleId(TEST_SAMPLE_STABLE_ID_1);
-        mutationCount1.setMutationCount(TEST_MUTATION_COUNT_1);
-        mutationCountList.add(mutationCount1);
-        MutationCount mutationCount2 = new MutationCount();
-        mutationCount2.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_2);
-        mutationCount2.setSampleId(TEST_SAMPLE_STABLE_ID_2);
-        mutationCount2.setMutationCount(TEST_MUTATION_COUNT_2);
-        mutationCountList.add(mutationCount2);
-        
-        return mutationCountList;
     }
 
     private List<Mutation> createExampleMutations() {

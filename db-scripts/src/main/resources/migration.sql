@@ -458,3 +458,45 @@ UPDATE info SET DB_SCHEMA_VERSION="2.6.0";
 ALTER TABLE `mutation_event` MODIFY COLUMN `KEYWORD` VARCHAR(255);
 ALTER TABLE `mutation_count_by_keyword` MODIFY COLUMN `KEYWORD` VARCHAR(255);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.6.1";
+
+##version: 2.7.0
+DELETE FROM `clinical_attribute_meta` WHERE clinical_attribute_meta.`ATTR_ID` = 'MUTATION_COUNT';
+INSERT INTO `clinical_attribute_meta` SELECT 'MUTATION_COUNT', 'Mutation Count', 'Mutation Count', 'NUMBER', 0, '30', 
+genetic_profile.`CANCER_STUDY_ID` FROM mutation_count INNER JOIN genetic_profile ON 
+mutation_count.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID` GROUP BY genetic_profile.`CANCER_STUDY_ID`;
+
+-- MSK internal change to update all uncalled profiles to have the same
+-- genetic_alteration_type. This avoids including those profiles when
+-- recalculating the mutation counts.
+update genetic_profile set GENETIC_ALTERATION_TYPE = 'MUTATION_UNCALLED' where stable_id like '%_uncalled';
+
+-- recalculate mutation counts
+-- exclude germline and fusions (msk internal)
+DELETE FROM `clinical_sample` WHERE clinical_sample.`ATTR_ID` = 'MUTATION_COUNT';
+INSERT INTO `clinical_sample` SELECT `SAMPLE_ID`, 'MUTATION_COUNT', COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`, 
+mutation_event.`END_POSITION`, mutation_event.`REFERENCE_ALLELE`, mutation_event.`TUMOR_SEQ_ALLELE`) AS MUTATION_COUNT 
+FROM `mutation` , `genetic_profile`, `mutation_event` WHERE genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED'
+AND mutation.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID`
+AND mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` AND mutation.`MUTATION_STATUS` <> 'GERMLINE' 
+AND mutation_event.`MUTATION_TYPE` <> 'Fusion'
+GROUP BY genetic_profile.`GENETIC_PROFILE_ID` , `SAMPLE_ID`;
+
+-- recalculate fraction genome altered
+DELETE FROM `clinical_attribute_meta` WHERE clinical_attribute_meta.`ATTR_ID` = 'FRACTION_GENOME_ALTERED';
+INSERT INTO `clinical_attribute_meta` SELECT 'FRACTION_GENOME_ALTERED', 'Fraction Genome Altered', 
+'Fraction Genome Altered', 'NUMBER', 0, '20', fraction_genome_altered.`CANCER_STUDY_ID` FROM fraction_genome_altered 
+GROUP BY fraction_genome_altered.`CANCER_STUDY_ID`;
+
+DELETE FROM `clinical_sample` WHERE clinical_sample.`ATTR_ID` = 'FRACTION_GENOME_ALTERED';
+INSERT INTO `clinical_sample` SELECT `SAMPLE_ID`, 'FRACTION_GENOME_ALTERED', IF((SELECT SUM(`END`-`START`) 
+FROM copy_number_seg AS c2 WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` 
+AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) IS NULL, 0, (SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2 
+WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` 
+AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) / SUM(`END`-`START`)) AS `VALUE` FROM `copy_number_seg` AS c1 , `cancer_study` 
+WHERE c1.`CANCER_STUDY_ID` = cancer_study.`CANCER_STUDY_ID` GROUP BY cancer_study.`CANCER_STUDY_ID` , `SAMPLE_ID` 
+HAVING SUM(`END`-`START`) > 0;
+
+DROP TABLE IF EXISTS mutation_count;
+DROP TABLE IF EXISTS fraction_genome_altered;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.0";

@@ -541,55 +541,35 @@ window.DataManagerForIviz = (function($, _) {
                 }
               };
 
-              // add Mutation count vs. CNA fraction
-              _hasSampleAttrData.copy_number_alterations = '';
-              _hasSampleAttrData.cna_fraction = '';
-              var _mutCntAttrMeta = {};
-              _mutCntAttrMeta.attr_id = 'MUT_CNT_VS_CNA';
-              _mutCntAttrMeta.datatype = 'SCATTER_PLOT';
-              _mutCntAttrMeta.view_type = 'scatter_plot';
-              _mutCntAttrMeta.layout = [-1, 4];
-              _mutCntAttrMeta.description = '';
-              _mutCntAttrMeta.display_name = 'Mutation Count vs. CNA';
-              _mutCntAttrMeta.filter = [];
-              _mutCntAttrMeta.keys = {};
-              _mutCntAttrMeta.numOfDatum = 0;
-              _mutCntAttrMeta.priority =
-                iViz.priorityManager
-                  .getDefaultPriority('MUT_CNT_VS_CNA', true);
-              _mutCntAttrMeta.show = _mutCntAttrMeta.priority !== 0;
-              _mutCntAttrMeta.addChartBy = 'default';
-              _mutCntAttrMeta.attrList = ['mutation_count', 'cna_fraction'];
-              // This attribute is used for getScatterData()
-              // This should not be added into attribute meta and should be saved into main.js 
-              // (Centralized place storing all data for sharing across directives)
-              // This needs to be updated after merging into virtual study branch
-              _mutCntAttrMeta.sequencedCaseUIdsMap = _sequencedCaseUIdsMap;
-              _mutCntAttrMeta.study_ids = _allStudyIds;
-              _sampleAttributes[_mutCntAttrMeta.attr_id] = _mutCntAttrMeta;
-
-              // add mutation count
-              _hasSampleAttrData.mutation_count = '';
-              var _MutationCountMeta = {};
-              _MutationCountMeta.datatype = 'NUMBER';
-              _MutationCountMeta.description = '';
-              _MutationCountMeta.display_name = 'Mutation Count';
-              _MutationCountMeta.attr_id = 'mutation_count';
-              _MutationCountMeta.view_type = 'bar_chart';
-              _MutationCountMeta.layout = [-1, 2, 'h'];
-              _MutationCountMeta.filter = [];
-              _MutationCountMeta.keys = {};
-              _MutationCountMeta.numOfDatum = 0;
-              _MutationCountMeta.priority =
-                iViz.priorityManager
-                  .getDefaultPriority(_MutationCountMeta.attr_id);
-              _MutationCountMeta.show = _MutationCountMeta.priority !== 0;
-              _MutationCountMeta.addChartBy = 'default';
-              _MutationCountMeta.attrList = [_MutationCountMeta.attr_id];
-              // This attribute is used for getMutationCountData()
-              _MutationCountMeta.sequencedCaseUIdsMap = _sequencedCaseUIdsMap;
-              _MutationCountMeta.study_ids = _allStudyIds;
-              _sampleAttributes[_MutationCountMeta.attr_id] = _MutationCountMeta;
+              var _allSampleSttrs = _.pluck(_sampleAttributes, 'attr_id');
+              if (_.all(['MUTATION_COUNT', 'FRACTION_GENOME_ALTERED'], function(item) {
+                  return _.includes(_allSampleSttrs, item);
+                })) {
+                // add Mutation count vs. CNA fraction
+                var _mutCntAttrMeta = {};
+                _mutCntAttrMeta.attr_id = 'MUT_CNT_VS_CNA';
+                _mutCntAttrMeta.datatype = 'SCATTER_PLOT';
+                _mutCntAttrMeta.view_type = 'scatter_plot';
+                _mutCntAttrMeta.layout = [-1, 4];
+                _mutCntAttrMeta.description = '';
+                _mutCntAttrMeta.display_name = 'Mutation Count vs. CNA';
+                _mutCntAttrMeta.filter = [];
+                _mutCntAttrMeta.keys = {};
+                _mutCntAttrMeta.numOfDatum = 0;
+                _mutCntAttrMeta.priority =
+                  iViz.priorityManager
+                    .getDefaultPriority('MUT_CNT_VS_CNA', true);
+                _mutCntAttrMeta.show = _mutCntAttrMeta.priority !== 0;
+                _mutCntAttrMeta.addChartBy = 'default';
+                _mutCntAttrMeta.attrList = ['MUTATION_COUNT', 'FRACTION_GENOME_ALTERED'];
+                // This attribute is used for getScatterData()
+                // This should not be added into attribute meta and should be saved into main.js 
+                // (Centralized place storing all data for sharing across directives)
+                // This needs to be updated after merging into virtual study branch
+                _mutCntAttrMeta.sequencedCaseUIdsMap = _sequencedCaseUIdsMap;
+                _mutCntAttrMeta.study_ids = _allStudyIds;
+                _sampleAttributes[_mutCntAttrMeta.attr_id] = _mutCntAttrMeta;
+              }
 
               if (_allStudyIds.length > 1) {
                 _result.groups.patient.attr_meta =
@@ -1522,7 +1502,7 @@ window.DataManagerForIviz = (function($, _) {
        * @return {boolean} Whether input attribute passed the criteria.
        */
       isPreSelectedClinicalAttr: function(attr) {
-        var result = attr.match(/(os_survival)|(dfs_survival)|(mut_cnt_vs_cna)|(mutated_genes)|(cna_details)|(^age)|(gender)|(sex)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(sample_type)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(mutation_count)|(copy_number_alterations)|(.*(site|grade|stage).*)/i);
+        var result = attr.match(/(os_survival)|(dfs_survival)|(mut_cnt_vs_cna)|(mutated_genes)|(cna_details)|(^age)|(gender)|(sex)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(sample_type)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(mutation_count)|(fraction_genome_altered)|(.*(site|grade|stage).*)/i);
         return _.isArray(result) && result.length > 0;
       },
 

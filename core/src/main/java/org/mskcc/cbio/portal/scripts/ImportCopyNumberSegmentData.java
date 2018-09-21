@@ -47,6 +47,7 @@ import java.util.*;
  * @author jj
  */
 public class ImportCopyNumberSegmentData extends ConsoleRunnable {
+
     private int entriesSkipped;
     
     private void importData(File file, int cancerStudyId) throws IOException, DaoException {
@@ -139,17 +140,12 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
         
             importCopyNumberSegmentFileMetadata(cancerStudy, properties);
             importCopyNumberSegmentFileData(cancerStudy, dataFile);
-            importFractionGenomeAltered(cancerStudy);
+            DaoCopyNumberSegment.createFractionGenomeAlteredClinicalData(cancerStudy.getInternalId());
         } catch (RuntimeException e) {
             throw e;
         } catch (IOException|DaoException e) {
             throw new RuntimeException(e);
         }
-    }
-    
-    private void importFractionGenomeAltered(CancerStudy cancerStudy) throws DaoException {
-
-        DaoCopyNumberSegment.calculateFractionGenomeAltered(cancerStudy.getInternalId());
     }
 
     private static CancerStudy getCancerStudy(Properties properties) throws DaoException {

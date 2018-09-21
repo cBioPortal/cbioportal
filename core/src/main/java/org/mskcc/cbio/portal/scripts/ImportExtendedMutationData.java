@@ -435,41 +435,49 @@ public class ImportExtendedMutationData{
             }
         }
 
-                for (MutationEvent event : newEvents) {
-                    try {
-                        DaoMutation.addMutationEvent(event);
-                    } catch (DaoException ex) {
-                        throw ex;
-                    }
-                }
+        for (MutationEvent event : newEvents) {
+            try {
+                DaoMutation.addMutationEvent(event);
+            } catch (DaoException ex) {
+                throw ex;
+            }
+        }
 
-                for (ExtendedMutation mutation : mutations.values()) {
-                    try {
-                        DaoMutation.addMutation(mutation,false);
-                    } catch (DaoException ex) {
-                        throw ex;
-                    }
-                }
+        for (ExtendedMutation mutation : mutations.values()) {
+            try {
+                DaoMutation.addMutation(mutation,false);
+            } catch (DaoException ex) {
+                throw ex;
+            }
+        }
+
+        /*
+         * At MSKCC there are some MUTATION_UNCALLED and FUSION
+         * profiles that shouldn't be included when determining the number of
+         * mutations for a sample
+         */
+        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+            DaoMutation.createMutationCountClinicalData(geneticProfile);
+        }
+        // the mutation count by keyword is on a per genetic profile basis so
+        // fine to calculate for any genetic profile
+        DaoMutation.calculateMutationCountByKeyword(geneticProfileId);
 
         if( MySQLbulkLoader.isBulkLoad()) {
             MySQLbulkLoader.flushAll();
         }
 
-                // calculate mutation count for every sample
-                DaoMutation.calculateMutationCount(geneticProfileId);
-                DaoMutation.calculateMutationCountByKeyword(geneticProfileId);
+        if (entriesSkipped > 0) {
+            ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped (see table below):  " + entriesSkipped);
+        }
+        ProgressMonitor.setCurrentMessage(" --> total number of samples: " + sampleSet.size());
+        if (samplesSkipped > 0) {
+            ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + samplesSkipped);
+        }
+        ProgressMonitor.setCurrentMessage(" --> total number of genes for which one or more mutation events were stored:  " + geneSet.size());
 
-                if (entriesSkipped > 0) {
-                    ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped (see table below):  " + entriesSkipped);
-                }
-                ProgressMonitor.setCurrentMessage(" --> total number of samples: " + sampleSet.size());
-                if (samplesSkipped > 0) {
-                    ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + samplesSkipped);
-                }
-                ProgressMonitor.setCurrentMessage(" --> total number of genes for which one or more mutation events were stored:  " + geneSet.size());
-
-                ProgressMonitor.setCurrentMessage("Filtering table:\n-----------------");
-                ProgressMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
+        ProgressMonitor.setCurrentMessage("Filtering table:\n-----------------");
+        ProgressMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
     }
 
     /**

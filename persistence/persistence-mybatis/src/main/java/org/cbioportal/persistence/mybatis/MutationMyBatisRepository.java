@@ -1,7 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.Mutation;
-import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.meta.MutationMeta;
@@ -97,20 +96,6 @@ public class MutationMyBatisRepository implements MutationRepository {
 
         return mutationMapper.getPatientCountByEntrezGeneIdsAndSampleIds(molecularProfileId, patientIds, entrezGeneIds,
             null);
-    }
-
-    @Override
-    public List<MutationCount> getMutationCountsInMolecularProfileBySampleListId(String molecularProfileId,
-                                                                                 String sampleListId) {
-
-        return mutationMapper.getMutationCountsBySampleListId(molecularProfileId, sampleListId);
-    }
-
-    @Override
-    public List<MutationCount> fetchMutationCountsInMolecularProfiles(List<String> molecularProfileIds, 
-                                                                     List<String> sampleIds) {
-
-        return mutationMapper.getMutationCountsBySampleIds(molecularProfileIds, sampleIds);
     }
 
     @Override

@@ -79,7 +79,7 @@
     <sql id="whereInMultipleMolecularProfiles">
         <where>
             (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
-            <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+            <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
                 (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
             </foreach>
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">

@@ -32,12 +32,9 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.servlet.QueryBuilder;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -308,8 +305,48 @@ public class GlobalProperties {
     public void setFrontendUrlRuntime(String property) { frontendUrlRuntime = property; }
 
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
-    private static Properties portalProperties = initializeProperties(PORTAL_PROPERTIES_FILE_NAME);
+    private static ConfigPropertyResolver portalProperties = new ConfigPropertyResolver();
     private static Properties mavenProperties = initializeProperties(MAVEN_PROPERTIES_FILE_NAME);
+
+    /**
+     * Minimal portal property resolver that takes system property overrides.
+     *
+     * Provides properties from runtime or the baked-in
+     * portal.properties config file, but takes overrides from <code>-D</code>
+     * system properties.
+     */
+    private static class ConfigPropertyResolver {
+        private Properties configFileProperties;
+        /**
+         * Finds the config file for properties not overridden by system props.
+         *
+         * Either the runtime or buildtime portal.properties file.
+         */
+        public ConfigPropertyResolver() {
+            configFileProperties = initializeProperties(PORTAL_PROPERTIES_FILE_NAME);
+        }
+        /**
+         * Finds the property with the specified key, or returns the default.
+         */
+        public String getProperty(String key, String defaultValue) {
+            String propertyValue = configFileProperties.getProperty(key, defaultValue);
+            return System.getProperty(key, propertyValue);
+        }
+        /**
+         * Finds the property with the specified key, or returns null.
+         */
+        public String getProperty(String key) {
+            return getProperty(key, null);
+        }
+        /**
+        * Tests if a property has been specified for this key.
+        *
+        * @return true iff the property was specified, even if blank.
+        */
+        public boolean containsKey(String key) {
+            return getProperty(key) != null;
+        }
+    }
 
     private static Properties initializeProperties(String propertiesFileName)
     {

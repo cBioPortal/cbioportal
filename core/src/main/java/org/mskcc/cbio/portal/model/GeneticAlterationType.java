@@ -36,6 +36,9 @@ package org.mskcc.cbio.portal.model;
 // don't forget to change the other one too
 public enum GeneticAlterationType {
     MUTATION_EXTENDED,
+    // uncalled mutations (mskcc internal) for showing read counts even if
+    // mutation wasn't called
+    MUTATION_UNCALLED,
     FUSION,
     STRUCTURAL_VARIANT,
     COPY_NUMBER_ALTERATION,

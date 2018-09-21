@@ -154,11 +154,15 @@ public class ImportExtendedMutationData{
                 // can be null in case of 'normal' sample:
                 // (if data files are run through validator, this condition should be minimal)
                 if (sample == null) {
-                    assert StableIdUtil.isNormal(barCode);
-                    //if new sample:
-                    if (sampleSet.add(barCode))
-                        samplesSkipped++;
-                    continue;
+                    if (StableIdUtil.isNormal(barCode)) {
+                        //if new sample:
+                        if (sampleSet.add(barCode))
+                            samplesSkipped++;
+                        continue;
+                    }
+                    else {
+                        throw new RuntimeException("Unknown sample id '" + StableIdUtil.getSampleId(barCode) + "' found in MAF file: " + this.mutationFile.getCanonicalPath());
+                    }
                 }
 
                 String validationStatus = record.getValidationStatus();
@@ -447,7 +451,16 @@ public class ImportExtendedMutationData{
             }
         }
 
-        DaoMutation.createMutationCountClinicalData(geneticProfile);
+        /*
+         * At MSKCC there are some MUTATION_UNCALLED and FUSION
+         * profiles that shouldn't be included when determining the number of
+         * mutations for a sample
+         */
+        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+            DaoMutation.createMutationCountClinicalData(geneticProfile);
+        }
+        // the mutation count by keyword is on a per genetic profile basis so
+        // fine to calculate for any genetic profile
         DaoMutation.calculateMutationCountByKeyword(geneticProfileId);
 
         if( MySQLbulkLoader.isBulkLoad()) {

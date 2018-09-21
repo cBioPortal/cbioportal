@@ -137,6 +137,8 @@ public final class DaoMutation {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
+            // do not include germline and fusions (msk internal) when counting
+            // mutations
             pstmt = con.prepareStatement(
                     "SELECT `SAMPLE_ID`, COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`, " +
                     "mutation_event.`END_POSITION`, mutation_event.`REFERENCE_ALLELE`, mutation_event.`TUMOR_SEQ_ALLELE`) AS MUTATION_COUNT " +
@@ -144,7 +146,9 @@ public final class DaoMutation {
                     "WHERE mutation.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID` " +
                     "AND mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` " +
                     "AND mutation.`MUTATION_STATUS` <> 'GERMLINE' " +
+                    "AND mutation_event.`MUTATION_TYPE` <> 'Fusion' " +
                     "AND genetic_profile.`GENETIC_PROFILE_ID`=? " +
+                    "AND genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED' " +
                     "GROUP BY genetic_profile.`GENETIC_PROFILE_ID` , `SAMPLE_ID`;");
             pstmt.setInt(1, geneticProfile.getGeneticProfileId());
             Map<Integer, String> mutationCounts = new HashMap<Integer, String>();

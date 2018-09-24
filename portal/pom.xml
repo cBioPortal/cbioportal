@@ -131,7 +131,8 @@
             <resource>
               <directory>${project.parent.basedir}/business/src/main/resources</directory>
               <targetPath>WEB-INF/classes</targetPath>
-              <filtering>true</filtering>
+              <!-- do not hard-set portal.properties config at build-time -->
+              <filtering>false</filtering>
             </resource>
             <resource>
               <directory>${project.parent.basedir}/web/src/main/resources</directory>

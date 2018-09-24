@@ -54,7 +54,6 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.PrematureJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
@@ -77,14 +76,7 @@ public class JwtUtils {
     @Value("${jwt.ttl_seconds}")
     private int jwtTtlSeconds;
 
-    @Value("${jwt.issuer}")
-    private String jwtIssuer;
-
     public String createToken(String subject) {
-        return createToken(subject, null);
-    }
-
-    public String createToken(String subject, Date notValidBefore) {
         if (subject == null || subject.trim().length() == 0) {
             throw new IllegalArgumentException("subject cannot be empty");
         }
@@ -92,47 +84,43 @@ public class JwtUtils {
         Date creationDate = calendar.getTime();
         calendar.add(Calendar.SECOND, jwtTtlSeconds);
         Date expirationDate = calendar.getTime();
-        Date notBeforeDate = notValidBefore == null ? creationDate : notValidBefore;
         String jws = Jwts.builder()
-            .setIssuer(jwtIssuer)
             .setSubject(subject)
             .setIssuedAt(creationDate)
             .setExpiration(expirationDate)
-            .setNotBefore(notBeforeDate)
             .signWith(SignatureAlgorithm.HS256, decodedSecretKey).compact();
         return jws;
     }
 
     public void validate(String token) throws InvalidDataAccessTokenException {
-        Map<String, Object> properties = extractProperties(token);
+        Map<String, Object> properties = extractClaims(token);
     }
 
     public String extractSubject(String token) throws InvalidDataAccessTokenException {
-        Map<String, Object> properties = extractProperties(token);
-        return properties.get(Claims.SUBJECT).toString();
+        Claims claims = extractClaims(token);
+        return claims.getSubject();
     }
 
     public Date extractExpirationDate(String token) throws InvalidDataAccessTokenException {
-        Map<String, Object> properties = extractProperties(token);
-        return (Date) properties.get(Claims.EXPIRATION);
+        Claims claims = extractClaims(token);
+        return claims.getExpiration();
     }
 
     public Map<String, Object> extractProperties(String token) throws InvalidDataAccessTokenException {
+        return extractClaims(token);
+    }
+
+    public Claims extractClaims(String token) throws InvalidDataAccessTokenException {
         Claims claims = null;
         try {
             Jws<Claims> jwsClaims = Jwts.parser()
                 .setSigningKey(decodedSecretKey)
                 .parseClaimsJws(token);
             claims = jwsClaims.getBody();
-            if (!claims.getIssuer().equals(jwtIssuer)) {
-                throw new InvalidDataAccessTokenException("unexpected token issuer: " + claims.getIssuer());
-            }
         } catch (SignatureException e) {
             throw new InvalidDataAccessTokenException("signature not valid");
         } catch (ExpiredJwtException e) {
             throw new InvalidDataAccessTokenException("token has expired");
-        } catch (PrematureJwtException e) {
-            throw new InvalidDataAccessTokenException("token has not yet become valid");
         }
         return claims;
     }

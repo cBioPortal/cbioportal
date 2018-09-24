@@ -164,8 +164,9 @@ public class MutationServiceImpl implements MutationService {
 
         MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
 
-        if (!molecularProfile.getMolecularAlterationType()
-            .equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED)) {
+        if (!(molecularProfile.getMolecularAlterationType()
+            .equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED) || molecularProfile.getMolecularAlterationType()
+            .equals(MolecularProfile.MolecularAlterationType.MUTATION_UNCALLED))) {
 
             throw new MolecularProfileNotFoundException(molecularProfileId);
         }

@@ -32,43 +32,28 @@
 
 package org.cbioportal.security.spring.authentication.token;
 
-import static com.google.common.net.HttpHeaders.AUTHORIZATION;
-
-import java.io.IOException;
-import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.ServletException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.util.JwtUtils;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Matchers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.stereotype.Component; // TODO is this the correct one to use?
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.util.StringUtils;
 
 @TestPropertySource(
     properties = { "jwt.secret.key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
-                    "jwt.ttl_seconds = 1",
+                    "jwt.ttl_seconds = 2",
                     "jwt.issuer = org.cbioportal.mskcc.org"
     },
     inheritLocations = false
@@ -89,28 +74,50 @@ public class TokenAuthenticationFilterTest {
     @Autowired
     private TokenAuthenticationFilter tokenAuthenticationFilter;
 
-    private static final String TEST_SUBJECT = "testSubject";
     private static final long TEST_TOKEN_EXPIRATION_MILLISECONDS = 2000L;
+
+    private static final Log log = LogFactory.getLog(TokenAuthenticationFilterTest.class);
 
     // TODO: test requiresValidation() function maybe
 
     @Test
-    public void testAttemptAuthentication() {
-        String token = jwtUtils.createToken(TEST_SUBJECT);
+    public void testAttemptAuthentication_success() {
+        String token = jwtUtils.createToken(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT);
+        log.debug("testAttemptAuthentication_success() token = " + token);
         Mockito.reset(request);
         Mockito.when(request.getHeader(Matchers.anyString())).thenReturn("Bearer " + token);
         // response object is autowired above
-        Authentication authentication = tokenAuthenticationFilter.attemptAuthentication(request, response); 
-        String principal = (String)authentication.getPrincipal();
-        //TODO : maybe we need a PortalUserDetails Object instead (that is the type we normally work with)
-        if (principal == null || !principal.equalsIgnoreCase(TEST_SUBJECT)) {
-            Assert.fail("principal returned by authentication filter (" + principal + ") does not match token user : (" + TEST_SUBJECT +")");
+        Authentication authentication = tokenAuthenticationFilter.attemptAuthentication(request, response);
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        // userDetails is mocked and hard coded to return TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT
+        // but we will only get TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT if the token is valid and
+        // the authority provider (not mocked) successfully authenticated
+        // if the token is invalid or the authentication provider fails then exceptions are thrown
+        if (userDetails == null || userDetails.getUsername() == null || !userDetails.getUsername().equalsIgnoreCase(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT)) {
+            Assert.fail("principal username returned by authentication filter (" + userDetails == null ? "null" : userDetails.getUsername() + ") does not match token user : (" + TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT +")");
         }
-        // TODO : check cases for null token, expired token
         Mockito.reset(request);
     }
 
-             
+    @Test(expected = BadCredentialsException.class)
+    public void testAttemptAuthentication_nullToken() {
+        Mockito.reset(request);
+        Mockito.when(request.getHeader(Matchers.anyString())).thenReturn(null);
+        // response object is autowired above
+        tokenAuthenticationFilter.attemptAuthentication(request, response);
+        // make sure we call Mockito.reset(request) in other methods
+    }
 
+    @Test(expected = BadCredentialsException.class)
+    public void testAttemptAuthentication_expiredToken() throws InterruptedException {
+        String token = jwtUtils.createToken(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT);
+        log.debug("testAttemptAuthentication_expiredToken() token = " + token);
+        Mockito.reset(request);
+        Mockito.when(request.getHeader(Matchers.anyString())).thenReturn("Bearer " + token);
+        Thread.sleep(TEST_TOKEN_EXPIRATION_MILLISECONDS + 10L); // NOTE: sleep time must be adequate to allow created token to expire
+        // response object is autowired above
+        tokenAuthenticationFilter.attemptAuthentication(request, response);
+        // make sure we call Mockito.reset(request) in other methods
+    }
 
 }

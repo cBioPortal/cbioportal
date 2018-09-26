@@ -48,49 +48,39 @@
 
 package org.cbioportal.security.spring.authentication.token;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.PrematureJwtException;
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
 import java.util.*;
-import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.logging.*;
+import org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService;
 import org.cbioportal.service.DataAccessTokenService;
-import org.cbioportal.service.exception.InvalidDataAccessTokenException;
 import org.cbioportal.service.impl.JwtDataAccessTokenServiceImpl;
 import org.cbioportal.service.util.JwtUtils;
-import org.junit.Assert;
-import org.junit.runner.RunWith;
-import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.TestingAuthenticationProvider;
-import org.springframework.stereotype.Component;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Configuration
 public class TokenAuthenticationFilterTestConfiguration {
 
+    public static final String TEST_SUBJECT = "testSubject";
+
     @Bean ProviderManager authenticationManager() {
-        //return new ProviderManager(new List<AuthenticationProvider>());
         List<AuthenticationProvider> authenticationProviderList = new ArrayList<AuthenticationProvider>();
-        authenticationProviderList.add(new TestingAuthenticationProvider());  
+        PortalUserDetailsService userDetailsService = Mockito.mock(PortalUserDetailsService.class);
+        UserDetails userDetails = Mockito.mock(UserDetails.class);
+        // See: https://github.com/spring-projects/spring-security/blob/master/core/src/main/java/org/springframework/security/authentication/dao/AbstractUserDetailsAuthenticationProvider.java#L350
+        Mockito.when(userDetails.isAccountNonLocked()).thenReturn(true);
+        Mockito.when(userDetails.isEnabled()).thenReturn(true);
+        Mockito.when(userDetails.isAccountNonExpired()).thenReturn(true);
+        Mockito.when(userDetails.isCredentialsNonExpired()).thenReturn(true);
+        Mockito.when(userDetails.getUsername()).thenReturn(TEST_SUBJECT);
+        Mockito.when(userDetailsService.loadUserByUsername(Matchers.anyString())).thenReturn(userDetails);
+        TokenUserDetailsAuthenticationProvider authenticationProvider = new TokenUserDetailsAuthenticationProvider(userDetailsService);
+        authenticationProviderList.add(authenticationProvider);
         return new ProviderManager(authenticationProviderList);
     }
 
@@ -114,10 +104,10 @@ public class TokenAuthenticationFilterTestConfiguration {
     @Bean
     public HttpServletRequest httpServletRequest() {
         return Mockito.mock(HttpServletRequest.class);
-    } 
+    }
 
     @Bean
     public HttpServletResponse httpServletResponse() {
         return Mockito.mock(HttpServletResponse.class);
-    } 
+    }
 }

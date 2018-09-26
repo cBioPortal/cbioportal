@@ -76,6 +76,8 @@ public class JwtUtils {
     @Value("${jwt.ttl_seconds}")
     private int jwtTtlSeconds;
 
+    private static final Log log = LogFactory.getLog(JwtUtils.class);
+
     public String createToken(String subject) {
         if (subject == null || subject.trim().length() == 0) {
             throw new IllegalArgumentException("subject cannot be empty");
@@ -118,8 +120,10 @@ public class JwtUtils {
                 .parseClaimsJws(token);
             claims = jwsClaims.getBody();
         } catch (SignatureException e) {
+            log.error(e);
             throw new InvalidDataAccessTokenException("signature not valid");
         } catch (ExpiredJwtException e) {
+            log.error(e);
             throw new InvalidDataAccessTokenException("token has expired");
         }
         return claims;

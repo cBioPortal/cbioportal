@@ -98,6 +98,7 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
 
         if (token == null || !tokenService.isValid(token)) {
             // TODO should this be a custom subclass of AuthenticationException?
+            log.error("invalid token = " + token);
             throw new BadCredentialsException("Invalid token");
         }
 

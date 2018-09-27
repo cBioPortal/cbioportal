@@ -81,6 +81,7 @@
             <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
                 #{item}
             </foreach>
+            AND sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
         )
     </select>
 

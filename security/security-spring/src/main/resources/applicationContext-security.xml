@@ -67,7 +67,10 @@
         <b:property name="authenticationSuccessHandler" ref="tokenSuccessRedirectHandler"/>
     </b:bean>
 
-    <b:bean id="tokenService" class="org.cbioportal.service.impl.JwtDataAccessTokenServiceImpl"/>
+    <!-- Choose one of the following DataAccessToken service implementations
+        UUID implementation requires a backend database/token store but allows for greater control over tokens -->
+    <!-- <b:bean id="tokenService" class="org.cbioportal.service.impl.JwtDataAccessTokenServiceImpl"/> -->
+    <b:bean id="tokenService" class="org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl"/>
 
     <!-- WARNING: if you define another authentication-manager AFTER this one, this one
         will be overridden, even if you use <http ... pattern="/api/**" ... authentication-manager-ref="tokenAuthenticationManager">

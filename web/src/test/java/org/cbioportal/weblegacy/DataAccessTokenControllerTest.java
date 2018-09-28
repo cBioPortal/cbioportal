@@ -35,20 +35,44 @@ package org.cbioportal.weblegacy;
 import java.net.*;
 import java.util.*;
 import org.cbioportal.service.DataAccessTokenService;
+import org.cbioportal.web.config.CustomObjectMapper;
+import org.hamcrest.Matchers;
+import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.context.WebApplicationContext;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration
+@ContextConfiguration(classes = {DataAccessTokenControllerTestConfig.class, CustomObjectMapper.class})
 public class DataAccessTokenControllerTest {
+
+    @Test
+    public void createTokenValidUserTest() {
+        
+    }
     // TODO Test: create a token via POST to dataAccessToken - when a user has a valid session and they not forbidden
     // TODO Test: create a token via POST to dataAccessToken - when a user has no valid session [expect fail]
     // TODO Test: create a token via POST to dataAccessToken - when a user has a valid session and they are forbidded [fail]

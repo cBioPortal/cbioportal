@@ -74,7 +74,8 @@ public class ImportProfileData extends ConsoleRunnable {
                     "\n --> profile name:  " + geneticProfile.getProfileName() +
                     "\n --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType().name());
             ProgressMonitor.setMaxValue(numLines);
-            if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
+            if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED || 
+                geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_UNCALLED) {
                 ImportExtendedMutationData importer = new ImportExtendedMutationData(dataFile, geneticProfile.getGeneticProfileId(), genePanel, filteredMutations);
                 String swissprotIdType = geneticProfile.getOtherMetaDataField("swissprot_identifier");
                 if (swissprotIdType != null && swissprotIdType.equals("accession")) {

@@ -69,12 +69,12 @@ import org.springframework.stereotype.Component;
 public class JwtUtils {
 
     private byte[] decodedSecretKey;
-    @Value("${jwt.secret.key}")
+    @Value("${jwt.secret_key}")
     private void setDecodedSecretKey(String secretKey) {
         decodedSecretKey = Decoders.BASE64.decode(secretKey);
     }
 
-    @Value("${jwt.ttl_seconds}")
+    @Value("${dat.ttl_seconds}")
     private int jwtTtlSeconds;
 
     private static final Log log = LogFactory.getLog(JwtUtils.class);
@@ -94,7 +94,7 @@ public class JwtUtils {
             .signWith(SignatureAlgorithm.HS256, decodedSecretKey).compact();
         return new DataAccessToken(jws);
     }
-
+    
     public void validate(String token) throws InvalidDataAccessTokenException {
         Map<String, Object> properties = extractClaims(token);
     }

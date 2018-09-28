@@ -35,8 +35,13 @@ package org.cbioportal.weblegacy;
 import io.swagger.annotations.ApiParam;
 import java.net.*;
 import java.util.*;
-import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.model.DataAccessToken;
+import org.cbioportal.service.DataAccessTokenService;
+import org.cbioportal.service.exception.MaxNumberTokensExceededException;
+import org.cbioportal.service.exception.TokenNotFoundException;
+import org.cbioportal.web.error.ErrorResponse;
+import org.cbioportal.weblegacy.exception.DataAccessTokenNoUserIdentityException;
+import org.cbioportal.weblegacy.exception.DataAccessTokenProhibitedUserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,20 +50,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.TestSecurityContextHolder;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.test.context.TestSecurityContextHolder;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.cbioportal.web.error.ErrorResponse;
-import org.cbioportal.weblegacy.exception.DataAccessTokenNoUserIdentityException;
-import org.cbioportal.weblegacy.exception.DataAccessTokenProhibitedUserException;
 
 @RestController
 public class DataAccessTokenController {
@@ -148,6 +151,12 @@ public class DataAccessTokenController {
         return location;
     }
 
+    @ExceptionHandler(TokenNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleTokenNotFoundException() {
+        ErrorResponse response = new ErrorResponse("Specified token can not be found");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(DataAccessTokenNoUserIdentityException.class)
     public ResponseEntity<ErrorResponse> handleDataAccessTokenNoUserIdentityException() {
         ErrorResponse response = new ErrorResponse("No authenticated identity found while processing request");
@@ -166,4 +175,9 @@ public class DataAccessTokenController {
         return new ResponseEntity<>(response, HttpStatus.NOT_IMPLEMENTED);
     }
 
+    @ExceptionHandler(MaxNumberTokensExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxNumberTokensExceedeException() {
+        ErrorResponse response = new ErrorResponse("User has reached maximum number of tokens. Tokens must be expire or be revoked before requesting a new one");
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
 }

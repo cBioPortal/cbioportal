@@ -72,6 +72,7 @@ public class DataAccessTokenControllerTest {
     public static final String NON_API_TEST_SUBJECT = "anonymousUser";
     public static final String MOCK_TOKEN_STRING = "MockedTokenString";
     public static final DataAccessToken MOCK_TOKEN_INFO = new DataAccessToken(MOCK_TOKEN_STRING);
+    
     @Before
     public void setup() {
         Mockito.reset(tokenService);

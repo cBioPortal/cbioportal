@@ -793,9 +793,19 @@ CREATE TABLE `reference_genome_gene` (
 );
 
 -- --------------------------------------------------------
+CREATE TABLE `data_access_tokens` (
+    `TOKEN` varchar(50) NOT NULL,
+    `USERNAME` varchar(255) NOT NULL,
+    `EXPIRATION` datetime NOT NULL,
+    `CREATION` datetime NOT NULL,
+    PRIMARY KEY (`TOKEN`),
+    FOREIGN KEY (`USERNAME`) REFERENCES `users` (`EMAIL`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
 CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24),
   `GENESET_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.7.0', NULL);
+INSERT INTO info VALUES ('2.7.3', NULL);

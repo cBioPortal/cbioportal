@@ -117,8 +117,9 @@ ldap.attributes.given_name=givenName
 ldap.attributes.email=mail
 
 # data access token settings
-jwt.secret.key=
-jwt.ttl_seconds=
+dat.max_number_per_user=
+dat.ttl_seconds=
+jwt.secret_key=
 jwt.issuer=
 
 # study view settings

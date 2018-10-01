@@ -53,7 +53,6 @@ IMPORT_STUDY_DATA = "import-study-data"
 IMPORT_CASE_LIST = "import-case-list"
 
 COMMANDS = [IMPORT_CANCER_TYPE, IMPORT_STUDY, REMOVE_STUDY, IMPORT_STUDY_DATA, IMPORT_CASE_LIST]
-PORTAL_HOME = "PORTAL_HOME"
 
 # ------------------------------------------------------------------------------
 # sub-routines
@@ -164,7 +163,13 @@ def check_version(jvm_args):
     try:
         run_java(*args)
     except:
-        print('Error, probably due to this version of the portal being out of sync with the database. Run the database migration script located at PORTAL_HOME/core/src/main/scripts/migrate_db.py before continuing.', file=OUTPUT_FILE)
+        print(
+            'Error, probably due to this version of the portal '
+            'being out of sync with the database. '
+            'Run the database migration script located at '
+            'CBIOPORTAL_SRC/core/src/main/scripts/migrate_db.py '
+            'before continuing.',
+            file=OUTPUT_FILE)
         raise
 
 def process_case_lists(jvm_args, case_list_dir):
@@ -394,8 +399,25 @@ def interface():
     return parser
 
 
-def main(args):
+def locate_jar():
+    """Locate the scripts jar file relative to this script.
 
+    Throws a FileNotFoundError with a message if the jar file couldn't be
+    identified.
+    """
+    # get the directory name of the currently running script,
+    # resolving any symlinks
+    script_dir = Path(__file__).resolve().parent
+    # go up from cbioportal/core/src/main/scripts/importer/ to cbioportal/
+    src_root = script_dir.parent.parent.parent.parent.parent
+    jars = list((src_root / 'scripts' / 'target').glob('scripts-*.jar'))
+    if len(jars) != 1:
+        raise FileNotFoundError(
+            'Expected to find 1 scripts-*.jar, but found ' + str(len(jars)))
+    return str(jars[0])
+
+
+def main(args):
     global LOGGER
 
     # get the logger with a handler to print logged error messages to stderr
@@ -407,22 +429,15 @@ def main(args):
     module_logger.addHandler(error_handler)
     LOGGER = module_logger
 
-    # jar_path is optional. If not set, try to make it up based on PORTAL_HOME
+    # jar_path is optional. If not set, try to find it relative to this script
     if args.jar_path is None:
-        portal_home = os.environ.get('PORTAL_HOME', None)
-        if portal_home is None:
-            # PORTAL_HOME also not set...quit trying with error:
-            print('Error: either --jar_path needs to be given or environment variable PORTAL_HOME needs to be set')
+        try:
+            args.jar_path = locate_jar()
+        except FileNotFoundError as e:
+            print(e)
             sys.exit(2)
-        else:
-            #find jar files in lib folder and add them to classpath:
-            import glob
-            jars = glob.glob(portal_home + "/scripts/target/scripts-*.jar")
-            if len(jars) != 1:
-                print('Expected to find 1 scripts-*.jar, but found: ' + str(len(jars)))
-                sys.exit(2)
-            args.jar_path = jars[0]
-            print('Data loading step using: {}\n'.format(args.jar_path))
+        print('Data loading step using', args.jar_path)
+        print()
 
     # process the options
     jvm_args = "-Dspring.profiles.active=dbcp -cp " + args.jar_path

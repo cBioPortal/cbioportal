@@ -469,6 +469,23 @@ public final class DaoClinicalData {
         return "'" + StringUtils.join(ids, "','") + "'";
     }
 
+    public static void deleteRecords(String attrId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoClinicalData.class);
+            pstmt = con.prepareStatement("DELETE FROM clinical_sample where ATTR_ID = ?");
+            pstmt.setString(1, attrId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
+        }
+        reCache();
+    }
+
     public static void deleteAllRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

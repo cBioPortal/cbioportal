@@ -88,10 +88,11 @@ public class DataBinHelper
 
         // Find a generous IQR. This is generous because if (values.length / 4) 
         // is not an int, then really you should average the two elements on either 
-        // side to find q1.
-        Double q1 = sortedValues.get((int) Math.floor(sortedValues.size() / 4.0));
-        // Likewise for q3. 
-        Double q3 = sortedValues.get((int) Math.floor(sortedValues.size() * (3.0 / 4.0)));
+        // side to find q1 and q3.
+        Range<Double> interquartileRange = calcInterquartileRange(sortedValues);
+
+        Double q1 = interquartileRange.lowerEndpoint();
+        Double q3 = interquartileRange.upperEndpoint();
         Double iqr = q3 - q1;
 
         // Then find min and max values
@@ -119,6 +120,44 @@ public class DataBinHelper
         }
 
         return Range.closed(minValue, maxValue);
+    }
+    
+    public Range<Double> calcInterquartileRange(List<Double> sortedValues)
+    {
+        Range<Double> iqr = null;
+        
+        if (sortedValues.size() > 0)
+        {
+            Double q1 = calcQ1(sortedValues);
+            Double q3 = calcQ3(sortedValues);
+            Double max = sortedValues.get(sortedValues.size() - 1);
+
+            // if iqr == 0 AND max == q3 then recursively try finding a non-zero iqr
+            if (q1.equals(q3) && max.equals(q3)) {
+                // filter out max and try again
+                iqr = this.calcInterquartileRange(
+                    sortedValues.stream().filter(d -> d < max).collect(Collectors.toList()));
+            }
+
+            // if range is still empty use the original q1 and q3 values
+            if (iqr == null || iqr.isEmpty()) {
+                iqr = Range.closedOpen(q1, q3);
+            }
+        }
+        
+        return iqr;
+    }
+    
+    public Double calcQ1(List<Double> sortedValues)
+    {
+        return sortedValues.size() > 0 ? 
+            sortedValues.get((int) Math.floor(sortedValues.size() / 4.0)) : null;
+    }
+
+    public Double calcQ3(List<Double> sortedValues)
+    {
+        return sortedValues.size() > 0 ? 
+            sortedValues.get((int) Math.floor(sortedValues.size() * (3.0 / 4.0))) : null;
     }
     
     public List<Double> filterIntervals(List<Double> intervals, Double lowerOutlier, Double upperOutlier)

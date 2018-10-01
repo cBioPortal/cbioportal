@@ -137,19 +137,20 @@ public final class DaoMutation {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
-            // do not include germline and fusions (msk internal) when counting
-            // mutations
+            // do not include germline and fusions (msk internal) when counting mutations
+            // we do not add the MUTATION_COUNT clinical data for the sample if it's not profiled
             pstmt = con.prepareStatement(
-                    "SELECT `SAMPLE_ID`, COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`, " +
+                    "SELECT sample_profile.`SAMPLE_ID`, COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`, " +
                     "mutation_event.`END_POSITION`, mutation_event.`REFERENCE_ALLELE`, mutation_event.`TUMOR_SEQ_ALLELE`) AS MUTATION_COUNT " +
-                    "FROM `mutation` , `genetic_profile`, `mutation_event` " +
-                    "WHERE mutation.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID` " +
-                    "AND mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` " +
-                    "AND mutation.`MUTATION_STATUS` <> 'GERMLINE' " +
+                    "FROM `sample_profile` " +
+                    "LEFT JOIN mutation ON mutation.`SAMPLE_ID` = sample_profile.`SAMPLE_ID`" +
+                    "LEFT JOIN mutation_event ON mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID`" +
+                    "INNER JOIN genetic_profile ON genetic_profile.`GENETIC_PROFILE_ID` = sample_profile.`GENETIC_PROFILE_ID`" +
+                    "WHERE mutation.`MUTATION_STATUS` <> 'GERMLINE' " +
                     "AND mutation_event.`MUTATION_TYPE` <> 'Fusion' " +
                     "AND genetic_profile.`GENETIC_PROFILE_ID`=? " +
                     "AND genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED' " +
-                    "GROUP BY genetic_profile.`GENETIC_PROFILE_ID` , `SAMPLE_ID`;");
+                    "GROUP BY sample_profile.`GENETIC_PROFILE_ID` , sample_profile.`SAMPLE_ID`;");
             pstmt.setInt(1, geneticProfile.getGeneticProfileId());
             Map<Integer, String> mutationCounts = new HashMap<Integer, String>();
             rs = pstmt.executeQuery();

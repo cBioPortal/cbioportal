@@ -6048,8 +6048,8 @@ module.exports = {
       data_ = _.filter(_data, function(datum) {
         return !isNaN(datum.FRACTION_GENOME_ALTERED) && !isNaN(datum.MUTATION_COUNT);
       });
-      var _xArr = _.pluck(data_, 'FRACTION_GENOME_ALTERED');
-      var _yArr = _.pluck(data_, 'MUTATION_COUNT');
+      var _xArr = _.pluck(data_, 'FRACTION_GENOME_ALTERED').map(Number);
+      var _yArr = _.pluck(data_, 'MUTATION_COUNT').map(Number);
       var _qtips = [];
       _.each(data_, function(_dataObj) {
         _qtips.push(getQtipString(_dataObj));

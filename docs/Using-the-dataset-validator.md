@@ -11,7 +11,7 @@ To facilitate the loading of new studies into its database, cBioPortal [provides
 ## Running the validator
 
 To run the validator first go to the importer folder
-`<your_cbioportal_dir>/core/src/main/scripts/importer` 
+`<cbioportal_source_folder>/core/src/main/scripts/importer`
 and then run the following command:
 ```bash
 ./validateData.py --help
@@ -70,7 +70,7 @@ When running the validator with parameter `-m` the validator will run the valida
 when the validator encounters these validation checks it will report them as an error instead of a warning.
 
 ### Example 1: test study_es_0
-As an example, you can try the validator with one of the test studies found in  `<your_cbioportal_dir>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option to also see the progress:
+As an example, you can try the validator with one of the test studies found in  `<cbioportal_source_folder>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option to also see the progress:
 ```bash
 ./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080/cbioportal -v
 ```
@@ -172,7 +172,7 @@ When using the `-html` option, a report will be generated, which looks like this
 ![Screenshot of a successful validation report](images/scripts/report.png)
 
 ### Example 2: test study_es_1
-More test studies for trying the validator (`study_es_1` and `study_es_3`) are available in  `<your_cbioportal_dir>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option:
+More test studies for trying the validator (`study_es_1` and `study_es_3`) are available in  `<cbioportal_source_folder>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option:
 ```bash
 ./validateData.py -s ../../../test/scripts/test_data/study_es_1/ -u http://localhost:8080/cbioportal -v
 ```
@@ -316,10 +316,10 @@ Validation of study succeeded.
 ```
 
 ### Example 4: generating the portal info folder ###
-The portal information files can be generated on the server, using the dumpPortalInfo script. Go to `<your cbioportal dir>/core/src/main/scripts`, make sure the environment variables `$JAVA_HOME` and `$PORTAL_HOME` are set, and run dumpPortalInfo.pl with the name of the directory you want to create:
+The portal information files can be generated on the server, using the dumpPortalInfo script. Go to `<cbioportal_source_folder>/core/src/main/scripts`, make sure the environment variables `$JAVA_HOME` and `$PORTAL_HOME` are set, and run dumpPortalInfo.pl with the name of the directory you want to create:
 ```bash
 export JAVA_HOME='/usr/lib/jvm/default-java'
-export PORTAL_HOME='../../../..'
+export PORTAL_HOME=<cbioportal_configuration_folder>
 ./dumpPortalInfo.pl /home/johndoe/my_portal_info_folder/
 ```
 
@@ -443,7 +443,7 @@ As an example, the command for the "Example 1" listed above incorporating the `-
 ```
 
 ## Running the validator for multiple studies
-The importer folder `<your_cbioportal_dir>/core/src/main/scripts/importer` also contains a script for running the validator for multiple studies:
+The importer folder `<cbioportal_source_folder>/core/src/main/scripts/importer` also contains a script for running the validator for multiple studies:
 ```bash
 ./validateStudies.py --help
 ```

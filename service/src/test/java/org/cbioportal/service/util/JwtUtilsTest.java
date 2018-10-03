@@ -98,7 +98,7 @@ public class JwtUtilsTest {
 
     @Test
     public void createTokenTest() {
-        String token = jwtUtils.createToken(TEST_SUBJECT);
+        String token = jwtUtils.createToken(TEST_SUBJECT).getToken();
         if (token.isEmpty()) {
             Assert.fail("token was empty");
         }
@@ -109,20 +109,18 @@ public class JwtUtilsTest {
 
     @Test(expected = IllegalArgumentException.class) 
     public void createInvalidTokenTest() {
-        String token = jwtUtils.createToken("");
+        String token = jwtUtils.createToken("").getToken();
     }
-
-    
 
     @Test
     public void validateValidTokenTest() throws InvalidDataAccessTokenException {
-        String token = jwtUtils.createToken(TEST_SUBJECT);
+        String token = jwtUtils.createToken(TEST_SUBJECT).getToken();
         jwtUtils.validate(token); // when token is valid, there will be no exception thrown
     }
 
     @Test(expected = InvalidDataAccessTokenException.class)
     public void validateBadSignatureTokenTest() throws InvalidDataAccessTokenException {
-        String token = jwtUtils.createToken(TEST_SUBJECT);
+        String token = jwtUtils.createToken(TEST_SUBJECT).getToken();
         int finalDividerIndex = token.lastIndexOf(".");
         String badSignature = "";
         for (int i = 0; i < token.length() - finalDividerIndex - 1; i++) {
@@ -134,14 +132,14 @@ public class JwtUtilsTest {
 
     @Test(expected = InvalidDataAccessTokenException.class)
     public void validateExpiredTokenTest() throws InvalidDataAccessTokenException, InterruptedException {
-        String token = jwtUtils.createToken(TEST_SUBJECT);
+        String token = jwtUtils.createToken(TEST_SUBJECT).getToken();
         Thread.sleep(TEST_TOKEN_EXPIRATION_MILLISECONDS + 10L); // NOTE: sleep time must be adequate to allow created token to expire
         jwtUtils.validate(token);
     }
 
     @Test
     public void extractSubjectTest() throws InvalidDataAccessTokenException {
-        String token = jwtUtils.createToken(TEST_SUBJECT);
+        String token = jwtUtils.createToken(TEST_SUBJECT).getToken();
         String extractedSubject = jwtUtils.extractSubject(token);
         if (extractedSubject.isEmpty() || !extractedSubject.equals(TEST_SUBJECT)) {
             Assert.fail("extracted subject does not match expected value");
@@ -152,7 +150,7 @@ public class JwtUtilsTest {
     public void extractExpirationDateTest() throws InvalidDataAccessTokenException {
         Date now = new Date();
         long nowTime = now.getTime();
-        String token = jwtUtils.createToken(TEST_SUBJECT);
+        String token = jwtUtils.createToken(TEST_SUBJECT).getToken();
         Date extractedExpirationDate = jwtUtils.extractExpirationDate(token);
         long expirationTime = extractedExpirationDate.getTime();
         long timeDifference = expirationTime - nowTime;
@@ -163,7 +161,7 @@ public class JwtUtilsTest {
 
     @Test
     public void extractPropertiesTest() throws InvalidDataAccessTokenException {
-        String token = jwtUtils.createToken(TEST_SUBJECT);
+        String token = jwtUtils.createToken(TEST_SUBJECT).getToken();
         Map<String, Object> extractedProperties = jwtUtils.extractProperties(token);
         if (extractedProperties == null || extractedProperties.keySet().size() < 3) {
             Assert.fail("extracted properties is not large enough (at least 3 keys were expected)");

@@ -49,6 +49,7 @@
 package org.cbioportal.service.util;
 //TODO package org.cbioportal.security.spring.authentication.token;
 
+import org.cbioportal.model.DataAccessToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.io.Decoders;
@@ -78,7 +79,7 @@ public class JwtUtils {
 
     private static final Log log = LogFactory.getLog(JwtUtils.class);
 
-    public String createToken(String subject) {
+    public DataAccessToken createToken(String subject) {
         if (subject == null || subject.trim().length() == 0) {
             throw new IllegalArgumentException("subject cannot be empty");
         }
@@ -91,7 +92,7 @@ public class JwtUtils {
             .setIssuedAt(creationDate)
             .setExpiration(expirationDate)
             .signWith(SignatureAlgorithm.HS256, decodedSecretKey).compact();
-        return jws;
+        return new DataAccessToken(jws);
     }
 
     public void validate(String token) throws InvalidDataAccessTokenException {

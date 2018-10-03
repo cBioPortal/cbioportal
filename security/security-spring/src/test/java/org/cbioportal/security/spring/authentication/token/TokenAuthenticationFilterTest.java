@@ -82,7 +82,7 @@ public class TokenAuthenticationFilterTest {
 
     @Test
     public void testAttemptAuthentication_success() {
-        String token = jwtUtils.createToken(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT);
+        String token = jwtUtils.createToken(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT).getToken();
         log.debug("testAttemptAuthentication_success() token = " + token);
         Mockito.reset(request);
         Mockito.when(request.getHeader(Matchers.anyString())).thenReturn("Bearer " + token);
@@ -110,7 +110,7 @@ public class TokenAuthenticationFilterTest {
 
     @Test(expected = BadCredentialsException.class)
     public void testAttemptAuthentication_expiredToken() throws InterruptedException {
-        String token = jwtUtils.createToken(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT);
+        String token = jwtUtils.createToken(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT).getToken();
         log.debug("testAttemptAuthentication_expiredToken() token = " + token);
         Mockito.reset(request);
         Mockito.when(request.getHeader(Matchers.anyString())).thenReturn("Bearer " + token);

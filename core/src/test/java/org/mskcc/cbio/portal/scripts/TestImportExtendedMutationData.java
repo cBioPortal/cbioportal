@@ -49,6 +49,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -292,8 +293,16 @@ public class TestImportExtendedMutationData {
 
     private void checkMutationCounts() throws DaoException {
 
-        ClinicalData clinicalData = DaoClinicalData.getDatum("study_tcga_pub", "TCGA-AA-3664", "MUTATION_COUNT");
-        assertEquals("8", clinicalData.getAttrVal());
+        String studyStableId = "study_tcga_pub";
+        CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyStableId);
+
+        // assume clinical data for MUTATION_COUNT was created
+        ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum("MUTATION_COUNT", study.getInternalId());
+        assertNotNull(clinicalAttribute);
+
+        List<ClinicalData> clinicalData = DaoClinicalData.getSampleData(study.getInternalId(), new ArrayList<String>(Arrays.asList("TCGA-AA-3664-01")), clinicalAttribute);
+        assert(clinicalData.size() == 1);
+        assertEquals("8", clinicalData.get(0).getAttrVal());
     }
 
     private void loadGenes() throws DaoException {

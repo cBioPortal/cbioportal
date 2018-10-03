@@ -40,6 +40,7 @@ import org.cbioportal.service.exception.InvalidDataAccessTokenException;
 import org.cbioportal.service.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.cbioportal.model.DataAccessToken;
 
 @Service
 public class JwtDataAccessTokenServiceImpl implements DataAccessTokenService {
@@ -51,32 +52,42 @@ public class JwtDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     private Set<String> usersWhoRevoked = new HashSet<>();
 
+    //TODO : we could add a persistence layer to store pairs of <username, revokeDate> ... then a user can revoke all thier tokens before a particular date and we would only need to store the most recent revoke date for that user.  But it would have to be persisted, or else a restart of the server would lose the memory of revocation
+
     @Override
-    public String createDataAccessToken(String username, boolean allowRevocationOfOtherTokens) {
+    public DataAccessToken createDataAccessToken(String username, boolean allowRevocationOfOtherTokens) {
         return jwtUtils.createToken(username);
     }
 
     @Override
-    public String getDataAccessToken(String username) {
+    public List<DataAccessToken> getAllDataAccessTokens(String username) {
         throw new UnsupportedOperationException("this implementation of (pure) JWT Data Access Tokens does not allow retrieval of stored tokens");
     }
 
     @Override
-    public List<String> getAllDataAccessTokens(String username) {
-        List<String> tokenList = new ArrayList<>();
-        tokenList.add(getDataAccessToken(username));
-        return tokenList;
+    public DataAccessToken getDataAccessToken(String username) {
+        throw new UnsupportedOperationException("this implementation of (pure) JWT Data Access Tokens does not allow retrieval of stored tokens");
+    }
+
+    @Override
+    public DataAccessToken getDataAccessTokenInfo(String token) {
+        throw new UnsupportedOperationException("this implementation of (pure) JWT Data Access Tokens does not allow this operation");
     }
 
     @Override
     public void revokeAllDataAccessTokens(String username) {
-        usersWhoRevoked.add(username); 
+        throw new UnsupportedOperationException("this implementation of (pure) JWT Data Access Tokens does not allow revocation of tokens");
     }
 
     @Override
-    public Boolean isValid(String dataAccessToken) {
+    public void revokeDataAccessToken(String token) {
+        throw new UnsupportedOperationException("this implementation of (pure) JWT Data Access Tokens does not allow revocation of tokens");
+    }
+
+    @Override
+    public Boolean isValid(String token) {
         try {
-            jwtUtils.validate(dataAccessToken);
+            jwtUtils.validate(token);
         } catch (InvalidDataAccessTokenException idate) {
             log.error("isValid(), " + idate);
             return Boolean.FALSE;

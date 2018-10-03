@@ -14,6 +14,22 @@
  */
 
 /*
+ * Copyright 2002-2018 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  * This file is part of cBioPortal.
  *
  * cBioPortal is free software: you can redistribute it and/or modify
@@ -30,29 +46,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.service;
+package org.cbioportal.weblegacy.exception;
 
-import java.util.*;
-import org.cbioportal.model.DataAccessToken;
+public class DataAccessTokenProhibitedUserException extends RuntimeException {
 
-public interface DataAccessTokenService {
+    public DataAccessTokenProhibitedUserException() {
+        super();
+    }
 
-    public DataAccessToken createDataAccessToken(String username, boolean allowRevocationOfOtherTokens);
-    public List<DataAccessToken> getAllDataAccessTokens(String username);
-    public DataAccessToken getDataAccessToken(String username);
-    public DataAccessToken getDataAccessTokenInfo(String token);
-    public void revokeAllDataAccessTokens(String username);
-    public void revokeDataAccessToken(String token);
-    public String getUsername(String token);
-    public Date getExpiration(String token);
-
-    /** tests token validity
-     *
-     *  token is valid if:
-     *      - not yet expired and
-     *      - not revoked and 
-     *      - can be verfied as issued through this service (maybe via signature)
-     */
-    public Boolean isValid(String token);
+    public DataAccessTokenProhibitedUserException(String message) {
+        super(message);
+    }
 
 }

@@ -37,16 +37,19 @@ import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
-@EnableWebMvc
 @ComponentScan(basePackages = {"org.cbioportal.weblegacy"}, resourcePattern = "**/*DataAccessTokenController.class")
-public class DataAccessTokenControllerTestConfig extends WebMvcConfigurerAdapter {
+public class DataAccessTokenControllerConfig {
 
     @Bean
-    public DataAccessTokenService dataAccessTokenService() {
+    public DataAccessTokenService tokenService() {
         return Mockito.mock(DataAccessTokenService.class);
     }
+    
+    @Bean
+    public DataAccessTokenController dataAccessTokenController() {
+        return new DataAccessTokenController();
+    }
+    
 }

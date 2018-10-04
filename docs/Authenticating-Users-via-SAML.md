@@ -121,7 +121,12 @@ See [this Tomcat documentation page](https://tomcat.apache.org/tomcat-8.0-doc/ss
 both keystore and secure-key. This seems to be an extra restriction by Tomcat.
 
 
-## Modifying portal.properties
+## Modifying configuration
+
+Make Tomcat pass the authentication method as a JVM argument
+by adding this line to `$CATALINA_HOME/bin/setenv.sh`:
+
+    CATALINA_OPTS='-Dauthenticate=saml'
 
 Within portal.properties, make sure that:
 
@@ -130,7 +135,6 @@ Within portal.properties, make sure that:
 Then, modify the section labeled `authentication`. See SAML parameters shown in example below:
 
     # authentication
-    authenticate=saml
     authorization=true
     saml.sp.metadata.entityid=cbioportal
     saml.idp.metadata.location=classpath:/onelogin_metadata_620035.xml

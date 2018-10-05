@@ -98,6 +98,7 @@ public class TestImportExtendedMutationData {
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
         
         checkBasicFilteringRules();
+        checkMutationCounts();
         
         // accept everything else
         validateMutationAminoAcid(geneticProfileId, sampleId, 51806, "P113L");   // valid Unknown
@@ -287,6 +288,12 @@ public class TestImportExtendedMutationData {
         validateMutationAminoAcid (geneticProfileId, sampleId, 2842, "L113P");
         assertEquals(1, DaoMutation.getMutations(geneticProfileId, sampleId, 50839).size());
         // Germline mutations NOT on germline whitelist
+    }
+
+    private void checkMutationCounts() throws DaoException {
+
+        ClinicalData clinicalData = DaoClinicalData.getDatum("study_tcga_pub", "TCGA-AA-3664", "MUTATION_COUNT");
+        assertEquals("8", clinicalData.getAttrVal());
     }
 
     private void loadGenes() throws DaoException {

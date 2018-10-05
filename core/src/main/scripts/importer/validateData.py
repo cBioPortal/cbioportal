@@ -74,7 +74,7 @@ prior_validated_geneset_ids = None
 # ----------------------------------------------------------------------------
 
 VALIDATOR_IDS = {
-    cbioportal_common.MetaFileTypes.CNA:'CNAValidator',
+    cbioportal_common.MetaFileTypes.CNA_DISCRETE: 'CNADiscreteValidator',
     cbioportal_common.MetaFileTypes.CNA_LOG2:'CNAContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.CNA_CONTINUOUS:'CNAContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.EXPRESSION:'ContinuousValuesValidator',
@@ -1008,9 +1008,6 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
             # treat empty string as a missing value
             if hugo_symbol == '':
                 hugo_symbol = None
-            # In case of CNA data the Hugo Symbol should be split when gene symbol contains pipe
-            if (isinstance(self, CNAValidator) or isinstance(self, CNAContinuousValuesValidator)) and '|' in hugo_symbol:
-                hugo_symbol = hugo_symbol.split('|')[0]
         if 'Entrez_Gene_Id' in self.nonsample_cols:
             entrez_index = self.nonsample_cols.index('Entrez_Gene_Id')
             entrez_id = nonsample_col_vals[entrez_index].strip()
@@ -1020,11 +1017,41 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
         return self.checkGeneIdentification(hugo_symbol, entrez_id)
 
 
-class CNAValidator(GenewiseFileValidator):
+class ContinuousValuesValidator(GenewiseFileValidator):
+    """Validator for matrix files mapping floats to gene/sample combinations.
 
-    """Sub-class CNA validator."""
+    Allowing missing values indicated by GenewiseFileValidator.NULL_VALUES.
+    """
+
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+
+        stripped_value = value.strip()
+        if stripped_value not in self.NULL_VALUES and not self.checkFloat(stripped_value):
+            self.logger.error("Value is neither a real number nor " + ', '.join(self.NULL_VALUES),
+                              extra={'line_number': self.line_number,
+                                     'column_number': col_index + 1,
+                                     'cause': value})
+
+
+class CNAValidator(GenewiseFileValidator):
+    """Common logic to validate CNA data types
+
+    This is an abstract class. Should be subclassed to a class that knows how to check values.
+    """
 
     OPTIONAL_HEADERS = ['Cytoband'] + GenewiseFileValidator.OPTIONAL_HEADERS
+
+    def checkGeneIdentification(self, gene_symbol=None, entrez_id=None):
+        if gene_symbol is not None:
+            if '|' in gene_symbol:
+                gene_symbol, __ = gene_symbol.split('|', maxsplit=1)
+        return super().checkGeneIdentification(gene_symbol, entrez_id)
+
+
+class CNADiscreteValidator(CNAValidator):
+    """ Logic to validate discrete CNA data."""
+
     ALLOWED_VALUES = ['-2', '-1.5', '-1', '0', '1', '2'] + GenewiseFileValidator.NULL_VALUES
 
     def checkValue(self, value, col_index):
@@ -1039,8 +1066,11 @@ class CNAValidator(GenewiseFileValidator):
                            'cause': value})
 
 
-class MutationsExtendedValidator(Validator):
+class CNAContinuousValuesValidator(CNAValidator, ContinuousValuesValidator):
+    """Logic to validate continuous CNA data."""
 
+
+class MutationsExtendedValidator(Validator):
     """Sub-class mutations_extended validator."""
 
     # TODO - maybe this should comply to https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification ?
@@ -2594,29 +2624,6 @@ class SegValidator(Validator):
         return chrom_size_dict
 
 
-class ContinuousValuesValidator(GenewiseFileValidator):
-    """Validator for matrix files mapping floats to gene/sample combinations.
-
-    Allowing missing values indicated by GenewiseFileValidator.NULL_VALUES.
-    """
-
-    def checkValue(self, value, col_index):
-        """Check a value in a sample column."""
-        stripped_value = value.strip()
-        if stripped_value not in self.NULL_VALUES and not self.checkFloat(stripped_value):
-            self.logger.error("Value is neither a real number nor " + ', '.join(self.NULL_VALUES),
-                              extra={'line_number': self.line_number,
-                                     'column_number': col_index + 1,
-                                     'cause': value})
-
-
-class CNAContinuousValuesValidator(ContinuousValuesValidator):
-
-    """Sub-class CNA validator."""
-
-    OPTIONAL_HEADERS = ['Cytoband'] + GenewiseFileValidator.OPTIONAL_HEADERS
-
-
 class FusionValidator(Validator):
 
     """Basic validation for fusion data. Validates:
@@ -3571,16 +3578,39 @@ def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logge
         cancer_study_id (str): the study ID to be expected in the stable IDs
         case_list_ids (Iterable[str]): stable ids of defined case lists
         file_types (Dict[str, str]): listing of the MetaFileTypes with high-
-            dimensional data in this study--these may imply certain case lists
+            dimensional data in this study--some imply certain case lists
         logger: logging.Logger instance to log output to
     """
 
     if cancer_study_id + '_all' not in case_list_ids:
         logger.error(
-                "No case list found for stable_id '%s', consider adding "
+                "No case list found with stable_id '%s', consider adding "
                     "'add_global_case_list: true' to the study metadata file",
                 cancer_study_id + '_all')
-    # TODO: check for required suffixes based on the defined profiles
+
+    if 'meta_mutations_extended' in file_types:
+        if cancer_study_id + '_sequenced' not in case_list_ids:
+            logger.error(
+                "No case list found with stable_id '%s', please add this "
+                "case list to specify which samples are profiled for mutations. This "
+                "is required for calculation of samples with mutations in OncoPrint and Study Summary.",
+                cancer_study_id + '_sequenced')
+
+    if 'meta_CNA' in file_types:
+        if cancer_study_id + '_cna' not in case_list_ids:
+            logger.error(
+                "No case list found with stable_id '%s', please add this "
+                "case list to specify which samples are profiled for mutations. This "
+                "is required for calculation of samples with CNA in OncoPrint and Study Summary.",
+                cancer_study_id + '_cna')
+
+    if 'meta_mutations_extended' in file_types and 'meta_CNA' in file_types:
+        if cancer_study_id + '_cnaseq' not in case_list_ids:
+            logger.warning(
+                "No case list found with stable_id '%s', please add this "
+                "case list to specify which samples are profiled for this data type. On the query page, this "
+                "case list will be selected by default when both mutation and CNA data are available.",
+                cancer_study_id + '_cnaseq')
 
 def validate_dependencies(validators_by_meta_type, logger):
 

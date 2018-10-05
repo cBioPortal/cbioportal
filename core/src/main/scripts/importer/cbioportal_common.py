@@ -43,7 +43,7 @@ class MetaFileTypes(object):
     CANCER_TYPE = 'meta_cancer_type'
     SAMPLE_ATTRIBUTES = 'meta_clinical_sample'
     PATIENT_ATTRIBUTES = 'meta_clinical_patient'
-    CNA = 'meta_CNA'
+    CNA_DISCRETE = 'meta_CNA'
     CNA_LOG2 = 'meta_log2CNA'
     CNA_CONTINUOUS = 'meta_contCNA'
     SEG = 'meta_segment'
@@ -90,7 +90,7 @@ META_FIELD_MAP = {
         'datatype': True,
         'data_filename': True
     },
-    MetaFileTypes.CNA: {
+    MetaFileTypes.CNA_DISCRETE: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -253,7 +253,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.CANCER_TYPE: IMPORT_CANCER_TYPE_CLASS,
     MetaFileTypes.SAMPLE_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
     MetaFileTypes.PATIENT_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
-    MetaFileTypes.CNA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.CNA_DISCRETE: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.CNA_LOG2: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.CNA_CONTINUOUS: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.SEG: "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
@@ -509,7 +509,7 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("PROTEIN_LEVEL", "Z-SCORE"): MetaFileTypes.PROTEIN,
         ("PROTEIN_LEVEL", "CONTINUOUS"): MetaFileTypes.PROTEIN,
         # cna
-        ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA,
+        ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA_DISCRETE,
         ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS,
         ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.CNA_LOG2,
         ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,

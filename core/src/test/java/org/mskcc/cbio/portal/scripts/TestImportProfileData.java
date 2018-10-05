@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoClinicalData;
 import org.mskcc.cbio.portal.dao.DaoCnaEvent;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
@@ -86,6 +87,8 @@ public class TestImportProfileData {
         runner.run();
         //This test is to check if the ImportProfileData class indeed adds the study stable Id in front of the
         //dataset study id (e.g. studyStableId + "_breast_mutations"):
+        DaoClinicalData.deleteRecords("MUTATION_COUNT");
+        MySQLbulkLoader.flushAll();
         String studyStableId = "study_tcga_pub";
         studyId = DaoCancerStudy.getCancerStudyByStableId(studyStableId).getInternalId();
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();

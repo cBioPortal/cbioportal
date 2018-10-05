@@ -72,7 +72,7 @@ public final class DaoCopyNumberSegment {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection(DaoMutation.class);
+            con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
             pstmt = con.prepareStatement(
                     "SELECT `SAMPLE_ID`, IF((SELECT SUM(`END`-`START`) FROM copy_number_seg " + 
                     "AS c2 WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` AND " + 
@@ -82,10 +82,10 @@ public final class DaoCopyNumberSegment {
                     "WHERE c1.`CANCER_STUDY_ID` = cancer_study.`CANCER_STUDY_ID` AND cancer_study.`CANCER_STUDY_ID`=? " +
                     "GROUP BY cancer_study.`CANCER_STUDY_ID` , `SAMPLE_ID` HAVING SUM(`END`-`START`) > 0;");
             pstmt.setInt(1, cancerStudyId);
-            Map<Integer, String> mutationCounts = new HashMap<Integer, String>();
+            Map<Integer, String> fractionGenomeAltereds = new HashMap<Integer, String>();
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                mutationCounts.put(rs.getInt(1), rs.getString(2));
+                fractionGenomeAltereds.put(rs.getInt(1), rs.getString(2));
             }
 
             ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum(FRACTION_GENOME_ALTERED_ATTR_ID, cancerStudyId);
@@ -95,13 +95,13 @@ public final class DaoCopyNumberSegment {
                 DaoClinicalAttributeMeta.addDatum(attr);
             }
             
-            for (Map.Entry<Integer, String> mutationCount : mutationCounts.entrySet()) {
-                DaoClinicalData.addSampleDatum(mutationCount.getKey(), FRACTION_GENOME_ALTERED_ATTR_ID, mutationCount.getValue());
+            for (Map.Entry<Integer, String> fractionGenomeAltered : fractionGenomeAltereds.entrySet()) {
+                DaoClinicalData.addSampleDatum(fractionGenomeAltered.getKey(), FRACTION_GENOME_ALTERED_ATTR_ID, fractionGenomeAltered.getValue());
             }
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCopyNumberSegment.class, con, pstmt, rs);
         }
     }
     

@@ -141,6 +141,9 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
             importCopyNumberSegmentFileMetadata(cancerStudy, properties);
             importCopyNumberSegmentFileData(cancerStudy, dataFile);
             DaoCopyNumberSegment.createFractionGenomeAlteredClinicalData(cancerStudy.getInternalId());
+            if( MySQLbulkLoader.isBulkLoad()) {
+                MySQLbulkLoader.flushAll();
+            }
         } catch (RuntimeException e) {
             throw e;
         } catch (IOException|DaoException e) {

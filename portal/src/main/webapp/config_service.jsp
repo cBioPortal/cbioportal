@@ -136,7 +136,6 @@ legacyConfig =
             "skin.show_web_api_tab",
             "skin.title",
             "skin.authorization_message",
-            "session.service.url",
             "session.url_length_threshold"
            
         }; 

@@ -23,13 +23,15 @@ The cBioPortal code has no means of storing user name and passwords and no means
 # Configuring LDAP within cBioPortal
 
 
-## Modifying portal.properties
+## Modifying configuration
 
-Within portal.properties, modify the section labeled `authentication`.  For example:
+Make Tomcat pass the authentication method as a JVM argument
+by adding this line to `$CATALINA_HOME/bin/setenv.sh`:
 
-    # authentication
-    authenticate=ldap
-    
+    CATALINA_OPTS='-Dauthenticate=ldap'
+
+In portal.properties, modify the section labeled `authentication`.  For example:
+
     ## configuration for the LDAP access
     ldap.user_search_base=DC=example,DC=com
     ldap.url=ldap://ldap.example.com:389

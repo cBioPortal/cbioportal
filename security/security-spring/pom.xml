@@ -102,19 +102,4 @@
         <scope>provided</scope>
       </dependency>
     </dependencies>
-    <build>
-      <filters>
-        <filter>../../src/main/resources/portal.properties</filter>
-        <filter>../../src/main/resources/maven.properties</filter>
-      </filters>
-      <resources>
-        <resource>
-          <directory>src/main/resources</directory>
-          <filtering>true</filtering>
-          <includes>
-            <include>applicationContext-security.xml</include>
-          </includes>
-        </resource>
-      </resources>
-    </build>
 </project>

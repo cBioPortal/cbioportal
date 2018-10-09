@@ -137,10 +137,35 @@ public final class DaoMutation {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
-            // do not include germline and fusions (msk internal) when counting mutations
-            // we do not add the MUTATION_COUNT clinical data for the sample if it's not profiled
+            // add mutation count meta attribute if it does not exist
+            ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum(MUTATION_COUNT_ATTR_ID, geneticProfile.getCancerStudyId());
+            if (clinicalAttribute == null) {
+                ClinicalAttribute attr = new ClinicalAttribute(MUTATION_COUNT_ATTR_ID, "Mutation Count", "Mutation Count", "NUMBER",
+                    false, "30", geneticProfile.getCancerStudyId());
+                DaoClinicalAttributeMeta.addDatum(attr);
+            }
+
+            /*
+             * Add MUTATION_COUNT for each sample by checking number of
+             * mutations for the given genetic profile.
+             *
+             * We do not add the MUTATION_COUNT clinical data for the sample if
+             * it's not profiled. If it *is* profiled but there are 0
+             * mutations, add a MUTATION_COUNT with 0 value record. Do not
+             * include germline and fusions (msk internal) when counting
+             * mutations.
+             *
+             * Use REPLACE (conditional INSERT/UPDATE) which inserts
+             * new counts if they don't exist and overwrites them if they do.
+             * This is necessary for when the mutation data is split over
+             * multiple files with same profile id. Note that since
+             * clinical_sample has a key contraint on INTERNAL_ID and ATTR_ID,
+             * there can only be one MUTATION_COUNT record for each sample, so
+             * we assume each sample is in only one MUTATION_EXTENDED profile.
+             */
             pstmt = con.prepareStatement(
-                    "SELECT sample_profile.`SAMPLE_ID`, COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`, " +
+                    "REPLACE `clinical_sample` " +
+                    "SELECT sample_profile.`SAMPLE_ID`, 'MUTATION_COUNT', COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`, " +
                     "mutation_event.`END_POSITION`, mutation_event.`REFERENCE_ALLELE`, mutation_event.`TUMOR_SEQ_ALLELE`) AS MUTATION_COUNT " +
                     "FROM `sample_profile` " +
                     "LEFT JOIN mutation ON mutation.`SAMPLE_ID` = sample_profile.`SAMPLE_ID` " +
@@ -152,22 +177,7 @@ public final class DaoMutation {
                     "AND genetic_profile.`GENETIC_PROFILE_ID`=? " +
                     "GROUP BY sample_profile.`GENETIC_PROFILE_ID` , sample_profile.`SAMPLE_ID`;");
             pstmt.setInt(1, geneticProfile.getGeneticProfileId());
-            Map<Integer, String> mutationCounts = new HashMap<Integer, String>();
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-                mutationCounts.put(rs.getInt(1), rs.getString(2));
-            }
-
-            ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum(MUTATION_COUNT_ATTR_ID, geneticProfile.getCancerStudyId());
-            if (clinicalAttribute == null) {
-                ClinicalAttribute attr = new ClinicalAttribute(MUTATION_COUNT_ATTR_ID, "Mutation Count", "Mutation Count", "NUMBER",
-                    false, "30", geneticProfile.getCancerStudyId());
-                DaoClinicalAttributeMeta.addDatum(attr);
-            }
-
-            for (Map.Entry<Integer, String> mutationCount : mutationCounts.entrySet()) {
-                DaoClinicalData.addSampleDatum(mutationCount.getKey(), MUTATION_COUNT_ATTR_ID, mutationCount.getValue());
-            }
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

@@ -30,7 +30,13 @@
                         //     }
                         // ]
         };
-        
+
+        if (/localdev=true/.test(window.location.href)) {
+            localStorage.setItem("localdev", "true");
+        }
+        if (/localdist=true/.test(window.location.href)) {
+            localStorage.setItem("localdist", "true");
+        }
         window.localdev = localStorage.localdev === 'true';
         window.localdist = localStorage.localdist === 'true';
         window.heroku = localStorage.heroku;

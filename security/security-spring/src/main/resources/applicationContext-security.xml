@@ -17,9 +17,8 @@
            <b:property name="ignoreResourceNotFound" value="true" />
            <b:property name="locations">
              <b:list>
-               <b:value>file:///${PORTAL_HOME}/portal.properties</b:value>
                <b:value>classpath:portal.properties</b:value>
-               <b:value>classpath:maven.properties</b:value>
+               <b:value>file:///#{systemEnvironment['PORTAL_HOME']}/portal.properties</b:value>
              </b:list>
            </b:property>
         </b:bean>

@@ -136,7 +136,11 @@ legacyConfig =
             "skin.show_web_api_tab",
             "skin.title",
             "skin.authorization_message",
-            "session.url_length_threshold"
+            "session.url_length_threshold",
+            "bitly.api_key",
+            "bitly.user",
+            "bitly.access.token",
+            "bitly.url"
            
         }; 
     

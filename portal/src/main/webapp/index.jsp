@@ -15,6 +15,7 @@
         window.frontendConfig = {
             configurationServiceUrl:"//" + '<%=baseUrl%>' +  "/config_service.jsp",
             frontendUrl: '//'+ '<%=baseUrl%>/', 
+            apiRoot: '//'+ '<%=baseUrl%>/', 
             baseUrl: '<%=baseUrl%>',
             basePath: '<%=request.getContextPath()%>',
               // customTabs:[

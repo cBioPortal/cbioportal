@@ -35,7 +35,7 @@
         window.localdist = localStorage.localdist === 'true';
         window.heroku = localStorage.heroku;
         
-        if (window.localdev) {
+        if (window.localdev || window.localdist) {
             window.frontendConfig.frontendUrl = "//localhost:3000/"
             localStorage.setItem("e2etest", "true");
         } else if (window.heroku) {

@@ -57,6 +57,7 @@ import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.Sample;
+
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ImportDataUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -214,6 +215,42 @@ public class TestImportProfileData {
         assert(clinicalData.size() == 2);
         assertEquals("4", clinicalData.get(0).getAttrVal());
         assertEquals("1", clinicalData.get(1).getAttrVal());
+    }
+
+    @Test
+    public void testImportGermlineOnlyFile() throws Exception {
+        /* Mutations file split over two files with same stable id */
+        String[] args = {
+                "--data","src/test/resources/germlineOnlyMutationsData/data_mutations_extended.txt",
+                "--meta","src/test/resources/germlineOnlyMutationsData/meta_mutations_extended.txt",
+                "--loadMode", "bulkLoad"
+        };
+        ImportProfileData runner = new ImportProfileData(args);
+        runner.run();
+        String studyStableId = "study_tcga_pub";
+        CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyStableId);
+        studyId = study.getInternalId();
+        int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations");
+        geneticProfileId = geneticProfile.getGeneticProfileId();
+
+        // assume clinical data for MUTATION_COUNT was created
+        ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum("MUTATION_COUNT", studyId);
+        assertNotNull(clinicalAttribute);
+
+        // assume a MUTATION_COUNT record has been added for one sample and the count is zero
+        List<ClinicalData> clinicalData = DaoClinicalData.getSampleData(study.getInternalId(), new ArrayList<String>(Arrays.asList("TCGA-AA-3664-01")), clinicalAttribute);
+        assert(clinicalData.size() == 1);
+        assertEquals("0", clinicalData.get(0).getAttrVal());
+
+        // check if the three germline mutations have been inserted
+        validateMutationAminoAcid (geneticProfileId, sampleId, 64581, "T209A");
+        validateMutationAminoAcid (geneticProfileId, sampleId, 50839, "G78S");
+        validateMutationAminoAcid (geneticProfileId, sampleId, 2842, "L113P");
+
+        // remove profile at the end
+        DaoGeneticProfile.deleteGeneticProfile(geneticProfile);
+        assertNull(DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations"));
     }
 
     @Test

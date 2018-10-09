@@ -1,0 +1,5 @@
+cancer_study_identifier: study_es_0
+stable_id: study_es_0_sequenced
+case_list_name: Samples profiled for mutations
+case_list_description: This is this case list that contains all samples that are profiled for mutations.
+case_list_ids: TCGA-A1-A0SB-01	TCGA-A1-A0SK-01	TCGA-A2-A04P-01	TCGA-A2-A0CM-01	TCGA-AR-A1AR-01	TCGA-B6-A0I6-01	TCGA-B6-A0WX-01	TCGA-BH-A0E0-01	TCGA-BH-A0HL-01	TCGA-BH-A18K-01	TCGA-BH-A18V-01	TCGA-BH-A1F0-01	TCGA-GI-A2C8-01

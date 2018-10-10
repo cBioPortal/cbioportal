@@ -49,7 +49,7 @@ public class DataAccessToken implements Serializable {
     }
  
     public Date getCreation() {
-        return expiration;
+        return creation;
     }
 
     public void setCreation(Date creation) {

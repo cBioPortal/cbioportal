@@ -30,7 +30,10 @@
                         //     }
                         // ]
         };
-
+        
+        <%-- write configuration to page so we do not have to load it via service--%>
+        <%@include file="./config_service.jsp" %>
+        
         if (/localdev=true/.test(window.location.href)) {
             localStorage.setItem("localdev", "true");
         }

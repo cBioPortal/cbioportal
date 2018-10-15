@@ -1,0 +1,96 @@
+apiVersion: kops/v1alpha2
+kind: Cluster
+metadata:
+  creationTimestamp: 2018-03-26T20:54:20Z
+  name: cbioportal.review.k8s.local
+spec:
+  additionalPolicies:
+    master: |
+      [
+         {
+           "Effect": "Allow",
+           "Action": [
+             "route53:ChangeResourceRecordSets"
+           ],
+           "Resource": [
+             "arn:aws:route53:::hostedzone/*"
+           ]
+         },
+         {
+           "Effect": "Allow",
+           "Action": [
+             "route53:ListHostedZones",
+             "route53:ListResourceRecordSets"
+           ],
+           "Resource": [
+             "*"
+           ]
+         }
+       ]
+    node: |
+      [
+         {
+           "Effect": "Allow",
+           "Action": [
+             "route53:ChangeResourceRecordSets"
+           ],
+           "Resource": [
+             "arn:aws:route53:::hostedzone/*"
+           ]
+         },
+         {
+           "Effect": "Allow",
+           "Action": [
+             "route53:ListHostedZones",
+             "route53:ListResourceRecordSets"
+           ],
+           "Resource": [
+             "*"
+           ]
+         }
+       ]
+  api:
+    loadBalancer:
+      type: Public
+  authorization:
+    rbac: {}
+  channel: stable
+  cloudProvider: aws
+  configBase: s3://cbioportal-state-of-k8s/cbioportal.review.k8s.local
+  etcdClusters:
+  - etcdMembers:
+    - instanceGroup: master-us-east-1a
+      name: a
+    name: main
+  - etcdMembers:
+    - instanceGroup: master-us-east-1a
+      name: a
+    name: events
+  iam:
+    allowContainerRegistry: true
+    legacy: false
+  kubernetesApiAccess:
+  - 0.0.0.0/0
+  kubernetesVersion: 1.9.3
+  masterInternalName: api.internal.cbioportal.review.k8s.local
+  masterPublicName: api.cbioportal.review.k8s.local
+  networkCIDR: 172.20.0.0/16
+  networking:
+    kubenet: {}
+  nonMasqueradeCIDR: 100.64.0.0/10
+  sshAccess:
+  - 0.0.0.0/0
+  subnets:
+  - cidr: 172.20.32.0/19
+    name: us-east-1a
+    type: Public
+    zone: us-east-1a
+  - cidr: 172.20.64.0/19
+    name: us-east-1c
+    type: Public
+    zone: us-east-1c
+  topology:
+    dns:
+      type: Public
+    masters: public
+    nodes: public

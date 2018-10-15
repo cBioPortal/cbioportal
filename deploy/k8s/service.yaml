@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cbioportal
+  selfLink: /api/v1/namespaces/default/services/cbioportal
+  creationTimestamp: null
+  labels:
+    run: cbioportal-jre
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: test.cbioportal.review.
+spec:
+  # externalTrafficPolicy: Cluster
+  ports:
+  - port: 80
+    name: http
+    targetPort: 80
+  selector:
+    run: cbioportal-jre
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer: {}

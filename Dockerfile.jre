@@ -1,0 +1,14 @@
+FROM openjdk:8-jre-alpine
+# copy application WAR (with libraries inside)
+COPY portal/target/cbioportal*.war /app.war
+COPY portal/target/dependency/webapp-runner.jar /webapp-runner.jar
+# specify default command
+CMD /usr/bin/java \
+    -Ddbconnector=dbcp \
+    -Ddb.suppress_schema_version_mismatch_errors=true \
+    -jar \
+    /webapp-runner.jar \
+    --expand-war \
+    --enable-compression \
+    --port ${PORT} \
+    /app.war

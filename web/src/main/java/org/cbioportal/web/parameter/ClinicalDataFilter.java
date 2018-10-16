@@ -1,6 +1,6 @@
 package org.cbioportal.web.parameter;
 
-public abstract class ClinicalDataFilter 
+public class ClinicalDataFilter 
 {
     private String attributeId;
     private ClinicalDataType clinicalDataType;

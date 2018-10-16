@@ -20,6 +20,9 @@ import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.web.parameter.ClinicalDataCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataFilter;
+import org.cbioportal.web.parameter.ClinicalDataType;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.util.StudyViewFilterApplier;
@@ -132,21 +135,27 @@ public class StudyViewControllerTest {
         Mockito.when(clinicalDataService.fetchClinicalDataCounts(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), 
             Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(clinicalDataCountMap);
 
+        ClinicalDataCountFilter clinicalDataCountFilter = new ClinicalDataCountFilter();
+        ClinicalDataFilter clinicalDataFilter = new ClinicalDataFilter();
+        clinicalDataFilter.setAttributeId(TEST_ATTRIBUTE_ID);
+        clinicalDataFilter.setClinicalDataType(ClinicalDataType.SAMPLE);
+        clinicalDataCountFilter.setAttributes(Arrays.asList(clinicalDataFilter));
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+        clinicalDataCountFilter.setStudyViewFilter(studyViewFilter);
         
-        mockMvc.perform(MockMvcRequestBuilders.post("/attributes/test_attribute_id/clinical-data-counts/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/clinical-data-counts/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(studyViewFilter)))
+            .content(objectMapper.writeValueAsString(clinicalDataCountFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].attributeId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(TEST_CLINICAL_DATA_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(3))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].attributeId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(TEST_CLINICAL_DATA_VALUE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(1));
+            .andExpect(MockMvcResultMatchers.jsonPath("$.SAMPLE.test_attribute_id[0].attributeId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.SAMPLE.test_attribute_id[0].value").value(TEST_CLINICAL_DATA_VALUE_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.SAMPLE.test_attribute_id[0].count").value(3))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.SAMPLE.test_attribute_id[1].attributeId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.SAMPLE.test_attribute_id[1].value").value(TEST_CLINICAL_DATA_VALUE_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.SAMPLE.test_attribute_id[1].count").value(1));
     }
 
     @Test

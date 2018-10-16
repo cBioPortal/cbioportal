@@ -61,18 +61,18 @@ public class StudyViewController {
     @Autowired
     private StudyViewFilterUtil studyViewFilterUtil;
 
-    @RequestMapping(value = "/attributes/{attributeId}/clinical-data-counts/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data counts by study view filter")
-    public ResponseEntity<List<ClinicalDataCount>> fetchClinicalDataCounts(
-        @ApiParam(required = true, value = "Attribute ID e.g. CANCER_TYPE")
-        @PathVariable String attributeId,
-        @ApiParam("Type of the clinical data")
-        @RequestParam(defaultValue = "SAMPLE") ClinicalDataType clinicalDataType,
+    public ResponseEntity<Map<String, Map<String, List<ClinicalDataCount>>>> fetchClinicalDataCounts(
         @ApiParam(required = true, value = "Clinical data count filter")
-        @Valid @RequestBody StudyViewFilter studyViewFilter) {
+        @Valid @RequestBody ClinicalDataCountFilter clinicalDataCountFilter) {
 
-        studyViewFilterUtil.removeSelfFromFilter(attributeId, studyViewFilter);
+        List<ClinicalDataFilter> attributes = clinicalDataCountFilter.getAttributes();
+        StudyViewFilter studyViewFilter = clinicalDataCountFilter.getStudyViewFilter();
+        if (attributes.size() == 1) {
+            studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
+        }
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
 
         if (filteredSampleIdentifiers.isEmpty()) {
@@ -81,8 +81,16 @@ public class StudyViewController {
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-        return new ResponseEntity<>(clinicalDataService.fetchClinicalDataCounts(studyIds, sampleIds, 
-            Arrays.asList(attributeId), clinicalDataType.name()).get(attributeId), HttpStatus.OK);
+        Map<String, List<ClinicalDataCount>> resultForSampleAttributes = clinicalDataService.fetchClinicalDataCounts(
+            studyIds, sampleIds, attributes.stream().filter(a -> a.getClinicalDataType().equals(ClinicalDataType.SAMPLE))
+            .map(a -> a.getAttributeId()).collect(Collectors.toList()), ClinicalDataType.SAMPLE.name());
+        Map<String, List<ClinicalDataCount>> resultForPatientAttributes = clinicalDataService.fetchClinicalDataCounts(studyIds, sampleIds, 
+        attributes.stream().filter(a -> a.getClinicalDataType().equals(ClinicalDataType.PATIENT))
+            .map(a -> a.getAttributeId()).collect(Collectors.toList()), ClinicalDataType.PATIENT.name());
+        Map<String, Map<String, List<ClinicalDataCount>>> combinedResult = new HashMap<>();
+        combinedResult.put(ClinicalDataType.SAMPLE.name(), resultForSampleAttributes);
+        combinedResult.put(ClinicalDataType.PATIENT.name(), resultForPatientAttributes);
+        return new ResponseEntity<>(combinedResult, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/attributes/{attributeId}/clinical-data-bin-counts/fetch", method = RequestMethod.POST,

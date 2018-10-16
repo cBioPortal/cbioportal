@@ -38,7 +38,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
-
+import org.apache.log4j.*;
 /**
  * To speed up CGDS data loading, bulk load from files using MySQL "LOAD DATA INFILE" functionality.
  * Intercept each record write in the normal load, buffer it in a temp file, and load the temp file when done.
@@ -50,8 +50,9 @@ import java.util.*;
 public class MySQLbulkLoader {
    private static boolean bulkLoad = false;
    private static boolean relaxedMode = false;
-   
+   //private static final Log LOG = LogFactory.getLog(MySQLbulkLoader.class); 
    private static final Map<String,MySQLbulkLoader> mySQLbulkLoaders = new LinkedHashMap<String,MySQLbulkLoader>();
+   private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(MySQLbulkLoader.class);
    /**
     * Get a MySQLbulkLoader
     * @param dbName database name
@@ -174,6 +175,9 @@ public class MySQLbulkLoader {
       if( fieldValues.length == 0 ){
          return;
       }
+      //if( fieldValues.length != 0) {
+      //   throw new RuntimeException(">>> field values passed from DaoMutation: " + Arrays.toString(fieldValues));
+      //}
       try {
          tempFileWriter.write( escapeValue(fieldValues[0]) );
          for( int i=1; i<fieldValues.length; i++ ){
@@ -234,7 +238,10 @@ public class MySQLbulkLoader {
          stmt = con.createStatement();
          
          String command = "LOAD DATA LOCAL INFILE '" + tempFileName.replace("\\", "\\\\") + "'" + " INTO TABLE " + tableName;
-         stmt.execute( command );
+         ProgressMonitor.logWarning("\n\n\n>>> command: " + command);
+        
+        LOG.log(Level.WARN, "\n\n\n >>>  command: " + command); 
+        stmt.execute( command );
          
          int updateCount = stmt.getUpdateCount();
          ProgressMonitor.setCurrentMessage(" --> records inserted into `"+tableName + "` table: " + updateCount);
@@ -244,7 +251,7 @@ public class MySQLbulkLoader {
         	 if (stmt.getWarnings() != null) {
         		 otherDetails = "More error/warning details: " + stmt.getWarnings().getMessage();
              }
-             throw new DaoException("DB Error: only "+updateCount+" of the "+nLines+" records were inserted in `" + tableName + "`. " + otherDetails + 
+             throw new DaoException("THIS IS NEW CODE FROM TESTING - DB Error: only "+updateCount+" of the "+nLines+" records were inserted in `" + tableName + "`. " + otherDetails + 
             		 " See tmp file for more details: " + tempFileName);
              
          } else {

@@ -36,7 +36,8 @@ import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.MutationKeywordUtils;
 
 import org.apache.commons.lang.StringUtils;
-
+//import org.apache.commons.logging.*;
+import org.apache.log4j.*;
 import java.sql.*;
 import java.util.*;
 import java.util.regex.*;
@@ -45,10 +46,12 @@ import java.util.regex.*;
  * Data access object for Mutation table
  */
 public final class DaoMutation {
+    private static final Logger LOG = Logger.getLogger(DaoMutation.class);
     public static final String NAN = "NaN";
     private static final String MUTATION_COUNT_ATTR_ID = "MUTATION_COUNT";
 
     public static int addMutation(ExtendedMutation mutation, boolean newMutationEvent) throws DaoException {
+        LOG.log(Level.WARN, ">>> starting bulk import to add mutation: " + mutation.getTotalCopyNumber()); 
         if (!MySQLbulkLoader.isBulkLoad()) {
             throw new DaoException("You have to turn on MySQLbulkLoader in order to insert mutations");
         } else {
@@ -90,7 +93,27 @@ public final class DaoMutation {
                     mutation.getDriverFilter(),
                     mutation.getDriverFilterAnn(),
                     mutation.getDriverTiersFilter(),
-                    mutation.getDriverTiersFilterAnn());
+                    mutation.getDriverTiersFilterAnn(),
+                    //FACETS
+                    Float.toString(mutation.getDipLogR()),
+                    Float.toString(mutation.getCellularFraction()),
+                    Integer.toString(mutation.getTotalCopyNumber()),
+                    Integer.toString(mutation.getMinorCopyNumber()),
+                    Float.toString(mutation.getCellularFractionEm()),
+                    Float.toString(mutation.getPurity()),
+                    Float.toString(mutation.getPloidy()),
+                    Float.toString(mutation.getCcfMCopies()),
+                    Float.toString(mutation.getCcfMCopiesLower()),
+                    Float.toString(mutation.getCcfMCopiesUpper()),
+                    Float.toString(mutation.getCcfMCopiesProb95()),
+                    Float.toString(mutation.getCcfMCopiesProb90()),
+                    Float.toString(mutation.getCcfMCopiesEm()),
+                    Float.toString(mutation.getCcfMCopiesLowerEm()),
+                    Float.toString(mutation.getCcfMCopiesUpperEm()),
+                    Float.toString(mutation.getCcfMCopiesProb95Em()),
+                    Float.toString(mutation.getCcfMCopiesProb90Em()),
+                    Integer.toString(mutation.getTotalCopyNumberEm()),
+                    Integer.toString(mutation.getMinorCopyNumberEm()));
             return result;
         }
     }
@@ -692,6 +715,25 @@ public final class DaoMutation {
             mutation.setTumorRefCount(rs.getInt("TUMOR_REF_COUNT"));
             mutation.setNormalAltCount(rs.getInt("NORMAL_ALT_COUNT"));
             mutation.setNormalRefCount(rs.getInt("NORMAL_REF_COUNT"));
+            mutation.setDipLogR(rs.getFloat("DIP_LOG_R"));
+            mutation.setCellularFraction(rs.getFloat("CELLULAR_FRACTION"));
+            mutation.setTotalCopyNumber(rs.getInt("TOTAL_COPY_NUMBER"));
+            mutation.setMinorCopyNumber(rs.getInt("MINOR_COPY_NUMBER"));
+            mutation.setCellularFraction(rs.getFloat("CELLULAR_FRACTION"));
+            mutation.setPurity(rs.getFloat("PURITY"));
+            mutation.setPloidy(rs.getFloat("PLOIDY"));
+            mutation.setCcfMCopies(rs.getFloat("CCF_M_COPIES"));
+            mutation.setCcfMCopiesLower(rs.getFloat("CCF_M_COPIES_LOWER"));
+            mutation.setCcfMCopiesUpper(rs.getFloat("CCF_M_COPIES_UPPER"));
+            mutation.setCcfMCopiesProb95(rs.getFloat("CCF_M_COPIES_PROB_95"));
+            mutation.setCcfMCopiesProb90(rs.getFloat("CCF_M_COPIES_PROB_90"));
+            mutation.setCcfMCopiesEm(rs.getFloat("CCF_M_COPIES_EM"));
+            mutation.setCcfMCopiesLowerEm(rs.getFloat("CCF_M_COPIES_LOWER_EM"));
+            mutation.setCcfMCopiesUpperEm(rs.getFloat("CCF_M_COPIES_UPPER_EM"));
+            mutation.setCcfMCopiesProb95Em(rs.getFloat("CCF_M_COPIES_PROB_95_EM"));
+            mutation.setCcfMCopiesProb90Em(rs.getFloat("CCF_M_COPIES_PROB_90_EM"));
+            mutation.setTotalCopyNumberEm(rs.getInt("TOTAL_COPY_NUMBER_EM"));
+            mutation.setMinorCopyNumberEm(rs.getInt("MINOR_COPY_NUMBER_EM"));
             return mutation;
         }
         catch(NullPointerException e) {

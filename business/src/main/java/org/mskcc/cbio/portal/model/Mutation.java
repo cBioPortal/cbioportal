@@ -74,6 +74,25 @@ public class Mutation implements Serializable {
     private MolecularProfile geneticProfile;
     private Sample sample;
     private Gene gene;
+    private Float dipLogR;
+    private Float cellularFraction;
+    private Integer totalCopyNumber;
+    private Integer minorCopyNumber;
+    private Float cellularFractionEm;
+    private Integer totalCopyNumberEm;
+    private Integer minorCopyNumberEm;
+    private Float purity;
+    private Float ploidy;
+    private Float ccfMCopies;
+    private Float ccfMCopiesLower;
+    private Float ccfMCopiesUpper;
+    private Float ccfMCopiesProb95;
+    private Float ccfMCopiesProb90;
+    private Float ccfMCopiesEm;
+    private Float ccfMCopiesLowerEm;
+    private Float ccfMCopiesUpperEm;
+    private Float ccfMCopiesProb95Em;
+    private Float ccfMCopiesProb90Em;
 
     public Integer getMutationEventId() {
         return mutationEventId;
@@ -345,5 +364,157 @@ public class Mutation implements Serializable {
 
     public void setGene(Gene gene) {
         this.gene = gene;
+    }
+    
+    public Float getDipLogR() {
+        return dipLogR;
+    }
+
+    public void setDipLogR(Float dipLogR) {
+        this.dipLogR = dipLogR;
+    }
+
+    public Float getCellularFraction() {
+        return cellularFraction;
+    }
+
+    public void setCellularFraction(Float cellularFraction) {
+        this.cellularFraction = cellularFraction;
+    }
+
+    public Integer getTotalCopyNumber() {
+        return totalCopyNumber;
+    }
+
+    public void setTotalCopyNumber(Integer totalCopyNumber) {
+        this.totalCopyNumber = totalCopyNumber;
+    }
+
+    public Integer getMinorCopyNumber() {
+        return minorCopyNumber;
+    }
+
+    public void setMinorCopyNumber(Integer minorCopyNumber) {
+        this.minorCopyNumber = minorCopyNumber;
+    }
+
+    public Float getCellularFractionEm() {
+        return cellularFractionEm;
+    }
+
+    public void setCellularFractionEm(Float cellularFractionEm) {
+        this.cellularFractionEm = cellularFractionEm;
+    }
+
+    public Integer getTotalCopyNumberEm() {
+        return totalCopyNumberEm;
+    }
+
+    public void setTotalCopyNumberEm(Integer totalCopyNumberEm) {
+        this.totalCopyNumberEm = totalCopyNumberEm;
+    }
+
+    public Integer getMinorCopyNumberEm() {
+        return minorCopyNumberEm;
+    }
+
+    public void setMinorCopyNumberEm(Integer minorCopyNumberEm) {
+        this.minorCopyNumberEm = minorCopyNumberEm;
+    }
+
+    public Float getPurity() {
+        return purity;
+    }
+
+    public void setPurity(Float purity) {
+        this.purity = purity;
+    }
+
+    public Float getPloidy() {
+        return ploidy;
+    }
+
+    public void setPloidy(Float ploidy) {
+        this.ploidy = ploidy;
+    }
+
+    public Float getCcfMCopies() {
+        return ccfMCopies;
+    }
+
+    public void setCcfMCopies(Float ccfMCopies) {
+        this.ccfMCopies = ccfMCopies;
+    }
+
+    public Float getCcfMCopiesLower() {
+        return ccfMCopiesLower;
+    }
+
+    public void setCcfMCopiesLower(Float ccfMCopiesLower) {
+        this.ccfMCopiesLower = ccfMCopiesLower;
+    }
+
+    public Float getCcfMCopiesUpper() {
+        return ccfMCopiesUpper;
+    }
+
+    public void setCcfMCopiesUpper(Float ccfMCopiesUpper) {
+        this.ccfMCopiesUpper = ccfMCopiesUpper;
+    }
+
+    public Float getCcfMCopiesProb95() {
+        return ccfMCopiesProb95;
+    }
+
+    public void setCcfMCopiesProb95(Float ccfMCopiesProb95) {
+        this.ccfMCopiesProb95 = ccfMCopiesProb95;
+    }
+
+    public Float getCcfMCopiesProb90() {
+        return ccfMCopiesProb90;
+    }
+
+    public void setCcfMCopiesProb90(Float ccfMCopiesProb90) {
+        this.ccfMCopiesProb90 = ccfMCopiesProb90;
+    }
+
+    public Float getCcfMCopiesEm() {
+        return ccfMCopiesEm;
+    }
+
+    public void setCcfMCopiesEm(Float ccfMCopiesEm) {
+        this.ccfMCopiesEm = ccfMCopiesEm;
+    }
+
+    public Float getCcfMCopiesLowerEm() {
+        return ccfMCopiesLowerEm;
+    }
+
+    public void setCcfMCopiesLowerEm(Float ccfMCopiesLowerEm) {
+        this.ccfMCopiesLowerEm = ccfMCopiesLowerEm;
+    }
+
+    public Float getCcfMCopiesUpperEm() {
+        return ccfMCopiesUpperEm;
+    }
+
+    public void setCcfMCopiesUpperEm(Float ccfMCopiesUpperEm) {
+        this.ccfMCopiesUpperEm = ccfMCopiesUpperEm;
+    }
+
+    public Float getCcfMCopiesProb95Em() {
+        return ccfMCopiesProb95Em;
+    }
+
+    public void setCcfMCopiesProb95Em(Float ccfMCopiesProb95Em) {
+        this.ccfMCopiesProb95Em = ccfMCopiesProb95Em;
+    }
+
+    public Float getCcfMCopiesProb90Em() {
+        return ccfMCopiesProb90Em;
+    }
+
+    public void setCcfMCopiesProb90Em(Float ccfMCopiesProb90Em) {
+        this.ccfMCopiesProb90Em = ccfMCopiesProb90Em;
     }
 }

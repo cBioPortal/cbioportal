@@ -113,6 +113,7 @@ public class ImportExtendedMutationData{
 
                 long mutationEventId = DaoMutation.getLargestMutationEventId();
 
+        ProgressMonitor.logWarning("\n\n\n>>> mutationFile: " + mutationFile.toString()); 
         FileReader reader = new FileReader(mutationFile);
         BufferedReader buf = new BufferedReader(reader);
 
@@ -120,7 +121,7 @@ public class ImportExtendedMutationData{
 
         // process MAF header and return line immediately following it
         String line = processMAFHeader(buf);
-
+        System.out.print("\n\n\n>>> Line: " + line);
         MafUtil mafUtil = new MafUtil(line);
 
         boolean fileHasOMAData = false;
@@ -224,6 +225,27 @@ public class ImportExtendedMutationData{
                 int proteinPosStart,
                     proteinPosEnd;
 
+                //FACETS
+                int totalCopyNumber,
+                    minorCopyNumber,
+                    totalCopyNumberEm,
+                    minorCopyNumberEm;
+                float dipLogR,
+                    cellularFraction,
+                    cellularFractionEm,
+                    purity,
+                    ploidy,
+                    ccfMCopies,
+                    ccfMCopiesLower,
+                    ccfMCopiesUpper,
+                    ccfMCopiesProb95,
+                    ccfMCopiesProb90,
+                    ccfMCopiesEm,
+                    ccfMCopiesLowerEm,
+                    ccfMCopiesUpperEm,
+                    ccfMCopiesProb95Em,
+                    ccfMCopiesProb90Em;
+
                 // determine whether to use canonical or best effect transcript
 
                 // try canonical first
@@ -261,6 +283,29 @@ public class ImportExtendedMutationData{
                 proteinPosEnd = ExtendedMutationUtil.getProteinPosEnd(
                         record.getProteinPosition(), proteinChange);
 
+
+                // FACETS
+                dipLogR = record.getDipLogR();
+                cellularFraction = record.getCellularFraction();
+                totalCopyNumber = record.getTotalCopyNumber();
+                minorCopyNumber = record.getMinorCopyNumber();
+                cellularFractionEm = record.getCellularFractionEm();
+                totalCopyNumberEm = record.getTotalCopyNumberEm();
+                minorCopyNumberEm = record.getMinorCopyNumberEm();
+                purity = record.getPurity();
+                ploidy = record.getPloidy();
+                ccfMCopies = record.getCcfMCopies();
+                ccfMCopiesLower = record.getCcfMCopiesLower();
+                ccfMCopiesUpper = record.getCcfMCopiesUpper();
+                ccfMCopiesProb95 = record.getCcfMCopiesProb95();
+                ccfMCopiesProb90 = record.getCcfMCopiesProb90();
+                ccfMCopiesEm = record.getCcfMCopiesEm();
+                ccfMCopiesLowerEm = record.getCcfMCopiesLowerEm();
+                ccfMCopiesUpperEm = record.getCcfMCopiesUpperEm();
+                ccfMCopiesProb95Em = record.getCcfMCopiesProb95Em();
+                ccfMCopiesProb90Em = record.getCcfMCopiesProb90Em();
+
+                ProgressMonitor.logWarning("\n\n\n >>> ImportExtendedMutations | setting totalCopyNumber: " + totalCopyNumber);
                 //  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
                 String geneSymbol = record.getHugoGeneSymbol();
                 String entrezIdString = record.getGivenEntrezGeneId();
@@ -398,6 +443,27 @@ public class ImportExtendedMutationData{
                     // TODO we don't use this info right now...
                     mutation.setCanonicalTranscript(true);
 
+                    mutation.setDipLogR(dipLogR);
+                    mutation.setCellularFraction(cellularFraction);
+                    mutation.setTotalCopyNumber(totalCopyNumber);
+                    mutation.setMinorCopyNumber(minorCopyNumber);
+                    mutation.setCellularFractionEm(cellularFractionEm);
+                    mutation.setTotalCopyNumberEm(totalCopyNumberEm);
+                    mutation.setMinorCopyNumberEm(minorCopyNumberEm);
+                    mutation.setPurity(purity);
+                    mutation.setPloidy(ploidy);
+                    mutation.setCcfMCopies(ccfMCopies);
+                    mutation.setCcfMCopiesLower(ccfMCopiesLower);
+                    mutation.setCcfMCopiesUpper(ccfMCopiesUpper);
+                    mutation.setCcfMCopiesProb95(ccfMCopiesProb95);
+                    mutation.setCcfMCopiesProb90(ccfMCopiesProb90);
+                    mutation.setCcfMCopiesEm(ccfMCopiesEm);
+                    mutation.setCcfMCopiesLowerEm(ccfMCopiesLowerEm);
+                    mutation.setCcfMCopiesUpperEm(ccfMCopiesUpperEm);
+                    mutation.setCcfMCopiesProb95Em(ccfMCopiesProb95Em);
+                    mutation.setCcfMCopiesProb90Em(ccfMCopiesProb90Em);
+
+                    ProgressMonitor.logWarning("\n\n\n>>> Setting mutations.TotalCopyNumber " + mutation.getTotalCopyNumber());
                     sequencedCaseSet.add(sample.getStableId());
 
                     //  Filter out Mutations
@@ -416,9 +482,12 @@ public class ImportExtendedMutationData{
 
                                                 ExtendedMutation exist = mutations.get(mutation);
                                                 if (exist!=null) {
+                                                    ProgressMonitor.logWarning("\n\n\n >>> mutaiton already exist - calling mergeMutationData");
                                                     ExtendedMutation merged = mergeMutationData(exist, mutation);
+                                                    ProgressMonitor.logWarning("\n\n\n >>> mergedMutation tcn: " + merged.getTotalCopyNumber());
                                                     mutations.put(merged, merged);
                                                 } else {
+                                                    ProgressMonitor.logWarning("\n\n\n >>> mutaiton doesn't exit exist");
                                                     mutations.put(mutation,mutation);
                                                 }
                                                 if(!sampleSet.contains(sample.getStableId())) {

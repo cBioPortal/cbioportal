@@ -196,6 +196,63 @@ public class MutationModelConverter {
         if (mutation.getNormalRefCount() != null) {
             extendedMutation.setNormalRefCount(mutation.getNormalRefCount());
         }
+        if (mutation.getDipLogR() != null) {
+            extendedMutation.setDipLogR(mutation.getDipLogR());
+        }
+        if (mutation.getCellularFraction() != null) {
+            extendedMutation.setCellularFraction(mutation.getCellularFraction());
+        }
+        if (mutation.getTotalCopyNumber() != null) {
+            extendedMutation.setTotalCopyNumber(mutation.getTotalCopyNumber());
+        }
+        if (mutation.getMinorCopyNumber() != null) {
+            extendedMutation.setMinorCopyNumber(mutation.getMinorCopyNumber());
+        }
+        if (mutation.getCellularFractionEm() != null) {
+            extendedMutation.setCellularFractionEm(mutation.getCellularFractionEm());
+        }
+        if (mutation.getTotalCopyNumberEm() != null) {
+            extendedMutation.setTotalCopyNumberEm(mutation.getTotalCopyNumberEm());
+        }
+        if (mutation.getMinorCopyNumber() != null) {
+            extendedMutation.setMinorCopyNumberEm(mutation.getMinorCopyNumberEm());
+        }
+        if (mutation.getPurity() != null) {
+            extendedMutation.setPurity(mutation.getPurity());
+        }
+        if (mutation.getPloidy() != null) {
+            extendedMutation.setPloidy(mutation.getPloidy());
+        }
+        if (mutation.getCcfMCopies() != null) {
+            extendedMutation.setCcfMCopies(mutation.getCcfMCopies());
+        }
+        if (mutation.getCcfMCopiesLower() != null) {
+            extendedMutation.setCcfMCopiesLower(mutation.getCcfMCopiesLower());
+        }
+        if (mutation.getCcfMCopiesUpper() != null) {
+            extendedMutation.setCcfMCopiesUpper(mutation.getCcfMCopiesUpper());
+        }
+        if (mutation.getCcfMCopiesProb95() != null) {
+            extendedMutation.setCcfMCopiesProb95(mutation.getCcfMCopiesProb95());
+        }
+        if (mutation.getCcfMCopiesProb90() != null) {
+            extendedMutation.setCcfMCopiesProb90(mutation.getCcfMCopiesProb90());
+        }
+        if (mutation.getCcfMCopiesEm() != null) {
+            extendedMutation.setCcfMCopiesEm(mutation.getCcfMCopiesEm());
+        }
+        if (mutation.getCcfMCopiesLowerEm() != null) {
+            extendedMutation.setCcfMCopiesLowerEm(mutation.getCcfMCopiesLowerEm());
+        }
+        if (mutation.getCcfMCopiesUpperEm() != null) {
+            extendedMutation.setCcfMCopiesUpperEm(mutation.getCcfMCopiesUpperEm());
+        }
+        if (mutation.getCcfMCopiesProb95Em() != null) {
+            extendedMutation.setCcfMCopiesProb95Em(mutation.getCcfMCopiesProb95Em());
+        }
+        if (mutation.getCcfMCopiesProb90Em() != null) {
+            extendedMutation.setCcfMCopiesProb90Em(mutation.getCcfMCopiesProb90Em());
+        }
 
         return extendedMutation;
     }

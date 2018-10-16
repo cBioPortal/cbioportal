@@ -39,6 +39,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import joptsimple.internal.Strings;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Utility Class for Parsing MAF Files.
@@ -47,6 +49,7 @@ import joptsimple.internal.Strings;
  */
 public class MafUtil
 {
+    private static final Log LOG = LogFactory.getLog(MafUtil.class);
     private static final Pattern validNucleotidesPattern = Pattern.compile("^([ATGC]*)$");
 	// standard header column names
 	public static final String HUGO_SYMBOL = "Hugo_Symbol";
@@ -152,6 +155,27 @@ public class MafUtil
 	public static final String MA_LINK_PDB = "MA:link.PDB";
 	public static final String MA_PROTEIN_CHANGE = "MA:protein.change";
 
+        // FACETS column names
+        public static final String DIP_LOG_R = "dipLogR";
+        public static final String CELLULAR_FRACTION = "cf";
+        public static final String TOTAL_COPY_NUMBER = "tcn";
+        public static final String MINOR_COPY_NUMBER = "lcn";
+        public static final String CELLULAR_FRACTION_EM = "cf.em";
+        public static final String TOTAL_COPY_NUMBER_EM = "tcn.em";
+        public static final String MINOR_COPY_NUMBER_EM = "lcn.em";
+        public static final String PURITY = "purity";
+        public static final String PLOIDY = "ploidy";
+        public static final String CCF_M_COPIES = "ccf_Mcopies";
+        public static final String CCF_M_COPIES_LOWER = "ccf_Mcopies_lower";
+        public static final String CCF_M_COPIES_UPPER = "ccf_Mcopies_upper";
+        public static final String CCF_M_COPIES_PROB_95 = "ccf_Mcopies_prob95";
+        public static final String CCF_M_COPIES_PROB_90 = "ccf_Mcopies_prob90";
+        public static final String CCF_M_COPIES_EM = "ccf_Mcopies_em";
+        public static final String CCF_M_COPIES_LOWER_EM = "ccf_Mcopies_lower_em";
+        public static final String CCF_M_COPIES_UPPER_EM = "ccf_Mcopies_upper_em";
+        public static final String CCF_M_COPIES_PROB_95_EM = "ccf_Mcopies_prob95_em";
+        public static final String CCF_M_COPIES_PROB_90_EM = "ccf_Mcopies_prob90_em";
+
 	// custom filtering of passenger and driver mutations column names
 	public static final String DRIVER_FILTER = "cbp_driver";
 	public static final String DRIVER_FILTER_ANNOTATION = "cbp_driver_annotation";
@@ -249,6 +273,27 @@ public class MafUtil
 	private int driverAnnIndex = -1; //cbp_driver_annotation
 	private int driverTiersIndex = -1; //cbp_driver_tiers
 	private int driverTiersAnnIndex = -1; //cbp_driver_tiers_annotation
+
+        // inialize FACETS indices
+        private int dipLogRIndex = -1;
+        private int cellularFractionIndex = -1;
+        private int totalCopyNumberIndex = -1;
+        private int minorCopyNumberIndex = -1;
+        private int cellularFractionEmIndex = -1;
+        private int totalCopyNumberEmIndex = -1;
+        private int minorCopyNumberEmIndex = -1;
+        private int purityIndex = -1;
+        private int ploidyIndex = -1;
+        private int ccfMCopiesIndex = -1;
+        private int ccfMCopiesLowerIndex = -1;
+        private int ccfMCopiesUpperIndex = -1;
+        private int ccfMCopiesProb95Index = -1;
+        private int ccfMCopiesProb90Index = -1;
+        private int ccfMCopiesEmIndex = -1;
+        private int ccfMCopiesLowerEmIndex = -1;
+        private int ccfMCopiesUpperEmIndex = -1;
+        private int ccfMCopiesProb95EmIndex = -1;
+        private int ccfMCopiesProb90EmIndex = -1;
 
 	// number of headers in the header line
     private int headerCount;
@@ -452,6 +497,46 @@ public class MafUtil
             		driverTiersIndex = i;
             } else if(header.equalsIgnoreCase(DRIVER_TIERS_FILTER_ANNOTATION)) {
             		driverTiersAnnIndex = i;
+            // start of FACETS 
+            } else if(header.equalsIgnoreCase(DIP_LOG_R)) {
+                dipLogRIndex = i;
+                LOG.warn("\n\n\n>>> dipLogRIndex: " + dipLogRIndex);
+            } else if(header.equalsIgnoreCase(CELLULAR_FRACTION)) {
+                cellularFractionIndex = i;
+            } else if(header.equalsIgnoreCase(TOTAL_COPY_NUMBER)) {
+                totalCopyNumberIndex = i;
+            } else if(header.equalsIgnoreCase(MINOR_COPY_NUMBER)) {
+                minorCopyNumberIndex = i;
+            } else if(header.equalsIgnoreCase(CELLULAR_FRACTION_EM)) {
+                cellularFractionEmIndex = i;
+            } else if(header.equalsIgnoreCase(TOTAL_COPY_NUMBER_EM)) {
+                totalCopyNumberEmIndex = i;
+            } else if(header.equalsIgnoreCase(MINOR_COPY_NUMBER_EM)) {
+                minorCopyNumberEmIndex = i;
+            } else if(header.equalsIgnoreCase(PURITY)) {
+                purityIndex = i;
+            } else if(header.equalsIgnoreCase(PLOIDY)) {
+                ploidyIndex = i;
+            } else if(header.equalsIgnoreCase(CCF_M_COPIES)) {
+                ccfMCopiesIndex = i;
+            } else if(header.equalsIgnoreCase(CCF_M_COPIES_LOWER)) {
+                ccfMCopiesLowerIndex = i;
+            } else if(header.equalsIgnoreCase(CCF_M_COPIES_UPPER)) {
+                ccfMCopiesUpperIndex = i;
+            } else if(header.equalsIgnoreCase(CCF_M_COPIES_PROB_95)) {
+                ccfMCopiesProb95Index = i;
+            } else if(header.equalsIgnoreCase(CCF_M_COPIES_PROB_90)) {
+                ccfMCopiesProb90Index = i;
+            } else if(header.equalsIgnoreCase(CCF_M_COPIES_EM)) {
+                ccfMCopiesEmIndex = i;
+            } else if(header.equalsIgnoreCase(CCF_M_COPIES_LOWER_EM)) {
+                ccfMCopiesLowerEmIndex = i;
+            } else if(header.equalsIgnoreCase(CCF_M_COPIES_UPPER_EM)) {
+                ccfMCopiesUpperEmIndex = i;
+            } else if(header.equalsIgnoreCase(CCF_M_COPIES_PROB_95_EM)) {
+                ccfMCopiesProb95EmIndex = i;
+            } else if(header.equalsIgnoreCase(CCF_M_COPIES_PROB_90_EM)) {
+                ccfMCopiesProb90EmIndex = i;
             }
         }
     }
@@ -566,9 +651,30 @@ public class MafUtil
 	    record.setDriverFilterAnn(TabDelimitedFileUtil.getPartStringAllowEmpty(driverAnnIndex, parts));
 	    record.setDriverTiersFilter(TabDelimitedFileUtil.getPartStringAllowEmptyAndNA(driverTiersIndex, parts));
 	    record.setDriverTiersFilterAnn(TabDelimitedFileUtil.getPartStringAllowEmpty(driverTiersAnnIndex, parts));
-
+                
+            // FACETS columns
+            // not using TabDelimitedFileUtil.getPartFloat, -1 may not be a safe value for some FACETS float fields
+            record.setDipLogR(TabDelimitedFileUtil.getPartFloat2(dipLogRIndex, parts));
+            record.setCellularFraction(TabDelimitedFileUtil.getPartFloat2(cellularFractionIndex, parts));
+            record.setTotalCopyNumber(TabDelimitedFileUtil.getPartInt(totalCopyNumberIndex, parts));
+            record.setMinorCopyNumber(TabDelimitedFileUtil.getPartInt(minorCopyNumberIndex, parts));
+            record.setCellularFractionEm(TabDelimitedFileUtil.getPartFloat2(cellularFractionEmIndex, parts));
+            record.setTotalCopyNumberEm(TabDelimitedFileUtil.getPartInt(totalCopyNumberEmIndex, parts));
+            record.setMinorCopyNumberEm(TabDelimitedFileUtil.getPartInt(minorCopyNumberEmIndex, parts));
+            record.setPurity(TabDelimitedFileUtil.getPartFloat2(purityIndex, parts));
+            record.setPloidy(TabDelimitedFileUtil.getPartFloat2(ploidyIndex, parts));
+            record.setCcfMCopies(TabDelimitedFileUtil.getPartFloat2(ccfMCopiesIndex, parts));
+            record.setCcfMCopiesLower(TabDelimitedFileUtil.getPartFloat2(ccfMCopiesLowerIndex, parts));
+            record.setCcfMCopiesUpper(TabDelimitedFileUtil.getPartFloat2(ccfMCopiesUpperIndex, parts));
+            record.setCcfMCopiesProb95(TabDelimitedFileUtil.getPartFloat2(ccfMCopiesProb95Index, parts));
+            record.setCcfMCopiesProb90(TabDelimitedFileUtil.getPartFloat2(ccfMCopiesProb90Index, parts));
+            record.setCcfMCopiesEm(TabDelimitedFileUtil.getPartFloat2(ccfMCopiesEmIndex, parts));
+            record.setCcfMCopiesLowerEm(TabDelimitedFileUtil.getPartFloat2(ccfMCopiesLowerEmIndex, parts));
+            record.setCcfMCopiesUpperEm(TabDelimitedFileUtil.getPartFloat2(ccfMCopiesUpperEmIndex, parts));
+            record.setCcfMCopiesProb95Em(TabDelimitedFileUtil.getPartFloat2(ccfMCopiesProb95EmIndex, parts));
+            record.setCcfMCopiesProb90Em(TabDelimitedFileUtil.getPartFloat2(ccfMCopiesProb90EmIndex, parts));
             fixEndPointForInsertion(record);
-
+            LOG.warn("\n\n\n >>> TotalCopyNumber(tcn): " + record.getTotalCopyNumber());
         return record;
     }
 
@@ -893,7 +999,84 @@ public class MafUtil
 		return oncoProteinPosEndBeIndex;
 	}
 
-	public int getDriverIndex()
+        //FACETS
+        public int getDipLogRIndex() {
+            return dipLogRIndex;
+        }
+    
+        public int getCellularFractionIndex() {
+            return cellularFractionIndex;
+        }
+    
+        public int getTotalCopyNumberIndex() {
+            return totalCopyNumberIndex;
+        }
+    
+        public int getMinorCopyNumberIndex() {
+            return minorCopyNumberIndex;
+        }
+    
+        public int getCellularFractionEmIndex() {
+            return cellularFractionEmIndex;
+        }
+    
+        public int getTotalCopyNumberEmIndex() {
+            return totalCopyNumberEmIndex;
+        }
+    
+        public int getMinorCopyNumberEmIndex() {
+            return minorCopyNumberEmIndex;
+        }
+    
+        public int getPurityIndex() {
+            return purityIndex;
+        }
+    
+        public int getPloidyIndex() {
+            return ploidyIndex;
+        }
+    
+        public int getCcfMCopiesIndex() {
+            return ccfMCopiesIndex;
+        }
+    
+        public int getCcfMCopiesLowerIndex() {
+            return ccfMCopiesLowerIndex;
+        }
+    
+        public int getCcfMCopiesUpperIndex() {
+            return ccfMCopiesUpperIndex;
+        }
+    
+        public int getCcfMCopiesProb95Index() {
+            return ccfMCopiesProb95Index;
+        }
+    
+        public int getCcfMCopiesProb90Index() {
+            return ccfMCopiesProb90Index;
+        }
+    
+        public int getCcfMCopiesEmIndex() {
+            return ccfMCopiesEmIndex;
+        }
+    
+        public int getCcfMCopiesLowerEmIndex() {
+            return ccfMCopiesLowerEmIndex;
+        }
+    
+        public int getCcfMCopiesUpperEmIndex() {
+            return ccfMCopiesUpperEmIndex;
+        }
+    
+        public int getCcfMCopiesProb95EmIndex() {
+            return ccfMCopiesProb95EmIndex;
+        }
+    
+        public int getCcfMCopiesProb90EmIndex() {
+            return ccfMCopiesProb90EmIndex;
+        } 
+	
+        public int getDriverIndex()
 	{
 		return driverIndex;
 	}

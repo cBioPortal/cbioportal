@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -132,6 +133,9 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
 	public Map<String, List<ClinicalDataCount>> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds,
 			List<String> attributeIds, String clinicalDataType) {
 
+        if (attributeIds.isEmpty()) {
+            return new HashMap<>();
+        }
         List<ClinicalDataCount> clinicalDataCounts = clinicalDataRepository.fetchClinicalDataCounts(studyIds, sampleIds,
             attributeIds, clinicalDataType).stream().filter(c -> !c.getValue().toUpperCase().equals("NA") && 
             !c.getValue().toUpperCase().equals("NAN") && !c.getValue().toUpperCase().equals("N/A")).collect(Collectors.toList());

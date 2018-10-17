@@ -21,6 +21,7 @@
 	* [General Data](#general-data)
 		* [Does the portal contain cancer study X?](#does-the-portal-contain-cancer-study-x)
 		* [Which resources are integrated for variant annotation?](#which-resources-are-integrated-for-variant-annotation)
+        * [What version of the human reference genome is being used in cBioPortal?](#what-version-of-the-human-reference-genome-is-being-used-in-cbioportal)
 		* [What are the sources of biological network data?](#what-are-the-sources-of-biological-network-data)
 		* [How does cBioPortal handle duplicate samples or sample IDs across different studies?](#how-does-cbioportal-handle-duplicate-samples-or-sample-ids-across-different-studies)
 		* [Are there any normal tissue samples available through cBioPortal?](#are-there-any-normal-tissue-samples-available-through-cbioportal)
@@ -120,6 +121,8 @@ If you log in, you gain the ability to save your virtual study to the list of ex
 Check out the [Data Sets Page](http://www.cbioportal.org/data_sets.jsp) for the complete set of cancer studies currently stored in the portal. If you do not see your specific cancer study of interest, please [contact us](mailto:cbioportal@googlegroups.com), and we will let you know if it's in the queue.
 ### Which resources are integrated for variant annotation?
 cBioPortal supports the annotation of variants from several different databases. These databases provide information about the recurrence of, or prior knowledge about, specific amino acid changes. For each variant, the number of occurrences of mutations at the same amino acid position present in the COSMIC database are reported. Furthermore, variants are annotated as “hotspots” if the amino acid positions were found to be recurrent linear hotspots, as defined by the Cancer Hotspots method ([cancerhotspots.org](http://www.cancerhotspots.org/)), or three-dimensional hotspots, as defined by 3D Hotspots ([3dhotspots.org](https://www.3dhotspots.org/)). Prior knowledge about variants, including clinical actionability information, is provided from three different sources: OncoKB ([oncokb.org](http://oncokb.org/)), CIViC ([civicdb.org](https://civicdb.org/)), as well as My Cancer Genome ([mycancergenome.org](https://www.mycancergenome.org/)). For OncoKB, exact levels of clinical actionability are displayed in cBioPortal, as defined by [the OncoKB paper](http://ascopubs.org/doi/full/10.1200/PO.17.00011).
+### What version of the human reference genome is being used in cBioPortal?
+The [public cBioPortal](http://cbioportal.org) is currently using hg19/GRCh37.
 ### What are the sources of biological network data?
 The biological network data were retrieved from [Pathway Commons](http://www.pathwaycommons.org/).
 ### How does cBioPortal handle duplicate samples or sample IDs across different studies?

@@ -331,8 +331,8 @@ public class ClinicalDataMyBatisRepositoryTest {
 
         Assert.assertEquals(6, result.size());
         ClinicalData data = result.get(0);
-        Assert.assertEquals("OTHER_SAMPLE_ID", data.getAttrId());
-        Assert.assertEquals("5C631CE8-F96A-4C35-A459-556FC4AB21E1", data.getAttrValue());
+        Assert.assertEquals("DAYS_TO_COLLECTION", data.getAttrId());
+        Assert.assertEquals("276", data.getAttrValue());
         Assert.assertEquals((Integer) 1, data.getInternalId());
         Assert.assertNull(data.getClinicalAttribute());
     }
@@ -361,12 +361,12 @@ public class ClinicalDataMyBatisRepositoryTest {
         
         Assert.assertEquals(2, result.size());
         ClinicalDataCount clinicalDataCount1 = result.get(0);
-        Assert.assertEquals("OTHER_SAMPLE_ID", clinicalDataCount1.getAttributeId());
-        Assert.assertEquals("91E7F41C-17B3-4724-96EF-D3C207B964E1", clinicalDataCount1.getValue());
-        Assert.assertEquals((Integer) 1, clinicalDataCount1.getCount());
+        Assert.assertEquals("DAYS_TO_COLLECTION", clinicalDataCount1.getAttributeId());
+        Assert.assertEquals("111", clinicalDataCount1.getValue());
+        Assert.assertEquals((Integer) 2, clinicalDataCount1.getCount());
         ClinicalDataCount clinicalDataCount2 = result.get(1);
-        Assert.assertEquals("DAYS_TO_COLLECTION", clinicalDataCount2.getAttributeId());
-        Assert.assertEquals("111", clinicalDataCount2.getValue());
-        Assert.assertEquals((Integer) 2, clinicalDataCount2.getCount());
+        Assert.assertEquals("OTHER_SAMPLE_ID", clinicalDataCount2.getAttributeId());
+        Assert.assertEquals("91E7F41C-17B3-4724-96EF-D3C207B964E1", clinicalDataCount2.getValue());
+        Assert.assertEquals((Integer) 1, clinicalDataCount2.getCount());
     }
 }

@@ -24,7 +24,7 @@ Use it as a template to create your own:
 For more information about the `portal.properties` file,
 see the [reference](portal.properties-Reference.md) page.
 
-## Add PORTAL_HOME to Tomcat
+## Set environment variables for Tomcat
 
 The `PORTAL_HOME` environment variable needs to be available to
 the `cbioportal.war` file which runs within the Tomcat server,
@@ -34,6 +34,11 @@ and add a line like the following, pointing it to the folder containing
 `portal.properties`:
 
     export PORTAL_HOME=/Users/johndoe/cbioportal
+
+In additon, add a line to make Tomcat pass `-Dauthenticate=false`
+as a JVM argument, or replace the word ‘false’ by the method to use:
+
+    CATALINA_OPTS='-Dauthenticate=false'
 
 ## Add the MySQL JDBC Driver to Apache Tomcat
 

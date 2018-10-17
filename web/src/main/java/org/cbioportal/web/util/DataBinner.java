@@ -284,7 +284,9 @@ public class DataBinner
                     upperOutlierBin.getStart());
                 
                 // override box range with data bin min & max values (ignoring actual box range for now) 
-                boxRange = Range.closed(dataBins.get(0).getStart(), dataBins.get(dataBins.size() - 1).getEnd());
+                if (dataBins.size() > 0) {
+                    boxRange = Range.closed(dataBins.get(0).getStart(), dataBins.get(dataBins.size() - 1).getEnd());
+                }
             }
             else 
             {

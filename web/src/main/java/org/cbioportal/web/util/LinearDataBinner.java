@@ -23,7 +23,7 @@ public class LinearDataBinner
         2000.0, 2500.0, 5000.0, 10000.0
     };
 
-    public static final Integer DEFAULT_INTERVAL_COUNT = 10;
+    public static final Integer DEFAULT_INTERVAL_COUNT = 20;
     
     private DataBinHelper dataBinHelper;
 

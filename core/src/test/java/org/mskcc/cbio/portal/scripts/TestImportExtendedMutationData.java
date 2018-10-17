@@ -49,6 +49,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -98,6 +99,7 @@ public class TestImportExtendedMutationData {
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
         
         checkBasicFilteringRules();
+        checkMutationCounts();
         
         // accept everything else
         validateMutationAminoAcid(geneticProfileId, sampleId, 51806, "P113L");   // valid Unknown
@@ -287,6 +289,20 @@ public class TestImportExtendedMutationData {
         validateMutationAminoAcid (geneticProfileId, sampleId, 2842, "L113P");
         assertEquals(1, DaoMutation.getMutations(geneticProfileId, sampleId, 50839).size());
         // Germline mutations NOT on germline whitelist
+    }
+
+    private void checkMutationCounts() throws DaoException {
+
+        String studyStableId = "study_tcga_pub";
+        CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyStableId);
+
+        // assume clinical data for MUTATION_COUNT was created
+        ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum("MUTATION_COUNT", study.getInternalId());
+        assertNotNull(clinicalAttribute);
+
+        List<ClinicalData> clinicalData = DaoClinicalData.getSampleData(study.getInternalId(), new ArrayList<String>(Arrays.asList("TCGA-AA-3664-01")), clinicalAttribute);
+        assert(clinicalData.size() == 1);
+        assertEquals("8", clinicalData.get(0).getAttrVal());
     }
 
     private void loadGenes() throws DaoException {

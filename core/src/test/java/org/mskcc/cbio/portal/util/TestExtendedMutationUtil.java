@@ -13,12 +13,12 @@ import static org.junit.Assert.assertEquals;
  * Created by Hongxin Zhang on 3/20/18.
  */
 @RunWith(Parameterized.class)
-public class ExtendedMutationUtilTest {
+public class TestExtendedMutationUtil {
     private String proteinChange;
     private String proteinStart;
     private String proteinEnd;
 
-    public ExtendedMutationUtilTest(String proteinChange, String proteinStart, String proteinEnd) {
+    public TestExtendedMutationUtil(String proteinChange, String proteinStart, String proteinEnd) {
         this.proteinChange = proteinChange;
         this.proteinStart = proteinStart;
         this.proteinEnd = proteinEnd;

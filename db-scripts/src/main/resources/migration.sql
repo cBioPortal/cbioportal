@@ -500,3 +500,42 @@ DROP TABLE IF EXISTS mutation_count;
 DROP TABLE IF EXISTS fraction_genome_altered;
 
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.0";
+
+##version: 2.7.1
+DELETE FROM `clinical_sample` WHERE clinical_sample.`ATTR_ID` = 'MUTATION_COUNT';
+INSERT INTO `clinical_sample` SELECT sample_profile.`SAMPLE_ID`, 'MUTATION_COUNT', COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`, 
+mutation_event.`END_POSITION`, mutation_event.`REFERENCE_ALLELE`, mutation_event.`TUMOR_SEQ_ALLELE`) AS MUTATION_COUNT 
+FROM `sample_profile` 
+LEFT JOIN mutation ON mutation.`SAMPLE_ID` = sample_profile.`SAMPLE_ID`
+LEFT JOIN mutation_event ON mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID`
+INNER JOIN genetic_profile ON genetic_profile.`GENETIC_PROFILE_ID` = sample_profile.`GENETIC_PROFILE_ID`
+WHERE genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED'
+AND ( mutation.`MUTATION_STATUS` <> 'GERMLINE' OR mutation.`MUTATION_STATUS` IS NULL )
+AND ( mutation_event.`MUTATION_TYPE` <> 'Fusion' OR mutation_event.`MUTATION_TYPE` IS NULL )
+GROUP BY sample_profile.`GENETIC_PROFILE_ID` , sample_profile.`SAMPLE_ID`;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.1";
+
+##version: 2.7.2
+DELETE FROM `clinical_sample` WHERE clinical_sample.`ATTR_ID` = 'MUTATION_COUNT';
+INSERT INTO `clinical_sample` SELECT sample_profile.`SAMPLE_ID`, 'MUTATION_COUNT', COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`,
+mutation_event.`END_POSITION`, mutation_event.`REFERENCE_ALLELE`, mutation_event.`TUMOR_SEQ_ALLELE`) AS MUTATION_COUNT
+FROM `sample_profile`
+LEFT JOIN mutation ON mutation.`SAMPLE_ID` = sample_profile.`SAMPLE_ID`
+AND ( mutation.`MUTATION_STATUS` <> 'GERMLINE' OR mutation.`MUTATION_STATUS` IS NULL )
+LEFT JOIN mutation_event ON mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID`
+AND ( mutation_event.`MUTATION_TYPE` <> 'Fusion' OR mutation_event.`MUTATION_TYPE` IS NULL )
+INNER JOIN genetic_profile ON genetic_profile.`GENETIC_PROFILE_ID` = sample_profile.`GENETIC_PROFILE_ID`
+WHERE genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED'
+GROUP BY sample_profile.`GENETIC_PROFILE_ID` , sample_profile.`SAMPLE_ID`;
+
+DELETE FROM `clinical_sample` WHERE clinical_sample.`ATTR_ID` = 'FRACTION_GENOME_ALTERED';
+INSERT INTO `clinical_sample` SELECT `SAMPLE_ID`, 'FRACTION_GENOME_ALTERED', IF((SELECT SUM(`END`-`START`) 
+FROM copy_number_seg AS c2 WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID`
+AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) IS NULL, 0, (SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2
+WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID`
+AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) / SUM(`END`-`START`)) AS `VALUE` FROM `copy_number_seg` AS c1 , `cancer_study`
+WHERE c1.`CANCER_STUDY_ID` = cancer_study.`CANCER_STUDY_ID` GROUP BY cancer_study.`CANCER_STUDY_ID` , `SAMPLE_ID`
+HAVING SUM(`END`-`START`) > 0;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.2";

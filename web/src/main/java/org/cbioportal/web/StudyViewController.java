@@ -243,16 +243,22 @@ public class StudyViewController {
             molecularProfileSampleCount.setNumberOfCNAUnprofiledSamples(0);
         } else {
             int sampleCount = sampleIds.size();
-            molecularProfileSampleCount.setNumberOfMutationProfiledSamples(Math.toIntExact(genePanelService
-                .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileService.getFirstMutationProfileIds(
-                studyIds, sampleIds), sampleIds).stream().filter(g -> g.getProfiled()).count()));
-            molecularProfileSampleCount.setNumberOfMutationUnprofiledSamples(sampleCount - 
-                molecularProfileSampleCount.getNumberOfMutationProfiledSamples());
-            molecularProfileSampleCount.setNumberOfCNAProfiledSamples(Math.toIntExact(genePanelService
-                .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileService.getFirstDiscreteCNAProfileIds(
-                studyIds, sampleIds), sampleIds).stream().filter(g -> g.getProfiled()).count()));
-            molecularProfileSampleCount.setNumberOfCNAUnprofiledSamples(sampleCount - 
-                molecularProfileSampleCount.getNumberOfCNAProfiledSamples());
+            List<String> firstMutationProfileIds = molecularProfileService.getFirstMutationProfileIds(studyIds, sampleIds);
+            if (!firstMutationProfileIds.isEmpty()) {
+                molecularProfileSampleCount.setNumberOfMutationProfiledSamples(Math.toIntExact(genePanelService
+                    .fetchGenePanelDataInMultipleMolecularProfiles(firstMutationProfileIds, sampleIds).stream().filter(
+                        g -> g.getProfiled()).count()));
+                molecularProfileSampleCount.setNumberOfMutationUnprofiledSamples(sampleCount - 
+                    molecularProfileSampleCount.getNumberOfMutationProfiledSamples());
+            }
+            List<String> firstDiscreteCNAProfileIds = molecularProfileService.getFirstDiscreteCNAProfileIds(studyIds, sampleIds);
+            if (!firstDiscreteCNAProfileIds.isEmpty()) {
+                molecularProfileSampleCount.setNumberOfCNAProfiledSamples(Math.toIntExact(genePanelService
+                    .fetchGenePanelDataInMultipleMolecularProfiles(firstDiscreteCNAProfileIds, sampleIds).stream().filter(
+                        g -> g.getProfiled()).count()));
+                molecularProfileSampleCount.setNumberOfCNAUnprofiledSamples(sampleCount - 
+                    molecularProfileSampleCount.getNumberOfCNAProfiledSamples());
+            }
         }
         return new ResponseEntity<>(molecularProfileSampleCount, HttpStatus.OK);
     }

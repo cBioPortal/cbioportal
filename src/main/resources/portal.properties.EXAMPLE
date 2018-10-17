@@ -26,7 +26,7 @@ skin.documentation.baseurl=https://raw.githubusercontent.com/cBioPortal/cbioport
 skin.documentation.markdown=true
 skin.documentation.faq=FAQ.md
 skin.documentation.about=About-Us.md
-skin.documentation.skin.news=News.md
+skin.documentation.news=News.md
 skin.documentation.oql=Onco-Query-Language.md
 
 # setting controlling the logos
@@ -71,8 +71,10 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 authorization=false
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=
+
+## change the `-Dauthenticate=` JVM argument to configure
 ## which method of authentication to use (false, googleplus, social_auth, saml, openid, ad, ldap, noauthsessionservice)
-authenticate=false
+
 ## Should the permissions for groups and users be filtered by this instance's app.name?
 ## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)
 filter_groups_by_appname=true
@@ -179,8 +181,8 @@ recache_study_after_update=false
 # example session-service url: http://localhost:8080/session_service/api/sessions/public_portal/
 # see: https://github.com/cBioPortal/session-service
 # excluding this value or setting it to an empty string will revert to the previous bookmarking method
-# WARNING: do not use session service with authenticate=false
-#  either use authentication or change to authenticate=noauthsessionservice
+# WARNING: do not use session service with -Dauthenticate=false
+#  either use authentication or change to -Dauthenticate=noauthsessionservice
 session.service.url=
 
 # disabled tabs, | delimited

@@ -107,13 +107,13 @@ function openSoicalAuthWindow() {
 
 <header>
         <div id="leftHeaderContent">
-        <a id="cbioportal-logo" href="index.do"><img src="<c:url value="/images/cbioportal_logo.png"/>" alt="cBioPortal Logo" /></a>    
+        <a id="cbioportal-logo" href="./"><img src="<c:url value="/images/cbioportal_logo.png"/>" alt="cBioPortal Logo" /></a>    
     
         <nav id="main-nav">
             <ul>
                 <% if (GlobalProperties.showDataTab()) { %>
                 <li class="internal">
-                    <a href="data_sets.jsp">Data Sets</a>
+                    <a href="./s/datasets">Data Sets</a>
                 </li>
                 <% } %>
                 <%
@@ -123,43 +123,43 @@ function openSoicalAuthWindow() {
                 <!-- Added call GlobalProperties to check whether to show the Web API tab -->
                 <% if (GlobalProperties.showWebApiTab()) { %>
                 <li class="internal">
-                    <a href="web_api.jsp">Web API</a>
+                    <a href="./s/webAPI">Web API</a>
                 </li>
                 <% } %>
                 <!-- Added call GlobalProperties to check whether to show the R Matlab tab -->
                 <% if (GlobalProperties.showRMatlabTab()) { %>
                 <li class="internal">
-                    <a href="cgds_r.jsp">R/MATLAB</a>
+                    <a href="./s/rmatlab">R/MATLAB</a>
                 </li>
                 <% } %>
                 <% } %>
                 <!-- Added call GlobalProperties to check whether to show the Tutorials tab -->
                 <% if (GlobalProperties.showTutorialsTab()) { %>
                 <li class="internal">
-                    <a href="tutorial.jsp">Tutorials</a>
+                    <a href="./s/tutorials">Tutorials</a>
                 </li>
                 <% } %>
                 <!-- Added call GlobalProperties to check whether to show the Faqs tab -->
                 <% if (GlobalProperties.showFaqsTab()) { %>
                 <li class="internal">
-                    <a href="faq.jsp">FAQ</a>
+                    <a href="./s/faq">FAQ</a>
                 </li>
                 <% } %>
                 <% if (GlobalProperties.showNewsTab()) { %>
                 <li class="internal">
-                    <a href="news.jsp">News</a>
+                    <a href="./s/news">News</a>
                 </li>
                 <% } %>
                 <!-- Added call GlobalProperties to check whether to show the Tools tab -->
                 <% if (GlobalProperties.showToolsTab()) { %>
                 <li class="internal">
-                    <a href="tools.jsp">Visualize Your Data</a>
+                    <a href="./s/visualize">Visualize Your Data</a>
                 </li>
                 <% } %>
                 <!-- Added call GlobalProperties to check whether to show the About tab -->
                 <% if (GlobalProperties.showAboutTab()) { %>
                 <li class="internal">
-                    <a href="about_us.jsp">About</a>
+                    <a href="./s/about">About</a>
                 </li>
                 <% } %>
                 <!-- Added for adding custom header tabs. If the customPageArray is not

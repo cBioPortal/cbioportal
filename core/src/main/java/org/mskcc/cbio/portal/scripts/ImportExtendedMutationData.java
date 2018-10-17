@@ -451,6 +451,10 @@ public class ImportExtendedMutationData{
             }
         }
 
+        if( MySQLbulkLoader.isBulkLoad()) {
+            MySQLbulkLoader.flushAll();
+        }
+
         /*
          * At MSKCC there are some MUTATION_UNCALLED and FUSION
          * profiles that shouldn't be included when determining the number of

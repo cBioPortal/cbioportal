@@ -24,28 +24,40 @@
 package org.mskcc.cbio.portal.scripts;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoClinicalAttributeMeta;
+import org.mskcc.cbio.portal.dao.DaoClinicalData;
 import org.mskcc.cbio.portal.dao.DaoCnaEvent;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.dao.DaoMutation;
 import org.mskcc.cbio.portal.dao.DaoSample;
+import org.mskcc.cbio.portal.dao.DaoSampleProfile;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.model.ClinicalData;
 import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.Sample;
+
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ImportDataUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -72,11 +84,28 @@ public class TestImportProfileData {
         loadGenes();
     }
 
+    @After
+    public void cleanUp() throws DaoException {
+        // each test assumes the mutation data hasn't been loaded yet
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_breast_mutations");
+        if (geneticProfile != null) {
+            DaoGeneticProfile.deleteGeneticProfile(geneticProfile);
+            assertNull(DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_breast_mutations"));
+        }
+    }
+
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void testImportMutationsFile() throws Exception {
+        /*
+         * Complex test where we import a mutations file split over two data
+         * files. The data includes germline mutations as well as silent
+         * mutations. We make sure the nonsynonymous somatic and germline
+         * mutations are added to the databases and the MUTATION_COUNT clinical
+         * attributes are correctly computed.
+         */
         String[] args = {
                 "--data","src/test/resources/data_mutations_extended.txt",
                 "--meta","src/test/resources/meta_mutations_extended.txt",
@@ -84,16 +113,43 @@ public class TestImportProfileData {
         };
         ImportProfileData runner = new ImportProfileData(args);
         runner.run();
-        //This test is to check if the ImportProfileData class indeed adds the study stable Id in front of the
-        //dataset study id (e.g. studyStableId + "_breast_mutations"):
+
+        // check the study exists
         String studyStableId = "study_tcga_pub";
-        studyId = DaoCancerStudy.getCancerStudyByStableId(studyStableId).getInternalId();
+        CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyStableId);
+        assertNotNull(study);
+        studyId = study.getInternalId();
+
+        // Check if the ImportProfileData class indeed adds the study stable Id in front of the
+        //dataset study id (e.g. studyStableId + "_breast_mutations"):
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations");
+        assertNotNull(geneticProfile);
+        geneticProfileId = geneticProfile.getGeneticProfileId();
+
+        // check the mutation T433A has been imported
         int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
+        validateMutationAminoAcid(geneticProfileId, sampleId, 54407, "T433A");
+
+        // data for the second sample should not exist before loading the next data file
         int secondSampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3665-01").getInternalId();
-        geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations").getGeneticProfileId();
-        validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "T433A");
-        // data for this sample should not exist before loading the next data file
         assertEquals(DaoMutation.getMutations(geneticProfileId, secondSampleId).size(), 0);
+        // the GENETIC_PROFILE_ID in sample_profile should be the same as the
+        // genetic profile that was used for import
+        int geneticProfileIdFromSampleProfile = DaoSampleProfile.getProfileIdForSample(sampleId);
+        assertEquals(geneticProfileIdFromSampleProfile, geneticProfileId);
+
+        // assume clinical data for MUTATION_COUNT was created
+        ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum("MUTATION_COUNT", studyId);
+        assertNotNull(clinicalAttribute);
+
+        // assume a MUTATION_COUNT record has been added for the sample and the
+        // count is 8 there 11 total mutations imported of which 3 germline (
+        // not entirely sure why the rest doesn't get imported i see some silent
+        // + intron, missing entrez id)
+        List<ClinicalData> clinicalData = DaoClinicalData.getSampleData(study.getInternalId(), new ArrayList<String>(Arrays.asList("TCGA-AA-3664-01")), clinicalAttribute);
+        assert(clinicalData.size() == 1);
+        assertEquals("8", clinicalData.get(0).getAttrVal());
+
         // load a second mutation data file
         String[] secondArgs = {
                 "--data","src/test/resources/data_mutations_extended_continued.txt",
@@ -102,7 +158,99 @@ public class TestImportProfileData {
         };
         ImportProfileData secondRunner = new ImportProfileData(secondArgs);
         secondRunner.run();
-        validateMutationAminoAcid (geneticProfileId, secondSampleId, 2842, "L113P");
+
+        // check mutation for second sample was imported
+        validateMutationAminoAcid(geneticProfileId, secondSampleId, 2842, "L113P");
+
+        // assume a MUTATION_COUNT record has been added for the sample and the
+        // count is 1, the other one is a germline mutation
+        // also confirm mutation count for first sample is still correct
+        clinicalData = DaoClinicalData.getSampleData(study.getInternalId(), new ArrayList<String>(Arrays.asList("TCGA-AA-3664-01", "TCGA-AA-3665-01")), clinicalAttribute);
+        assert(clinicalData.size() == 2);
+        assertEquals("8", clinicalData.get(0).getAttrVal());
+        assertEquals("1", clinicalData.get(1).getAttrVal());
+    }
+
+    @Test
+    public void testImportSplitMutationsFile() throws Exception {
+        /*
+         * Mutations file split over two files with same stable id. Make sure
+         * that the first time if a sample is in the #sequenced_samples the
+         * MUTATION_COUNT is 0. After importing the second file make sure the
+         * counts are added up i.e. mutations from both the first and second
+         * file should be included in the MUTATION_COUNT record.
+         */
+        String[] args = {
+                "--data","src/test/resources/splitMutationsData/data_mutations_extended.txt",
+                "--meta","src/test/resources/splitMutationsData/meta_mutations_extended.txt",
+                "--loadMode", "bulkLoad"
+        };
+        ImportProfileData runner = new ImportProfileData(args);
+        runner.run();
+        String studyStableId = "study_tcga_pub";
+        CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyStableId);
+        studyId = study.getInternalId();
+
+        // assume clinical data for MUTATION_COUNT was created
+        ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum("MUTATION_COUNT", studyId);
+        assertNotNull(clinicalAttribute);
+
+        // assume a MUTATION_COUNT record has been added for both samples
+        List<ClinicalData> clinicalData = DaoClinicalData.getSampleData(study.getInternalId(), new ArrayList<String>(Arrays.asList("TCGA-AA-3664-01", "TCGA-AA-3665-01")), clinicalAttribute);
+        assert(clinicalData.size() == 2);
+        assertEquals("3", clinicalData.get(0).getAttrVal());
+        assertEquals("0", clinicalData.get(1).getAttrVal());
+
+        // load a second mutation data file
+        String[] secondArgs = {
+                "--data","src/test/resources/splitMutationsData/data_mutations_extended_continued.txt",
+                "--meta","src/test/resources/splitMutationsData/meta_mutations_extended.txt",
+                "--loadMode", "bulkLoad"
+        };
+        ImportProfileData secondRunner = new ImportProfileData(secondArgs);
+        secondRunner.run();
+
+        // assume a MUTATION_COUNT record has been updated for both samples (both +1)
+        clinicalData = DaoClinicalData.getSampleData(study.getInternalId(), new ArrayList<String>(Arrays.asList("TCGA-AA-3664-01", "TCGA-AA-3665-01")), clinicalAttribute);
+        assert(clinicalData.size() == 2);
+        assertEquals("4", clinicalData.get(0).getAttrVal());
+        assertEquals("1", clinicalData.get(1).getAttrVal());
+    }
+
+    @Test
+    public void testImportGermlineOnlyFile() throws Exception {
+        /* Mutations file split over two files with same stable id */
+        String[] args = {
+                "--data","src/test/resources/germlineOnlyMutationsData/data_mutations_extended.txt",
+                "--meta","src/test/resources/germlineOnlyMutationsData/meta_mutations_extended.txt",
+                "--loadMode", "bulkLoad"
+        };
+        ImportProfileData runner = new ImportProfileData(args);
+        runner.run();
+        String studyStableId = "study_tcga_pub";
+        CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyStableId);
+        studyId = study.getInternalId();
+        int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
+        GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations");
+        geneticProfileId = geneticProfile.getGeneticProfileId();
+
+        // assume clinical data for MUTATION_COUNT was created
+        ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum("MUTATION_COUNT", studyId);
+        assertNotNull(clinicalAttribute);
+
+        // assume a MUTATION_COUNT record has been added for one sample and the count is zero
+        List<ClinicalData> clinicalData = DaoClinicalData.getSampleData(study.getInternalId(), new ArrayList<String>(Arrays.asList("TCGA-AA-3664-01")), clinicalAttribute);
+        assert(clinicalData.size() == 1);
+        assertEquals("0", clinicalData.get(0).getAttrVal());
+
+        // check if the three germline mutations have been inserted
+        validateMutationAminoAcid (geneticProfileId, sampleId, 64581, "T209A");
+        validateMutationAminoAcid (geneticProfileId, sampleId, 50839, "G78S");
+        validateMutationAminoAcid (geneticProfileId, sampleId, 2842, "L113P");
+
+        // remove profile at the end
+        DaoGeneticProfile.deleteGeneticProfile(geneticProfile);
+        assertNull(DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations"));
     }
 
     @Test

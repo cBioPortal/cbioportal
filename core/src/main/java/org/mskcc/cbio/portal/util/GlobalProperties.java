@@ -78,6 +78,12 @@ public class GlobalProperties {
     public static final String FILTER_GROUPS_BY_APPNAME = "filter_groups_by_appname";
     public static final String INCLUDE_NETWORKS = "include_networks";
     public static final String GOOGLE_ANALYTICS_PROFILE_ID = "google_analytics_profile_id";
+    
+    
+    private static String frontendSentryEndpoint;
+    @Value("${sentryjs.frontend_project_endpoint:null}")
+    public void setfrontendSentryEndpoint(String property) { frontendSentryEndpoint = property; }
+    
     public static final String GENOMESPACE = "genomespace";
 
     public static final String APP_NAME = "app.name";
@@ -617,6 +623,11 @@ public class GlobalProperties {
     public static String getGoogleAnalyticsProfileId()
     {
         return portalProperties.getProperty(GOOGLE_ANALYTICS_PROFILE_ID);
+    }
+    
+    public static String getFrontendSentryEndpoint()
+    {
+        return (frontendSentryEndpoint == null) ? null : frontendSentryEndpoint.trim();
     }
 
     public static boolean genomespaceEnabled()

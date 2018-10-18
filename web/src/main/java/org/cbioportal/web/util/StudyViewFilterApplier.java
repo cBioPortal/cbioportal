@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;

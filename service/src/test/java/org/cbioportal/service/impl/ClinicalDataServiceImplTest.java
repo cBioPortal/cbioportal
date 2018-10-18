@@ -2,7 +2,9 @@ package org.cbioportal.service.impl;
 
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.Patient;
+import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
 import org.cbioportal.service.PatientService;
@@ -274,40 +276,45 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
         Mockito.when(patientService.getPatientsOfSamples(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID), 
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3))).thenReturn(patients);
 
-        Map<String, List<ClinicalDataCount>> result = clinicalDataService.fetchClinicalDataCounts(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID), 
+        List<ClinicalDataCountItem> result = clinicalDataService.fetchClinicalDataCounts(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID), 
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2, 
-            CLINICAL_ATTRIBUTE_ID_3), "PATIENT");
+            CLINICAL_ATTRIBUTE_ID_3), ClinicalDataType.PATIENT);
 
         Assert.assertEquals(3, result.size());
-        List<ClinicalDataCount> counts1 = result.get(CLINICAL_ATTRIBUTE_ID_1);
-        Assert.assertEquals(2, counts1.size());
-        ClinicalDataCount count1 = counts1.get(0);
+        ClinicalDataCountItem counts1 = result.get(0);
+        Assert.assertEquals(CLINICAL_ATTRIBUTE_ID_1, counts1.getAttributeId());
+        Assert.assertEquals(ClinicalDataType.PATIENT, counts1.getClinicalDataType());
+        List<ClinicalDataCount> clinicalDataCounts1 = counts1.getCounts();
+        Assert.assertEquals(2, clinicalDataCounts1.size());
+        ClinicalDataCount count1 = clinicalDataCounts1.get(0);
         Assert.assertEquals(CLINICAL_ATTRIBUTE_ID_1, count1.getAttributeId());
         Assert.assertEquals("value1", count1.getValue());
         Assert.assertEquals((Integer) 2, count1.getCount());
-        ClinicalDataCount count2 = counts1.get(1);
+        ClinicalDataCount count2 = clinicalDataCounts1.get(1);
         Assert.assertEquals(CLINICAL_ATTRIBUTE_ID_1, count2.getAttributeId());
         Assert.assertEquals("NA", count2.getValue());
         Assert.assertEquals((Integer) 1, count2.getCount());
-        List<ClinicalDataCount> counts2 = result.get(CLINICAL_ATTRIBUTE_ID_2);
-        Assert.assertEquals(3, counts2.size());
-        ClinicalDataCount count3 = counts2.get(0);
+        ClinicalDataCountItem counts2 = result.get(1);
+        Assert.assertEquals(CLINICAL_ATTRIBUTE_ID_2, counts2.getAttributeId());
+        Assert.assertEquals(ClinicalDataType.PATIENT, counts2.getClinicalDataType());
+        List<ClinicalDataCount> clinicalDataCounts2 = counts2.getCounts();
+        Assert.assertEquals(3, clinicalDataCounts2.size());
+        ClinicalDataCount count3 = clinicalDataCounts2.get(0);
         Assert.assertEquals(CLINICAL_ATTRIBUTE_ID_2, count3.getAttributeId());
         Assert.assertEquals("value2", count3.getValue());
         Assert.assertEquals((Integer) 1, count3.getCount());
-        ClinicalDataCount count4 = counts2.get(1);
+        ClinicalDataCount count4 = clinicalDataCounts2.get(1);
         Assert.assertEquals(CLINICAL_ATTRIBUTE_ID_2, count4.getAttributeId());
         Assert.assertEquals("value3", count4.getValue());
         Assert.assertEquals((Integer) 1, count4.getCount());
-        ClinicalDataCount count5 = counts2.get(2);
-        Assert.assertEquals(CLINICAL_ATTRIBUTE_ID_2, count5.getAttributeId());
+        ClinicalDataCountItem counts3 = result.get(2);
+        Assert.assertEquals(CLINICAL_ATTRIBUTE_ID_3, counts3.getAttributeId());
+        Assert.assertEquals(ClinicalDataType.PATIENT, counts3.getClinicalDataType());
+        List<ClinicalDataCount> clinicalDataCounts3 = counts3.getCounts();
+        Assert.assertEquals(1, clinicalDataCounts3.size());
+        ClinicalDataCount count5 = clinicalDataCounts3.get(0);
+        Assert.assertEquals(CLINICAL_ATTRIBUTE_ID_3, count5.getAttributeId());
         Assert.assertEquals("NA", count5.getValue());
-        Assert.assertEquals((Integer) 1, count5.getCount());
-        List<ClinicalDataCount> counts3 = result.get(CLINICAL_ATTRIBUTE_ID_3);
-        Assert.assertEquals(1, counts3.size());
-        ClinicalDataCount count6 = counts3.get(0);
-        Assert.assertEquals(CLINICAL_ATTRIBUTE_ID_3, count6.getAttributeId());
-        Assert.assertEquals("NA", count6.getValue());
-        Assert.assertEquals((Integer) 3, count6.getCount());
+        Assert.assertEquals((Integer) 3, count5.getCount());
     }
 }

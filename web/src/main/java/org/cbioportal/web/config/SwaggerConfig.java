@@ -1,15 +1,22 @@
 package org.cbioportal.web.config;
 
+import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.config.annotation.PublicApi;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.schema.AlternateTypeRules;
+import springfox.documentation.schema.WildcardType;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.Ordered;
+
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import springfox.documentation.swagger.web.UiConfiguration;
 import springfox.documentation.swagger.web.UiConfigurationBuilder;
@@ -17,11 +24,18 @@ import springfox.documentation.swagger.web.UiConfigurationBuilder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.classmate.TypeResolver;
 
 @Configuration
 @EnableSwagger2
 @PropertySource("classpath:springfox.properties")
 public class SwaggerConfig {
+
+    @Autowired
+    private TypeResolver typeResolver;
 
     @Bean
     public Docket publicApi() {
@@ -42,7 +56,11 @@ public class SwaggerConfig {
             .build()
             .useDefaultResponseMessages(false)
             .protocols(new HashSet<>(Arrays.asList("http", "https")))
-            .apiInfo(apiInfo());
+            .apiInfo(apiInfo())
+            .alternateTypeRules(AlternateTypeRules.newRule(typeResolver.resolve(Map.class, String.class,
+            typeResolver.resolve(Map.class, String.class, typeResolver.resolve(List.class, ClinicalDataCount.class))), 
+            typeResolver.resolve(Map.class, String.class, WildcardType.class), Ordered.HIGHEST_PRECEDENCE))
+            .additionalModels(typeResolver.resolve(ClinicalDataCount.class));
     }
 
     @Bean

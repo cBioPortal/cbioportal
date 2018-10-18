@@ -11,10 +11,13 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
     <link rel="icon" href="/images/cbioportal_icon.png"/>
     <title>cBioPortal for Cancer Genomics</title>
+    
+    <%@include file="./tracking_include.jsp" %>
+
     <script>
         window.frontendConfig = {
             configurationServiceUrl:"//" + '<%=baseUrl%>' +  "/config_service.jsp",
-            frontendUrl: '//'+ '<%=baseUrl%>/', 
+            frontendUrl: '//' + '<%=baseUrl%>/', 
             apiRoot: '//'+ '<%=baseUrl%>/', 
             baseUrl: '<%=baseUrl%>',
             basePath: '<%=request.getContextPath()%>',

@@ -1,3 +1,9 @@
+## October 19, 2018
+
+* Support multiple isoforms in the [MutationMapper tool](http://www.cbioportal.org/mutation_mapper.jsp). When genomic positions with base changes are inputted the mutations will be annotated on the fly with [Genome Nexus](https://www.genomenexus.org/#/home), which uses [VEP](https://useast.ensembl.org/info/docs/tools/vep/index.html) to calculate the impact on each isoform. It's also possible to input only genes with protein changes, which allows one to display those changes on any isoform of choice.
+
+![mutation_mapper_dropdown](https://user-images.githubusercontent.com/1334004/47240017-f99a1980-d3b4-11e8-99a4-e8c73b25ecec.png)
+
 ## October 17, 2018
  *   **Added data**  of 3578 samples from 8 studies:
      *   [Rhabdoid Cancer (BCGSC, Cancer Cell 2016)](http://www.cbioportal.org/study?id=mrt_bcgsc_2016#summary) *40 samples*

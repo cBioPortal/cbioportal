@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.cbioportal.model.*;
+import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
@@ -64,7 +65,7 @@ public class StudyViewController {
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data counts by study view filter")
-    public ResponseEntity<Map<String, Map<String, List<ClinicalDataCount>>>> fetchClinicalDataCounts(
+    public ResponseEntity<List<ClinicalDataCountItem>> fetchClinicalDataCounts(
         @ApiParam(required = true, value = "Clinical data count filter")
         @Valid @RequestBody ClinicalDataCountFilter clinicalDataCountFilter) {
 
@@ -81,15 +82,15 @@ public class StudyViewController {
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-        Map<String, List<ClinicalDataCount>> resultForSampleAttributes = clinicalDataService.fetchClinicalDataCounts(
+        List<ClinicalDataCountItem> resultForSampleAttributes = clinicalDataService.fetchClinicalDataCounts(
             studyIds, sampleIds, attributes.stream().filter(a -> a.getClinicalDataType().equals(ClinicalDataType.SAMPLE))
-            .map(a -> a.getAttributeId()).collect(Collectors.toList()), ClinicalDataType.SAMPLE.name());
-        Map<String, List<ClinicalDataCount>> resultForPatientAttributes = clinicalDataService.fetchClinicalDataCounts(studyIds, sampleIds, 
+            .map(a -> a.getAttributeId()).collect(Collectors.toList()), ClinicalDataType.SAMPLE);
+        List<ClinicalDataCountItem> resultForPatientAttributes = clinicalDataService.fetchClinicalDataCounts(studyIds, sampleIds, 
         attributes.stream().filter(a -> a.getClinicalDataType().equals(ClinicalDataType.PATIENT))
-            .map(a -> a.getAttributeId()).collect(Collectors.toList()), ClinicalDataType.PATIENT.name());
-        Map<String, Map<String, List<ClinicalDataCount>>> combinedResult = new HashMap<>();
-        combinedResult.put(ClinicalDataType.SAMPLE.name(), resultForSampleAttributes);
-        combinedResult.put(ClinicalDataType.PATIENT.name(), resultForPatientAttributes);
+            .map(a -> a.getAttributeId()).collect(Collectors.toList()), ClinicalDataType.PATIENT);
+        List<ClinicalDataCountItem> combinedResult = new ArrayList<>();
+        combinedResult.addAll(resultForSampleAttributes);
+        combinedResult.addAll(resultForPatientAttributes);
         return new ResponseEntity<>(combinedResult, HttpStatus.OK);
     }
 

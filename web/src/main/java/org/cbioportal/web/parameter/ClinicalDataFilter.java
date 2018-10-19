@@ -1,5 +1,7 @@
 package org.cbioportal.web.parameter;
 
+import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
+
 public class ClinicalDataFilter 
 {
     private String attributeId;

@@ -9,6 +9,7 @@ public class MolecularDataMultipleStudyFilter implements Serializable {
 
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<SampleMolecularIdentifier> sampleMolecularIdentifiers;
+    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> molecularProfileIds;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<Integer> entrezGeneIds;

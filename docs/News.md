@@ -1,3 +1,14 @@
+## October 17, 2018
+ *   **Added data**  of 3578 samples from 8 studies:
+     *   [Rhabdoid Cancer (BCGSC, Cancer Cell 2016)](http://www.cbioportal.org/study?id=mrt_bcgsc_2016#summary) *40 samples*
+     *   [Diffuse Large B-Cell Lymphoma (Duke, Cell 2017)](http://www.cbioportal.org/study?id=dlbcl_duke_2017#summary) *1001 samples*
+     *   [Diffuse Large B cell Lymphoma (DFCI, Nat Med 2018)](http://www.cbioportal.org/study?id=dlbcl_dfci_2018#summary) *135 samples*
+     *   [Breast Fibroepithelial Tumors (Duke-NUS, Nat Genet 2015)](http://www.cbioportal.org/study?id=bfn_duke_nus_2015#summary) *22 samples*
+     *   [Uterine Clear Cell Carcinoma (NIH, Cancer 2017)](http://www.cbioportal.org/study?id=uccc_nih_2017#summary) *16 samples*
+     *   [Endometrial Cancer (MSK, 2018)](http://www.cbioportal.org/study?id=ucec_msk_2018#summary) *197 samples*
+     *   [Breast Cancer (MSK, Cancer Cell 2018)](http://www.cbioportal.org/study?id=breast_msk_2018#summary) *1918 samples*
+     *   [MSS Mixed Solid Tumors (Van Allen, 2018)](http://www.cbioportal.org/study?id=mixed_allen_2018#summary) *249 samples*
+*   Updated data for [The Angiosarcoma Project (Provisional, September 2018)](http://www.cbioportal.org/study?id=angs_project_painter_2018#summary) *48 samples*
 ## Auguest 20, 2018
  *   Now you can log in on the public cBioPortal with your Google account and save your virtual studies for quick analysis.
 

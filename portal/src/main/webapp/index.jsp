@@ -17,7 +17,6 @@
     <script>
         window.frontendConfig = {
             configurationServiceUrl:"//" + '<%=baseUrl%>' +  "/config_service.jsp",
-            frontendUrl: '//' + '<%=baseUrl%>/', 
             apiRoot: '//'+ '<%=baseUrl%>/', 
             baseUrl: '<%=baseUrl%>',
             basePath: '<%=request.getContextPath()%>',
@@ -53,8 +52,14 @@
         } else if (window.heroku) {
             window.frontendConfig.frontendUrl = ['//',localStorage.heroku,'.herokuapp.com','/'].join('');
             localStorage.setItem("e2etest", "true");
-        } 
-       
+        } else if('<%=GlobalProperties.getFrontendUrl()%>'){
+            window.frontendConfig.frontendUrl = '<%=GlobalProperties.getFrontendUrl()%>';
+        }
+
+        if(!window.frontendConfig.frontendUrl) {
+            window.frontendConfig.frontendUrl = '//' + '<%=baseUrl%>/';
+        }
+
     </script>
      
     <script type="text/javascript" src="//<%=baseUrl%>/js/src/load-frontend.js?<%=GlobalProperties.getAppVersion()%>"></script>       

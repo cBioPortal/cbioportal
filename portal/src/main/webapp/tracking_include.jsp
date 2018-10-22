@@ -2,7 +2,7 @@
 <%
     String sentryEndpoint = GlobalProperties.getFrontendSentryEndpoint();
 %>
-<% if (sentryEndpoint != null) { %>
+<% if (sentryEndpoint != null && sentryEndpoint != "null") { %>
 <script src="https://browser.sentry-cdn.com/4.1.1/bundle.min.js" crossorigin="anonymous"></script>
 <script>
 Sentry.init({ dsn: '<%=sentryEndpoint.trim()%>' });

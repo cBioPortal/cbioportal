@@ -81,6 +81,7 @@
             "skin.show_tools_tab",
             "skin.show_tutorials_tab",
             "skin.show_web_api_tab",
+            "skin.description",
             "skin.title",
             "skin.authorization_message",
             "session.url_length_threshold",

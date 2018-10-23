@@ -204,8 +204,8 @@ for the role and hit the **Save** button.
 
 #### Groups
 
-Keycloak allows you to create Groups to easy the mapping of multiple
-studies to multiple users. One can for example make a Keycloak group
+Keycloak allows you to create Groups for easy mapping of multiple
+studies to multiple users. One can, for example, make a Keycloak group
 with name `PUBLIC_STUDIES` and add all the individual Keycloak roles
 corresponding to public studies to this group. It is also possible to
 configure a group to be "default" in Keycloak, meaning new users are

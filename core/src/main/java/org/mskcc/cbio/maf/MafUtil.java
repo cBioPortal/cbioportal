@@ -39,8 +39,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import joptsimple.internal.Strings;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Utility Class for Parsing MAF Files.
@@ -49,7 +47,6 @@ import org.apache.commons.logging.LogFactory;
  */
 public class MafUtil
 {
-    private static final Log LOG = LogFactory.getLog(MafUtil.class);
     private static final Pattern validNucleotidesPattern = Pattern.compile("^([ATGC]*)$");
 	// standard header column names
 	public static final String HUGO_SYMBOL = "Hugo_Symbol";
@@ -500,7 +497,6 @@ public class MafUtil
             // start of FACETS 
             } else if(header.equalsIgnoreCase(DIP_LOG_R)) {
                 dipLogRIndex = i;
-                LOG.warn("\n\n\n>>> dipLogRIndex: " + dipLogRIndex);
             } else if(header.equalsIgnoreCase(CELLULAR_FRACTION)) {
                 cellularFractionIndex = i;
             } else if(header.equalsIgnoreCase(TOTAL_COPY_NUMBER)) {
@@ -674,7 +670,6 @@ public class MafUtil
             record.setCcfMCopiesProb95Em(TabDelimitedFileUtil.getPartFloat2(ccfMCopiesProb95EmIndex, parts));
             record.setCcfMCopiesProb90Em(TabDelimitedFileUtil.getPartFloat2(ccfMCopiesProb90EmIndex, parts));
             fixEndPointForInsertion(record);
-            LOG.warn("\n\n\n >>> TotalCopyNumber(tcn): " + record.getTotalCopyNumber());
         return record;
     }
 

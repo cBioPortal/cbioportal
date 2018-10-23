@@ -113,7 +113,6 @@ public class ImportExtendedMutationData{
 
                 long mutationEventId = DaoMutation.getLargestMutationEventId();
 
-        ProgressMonitor.logWarning("\n\n\n>>> mutationFile: " + mutationFile.toString()); 
         FileReader reader = new FileReader(mutationFile);
         BufferedReader buf = new BufferedReader(reader);
 
@@ -121,7 +120,6 @@ public class ImportExtendedMutationData{
 
         // process MAF header and return line immediately following it
         String line = processMAFHeader(buf);
-        System.out.print("\n\n\n>>> Line: " + line);
         MafUtil mafUtil = new MafUtil(line);
 
         boolean fileHasOMAData = false;
@@ -305,7 +303,6 @@ public class ImportExtendedMutationData{
                 ccfMCopiesProb95Em = record.getCcfMCopiesProb95Em();
                 ccfMCopiesProb90Em = record.getCcfMCopiesProb90Em();
 
-                ProgressMonitor.logWarning("\n\n\n >>> ImportExtendedMutations | setting totalCopyNumber: " + totalCopyNumber);
                 //  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
                 String geneSymbol = record.getHugoGeneSymbol();
                 String entrezIdString = record.getGivenEntrezGeneId();
@@ -463,7 +460,6 @@ public class ImportExtendedMutationData{
                     mutation.setCcfMCopiesProb95Em(ccfMCopiesProb95Em);
                     mutation.setCcfMCopiesProb90Em(ccfMCopiesProb90Em);
 
-                    ProgressMonitor.logWarning("\n\n\n>>> Setting mutations.TotalCopyNumber " + mutation.getTotalCopyNumber());
                     sequencedCaseSet.add(sample.getStableId());
 
                     //  Filter out Mutations
@@ -482,12 +478,9 @@ public class ImportExtendedMutationData{
 
                                                 ExtendedMutation exist = mutations.get(mutation);
                                                 if (exist!=null) {
-                                                    ProgressMonitor.logWarning("\n\n\n >>> mutaiton already exist - calling mergeMutationData");
                                                     ExtendedMutation merged = mergeMutationData(exist, mutation);
-                                                    ProgressMonitor.logWarning("\n\n\n >>> mergedMutation tcn: " + merged.getTotalCopyNumber());
                                                     mutations.put(merged, merged);
                                                 } else {
-                                                    ProgressMonitor.logWarning("\n\n\n >>> mutaiton doesn't exit exist");
                                                     mutations.put(mutation,mutation);
                                                 }
                                                 if(!sampleSet.contains(sample.getStableId())) {

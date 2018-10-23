@@ -69,16 +69,13 @@ public class ImportProfileData extends ConsoleRunnable {
                 throw new java.io.FileNotFoundException("Descriptor file '" + descriptorFile + "' not found.");
             }
             int numLines = FileUtil.getNumLines(dataFile);
-            ProgressMonitor.logWarning(
+            ProgressMonitor.setCurrentMessage(
                     " --> profile id:  " + geneticProfile.getGeneticProfileId() +
                     "\n --> profile name:  " + geneticProfile.getProfileName() +
                     "\n --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType().name());
             ProgressMonitor.setMaxValue(numLines);
             if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED || 
                 geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_UNCALLED) {
-                System.out.println("\n\n\n\n\n>>> --> profile id:  " + geneticProfile.getGeneticProfileId() +
-                    "\n --> profile name:  " + geneticProfile.getProfileName() +
-                    "\n --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType().name());
                 ImportExtendedMutationData importer = new ImportExtendedMutationData(dataFile, geneticProfile.getGeneticProfileId(), genePanel, filteredMutations);
                 String swissprotIdType = geneticProfile.getOtherMetaDataField("swissprot_identifier");
                 if (swissprotIdType != null && swissprotIdType.equals("accession")) {

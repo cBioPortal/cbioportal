@@ -36,8 +36,6 @@ import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.MutationKeywordUtils;
 
 import org.apache.commons.lang.StringUtils;
-//import org.apache.commons.logging.*;
-import org.apache.log4j.*;
 import java.sql.*;
 import java.util.*;
 import java.util.regex.*;
@@ -46,12 +44,10 @@ import java.util.regex.*;
  * Data access object for Mutation table
  */
 public final class DaoMutation {
-    private static final Logger LOG = Logger.getLogger(DaoMutation.class);
     public static final String NAN = "NaN";
     private static final String MUTATION_COUNT_ATTR_ID = "MUTATION_COUNT";
 
     public static int addMutation(ExtendedMutation mutation, boolean newMutationEvent) throws DaoException {
-        LOG.log(Level.WARN, ">>> starting bulk import to add mutation: " + mutation.getTotalCopyNumber()); 
         if (!MySQLbulkLoader.isBulkLoad()) {
             throw new DaoException("You have to turn on MySQLbulkLoader in order to insert mutations");
         } else {

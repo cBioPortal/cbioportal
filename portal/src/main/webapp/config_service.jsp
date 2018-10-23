@@ -29,6 +29,7 @@
     
         String[] propNameArray = {
             "app.version",
+            "app.name",
             "oncoprint.custom_driver_annotation.binary.menu_label",
             "disabled_tabs",            
             "civic.url",

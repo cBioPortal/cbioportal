@@ -16,13 +16,18 @@ public class StudyViewFilter {
     private List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters;
 	private List<MutationGeneFilter> mutatedGenes;
 	private List<CopyNumberGeneFilter> cnaGenes;
+	private Boolean withMutationData;
+	private Boolean withCNAData;
+	@Size(min = 1)
+	private List<Integer> numberOfSamplesPerPatient;
+	private RectangleBounds mutationCountVsCNASelection;
 
 	@AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
         return sampleIdentifiers != null ^ studyIds != null;
     }
 
-    @AssertTrue
+	@AssertTrue
     private boolean isEitherValueOrRangePresentInClinicalDataIntervalFilters() {
         long invalidCount = 0;
 
@@ -83,5 +88,37 @@ public class StudyViewFilter {
 
 	public void setCnaGenes(List<CopyNumberGeneFilter> cnaGenes) {
 		this.cnaGenes = cnaGenes;
+	}
+
+	public Boolean getWithMutationData() {
+		return withMutationData;
+	}
+
+	public void setWithMutationData(Boolean withMutationData) {
+		this.withMutationData = withMutationData;
+	}
+
+	public Boolean getWithCNAData() {
+		return withCNAData;
+	}
+
+	public void setWithCNAData(Boolean withCNAData) {
+		this.withCNAData = withCNAData;
+	}
+
+	public List<Integer> getNumberOfSamplesPerPatient() {
+		return numberOfSamplesPerPatient;
+	}
+
+	public void setNumberOfSamplesPerPatient(List<Integer> numberOfSamplesPerPatient) {
+		this.numberOfSamplesPerPatient = numberOfSamplesPerPatient;
+	}
+
+	public RectangleBounds getMutationCountVsCNASelection() {
+		return mutationCountVsCNASelection;
+	}
+
+	public void setMutationCountVsCNASelection(RectangleBounds mutationCountVsCNASelection) {
+		this.mutationCountVsCNASelection = mutationCountVsCNASelection;
 	}
 }

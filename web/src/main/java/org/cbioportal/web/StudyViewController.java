@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.apache.commons.lang.math.NumberUtils;
 
 @InternalApi
 @RestController
@@ -76,8 +78,9 @@ public class StudyViewController {
         }
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
 
+        List<ClinicalDataCountItem> combinedResult = new ArrayList<>();
         if (filteredSampleIdentifiers.isEmpty()) {
-            return new ResponseEntity<>(null, HttpStatus.OK);
+            return new ResponseEntity<>(combinedResult, HttpStatus.OK);
         }
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
@@ -88,7 +91,6 @@ public class StudyViewController {
         List<ClinicalDataCountItem> resultForPatientAttributes = clinicalDataService.fetchClinicalDataCounts(studyIds, sampleIds, 
         attributes.stream().filter(a -> a.getClinicalDataType().equals(ClinicalDataType.PATIENT))
             .map(a -> a.getAttributeId()).collect(Collectors.toList()), ClinicalDataType.PATIENT);
-        List<ClinicalDataCountItem> combinedResult = new ArrayList<>();
         combinedResult.addAll(resultForSampleAttributes);
         combinedResult.addAll(resultForPatientAttributes);
         return new ResponseEntity<>(combinedResult, HttpStatus.OK);
@@ -291,6 +293,97 @@ public class StudyViewController {
             }
         }
         return new ResponseEntity<>(molecularProfileSampleCount, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/clinical-data-density-plot/fetch", method = RequestMethod.POST, 
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch clinical data density plot bins by study view filter")
+    public ResponseEntity<List<DensityPlotBin>> fetchClinicalDataDensityPlot(
+        @ApiParam(required = true, value = "Clinical Attribute ID of the X axis")
+        @RequestParam String xAxisAttributeId,
+        @ApiParam("Number of the bins in X axis")
+        @RequestParam(defaultValue = "50") Integer xAxisBinCount,
+        @ApiParam("Starting point of the X axis, if different than smallest value")
+        @RequestParam(required = false) BigDecimal xAxisStart,
+        @ApiParam("Starting point of the X axis, if different than largest value")
+        @RequestParam(required = false) BigDecimal xAxisEnd,
+        @ApiParam(required = true, value = "Clinical Attribute ID of the Y axis")
+        @RequestParam String yAxisAttributeId,
+        @ApiParam("Number of the bins in Y axis")
+        @RequestParam(defaultValue = "50") Integer yAxisBinCount,
+        @ApiParam("Starting point of the Y axis, if different than smallest value")
+        @RequestParam(required = false) BigDecimal yAxisStart,
+        @ApiParam("Starting point of the Y axis, if different than largest value")
+        @RequestParam(required = false) BigDecimal yAxisEnd,
+        @ApiParam(required = true, value = "Clinical data type of both attributes")
+        @RequestParam ClinicalDataType clinicalDataType,
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid @RequestBody StudyViewFilter studyViewFilter) {
+        
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(studyViewFilter), studyIds, sampleIds);
+        List<DensityPlotBin> result = new ArrayList<>();
+        if (sampleIds.isEmpty()) {
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        }
+        
+        List<ClinicalData> clinicalDataList = clinicalDataService.fetchClinicalData(studyIds, sampleIds, 
+            Arrays.asList(xAxisAttributeId, yAxisAttributeId), clinicalDataType.name(), Projection.SUMMARY.name());
+
+        Map<String, Map<String, List<ClinicalData>>> clinicalDataMap;
+        if (clinicalDataType == ClinicalDataType.SAMPLE) {
+            clinicalDataMap = clinicalDataList.stream().collect(Collectors.groupingBy(ClinicalData::getSampleId, 
+                Collectors.groupingBy(ClinicalData::getStudyId)));
+        } else {
+            clinicalDataMap = clinicalDataList.stream().collect(Collectors.groupingBy(ClinicalData::getPatientId, 
+                Collectors.groupingBy(ClinicalData::getStudyId)));
+        }
+        List<ClinicalData> filteredClinicalDataList = new ArrayList<>();
+        clinicalDataMap.forEach((k, v) -> v.forEach((m, n) -> {
+            if (n.size() == 2 && NumberUtils.isNumber(n.get(0).getAttrValue()) && NumberUtils.isNumber(n.get(1).getAttrValue())) {
+                filteredClinicalDataList.addAll(n);
+            }
+        }));
+        if (filteredClinicalDataList.isEmpty()) {
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        }
+
+        Map<Boolean, List<ClinicalData>> partition = filteredClinicalDataList.stream().collect(
+            Collectors.partitioningBy(c -> c.getAttrId().equals(xAxisAttributeId)));
+        double[] xValues = partition.get(true).stream().mapToDouble(c -> Double.parseDouble(c.getAttrValue())).toArray();
+        double[] yValues = partition.get(false).stream().mapToDouble(c -> Double.parseDouble(c.getAttrValue())).toArray();
+        double[] xValuesCopy = Arrays.copyOf(xValues, xValues.length);
+        double[] yValuesCopy = Arrays.copyOf(yValues, yValues.length);
+        Arrays.sort(xValuesCopy);
+        Arrays.sort(yValuesCopy);
+
+        double xAxisStartValue = xAxisStart == null ? xValuesCopy[0] : xAxisStart.doubleValue();
+        double xAxisEndValue = xAxisEnd == null ? xValuesCopy[xValuesCopy.length - 1] : xAxisEnd.doubleValue();
+        double yAxisStartValue = yAxisStart == null ? yValuesCopy[0] : yAxisStart.doubleValue();
+        double yAxisEndValue = yAxisEnd == null ? yValuesCopy[yValuesCopy.length - 1] : yAxisEnd.doubleValue();
+        double xAxisBinInterval = (xAxisEndValue - xAxisStartValue) / xAxisBinCount;
+        double yAxisBinInterval = (yAxisEndValue - yAxisStartValue) / yAxisBinCount;
+        for (int i = 0; i < xAxisBinCount; i++) {
+            for (int j = 0; j < yAxisBinCount; j++) {
+                DensityPlotBin densityPlotBin = new DensityPlotBin();
+                densityPlotBin.setX(new BigDecimal(xAxisStartValue + (i * xAxisBinInterval)));
+                densityPlotBin.setY(new BigDecimal(yAxisStartValue + (j * yAxisBinInterval)));
+                densityPlotBin.setCount(0);
+                result.add(densityPlotBin);
+            }
+        }
+
+        for (int i = 0; i < xValues.length; i++) {
+            int xBinIndex = (int) (xValues[i] / xAxisBinInterval);
+            int yBinIndex = (int) (yValues[i] / yAxisBinInterval);
+            int index = (int) (((xBinIndex - (xBinIndex == xAxisBinCount ? 1 : 0)) * yAxisBinCount) +
+                (yBinIndex - (yBinIndex == yAxisBinCount ? 1 : 0)));
+            DensityPlotBin densityPlotBin = result.get(index);
+            densityPlotBin.setCount(densityPlotBin.getCount() + 1);
+        }
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
     
     private List<ClinicalData> fetchClinicalData(List<String> attributeIds, 

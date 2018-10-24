@@ -68,6 +68,8 @@ public class DataBinner
             Collections.emptyList() : filterNumericalValues(clinicalData);
         List<String> nonNumericalValues = clinicalData == null ?
             Collections.emptyList() : filterNonNumericalValues(clinicalData);
+        List<Range<Double>> ranges = clinicalData == null ?
+            Collections.emptyList() : filterSpecialRanges(clinicalData);
         
         for (DataBin dataBin : clinicalDataBins) {
             // reset count
@@ -79,6 +81,12 @@ public class DataBinner
             if (range != null) {
                 for (Double value: numericalValues) {
                     if (range.contains(value)) {
+                        dataBin.setCount(dataBin.getCount() + 1);
+                    }
+                }
+                
+                for (Range<Double> r: ranges) {
+                    if (range.encloses(r)) {
                         dataBin.setCount(dataBin.getCount() + 1);
                     }
                 }
@@ -145,6 +153,17 @@ public class DataBinner
         return dataBins;
     }
 
+    public List<Range<Double>> filterSpecialRanges(List<ClinicalData> clinicalData) {
+        return clinicalData.stream()
+            .map(ClinicalData::getAttrValue)
+            .filter(s -> s.contains(">") || s.contains("<"))
+            .map(v -> dataBinHelper.calcRange(
+                // only use "<" or ">" to make sure that we only generate open ranges
+                dataBinHelper.extractOperator(v).substring(0,1), 
+                Double.parseDouble(dataBinHelper.stripOperator(v))))
+            .collect(Collectors.toList());
+    } 
+    
     public Collection<DataBin> calcNonNumericalClinicalDataBins(String attributeId, 
                                                                 List<ClinicalData> clinicalData)
     {
@@ -272,8 +291,8 @@ public class DataBinner
                 dataBins = logScaleDataBinner.calculateDataBins(attributeId,
                     boxRange,
                     withoutOutliers,
-                    lowerOutlier,
-                    upperOutlier);
+                    lowerOutlierBin.getEnd(),
+                    upperOutlierBin.getStart());
             }
             else if (dataBinHelper.isSmallData(sortedNumericalValues)) 
             {
@@ -374,16 +393,26 @@ public class DataBinner
     
     public DataBin calcUpperOutlierBin(String attributeId, List<ClinicalData> clinicalData)
     {
-        return dataBinHelper.calcUpperOutlierBin(attributeId,
+        DataBin dataBin = dataBinHelper.calcUpperOutlierBin(attributeId,
             doubleValuesForSpecialOutliers(clinicalData, ">="), 
             doubleValuesForSpecialOutliers(clinicalData, ">"));
+        
+        // for consistency always set operator to ">"
+        dataBin.setSpecialValue(">");
+        
+        return dataBin;
     }
 
     public DataBin calcLowerOutlierBin(String attributeId, List<ClinicalData> clinicalData)
     {
-        return dataBinHelper.calcLowerOutlierBin(attributeId,
+        DataBin dataBin = dataBinHelper.calcLowerOutlierBin(attributeId,
             doubleValuesForSpecialOutliers(clinicalData, "<="),
             doubleValuesForSpecialOutliers(clinicalData, "<"));
+
+        // for consistency always set operator to "<="
+        dataBin.setSpecialValue("<=");
+        
+        return dataBin;
     }
 
 

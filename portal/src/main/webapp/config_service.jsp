@@ -82,6 +82,7 @@
             "skin.show_tools_tab",
             "skin.show_tutorials_tab",
             "skin.show_web_api_tab",
+            "skin.show_tweet_button",
             "skin.description",
             "skin.title",
             "skin.authorization_message",

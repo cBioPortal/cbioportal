@@ -94,13 +94,13 @@ public class DataBinner
             // if no range then it means non numerical data bin
             else {
                 for (String value: nonNumericalValues) {
-                    if (value.equals(dataBin.getSpecialValue())) {
+                    if (value.equalsIgnoreCase(dataBin.getSpecialValue())) {
                         dataBin.setCount(dataBin.getCount() + 1);
                     }
                 }
             }
             
-            if ("NA".equals(dataBin.getSpecialValue())) {
+            if ("NA".equalsIgnoreCase(dataBin.getSpecialValue())) {
                 dataBin.setCount(countNAs(clinicalData, ids).intValue());
             }
         }
@@ -188,7 +188,7 @@ public class DataBinner
             DataBin dataBin = map.computeIfAbsent(value.trim().toUpperCase(), key -> {
                 DataBin bin = new DataBin();
                 bin.setAttributeId(attributeId);
-                bin.setSpecialValue(key);
+                bin.setSpecialValue(value.trim());
                 bin.setCount(0);
                 return bin;
             });

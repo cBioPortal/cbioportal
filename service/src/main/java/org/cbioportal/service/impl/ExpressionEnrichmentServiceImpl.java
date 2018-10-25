@@ -76,15 +76,10 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
         List<ExpressionEnrichment> expressionEnrichments = new ArrayList<>();
         for (Integer entrezGeneId : alteredMolecularDataMap.keySet()) {
             
-            ExpressionEnrichment expressionEnrichment = new ExpressionEnrichment();
-            expressionEnrichment.setEntrezGeneId(entrezGeneId);
-            Gene gene = genes.get(entrezGeneId).get(0);
-            expressionEnrichment.setCytoband(gene.getCytoband());
-            expressionEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
-
             List<GeneMolecularData> alteredMolecularData = alteredMolecularDataMap.get(entrezGeneId);
             List<GeneMolecularData> unalteredMolecularData = unalteredMolecularDataMap.get(entrezGeneId);
-            if (alteredMolecularData.stream().filter(a -> !NumberUtils.isNumber(a.getValue())).count() > 0 || 
+            if (alteredMolecularData == null || unalteredMolecularData == null ||
+                alteredMolecularData.stream().filter(a -> !NumberUtils.isNumber(a.getValue())).count() > 0 || 
                 unalteredMolecularData.stream().filter(a -> !NumberUtils.isNumber(a.getValue())).count() > 0) {
                 continue;
             }
@@ -105,6 +100,11 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
                 continue;
             }
 
+            ExpressionEnrichment expressionEnrichment = new ExpressionEnrichment();
+            expressionEnrichment.setEntrezGeneId(entrezGeneId);
+            Gene gene = genes.get(entrezGeneId).get(0);
+            expressionEnrichment.setCytoband(gene.getCytoband());
+            expressionEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
             expressionEnrichment.setMeanExpressionInAlteredGroup(BigDecimal.valueOf(alteredMean));
             expressionEnrichment.setMeanExpressionInUnalteredGroup(BigDecimal.valueOf(unalteredMean));
             expressionEnrichment.setStandardDeviationInAlteredGroup(BigDecimal.valueOf(alteredStandardDeviation));

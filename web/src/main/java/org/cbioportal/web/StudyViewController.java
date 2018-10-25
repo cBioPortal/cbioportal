@@ -94,26 +94,27 @@ public class StudyViewController {
         return new ResponseEntity<>(combinedResult, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/attributes/{attributeId}/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data bin counts by study view filter")
     public ResponseEntity<List<DataBin>> fetchClinicalDataBinCounts(
-        @ApiParam(required = true, value = "Attribute ID e.g. AGE")
-        @PathVariable String attributeId,
-        @ApiParam("Type of the clinical data")
-        @RequestParam(defaultValue = "SAMPLE") ClinicalDataType clinicalDataType,
         @ApiParam("Method for data binning")
         @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
-        @ApiParam("Whether to disable log scaling")
-        @RequestParam(defaultValue = "false") Boolean disableLogScale,
-        @ApiParam(required = true, value = "Study view filter")
-        @Valid @RequestBody StudyViewFilter studyViewFilter) {
+        @ApiParam(required = true, value = "Clinical data bin count filter")
+        @Valid @RequestBody ClinicalDataBinCountFilter clinicalDataBinCountFilter) {
 
-        studyViewFilterUtil.removeSelfFromFilter(attributeId, studyViewFilter);
+        List<ClinicalDataBinFilter> attributes = clinicalDataBinCountFilter.getAttributes();
+        StudyViewFilter studyViewFilter = clinicalDataBinCountFilter.getStudyViewFilter();
+        
+        if (attributes.size() == 1) {
+            studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
+        }
         
         List<DataBin> clinicalDataBins = null;
         List<String> filteredIds = new ArrayList<>();
-        List<ClinicalData> filteredClinicalData = fetchClinicalData(attributeId, clinicalDataType, studyViewFilter, filteredIds);
+        List<ClinicalData> filteredClinicalData = fetchClinicalData(attributes, studyViewFilter, filteredIds);
+        Map<String, List<ClinicalData>> filteredClinicalDataByAttributeId = 
+            filteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
         
         if (dataBinMethod == DataBinMethod.STATIC) 
         {
@@ -125,17 +126,37 @@ public class StudyViewController {
             }
             
             List<String> unfilteredIds = new ArrayList<>();
-            List<ClinicalData> unfilteredClinicalData = fetchClinicalData(attributeId, clinicalDataType, filter, unfilteredIds);
+            List<ClinicalData> unfilteredClinicalData = fetchClinicalData(attributes, filter, unfilteredIds);
+            Map<String, List<ClinicalData>> unfilteredClinicalDataByAttributeId =
+                unfilteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
             
-            if (unfilteredClinicalData != null) {
-                clinicalDataBins = dataBinner.calculateClinicalDataBins(
-                    attributeId, filteredClinicalData, unfilteredClinicalData, filteredIds, unfilteredIds, disableLogScale);
+            if (!unfilteredClinicalData.isEmpty()) {
+                clinicalDataBins = new ArrayList<>();
+                for (ClinicalDataBinFilter attribute: attributes) {
+                    clinicalDataBins.addAll(
+                        dataBinner.calculateClinicalDataBins(
+                            attribute.getAttributeId(),
+                            filteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
+                            unfilteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
+                            filteredIds, 
+                            unfilteredIds, 
+                            attribute.getDisableLogScale())
+                    );
+                }
             }
         }
         else { // dataBinMethod == DataBinMethod.DYNAMIC
-            if (filteredClinicalData != null) {
-                clinicalDataBins = dataBinner.calculateClinicalDataBins(
-                    attributeId, filteredClinicalData, filteredIds, disableLogScale);
+            if (!filteredClinicalData.isEmpty()) {
+                clinicalDataBins = new ArrayList<>();
+                for (ClinicalDataBinFilter attribute: attributes) {
+                    clinicalDataBins.addAll(
+                        dataBinner.calculateClinicalDataBins(
+                            attribute.getAttributeId(),
+                            filteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
+                            filteredIds,
+                            attribute.getDisableLogScale())
+                    );
+                }
             }
         }
         
@@ -272,7 +293,7 @@ public class StudyViewController {
         return new ResponseEntity<>(molecularProfileSampleCount, HttpStatus.OK);
     }
     
-    private List<ClinicalData> fetchClinicalData(String attributeId, 
+    private List<ClinicalData> fetchClinicalData(List<String> attributeIds, 
                                                  ClinicalDataType clinicalDataType, 
                                                  StudyViewFilter studyViewFilter,
                                                  List<String> ids)
@@ -290,7 +311,48 @@ public class StudyViewController {
         ids.addAll(extractIds(clinicalDataType, filteredSampleIdentifiers, studyIds, sampleIds));
         
         return clinicalDataService.fetchClinicalData(
-            studyIds, ids, Collections.singletonList(attributeId), clinicalDataType.name(), Projection.SUMMARY.name());
+            studyIds, ids, attributeIds, clinicalDataType.name(), Projection.SUMMARY.name());
+    }
+    
+    private List<ClinicalData> fetchClinicalData(List<ClinicalDataBinFilter> attributes, 
+                                                 StudyViewFilter studyViewFilter,
+                                                 List<String> ids)
+    {
+        List<String> filteredIds = new ArrayList<>();
+        
+        List<String> sampleAttributes = attributes.stream()
+            .filter(a -> a.getClinicalDataType().equals(ClinicalDataType.SAMPLE))
+            .map(ClinicalDataBinFilter::getAttributeId)
+            .collect(Collectors.toList());
+        List<ClinicalData> filteredClinicalDataForSamples = null;
+        
+        if (sampleAttributes.size() > 0) {
+            filteredClinicalDataForSamples = fetchClinicalData(sampleAttributes, ClinicalDataType.SAMPLE, studyViewFilter, filteredIds);
+            ids.addAll(filteredIds);
+        }
+        
+        List<String> patientAttributes = attributes.stream()
+            .filter(a -> a.getClinicalDataType().equals(ClinicalDataType.PATIENT))
+            .map(ClinicalDataBinFilter::getAttributeId)
+            .collect(Collectors.toList());
+        List<ClinicalData> filteredClinicalDataForPatients = null;
+
+        if (patientAttributes.size() > 0) {
+            filteredClinicalDataForPatients = fetchClinicalData(patientAttributes, ClinicalDataType.PATIENT, studyViewFilter, filteredIds);
+            ids.addAll(filteredIds);
+        }
+        
+        List<ClinicalData> combinedResult = new ArrayList<>();
+        
+        if (filteredClinicalDataForSamples != null) {
+            combinedResult.addAll(filteredClinicalDataForSamples);
+        }
+        
+        if (filteredClinicalDataForPatients != null) {
+            combinedResult.addAll(filteredClinicalDataForPatients);
+        }
+        
+        return combinedResult;
     }
     
     private List<String> extractIds(ClinicalDataType clinicalDataType, 

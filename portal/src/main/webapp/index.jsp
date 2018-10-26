@@ -17,20 +17,10 @@
     <script>
         window.frontendConfig = {
             configurationServiceUrl:"//" + '<%=baseUrl%>' +  "/config_service.jsp",
+            appVersion:'<%=GlobalProperties.getAppVersion()%>',
             apiRoot: '//'+ '<%=baseUrl%>/', 
             baseUrl: '<%=baseUrl%>',
-            basePath: '<%=request.getContextPath()%>',
-              // customTabs:[
-                        //     {
-                        //         "title": "Custom Tab",
-                        //         "location": "RESULTS_PAGE",
-                        //         "mountCallbackName": "renderCustomTab1",
-                        //         "pathsToJs":["http://127.0.0.1:8080/customTab1.js"],
-                        //         "showWithMultipleStudies": true,
-                        //         "customParameters": { example:1 },
-                        //         "unmountOnHide":false
-                        //     }
-                        // ]
+            basePath: '<%=request.getContextPath()%>',  
         };
         
         <%-- write configuration to page so we do not have to load it via service--%>

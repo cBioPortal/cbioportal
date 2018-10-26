@@ -157,6 +157,9 @@
                 </executions>
             <configuration>
                 <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                <gitDescribe>
+                    <tags>true</tags>
+                </gitDescribe>
             </configuration>
           </plugin>
     </plugins>

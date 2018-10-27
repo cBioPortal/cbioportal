@@ -1,3 +1,9 @@
+## Octorber 29, 2018
+* The ninth phase of the cBioPortal architectural upgrade is now complete: the _results page_ is now a single-page application with better performance.
+* Supported `Number of mutations per type` in _Plots_ tab
+
+![image](https://user-images.githubusercontent.com/840895/47598695-d996c700-d96d-11e8-9371-9e591cf25ea3.png)
+
 ## October 19, 2018
 
 * Support selection of transcript of interest in the [MutationMapper tool](http://www.cbioportal.org/mutation_mapper.jsp) via [Genome Nexus](https://www.genomenexus.org).

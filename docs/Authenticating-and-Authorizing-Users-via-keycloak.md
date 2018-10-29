@@ -96,7 +96,7 @@ installed. Keycloak may not give an indication of successful
 completion, but when navigating to the **SAML Keys** tab again you
 should now see the certificate and no private key.
 
-## Modifying portal.properties
+## Modifying configuration
 
 1. Within the portal.properties file , make sure that this line is present:
 ```
@@ -108,7 +108,6 @@ should now see the certificate and no private key.
 ```properties
     # authentication
     authorization=true
-    authenticate=saml
     filter_groups_by_appname=false
     saml.sp.metadata.entityid=cbioportal
     saml.idp.metadata.location=classpath:/client-tailored-saml-idp-metadata.xml
@@ -126,6 +125,13 @@ should now see the certificate and no private key.
     # global logout (as opposed to local logout):
     saml.logout.local=false
     saml.logout.url=/
+```
+
+3. Finally, make Tomcat pass the authentication method as a JVM argument
+   by adding this line to `$CATALINA_HOME/bin/setenv.sh`:
+
+```sh
+CATALINA_OPTS='-Dauthenticate=saml'
 ```
 
 ## Obtain user identities

@@ -74,7 +74,9 @@ def interface():
                         help='portal.properties file path (default: assumed hg19)',
                         required=False) 
     parser.add_argument('-jar', '--jar_path', type=str, required=False,
-                        help='Path to scripts JAR file (default: $PORTAL_HOME/scripts/target/scripts-*.jar)')
+                        help=(
+                            'Path to scripts JAR file (default: locate it '
+                            'relative to the import script)'))
     parser.add_argument('-html', '--html_table', type=str,
                         help='path to html report')
     parser.add_argument('-v', '--verbose', action='store_true',

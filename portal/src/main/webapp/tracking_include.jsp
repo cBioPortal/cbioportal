@@ -5,7 +5,7 @@
 <% if (!sentryEndpoint.equals("null")) { %>
 <script src="https://browser.sentry-cdn.com/4.1.1/bundle.min.js" crossorigin="anonymous"></script>
 <script>
-Sentry.init({ dsn: '<%=sentryEndpoint.trim()%>' });
+Sentry.init({ dsn: '<%=sentryEndpoint.trim()%>',   ignoreErrors: [/document\.registerElement is deprecated and will be removed/]  });
 </script>   
 <% } %> 
 

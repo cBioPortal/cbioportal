@@ -19,9 +19,9 @@ def make_screenshot(selenium_hub_url, desired_capabilities, url, png, timeout_in
 
     # Remove version info from footer
     driver.execute_script("""
-    var spanVersion = document.getElementById("footer-span-version");
-    if (spanVersion) {
-        spanVersion.style.display = "none";
+    var footer = document.getElementById("footer");
+    if (footer) {
+        footer.style.display = "none";
     }
     """)
 

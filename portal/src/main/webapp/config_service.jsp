@@ -29,6 +29,7 @@
     
         String[] propNameArray = {
             "app.version",
+            "app.name",
             "oncoprint.custom_driver_annotation.binary.menu_label",
             "disabled_tabs",            
             "civic.url",
@@ -81,6 +82,8 @@
             "skin.show_tools_tab",
             "skin.show_tutorials_tab",
             "skin.show_web_api_tab",
+            "skin.show_tweet_button",
+            "skin.description",
             "skin.title",
             "skin.authorization_message",
             "session.url_length_threshold",

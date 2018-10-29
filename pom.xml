@@ -157,6 +157,9 @@
                 </executions>
             <configuration>
                 <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                <gitDescribe>
+                    <tags>true</tags>
+                </gitDescribe>
             </configuration>
           </plugin>
     </plugins>
@@ -260,7 +263,7 @@
     <tomcat.session.timeout>720</tomcat.session.timeout>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.7.1</db.version>
+    <db.version>2.7.2</db.version>
   </properties>
 
   <modules>

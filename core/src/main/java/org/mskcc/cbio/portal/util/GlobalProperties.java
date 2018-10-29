@@ -173,8 +173,7 @@ public class GlobalProperties {
 
     // footer
     public static final String SKIN_FOOTER = "skin.footer";
-    public static final String DEFAULT_SKIN_FOOTER = " | <a href=\"http://www.mskcc.org/mskcc/html/44.cfm\">MSKCC</a>" +
-            " | <a href=\"http://cancergenome.nih.gov/\">TCGA</a>";
+    public static final String DEFAULT_SKIN_FOOTER = ""; // default is in cbioportal-frontend repo
 
     // login contact
     public static final String SKIN_LOGIN_CONTACT_HTML = "skin.login.contact_html";

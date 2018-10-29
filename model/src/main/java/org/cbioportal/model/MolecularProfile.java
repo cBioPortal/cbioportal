@@ -9,6 +9,7 @@ public class MolecularProfile implements Serializable {
     // don't forget to change the original one too
     public enum MolecularAlterationType {
         MUTATION_EXTENDED,
+        MUTATION_FACETS,
         // uncalled mutations (mskcc internal) for showing read counts even if
         // mutation wasn't called
         MUTATION_UNCALLED,

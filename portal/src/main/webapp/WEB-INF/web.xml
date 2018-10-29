@@ -670,7 +670,6 @@
     <servlet-mapping>
         <servlet-name>SinglePageApplication</servlet-name>
         <url-pattern>/results/*</url-pattern>
-        <url-pattern>/s/*</url-pattern>
         <url-pattern>/patient/*</url-pattern>
         <url-pattern>/newstudy/*</url-pattern>
         <url-pattern>/mutation_mapper/*</url-pattern>

@@ -3,7 +3,7 @@
     <parent>
         <artifactId>security</artifactId>
         <groupId>org.mskcc.cbio</groupId>
-        <version>1.17.2-SNAPSHOT</version>
+        <version>1.18.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -102,19 +102,4 @@
         <scope>provided</scope>
       </dependency>
     </dependencies>
-    <build>
-      <filters>
-        <filter>../../src/main/resources/portal.properties</filter>
-        <filter>../../src/main/resources/maven.properties</filter>
-      </filters>
-      <resources>
-        <resource>
-          <directory>src/main/resources</directory>
-          <filtering>true</filtering>
-          <includes>
-            <include>applicationContext-security.xml</include>
-          </includes>
-        </resource>
-      </resources>
-    </build>
 </project>

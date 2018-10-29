@@ -40,12 +40,10 @@ public class SampleControllerTest {
     private static final int TEST_PATIENT_ID_1 = 1;
     private static final String TEST_PATIENT_STABLE_ID_1 = "test_patient_stable_id_1";
     private static final String TEST_CANCER_STUDY_IDENTIFIER_1 = "test_study_1";
-    private static final String TEST_TYPE_OF_CANCER_ID_1 = "test_type_of_cancer_id_1";
     private static final int TEST_INTERNAL_ID_2 = 2;
     private static final String TEST_STABLE_ID_2 = "test_stable_id_2";
     private static final int TEST_PATIENT_ID_2 = 2;
     private static final String TEST_PATIENT_STABLE_ID_2 = "test_patient_stable_id_2";
-    private static final String TEST_TYPE_OF_CANCER_ID_2 = "test_type_of_cancer_id_2";
 
     @Autowired
     private WebApplicationContext wac;
@@ -87,7 +85,6 @@ public class SampleControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientStableId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleType")
                 .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
@@ -96,7 +93,6 @@ public class SampleControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientStableId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleType")
                 .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist());
     }
@@ -137,7 +133,6 @@ public class SampleControllerTest {
         sample.setPatientId(TEST_PATIENT_ID_1);
         sample.setPatientStableId(TEST_PATIENT_STABLE_ID_1);
         sample.setSampleType(Sample.SampleType.PRIMARY_SOLID_TUMOR);
-        sample.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_1);
         sample.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_1);
 
         Mockito.when(sampleService.getSampleInStudy(Mockito.anyString(), Mockito.anyString())).thenReturn(sample);
@@ -152,7 +147,6 @@ public class SampleControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.patientStableId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$.sampleType")
                 .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$.studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1));
 
     }
@@ -177,7 +171,6 @@ public class SampleControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientStableId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleType")
                 .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
@@ -186,7 +179,6 @@ public class SampleControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientStableId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleType")
                 .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist());
     }
@@ -239,7 +231,6 @@ public class SampleControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientStableId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleType")
                 .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
@@ -248,7 +239,6 @@ public class SampleControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientStableId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleType")
                 .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist());
     }
@@ -280,7 +270,6 @@ public class SampleControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientStableId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleType")
                 .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
@@ -289,7 +278,6 @@ public class SampleControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientStableId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleType")
                 .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist());
     }
@@ -332,7 +320,6 @@ public class SampleControllerTest {
         sample1.setPatientId(TEST_PATIENT_ID_1);
         sample1.setPatientStableId(TEST_PATIENT_STABLE_ID_1);
         sample1.setSampleType(Sample.SampleType.PRIMARY_SOLID_TUMOR);
-        sample1.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_1);
         sample1.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_1);
         sampleList.add(sample1);
         Sample sample2 = new Sample();
@@ -341,7 +328,6 @@ public class SampleControllerTest {
         sample2.setPatientId(TEST_PATIENT_ID_2);
         sample2.setPatientStableId(TEST_PATIENT_STABLE_ID_2);
         sample2.setSampleType(Sample.SampleType.PRIMARY_SOLID_TUMOR);
-        sample2.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_2);
         sample2.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_1);
         sampleList.add(sample2);
         return sampleList;

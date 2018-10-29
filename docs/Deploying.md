@@ -12,11 +12,33 @@ To make it available to your bash shell, add the following to your `.bash_profil
 
 Note:  If you are following the [recommended Ubuntu instructions](https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-8-on-ubuntu-14-04):  you should set ```export CATALINA_HOME=/opt/tomcat```
 
-## Add PORTAL_HOME to Tomcat
+## Prepare the global configuration file
 
-The `PORTAL_HOME` environment variable needs to be available to the `cbioportal.war` file which runs within the Tomcat server. To make it available to Tomcat, edit your Tomcat startup file (typically `$CATALINA_HOME/bin/catalina.sh`) and add the following line anywhere within this file (we typically add it near the `JAVA_OPTS` statements):
+The portal is configured using a global configuration file, `portal.properties`.
+An example file is available in the `src/main/resources` folder.
+Use it as a template to create your own:
 
-    export PORTAL_HOME= $CATALINA_HOME + "/webapps/cbioportal/WEB-INF/classes/"
+    cd src/main/resources
+    cp portal.properties.EXAMPLE $HOME/cbioportal/portal.properties
+
+For more information about the `portal.properties` file,
+see the [reference](portal.properties-Reference.md) page.
+
+## Set environment variables for Tomcat
+
+The `PORTAL_HOME` environment variable needs to be available to
+the `cbioportal.war` file which runs within the Tomcat server,
+so that it can find the configuration file. To make it available to Tomcat,
+edit your Tomcat startup file (typically `$CATALINA_HOME/bin/setenv.sh`)
+and add a line like the following, pointing it to the folder containing
+`portal.properties`:
+
+    export PORTAL_HOME=/Users/johndoe/cbioportal
+
+In additon, add a line to make Tomcat pass `-Dauthenticate=false`
+as a JVM argument, or replace the word ‘false’ by the method to use:
+
+    CATALINA_OPTS='-Dauthenticate=false'
 
 ## Add the MySQL JDBC Driver to Apache Tomcat
 
@@ -54,8 +76,9 @@ or, if you are following the [recommended Ubuntu instructions](https://www.digit
 
 After the tomcat server has been started, to deploy the WAR file, run the following command:
 
-    sudo cp portal/target/cbioportal-*-SNAPSHOT.war $CATALINA_HOME/webapps/cbioportal.war
-    
+```
+sudo cp portal/target/cbioportal-*-SNAPSHOT.war $CATALINA_HOME/webapps/cbioportal.war
+```
 
 After doing this, you can look in the tomcat log file (`$CATALINA_HOME/logs/catalina.out`) to see if the portal has been proper deployed.  You should see something like:
 
@@ -64,13 +87,12 @@ After doing this, you can look in the tomcat log file (`$CATALINA_HOME/logs/cata
 ## Verify the Web Application
 
 Lastly, open a browser and go to:  
-
-[http://localhost:8080/cbioportal/](http://localhost:8080/cbioportal/)
+<http://localhost:8080/cbioportal/>
 
 ## Important
 
 - Each time you modify any java code, you must recompile and redeploy the WAR file.
-- Each time you modify any properties (see customization options), you must recompile and redeploy the WAR file.
+- Each time you modify any properties (see customization options), you must restart tomcat.
 - Each time you add new data, you must restart tomcat.
 
 ## Developer Tip
@@ -96,4 +118,4 @@ According to the stack overflow answer:
 
 The default JNDI settings above therefore include `testOnBorrow` and `validationQuery`, and you should therefore not see any broken pipe errors.  Should you see these errors, despite the settings, best to consult [here](http://juststuffreally.blogspot.com/2007/10/broken-pipes-with-tomcat-and-dbcp.html), and [here](http://stackoverflow.com/questions/20848219/tomcat-mysql-java-servlet-application-getting-500-error-after-some-hours-of-inac).
 
-[Steps Complete: Return Home](README.md)
+[Next Step: Loading a Sample Study](Load-Sample-Cancer-Study.md)

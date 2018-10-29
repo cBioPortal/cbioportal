@@ -127,6 +127,201 @@ public class DataBinnerTest
             "876","663","708","711","556","638","1330","557","180","524","158","380","272","64","2555","10","374","699",
             "1446","578","97","233","879","448","651"
         });
+
+        mockData.put("impact_DNA_INPUT", new String[] {
+            "50", "50", "50", "51", "51", "52", "53", "54", "55", "55", "60", "62", "63", "75", "75", "75", "76", "77",
+            "78", "78", "79", "80", "82", "88", "89", "90", "91", "92", "93", "96", "98", "100", "102", "102", "104",
+            "107", "108", "110", "111", "111", "111", "112", "116", "118", "120", "121", "122", "123", "125", "130",
+            "131", "132", "135", "136", "136", "140", "144", "145", "150", "151", "152", "156", "157", "158", "159",
+            "161", "162", "165", "166", "166", "170", "174", "175", "180", "181", "152", "156", "157", "158", "159",
+            "191", "192", "195", "196", "166", "200", "204", "205", "210", "211", "212", "216", "217", "218", "219",
+            "221", "222", "225", "226", "226", "230", "234", "235", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240",
+            "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240", "240"
+        });
+
+        mockData.put("recursively_always_zero_IQR", new String[] {
+            "11",
+            "22", "22", "22", "22",
+            "33", "33", "33", "33", "33", "33", "33", "33", "33", "33", "33", "33", "33", "33", "33", "33", "33", "33", "33",
+            "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", 
+            "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44",
+            "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44",
+            "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44",
+            "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44", "44",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55", "55",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
+            "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66"
+        });
         
         return mockData;
     }
@@ -143,31 +338,51 @@ public class DataBinnerTest
         
         List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds);
 
-        Assert.assertEquals(6, dataBins.size());
+        Assert.assertEquals(11, dataBins.size());
         
         Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
         Assert.assertEquals(new Double(40.0), dataBins.get(0).getEnd());
         Assert.assertEquals(2, dataBins.get(0).getCount().intValue());
 
         Assert.assertEquals(new Double(40.0), dataBins.get(1).getStart());
-        Assert.assertEquals(new Double(50.0), dataBins.get(1).getEnd());
-        Assert.assertEquals(23, dataBins.get(1).getCount().intValue());
+        Assert.assertEquals(new Double(45.0), dataBins.get(1).getEnd());
+        Assert.assertEquals(6, dataBins.get(1).getCount().intValue());
 
-        Assert.assertEquals(new Double(50.0), dataBins.get(2).getStart());
-        Assert.assertEquals(new Double(60.0), dataBins.get(2).getEnd());
-        Assert.assertEquals(83, dataBins.get(2).getCount().intValue());
+        Assert.assertEquals(new Double(45.0), dataBins.get(2).getStart());
+        Assert.assertEquals(new Double(50.0), dataBins.get(2).getEnd());
+        Assert.assertEquals(17, dataBins.get(2).getCount().intValue());
 
-        Assert.assertEquals(new Double(60.0), dataBins.get(3).getStart());
-        Assert.assertEquals(new Double(70.0), dataBins.get(3).getEnd());
-        Assert.assertEquals(124, dataBins.get(3).getCount().intValue());
+        Assert.assertEquals(new Double(50.0), dataBins.get(3).getStart());
+        Assert.assertEquals(new Double(55.0), dataBins.get(3).getEnd());
+        Assert.assertEquals(24, dataBins.get(3).getCount().intValue());
 
-        Assert.assertEquals(new Double(70.0), dataBins.get(4).getStart());
-        Assert.assertEquals(new Double(80.0), dataBins.get(4).getEnd());
-        Assert.assertEquals(131, dataBins.get(4).getCount().intValue());
+        Assert.assertEquals(new Double(55.0), dataBins.get(4).getStart());
+        Assert.assertEquals(new Double(60.0), dataBins.get(4).getEnd());
+        Assert.assertEquals(59, dataBins.get(4).getCount().intValue());
 
-        Assert.assertEquals(new Double(80.0), dataBins.get(5).getStart());
-        Assert.assertEquals(new Double(90.0), dataBins.get(5).getEnd());
-        Assert.assertEquals(48, dataBins.get(5).getCount().intValue());
+        Assert.assertEquals(new Double(60.0), dataBins.get(5).getStart());
+        Assert.assertEquals(new Double(65.0), dataBins.get(5).getEnd());
+        Assert.assertEquals(53, dataBins.get(5).getCount().intValue());
+
+        Assert.assertEquals(new Double(65.0), dataBins.get(6).getStart());
+        Assert.assertEquals(new Double(70.0), dataBins.get(6).getEnd());
+        Assert.assertEquals(71, dataBins.get(6).getCount().intValue());
+
+        Assert.assertEquals(new Double(70.0), dataBins.get(7).getStart());
+        Assert.assertEquals(new Double(75.0), dataBins.get(7).getEnd());
+        Assert.assertEquals(67, dataBins.get(7).getCount().intValue());
+
+        Assert.assertEquals(new Double(75.0), dataBins.get(8).getStart());
+        Assert.assertEquals(new Double(80.0), dataBins.get(8).getEnd());
+        Assert.assertEquals(64, dataBins.get(8).getCount().intValue());
+
+        Assert.assertEquals(new Double(80.0), dataBins.get(9).getStart());
+        Assert.assertEquals(new Double(85.0), dataBins.get(9).getEnd());
+        Assert.assertEquals(35, dataBins.get(9).getCount().intValue());
+
+        Assert.assertEquals(new Double(85.0), dataBins.get(10).getStart());
+        Assert.assertEquals(new Double(90.0), dataBins.get(10).getEnd());
+        Assert.assertEquals(13, dataBins.get(10).getCount().intValue());
     }
     
     @Test
@@ -190,8 +405,8 @@ public class DataBinnerTest
             attributeId, filteredClinicalData, unfilteredClinicalData, filteredPatientIds, unfilteredPatientIds);
         
         // same number of bins for both
-        Assert.assertEquals(6, unfilteredDataBins.size());
-        Assert.assertEquals(6, filteredDataBins.size());
+        Assert.assertEquals(11, unfilteredDataBins.size());
+        Assert.assertEquals(11, filteredDataBins.size());
 
         // same start/end/special values for all bins
         
@@ -202,48 +417,59 @@ public class DataBinnerTest
 
         Assert.assertEquals(new Double(40.0), filteredDataBins.get(1).getStart());
         Assert.assertEquals(new Double(40.0), unfilteredDataBins.get(1).getStart());
-        Assert.assertEquals(new Double(50.0), filteredDataBins.get(1).getEnd());
-        Assert.assertEquals(new Double(50.0), unfilteredDataBins.get(1).getEnd());
+        Assert.assertEquals(new Double(45.0), filteredDataBins.get(1).getEnd());
+        Assert.assertEquals(new Double(45.0), unfilteredDataBins.get(1).getEnd());
 
-        Assert.assertEquals(new Double(50.0), filteredDataBins.get(2).getStart());
-        Assert.assertEquals(new Double(50.0), unfilteredDataBins.get(2).getStart());
-        Assert.assertEquals(new Double(60.0), filteredDataBins.get(2).getEnd());
-        Assert.assertEquals(new Double(60.0), unfilteredDataBins.get(2).getEnd());
+        Assert.assertEquals(new Double(45.0), filteredDataBins.get(2).getStart());
+        Assert.assertEquals(new Double(45.0), unfilteredDataBins.get(2).getStart());
+        Assert.assertEquals(new Double(50.0), filteredDataBins.get(2).getEnd());
+        Assert.assertEquals(new Double(50.0), unfilteredDataBins.get(2).getEnd());
 
-        Assert.assertEquals(new Double(60.0), filteredDataBins.get(3).getStart());
-        Assert.assertEquals(new Double(60.0), unfilteredDataBins.get(3).getStart());
-        Assert.assertEquals(new Double(70.0), filteredDataBins.get(3).getEnd());
-        Assert.assertEquals(new Double(70.0), unfilteredDataBins.get(3).getEnd());
+        Assert.assertEquals(new Double(50.0), filteredDataBins.get(3).getStart());
+        Assert.assertEquals(new Double(50.0), unfilteredDataBins.get(3).getStart());
+        Assert.assertEquals(new Double(55.0), filteredDataBins.get(3).getEnd());
+        Assert.assertEquals(new Double(55.0), unfilteredDataBins.get(3).getEnd());
 
-        Assert.assertEquals(new Double(70.0), filteredDataBins.get(4).getStart());
-        Assert.assertEquals(new Double(70.0), unfilteredDataBins.get(4).getStart());
-        Assert.assertEquals(new Double(80.0), filteredDataBins.get(4).getEnd());
-        Assert.assertEquals(new Double(80.0), unfilteredDataBins.get(4).getEnd());
+        Assert.assertEquals(new Double(55.0), filteredDataBins.get(4).getStart());
+        Assert.assertEquals(new Double(55.0), unfilteredDataBins.get(4).getStart());
+        Assert.assertEquals(new Double(60.0), filteredDataBins.get(4).getEnd());
+        Assert.assertEquals(new Double(60.0), unfilteredDataBins.get(4).getEnd());
 
-        Assert.assertEquals(new Double(80.0), filteredDataBins.get(5).getStart());
-        Assert.assertEquals(new Double(80.0), unfilteredDataBins.get(5).getStart());
-        Assert.assertEquals(new Double(90.0), filteredDataBins.get(5).getEnd());
-        Assert.assertEquals(new Double(90.0), unfilteredDataBins.get(5).getEnd());
+        Assert.assertEquals(new Double(60.0), filteredDataBins.get(5).getStart());
+        Assert.assertEquals(new Double(60.0), unfilteredDataBins.get(5).getStart());
+        Assert.assertEquals(new Double(65.0), filteredDataBins.get(5).getEnd());
+        Assert.assertEquals(new Double(65.0), unfilteredDataBins.get(5).getEnd());
+
+        Assert.assertEquals(new Double(85.0), filteredDataBins.get(10).getStart());
+        Assert.assertEquals(new Double(85.0), unfilteredDataBins.get(10).getStart());
+        Assert.assertEquals(new Double(90.0), filteredDataBins.get(10).getEnd());
+        Assert.assertEquals(new Double(90.0), unfilteredDataBins.get(10).getEnd());
         
-        // same counts until the bin (60-70]
+        // same counts until the bin (60-65]
         
         Assert.assertEquals(2, filteredDataBins.get(0).getCount().intValue());
         Assert.assertEquals(2, unfilteredDataBins.get(0).getCount().intValue());
 
-        Assert.assertEquals(23, filteredDataBins.get(1).getCount().intValue());
-        Assert.assertEquals(23, unfilteredDataBins.get(1).getCount().intValue());
+        Assert.assertEquals(6, filteredDataBins.get(1).getCount().intValue());
+        Assert.assertEquals(6, unfilteredDataBins.get(1).getCount().intValue());
 
-        Assert.assertEquals(83, filteredDataBins.get(2).getCount().intValue());
-        Assert.assertEquals(83, unfilteredDataBins.get(2).getCount().intValue());
+        Assert.assertEquals(17, filteredDataBins.get(2).getCount().intValue());
+        Assert.assertEquals(17, unfilteredDataBins.get(2).getCount().intValue());
 
-        Assert.assertEquals(0, filteredDataBins.get(3).getCount().intValue());
-        Assert.assertEquals(124, unfilteredDataBins.get(3).getCount().intValue());
+        Assert.assertEquals(24, filteredDataBins.get(3).getCount().intValue());
+        Assert.assertEquals(24, unfilteredDataBins.get(3).getCount().intValue());
 
-        Assert.assertEquals(0, filteredDataBins.get(4).getCount().intValue());
-        Assert.assertEquals(131, unfilteredDataBins.get(4).getCount().intValue());
+        Assert.assertEquals(59, filteredDataBins.get(4).getCount().intValue());
+        Assert.assertEquals(59, unfilteredDataBins.get(4).getCount().intValue());
 
         Assert.assertEquals(0, filteredDataBins.get(5).getCount().intValue());
-        Assert.assertEquals(48, unfilteredDataBins.get(5).getCount().intValue());
+        Assert.assertEquals(53, unfilteredDataBins.get(5).getCount().intValue());
+
+        Assert.assertEquals(0, filteredDataBins.get(6).getCount().intValue());
+        Assert.assertEquals(71, unfilteredDataBins.get(6).getCount().intValue());
+
+        Assert.assertEquals(0, filteredDataBins.get(10).getCount().intValue());
+        Assert.assertEquals(13, unfilteredDataBins.get(10).getCount().intValue());
     }
 
     @Test
@@ -262,42 +488,26 @@ public class DataBinnerTest
 
         List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds);
 
-        Assert.assertEquals(9, dataBins.size());
+        Assert.assertEquals(16, dataBins.size());
 
         Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
         Assert.assertEquals(new Double(18.0), dataBins.get(0).getEnd());
         Assert.assertEquals(1, dataBins.get(0).getCount().intValue());
 
         Assert.assertEquals(new Double(18.0), dataBins.get(1).getStart());
-        Assert.assertEquals(new Double(30.0), dataBins.get(1).getEnd());
-        Assert.assertEquals(9, dataBins.get(1).getCount().intValue());
+        Assert.assertEquals(new Double(25.0), dataBins.get(1).getEnd());
+        Assert.assertEquals(2, dataBins.get(1).getCount().intValue());
 
-        Assert.assertEquals(new Double(30.0), dataBins.get(2).getStart());
-        Assert.assertEquals(new Double(40.0), dataBins.get(2).getEnd());
-        Assert.assertEquals(16, dataBins.get(2).getCount().intValue());
+        Assert.assertEquals(new Double(25.0), dataBins.get(2).getStart());
+        Assert.assertEquals(new Double(30.0), dataBins.get(2).getEnd());
+        Assert.assertEquals(7, dataBins.get(2).getCount().intValue());
 
-        Assert.assertEquals(new Double(40.0), dataBins.get(3).getStart());
-        Assert.assertEquals(new Double(50.0), dataBins.get(3).getEnd());
-        Assert.assertEquals(31, dataBins.get(3).getCount().intValue());
-
-        Assert.assertEquals(new Double(50.0), dataBins.get(4).getStart());
-        Assert.assertEquals(new Double(60.0), dataBins.get(4).getEnd());
-        Assert.assertEquals(25, dataBins.get(4).getCount().intValue());
-
-        Assert.assertEquals(new Double(60.0), dataBins.get(5).getStart());
-        Assert.assertEquals(new Double(70.0), dataBins.get(5).getEnd());
-        Assert.assertEquals(24, dataBins.get(5).getCount().intValue());
-
-        Assert.assertEquals(new Double(70.0), dataBins.get(6).getStart());
-        Assert.assertEquals(new Double(80.0), dataBins.get(6).getEnd());
-        Assert.assertEquals(11, dataBins.get(6).getCount().intValue());
-
-        Assert.assertEquals(new Double(80.0), dataBins.get(7).getStart());
-        Assert.assertEquals(">", dataBins.get(7).getSpecialValue());
-        Assert.assertEquals(2, dataBins.get(7).getCount().intValue());
+        Assert.assertEquals(new Double(85.0), dataBins.get(14).getStart());
+        Assert.assertEquals(">", dataBins.get(14).getSpecialValue());
+        Assert.assertEquals(1, dataBins.get(14).getCount().intValue());
         
-        Assert.assertEquals("NA", dataBins.get(8).getSpecialValue());
-        Assert.assertEquals(4, dataBins.get(8).getCount().intValue());
+        Assert.assertEquals("NA", dataBins.get(15).getSpecialValue());
+        Assert.assertEquals(4, dataBins.get(15).getCount().intValue());
     }
 
     @Test
@@ -312,39 +522,111 @@ public class DataBinnerTest
 
         List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds);
 
-        Assert.assertEquals(8, dataBins.size());
+        Assert.assertEquals(15, dataBins.size());
 
         Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
-        Assert.assertEquals(new Double(10.0), dataBins.get(0).getEnd());
-        Assert.assertEquals(71, dataBins.get(0).getCount().intValue());
+        Assert.assertEquals(new Double(5.0), dataBins.get(0).getEnd());
+        Assert.assertEquals(30, dataBins.get(0).getCount().intValue());
 
-        Assert.assertEquals(new Double(10.0), dataBins.get(1).getStart());
-        Assert.assertEquals(new Double(20.0), dataBins.get(1).getEnd());
-        Assert.assertEquals(94, dataBins.get(1).getCount().intValue());
+        Assert.assertEquals(new Double(5.0), dataBins.get(1).getStart());
+        Assert.assertEquals(new Double(10.0), dataBins.get(1).getEnd());
+        Assert.assertEquals(41, dataBins.get(1).getCount().intValue());
 
-        Assert.assertEquals(new Double(20.0), dataBins.get(2).getStart());
-        Assert.assertEquals(new Double(30.0), dataBins.get(2).getEnd());
-        Assert.assertEquals(58, dataBins.get(2).getCount().intValue());
+        Assert.assertEquals(new Double(10.0), dataBins.get(2).getStart());
+        Assert.assertEquals(new Double(15.0), dataBins.get(2).getEnd());
+        Assert.assertEquals(55, dataBins.get(2).getCount().intValue());
 
-        Assert.assertEquals(new Double(30.0), dataBins.get(3).getStart());
-        Assert.assertEquals(new Double(40.0), dataBins.get(3).getEnd());
-        Assert.assertEquals(19, dataBins.get(3).getCount().intValue());
+        Assert.assertEquals(new Double(15.0), dataBins.get(3).getStart());
+        Assert.assertEquals(new Double(20.0), dataBins.get(3).getEnd());
+        Assert.assertEquals(39, dataBins.get(3).getCount().intValue());
 
-        Assert.assertEquals(new Double(40.0), dataBins.get(4).getStart());
-        Assert.assertEquals(new Double(50.0), dataBins.get(4).getEnd());
-        Assert.assertEquals(17, dataBins.get(4).getCount().intValue());
+        Assert.assertEquals(new Double(20.0), dataBins.get(4).getStart());
+        Assert.assertEquals(new Double(25.0), dataBins.get(4).getEnd());
+        Assert.assertEquals(26, dataBins.get(4).getCount().intValue());
 
-        Assert.assertEquals(new Double(50.0), dataBins.get(5).getStart());
-        Assert.assertEquals(new Double(60.0), dataBins.get(5).getEnd());
-        Assert.assertEquals(10, dataBins.get(5).getCount().intValue());
+        Assert.assertEquals(new Double(25.0), dataBins.get(5).getStart());
+        Assert.assertEquals(new Double(30.0), dataBins.get(5).getEnd());
+        Assert.assertEquals(32, dataBins.get(5).getCount().intValue());
 
-        Assert.assertEquals(new Double(60.0), dataBins.get(6).getStart());
-        Assert.assertEquals(">", dataBins.get(6).getSpecialValue());
-        Assert.assertEquals(34, dataBins.get(6).getCount().intValue());
+        Assert.assertEquals(new Double(30.0), dataBins.get(6).getStart());
+        Assert.assertEquals(new Double(35.0), dataBins.get(6).getEnd());
+        Assert.assertEquals(8, dataBins.get(6).getCount().intValue());
+
+        Assert.assertEquals(new Double(35.0), dataBins.get(7).getStart());
+        Assert.assertEquals(new Double(40.0), dataBins.get(7).getEnd());
+        Assert.assertEquals(11, dataBins.get(7).getCount().intValue());
+
+        Assert.assertEquals(new Double(40.0), dataBins.get(8).getStart());
+        Assert.assertEquals(new Double(45.0), dataBins.get(8).getEnd());
+        Assert.assertEquals(8, dataBins.get(8).getCount().intValue());
+
+        Assert.assertEquals(new Double(45.0), dataBins.get(9).getStart());
+        Assert.assertEquals(new Double(50.0), dataBins.get(9).getEnd());
+        Assert.assertEquals(9, dataBins.get(9).getCount().intValue());
+
+        Assert.assertEquals(new Double(50.0), dataBins.get(10).getStart());
+        Assert.assertEquals(new Double(55.0), dataBins.get(10).getEnd());
+        Assert.assertEquals(6, dataBins.get(10).getCount().intValue());
+
+        Assert.assertEquals(new Double(55.0), dataBins.get(11).getStart());
+        Assert.assertEquals(new Double(60.0), dataBins.get(11).getEnd());
+        Assert.assertEquals(4, dataBins.get(11).getCount().intValue());
+
+        Assert.assertEquals(new Double(60.0), dataBins.get(12).getStart());
+        Assert.assertEquals(new Double(65.0), dataBins.get(12).getEnd());
+        Assert.assertEquals(6, dataBins.get(12).getCount().intValue());
+
+        Assert.assertEquals(new Double(65.0), dataBins.get(13).getStart());
+        Assert.assertEquals(">", dataBins.get(13).getSpecialValue());
+        Assert.assertEquals(28, dataBins.get(13).getCount().intValue());
         
-        Assert.assertEquals("NA", dataBins.get(7).getSpecialValue());
-        Assert.assertEquals(109, dataBins.get(7).getCount().intValue());
-    }    
+        Assert.assertEquals("NA", dataBins.get(14).getSpecialValue());
+        Assert.assertEquals(109, dataBins.get(14).getCount().intValue());
+    }
+
+    @Test
+    public void testLinearDataBinnerWithZeroIQR()
+    {
+        String studyId = "impact";
+        String attributeId = "DNA_INPUT";
+        String[] values = mockData.get("impact_DNA_INPUT");
+
+        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
+
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds);
+
+        Assert.assertEquals(19, dataBins.size());
+
+        Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
+        Assert.assertEquals(new Double(60.0), dataBins.get(0).getEnd());
+
+        Assert.assertEquals(new Double(60.0), dataBins.get(1).getStart());
+        Assert.assertEquals(new Double(70.0), dataBins.get(1).getEnd());
+        
+        Assert.assertEquals(new Double(230.0), dataBins.get(18).getStart());
+        Assert.assertEquals(new Double(240.0), dataBins.get(18).getEnd());
+    }
+
+    @Test
+    public void testLinearDataBinnerWithAlwaysZeroIQR()
+    {
+        String studyId = "unknown";
+        String attributeId = "DNA_INPUT";
+        String[] values = mockData.get("recursively_always_zero_IQR");
+
+        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
+
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds);
+
+        Assert.assertEquals(1, dataBins.size());
+
+        Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
+        Assert.assertEquals(new Double(66.0), dataBins.get(0).getEnd());
+        Assert.assertEquals("all values should be included in a single bin",
+            values.length, dataBins.get(0).getCount().intValue());
+    }
     
     @Test
     public void testDiscreteDataBinner()
@@ -474,13 +756,19 @@ public class DataBinnerTest
 
         List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds, true);
 
-        Assert.assertEquals(7, dataBins.size());
+        Assert.assertEquals(17, dataBins.size());
 
         Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
-        Assert.assertEquals(new Double(500.0), dataBins.get(0).getEnd());
+        Assert.assertEquals(new Double(200.0), dataBins.get(0).getEnd());
+        Assert.assertEquals(17, dataBins.get(0).getCount().intValue());
 
-        Assert.assertEquals(new Double(3000.0), dataBins.get(6).getStart());
-        Assert.assertEquals(">", dataBins.get(6).getSpecialValue());
+        Assert.assertEquals(new Double(200.0), dataBins.get(1).getStart());
+        Assert.assertEquals(new Double(400.0), dataBins.get(1).getEnd());
+        Assert.assertEquals(24, dataBins.get(1).getCount().intValue());
+
+        Assert.assertEquals(new Double(3200.0), dataBins.get(16).getStart());
+        Assert.assertEquals(">", dataBins.get(16).getSpecialValue());
+        Assert.assertEquals(6, dataBins.get(16).getCount().intValue());
     }
 
     @Test
@@ -518,13 +806,13 @@ public class DataBinnerTest
 
         List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds, true);
 
-        Assert.assertEquals(6, dataBins.size());
+        Assert.assertEquals(14, dataBins.size());
 
         Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
         Assert.assertEquals(new Double(-30000.0), dataBins.get(0).getEnd());
 
-        Assert.assertEquals(new Double(-10000.0), dataBins.get(5).getStart());
-        Assert.assertEquals(">", dataBins.get(5).getSpecialValue());
+        Assert.assertEquals(new Double(-6000.0), dataBins.get(13).getStart());
+        Assert.assertEquals(">", dataBins.get(13).getSpecialValue());
     }
     
     private List<ClinicalData> mockClinicalData(String attributeId, String studyId, String[] values)

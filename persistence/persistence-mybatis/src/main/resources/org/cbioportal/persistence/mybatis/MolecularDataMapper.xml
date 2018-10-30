@@ -33,7 +33,9 @@
                 </foreach>
             </if>
         </where>
-        ORDER BY genetic_profile.STABLE_ID ASC
+        <!-- It seems like in Java, `_` comes before letters when sorted, but in MySQL it comes after. 
+        The code depends on them being the same order, so this is done to make the MySQL ordering same with Java. -->
+        ORDER BY REPLACE(genetic_profile.STABLE_ID, '_', ' '), genetic_profile.STABLE_ID ASC
     </select>
     
     <select id="getGeneMolecularAlterations" resultType="org.cbioportal.model.GeneMolecularAlteration">

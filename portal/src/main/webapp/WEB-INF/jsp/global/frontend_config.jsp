@@ -72,7 +72,7 @@ function assignQuickDirty(obj1, obj2){
 }
 
 // override legacySupportFrontendConfig with new frontendConfig
-window.frontendConfig = JSON.parse('<%=GlobalProperties.getFrontendConfig()%>');
+window.frontendConfig = JSON.parse('<%=GlobalProperties.getFrontendConfig()%>' || "{}");
 //window.frontendConfig = Object.assign(window.legacySupportFrontendConfig, window.frontendConfig);
 window.frontendConfig = assignQuickDirty(window.legacySupportFrontendConfig, window.frontendConfig);
 

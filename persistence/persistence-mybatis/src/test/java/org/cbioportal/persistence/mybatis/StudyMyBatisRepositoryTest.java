@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.junit.Assert;
@@ -217,5 +218,14 @@ public class StudyMyBatisRepositoryTest {
         BaseMeta result = studyMyBatisRepository.fetchMetaStudies(Arrays.asList("study_tcga_pub", "acc_tcga"));
 
         Assert.assertEquals((Integer) 2, result.getTotalCount());
+    }
+    
+    @Test
+    public void getTags() throws Exception {
+
+        CancerStudyTags result = studyMyBatisRepository.getTags("study_tcga_pub");
+ 
+        Assert.assertEquals((Integer) 1, result.getCancerStudyId());
+        Assert.assertEquals("{\"Analyst\": {\"Name\": \"Jack\", \"Email\": \"jack@something.com\"}, \"Load id\": 35}", result.getTags());
     }
 }

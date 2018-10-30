@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
@@ -24,13 +25,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @PublicApi
 @RestController
@@ -102,5 +111,24 @@ public class StudyController {
                 studyService.fetchStudies(studyIds, projection.name()), HttpStatus.OK);
         }
     
+    }
+
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
+    @RequestMapping(value = "/studies/{studyId}/tags", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get the tags of a study")
+    public ResponseEntity<Object> getTags(
+        @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+        @PathVariable String studyId) throws JsonParseException, JsonMappingException,
+        IOException {
+        
+    	Map<String,Object> map = new HashMap<String,Object>();
+        ObjectMapper mapper = new ObjectMapper();
+        CancerStudyTags cancerStudyTags = studyService.getTags(studyId);
+        if (cancerStudyTags != null) { //If tags is null an empty map is returned
+    		map = mapper.readValue(cancerStudyTags.getTags(), Map.class);
+        }
+        
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 }

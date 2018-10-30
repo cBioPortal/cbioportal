@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
@@ -46,4 +47,9 @@ public class StudyMyBatisRepository implements StudyRepository {
         
         return studyMapper.getMetaStudies(studyIds);
 	}
+	
+	@Override
+    public CancerStudyTags getTags(String studyId) {
+        return studyMapper.getTags(studyId);
+    }
 }

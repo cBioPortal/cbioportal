@@ -1957,7 +1957,134 @@ class StudyCompositionTestCase(LogBufferTestCase):
                          {'cancer_type_luad.txt', 'cancer_type_lung.txt'})
         # assert that the second error complains about the cancer type
         self.assertEqual(record_list[1].cause, 'luad')
-
+        
+    def test_invalid_tags_file(self):
+        """Test if an error is reported when giving a study tags file with wrong format."""
+        with temp_inputfolder({
+            'meta_study.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                type_of_cancer: brca
+                name: Spam (spam)
+                description: Baked beans
+                short_name: Spam
+                add_global_case_list: true
+                tags_file: study_tags.yml
+                '''),
+            'meta_samples.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                genetic_alteration_type: CLINICAL
+                datatype: SAMPLE_ATTRIBUTES
+                data_filename: data_samples.txt
+                '''),
+            'data_samples.txt': textwrap.dedent('''\
+                #Patient Identifier\tSample Identifier
+                #PatID\tSampId
+                #STRING\tSTRING
+                #1\t1
+                PATIENT_ID\tSAMPLE_ID
+                Patient1\tPatient1-Sample1
+                '''),
+            'study_tags.yml': textwrap.dedent('''\
+                Invalid:
+                {
+                ''')
+        }) as study_dir:
+            self.logger.setLevel(logging.WARNING)
+            validateData.validate_study(
+                study_dir,
+                PORTAL_INSTANCE,
+                self.logger,
+                relaxed_mode=False,
+                strict_maf_checks=False)
+            record_list = self.get_log_records()
+            self.assertEqual(len(record_list), 1)
+            for record in record_list:
+                self.assertEqual(record.levelno, logging.ERROR)
+                self.assertIn('yaml', record.getMessage().lower())
+                
+    def test_valid_JSON_tags_file(self):
+        """Test if no errors are reported when giving a study tags file in JSON format."""
+        with temp_inputfolder({
+            'meta_study.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                type_of_cancer: brca
+                name: Spam (spam)
+                description: Baked beans
+                short_name: Spam
+                add_global_case_list: true
+                tags_file: study_tags.yml
+                '''),
+            'meta_samples.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                genetic_alteration_type: CLINICAL
+                datatype: SAMPLE_ATTRIBUTES
+                data_filename: data_samples.txt
+                '''),
+            'data_samples.txt': textwrap.dedent('''\
+                #Patient Identifier\tSample Identifier
+                #PatID\tSampId
+                #STRING\tSTRING
+                #1\t1
+                PATIENT_ID\tSAMPLE_ID
+                Patient1\tPatient1-Sample1
+                '''),
+            'study_tags.yml': textwrap.dedent('''\
+                { name: study_name }
+                ''')
+        }) as study_dir:
+            self.logger.setLevel(logging.WARNING)
+            validateData.validate_study(
+                study_dir,
+                PORTAL_INSTANCE,
+                self.logger,
+                relaxed_mode=False,
+                strict_maf_checks=False)
+            record_list = self.get_log_records()
+            self.assertEqual(len(record_list), 0)
+            for record in record_list:
+                self.assertEqual(record.levelno, logging.ERROR)
+    
+    def test_valid_YAML_tags_file(self):
+        """Test if no errors are reported when giving a study tags file in YAML format."""
+        with temp_inputfolder({
+            'meta_study.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                type_of_cancer: brca
+                name: Spam (spam)
+                description: Baked beans
+                short_name: Spam
+                add_global_case_list: true
+                tags_file: study_tags.yml
+                '''),
+            'meta_samples.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                genetic_alteration_type: CLINICAL
+                datatype: SAMPLE_ATTRIBUTES
+                data_filename: data_samples.txt
+                '''),
+            'data_samples.txt': textwrap.dedent('''\
+                #Patient Identifier\tSample Identifier
+                #PatID\tSampId
+                #STRING\tSTRING
+                #1\t1
+                PATIENT_ID\tSAMPLE_ID
+                Patient1\tPatient1-Sample1
+                '''),
+            'study_tags.yml': textwrap.dedent('''\
+                name: study_name
+                ''')
+        }) as study_dir:
+            self.logger.setLevel(logging.WARNING)
+            validateData.validate_study(
+                study_dir,
+                PORTAL_INSTANCE,
+                self.logger,
+                relaxed_mode=False,
+                strict_maf_checks=False)
+            record_list = self.get_log_records()
+            self.assertEqual(len(record_list), 0)
+            for record in record_list:
+                self.assertEqual(record.levelno, logging.ERROR)
 
 class CaseListDirTestCase(PostClinicalDataFileTestCase):
 

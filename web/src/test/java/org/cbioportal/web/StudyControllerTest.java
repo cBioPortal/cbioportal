@@ -1,6 +1,7 @@
 package org.cbioportal.web;
 
 import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.StudyService;
@@ -49,6 +50,7 @@ public class StudyControllerTest {
     private static final String TEST_GROUPS_1 = "test_groups_1";
     private static final int TEST_STATUS_1 = 0;
     private static final String TEST_DATE_1 = "2011-12-18 13:17:17";
+    private static final String TEST_TAGS_1 = "{\"Analyst\":{\"Name\":\"Jack\",\"Email\":\"jack@something.com\"},\"Load id\":35}";
     private static final int TEST_CANCER_STUDY_ID_2 = 2;
     private static final String TEST_CANCER_STUDY_IDENTIFIER_2 = "test_study_2";
     private static final String TEST_TYPE_OF_CANCER_ID_2 = "test_type_of_cancer_id_2";
@@ -61,6 +63,7 @@ public class StudyControllerTest {
     private static final String TEST_GROUPS_2 = "test_groups_2";
     private static final int TEST_STATUS_2 = 0;
     private static final String TEST_DATE_2 = "2013-10-12 11:11:15";
+    private static final String TEST_TAGS_2 = "{}";
     private static final String TEST_TYPE_OF_CANCER_NAME = "test_type_of_cancer_name";
     private static final String TEST_CLINICAL_TRIAL_KEYWORDS = "test_clinical_trial_keywords";
     private static final String TEST_DEDICATED_COLOR = "test_dedicated_color";
@@ -291,5 +294,32 @@ public class StudyControllerTest {
         cancerStudy2.setImportDate(simpleDateFormat.parse(TEST_DATE_2));
         cancerStudyList.add(cancerStudy2);
         return cancerStudyList;
+    }
+    
+    @Test
+    public void getTags() throws Exception {
+
+        CancerStudyTags cancerStudyTags = new CancerStudyTags();
+        cancerStudyTags.setTags(TEST_TAGS_1);
+
+        Mockito.when(studyService.getTags(Mockito.anyString())).thenReturn(cancerStudyTags);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/tags")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().string(TEST_TAGS_1));
+    }
+    
+    @Test
+    public void getEmptyTags() throws Exception {
+
+    	Mockito.when(studyService.getTags(Mockito.anyString())).thenReturn(null);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/tags")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().string(TEST_TAGS_2));
     }
 }

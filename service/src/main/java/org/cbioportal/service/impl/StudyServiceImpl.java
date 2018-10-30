@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.service.StudyService;
@@ -58,4 +59,10 @@ public class StudyServiceImpl implements StudyService {
         
         return studyRepository.fetchMetaStudies(studyIds);
 	}
+    
+    @Override
+    public CancerStudyTags getTags(String studyId) {
+
+        return studyRepository.getTags(studyId);
+    }
 }

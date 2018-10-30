@@ -357,7 +357,7 @@
                             appendMutationTab();
                         }
                         var _cnaProfiles = _.filter(_geneticProfiles, function (_profile) {
-                            return _profile.study_id + '_gistic' === _profile.id;
+                            return _profile.genetic_alteration_type === 'COPY_NUMBER_ALTERATION' && _profile.datatype === 'DISCRETE';
                         });
                         if(_cnaProfiles.length>0){
                             appendCnaTab();

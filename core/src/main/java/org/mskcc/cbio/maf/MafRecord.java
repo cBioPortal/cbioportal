@@ -137,8 +137,29 @@ public class MafRecord
 	private String driverFilterAnn;
 	private String driverTiersFilter;
 	private String driverTiersFilterAnn;
-	
-	public String getChr() {
+
+        // FACETS cols
+        private float dipLogR;
+        private float cellularFraction;
+        private int totalCopyNumber;
+        private int minorCopyNumber;
+        private float cellularFractionEm;
+        private int totalCopyNumberEm;
+        private int minorCopyNumberEm;
+        private float purity;
+        private float ploidy;
+        private float ccfMCopies;
+        private float ccfMCopiesLower;
+        private float ccfMCopiesUpper;
+        private float ccfMCopiesProb95;
+        private float ccfMCopiesProb90;
+        private float ccfMCopiesEm;
+        private float ccfMCopiesLowerEm;
+        private float ccfMCopiesUpperEm;
+        private float ccfMCopiesProb95Em;
+        private float ccfMCopiesProb90Em; 
+    
+    public String getChr() {
         return chr;
     }
 
@@ -897,4 +918,155 @@ public class MafRecord
 	public void setDriverTiersFilterAnn(String driverTiersFilterAnn) {
 		this.driverTiersFilterAnn = driverTiersFilterAnn;
 	}
+
+    public float getDipLogR() {
+        return dipLogR;
+    }
+
+    public void setDipLogR(float dipLogR) {
+        this.dipLogR = dipLogR;
+    }
+    
+    public float getCellularFraction() {
+        return cellularFraction;
+    }
+
+    public void setCellularFraction(float cellularFraction) {
+        this.cellularFraction = cellularFraction;
+    }
+
+    public int getTotalCopyNumber() {
+        return totalCopyNumber;
+    }
+
+    public void setTotalCopyNumber(int totalCopyNumber) {
+        this.totalCopyNumber = totalCopyNumber;
+    }
+
+    public int getMinorCopyNumber() {
+        return minorCopyNumber;
+    }
+
+    public void setMinorCopyNumber(int minorCopyNumber) {
+        this.minorCopyNumber = minorCopyNumber;
+    }
+
+    public float getCellularFractionEm() {
+        return cellularFractionEm;
+    }
+
+    public void setCellularFractionEm(float cellularFractionEm) {
+        this.cellularFractionEm = cellularFractionEm;
+    }
+
+    public int getTotalCopyNumberEm() {
+        return totalCopyNumberEm;
+    }
+
+    public void setTotalCopyNumberEm(int totalCopyNumberEm) {
+        this.totalCopyNumberEm = totalCopyNumberEm;
+    }
+
+    public int getMinorCopyNumberEm() {
+        return minorCopyNumberEm;
+    }
+
+    public void setMinorCopyNumberEm(int minorCopyNumberEm) {
+        this.minorCopyNumberEm = minorCopyNumberEm;
+    }
+
+    public float getPurity() {
+        return purity;
+    }
+
+    public void setPurity(float purity) {
+        this.purity = purity;
+    }
+
+    public float getPloidy() {
+        return ploidy;
+    }
+
+    public void setPloidy(float ploidy) {
+        this.ploidy = ploidy;
+    }
+
+    public float getCcfMCopies() {
+        return ccfMCopies;
+    }
+
+    public void setCcfMCopies(float ccfMCopies) {
+        this.ccfMCopies = ccfMCopies; }
+
+    public float getCcfMCopiesLower() {
+        return ccfMCopiesLower;
+    }
+
+    public void setCcfMCopiesLower(float ccfMCopiesLower) {
+        this.ccfMCopiesLower = ccfMCopiesLower;
+    }
+
+    public float getCcfMCopiesUpper() {
+        return ccfMCopiesUpper;
+    }
+
+    public void setCcfMCopiesUpper(float ccfMCopiesUpper) {
+        this.ccfMCopiesUpper = ccfMCopiesUpper;
+    }
+
+    public float getCcfMCopiesProb95() {
+        return ccfMCopiesProb95;
+    }
+
+    public void setCcfMCopiesProb95(float ccfMCopiesProb95) {
+        this.ccfMCopiesProb95 = ccfMCopiesProb95;
+    }
+
+    public float getCcfMCopiesProb90() {
+        return ccfMCopiesProb90;
+    }
+
+    public void setCcfMCopiesProb90(float ccfMCopiesProb90) {
+        this.ccfMCopiesProb90 = ccfMCopiesProb90;
+    }
+
+    public float getCcfMCopiesEm() {
+        return ccfMCopiesEm;
+    }
+
+    public void setCcfMCopiesEm(float ccfMCopiesEm) {
+        this.ccfMCopiesEm = ccfMCopiesEm;
+    }
+
+    public float getCcfMCopiesLowerEm() {
+        return ccfMCopiesLowerEm;
+    }
+
+    public void setCcfMCopiesLowerEm(float ccfMCopiesLowerEm) {
+        this.ccfMCopiesLowerEm = ccfMCopiesLowerEm;
+    }
+
+    public float getCcfMCopiesUpperEm() {
+        return ccfMCopiesUpperEm;
+    }
+
+    public void setCcfMCopiesUpperEm(float ccfMCopiesUpperEm) {
+        this.ccfMCopiesUpperEm = ccfMCopiesUpperEm;
+    }
+
+    public float getCcfMCopiesProb95Em() {
+        return ccfMCopiesProb95Em;
+    }
+
+    public void setCcfMCopiesProb95Em(float ccfMCopiesProb95Em) {
+        this.ccfMCopiesProb95Em = ccfMCopiesProb95Em;
+    }
+
+    public float getCcfMCopiesProb90Em() {
+        return ccfMCopiesProb90Em;
+    }
+
+    public void setCcfMCopiesProb90Em(float ccfMCopiesProb90Em) {
+        this.ccfMCopiesProb90Em = ccfMCopiesProb90Em;
+    }
 }

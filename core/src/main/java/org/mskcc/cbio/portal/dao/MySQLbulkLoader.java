@@ -38,7 +38,6 @@ import org.apache.commons.io.FileUtils;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
-
 /**
  * To speed up CGDS data loading, bulk load from files using MySQL "LOAD DATA INFILE" functionality.
  * Intercept each record write in the normal load, buffer it in a temp file, and load the temp file when done.
@@ -50,7 +49,7 @@ import java.util.*;
 public class MySQLbulkLoader {
    private static boolean bulkLoad = false;
    private static boolean relaxedMode = false;
-   
+
    private static final Map<String,MySQLbulkLoader> mySQLbulkLoaders = new LinkedHashMap<String,MySQLbulkLoader>();
    /**
     * Get a MySQLbulkLoader

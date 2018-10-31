@@ -135,15 +135,15 @@ public class StudyViewController {
             if (!unfilteredClinicalData.isEmpty()) {
                 clinicalDataBins = new ArrayList<>();
                 for (ClinicalDataBinFilter attribute: attributes) {
-                    clinicalDataBins.addAll(
-                        dataBinner.calculateClinicalDataBins(
-                            attribute.getAttributeId(),
-                            filteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
-                            unfilteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
-                            filteredIds, 
-                            unfilteredIds, 
-                            attribute.getDisableLogScale())
-                    );
+                    List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(
+                        attribute.getAttributeId(),
+                        filteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
+                        unfilteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
+                        filteredIds,
+                        unfilteredIds,
+                        attribute.getDisableLogScale());
+                    dataBins.forEach(dataBin -> dataBin.setClinicalDataType(attribute.getClinicalDataType()));
+                    clinicalDataBins.addAll(dataBins);
                 }
             }
         }
@@ -151,13 +151,13 @@ public class StudyViewController {
             if (!filteredClinicalData.isEmpty()) {
                 clinicalDataBins = new ArrayList<>();
                 for (ClinicalDataBinFilter attribute: attributes) {
-                    clinicalDataBins.addAll(
-                        dataBinner.calculateClinicalDataBins(
-                            attribute.getAttributeId(),
-                            filteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
-                            filteredIds,
-                            attribute.getDisableLogScale())
-                    );
+                    List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(
+                        attribute.getAttributeId(),
+                        filteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
+                        filteredIds,
+                        attribute.getDisableLogScale());
+                    dataBins.forEach(dataBin -> dataBin.setClinicalDataType(attribute.getClinicalDataType()));
+                    clinicalDataBins.addAll(dataBins);
                 }
             }
         }

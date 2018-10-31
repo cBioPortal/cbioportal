@@ -1,15 +1,18 @@
 
 function handleLegacySubmission(url, query){
 
+    // these are currently the only params we can determine on study page. submitted
+    // query has a lot more stuff on it that causes problems
+    
     query.cancer_study_list = query.cancer_study_list.join(',');
     
-    const fixedQuery = JSON.stringify(query);
+    var stringifiedQuery = JSON.stringify(query);
     
     try {
-        localStorage.setItem("legacyStudySubmission", fixedQuery);
+        localStorage.setItem("legacyStudySubmission", stringifiedQuery);
     } catch (ex){ // probably because too much in localstorage
         localStorage.clear();
-        localStorage.setItem("legacyStudySubmission", fixedQuery);
+        localStorage.setItem("legacyStudySubmission", stringifiedQuery);
     }
    
     if (query.Action) {

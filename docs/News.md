@@ -1,6 +1,6 @@
-## Octorber 29, 2018
+## October 29, 2018
 * The ninth phase of the cBioPortal architectural upgrade is now complete: the _results page_ is now a single-page application with better performance.
-* Supported `Number of mutations per type` in _Plots_ tab
+* Supported plotting mutations by type in _Plots_ tab
 
 ![image](https://user-images.githubusercontent.com/840895/47598695-d996c700-d96d-11e8-9371-9e591cf25ea3.png)
 

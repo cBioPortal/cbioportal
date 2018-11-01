@@ -65,6 +65,7 @@ INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,E
 
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(2,'study_tcga_pub_gistic',1,'COPY_NUMBER_ALTERATION','DISCRETE','Putative copy-number alterations from GISTIC','Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.',1);
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(3,'study_tcga_pub_mrna',1,'MRNA_EXPRESSION','Z-SCORE','mRNA expression (microarray)','Expression levels (Agilent microarray).',0);
+INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(10,'study_tcga_pub_m_na',1,'MRNA_EXPRESSION','Z-SCORE','mRNA expression (microarray)','Expression levels (Agilent microarray).',0);
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(4,'study_tcga_pub_log2CNA',1,'COPY_NUMBER_ALTERATION','LOG2-VALUE','Log2 copy-number values','Log2 copy-number VALUESfor each gene (from Affymetrix SNP6).',0);
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(5,'study_tcga_pub_methylation_hm27',1,'METHYLATION','CONTINUOUS','Methylation (HM27)','Methylation beta-VALUES(HM27 platform). For genes with multiple methylation probes, the probe least correlated with expression is selected.',0);
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(6,'study_tcga_pub_mutations',1,'MUTATION_EXTENDED','MAF','Mutations','Mutation data from whole exome sequencing.',1);
@@ -76,6 +77,7 @@ INSERT INTO genetic_profile_samples (GENETIC_PROFILE_ID,ORDERED_SAMPLE_LIST) VAL
 INSERT INTO genetic_profile_samples (GENETIC_PROFILE_ID,ORDERED_SAMPLE_LIST) VALUES(3,'2,3,6,8,9,10,12,13,');
 INSERT INTO genetic_profile_samples (GENETIC_PROFILE_ID,ORDERED_SAMPLE_LIST) VALUES(4,'1,2,3,4,5,6,7,8,9,10,11,12,13,14,');
 INSERT INTO genetic_profile_samples (GENETIC_PROFILE_ID,ORDERED_SAMPLE_LIST) VALUES(5,'2,');
+INSERT INTO genetic_profile_samples (GENETIC_PROFILE_ID,ORDERED_SAMPLE_LIST) VALUES(10,'1,2,3,4,5,6,7,8,9,10,11,');
 
 INSERT INTO patient (INTERNAL_ID,STABLE_ID,CANCER_STUDY_ID) VALUES(1,'TCGA-A1-A0SB',1);
 INSERT INTO patient (INTERNAL_ID,STABLE_ID,CANCER_STUDY_ID) VALUES(2,'TCGA-A1-A0SD',1);

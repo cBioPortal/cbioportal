@@ -6391,7 +6391,7 @@ module.exports = {
               // count as key, dataObj as value (performance concern)
               var _CnaFracMutCntMap = {};
               _.each(data, function(_dataObj) {
-                var _key = _dataObj.FRACTION_GENOME_ALTERED + '||' + _dataObj.MUTATION_COUNT;
+                var _key = Number(_dataObj.FRACTION_GENOME_ALTERED) + '||' + Number(_dataObj.MUTATION_COUNT);
                 _CnaFracMutCntMap[_key] = _dataObj;
               });
               _.each(_eventData.points, function(_pointObj) {

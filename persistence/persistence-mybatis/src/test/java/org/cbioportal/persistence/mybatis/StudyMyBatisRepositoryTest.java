@@ -225,7 +225,6 @@ public class StudyMyBatisRepositoryTest {
 
         CancerStudyTags result = studyMyBatisRepository.getTags("study_tcga_pub");
  
-        Assert.assertEquals((Integer) 1, result.getCancerStudyId());
         Assert.assertEquals("{\"Analyst\": {\"Name\": \"Jack\", \"Email\": \"jack@something.com\"}, \"Load id\": 35}", result.getTags());
     }
 }

@@ -375,8 +375,8 @@ public class StudyViewController {
         }
 
         for (int i = 0; i < xValues.length; i++) {
-            int xBinIndex = (int) (xValues[i] / xAxisBinInterval);
-            int yBinIndex = (int) (yValues[i] / yAxisBinInterval);
+            int xBinIndex = (int) ((xValues[i] - xAxisStartValue) / xAxisBinInterval);
+            int yBinIndex = (int) ((yValues[i] - yAxisStartValue) / yAxisBinInterval);
             int index = (int) (((xBinIndex - (xBinIndex == xAxisBinCount ? 1 : 0)) * yAxisBinCount) +
                 (yBinIndex - (yBinIndex == yAxisBinCount ? 1 : 0)));
             DensityPlotBin densityPlotBin = result.get(index);

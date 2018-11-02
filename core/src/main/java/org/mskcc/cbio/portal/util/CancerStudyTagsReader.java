@@ -11,13 +11,14 @@ import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CancerStudyTags;
 import org.mskcc.cbio.portal.scripts.TrimmedProperties;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 public class CancerStudyTagsReader {
 
     public static CancerStudyTags loadCancerStudyTags(File file, CancerStudy cancerStudy) 
-        throws FileNotFoundException, IOException, DaoException, FileNotFoundException {
+        throws FileNotFoundException, IOException, DaoException {
 
         TrimmedProperties properties = new TrimmedProperties();
         properties.load(new FileInputStream(file));

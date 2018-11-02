@@ -3591,7 +3591,7 @@ def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logge
     if cancer_study_id + '_all' not in case_list_ids:
         logger.error(
                 "No case list found with stable_id '%s', consider adding "
-                    "'add_global_case_list: true' to the study tags file",
+                    "'add_global_case_list: true' to the meta_study.txt file",
                 cancer_study_id + '_all')
 
     if 'meta_mutations_extended' in file_types:

@@ -26,7 +26,7 @@ public class LinearDataBinner
     public static final Integer DEFAULT_INTERVAL_COUNT = 20;
     
     private DataBinHelper dataBinHelper;
-
+    
     @Autowired
     public LinearDataBinner(DataBinHelper dataBinHelper) {
         this.dataBinHelper = dataBinHelper;
@@ -36,26 +36,45 @@ public class LinearDataBinner
                                            Range<Double> boxRange,
                                            List<Double> values,
                                            Double lowerOutlier,
-                                           Double upperOutlier)
-    {
+                                           Double upperOutlier) {
         Double min = lowerOutlier == null ? Collections.min(values) : Math.max(Collections.min(values), lowerOutlier);
         Double max = upperOutlier == null ? Collections.max(values) : Math.min(Collections.max(values), upperOutlier);
-        
-                
+
         List<DataBin> dataBins = initDataBins(attributeId, min, max, lowerOutlier, upperOutlier);
 
-        // special case for "AGE" attributes
+        // special case for "AGE" attributes	
         if (dataBinHelper.isAgeAttribute(attributeId) &&
             min < 18 &&
             (boxRange.upperEndpoint() - boxRange.lowerEndpoint()) / 2 > 18 &&
             dataBins.get(0).getEnd() > 18)
         {
-            // force first bin to start from 18
+            // force first bin to start from 18	
             dataBins.get(0).setStart(18.0);
         }
         
         dataBinHelper.calcCounts(dataBins, values);
-        
+
+        return dataBins;
+    }
+
+    public List<DataBin> calculateDataBins(String attributeId,
+                                           List<Double> customBins,
+                                           List<Double> values) {
+        List<DataBin> dataBins = initDataBins(attributeId, customBins);
+        dataBinHelper.calcCounts(dataBins, values);
+        return dataBins;
+    }
+
+    public List<DataBin> initDataBins(String attributeId, List<Double> bins) {
+        List<DataBin> dataBins = new ArrayList<>();
+        for (int i = 0; i < bins.size() - 1; i++) {
+            DataBin dataBin = new DataBin();
+            dataBin.setAttributeId(attributeId);
+            dataBin.setStart(bins.get(i));
+            dataBin.setEnd(bins.get(i + 1));
+            dataBin.setCount(0);
+            dataBins.add(dataBin);
+        }
         return dataBins;
     }
 

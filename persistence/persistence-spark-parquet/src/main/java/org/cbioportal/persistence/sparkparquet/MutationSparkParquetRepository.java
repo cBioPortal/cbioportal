@@ -1,25 +1,44 @@
-package org.cbioportal.persistence.mybatis;
+package org.cbioportal.persistence.sparkparquet;
 
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.persistence.MutationRepository;
-import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.apache.spark.sql.*;
 
 import java.util.List;
+import java.util.ArrayList;
+import static java.lang.Math.toIntExact;
 
 @Repository
-@Qualifier("mybatisMutationRepository")
-public class MutationMyBatisRepository implements MutationRepository {
+@Qualifier("sparkParquetMutationRepository")
+public class MutationSparkParquetRepository implements MutationRepository {
 
-    @Autowired
-    private MutationMapper mutationMapper;
-    @Autowired
-    private OffsetCalculator offsetCalculator;
+    private SparkSession spark;
+
+    MutationSparkParquetRepository() {
+        spark = SparkSession.builder().appName("cBioPortalSpark").master("spark://dashi-dev.cbio.mskcc.org:7077")
+            .config("spark.sql.warehouse.dir", "/data/tmp").getOrCreate();
+        if (spark == null) {
+            throw new RuntimeException("!!!!!!!!!!!!!!!!!!!!!!!!! Cannot initialize spark context. !!!!!!!!!!!!!!!!!!!!!!!!!");
+        }
+    }
+
+    @Override
+    public void finalize() {
+        try {
+            if (spark != null) {
+                spark.close();
+            }
+        }
+        catch(Exception e) {
+            throw new RuntimeException("!!!!!!!!!!!!!!!!!!!!!!!!! Error closing spark context !!!!!!!!!!!!!!!!!!!!!!!!!");
+        }
+    }
 
     @Override
     public List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
@@ -28,15 +47,14 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                        Integer pageNumber, String sortBy,
                                                                        String direction) {
 
-        return mutationMapper.getMutationsBySampleListId(molecularProfileId, sampleListId, entrezGeneIds, snpOnly,
-            projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public MutationMeta getMetaMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
                                                                          List<Integer> entrezGeneIds) {
 
-        return mutationMapper.getMetaMutationsBySampleListId(molecularProfileId, sampleListId, entrezGeneIds, null);
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -45,8 +63,7 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                   String projection, Integer pageSize, 
                                                                   Integer pageNumber, String sortBy, String direction) {
 
-        return mutationMapper.getMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds, 
-            null, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -54,8 +71,7 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                     List<String> sampleIds, 
                                                                     List<Integer> entrezGeneIds) {
 
-        return mutationMapper.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds,
-            null);
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -64,15 +80,14 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                            String projection, Integer pageSize, Integer pageNumber,
                                                            String sortBy, String direction) {
 
-        return mutationMapper.getMutationsBySampleIds(molecularProfileId, sampleIds, entrezGeneIds, snpOnly, projection,
-            pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public MutationMeta fetchMetaMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
                                                              List<Integer> entrezGeneIds) {
 
-        return mutationMapper.getMetaMutationsBySampleIds(molecularProfileId, sampleIds, entrezGeneIds, null);
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -80,15 +95,38 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                                List<String> sampleIds,
                                                                                List<Integer> entrezGeneIds) {
 
-        return mutationMapper.getSampleCountByEntrezGeneIdsAndSampleIds(molecularProfileId, sampleIds, entrezGeneIds,
-            null);
+        throw new UnsupportedOperationException();
     }
 
 	@Override
 	public List<MutationCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
-			List<String> sampleIds, List<Integer> entrezGeneIds) {
-        
-        return mutationMapper.getSampleCountInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds, null);
+                                                                             List<String> sampleIds, List<Integer> entrezGeneIds) {
+      List<MutationCountByGene> toReturn = new ArrayList();
+      try {
+          Dataset<Row> df = spark.read().parquet("file:///home/grossb/tmp/parquet-output-java/");
+          df.createOrReplaceTempView("mutations");
+          Dataset<Row> result = spark.sql("select first(Hugo_Symbol) as hugoGeneSymbol," +
+                                          "Entrez_Gene_Id as entrezGeneId," +
+                                          "COUNT(*) as totalCount, " +
+                                          "COUNT(DISTINCT(Tumor_Sample_Barcode)) as countByEntity " +
+                                          "from mutations " +
+                                          "group by Entrez_Gene_Id");
+          for (Row r : result.collectAsList()) {
+              MutationCountByGene mc = new MutationCountByGene();
+              mc.setHugoGeneSymbol(r.getString(0));
+              mc.setEntrezGeneId(Integer.valueOf(r.getString(1)));
+              mc.setTotalCount(toIntExact(r.getLong(2)));
+              mc.setCountByEntity(toIntExact(r.getLong(3)));
+              toReturn.add(mc);
+          }
+      }
+      catch (Exception e) {
+          System.out.println("!!!!! Error Spark-Parquet Start: !!!!!");
+          System.out.println(e);
+          System.out.println("!!!!! Error Spark-Parquet End:   !!!!!");
+      }
+
+      return toReturn;
 	}
 
     @Override
@@ -96,14 +134,13 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                                 List<String> patientIds,
                                                                                 List<Integer> entrezGeneIds) {
 
-        return mutationMapper.getPatientCountByEntrezGeneIdsAndSampleIds(molecularProfileId, patientIds, entrezGeneIds,
-            null);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public MutationCountByPosition getMutationCountByPosition(Integer entrezGeneId, Integer proteinPosStart,
                                                               Integer proteinPosEnd) {
 
-        return mutationMapper.getMutationCountByPosition(entrezGeneId, proteinPosStart, proteinPosEnd);
+        throw new UnsupportedOperationException();
     }
 }

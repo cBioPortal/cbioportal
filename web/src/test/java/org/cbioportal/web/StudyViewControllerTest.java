@@ -194,7 +194,7 @@ public class StudyViewControllerTest {
         mutationCounts.add(mutationCount2);
 
         Mockito.when(mutationService.getSampleCountInMultipleMolecularProfiles(Mockito.anyListOf(String.class), 
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean())).thenReturn(mutationCounts);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(mutationCounts);
 
         StudyViewFilter studyViewFilter = new StudyViewFilter();
         studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));

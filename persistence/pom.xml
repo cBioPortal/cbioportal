@@ -12,6 +12,7 @@
     <modules>
         <module>persistence-api</module>
         <module>persistence-mybatis</module>
+        <module>persistence-spark-parquet</module>
     </modules>
 
 </project>

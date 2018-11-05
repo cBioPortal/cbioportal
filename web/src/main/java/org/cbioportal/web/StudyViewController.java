@@ -136,12 +136,11 @@ public class StudyViewController {
                 clinicalDataBins = new ArrayList<>();
                 for (ClinicalDataBinFilter attribute: attributes) {
                     List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(
-                        attribute.getAttributeId(),
+                        attribute,
                         filteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
                         unfilteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
                         filteredIds,
-                        unfilteredIds,
-                        attribute.getDisableLogScale());
+                        unfilteredIds);
                     dataBins.forEach(dataBin -> dataBin.setClinicalDataType(attribute.getClinicalDataType()));
                     clinicalDataBins.addAll(dataBins);
                 }
@@ -152,10 +151,9 @@ public class StudyViewController {
                 clinicalDataBins = new ArrayList<>();
                 for (ClinicalDataBinFilter attribute: attributes) {
                     List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(
-                        attribute.getAttributeId(),
+                        attribute,
                         filteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
-                        filteredIds,
-                        attribute.getDisableLogScale());
+                        filteredIds);
                     dataBins.forEach(dataBin -> dataBin.setClinicalDataType(attribute.getClinicalDataType()));
                     clinicalDataBins.addAll(dataBins);
                 }
@@ -401,17 +399,17 @@ public class StudyViewController {
         List<String> sampleIds = new ArrayList<>();
         
         ids.clear();
-        
+
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-        
+
         if (clinicalDataType == ClinicalDataType.SAMPLE) {
             ids.addAll(sampleIds);
         }
         else {
             List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);
             ids.addAll(patients.stream().map(Patient::getStableId).collect(Collectors.toList()));
-            
-            // we need to regenerate study ids for the patients
+
+            // we need to regenerate study ids for the patients	
             studyIds.clear();
             patients.forEach(p -> studyIds.add(p.getCancerStudyIdentifier()));
         }

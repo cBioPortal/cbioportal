@@ -184,6 +184,9 @@ recache_study_after_update=false
 # WARNING: do not use session service with -Dauthenticate=false
 #  either use authentication or change to -Dauthenticate=noauthsessionservice
 session.service.url=
+# if basic authentication is enabled on session service one should set:
+# session.service.user=user
+# session.service.password=pass
 
 # disabled tabs, | delimited
 # possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV

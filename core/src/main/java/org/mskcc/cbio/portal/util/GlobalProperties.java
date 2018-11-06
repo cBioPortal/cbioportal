@@ -152,6 +152,14 @@ public class GlobalProperties {
     @Value("${session.service.url:}") // default is empty string
     public void setSessionServiceURL(String property) { sessionServiceURL = property; }
 
+    private static String sessionServiceUser;
+    @Value("${session.service.user:}") // default is empty string
+    public void setSessionServiceUser(String property) { sessionServiceUser = property; }
+
+    private static String sessionServicePassword;
+    @Value("${session.service.password:}") // default is empty string
+    public void setSessionServicePassword(String property) { sessionServicePassword = property; }
+
     private static String frontendConfig;
     @Value("${frontend.config:}") // default is empty string
     public void setFrontendConfig(String property) { frontendConfig = property; }
@@ -829,6 +837,16 @@ public class GlobalProperties {
     public static String getSessionServiceUrl()
     {
         return sessionServiceURL;
+    }
+
+    public static String getSessionServiceUser()
+    {
+        return sessionServiceUser;
+    }
+
+    public static String getSessionServicePassword()
+    {
+        return sessionServicePassword;
     }
 
     public static String getOncoKBPublicApiUrl()

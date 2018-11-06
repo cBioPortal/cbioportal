@@ -72,6 +72,9 @@ script:
       ~/maven/$MAVEN_VERSION/bin/mvn \
           -e \
           -U \
+          -Ppublic \
+          -Dauthenticate=false \
+          -Dfinal.war.name=cbioportal \
           -Ddb.user=cbio_user \
           -Ddb.password=somepassword \
           clean \
@@ -83,8 +86,12 @@ script:
   then
       ~/maven/$MAVEN_VERSION/bin/mvn \
           -U \
+          -Ppublic \
           -DskipTests \
-          clean install
+          -Dauthenticate=false \
+          -Dfinal.war.name=cbioportal \
+          clean \
+          install
   fi
 - |
   if [[ "${TEST}" == end-to-end ]]

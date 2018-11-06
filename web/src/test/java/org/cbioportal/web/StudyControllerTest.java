@@ -34,7 +34,7 @@ import java.util.TimeZone;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class StudyControllerTest {
 
@@ -76,9 +76,11 @@ public class StudyControllerTest {
 
     @Autowired
     private StudyService studyService;
-    private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private MockMvc mockMvc;
 
     @Bean
     public StudyService studyService() {

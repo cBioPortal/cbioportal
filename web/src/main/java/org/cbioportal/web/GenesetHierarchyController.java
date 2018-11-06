@@ -58,7 +58,7 @@ public class GenesetHierarchyController {
     @Autowired
     private GenesetHierarchyService genesetHierarchyService;
 
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfileId', 'read')")
     @RequestMapping(value = "/geneset-hierarchy/fetch", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get gene set hierarchical organization information. I.e. how different gene sets relate to other gene sets, in a hierarchy")

@@ -12,12 +12,10 @@ public class UniqueKeyExtractor {
     private static final Base64.Decoder BASE64_DECODER = Base64.getDecoder();
 
     public void extractUniqueKeys(List<String> uniqueKeys, Collection<String> studyIdsToReturn) {
-
         extractUniqueKeys(uniqueKeys, studyIdsToReturn, null);
     }
-    
-    public void extractUniqueKeys(List<String> uniqueKeys, Collection<String> studyIdsToReturn, Collection<String> patientOrSampleIdsToReturn) {
 
+    public void extractUniqueKeys(List<String> uniqueKeys, Collection<String> studyIdsToReturn, Collection<String> patientOrSampleIdsToReturn) {
         for (String uniqueKey : uniqueKeys) {
             String uniqueId = new String(BASE64_DECODER.decode(uniqueKey));
             String[] patientOrSampleAndStudyId = uniqueId.split(UniqueKeyInterceptor.DELIMITER);

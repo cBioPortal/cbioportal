@@ -38,7 +38,7 @@ public class SignificantCopyNumberRegionController {
     @Autowired
     private SignificantCopyNumberRegionService significantCopyNumberRegionService;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
     @RequestMapping(value = "/studies/{studyId}/significant-copy-number-regions", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get significant copy number alteration regions in a study")

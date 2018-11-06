@@ -3,14 +3,18 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.Valid;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
+import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.ClinicalDataIdentifier;
-import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.web.parameter.ClinicalDataSingleStudyFilter;
 import org.cbioportal.web.parameter.Direction;
@@ -23,20 +27,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import java.util.ArrayList;
-import java.util.List;
+import springfox.documentation.annotations.ApiIgnore;
 
 @PublicApi
 @RestController
@@ -50,7 +50,7 @@ public class ClinicalDataController {
     @Autowired
     private ClinicalDataService clinicalDataService;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/clinical-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical data of a sample in a study")
@@ -73,7 +73,7 @@ public class ClinicalDataController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) ClinicalDataSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) throws SampleNotFoundException, 
+        @RequestParam(defaultValue = "ASC") Direction direction) throws SampleNotFoundException,
         StudyNotFoundException {
 
         if (projection == Projection.META) {
@@ -89,7 +89,7 @@ public class ClinicalDataController {
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
     @RequestMapping(value = "/studies/{studyId}/patients/{patientId}/clinical-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical data of a patient in a study")
@@ -112,7 +112,7 @@ public class ClinicalDataController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) ClinicalDataSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException, 
+        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException,
         StudyNotFoundException {
 
         if (projection == Projection.META) {
@@ -128,7 +128,7 @@ public class ClinicalDataController {
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
     @RequestMapping(value = "/studies/{studyId}/clinical-data", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all clinical data in a study")
@@ -161,12 +161,12 @@ public class ClinicalDataController {
         } else {
             return new ResponseEntity<>(
                 clinicalDataService.getAllClinicalDataInStudy(studyId, attributeId,
-                    clinicalDataType.name(), projection.name(), pageSize, pageNumber, 
+                    clinicalDataType.name(), projection.name(), pageSize, pageNumber,
                     sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
     @RequestMapping(value = "/studies/{studyId}/clinical-data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data by patient IDs or sample IDs (specific study)")
@@ -183,33 +183,37 @@ public class ClinicalDataController {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, clinicalDataService.fetchMetaClinicalDataInStudy(
-                studyId, clinicalDataSingleStudyFilter.getIds(), clinicalDataSingleStudyFilter.getAttributeIds(), 
+                studyId, clinicalDataSingleStudyFilter.getIds(), clinicalDataSingleStudyFilter.getAttributeIds(),
                 clinicalDataType.name()).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                clinicalDataService.fetchAllClinicalDataInStudy(studyId, clinicalDataSingleStudyFilter.getIds(), 
-                    clinicalDataSingleStudyFilter.getAttributeIds(), clinicalDataType.name(), projection.name()), 
+                clinicalDataService.fetchAllClinicalDataInStudy(studyId, clinicalDataSingleStudyFilter.getIds(),
+                    clinicalDataSingleStudyFilter.getAttributeIds(), clinicalDataType.name(), projection.name()),
                 HttpStatus.OK);
         }
     }
 
-    @PreAuthorize("hasPermission(#clinicalDataMultiStudyFilter, 'ClinicalDataMultiStudyFilter', 'read')")
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/clinical-data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data by patient IDs or sample IDs (all studies)")
     public ResponseEntity<List<ClinicalData>> fetchClinicalData(
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @RequestAttribute(required = false, value = "interceptedClinicalDataMultiStudyFilter") ClinicalDataMultiStudyFilter interceptedClinicalDataMultiStudyFilter,
         @ApiParam("Type of the clinical data")
         @RequestParam(defaultValue = "SAMPLE") ClinicalDataType clinicalDataType,
         @ApiParam(required = true, value = "List of patient or sample identifiers and attribute IDs")
-        @Valid @RequestBody ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter,
+        @Valid @RequestBody(required = false) ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         List<String> studyIds = new ArrayList<>();
         List<String> ids = new ArrayList<>();
 
-        for (ClinicalDataIdentifier identifier : clinicalDataMultiStudyFilter.getIdentifiers()) {
+        for (ClinicalDataIdentifier identifier : interceptedClinicalDataMultiStudyFilter.getIdentifiers()) {
             studyIds.add(identifier.getStudyId());
             ids.add(identifier.getEntityId());
         }
@@ -217,11 +221,11 @@ public class ClinicalDataController {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, clinicalDataService.fetchMetaClinicalData(studyIds, ids,
-                clinicalDataMultiStudyFilter.getAttributeIds(), clinicalDataType.name()).getTotalCount().toString());
+                interceptedClinicalDataMultiStudyFilter.getAttributeIds(), clinicalDataType.name()).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                clinicalDataService.fetchClinicalData(studyIds, ids, clinicalDataMultiStudyFilter.getAttributeIds(), 
+                clinicalDataService.fetchClinicalData(studyIds, ids, interceptedClinicalDataMultiStudyFilter.getAttributeIds(),
                     clinicalDataType.name(), projection.name()), HttpStatus.OK);
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2018 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -72,9 +72,6 @@ public class GlobalProperties {
     private static String authenticate;
     @Value("${authenticate:false}") // default is false
     public void setAuthenticate(String property) { authenticate = property; }
-    private static String authorization;
-    @Value("${authorization:false}") // default is false
-    public void setAuthorization(String property) { authorization = property; }
     public static final String FILTER_GROUPS_BY_APPNAME = "filter_groups_by_appname";
     public static final String INCLUDE_NETWORKS = "include_networks";
     public static final String GOOGLE_ANALYTICS_PROFILE_ID = "google_analytics_profile_id";
@@ -458,6 +455,7 @@ public class GlobalProperties {
 		return (studies.length > 0) ? Arrays.asList(studies) : Collections.<String>emptyList();
 	}
 
+    // CHANGES TO THIS LIST MUST BE PROPAGATED TO 'CacheMapUtil'
     public static boolean usersMustAuthenticate()
     {
         // authentication for social_auth is optional
@@ -483,9 +481,6 @@ public class GlobalProperties {
             return "anonymousUser";
         }
     }
-	public static boolean usersMustBeAuthorized() {
-        return Boolean.parseBoolean(authorization);
-	}
 
     public static String getAppName()
     {

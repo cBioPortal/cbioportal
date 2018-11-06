@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2018 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -61,7 +61,7 @@ public interface AccessControl {
      * @throws DaoException         Database Error.
      * @throws ProtocolException    Protocol Error.
      */
-    @PostFilter("hasPermission(filterObject.getCancerStudyStableId(), 'CancerStudy', 'read')")
+    @PostFilter("hasPermission(filterObject.getCancerStudyStableId(), 'CancerStudyId', 'read')")
     List<CancerStudy> getCancerStudies() throws DaoException, ProtocolException;
 
     /**
@@ -71,7 +71,7 @@ public interface AccessControl {
      * @return ListCancerStudy
      * @throws DaoException
      */
-    @PostFilter("hasPermission(#stableStudyId, 'CancerStudy', 'read')")
+    @PostFilter("hasPermission(#stableStudyId, 'CancerStudyId', 'read')")
     List<CancerStudy> isAccessibleCancerStudy(String stableStudyId) throws DaoException;
 
     UserDetails getUserDetails();

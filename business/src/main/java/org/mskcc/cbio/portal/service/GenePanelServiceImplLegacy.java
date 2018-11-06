@@ -28,7 +28,7 @@ public class GenePanelServiceImplLegacy implements GenePanelServiceLegacy {
     private GenePanelRepositoryLegacy genePanelRepositoryLegacy;
 
     @Override
-    @PreAuthorize("hasPermission(#profileId, 'GeneticProfile', 'read')")
+    @PreAuthorize("hasPermission(#profileId, 'GeneticProfileId', 'read')")
     public List<GenePanelWithSamples> getGenePanelDataByProfileAndGenes(String profileId, List<String> submittedGenes) {
         List<GenePanelWithSamples> genePanels =  genePanelRepositoryLegacy.getGenePanelsByProfile(profileId);
         for (GenePanelWithSamples genePanel : genePanels) {

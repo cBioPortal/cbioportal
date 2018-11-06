@@ -11,9 +11,7 @@ In this setup LDAP will be used as a simple Identity Provider (IDP) for the auth
 
 * **service provider**:  any web site or web application that provides a service, but should only be available to authenticated and authorized users.  In the documentation below, the cBioPortal is the service provider.
 
-* **authentication**:  a means of verifying that a user is who they purport to be.  Authentication is performed by the identify provider, by extracting the user name and password provided in a login request, and matching this with information stored in its repository.
-
-* **authorization**:  defines resources a user can access.  When authorization is turned *on* with cBioPortal, users can only access cancer studies they are specifically authorized to view.  This enables one to store multiple cancer studies within a single instance of cBioPortal, but provide fine-grained control over which users can access which studies.  Authorization is implemented within the core cBioPortal code, and *not* the identify provider.
+* **authentication**:  a means of verifying that a user is who they purport to be.  Authentication is performed by the identify provider, by extracting the user name and password provided in a login request, and matching this with information stored in its repository. When authentication is enabled, multiple cancer studies can be stored within a single instance of cBioPortal while providing fine-grained control over which users can access which studies.  Authorization is implemented within the core cBioPortal code, and *not* the identify provider.
 
 ## Why is LDAP Relevant to cBioPortal?
 
@@ -48,11 +46,7 @@ Please note that you will have to modify all the above to match your own setting
 
 ## Authorizing Users
 
-Within portal.properties, modify
-
-    authorization=true
-
-Next, please read the Wiki page on [User Authorization](User-Authorization.md), and add user rights for a single user.
+Please read the Wiki page on [User Authorization](User-Authorization.md), and add user rights for a single user.
 
 
 ## Configuring the Login.jsp Page

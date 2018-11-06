@@ -32,13 +32,22 @@
 
 package org.mskcc.cbio.portal.util;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudy;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.httpclient.HttpException;
 
+
 import com.fasterxml.jackson.core.type.TypeReference;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
@@ -57,10 +66,13 @@ import java.net.MalformedURLException;
 
 import java.util.Map;
 
+import org.mskcc.cbio.portal.web.ProxySessionServiceController;;
+
 /**
  *
  * @author Manda Wilson
  */
+
 public class SessionServiceUtil {
 
     private static Log LOG = LogFactory.getLog(SessionServiceUtil.class);
@@ -83,8 +95,15 @@ public class SessionServiceUtil {
         HttpURLConnection conn = null;
         try {
             URL url = new URL(GlobalProperties.getSessionServiceUrl() + "main_session/" + sessionId);
+
             LOG.debug("SessionServiceUtil.getSession(): url = '" + url + "'");
             conn = (HttpURLConnection) url.openConnection();
+
+            // Use basic authentication if provided (https://stackoverflow.com/questions/496651)
+            if (isBasicAuthEnabled()) {
+                conn.setRequestProperty("Authorization", getBasicAuthString());
+            }
+
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 StringWriter stringWriter = new StringWriter();
                 IOUtils.copy(conn.getInputStream(), stringWriter, Charset.forName("UTF-8"));
@@ -116,6 +135,27 @@ public class SessionServiceUtil {
         }
         return parameterMap;
     }
+
+    public static Boolean isBasicAuthEnabled() {
+        return !GlobalProperties.getSessionServiceUser().equals("") && !GlobalProperties.getSessionServicePassword().equals("");
+    }
+
+    public static String getBasicAuthString() {
+        String auth = GlobalProperties.getSessionServiceUser() + ":" + GlobalProperties.getSessionServicePassword();
+        byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
+        String authHeader = "Basic " + new String(encodedAuth);
+        return authHeader;
+    }
+
+    public static HttpHeaders getHttpHeaders() {
+        return new HttpHeaders() {{
+            if (isBasicAuthEnabled()) {
+                set( "Authorization", getBasicAuthString());
+            }
+            set( "Content-Type", "application/json");
+        }};
+     }
+
     /**
      * Return cohort object if there is success response from 
      * session-service API, else it would return null
@@ -123,10 +163,16 @@ public class SessionServiceUtil {
      * @return cohort object
      */
     public VirtualStudy getVirtualStudyData(String virtualStudyId) {
-        if(GlobalProperties.getSessionServiceUrl() != null) {
-            String url = GlobalProperties.getSessionServiceUrl() + "virtual_study/";
+        if (!GlobalProperties.getSessionServiceUrl().equals("")) {
             try {
-            		return new RestTemplate().getForObject(url + virtualStudyId, VirtualStudy.class);
+                RestTemplate restTemplate = new RestTemplate();
+                HttpEntity<String> headers =  new HttpEntity<String>(getHttpHeaders());
+
+                ResponseEntity<VirtualStudy> responseEntity = restTemplate.exchange(GlobalProperties.getSessionServiceUrl() +  "virtual_study/" + virtualStudyId,
+                                                                            HttpMethod.GET,
+                                                                            headers,
+                                                                            VirtualStudy.class);
+                return responseEntity.getBody();
             } catch (HttpStatusCodeException exception) {
                 LOG.warn("SessionServiceUtil.getVirtualCohortData(): HttpStatusCodeException = '" + exception.getStatusCode() + "'");
             }

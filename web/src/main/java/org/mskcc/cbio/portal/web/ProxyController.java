@@ -65,7 +65,7 @@ public class ProxyController
   public void setHotspotsURL(String property) { this.hotspotsURL = property; }
   
   private String bitlyURL;
-  @Value("${bitly.url}")
+  @Value("${bitly.url:''}")
   public void setBitlyURL(String property) { this.bitlyURL = property; }
 
   private String sessionServiceURL;

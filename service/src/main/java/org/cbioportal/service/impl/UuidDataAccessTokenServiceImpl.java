@@ -38,10 +38,8 @@ import org.apache.commons.logging.LogFactory;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.persistence.DataAccessTokenRepository;
 import org.cbioportal.service.DataAccessTokenService;
-import org.cbioportal.service.exception.InvalidDataAccessTokenException;
 import org.cbioportal.service.exception.MaxNumberTokensExceededException;
 import org.cbioportal.service.exception.TokenNotFoundException;
-import org.cbioportal.service.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,7 +58,15 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
     @Value("${dat.max_number_per_user}")
     private int maxNumberOfAccessTokens;
 
+    @Value("${dat.revoke_other_tokens:true}")
+    private boolean revokeOtherTokens;
+
     private static final Log log = LogFactory.getLog(UuidDataAccessTokenServiceImpl.class);
+
+    @Override
+    public DataAccessToken createDataAccessToken(String username) {
+        return createDataAccessToken(username, revokeOtherTokens);
+    }
 
     // create a data access token (randomly generated UUID) and insert corresponding record into table with parts:
     // username

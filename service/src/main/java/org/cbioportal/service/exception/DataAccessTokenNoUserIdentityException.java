@@ -46,15 +46,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.weblegacy.exception;
+package org.cbioportal.service.exception;
 
-public class DataAccessTokenProhibitedUserException extends RuntimeException {
+public class DataAccessTokenNoUserIdentityException extends RuntimeException {
 
-    public DataAccessTokenProhibitedUserException() {
+    public DataAccessTokenNoUserIdentityException() {
         super();
     }
 
-    public DataAccessTokenProhibitedUserException(String message) {
+    public DataAccessTokenNoUserIdentityException(String message) {
         super(message);
     }
 

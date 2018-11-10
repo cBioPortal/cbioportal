@@ -55,6 +55,11 @@ public class JwtDataAccessTokenServiceImpl implements DataAccessTokenService {
     //TODO : we could add a persistence layer to store pairs of <username, revokeDate> ... then a user can revoke all thier tokens before a particular date and we would only need to store the most recent revoke date for that user.  But it would have to be persisted, or else a restart of the server would lose the memory of revocation
 
     @Override
+    public DataAccessToken createDataAccessToken(String username) {
+        return jwtUtils.createToken(username);
+    }
+
+    @Override
     public DataAccessToken createDataAccessToken(String username, boolean allowRevocationOfOtherTokens) {
         return jwtUtils.createToken(username);
     }

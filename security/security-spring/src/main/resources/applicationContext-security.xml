@@ -9,6 +9,34 @@
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
 
+    <b:bean id="tokenAuthenticationFilter" class="org.cbioportal.security.spring.authentication.token.TokenAuthenticationFilter">
+        <b:property name="authenticationManager" ref="tokenAuthenticationManager" />
+        <b:property name="authenticationSuccessHandler" ref="tokenSuccessRedirectHandler"/>
+    </b:bean>
+
+    <!-- Choose one of the following DataAccessToken service implementations
+        UUID implementation requires a backend database/token store but allows for greater control over tokens -->
+    <!-- <b:bean id="tokenService" class="org.cbioportal.service.impl.JwtDataAccessTokenServiceImpl"/> -->
+    <b:bean id="tokenService" class="org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl"/>
+
+    <!-- WARNING: if you define another authentication-manager AFTER this one, this one
+        will be overridden, even if you use <http ... pattern="/api/**" ... authentication-manager-ref="tokenAuthenticationManager">
+        AND even though the authenticationManager is defined as a property of tokenAuthenticationFilter
+        so you must add <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/> to your
+        other authentication-manager, and tokenUserDetailsAuthenticationProvider should come before other authentication-providers -->
+    <authentication-manager alias="tokenAuthenticationManager">
+        <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
+    </authentication-manager>
+
+    <b:bean id="tokenSuccessRedirectHandler" class="org.cbioportal.security.spring.authentication.token.TokenAuthenticationSuccessHandler"/>
+
+    <b:bean id="tokenUserDetailsAuthenticationProvider" class="org.cbioportal.security.spring.authentication.token.TokenUserDetailsAuthenticationProvider">
+        <b:constructor-arg index="0" ref="tokenUserDetailsService" />
+    </b:bean>
+
+    <!-- Used to compare token returned by authentication-provider against portal user db tables -->
+    <b:bean id="tokenUserDetailsService" class="org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService"/>
+    
     <!-- beans shared across any authentication system -->
     <b:beans profile="googleplus,openid,saml,ad,ldap">
         <b:bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -61,34 +89,6 @@
     </http>
 
     <b:bean id="restAuthenticationEntryPoint" class="org.cbioportal.security.spring.sessionservice.RestAuthenticationEntryPoint"/>
-
-    <b:bean id="tokenAuthenticationFilter" class="org.cbioportal.security.spring.authentication.token.TokenAuthenticationFilter">
-        <b:property name="authenticationManager" ref="tokenAuthenticationManager" />
-        <b:property name="authenticationSuccessHandler" ref="tokenSuccessRedirectHandler"/>
-    </b:bean>
-
-    <!-- Choose one of the following DataAccessToken service implementations
-        UUID implementation requires a backend database/token store but allows for greater control over tokens -->
-    <!-- <b:bean id="tokenService" class="org.cbioportal.service.impl.JwtDataAccessTokenServiceImpl"/> -->
-    <b:bean id="tokenService" class="org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl"/>
-
-    <!-- WARNING: if you define another authentication-manager AFTER this one, this one
-        will be overridden, even if you use <http ... pattern="/api/**" ... authentication-manager-ref="tokenAuthenticationManager">
-        AND even though the authenticationManager is defined as a property of tokenAuthenticationFilter
-        so you must add <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/> to your
-        other authentication-manager, and tokenUserDetailsAuthenticationProvider should come before other authentication-providers -->
-    <authentication-manager alias="tokenAuthenticationManager">
-        <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
-    </authentication-manager>
-
-    <b:bean id="tokenSuccessRedirectHandler" class="org.cbioportal.security.spring.authentication.token.TokenAuthenticationSuccessHandler"/>
-
-    <b:bean id="tokenUserDetailsAuthenticationProvider" class="org.cbioportal.security.spring.authentication.token.TokenUserDetailsAuthenticationProvider">
-        <b:constructor-arg index="0" ref="tokenUserDetailsService" />
-    </b:bean>
-
-    <!-- Used to compare token returned by authentication-provider against portal user db tables -->
-    <b:bean id="tokenUserDetailsService" class="org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService"/>
 
     <!-- Handler deciding where to redirect user after successful login -->
     <b:bean id="successRedirectHandler" class="org.cbioportal.security.spring.PortalSavedRequestAwareAuthenticationSuccessHandler">
@@ -644,7 +644,7 @@
 	        <!-- UsernameNotFoundException will be stored in session with username as message -->
 	        <b:property name="allowSessionCreation" value="true" />
 	    </b:bean>
-	
+                                                                	
 	    <authentication-manager alias="authenticationManager">
             <!-- token access for the API -->
             <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>

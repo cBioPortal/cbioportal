@@ -89,6 +89,7 @@ DROP TABLE IF EXISTS `sample_list`;
 DROP TABLE IF EXISTS `sample`;
 DROP TABLE IF EXISTS `patient`;
 DROP TABLE IF EXISTS `authorities`;
+DROP TABLE IF EXISTS `data_access_tokens`;
 DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `cancer_study_tags`;
 DROP TABLE IF EXISTS `cancer_study`;

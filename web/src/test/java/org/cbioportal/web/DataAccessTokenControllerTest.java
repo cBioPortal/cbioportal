@@ -30,16 +30,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.weblegacy;
+package org.cbioportal.web;
 
-import java.net.*;
 import java.util.*;
 import org.cbioportal.model.DataAccessToken;
-import org.cbioportal.security.spring.authentication.PortalUserDetails;
 import org.cbioportal.service.DataAccessTokenService;
-import org.cbioportal.weblegacy.DataAccessTokenControllerConfig;
-import org.cbioportal.weblegacy.exception.DataAccessTokenNoUserIdentityException;
-import org.cbioportal.weblegacy.exception.DataAccessTokenProhibitedUserException;
+import org.cbioportal.service.exception.DataAccessTokenNoUserIdentityException;
+import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,52 +44,59 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-//@WebAppConfiguration
-@ContextConfiguration(classes = {DataAccessTokenControllerConfig.class})
+@WebAppConfiguration
+@ContextConfiguration("/applicationContext-web.xml")
+@Configuration
 public class DataAccessTokenControllerTest {
-
     @Autowired
     private DataAccessTokenService tokenService;
 
     @Autowired
     private DataAccessTokenController dataAccessTokenController;
 
+    @Bean
+    public DataAccessTokenService tokenService() {
+        return Mockito.mock(DataAccessTokenService.class);
+    }
+
+    @Bean
+    public DataAccessTokenController dataAccessTokenController() {
+        return new DataAccessTokenController();
+    }
+
     public static final String API_TEST_SUBJECT = "testSubject";
     public static final String NON_API_TEST_SUBJECT = "anonymousUser";
     public static final String MOCK_TOKEN_STRING = "MockedTokenString";
     public static final DataAccessToken MOCK_TOKEN_INFO = new DataAccessToken(MOCK_TOKEN_STRING);
-    
+
     @Before
     public void setup() {
         Mockito.reset(tokenService);
     }
-   
+
     protected Authentication makePrincipal(String username, boolean isAuthentic) {
-        PortalUserDetails portalUserDetails = makePortalUserDetails(username);
+        User user = new User(username, "unused", new ArrayList<GrantedAuthority>());
         if (isAuthentic) {
-            return new UsernamePasswordAuthenticationToken(portalUserDetails, "", portalUserDetails.getAuthorities());
+            return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
         } else {
-            return new UsernamePasswordAuthenticationToken(portalUserDetails, "");
+            return new UsernamePasswordAuthenticationToken(user, "");
         }
     }
- 
-    protected PortalUserDetails makePortalUserDetails(String username) {
-        Collection<GrantedAuthority> emptyAuthorities = new ArrayList<GrantedAuthority>();
-        PortalUserDetails portalUserDetails = new PortalUserDetails(username, emptyAuthorities);
-        return portalUserDetails;
-    }
- 
+
     @Test
     public void createTokenValidUserTest() throws Exception {
         Mockito.when(tokenService.createDataAccessToken(Matchers.anyString(), Matchers.anyBoolean())).thenReturn(MOCK_TOKEN_INFO);
@@ -119,10 +123,6 @@ public class DataAccessTokenControllerTest {
         HttpStatus responseStatus = response.getStatusCode();
         if (responseStatus != expectedStatus) {
             Assert.fail("Response from controller handler (" + responseStatus + ") did not match expected status : " + expectedStatus);
-        }
-        MediaType responseType = response.getHeaders().getContentType();
-        if (!responseType.toString().equals(MediaType.APPLICATION_JSON_VALUE)) {
-            Assert.fail("Response content type from controller (" + responseType + ") did not match expected content type (MediaType.APPLICATION_JSON)");
         }
         DataAccessToken token = response.getBody();
         String tokenString = token.getToken();

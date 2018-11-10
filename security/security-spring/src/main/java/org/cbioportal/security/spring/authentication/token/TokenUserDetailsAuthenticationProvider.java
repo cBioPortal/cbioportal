@@ -36,6 +36,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cbioportal.security.spring.authentication.PortalUserDetails;
 
 import org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService;
 
@@ -69,7 +70,9 @@ public class TokenUserDetailsAuthenticationProvider extends AbstractUserDetailsA
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) 
         throws AuthenticationException {
         log.debug("retrieveUser(), username - " + username);
-        return this.userDetailsService.loadUserByUsername(username); 
+        return new PortalUserDetails(username, authentication.getAuthorities());
+        // TO-DO: remove?
+        // return this.userDetailsService.loadUserByUsername(username); 
     }
 
 }

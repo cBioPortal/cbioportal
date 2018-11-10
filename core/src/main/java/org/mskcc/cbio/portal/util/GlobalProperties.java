@@ -271,6 +271,9 @@ public class GlobalProperties {
     @Value("${show.genomenexus:true}") // default is true
     public void setShowGenomeNexus(String property) { showGenomeNexus = Boolean.parseBoolean(property); }
 
+    private static boolean datRevokeOtherTokens;
+    @Value("${dat.revoke_other_tokens:true}") // default is true
+    public void setDatRevokeOtherTokens(String property) { datRevokeOtherTokens = Boolean.parseBoolean(property);}
 	/*
      * Trim whitespace of url and append / if it does not exist. Return empty
      * string otherwise.
@@ -1183,5 +1186,9 @@ public class GlobalProperties {
     public static String getQuerySetsOfGenes() {
         String fileName = portalProperties.getProperty(SETSOFGENES_LOCATION, null);
         return readFile(fileName);
+    }
+
+    public static Boolean getRevokeOtherTokens() {
+        return datRevokeOtherTokens;
     }
 }

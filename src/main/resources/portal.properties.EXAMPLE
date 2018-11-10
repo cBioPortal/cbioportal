@@ -121,6 +121,7 @@ ldap.attributes.email=mail
 # data access token settings
 dat.max_number_per_user=
 dat.ttl_seconds=
+dat.revoke_other_tokens=
 jwt.secret_key=
 jwt.issuer=
 

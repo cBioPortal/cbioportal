@@ -273,18 +273,20 @@ public class StudyViewController {
             molecularProfileSampleCount.setNumberOfCNAUnprofiledSamples(0);
         } else {
             int sampleCount = sampleIds.size();
-            List<String> firstMutationProfileIds = molecularProfileService.getFirstMutationProfileIds(studyIds, sampleIds);
+            List<String> mutationSampleIds = new ArrayList<>(sampleIds);
+            List<String> firstMutationProfileIds = molecularProfileService.getFirstMutationProfileIds(studyIds, mutationSampleIds);
             if (!firstMutationProfileIds.isEmpty()) {
                 molecularProfileSampleCount.setNumberOfMutationProfiledSamples(Math.toIntExact(genePanelService
-                    .fetchGenePanelDataInMultipleMolecularProfiles(firstMutationProfileIds, sampleIds).stream().filter(
+                    .fetchGenePanelDataInMultipleMolecularProfiles(firstMutationProfileIds, mutationSampleIds).stream().filter(
                         g -> g.getProfiled()).count()));
                 molecularProfileSampleCount.setNumberOfMutationUnprofiledSamples(sampleCount - 
                     molecularProfileSampleCount.getNumberOfMutationProfiledSamples());
             }
-            List<String> firstDiscreteCNAProfileIds = molecularProfileService.getFirstDiscreteCNAProfileIds(studyIds, sampleIds);
+            List<String> cnaSampleIds = new ArrayList<>(sampleIds);
+            List<String> firstDiscreteCNAProfileIds = molecularProfileService.getFirstDiscreteCNAProfileIds(studyIds, cnaSampleIds);
             if (!firstDiscreteCNAProfileIds.isEmpty()) {
                 molecularProfileSampleCount.setNumberOfCNAProfiledSamples(Math.toIntExact(genePanelService
-                    .fetchGenePanelDataInMultipleMolecularProfiles(firstDiscreteCNAProfileIds, sampleIds).stream().filter(
+                    .fetchGenePanelDataInMultipleMolecularProfiles(firstDiscreteCNAProfileIds, cnaSampleIds).stream().filter(
                         g -> g.getProfiled()).count()));
                 molecularProfileSampleCount.setNumberOfCNAUnprofiledSamples(sampleCount - 
                     molecularProfileSampleCount.getNumberOfCNAProfiledSamples());

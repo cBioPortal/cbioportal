@@ -76,9 +76,10 @@
             <param-name>cors.allowed.headers</param-name>
             <param-value>Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers</param-value>
         </init-param>
+        <!-- expose cors headers defined in HeaderKeyConstants.java -->
         <init-param>
             <param-name>cors.exposed.headers</param-name>
-            <param-value>total-count</param-value>
+            <param-value>total-count,sample-count</param-value>
         </init-param>
         <init-param>
             <param-name>cors.support.credentials</param-name>
@@ -454,10 +455,6 @@
         <servlet-name>patient_view</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.PatientView</servlet-class>
     </servlet>
-    <servlet-mapping>
-        <servlet-name>patient_view</servlet-name>
-        <url-pattern>/case.do</url-pattern>
-    </servlet-mapping>
 
     <servlet>
         <servlet-name>CrossCancerJSON</servlet-name>
@@ -674,6 +671,7 @@
         <url-pattern>/newstudy/*</url-pattern>
         <url-pattern>/mutation_mapper/*</url-pattern>
         <url-pattern>/index.do/*</url-pattern>
+        <url-pattern>/case.do/*</url-pattern>
     </servlet-mapping>
     
     <servlet>

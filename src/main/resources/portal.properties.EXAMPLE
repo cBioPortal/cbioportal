@@ -169,8 +169,6 @@ broad.bam.checking.url=
 include_networks=true
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 
-# bitly, please use your bitly user and apiKey
-bitly.url=http://api.bit.ly/shorten?login=[bitly.user]&apiKey=[bitly.apiKey]&
 # the new API uses the v3 of bitly API, and a java library to make the API call, so you only need to provide the access token  
 bitly.access.token=
 

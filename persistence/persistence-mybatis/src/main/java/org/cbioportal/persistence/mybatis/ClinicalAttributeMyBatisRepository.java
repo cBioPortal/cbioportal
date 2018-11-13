@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalAttributeRepository;
 import org.cbioportal.persistence.PersistenceConstants;
@@ -68,20 +69,14 @@ public class ClinicalAttributeMyBatisRepository implements ClinicalAttributeRepo
 	}
 
     @Override
-    public List<ClinicalAttribute> getAllClinicalAttributesInStudiesBySampleIds(List<String> studyIds,
-            List<String> sampleIds, String projection, String sortBy, String direction) {
+    public List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleIds(List<String> studyIds, List<String> sampleIds) {
 
-        return clinicalAttributeMapper.getAllClinicalAttributesInStudiesBySampleIds(studyIds, sampleIds, projection,
-                sortBy, direction);
-
+        return clinicalAttributeMapper.getClinicalAttributeCountsBySampleIds(studyIds, sampleIds);
     }
 
     @Override
-    public List<ClinicalAttribute> getAllClinicalAttributesInStudiesBySampleListId(String sampleListId,
-            String projection, String sortBy, String direction) {
+    public List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleListId(String sampleListId) {
 
-        return clinicalAttributeMapper.getAllClinicalAttributesInStudiesBySampleListId(sampleListId, projection, sortBy,
-                direction);
-
+        return clinicalAttributeMapper.getClinicalAttributeCountsBySampleListId(sampleListId);
     }
 }

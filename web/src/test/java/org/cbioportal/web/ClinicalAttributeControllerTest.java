@@ -2,11 +2,12 @@ package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.exception.ClinicalAttributeNotFoundException;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
-import org.cbioportal.web.parameter.ClinicalAttributeFilter;
+import org.cbioportal.web.parameter.ClinicalAttributeCountFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -43,7 +44,7 @@ public class ClinicalAttributeControllerTest {
     private static final String TEST_DISPLAY_NAME_1 = "test_display_name_1";
     private static final boolean TEST_PATIENT_ATTRIBUTE_1 = true;
     private static final String TEST_PRIORITY_1 = "test_priority_1";
-    private static final Integer TEST_ATTRIBUTE_COUNT1 = 3;
+    private static final Integer TEST_ATTRIBUTE_COUNT_1 = 3;
     private static final String TEST_ATTR_ID_2 = "test_attr_id_2";
     private static final int TEST_CANCER_STUDY_ID_2 = 2;
     private static final String TEST_CANCER_STUDY_IDENTIFIER_2 = "test_study_2";
@@ -53,7 +54,7 @@ public class ClinicalAttributeControllerTest {
     private static final String TEST_DISPLAY_NAME_2 = "test_display_name_2";
     private static final boolean TEST_PATIENT_ATTRIBUTE_2 = false;
     private static final String TEST_PRIORITY_2 = "test_priority_2";
-    private static final Integer TEST_ATTRIBUTE_COUNT2 = 0;
+    private static final Integer TEST_ATTRIBUTE_COUNT_2 = 1;
 
     @Autowired
     private WebApplicationContext wac;
@@ -252,76 +253,76 @@ public class ClinicalAttributeControllerTest {
     
     
     @Test
-    public void getAllClinicalAttributesInStudiesBySampleIdsDefaultProjection() throws Exception {
+    public void getClinicalAttributeCountsBySampleIds() throws Exception {
         
-        List<ClinicalAttribute> clinicalAttributes = createExampleClinicalAttributes();
+        List<ClinicalAttributeCount> clinicalAttributes = new ArrayList<>();
+        ClinicalAttributeCount clinicalAttributeCount1 = new ClinicalAttributeCount();
+        clinicalAttributeCount1.setAttrId(TEST_ATTR_ID_1);
+        clinicalAttributeCount1.setCount(TEST_ATTRIBUTE_COUNT_1);
+        clinicalAttributes.add(clinicalAttributeCount1);
+        ClinicalAttributeCount clinicalAttributeCount2 = new ClinicalAttributeCount();
+        clinicalAttributeCount2.setAttrId(TEST_ATTR_ID_2);
+        clinicalAttributeCount2.setCount(TEST_ATTRIBUTE_COUNT_2);
+        clinicalAttributes.add(clinicalAttributeCount2);
         
-        Mockito.when(clinicalAttributeService.getAllClinicalAttributesInStudiesBySampleIds(Mockito.anyList(), Mockito.anyList(), Mockito.anyString(),
-             Mockito.anyString(), Mockito.anyString())).thenReturn(clinicalAttributes);
+        Mockito.when(clinicalAttributeService.getClinicalAttributeCountsBySampleIds(Mockito.anyListOf(String.class), 
+            Mockito.anyListOf(String.class))).thenReturn(clinicalAttributes);
         
-        ClinicalAttributeFilter clinicalAttributeFilter = createClinicalAttributeFilterSampleIdentifiers();
+        ClinicalAttributeCountFilter clinicalAttributeCountFilter = new ClinicalAttributeCountFilter();
+        List<SampleIdentifier> sampleIdentifierList = new ArrayList<>();
+        SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
+        sampleIdentifier1.setSampleId(TEST_SAMPLE_ID_1);
+        sampleIdentifier1.setStudyId(TEST_CANCER_STUDY_IDENTIFIER_1);
+        sampleIdentifierList.add(sampleIdentifier1);
+        SampleIdentifier sampleIdentifier2 = new SampleIdentifier();
+        sampleIdentifier2.setSampleId(TEST_SAMPLE_ID_2);
+        sampleIdentifier2.setStudyId(TEST_CANCER_STUDY_IDENTIFIER_1);
+        sampleIdentifierList.add(sampleIdentifier2);
+        clinicalAttributeCountFilter.setSampleIdentifiers(sampleIdentifierList);
         
         mockMvc.perform(MockMvcRequestBuilders.post("/clinical-attributes/counts/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(clinicalAttributeFilter)))
+            .content(objectMapper.writeValueAsString(clinicalAttributeCountFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].displayName").value(TEST_DISPLAY_NAME_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientAttribute").value(TEST_PATIENT_ATTRIBUTE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].priority").value(TEST_PRIORITY_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(TEST_ATTRIBUTE_COUNT_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].displayName").value(TEST_DISPLAY_NAME_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientAttribute").value(TEST_PATIENT_ATTRIBUTE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].priority").value(TEST_PRIORITY_2));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(TEST_ATTRIBUTE_COUNT_2));
     }
     
     @Test
-    public void getAllClinicalAttributesInStudiesBySampleListIdDetailedProjection() throws Exception {
+    public void getClinicalAttributeCountsBySampleListId() throws Exception {
         
-        List<ClinicalAttribute> clinicalAttributes = createExampleClinicalAttributes();
+        List<ClinicalAttributeCount> clinicalAttributes = new ArrayList<>();
+        ClinicalAttributeCount clinicalAttributeCount1 = new ClinicalAttributeCount();
+        clinicalAttributeCount1.setAttrId(TEST_ATTR_ID_1);
+        clinicalAttributeCount1.setCount(TEST_ATTRIBUTE_COUNT_1);
+        clinicalAttributes.add(clinicalAttributeCount1);
+        ClinicalAttributeCount clinicalAttributeCount2 = new ClinicalAttributeCount();
+        clinicalAttributeCount2.setAttrId(TEST_ATTR_ID_2);
+        clinicalAttributeCount2.setCount(TEST_ATTRIBUTE_COUNT_2);
+        clinicalAttributes.add(clinicalAttributeCount2);
         
-        Mockito.when(clinicalAttributeService.getAllClinicalAttributesInStudiesBySampleListId(Mockito.anyString(), Mockito.anyString(),
-             Mockito.anyString(), Mockito.anyString())).thenReturn(clinicalAttributes);
+        Mockito.when(clinicalAttributeService.getClinicalAttributeCountsBySampleListId(Mockito.anyString())).thenReturn(clinicalAttributes);
         
-        ClinicalAttributeFilter clinicalAttributeFilter = createClinicalAttributeFilterSampleListId();
+        ClinicalAttributeCountFilter clinicalAttributeCountFilter = new ClinicalAttributeCountFilter();
+        clinicalAttributeCountFilter.setSampleListId("test_sample_list_id");
         
         mockMvc.perform(MockMvcRequestBuilders.post("/clinical-attributes/counts/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(clinicalAttributeFilter))
+            .content(objectMapper.writeValueAsString(clinicalAttributeCountFilter))
             .param("projection", "DETAILED"))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttributeId").value(TEST_ATTR_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].datatype").value(TEST_DATATYPE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].displayName").value(TEST_DISPLAY_NAME_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientAttribute").value(TEST_PATIENT_ATTRIBUTE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].priority").value(TEST_PRIORITY_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(TEST_ATTRIBUTE_COUNT1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(TEST_ATTRIBUTE_COUNT_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].datatype").value(TEST_DATATYPE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].displayName").value(TEST_DISPLAY_NAME_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientAttribute").value(TEST_PATIENT_ATTRIBUTE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].priority").value(TEST_PRIORITY_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(TEST_ATTRIBUTE_COUNT2));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(TEST_ATTRIBUTE_COUNT_2));
     }
  
     private List<ClinicalAttribute> createExampleClinicalAttributes() {
@@ -336,7 +337,6 @@ public class ClinicalAttributeControllerTest {
         clinicalAttribute1.setDisplayName(TEST_DISPLAY_NAME_1);
         clinicalAttribute1.setPatientAttribute(TEST_PATIENT_ATTRIBUTE_1);
         clinicalAttribute1.setPriority(TEST_PRIORITY_1);
-        clinicalAttribute1.setCount(TEST_ATTRIBUTE_COUNT1);
         clinicalAttributeList.add(clinicalAttribute1);
         ClinicalAttribute clinicalAttribute2 = new ClinicalAttribute();
         clinicalAttribute2.setAttrId(TEST_ATTR_ID_2);
@@ -347,33 +347,7 @@ public class ClinicalAttributeControllerTest {
         clinicalAttribute2.setDisplayName(TEST_DISPLAY_NAME_2);
         clinicalAttribute2.setPatientAttribute(TEST_PATIENT_ATTRIBUTE_2);
         clinicalAttribute2.setPriority(TEST_PRIORITY_2);
-        clinicalAttribute2.setCount(TEST_ATTRIBUTE_COUNT2);
         clinicalAttributeList.add(clinicalAttribute2);
         return clinicalAttributeList;
     }
-
-    private ClinicalAttributeFilter createClinicalAttributeFilterSampleIdentifiers() {
-
-        List<SampleIdentifier> sampleIdentifierList = new ArrayList<>();
-        SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
-        sampleIdentifier1.setSampleId(TEST_SAMPLE_ID_1);
-        sampleIdentifier1.setStudyId(TEST_CANCER_STUDY_IDENTIFIER_1);
-        sampleIdentifierList.add(sampleIdentifier1);
-        SampleIdentifier sampleIdentifier2 = new SampleIdentifier();
-        sampleIdentifier2.setSampleId(TEST_SAMPLE_ID_2);
-        sampleIdentifier2.setStudyId(TEST_CANCER_STUDY_IDENTIFIER_1);
-        sampleIdentifierList.add(sampleIdentifier2);
-
-        ClinicalAttributeFilter clinicalAttributeFilter = new ClinicalAttributeFilter();
-        clinicalAttributeFilter.setSampleIdentifiers(sampleIdentifierList);
-        return clinicalAttributeFilter;
-    }
-
-    private ClinicalAttributeFilter createClinicalAttributeFilterSampleListId() {
-
-        ClinicalAttributeFilter clinicalAttributeFilter = new ClinicalAttributeFilter();
-        clinicalAttributeFilter.setSampleListId("test_sample_list_id");
-        return clinicalAttributeFilter;
-    }
-
 }

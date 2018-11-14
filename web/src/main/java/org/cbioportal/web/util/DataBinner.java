@@ -3,6 +3,7 @@ package org.cbioportal.web.util;
 import com.google.common.collect.Range;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.model.DataBin;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 public class DataBinner
@@ -50,11 +50,12 @@ public class DataBinner
             clinicalDataBinFilter, unfilteredClinicalData, unfilteredIds);
         
         // recount
-        return recalcBinCount(clinicalDataBins, filteredClinicalData, filteredIds);
+        return recalcBinCount(clinicalDataBins, filteredClinicalData, clinicalDataBinFilter.getClinicalDataType(), filteredIds);
     }
 
     public List<DataBin> recalcBinCount(List<DataBin> clinicalDataBins,
                                         List<ClinicalData> clinicalData,
+                                        ClinicalDataType clinicalDataType,
                                         List<String> ids) 
     {
         List<Double> numericalValues = clinicalData == null ? 
@@ -94,7 +95,7 @@ public class DataBinner
             }
             
             if ("NA".equalsIgnoreCase(dataBin.getSpecialValue())) {
-                dataBin.setCount(countNAs(clinicalData, ids).intValue());
+                dataBin.setCount(countNAs(clinicalData, clinicalDataType, ids).intValue());
             }
         }
         
@@ -147,7 +148,7 @@ public class DataBinner
 
             dataBins.addAll(calcNonNumericalClinicalDataBins(attributeId, clinicalData));
 
-            DataBin naDataBin = calcNaDataBin(attributeId, clinicalData, ids);
+            DataBin naDataBin = calcNaDataBin(attributeId, clinicalData, clinicalDataBinFilter.getClinicalDataType() ,ids);
             if (!naDataBin.getCount().equals(0)) {
                 dataBins.add(naDataBin);
             }
@@ -441,21 +442,24 @@ public class DataBinner
      * 
      * @return 'NA' clinical data count as a DataBin instance
      */
-    public DataBin calcNaDataBin(String attributeId, List<ClinicalData> clinicalData, List<String> ids)
+    public DataBin calcNaDataBin(String attributeId,
+                                 List<ClinicalData> clinicalData,
+                                 ClinicalDataType clinicalDataType,
+                                 List<String> ids)
     {
         DataBin bin = new DataBin();
         
         bin.setAttributeId(attributeId);
         bin.setSpecialValue("NA");
         
-        Long count = countNAs(clinicalData, ids);
+        Long count = countNAs(clinicalData, clinicalDataType, ids);
         
         bin.setCount(count.intValue());
         
         return bin;
     }
     
-    public Long countNAs(List<ClinicalData> clinicalData, List<String> ids) 
+    public Long countNAs(List<ClinicalData> clinicalData, ClinicalDataType clinicalDataType, List<String> ids) 
     {
         // Calculate number of clinical data marked actually as "NA", "NAN", or "N/A"
         
@@ -470,11 +474,9 @@ public class DataBinner
         
         if (clinicalData != null)
         {
-            Stream<String> sampleStream = clinicalData.stream().map(ClinicalData::getSampleId);
-            Stream<String> patientStream = clinicalData.stream().map(ClinicalData::getPatientId);
-
-            uniqueClinicalDataIds =
-                Stream.concat(sampleStream, patientStream).filter(Objects::nonNull).collect(Collectors.toSet());
+            uniqueClinicalDataIds = clinicalDataType == ClinicalDataType.PATIENT ?
+                clinicalData.stream().map(ClinicalData::getPatientId).filter(Objects::nonNull).collect(Collectors.toSet()) :
+                clinicalData.stream().map(ClinicalData::getSampleId).filter(Objects::nonNull).collect(Collectors.toSet());
         }
         else {
             uniqueClinicalDataIds = Collections.emptySet();

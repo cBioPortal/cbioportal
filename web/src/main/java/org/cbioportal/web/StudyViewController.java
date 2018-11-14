@@ -112,8 +112,9 @@ public class StudyViewController {
         }
         
         List<DataBin> clinicalDataBins = null;
-        List<String> filteredIds = new ArrayList<>();
-        List<ClinicalData> filteredClinicalData = fetchClinicalData(attributes, studyViewFilter, filteredIds);
+        List<String> filteredSampleIds = new ArrayList<>();
+        List<String> filteredPatientIds = new ArrayList<>();
+        List<ClinicalData> filteredClinicalData = fetchClinicalData(attributes, studyViewFilter, filteredSampleIds, filteredPatientIds);
         Map<String, List<ClinicalData>> filteredClinicalDataByAttributeId = 
             filteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
         
@@ -126,14 +127,20 @@ public class StudyViewController {
                 filter.setSampleIdentifiers(studyViewFilter.getSampleIdentifiers());
             }
             
-            List<String> unfilteredIds = new ArrayList<>();
-            List<ClinicalData> unfilteredClinicalData = fetchClinicalData(attributes, filter, unfilteredIds);
+            List<String> unfilteredSampleIds = new ArrayList<>();
+            List<String> unfilteredPatientIds = new ArrayList<>();
+            List<ClinicalData> unfilteredClinicalData = fetchClinicalData(attributes, filter, unfilteredSampleIds, unfilteredPatientIds);
             Map<String, List<ClinicalData>> unfilteredClinicalDataByAttributeId =
                 unfilteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
-            
+
             if (!unfilteredClinicalData.isEmpty()) {
                 clinicalDataBins = new ArrayList<>();
                 for (ClinicalDataBinFilter attribute: attributes) {
+                    List<String> filteredIds = attribute.getClinicalDataType() == ClinicalDataType.PATIENT ?
+                        filteredPatientIds : filteredSampleIds;
+                    List<String> unfilteredIds = attribute.getClinicalDataType() == ClinicalDataType.PATIENT ? 
+                        unfilteredPatientIds : unfilteredSampleIds;
+                    
                     List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(
                         attribute,
                         filteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
@@ -149,6 +156,9 @@ public class StudyViewController {
             if (!filteredClinicalData.isEmpty()) {
                 clinicalDataBins = new ArrayList<>();
                 for (ClinicalDataBinFilter attribute: attributes) {
+                    List<String> filteredIds = attribute.getClinicalDataType() == ClinicalDataType.PATIENT ?
+                        filteredPatientIds : filteredSampleIds;
+                    
                     List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(
                         attribute,
                         filteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
@@ -453,7 +463,8 @@ public class StudyViewController {
     
     private List<ClinicalData> fetchClinicalData(List<ClinicalDataBinFilter> attributes, 
                                                  StudyViewFilter studyViewFilter,
-                                                 List<String> ids)
+                                                 List<String> sampleIds,
+                                                 List<String> patientIds)
     {
         List<String> filteredIds = new ArrayList<>();
         
@@ -465,7 +476,7 @@ public class StudyViewController {
         
         if (sampleAttributes.size() > 0) {
             filteredClinicalDataForSamples = fetchClinicalData(sampleAttributes, ClinicalDataType.SAMPLE, studyViewFilter, filteredIds);
-            ids.addAll(filteredIds);
+            sampleIds.addAll(filteredIds);
         }
         
         List<String> patientAttributes = attributes.stream()
@@ -476,7 +487,7 @@ public class StudyViewController {
 
         if (patientAttributes.size() > 0) {
             filteredClinicalDataForPatients = fetchClinicalData(patientAttributes, ClinicalDataType.PATIENT, studyViewFilter, filteredIds);
-            ids.addAll(filteredIds);
+            patientIds.addAll(filteredIds);
         }
         
         List<ClinicalData> combinedResult = new ArrayList<>();

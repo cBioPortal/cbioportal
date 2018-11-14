@@ -1,6 +1,7 @@
 package org.cbioportal.persistence;
 
 import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.model.meta.BaseMeta;
 
 import java.util.List;
@@ -23,9 +24,7 @@ public interface ClinicalAttributeRepository {
 
     BaseMeta fetchMetaClinicalAttributes(List<String> studyIds);
 
-    List<ClinicalAttribute> getAllClinicalAttributesInStudiesBySampleIds(List<String> studyIds, List<String> sampleIds,
-                                                                         String projection, String sortBy, String direction);
+    List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleIds(List<String> studyIds, List<String> sampleIds);
 
-    List<ClinicalAttribute> getAllClinicalAttributesInStudiesBySampleListId(String sampleListId, String projection,
-                                                                            String sortBy, String direction);
+    List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleListId(String sampleListId);
 }

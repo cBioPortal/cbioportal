@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.model.meta.BaseMeta;
 
 import java.util.List;
@@ -14,9 +15,7 @@ public interface ClinicalAttributeMapper {
 
     ClinicalAttribute getClinicalAttribute(String studyId, String clinicalAttributeId, String projection);
 
-    List<ClinicalAttribute> getAllClinicalAttributesInStudiesBySampleIds(List<String> studyIds, List<String> sampleIds,
-                                                                         String projection, String sortBy, String direction);
+    List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleIds(List<String> studyIds, List<String> sampleIds);
 
-    List<ClinicalAttribute> getAllClinicalAttributesInStudiesBySampleListId(String sampleListId, String projection,
-                                                                            String sortBy, String direction);
+    List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleListId(String sampleListId);
 }

@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.exception.ClinicalAttributeNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -12,7 +13,7 @@ import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
-import org.cbioportal.web.parameter.ClinicalAttributeFilter;
+import org.cbioportal.web.parameter.ClinicalAttributeCountFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.sort.ClinicalAttributeSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,36 +148,29 @@ public class ClinicalAttributeController {
         }
     }
 
-    @PreAuthorize("hasPermission(#clinicalAttributeFilter, 'ClinicalAttributeFilter', 'read')")
+    @PreAuthorize("hasPermission(#clinicalAttributeCountFilter, 'ClinicalAttributeCountFilter', 'read')")
     @RequestMapping(value = "/clinical-attributes/counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all clinical attributes in specified sampleIdentifiers or sampleListID with clinical attribute count")
-    public ResponseEntity<List<ClinicalAttribute>> getAllClinicalAttributesInStudies(
+    @ApiOperation("Get counts for clinical attributes according to their data availability for selected samples/patients")
+    public ResponseEntity<List<ClinicalAttributeCount>> getClinicalAttributeCounts(
             @ApiParam(required = true, value = "List of SampleIdentifiers or Sample List ID")
-            @Valid @RequestBody ClinicalAttributeFilter clinicalAttributeFilter,
-            @RequestParam(defaultValue = "SUMMARY") Projection projection,
-            @ApiParam("Name of the property that the result list is sorted by")
-            @RequestParam(required = false) ClinicalAttributeSortBy sortBy,
-            @ApiParam("Direction of the sort")
-            @RequestParam(defaultValue = "ASC") Direction direction) {
+            @Valid @RequestBody ClinicalAttributeCountFilter clinicalAttributeCountFilter) {
 
-        List<ClinicalAttribute> clinicalAttributeList;
-        if (clinicalAttributeFilter.getSampleListId() != null) {
-            clinicalAttributeList = clinicalAttributeService.getAllClinicalAttributesInStudiesBySampleListId(
-                    clinicalAttributeFilter.getSampleListId(), projection.name(),
-                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
+        List<ClinicalAttributeCount> clinicalAttributeCountList;
+        if (clinicalAttributeCountFilter.getSampleListId() != null) {
+            clinicalAttributeCountList = clinicalAttributeService.getClinicalAttributeCountsBySampleListId(
+                clinicalAttributeCountFilter.getSampleListId());
         } else {
-            List<SampleIdentifier> sampleIdentifiers = clinicalAttributeFilter.getSampleIdentifiers();
+            List<SampleIdentifier> sampleIdentifiers = clinicalAttributeCountFilter.getSampleIdentifiers();
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
                 studyIds.add(sampleIdentifier.getStudyId());
                 sampleIds.add(sampleIdentifier.getSampleId());
             }
-            clinicalAttributeList = clinicalAttributeService.getAllClinicalAttributesInStudiesBySampleIds(studyIds,
-                    sampleIds, projection.name(), sortBy == null ? null : sortBy.getOriginalValue(), direction.name());
+            clinicalAttributeCountList = clinicalAttributeService.getClinicalAttributeCountsBySampleIds(studyIds, sampleIds);
         }
 
-        return new ResponseEntity<>(clinicalAttributeList, HttpStatus.OK);
+        return new ResponseEntity<>(clinicalAttributeCountList, HttpStatus.OK);
     }
 }

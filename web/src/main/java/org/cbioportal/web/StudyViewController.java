@@ -21,7 +21,6 @@ import org.cbioportal.web.util.DataBinner;
 import org.cbioportal.web.util.StudyViewFilterApplier;
 import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -113,8 +112,9 @@ public class StudyViewController {
         }
         
         List<DataBin> clinicalDataBins = null;
-        List<String> filteredIds = new ArrayList<>();
-        List<ClinicalData> filteredClinicalData = fetchClinicalData(attributes, studyViewFilter, filteredIds);
+        List<String> filteredSampleIds = new ArrayList<>();
+        List<String> filteredPatientIds = new ArrayList<>();
+        List<ClinicalData> filteredClinicalData = fetchClinicalData(attributes, studyViewFilter, filteredSampleIds, filteredPatientIds);
         Map<String, List<ClinicalData>> filteredClinicalDataByAttributeId = 
             filteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
         
@@ -127,14 +127,20 @@ public class StudyViewController {
                 filter.setSampleIdentifiers(studyViewFilter.getSampleIdentifiers());
             }
             
-            List<String> unfilteredIds = new ArrayList<>();
-            List<ClinicalData> unfilteredClinicalData = fetchClinicalData(attributes, filter, unfilteredIds);
+            List<String> unfilteredSampleIds = new ArrayList<>();
+            List<String> unfilteredPatientIds = new ArrayList<>();
+            List<ClinicalData> unfilteredClinicalData = fetchClinicalData(attributes, filter, unfilteredSampleIds, unfilteredPatientIds);
             Map<String, List<ClinicalData>> unfilteredClinicalDataByAttributeId =
                 unfilteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
-            
+
             if (!unfilteredClinicalData.isEmpty()) {
                 clinicalDataBins = new ArrayList<>();
                 for (ClinicalDataBinFilter attribute: attributes) {
+                    List<String> filteredIds = attribute.getClinicalDataType() == ClinicalDataType.PATIENT ?
+                        filteredPatientIds : filteredSampleIds;
+                    List<String> unfilteredIds = attribute.getClinicalDataType() == ClinicalDataType.PATIENT ? 
+                        unfilteredPatientIds : unfilteredSampleIds;
+                    
                     List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(
                         attribute,
                         filteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
@@ -150,6 +156,9 @@ public class StudyViewController {
             if (!filteredClinicalData.isEmpty()) {
                 clinicalDataBins = new ArrayList<>();
                 for (ClinicalDataBinFilter attribute: attributes) {
+                    List<String> filteredIds = attribute.getClinicalDataType() == ClinicalDataType.PATIENT ?
+                        filteredPatientIds : filteredSampleIds;
+                    
                     List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(
                         attribute,
                         filteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
@@ -367,20 +376,52 @@ public class StudyViewController {
         for (int i = 0; i < xAxisBinCount; i++) {
             for (int j = 0; j < yAxisBinCount; j++) {
                 DensityPlotBin densityPlotBin = new DensityPlotBin();
-                densityPlotBin.setX(new BigDecimal(xAxisStartValue + (i * xAxisBinInterval)));
-                densityPlotBin.setY(new BigDecimal(yAxisStartValue + (j * yAxisBinInterval)));
+                densityPlotBin.setBinX(new BigDecimal(xAxisStartValue + (i * xAxisBinInterval)));
+                densityPlotBin.setBinY(new BigDecimal(yAxisStartValue + (j * yAxisBinInterval)));
                 densityPlotBin.setCount(0);
                 result.add(densityPlotBin);
             }
         }
 
         for (int i = 0; i < xValues.length; i++) {
-            int xBinIndex = (int) ((xValues[i] - xAxisStartValue) / xAxisBinInterval);
-            int yBinIndex = (int) ((yValues[i] - yAxisStartValue) / yAxisBinInterval);
+            double xValue = xValues[i];
+            double yValue = yValues[i];
+            int xBinIndex = (int) ((xValue - xAxisStartValue) / xAxisBinInterval);
+            int yBinIndex = (int) ((yValue - yAxisStartValue) / yAxisBinInterval);
             int index = (int) (((xBinIndex - (xBinIndex == xAxisBinCount ? 1 : 0)) * yAxisBinCount) +
                 (yBinIndex - (yBinIndex == yAxisBinCount ? 1 : 0)));
             DensityPlotBin densityPlotBin = result.get(index);
             densityPlotBin.setCount(densityPlotBin.getCount() + 1);
+            BigDecimal xValueBigDecimal = new BigDecimal(xValue);
+            BigDecimal yValueBigDecimal = new BigDecimal(yValue);
+            if (densityPlotBin.getMinX() != null) {
+                if (densityPlotBin.getMinX().compareTo(xValueBigDecimal) > 0) {
+                    densityPlotBin.setMinX(xValueBigDecimal);
+                }
+            } else {
+                densityPlotBin.setMinX(xValueBigDecimal);
+            }
+            if (densityPlotBin.getMaxX() != null) {
+                if (densityPlotBin.getMaxX().compareTo(xValueBigDecimal) < 0) {
+                    densityPlotBin.setMaxX(xValueBigDecimal);
+                }
+            } else {
+                densityPlotBin.setMaxX(xValueBigDecimal);
+            }
+            if (densityPlotBin.getMinY() != null) {
+                if (densityPlotBin.getMinY().compareTo(yValueBigDecimal) > 0) {
+                    densityPlotBin.setMinY(yValueBigDecimal);
+                }
+            } else {
+                densityPlotBin.setMinY(yValueBigDecimal);
+            }
+            if (densityPlotBin.getMaxY() != null) {
+                if (densityPlotBin.getMaxY().compareTo(yValueBigDecimal) < 0) {
+                    densityPlotBin.setMaxY(yValueBigDecimal);
+                }
+            } else {
+                densityPlotBin.setMaxY(yValueBigDecimal);
+            }
         }
 
         return new ResponseEntity<>(result, HttpStatus.OK);
@@ -422,7 +463,8 @@ public class StudyViewController {
     
     private List<ClinicalData> fetchClinicalData(List<ClinicalDataBinFilter> attributes, 
                                                  StudyViewFilter studyViewFilter,
-                                                 List<String> ids)
+                                                 List<String> sampleIds,
+                                                 List<String> patientIds)
     {
         List<String> filteredIds = new ArrayList<>();
         
@@ -434,7 +476,7 @@ public class StudyViewController {
         
         if (sampleAttributes.size() > 0) {
             filteredClinicalDataForSamples = fetchClinicalData(sampleAttributes, ClinicalDataType.SAMPLE, studyViewFilter, filteredIds);
-            ids.addAll(filteredIds);
+            sampleIds.addAll(filteredIds);
         }
         
         List<String> patientAttributes = attributes.stream()
@@ -445,7 +487,7 @@ public class StudyViewController {
 
         if (patientAttributes.size() > 0) {
             filteredClinicalDataForPatients = fetchClinicalData(patientAttributes, ClinicalDataType.PATIENT, studyViewFilter, filteredIds);
-            ids.addAll(filteredIds);
+            patientIds.addAll(filteredIds);
         }
         
         List<ClinicalData> combinedResult = new ArrayList<>();

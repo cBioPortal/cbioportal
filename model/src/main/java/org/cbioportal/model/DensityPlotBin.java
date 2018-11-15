@@ -6,8 +6,12 @@ import java.math.BigDecimal;
 public class DensityPlotBin implements Serializable {
 
     private Integer count;
-    private BigDecimal x;
-    private BigDecimal y;
+    private BigDecimal binX;
+    private BigDecimal binY;
+    private BigDecimal minX;
+    private BigDecimal maxX;
+    private BigDecimal minY;
+    private BigDecimal maxY;
 
     public Integer getCount() {
         return count;
@@ -17,19 +21,51 @@ public class DensityPlotBin implements Serializable {
         this.count = count;
     }
 
-    public BigDecimal getX() {
-        return x;
+    public BigDecimal getBinX() {
+        return binX;
     }
 
-    public void setX(BigDecimal x) {
-        this.x = x;
+    public void setBinX(BigDecimal binX) {
+        this.binX = binX;
     }
 
-    public BigDecimal getY() {
-        return y;
+    public BigDecimal getBinY() {
+        return binY;
     }
 
-    public void setY(BigDecimal y) {
-        this.y = y;
+    public void setBinY(BigDecimal binY) {
+        this.binY = binY;
+    }
+
+    public BigDecimal getMinX() {
+        return minX;
+    }
+
+    public void setMinX(BigDecimal minX) {
+        this.minX = minX;
+    }
+
+    public BigDecimal getMaxX() {
+        return maxX;
+    }
+
+    public void setMaxX(BigDecimal maxX) {
+        this.maxX = maxX;
+    }
+
+    public BigDecimal getMinY() {
+        return minY;
+    }
+
+    public void setMinY(BigDecimal minY) {
+        this.minY = minY;
+    }
+
+    public BigDecimal getMaxY() {
+        return maxY;
+    }
+
+    public void setMaxY(BigDecimal maxY) {
+        this.maxY = maxY;
     }
 }

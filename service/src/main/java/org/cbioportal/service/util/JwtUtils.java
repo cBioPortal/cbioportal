@@ -47,9 +47,11 @@
 */
 
 package org.cbioportal.service.util;
-//TODO package org.cbioportal.security.spring.authentication.token;
 
+import com.mysql.jdbc.StringUtils;
 import org.cbioportal.model.DataAccessToken;
+import org.cbioportal.service.exception.InvalidDataAccessTokenException;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.io.Decoders;
@@ -61,7 +63,6 @@ import io.jsonwebtoken.SignatureException;
 import java.util.*;
 import javax.crypto.SecretKey;
 import org.apache.commons.logging.*;
-import org.cbioportal.service.exception.InvalidDataAccessTokenException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -69,18 +70,20 @@ import org.springframework.stereotype.Component;
 public class JwtUtils {
 
     private byte[] decodedSecretKey;
-    @Value("${jwt.secret_key}")
+    @Value("${jwt.secret_key:none}") // default value is none
     private void setDecodedSecretKey(String secretKey) {
-        decodedSecretKey = Decoders.BASE64.decode(secretKey);
+        if (!StringUtils.isNullOrEmpty(secretKey) && !secretKey.equalsIgnoreCase("none")) {
+            this.decodedSecretKey = Decoders.BASE64.decode(secretKey);
+        }
     }
 
-    @Value("${dat.ttl_seconds}")
+    @Value("${dat.ttl_seconds:-1}") // default value is -1
     private int jwtTtlSeconds;
 
-    private static final Log log = LogFactory.getLog(JwtUtils.class);
+    private static final Log LOG = LogFactory.getLog(JwtUtils.class);
 
-    public DataAccessToken createToken(String subject) {
-        if (subject == null || subject.trim().length() == 0) {
+    public DataAccessToken createToken(String username) {
+        if (username == null || username.trim().length() == 0) {
             throw new IllegalArgumentException("subject cannot be empty");
         }
         Calendar calendar = Calendar.getInstance();
@@ -88,13 +91,13 @@ public class JwtUtils {
         calendar.add(Calendar.SECOND, jwtTtlSeconds);
         Date expirationDate = calendar.getTime();
         String jws = Jwts.builder()
-            .setSubject(subject)
+            .setSubject(username)
             .setIssuedAt(creationDate)
             .setExpiration(expirationDate)
             .signWith(SignatureAlgorithm.HS256, decodedSecretKey).compact();
-        return new DataAccessToken(jws);
+        return new DataAccessToken(jws, username, expirationDate, creationDate);
     }
-    
+
     public void validate(String token) throws InvalidDataAccessTokenException {
         Map<String, Object> properties = extractClaims(token);
     }
@@ -121,10 +124,10 @@ public class JwtUtils {
                 .parseClaimsJws(token);
             claims = jwsClaims.getBody();
         } catch (SignatureException e) {
-            log.error(e);
+            LOG.error(e);
             throw new InvalidDataAccessTokenException("signature not valid");
         } catch (ExpiredJwtException e) {
-            log.error(e);
+            LOG.error(e);
             throw new InvalidDataAccessTokenException("token has expired");
         }
         return claims;

@@ -8,16 +8,18 @@
                         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
-
+    <!-- Data Access Tokens beans -->
     <b:bean id="tokenAuthenticationFilter" class="org.cbioportal.security.spring.authentication.token.TokenAuthenticationFilter">
         <b:property name="authenticationManager" ref="tokenAuthenticationManager" />
         <b:property name="authenticationSuccessHandler" ref="tokenSuccessRedirectHandler"/>
     </b:bean>
 
-    <!-- Choose one of the following DataAccessToken service implementations
-        UUID implementation requires a backend database/token store but allows for greater control over tokens -->
-    <!-- <b:bean id="tokenService" class="org.cbioportal.service.impl.JwtDataAccessTokenServiceImpl"/> -->
-    <b:bean id="tokenService" class="org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl"/>
+    <!-- Choose a supported Data Access Token method implementation [uuid, jwt, none (default)] by setting value of dat.method in portal.properties.
+        Note: UUID implementation requires a backend database/token store but allows for greater control over tokens -->
+    <b:alias name="${dat.method}" alias="tokenService" />
+    <b:bean  id="tokenServiceFactory" class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean">
+        <b:property name="serviceLocatorInterface" value="org.cbioportal.service.DataAccessTokenServiceFactory"/>
+    </b:bean>
 
     <!-- WARNING: if you define another authentication-manager AFTER this one, this one
         will be overridden, even if you use <http ... pattern="/api/**" ... authentication-manager-ref="tokenAuthenticationManager">
@@ -33,10 +35,11 @@
     <b:bean id="tokenUserDetailsAuthenticationProvider" class="org.cbioportal.security.spring.authentication.token.TokenUserDetailsAuthenticationProvider">
         <b:constructor-arg index="0" ref="tokenUserDetailsService" />
     </b:bean>
+    <!-- End of Data Access Tokens beans -->
 
     <!-- Used to compare token returned by authentication-provider against portal user db tables -->
     <b:bean id="tokenUserDetailsService" class="org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService"/>
-    
+
     <!-- beans shared across any authentication system -->
     <b:beans profile="googleplus,openid,saml,ad,ldap">
         <b:bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -96,7 +99,7 @@
         <b:property name="alwaysUseDefaultTargetUrl" value="false"/>
         <b:property name="targetUrlParameter" value="spring-security-redirect"/>
     </b:bean>
-		
+
     <!-- end beans shared across any authentication provider -->
     </b:beans>
 
@@ -113,7 +116,7 @@
         <!-- used for google+ authentication (spring social) -->
         <custom-filter ref="socialAuthenticationFilter" before="PRE_AUTH_FILTER"/>
 
-        <!--  logout actions -->      
+        <!--  logout actions -->
         <logout logout-url="/j_spring_security_logout" logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID"/>
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
@@ -187,7 +190,7 @@
         <b:constructor-arg value="${googleplus.consumer.key}" />
         <b:constructor-arg value="${googleplus.consumer.secret}" />
     </b:bean>
- 
+
     <!-- end googleplus beans -->
     </b:beans>
 
@@ -212,7 +215,7 @@
             </attribute-exchange>
       </openid-login>
 
-        <!--  logout actions -->      
+        <!--  logout actions -->
         <logout logout-url="/j_spring_security_logout" logout-success-url="/login.jsp?logout_success=true"/>
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
@@ -605,7 +608,7 @@
 	    </b:bean>
 
 	    <global-method-security pre-post-annotations="disabled"/>
-	
+
 	    <!-- support for general annotations within class definitions (used in AccessControl) -->
 	    <context:annotation-config/>
 
@@ -615,12 +618,12 @@
 	        <b:property name="alwaysUseDefaultTargetUrl" value="false"/>
 	        <b:property name="targetUrlParameter" value="spring-security-redirect"/>
 	    </b:bean>
-	
+
 	    <http entry-point-ref="authenticationEntryPoint"  use-expressions="true">
 	        <intercept-url pattern="/**" access="permitAll"/>
 	        <custom-filter ref="socialAuthenticationFilter" before="PRE_AUTH_FILTER" />
 
-	        <!--  logout actions -->      
+	        <!--  logout actions -->
 	        <logout logout-url="/j_spring_security_logout" logout-success-url="/" delete-cookies="JSESSIONID"/>
 	        <!-- to enable access from matlab, r, python, etc clients -->
 	        <session-management session-fixation-protection="none"/>
@@ -630,7 +633,7 @@
 	        <b:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
 	            <b:constructor-arg value="/index.do" />
 	        </b:bean>
-	
+
 	    <!-- google+ beans -->
 	    <b:bean id="socialAuthenticationFilter" class="org.springframework.social.security.SocialAuthenticationFilter">
 	        <b:constructor-arg index="0" ref="authenticationManager" />
@@ -644,7 +647,7 @@
 	        <!-- UsernameNotFoundException will be stored in session with username as message -->
 	        <b:property name="allowSessionCreation" value="true" />
 	    </b:bean>
-                                                                	
+
 	    <authentication-manager alias="authenticationManager">
             <!-- token access for the API -->
             <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
@@ -658,11 +661,11 @@
 	    </b:bean>
 
 	    <b:bean id="socialUserDetailsService" class="org.cbioportal.security.spring.authentication.googleplus.CustomUserDetailsService" />
-	
+
 	    <!-- returns the spring security account id for the user -->
 	    <!--Implementation of UserIdSource that returns the Spring Security Authentication's name as the user ID -->
 	    <b:bean id="userIdSource" class="org.springframework.social.security.AuthenticationNameUserIdSource"/>
-	
+
 	    <b:bean id="usersConnectionRepository"
 	            class="org.springframework.social.connect.mem.InMemoryUsersConnectionRepository">
 	        <b:constructor-arg ref="connectionFactoryLocator" />

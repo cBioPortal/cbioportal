@@ -14,22 +14,6 @@
  */
 
 /*
- * Copyright 2002-2018 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/*
  * This file is part of cBioPortal.
  *
  * cBioPortal is free software: you can redistribute it and/or modify
@@ -46,17 +30,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.service.util;
-//TODO package org.cbioportal.security.spring.authentication.token;
+package org.cbioportal.web.config;
 
-import org.springframework.context.annotation.Configuration;
+import org.cbioportal.service.DataAccessTokenService;
+import org.cbioportal.service.DataAccessTokenServiceFactory;
+import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
+import org.cbioportal.web.DataAccessTokenController;
+
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.config.ServiceLocatorFactoryBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+/**
+ *
+ * @author ochoaa
+ */
 @Configuration
-public class JwtUtilsTestConfiguration {
+public class DataAccessTokenControllerConfig {
+    @Bean
+    public ServiceLocatorFactoryBean tokenServiceFactory() {
+        ServiceLocatorFactoryBean factoryBean = new ServiceLocatorFactoryBean();
+        factoryBean.setServiceLocatorInterface(DataAccessTokenServiceFactory.class);
+        return factoryBean;
+    }
 
     @Bean
-    public JwtUtils jwtUtils() {
-        return new JwtUtils();
+    public DataAccessTokenServiceFactory dataAccessTokenServiceFactory() {
+        DataAccessTokenServiceFactory factory = Mockito.mock(DataAccessTokenServiceFactory.class);
+        Mockito.when(factory.getDataAccessTokenService(Matchers.anyString())).thenReturn(tokenService());
+        return factory;
+    }
+
+    @Bean
+    public DataAccessTokenService tokenService() {
+        return Mockito.mock(DataAccessTokenService.class);
+    }
+
+    @Bean
+    public DataAccessTokenController dataAccessTokenController() {
+        return new DataAccessTokenController();
     }
 }

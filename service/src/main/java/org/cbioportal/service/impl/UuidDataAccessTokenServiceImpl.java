@@ -46,16 +46,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Service
-@Component
+@Component("uuid")
 public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Autowired
     private DataAccessTokenRepository dataAccessTokenRepository;
 
-    @Value("${dat.ttl_seconds}")
+    @Value("${dat.ttl_seconds:-1}")
     private int datTtlSeconds;
 
-    @Value("${dat.max_number_per_user}")
+    @Value("${dat.max_number_per_user:-1}")
     private int maxNumberOfAccessTokens;
 
     @Value("${dat.revoke_other_tokens:true}")
@@ -75,8 +75,8 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
     @Override
     public DataAccessToken createDataAccessToken(String username, boolean allowRevocationOfOtherTokens) {
         if (username == null || username.trim().length() == 0) {
-            throw new IllegalArgumentException("subject cannot be empty");
-        } 
+            throw new IllegalArgumentException("username cannot be empty");
+        }
         if (getNumberOfTokensForUsername(username) >= maxNumberOfAccessTokens) {
             if (allowRevocationOfOtherTokens) {
                 revokeOldestDataAccessTokenForUsername(username);
@@ -89,8 +89,8 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
         Date creationDate = calendar.getTime();
         calendar.add(Calendar.SECOND, datTtlSeconds);
         Date expirationDate = calendar.getTime();
-       
-        DataAccessToken dataAccessToken = new DataAccessToken(uuid, username, expirationDate, creationDate); 
+
+        DataAccessToken dataAccessToken = new DataAccessToken(uuid, username, expirationDate, creationDate);
         dataAccessTokenRepository.addDataAccessToken(dataAccessToken);
         return dataAccessToken;
     }
@@ -101,7 +101,7 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
         List<DataAccessToken> allDataAccessTokens = dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
         return allDataAccessTokens;
     }
-    
+
     // get newest data access token for a given username
     @Override
     public DataAccessToken getDataAccessToken(String username) {
@@ -132,19 +132,19 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
         }
         dataAccessTokenRepository.removeDataAccessToken(token);
     }
-    
+
     @Override
     public String getUsername(String token) {
         DataAccessToken dataAccessToken = dataAccessTokenRepository.getDataAccessToken(token);
         return dataAccessToken.getUsername();
     }
-    
+
     @Override
     public Date getExpiration(String token) {
         DataAccessToken dataAccessToken = dataAccessTokenRepository.getDataAccessToken(token);
         return dataAccessToken.getExpiration();
     }
-   
+
     @Override
     public Boolean isValid(String dataAccessToken) {
         DataAccessToken storedDataAccessToken = null;
@@ -158,7 +158,7 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
         Date currentDate = calendar.getTime();
         if (storedDataAccessToken.getExpiration().before(currentDate)) {
             return Boolean.FALSE;
-        } 
+        }
         return Boolean.TRUE;
     }
 

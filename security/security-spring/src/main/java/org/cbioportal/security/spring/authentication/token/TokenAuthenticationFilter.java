@@ -32,6 +32,10 @@
 
 package org.cbioportal.security.spring.authentication.token;
 
+import org.cbioportal.service.DataAccessTokenService;
+import org.cbioportal.service.DataAccessTokenServiceFactory;
+import org.cbioportal.service.impl.UnauthDataAccessTokenServiceImpl;
+
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 
 import javax.servlet.FilterChain;
@@ -39,17 +43,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import javax.annotation.PostConstruct;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.cbioportal.service.DataAccessTokenService;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.stereotype.Component; // TODO is this the correct one to use?
@@ -62,16 +65,27 @@ import org.springframework.util.StringUtils;
 @Component
 public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
+    private final List<String> SUPPORTED_DAT_METHODS = Arrays.asList("uuid", "jwt");
+    @Value("${dat.method:none}") // default value is none
+    private String datMethod;
+
     @Autowired
-    // use @Qualifier to ensure we get tokenService bean from applicationContext-security.xml
-    // tokenSerice bean in security.xml file has same name so would be picked anyway by default,
-    // but this avoids a NoUniqueBeanDefinitionException
-    @Qualifier("tokenService")
+    private DataAccessTokenServiceFactory dataAccessTokenServiceFactory;
+
     private DataAccessTokenService tokenService;
+    @PostConstruct
+    public void postConstruct() {
+        if (datMethod == null || !SUPPORTED_DAT_METHODS.contains(datMethod)) {
+            this.tokenService = new UnauthDataAccessTokenServiceImpl();
+        }
+        else {
+            this.tokenService = this.dataAccessTokenServiceFactory.getDataAccessTokenService(this.datMethod);
+        }
+    }
 
     private static final String BEARER = "Bearer";
 
-    private static final Log log = LogFactory.getLog(TokenAuthenticationFilter.class);
+    private static final Log LOG = LogFactory.getLog(TokenAuthenticationFilter.class);
 
     public TokenAuthenticationFilter() {
         // allow any request to contain an authorization header
@@ -83,7 +97,7 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
         // only required if we do see an authorization header
         String param = request.getHeader(AUTHORIZATION);
         if (param == null) {
-            log.debug("attemptAuthentication(), authorization header is null, continue on to other security filters");
+            LOG.debug("attemptAuthentication(), authorization header is null, continue on to other security filters");
             return false;
         }
         return true;
@@ -98,7 +112,7 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
 
         if (token == null || !tokenService.isValid(token)) {
             // TODO should this be a custom subclass of AuthenticationException?
-            log.error("invalid token = " + token);
+            LOG.error("invalid token = " + token);
             throw new BadCredentialsException("Invalid token");
         }
 

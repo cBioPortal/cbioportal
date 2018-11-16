@@ -34,7 +34,6 @@ package org.cbioportal.security.spring.authentication.token;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cbioportal.service.util.JwtUtils;
@@ -54,7 +53,8 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(
     properties = { "jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
                     "dat.ttl_seconds = 2",
-                    "jwt.issuer = org.cbioportal.mskcc.org"
+                    "jwt.issuer = org.cbioportal.mskcc.org",
+                    "dat.method = jwt"
     },
     inheritLocations = false
 )
@@ -76,14 +76,14 @@ public class TokenAuthenticationFilterTest {
 
     private static final long TEST_TOKEN_EXPIRATION_MILLISECONDS = 2000L;
 
-    private static final Log log = LogFactory.getLog(TokenAuthenticationFilterTest.class);
+    private static final Log LOG = LogFactory.getLog(TokenAuthenticationFilterTest.class);
 
     // TODO: test requiresValidation() function maybe
 
     @Test
     public void testAttemptAuthentication_success() {
         String token = jwtUtils.createToken(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT).getToken();
-        log.debug("testAttemptAuthentication_success() token = " + token);
+        LOG.debug("testAttemptAuthentication_success() token = " + token);
         Mockito.reset(request);
         Mockito.when(request.getHeader(Matchers.anyString())).thenReturn("Bearer " + token);
         // response object is autowired above
@@ -111,7 +111,7 @@ public class TokenAuthenticationFilterTest {
     @Test(expected = BadCredentialsException.class)
     public void testAttemptAuthentication_expiredToken() throws InterruptedException {
         String token = jwtUtils.createToken(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT).getToken();
-        log.debug("testAttemptAuthentication_expiredToken() token = " + token);
+        LOG.debug("testAttemptAuthentication_expiredToken() token = " + token);
         Mockito.reset(request);
         Mockito.when(request.getHeader(Matchers.anyString())).thenReturn("Bearer " + token);
         Thread.sleep(TEST_TOKEN_EXPIRATION_MILLISECONDS + 10L); // NOTE: sleep time must be adequate to allow created token to expire

@@ -34,12 +34,15 @@ package org.cbioportal.web;
 
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
+import org.cbioportal.service.DataAccessTokenServiceFactory;
 import org.cbioportal.service.exception.DataAccessTokenNoUserIdentityException;
 import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
+import org.cbioportal.service.impl.UnauthDataAccessTokenServiceImpl;
 import org.cbioportal.web.config.annotation.InternalApi;
 
 import io.swagger.annotations.*;
 import java.util.*;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
@@ -53,17 +56,27 @@ import org.springframework.web.client.HttpClientErrorException;
 @Api(tags = "Data Access Tokens", description = " ")
 public class DataAccessTokenController {
 
-    @Autowired
-    // use @Qualifier to ensure we get tokenService bean from applicationContext-security.xml
-    // tokenSerice bean in security.xml file has same name so would be picked anyway by default,
-    // but this avoids a NoUniqueBeanDefinitionException
-    @Qualifier("tokenService")
-    private DataAccessTokenService dataAccessTokenService;
+    private final List<String> SUPPORTED_DAT_METHODS = Arrays.asList("uuid", "jwt");
+    @Value("${dat.method:none}") // default value is none
+    private String datMethod;
 
-//      TODO: figure out how to read this from the properties file
-//    @Value("${security.data_tokens.unauth_users}")
-    private String[] USERS_WHO_CANNOT_USE_TOKENS = {"anonymousUser", "servcbioportal"};
-    private Set<String> usersWhoCannotUseTokenSet = null;
+    @Autowired
+    private DataAccessTokenServiceFactory dataAccessTokenServiceFactory;
+
+    private DataAccessTokenService tokenService;
+    @PostConstruct
+    public void postConstruct() {
+        if (datMethod == null || !SUPPORTED_DAT_METHODS.contains(datMethod)) {
+            this.tokenService = new UnauthDataAccessTokenServiceImpl();
+        }
+        else {
+            this.tokenService = this.dataAccessTokenServiceFactory.getDataAccessTokenService(this.datMethod);
+        }
+    }
+
+    @Value("${dat.unauth_users:anonymousUser}")
+    private String[] USERS_WHO_CANNOT_USE_TOKENS;
+    private Set<String> usersWhoCannotUseTokenSet;
 
     @Autowired
     private void initializeUsersWhoCannotUseTokenSet() {
@@ -75,10 +88,10 @@ public class DataAccessTokenController {
                                     @RequestParam(required = false) Boolean allowRevocationOfOtherTokens) throws HttpClientErrorException {
         DataAccessToken createdToken;
         if (allowRevocationOfOtherTokens != null) {
-            createdToken = dataAccessTokenService.createDataAccessToken(getAuthenticatedUser(authentication), allowRevocationOfOtherTokens);
+            createdToken = tokenService.createDataAccessToken(getAuthenticatedUser(authentication), allowRevocationOfOtherTokens);
         }
         else {
-            createdToken = dataAccessTokenService.createDataAccessToken(getAuthenticatedUser(authentication));
+            createdToken = tokenService.createDataAccessToken(getAuthenticatedUser(authentication));
         }
         if (createdToken == null) {
             return new ResponseEntity<>(new DataAccessToken(null), HttpStatus.NOT_FOUND);
@@ -88,26 +101,26 @@ public class DataAccessTokenController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/data-access-tokens")
     public ResponseEntity<List<DataAccessToken>> getAllDataAccessTokens(Authentication authentication) {
-        List<DataAccessToken> allDataAccessTokens = dataAccessTokenService.getAllDataAccessTokens(getAuthenticatedUser(authentication));
+        List<DataAccessToken> allDataAccessTokens = tokenService.getAllDataAccessTokens(getAuthenticatedUser(authentication));
         return new ResponseEntity<>(allDataAccessTokens, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/data-access-tokens/{token}")
     public ResponseEntity<DataAccessToken> getDataAccessToken(
             @ApiParam(required = true, value = "token") @PathVariable String token) {
-        DataAccessToken dataAccessToken = dataAccessTokenService.getDataAccessTokenInfo(token);
+        DataAccessToken dataAccessToken = tokenService.getDataAccessTokenInfo(token);
         return new ResponseEntity<>(dataAccessToken, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/data-access-tokens")
     public void revokeAllDataAccessTokens(Authentication authentication) {
-        dataAccessTokenService.revokeAllDataAccessTokens(getAuthenticatedUser(authentication));
+        tokenService.revokeAllDataAccessTokens(getAuthenticatedUser(authentication));
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/data-access-tokens/{token}")
     public void revokeDataAccessToken(
             @ApiParam(required = true, value = "token") @PathVariable String token) {
-        dataAccessTokenService.revokeDataAccessToken(token);
+        tokenService.revokeDataAccessToken(token);
     }
 
     private String getAuthenticatedUser(Authentication authentication) {

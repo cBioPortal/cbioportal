@@ -90,6 +90,7 @@ DROP TABLE IF EXISTS `sample`;
 DROP TABLE IF EXISTS `patient`;
 DROP TABLE IF EXISTS `authorities`;
 DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `cancer_study_tags`;
 DROP TABLE IF EXISTS `cancer_study`;
 DROP TABLE IF EXISTS `type_of_cancer`;
 DROP TABLE IF EXISTS `geneset_hierarchy_leaf`;
@@ -131,8 +132,8 @@ CREATE TABLE `cancer_study` (
 -- --------------------------------------------------------
 CREATE TABLE `cancer_study_tags` (
   `CANCER_STUDY_ID` int(11) NOT NULL,
-  `TAGS` text,
-  UNIQUE (`CANCER_STUDY_ID`),
+  `TAGS` text NOT NULL,
+  PRIMARY KEY (`CANCER_STUDY_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
 

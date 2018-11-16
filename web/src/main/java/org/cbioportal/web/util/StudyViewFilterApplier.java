@@ -285,6 +285,9 @@ public class StudyViewFilterApplier {
         for (String sampleId : sampleIds) {
             String studyId = studyIds.get(index);
             List<ClinicalData> entityClinicalData = (List<ClinicalData>)clinicalDataMap.get(sampleId, studyId);
+            if (entityClinicalData == null) {
+                continue;
+            }
             Optional<ClinicalData> fractionGenomeAlteredData = entityClinicalData.stream().filter(c -> 
                 c.getAttrId().equals(FRACTION_GENOME_ALTERED)).findFirst();
             Optional<ClinicalData> mutationCountData = entityClinicalData.stream().filter(c -> 

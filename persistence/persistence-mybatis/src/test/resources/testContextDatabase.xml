@@ -51,6 +51,10 @@
         <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler"/>
     </bean>
 
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dbcpDataSource" />
+    </bean>
+    
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="basePackage" value="org.cbioportal.persistence.mybatis"/>
     </bean>

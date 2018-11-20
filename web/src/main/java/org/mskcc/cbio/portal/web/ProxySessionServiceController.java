@@ -151,7 +151,7 @@ public class ProxySessionServiceController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
         if (!StringUtils.isEmpty(sessionServiceURL) && authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-                updateVirutalStudyUser(id,
+                updateVirtualStudyUser(id,
                                        ((UserDetails)authentication.getPrincipal()).getUsername(),
                                        Operation.add,
                                        response);
@@ -168,7 +168,7 @@ public class ProxySessionServiceController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
         if (!StringUtils.isEmpty(sessionServiceURL) && authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-            updateVirutalStudyUser(id,
+            updateVirtualStudyUser(id,
                                    ((UserDetails)authentication.getPrincipal()).getUsername(),
                                    Operation.delete,
                                    response);
@@ -214,7 +214,7 @@ public class ProxySessionServiceController {
     }
     
     
-    private void updateVirutalStudyUser(String              id,
+    private void updateVirtualStudyUser(String              id,
                                         String              user,
                                         Operation           operation,
                                         HttpServletResponse response) throws IOException {
@@ -240,7 +240,7 @@ public class ProxySessionServiceController {
             RestTemplate restTemplate = new RestTemplate();
             HttpEntity<Object> httpEntity = new HttpEntity<Object>(virtualStudy.getData(), getHttpHeaders());
 
-            restTemplate.exchange(sessionServiceURL + SessionType.virtual_study + "/" + id, HttpMethod.POST, httpEntity, HashMap.class);
+            restTemplate.exchange(sessionServiceURL + SessionType.virtual_study + "/" + id, HttpMethod.PUT, httpEntity, HashMap.class);
 
         } catch (Exception e) {
             e.printStackTrace();

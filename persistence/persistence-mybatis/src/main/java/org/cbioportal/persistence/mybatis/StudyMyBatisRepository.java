@@ -52,4 +52,10 @@ public class StudyMyBatisRepository implements StudyRepository {
     public CancerStudyTags getTags(String studyId) {
         return studyMapper.getTags(studyId);
     }
+
+    @Override
+    public List<CancerStudyTags> getTagsForMultipleStudies(List<String> studyIds) {
+
+        return studyMapper.getTagsForMultipleStudies(studyIds);
+    }
 }

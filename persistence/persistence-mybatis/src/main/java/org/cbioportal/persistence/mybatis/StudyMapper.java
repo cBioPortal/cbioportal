@@ -16,4 +16,6 @@ public interface StudyMapper {
     CancerStudy getStudy(String studyId, String projection);
 
     CancerStudyTags getTags(String studyId);
+
+    List<CancerStudyTags> getTagsForMultipleStudies(List<String> studyIds);
 }

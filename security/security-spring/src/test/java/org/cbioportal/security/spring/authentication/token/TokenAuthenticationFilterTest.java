@@ -51,9 +51,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.TestPropertySource;
 
 @TestPropertySource(
-    properties = { "jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
+    properties = { "dat.jwt_secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
                     "dat.ttl_seconds = 2",
-                    "jwt.issuer = org.cbioportal.mskcc.org",
+                    "dat.jwt_issuer = org.cbioportal.mskcc.org",
                     "dat.method = jwt"
     },
     inheritLocations = false

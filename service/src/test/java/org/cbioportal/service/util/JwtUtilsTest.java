@@ -62,7 +62,7 @@ import org.junit.runner.RunWith;
 @TestPropertySource(
     properties = { "jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
                     "dat.ttl_seconds = 2",
-                    "jwt.issuer = org.cbioportal.mskcc.org"
+                    "jwt.issuer = cbioportal.org"
     },
     inheritLocations = false
 )

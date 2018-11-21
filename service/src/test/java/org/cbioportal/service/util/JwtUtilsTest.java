@@ -78,9 +78,9 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @TestPropertySource(
-    properties = { "jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
+    properties = { "dat.jwt_secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
                     "dat.ttl_seconds = 2",
-                    "jwt.issuer = cbioportal.org"
+                    "dat.jwt_issuer = cbioportal.org"
     },
     inheritLocations = false
 )

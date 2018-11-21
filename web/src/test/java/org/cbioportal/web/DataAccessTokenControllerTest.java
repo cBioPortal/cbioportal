@@ -32,21 +32,19 @@
 
 package org.cbioportal.web;
 
-import java.util.*;
+import org.cbioportal.web.config.DataAccessTokenControllerConfig;
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.cbioportal.service.exception.DataAccessTokenNoUserIdentityException;
 import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
+
+import java.util.*;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,39 +52,32 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
-@Configuration
-public class DataAccessTokenControllerTest {
+//TO-DO: Read from /applicationContext-web.xml without overriding test properties
+@ContextConfiguration(classes = DataAccessTokenControllerConfig.class)
+@TestPropertySource(
+        properties = {
+            "dat.method=uuid",
+            "dat.unauth_users=anonymousUser"
+        },
+        inheritLocations = false)
+public class DataAccessTokenControllerTest {    
+
     @Autowired
     private DataAccessTokenService tokenService;
 
     @Autowired
     private DataAccessTokenController dataAccessTokenController;
 
-    @Bean
-    public DataAccessTokenService tokenService() {
-        return Mockito.mock(DataAccessTokenService.class);
-    }
-
-    @Bean
-    public DataAccessTokenController dataAccessTokenController() {
-        return new DataAccessTokenController();
-    }
-
     public static final String API_TEST_SUBJECT = "testSubject";
     public static final String NON_API_TEST_SUBJECT = "anonymousUser";
     public static final String MOCK_TOKEN_STRING = "MockedTokenString";
     public static final DataAccessToken MOCK_TOKEN_INFO = new DataAccessToken(MOCK_TOKEN_STRING);
-
-    @Before
-    public void setup() {
-        Mockito.reset(tokenService);
-    }
 
     protected Authentication makePrincipal(String username, boolean isAuthentic) {
         User user = new User(username, "unused", new ArrayList<GrantedAuthority>());

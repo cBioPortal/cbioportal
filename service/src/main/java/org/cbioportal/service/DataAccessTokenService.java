@@ -47,12 +47,14 @@ public interface DataAccessTokenService {
     public String getUsername(String token);
     public Date getExpiration(String token);
 
-    /** tests token validity
-     *
-     *  token is valid if:
-     *      - not yet expired and
-     *      - not revoked and 
-     *      - can be verfied as issued through this service (maybe via signature)
+    /**
+     * Tests token validity.
+     * Token is valid if:
+     *  - not yet expired and
+     *  - not revoked and
+     *  - can be verified as issued through this service (maybe via signature)
+     * @param token
+     * @return
      */
     public Boolean isValid(String token);
 

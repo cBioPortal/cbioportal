@@ -41,16 +41,16 @@ import org.cbioportal.service.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.cbioportal.model.DataAccessToken;
+import org.springframework.stereotype.Component;
 
 @Service
+@Component("jwt")
 public class JwtDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     @Autowired
     private JwtUtils jwtUtils;
 
-    private static final Log log = LogFactory.getLog(JwtDataAccessTokenServiceImpl.class);
-
-    private Set<String> usersWhoRevoked = new HashSet<>();
+    private static final Log LOG = LogFactory.getLog(JwtDataAccessTokenServiceImpl.class);
 
     //TODO : we could add a persistence layer to store pairs of <username, revokeDate> ... then a user can revoke all thier tokens before a particular date and we would only need to store the most recent revoke date for that user.  But it would have to be persisted, or else a restart of the server would lose the memory of revocation
 
@@ -94,7 +94,7 @@ public class JwtDataAccessTokenServiceImpl implements DataAccessTokenService {
         try {
             jwtUtils.validate(token);
         } catch (InvalidDataAccessTokenException idate) {
-            log.error("isValid(), " + idate);
+            LOG.error("isValid(), " + idate);
             return Boolean.FALSE;
         }
         return Boolean.TRUE;

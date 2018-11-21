@@ -32,17 +32,12 @@
 
 package org.cbioportal.security.spring.authentication.token;
 
-import java.util.ArrayList;
+import org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cbioportal.security.spring.authentication.PortalUserDetails;
-
-import org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService;
-
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -58,21 +53,19 @@ public class TokenUserDetailsAuthenticationProvider extends AbstractUserDetailsA
         this.userDetailsService = userDetailsService;
     }
 
-    private static final Log log = LogFactory.getLog(TokenUserDetailsAuthenticationProvider.class);
+    private static final Log LOG = LogFactory.getLog(TokenUserDetailsAuthenticationProvider.class);
 
     @Override
-    protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) 
+    protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication)
         throws AuthenticationException {
         // TODO?
     }
 
     @Override
-    protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) 
+    protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
         throws AuthenticationException {
-        log.debug("retrieveUser(), username - " + username);
-        return new PortalUserDetails(username, authentication.getAuthorities());
-        // TO-DO: remove?
-        // return this.userDetailsService.loadUserByUsername(username); 
+        LOG.debug("retrieveUser(), username - " + username);
+        return this.userDetailsService.loadUserByUsername(username);
     }
 
 }

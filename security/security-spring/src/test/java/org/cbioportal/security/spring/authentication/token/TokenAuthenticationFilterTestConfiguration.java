@@ -48,15 +48,18 @@
 
 package org.cbioportal.security.spring.authentication.token;
 
+import org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService;
+import org.cbioportal.service.DataAccessTokenService;
+import org.cbioportal.service.DataAccessTokenServiceFactory;
+import org.cbioportal.service.impl.JwtDataAccessTokenServiceImpl;
+import org.cbioportal.service.util.JwtUtils;
+
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService;
-import org.cbioportal.service.DataAccessTokenService;
-import org.cbioportal.service.impl.JwtDataAccessTokenServiceImpl;
-import org.cbioportal.service.util.JwtUtils;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.config.ServiceLocatorFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -92,6 +95,20 @@ public class TokenAuthenticationFilterTestConfiguration {
     }
 
     @Bean
+    public ServiceLocatorFactoryBean tokenServiceFactory() {
+        ServiceLocatorFactoryBean factoryBean = new ServiceLocatorFactoryBean();
+        factoryBean.setServiceLocatorInterface(DataAccessTokenServiceFactory.class);
+        return factoryBean;
+    }
+
+    @Bean
+    public DataAccessTokenServiceFactory dataAccessTokenServiceFactory() {
+        DataAccessTokenServiceFactory factory = Mockito.mock(DataAccessTokenServiceFactory.class);
+        Mockito.when(factory.getDataAccessTokenService(Matchers.anyString())).thenReturn(tokenService());
+        return factory;
+    }
+
+    @Bean
     public DataAccessTokenService tokenService() {
         return new JwtDataAccessTokenServiceImpl();
     }
@@ -102,12 +119,12 @@ public class TokenAuthenticationFilterTestConfiguration {
     }
 
     @Bean
-    public HttpServletRequest httpServletRequest() {
+    public HttpServletRequest request() {
         return Mockito.mock(HttpServletRequest.class);
     }
 
     @Bean
-    public HttpServletResponse httpServletResponse() {
+    public HttpServletResponse response() {
         return Mockito.mock(HttpServletResponse.class);
     }
 }

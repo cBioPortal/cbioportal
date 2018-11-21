@@ -7,17 +7,17 @@ import java.util.List;
 
 public interface CopyNumberSegmentRepository {
 
-    List<CopyNumberSeg> getCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId, String projection,
+    List<CopyNumberSeg> getCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId, String chromosome, String projection,
                                                              Integer pageSize, Integer pageNumber, String sortBy,
                                                              String direction);
 
-    BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId);
+    BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId, String chromosome);
 
-    List<Integer> fetchSamplesWithCopyNumberSegments(List<String> studyIds, List<String> sampleIds);
+    List<Integer> fetchSamplesWithCopyNumberSegments(List<String> studyIds, List<String> sampleIds, String chromosome);
 	    
-    List<CopyNumberSeg> fetchCopyNumberSegments(List<String> studyIds, List<String> sampleIds, String projection);
+    List<CopyNumberSeg> fetchCopyNumberSegments(List<String> studyIds, List<String> sampleIds, String chromosome, String projection);
 
-    BaseMeta fetchMetaCopyNumberSegments(List<String> studyIds, List<String> sampleIds);
+    BaseMeta fetchMetaCopyNumberSegments(List<String> studyIds, List<String> sampleIds, String chromosome);
 
-    List<CopyNumberSeg> getCopyNumberSegmentsBySampleListId(String studyId, String sampleListId, String projection);
+    List<CopyNumberSeg> getCopyNumberSegmentsBySampleListId(String studyId, String sampleListId, String chromosome, String projection);
 }

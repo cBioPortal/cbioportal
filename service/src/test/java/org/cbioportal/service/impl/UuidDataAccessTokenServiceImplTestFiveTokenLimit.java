@@ -73,11 +73,11 @@ import org.cbioportal.service.exception.MaxNumberTokensExceededException;
 import org.cbioportal.service.impl.UuidDataAccessTokenServiceImpl;
 
 @TestPropertySource(
-    properties = { "jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
+    properties = { "dat.jwt_secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
                     "dat.max_number_per_user = 5",
                     "dat.revoke_other_tokens = true",
                     "dat.ttl_seconds = 2",
-                    "jwt.issuer = cbioportal.org"
+                    "dat.jwt_issuer = cbioportal.org"
     },
     inheritLocations = false
 )

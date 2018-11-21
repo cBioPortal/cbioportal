@@ -69,7 +69,7 @@ import org.springframework.stereotype.Component;
 public class JwtUtils {
 
     private byte[] decodedSecretKey;
-    @Value("${jwt.secret_key}")
+    @Value("${dat.jwt_secret_key}")
     private void setDecodedSecretKey(String secretKey) {
         decodedSecretKey = Decoders.BASE64.decode(secretKey);
     }

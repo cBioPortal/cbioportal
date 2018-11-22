@@ -128,8 +128,7 @@ public class GenePanelController {
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch gene panel data")
     public ResponseEntity<List<GenePanelData>> fetchGenePanelDataInMultipleMolecularProfiles(
-        @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs or List of Molecular" + 
-            "Profile IDs and Entrez Gene IDs")
+        @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs")
         @Valid @RequestBody GenePanelMultipleStudyFilter genePanelMultipleStudyFilter) {
         
         List<String> molecularProfileIds = new ArrayList<>();

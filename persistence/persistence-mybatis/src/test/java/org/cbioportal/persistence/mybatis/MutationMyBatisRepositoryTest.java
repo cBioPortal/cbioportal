@@ -12,7 +12,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -224,14 +223,14 @@ public class MutationMyBatisRepositoryTest {
         
         Assert.assertEquals(3, result.size());
         Mutation mutation1 = result.get(0);
-        Assert.assertEquals("acc_tcga_mutations", mutation1.getMolecularProfileId());
-        Assert.assertEquals("TCGA-A1-B0SO-01", mutation1.getSampleId());
+        Assert.assertEquals("study_tcga_pub_mutations", mutation1.getMolecularProfileId());
+        Assert.assertEquals("TCGA-A1-A0SH-01", mutation1.getSampleId());
         Mutation mutation2 = result.get(1);
         Assert.assertEquals("study_tcga_pub_mutations", mutation2.getMolecularProfileId());
         Assert.assertEquals("TCGA-A1-A0SH-01", mutation2.getSampleId());
         Mutation mutation3 = result.get(2);
-        Assert.assertEquals("study_tcga_pub_mutations", mutation3.getMolecularProfileId());
-        Assert.assertEquals("TCGA-A1-A0SH-01", mutation3.getSampleId());
+        Assert.assertEquals("acc_tcga_mutations", mutation3.getMolecularProfileId());
+        Assert.assertEquals("TCGA-A1-B0SO-01", mutation3.getSampleId());
     }
 
     @Test

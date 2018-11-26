@@ -24,17 +24,17 @@ public class StudyServiceImpl implements StudyService {
 
     @Override
     @PostFilter("hasPermission(filterObject, 'read')")
-    public List<CancerStudy> getAllStudies(String projection, Integer pageSize, Integer pageNumber,
+    public List<CancerStudy> getAllStudies(String keyword, String projection, Integer pageSize, Integer pageNumber,
                                            String sortBy, String direction) {
 
-        List<CancerStudy> allStudies = studyRepository.getAllStudies(projection, pageSize, pageNumber, sortBy, direction);
+        List<CancerStudy> allStudies = studyRepository.getAllStudies(keyword, projection, pageSize, pageNumber, sortBy, direction);
         // copy the list before returning so @PostFilter doesn't taint the list stored in the mybatis second-level cache
         return (AUTHENTICATE.equals("false")) ? allStudies : new ArrayList<CancerStudy>(allStudies);
     }
 
     @Override
-    public BaseMeta getMetaStudies() {
-        return studyRepository.getMetaStudies();
+    public BaseMeta getMetaStudies(String keyword) {
+        return studyRepository.getMetaStudies(keyword);
     }
 
     @Override

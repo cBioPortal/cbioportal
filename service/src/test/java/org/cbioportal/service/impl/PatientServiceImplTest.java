@@ -30,6 +30,33 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
     private StudyService studyService;
 
     @Test
+    public void getAllPatients() throws Exception {
+
+        List<Patient> expectedPatientList = new ArrayList<>();
+        Patient patient = new Patient();
+        expectedPatientList.add(patient);
+
+        Mockito.when(patientRepository.getAllPatients(KEYWORD, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+                .thenReturn(expectedPatientList);
+
+        List<Patient> result = patientService.getAllPatients(KEYWORD, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+
+        Assert.assertEquals(expectedPatientList, result);
+    }
+
+    @Test
+    public void getMetaPatients() throws Exception {
+
+        BaseMeta expectedBaseMeta = new BaseMeta();
+
+        Mockito.when(patientRepository.getMetaPatients(KEYWORD)).thenReturn(expectedBaseMeta);
+
+        BaseMeta result = patientService.getMetaPatients(KEYWORD);
+
+        Assert.assertEquals(expectedBaseMeta, result);
+    }
+
+    @Test
     public void getAllPatientsInStudy() throws Exception {
 
         List<Patient> expectedPatientList = new ArrayList<>();

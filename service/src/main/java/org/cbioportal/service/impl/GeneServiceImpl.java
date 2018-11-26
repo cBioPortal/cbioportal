@@ -25,23 +25,23 @@ public class GeneServiceImpl implements GeneService {
 
     @PostConstruct
     public void init() {
-        getAllGenes(null, "SUMMARY", null, null, null, null);
+        getAllGenes(null, null, "SUMMARY", null, null, null, null);
     }
 
     @Override
-    public List<Gene> getAllGenes(String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy,
+    public List<Gene> getAllGenes(String keyword, String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                   String direction) {
 
-        List<Gene> geneList = geneRepository.getAllGenes(alias, projection, pageSize, pageNumber, sortBy, direction);
+        List<Gene> geneList = geneRepository.getAllGenes(keyword, alias, projection, pageSize, pageNumber, sortBy, direction);
 
         geneList.forEach(gene -> chromosomeCalculator.setChromosome(gene));
         return geneList;
     }
 
     @Override
-    public BaseMeta getMetaGenes(String alias) {
+    public BaseMeta getMetaGenes(String keyword, String alias) {
 
-        return geneRepository.getMetaGenes(alias);
+        return geneRepository.getMetaGenes(keyword, alias);
     }
 
     @Override

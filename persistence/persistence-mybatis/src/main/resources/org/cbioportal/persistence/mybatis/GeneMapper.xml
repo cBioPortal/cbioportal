@@ -14,22 +14,42 @@
             gene.LENGTH AS "${prefix}length"
         </if>
     </sql>
+
+    <sql id="from">
+        FROM gene
+        <if test="alias != null">
+            INNER JOIN gene_alias ON gene.ENTREZ_GENE_ID = gene_alias.ENTREZ_GENE_ID
+        </if>
+    </sql>
+
+    <sql id="where">
+        <where>
+            <if test="alias != null">
+                gene_alias.GENE_ALIAS = #{alias}
+            </if>
+            <if test="keyword != null">
+                <bind name="searchKeyword" value="'%' + keyword.trim().toLowerCase() + '%'" />
+                LOWER(gene.HUGO_GENE_SYMBOL) like #{searchKeyword}
+            </if>
+        </where>
+    </sql>
     
     <select id="getGenes" resultType="org.cbioportal.model.Gene">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
-        FROM gene
-        <if test="alias != null">
-            INNER JOIN gene_alias ON gene.ENTREZ_GENE_ID = gene_alias.ENTREZ_GENE_ID
-            WHERE gene_alias.GENE_ALIAS = #{alias}
-        </if>
-        <if test="sortBy != null and projection != 'ID'">
+        <include refid="from"/>
+        <include refid="where"/>
+        <if test="sortBy != null and projection != 'ID' and keyword == null">
             ORDER BY ${sortBy} ${direction}
         </if>
-        <if test="projection == 'ID'">
+        <if test="projection == 'ID' and keyword == null">
             ORDER BY gene.ENTREZ_GENE_ID ASC
+        </if>
+        <if test="keyword != null">
+            <bind name="orderKeyword" value="keyword.trim().toLowerCase() + '%'" />
+            ORDER BY CASE WHEN gene.HUGO_GENE_SYMBOL LIKE #{orderKeyword} THEN 0 ELSE 1 END, gene.HUGO_GENE_SYMBOL
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
@@ -39,11 +59,8 @@
     <select id="getMetaGenes" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount
-        FROM gene
-        <if test="_parameter != null">
-            INNER JOIN gene_alias ON gene.ENTREZ_GENE_ID = gene_alias.ENTREZ_GENE_ID
-            WHERE gene_alias.GENE_ALIAS = #{alias}
-        </if>
+        <include refid="from"/>
+        <include refid="where"/>
     </select>
 
     <select id="getGeneByEntrezGeneId" resultType="org.cbioportal.model.Gene">

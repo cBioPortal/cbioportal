@@ -2,7 +2,6 @@ package org.cbioportal.web.mixin;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.cbioportal.model.CancerStudy;
 
 public class PatientMixin {
 
@@ -14,6 +13,4 @@ public class PatientMixin {
     private Integer cancerStudyId;
     @JsonProperty("studyId")
     private String cancerStudyIdentifier;
-    @JsonIgnore
-    private CancerStudy cancerStudy;
 }

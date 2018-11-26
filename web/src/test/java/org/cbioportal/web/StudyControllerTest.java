@@ -96,7 +96,7 @@ public class StudyControllerTest {
         
         List<CancerStudy> cancerStudyList = createExampleStudies();
 
-        Mockito.when(studyService.getAllStudies(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
+        Mockito.when(studyService.getAllStudies(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
                 Mockito.anyString(), Mockito.anyString())).thenReturn(cancerStudyList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies")
@@ -139,7 +139,7 @@ public class StudyControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(studyService.getMetaStudies()).thenReturn(baseMeta);
+        Mockito.when(studyService.getMetaStudies(Mockito.anyString())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies")
                 .param("projection", "META"))

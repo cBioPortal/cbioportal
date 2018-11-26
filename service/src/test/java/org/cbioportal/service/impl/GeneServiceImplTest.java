@@ -35,14 +35,14 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
         Gene gene = new Gene();
         expectedGeneList.add(gene);
 
-        Mockito.when(geneRepository.getAllGenes(ALIAS, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+        Mockito.when(geneRepository.getAllGenes(KEYWORD, ALIAS, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
                 .thenReturn(expectedGeneList);
         Mockito.doAnswer(invocationOnMock -> {
             ((Gene) invocationOnMock.getArguments()[0]).setChromosome("19");
             return null;
         }).when(chromosomeCalculator).setChromosome(gene);
 
-        List<Gene> result = geneService.getAllGenes(ALIAS, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+        List<Gene> result = geneService.getAllGenes(KEYWORD, ALIAS, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedGeneList, result);
         Assert.assertEquals("19", result.get(0).getChromosome());
@@ -52,8 +52,8 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
     public void getMetaGenes() throws Exception {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(geneRepository.getMetaGenes(ALIAS)).thenReturn(expectedBaseMeta);
-        BaseMeta result = geneService.getMetaGenes(ALIAS);
+        Mockito.when(geneRepository.getMetaGenes(KEYWORD, ALIAS)).thenReturn(expectedBaseMeta);
+        BaseMeta result = geneService.getMetaGenes(KEYWORD, ALIAS);
 
         Assert.assertEquals(expectedBaseMeta, result);
     }

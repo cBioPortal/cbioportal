@@ -19,17 +19,17 @@ public class GeneMyBatisRepository implements GeneRepository {
     private OffsetCalculator offsetCalculator;
 
     @Override
-    public List<Gene> getAllGenes(String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy,
+    public List<Gene> getAllGenes(String keyword, String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                   String direction) {
 
-        return geneMapper.getGenes(alias, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), 
+        return geneMapper.getGenes(keyword, alias, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), 
             sortBy, direction);
     }
 
     @Override
-    public BaseMeta getMetaGenes(String alias) {
+    public BaseMeta getMetaGenes(String keyword, String alias) {
 
-        return geneMapper.getMetaGenes(alias);
+        return geneMapper.getMetaGenes(keyword, alias);
     }
 
     @Override

@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface StudyRepository {
 
-    List<CancerStudy> getAllStudies(String projection, Integer pageSize, Integer pageNumber,
+    List<CancerStudy> getAllStudies(String keyword, String projection, Integer pageSize, Integer pageNumber,
                                     String sortBy, String direction);
 
-    BaseMeta getMetaStudies();
+    BaseMeta getMetaStudies(String keyword);
 
     CancerStudy getStudy(String studyId, String projection);
 

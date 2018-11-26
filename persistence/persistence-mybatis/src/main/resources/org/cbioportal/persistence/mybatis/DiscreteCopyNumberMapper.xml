@@ -60,6 +60,7 @@
                 SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
                 INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
                 WHERE sample_list.STABLE_ID = #{sampleListId}
+                AND sample_list_list.SAMPLE_ID = sample_cna_event.SAMPLE_ID
             )
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND cna_event.ENTREZ_GENE_ID IN
@@ -203,8 +204,6 @@
                 <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
-                AND sample.INTERNAL_ID = sample_cna_event.SAMPLE_ID 
-                AND genetic_profile.GENETIC_PROFILE_ID = sample_cna_event.GENETIC_PROFILE_ID
             </if>
             <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
                 (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
@@ -215,7 +214,9 @@
                 <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
-            </if>)
+            </if>
+            AND sample.INTERNAL_ID = sample_cna_event.SAMPLE_ID 
+            AND genetic_profile.GENETIC_PROFILE_ID = sample_cna_event.GENETIC_PROFILE_ID)
         </if>
         <if test="entrezGeneIds != null">
             AND (cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION) IN

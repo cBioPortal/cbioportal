@@ -116,6 +116,8 @@
                     <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
                         #{item}
                     </foreach>
+                    AND sample.INTERNAL_ID = mutation.SAMPLE_ID 
+                    AND genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID
                 </if>
                 <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
                     (sample.STABLE_ID, genetic_profile.STABLE_ID) IN

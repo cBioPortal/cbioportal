@@ -38,10 +38,10 @@ import java.util.List;
 
 public interface GeneRepository {
 
-    List<Gene> getAllGenes(String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy, 
+    List<Gene> getAllGenes(String keyword, String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy, 
                            String direction);
 
-    BaseMeta getMetaGenes(String alias);
+    BaseMeta getMetaGenes(String keyword, String alias);
 
     Gene getGeneByEntrezGeneId(Integer entrezGeneId);
 

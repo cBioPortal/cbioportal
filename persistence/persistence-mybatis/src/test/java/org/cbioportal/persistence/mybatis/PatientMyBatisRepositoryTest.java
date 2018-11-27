@@ -24,6 +24,26 @@ public class PatientMyBatisRepositoryTest {
     private PatientMyBatisRepository patientMyBatisRepository;
 
     @Test
+    public void getAllPatients() throws Exception {
+        
+        List<Patient> result = patientMyBatisRepository.getAllPatients(null, "ID", null, null, null, null);
+
+        Assert.assertEquals(18, result.size());
+        Patient patient = result.get(0);
+        Assert.assertEquals((Integer) 1, patient.getInternalId());
+        Assert.assertEquals("TCGA-A1-A0SB", patient.getStableId());
+        Assert.assertNull(patient.getCancerStudy());
+    }
+
+    @Test
+    public void getMetaPatients() throws Exception {
+
+        BaseMeta result = patientMyBatisRepository.getMetaPatients(null);
+
+        Assert.assertEquals((Integer) 18, result.getTotalCount());
+    }
+
+    @Test
     public void getAllPatientsInStudyIdProjection() throws Exception {
 
         List<Patient> result = patientMyBatisRepository.getAllPatientsInStudy("study_tcga_pub", "ID", null, null, null,
@@ -185,5 +205,23 @@ public class PatientMyBatisRepositoryTest {
         Assert.assertEquals(2, result.size());
         Assert.assertEquals("TCGA-A1-A0SD", result.get(0).getStableId());
         Assert.assertEquals("TCGA-A1-A0SB", result.get(1).getStableId());
+    }
+
+    @Test
+    public void getStudiesByKeyword() throws Exception {
+        
+        List<Patient> result = patientMyBatisRepository.getAllPatients("SP", "SUMMARY", null, null, null, null);
+
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals("TCGA-A1-A0SP", result.get(0).getStableId());
+        Assert.assertEquals("TCGA-A1-B0SP", result.get(1).getStableId());
+    }
+
+    @Test
+    public void getMetaStudiesByKeyword() throws Exception {
+        
+        BaseMeta result = patientMyBatisRepository.getMetaPatients("SP");
+
+        Assert.assertEquals((Integer) 2, result.getTotalCount());
     }
 }

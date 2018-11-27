@@ -35,10 +35,10 @@
     <b:bean id="tokenUserDetailsAuthenticationProvider" class="org.cbioportal.security.spring.authentication.token.TokenUserDetailsAuthenticationProvider">
         <b:constructor-arg index="0" ref="tokenUserDetailsService" />
     </b:bean>
-    <!-- End of Data Access Tokens beans -->
 
     <!-- Used to compare token returned by authentication-provider against portal user db tables -->
     <b:bean id="tokenUserDetailsService" class="org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService"/>
+    <!-- End of Data Access Tokens beans -->
 
     <!-- beans shared across any authentication system -->
     <b:beans profile="googleplus,openid,saml,ad,ldap">

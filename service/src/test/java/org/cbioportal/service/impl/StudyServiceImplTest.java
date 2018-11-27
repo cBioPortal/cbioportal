@@ -39,10 +39,10 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
         CancerStudy cancerStudy = new CancerStudy();
         expectedCancerStudyList.add(cancerStudy);
 
-        Mockito.when(studyRepository.getAllStudies(PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+        Mockito.when(studyRepository.getAllStudies(KEYWORD, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
                 .thenReturn(expectedCancerStudyList);
 
-        List<CancerStudy> result = studyService.getAllStudies(PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+        List<CancerStudy> result = studyService.getAllStudies(KEYWORD, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedCancerStudyList, result);
     }
@@ -52,9 +52,9 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
 
-        Mockito.when(studyRepository.getMetaStudies()).thenReturn(expectedBaseMeta);
+        Mockito.when(studyRepository.getMetaStudies(KEYWORD)).thenReturn(expectedBaseMeta);
 
-        BaseMeta result = studyService.getMetaStudies();
+        BaseMeta result = studyService.getMetaStudies(KEYWORD);
 
         Assert.assertEquals(expectedBaseMeta, result);
     }

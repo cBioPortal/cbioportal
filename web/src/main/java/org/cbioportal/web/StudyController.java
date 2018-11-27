@@ -53,6 +53,8 @@ public class StudyController {
     @RequestMapping(value = "/studies", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all studies")
     public ResponseEntity<List<CancerStudy>> getAllStudies(
+        @ApiParam("Search keyword that applies to name, description and cancer type of the studies")
+        @RequestParam(required = false) String keyword,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
@@ -69,12 +71,12 @@ public class StudyController {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, studyService.getMetaStudies().getTotalCount()
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, studyService.getMetaStudies(keyword).getTotalCount()
                 .toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                studyService.getAllStudies(projection.name(), pageSize, pageNumber,
+                studyService.getAllStudies(keyword, projection.name(), pageSize, pageNumber,
                     sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }

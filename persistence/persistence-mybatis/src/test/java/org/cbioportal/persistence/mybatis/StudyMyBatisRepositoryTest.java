@@ -28,7 +28,7 @@ public class StudyMyBatisRepositoryTest {
     @Test
     public void getAllStudiesIdProjection() throws Exception {
 
-        List<CancerStudy> result = studyMyBatisRepository.getAllStudies("ID", null, null, null, null);
+        List<CancerStudy> result = studyMyBatisRepository.getAllStudies(null, "ID", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
         CancerStudy cancerStudy = result.get(0);
@@ -40,7 +40,7 @@ public class StudyMyBatisRepositoryTest {
     @Test
     public void getAllStudiesSummaryProjection() throws Exception {
 
-        List<CancerStudy> result = studyMyBatisRepository.getAllStudies("SUMMARY", null, null, null, null);
+        List<CancerStudy> result = studyMyBatisRepository.getAllStudies(null, "SUMMARY", null, null, null, null);
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -68,7 +68,7 @@ public class StudyMyBatisRepositoryTest {
     @Test
     public void getAllStudiesDetailedProjection() throws Exception {
 
-        List<CancerStudy> result = studyMyBatisRepository.getAllStudies("DETAILED", null, null, null, null);
+        List<CancerStudy> result = studyMyBatisRepository.getAllStudies(null, "DETAILED", null, null, null, null);
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -111,7 +111,7 @@ public class StudyMyBatisRepositoryTest {
     @Test
     public void getAllStudiesSummaryProjection1PageSize() throws Exception {
 
-        List<CancerStudy> result = studyMyBatisRepository.getAllStudies("SUMMARY", 1, 0, null, null);
+        List<CancerStudy> result = studyMyBatisRepository.getAllStudies(null, "SUMMARY", 1, 0, null, null);
 
         Assert.assertEquals(1, result.size());
     }
@@ -119,7 +119,7 @@ public class StudyMyBatisRepositoryTest {
     @Test
     public void getAllStudiesSummaryProjectionCancerStudyIdentifierSort() throws Exception {
 
-        List<CancerStudy> result = studyMyBatisRepository.getAllStudies("SUMMARY", null, null, "cancerStudyIdentifier",
+        List<CancerStudy> result = studyMyBatisRepository.getAllStudies(null, "SUMMARY", null, null, "cancerStudyIdentifier",
                 "ASC");
 
         Assert.assertEquals(2, result.size());
@@ -130,7 +130,7 @@ public class StudyMyBatisRepositoryTest {
     @Test
     public void getMetaStudies() throws Exception {
 
-        BaseMeta result = studyMyBatisRepository.getMetaStudies();
+        BaseMeta result = studyMyBatisRepository.getMetaStudies(null);
 
         Assert.assertEquals((Integer) 2, result.getTotalCount());
     }
@@ -226,5 +226,23 @@ public class StudyMyBatisRepositoryTest {
         CancerStudyTags result = studyMyBatisRepository.getTags("study_tcga_pub");
  
         Assert.assertEquals("{\"Analyst\": {\"Name\": \"Jack\", \"Email\": \"jack@something.com\"}, \"Load id\": 35}", result.getTags());
+    }
+
+    @Test
+    public void getStudiesByKeyword() throws Exception {
+        
+        List<CancerStudy> result = studyMyBatisRepository.getAllStudies("tcga", "SUMMARY", null, null, null, null);
+
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals("acc_tcga", result.get(0).getCancerStudyIdentifier());
+        Assert.assertEquals("study_tcga_pub", result.get(1).getCancerStudyIdentifier());
+    }
+
+    @Test
+    public void getMetaStudiesByKeyword() throws Exception {
+        
+        BaseMeta result = studyMyBatisRepository.getMetaStudies("tcga");
+
+        Assert.assertEquals((Integer) 2, result.getTotalCount());
     }
 }

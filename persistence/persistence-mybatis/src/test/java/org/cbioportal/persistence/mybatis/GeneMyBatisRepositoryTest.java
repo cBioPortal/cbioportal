@@ -56,7 +56,7 @@ public class GeneMyBatisRepositoryTest {
     @Test
     public void getAllGenesIdProjection() throws Exception {
 
-        List<Gene> result = geneMyBatisRepository.getAllGenes(null, "ID", null, null, null, null);
+        List<Gene> result = geneMyBatisRepository.getAllGenes(null, null, "ID", null, null, null, null);
 
         Assert.assertEquals(16, result.size());
         Gene gene = result.get(0);
@@ -67,7 +67,7 @@ public class GeneMyBatisRepositoryTest {
     @Test
     public void getAllGenesSummaryProjection() throws Exception {
 
-        List<Gene> result = geneMyBatisRepository.getAllGenes(null, "SUMMARY", null, null, null, null);
+        List<Gene> result = geneMyBatisRepository.getAllGenes(null, null, "SUMMARY", null, null, null, null);
 
         Assert.assertEquals(16, result.size());
         Gene gene = result.get(0);
@@ -81,7 +81,7 @@ public class GeneMyBatisRepositoryTest {
     @Test
     public void getAllGenesDetailedProjection() throws Exception {
 
-        List<Gene> result = geneMyBatisRepository.getAllGenes(null, "DETAILED", null, null, null, null);
+        List<Gene> result = geneMyBatisRepository.getAllGenes(null, null, "DETAILED", null, null, null, null);
 
         Assert.assertEquals(16, result.size());
         Gene gene = result.get(0);
@@ -95,7 +95,7 @@ public class GeneMyBatisRepositoryTest {
     @Test
     public void getAllGenesSummaryProjection1PageSize() throws Exception {
 
-        List<Gene> result = geneMyBatisRepository.getAllGenes(null, "SUMMARY", 1, 0, null, null);
+        List<Gene> result = geneMyBatisRepository.getAllGenes(null, null, "SUMMARY", 1, 0, null, null);
 
         Assert.assertEquals(1, result.size());
     }
@@ -103,7 +103,7 @@ public class GeneMyBatisRepositoryTest {
     @Test
     public void getAllGenesSummaryProjectionHugoGeneSymbolSort() throws Exception {
 
-        List<Gene> result = geneMyBatisRepository.getAllGenes(null, "SUMMARY", null, null, "hugoGeneSymbol", "ASC");
+        List<Gene> result = geneMyBatisRepository.getAllGenes(null, null, "SUMMARY", null, null, "hugoGeneSymbol", "ASC");
 
         Assert.assertEquals(16, result.size());
         Assert.assertEquals("AKT1", result.get(0).getHugoGeneSymbol());
@@ -118,7 +118,7 @@ public class GeneMyBatisRepositoryTest {
     @Test
     public void getMetaGenes() throws Exception {
 
-        BaseMeta result = geneMyBatisRepository.getMetaGenes(null);
+        BaseMeta result = geneMyBatisRepository.getMetaGenes(null, null);
 
         Assert.assertEquals((Integer) 16, result.getTotalCount());
     }
@@ -257,5 +257,24 @@ public class GeneMyBatisRepositoryTest {
         BaseMeta result = geneMyBatisRepository.fetchMetaGenesByHugoGeneSymbols(hugoGeneSymbols);
 
         Assert.assertEquals((Integer) 2, result.getTotalCount());
+    }
+
+    @Test
+    public void getGenesByKeyword() throws Exception {
+        
+        List<Gene> result = geneMyBatisRepository.getAllGenes("BR", null, "SUMMARY", null, null, null, null);
+
+        Assert.assertEquals(3, result.size());
+        Assert.assertEquals("BRAF", result.get(0).getHugoGeneSymbol());
+        Assert.assertEquals("BRCA1", result.get(1).getHugoGeneSymbol());
+        Assert.assertEquals("BRCA2", result.get(2).getHugoGeneSymbol());
+    }
+
+    @Test
+    public void getMetaGenesByKeyword() throws Exception {
+        
+        BaseMeta result = geneMyBatisRepository.getMetaGenes("BR", null);
+
+        Assert.assertEquals((Integer) 3, result.getTotalCount());
     }
 }

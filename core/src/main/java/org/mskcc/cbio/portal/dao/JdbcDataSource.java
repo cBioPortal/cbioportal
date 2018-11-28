@@ -23,6 +23,13 @@ public class JdbcDataSource extends BasicDataSource {
         this.setUrl(url);
         //  By pooling/reusing PreparedStatements, we get a major performance gain
         this.setPoolPreparedStatements(true);
-        this.setMaxTotal(100);
+        // these are the values cbioportal has been using in their production
+        // context.xml files when using jndi
+        this.setMaxTotal(500);
+        this.setMaxIdle(30);
+        this.setMaxWaitMillis(10000);
+        this.setMinEvictableIdleTimeMillis(30000);
+        this.setTestOnBorrow(true);
+        this.setValidationQuery("SELECT 1");
     }
 }

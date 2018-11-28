@@ -131,4 +131,18 @@
         WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}        
     </select>
 
+    <select id="getTagsForMultipleStudies" resultType="org.cbioportal.model.CancerStudyTags">
+        SELECT
+        cancer_study_tags.CANCER_STUDY_ID AS cancerStudyId,
+        cancer_study_tags.TAGS AS tags
+        FROM cancer_study_tags
+        JOIN cancer_study ON cancer_study_tags.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        <where>
+                cancer_study.CANCER_STUDY_IDENTIFIER IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+        </where>
+    </select>
+
 </mapper>

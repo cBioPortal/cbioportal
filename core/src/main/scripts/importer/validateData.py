@@ -1913,7 +1913,8 @@ class ClinicalValidator(Validator):
                       'datatype',
                       'priority')
 
-    # Only a core set of attributes must be either specific in the patient or sample clinical data.
+    # A core set of attributes must be either specific in the patient or sample clinical data.
+    # See GET /api/ at http://oncotree.mskcc.org/cdd/swagger-ui.html#/
     PREDEFINED_ATTRIBUTES = {
         'AGE': {
             'is_patient_attribute': '1',

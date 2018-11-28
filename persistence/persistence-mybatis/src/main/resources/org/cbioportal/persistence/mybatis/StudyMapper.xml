@@ -58,7 +58,6 @@
             <if test="keyword != null">
                 <bind name="searchKeyword" value="'%' + keyword.trim().toLowerCase() + '%'" />
                 LOWER(cancer_study.NAME) like #{searchKeyword} OR
-                LOWER(cancer_study.DESCRIPTION) like #{searchKeyword} OR
                 LOWER(type_of_cancer.NAME) like #{searchKeyword}
             </if>
         </where>

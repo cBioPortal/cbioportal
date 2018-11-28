@@ -70,7 +70,7 @@ import org.springframework.stereotype.Component;
 public class JwtUtils {
 
     private byte[] decodedSecretKey;
-    @Value("${dat.jwt_secret_key:none}") // default value is none
+    @Value("${dat.jwt.secret_key:none}") // default value is none
     private void setDecodedSecretKey(String secretKey) {
         if (!StringUtils.isNullOrEmpty(secretKey) && !secretKey.equalsIgnoreCase("none")) {
             this.decodedSecretKey = Decoders.BASE64.decode(secretKey);

@@ -121,11 +121,10 @@ ldap.attributes.email=mail
 # data access token settings
 dat.unauth_users=
 dat.method=
-dat.max_number_per_user=
 dat.ttl_seconds=
-dat.revoke_other_tokens=
-dat.jwt_secret_key=
-dat.jwt_issuer=
+dat.uuid.max_number_per_user=
+dat.uuid.revoke_other_tokens=
+dat.jwt.secret_key=
 
 # study view settings
 # always show studies with this group

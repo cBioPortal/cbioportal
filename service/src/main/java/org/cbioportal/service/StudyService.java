@@ -20,5 +20,7 @@ public interface StudyService {
 
 	BaseMeta fetchMetaStudies(List<String> studyIds);
 
-	CancerStudyTags getTags(String studyId);
+    CancerStudyTags getTags(String studyId);
+    
+    List<CancerStudyTags> getTagsForMultipleStudies(List<String> studyIds);
 }

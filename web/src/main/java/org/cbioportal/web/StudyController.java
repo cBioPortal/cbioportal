@@ -53,7 +53,7 @@ public class StudyController {
     @RequestMapping(value = "/studies", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all studies")
     public ResponseEntity<List<CancerStudy>> getAllStudies(
-        @ApiParam("Search keyword that applies to name, description and cancer type of the studies")
+        @ApiParam("Search keyword that applies to name and cancer type of the studies")
         @RequestParam(required = false) String keyword,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,

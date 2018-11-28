@@ -124,8 +124,8 @@ dat.method=
 dat.max_number_per_user=
 dat.ttl_seconds=
 dat.revoke_other_tokens=
-jwt.secret_key=
-jwt.issuer=
+dat.jwt_secret_key=
+dat.jwt_issuer=
 
 # study view settings
 # always show studies with this group

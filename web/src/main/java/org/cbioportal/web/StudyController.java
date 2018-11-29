@@ -135,7 +135,7 @@ public class StudyController {
     }
 
     @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/studies/tags", method = RequestMethod.POST,
+    @RequestMapping(value = "/studies/tags/fetch", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the study tags by IDs")
     public ResponseEntity<List<CancerStudyTags>> getTagsForMultipleStudies(

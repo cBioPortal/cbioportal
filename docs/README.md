@@ -59,6 +59,8 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
    * [For Developers](Data-Loading-For-Developers.md)
    * [Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md)
    * [Importing Gene Sets for Gene Set Scoring Data](Import-Gene-Sets.md)
+   * [Importing Gene Panels](Import-Gene-Panels.md)
+   * [Study View Customization with Priority Data](Study-View.md)
 
 ### 5.2 Datasets
 * [Downloads](Downloads.md)

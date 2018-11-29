@@ -191,7 +191,7 @@
     <spring.version>4.3.14.RELEASE</spring.version>
     <spring.context.support.version>4.3.14.RELEASE</spring.context.support.version>
     <spring.integration.version>4.3.14.RELEASE</spring.integration.version>
-    <spring.security.version>3.2.5.RELEASE</spring.security.version>
+    <spring.security.version>4.0.0.RELEASE</spring.security.version>
     <spring.security.saml.version>1.0.0.RELEASE</spring.security.saml.version>
     <mybatis.spring.version>1.3.0</mybatis.spring.version>
     <mybatis.version>3.4.1</mybatis.version>

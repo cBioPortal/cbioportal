@@ -39,7 +39,8 @@
     String authenticationMethod = GlobalProperties.authenticationMethod();
     pageContext.setAttribute("authenticationMethod", authenticationMethod);
     if (authenticationMethod.equals("openid") || authenticationMethod.equals("ldap")) {
-        principal = "principal.name";
+//        principal = "principal.name";
+        principal = "principal.username";
     }
     else if (authenticationMethod.equals("googleplus") || authenticationMethod.equals("saml") || authenticationMethod.equals("ad")) {
         principal = "principal.username";

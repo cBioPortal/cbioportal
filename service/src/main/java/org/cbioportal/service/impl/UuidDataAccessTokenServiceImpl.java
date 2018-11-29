@@ -55,10 +55,10 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
     @Value("${dat.ttl_seconds:-1}")
     private int datTtlSeconds;
 
-    @Value("${dat.max_number_per_user:-1}")
+    @Value("${dat.uuid.max_number_per_user:-1}")
     private int maxNumberOfAccessTokens;
 
-    @Value("${dat.revoke_other_tokens:true}")
+    @Value("${dat.uuid.revoke_other_tokens:true}")
     private boolean revokeOtherTokens;
 
     private static final Log log = LogFactory.getLog(UuidDataAccessTokenServiceImpl.class);

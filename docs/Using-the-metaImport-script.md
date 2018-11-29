@@ -75,4 +75,4 @@ This example imports the study to the localhost, creates an html report and show
 By adding `-o`, warnings will be overridden and import will start after validation.
 
 ## Development / debugging mode
-For developers and specific testing purposes, an extra script, cbioportalImporter.py, is available which imports data regardless of validation results. Check [this](Development,-debugging-and-maintenance-mode-using-cbioportalImporter.md) page for more information on how to use it.
+For developers and specific testing purposes, an extra script, cbioportalImporter.py, is available which imports data regardless of validation results. Check [this](Data-Loading-For-Developers.md) page for more information on how to use it.

@@ -260,43 +260,6 @@ public class StudyControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_2));
     }
 
-    private List<CancerStudy> createExampleStudies() throws ParseException {
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        List<CancerStudy> cancerStudyList = new ArrayList<>();
-        CancerStudy cancerStudy1 = new CancerStudy();
-        cancerStudy1.setCancerStudyId(TEST_CANCER_STUDY_ID_1);
-        cancerStudy1.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_1);
-        cancerStudy1.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_1);
-        cancerStudy1.setName(TEST_NAME_1);
-        cancerStudy1.setShortName(TEST_SHORT_NAME_1);
-        cancerStudy1.setDescription(TEST_DESCRIPTION_1);
-        cancerStudy1.setPublicStudy(TEST_PUBLIC_STUDY_1);
-        cancerStudy1.setPmid(TEST_PMID_1);
-        cancerStudy1.setCitation(TEST_CITATION_1);
-        cancerStudy1.setGroups(TEST_GROUPS_1);
-        cancerStudy1.setStatus(TEST_STATUS_1);
-        cancerStudy1.setImportDate(simpleDateFormat.parse(TEST_DATE_1));
-        cancerStudyList.add(cancerStudy1);
-        CancerStudy cancerStudy2 = new CancerStudy();
-        cancerStudy2.setCancerStudyId(TEST_CANCER_STUDY_ID_2);
-        cancerStudy2.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_2);
-        cancerStudy2.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_2);
-        cancerStudy2.setName(TEST_NAME_2);
-        cancerStudy2.setShortName(TEST_SHORT_NAME_2);
-        cancerStudy2.setDescription(TEST_DESCRIPTION_2);
-        cancerStudy2.setPublicStudy(TEST_PUBLIC_STUDY_2);
-        cancerStudy2.setPmid(TEST_PMID_2);
-        cancerStudy2.setCitation(TEST_CITATION_2);
-        cancerStudy2.setGroups(TEST_GROUPS_2);
-        cancerStudy2.setStatus(TEST_STATUS_2);
-        cancerStudy2.setImportDate(simpleDateFormat.parse(TEST_DATE_2));
-        cancerStudyList.add(cancerStudy2);
-        return cancerStudyList;
-    }
-    
     @Test
     public void getTags() throws Exception {
 
@@ -338,9 +301,9 @@ public class StudyControllerTest {
         cancerStudyTags2.setTags(TEST_TAGS_3);
         cancerStudyTagsList.add(cancerStudyTags2);
 
-        Mockito.when(studyService.getTagsForMultipleStudies(Mockito.anyList())).thenReturn(cancerStudyTagsList);
+        Mockito.when(studyService.getTagsForMultipleStudies(Mockito.anyListOf(String.class))).thenReturn(cancerStudyTagsList);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/studies/tags")
+        mockMvc.perform(MockMvcRequestBuilders.post("/studies/tags/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1, 
@@ -355,4 +318,42 @@ public class StudyControllerTest {
                     .value(TEST_CANCER_STUDY_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].tags").value(TEST_TAGS_3));
     }
+
+    private List<CancerStudy> createExampleStudies() throws ParseException {
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        List<CancerStudy> cancerStudyList = new ArrayList<>();
+        CancerStudy cancerStudy1 = new CancerStudy();
+        cancerStudy1.setCancerStudyId(TEST_CANCER_STUDY_ID_1);
+        cancerStudy1.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_1);
+        cancerStudy1.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_1);
+        cancerStudy1.setName(TEST_NAME_1);
+        cancerStudy1.setShortName(TEST_SHORT_NAME_1);
+        cancerStudy1.setDescription(TEST_DESCRIPTION_1);
+        cancerStudy1.setPublicStudy(TEST_PUBLIC_STUDY_1);
+        cancerStudy1.setPmid(TEST_PMID_1);
+        cancerStudy1.setCitation(TEST_CITATION_1);
+        cancerStudy1.setGroups(TEST_GROUPS_1);
+        cancerStudy1.setStatus(TEST_STATUS_1);
+        cancerStudy1.setImportDate(simpleDateFormat.parse(TEST_DATE_1));
+        cancerStudyList.add(cancerStudy1);
+        CancerStudy cancerStudy2 = new CancerStudy();
+        cancerStudy2.setCancerStudyId(TEST_CANCER_STUDY_ID_2);
+        cancerStudy2.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_2);
+        cancerStudy2.setTypeOfCancerId(TEST_TYPE_OF_CANCER_ID_2);
+        cancerStudy2.setName(TEST_NAME_2);
+        cancerStudy2.setShortName(TEST_SHORT_NAME_2);
+        cancerStudy2.setDescription(TEST_DESCRIPTION_2);
+        cancerStudy2.setPublicStudy(TEST_PUBLIC_STUDY_2);
+        cancerStudy2.setPmid(TEST_PMID_2);
+        cancerStudy2.setCitation(TEST_CITATION_2);
+        cancerStudy2.setGroups(TEST_GROUPS_2);
+        cancerStudy2.setStatus(TEST_STATUS_2);
+        cancerStudy2.setImportDate(simpleDateFormat.parse(TEST_DATE_2));
+        cancerStudyList.add(cancerStudy2);
+        return cancerStudyList;
+    }
+    
 }

@@ -4,11 +4,15 @@
          xmlns:b="http://www.springframework.org/schema/beans"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:context="http://www.springframework.org/schema/context"
+         xmlns:security="http://www.springframework.org/schema/security"
          xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
-
+    <!--<security:http>-->
+        <!--<security:csrf disabled="true"/>-->
+    <!--</security:http>-->
+    
     <!-- beans shared across any authentication system -->
     <b:beans profile="googleplus,openid,saml,ad,ldap">
         <b:bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -57,6 +61,7 @@
     <!-- This must come before the default entry point which will capture everything not matched by pattern -->
     <http use-expressions="true" pattern="/api/**" entry-point-ref="restAuthenticationEntryPoint" create-session="never">
         <intercept-url pattern="/**" access="isAuthenticated()"/>
+        <csrf disabled="true"/>
     </http>
 
     <b:bean id="restAuthenticationEntryPoint" class="org.cbioportal.security.spring.sessionservice.RestAuthenticationEntryPoint"/>
@@ -88,6 +93,7 @@
         <logout logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID"/>
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
+        <csrf disabled="true"/>
     </http>
 
     <b:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
@@ -184,6 +190,7 @@
         <logout logout-success-url="/login.jsp?logout_success=true"/>
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
+        <csrf disabled="true"/>
     </http>
 
     <authentication-manager alias="authenticationManager"/>
@@ -210,6 +217,7 @@
 
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
+        <csrf disabled="true"/>
     </http>
 
      <b:bean id="samlFilter" class="org.springframework.security.web.FilterChainProxy">
@@ -454,7 +462,9 @@
     <b:beans profile="ad">
         <http use-expressions="true" auto-config="true">
             <form-login login-page="/login.jsp"
-                login-processing-url="/j_spring_security_check" 
+                login-processing-url="/j_spring_security_check"
+                username-parameter="j_username"
+                password-parameter="j_password"
                 default-target-url="/index.do"
                 authentication-success-handler-ref="successRedirectHandler" />
             <logout     logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID" />
@@ -466,6 +476,7 @@
             <intercept-url pattern="/**" access="isAuthenticated()"/>
             <!-- to enable access from matlab, r, python, etc clients -->
             <session-management session-fixation-protection="none"/>
+            <csrf disabled="true"/>
         </http>
 
         <!-- Add Authentication Manager -->
@@ -476,6 +487,7 @@
         <b:bean id="adAuthenticationProvider" class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
             <b:constructor-arg value="${ad.domain}"/>
             <b:constructor-arg value="${ad.url}"/>
+            <b:constructor-arg value="${ad.rootDn}"/>
         </b:bean>
     </b:beans>
 
@@ -484,6 +496,8 @@
 
         <http use-expressions="true" auto-config="true">
             <form-login login-page="/login.jsp"
+                username-parameter="j_username"
+                password-parameter="j_password"
                 login-processing-url="/j_spring_security_check"
                 default-target-url="/index.do"
                 authentication-success-handler-ref="successRedirectHandler" />
@@ -497,6 +511,7 @@
 
             <!-- to enable access from matlab, r, python, etc clients -->
             <session-management session-fixation-protection="none" />
+            <csrf disabled="true"/>
         </http>
 
         <ldap-server id="ldapServer" url="${ldap.url}"
@@ -539,6 +554,7 @@
         <http use-expressions="true" entry-point-ref="restAuthenticationEntryPoint" create-session="never">
             <intercept-url pattern="/api-legacy/proxy/session-service/**" access="@sessionSecurity.checkWrite(request)"/>
             <intercept-url pattern="/**" access="permitAll"/>
+            <csrf disabled="true"/>
         </http>
         <authentication-manager alias="authenticationManager"/>
     </b:beans>

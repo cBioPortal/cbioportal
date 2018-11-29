@@ -55,11 +55,9 @@ SELECT count(*) FROM cbioportal.gene;
 SELECT count(*) FROM cbioportal.gene_alias;
 ```
 
-8- Additionally, there are several other tables you may want to update now (only in human).
+8- Additionally, there are other tables you may want to update now (only in human).
 
-1. Updating the pfam graphics if you want to see 3D structures, explained in [this document](Updating-pfam_graphics-table.md)
-
-2. Updating the COSMIC coding mutations, can be downloaded from [here](http://cancer.sanger.ac.uk/cosmic/download) and require the script `importCosmicData.pl`
+* Updating the COSMIC coding mutations, can be downloaded from [here](http://cancer.sanger.ac.uk/cosmic/download) and require the script `importCosmicData.pl`
 
 9- Clean-up old data:
 ```sql

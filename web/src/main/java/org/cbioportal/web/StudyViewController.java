@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.math.NumberUtils;
 
 @InternalApi
@@ -224,16 +225,16 @@ public class StudyViewController {
             if (distinctStudyIds.size() == 1) {
                 List<Gistic> gisticList = significantCopyNumberRegionService.getSignificantCopyNumberRegions(
                     distinctStudyIds.get(0), Projection.SUMMARY.name(), null, null, null, null);
-                Map<Integer, Gistic> gisticMap = new HashMap<>();
+                MultiKeyMap gisticMap = new MultiKeyMap();
                 gisticList.forEach(g -> g.getGenes().forEach(gene -> {
-                    Gistic gistic = gisticMap.get(gene.getEntrezGeneId());
+                    Gistic gistic = (Gistic) gisticMap.get(gene.getEntrezGeneId(), g.getAmp());
                     if (gistic == null || g.getqValue().compareTo(gistic.getqValue()) < 0) {
-                        gisticMap.put(gene.getEntrezGeneId(), g);
+                        gisticMap.put(gene.getEntrezGeneId(), g.getAmp(), g);
                     }
                 }));
                 result.forEach(r -> {
-                    if (gisticMap.containsKey(r.getEntrezGeneId())) {
-                        r.setqValue(gisticMap.get(r.getEntrezGeneId()).getqValue());
+                    if (gisticMap.containsKey(r.getEntrezGeneId(), r.getAlteration().equals(2))) {
+                        r.setqValue(((Gistic) gisticMap.get(r.getEntrezGeneId(), r.getAlteration().equals(2))).getqValue());
                     }
                 });
             }

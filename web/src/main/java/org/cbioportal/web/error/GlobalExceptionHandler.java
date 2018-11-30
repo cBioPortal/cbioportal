@@ -174,7 +174,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TokenNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleTokenNotFoundException() {
-        ErrorResponse response = new ErrorResponse("Specified token can not be found");
+        ErrorResponse response = new ErrorResponse("Specified token cannot be found");
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 }

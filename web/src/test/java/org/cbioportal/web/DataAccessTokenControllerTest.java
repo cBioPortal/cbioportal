@@ -1,19 +1,4 @@
 /*
- * Copyright (c) 2018 Memorial Sloan-Kettering Cancer Center.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
- * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
- * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
- * liable to any party for direct, indirect, special, incidental or
- * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
- * Center has been advised of the possibility of such damage.
- */
-
-/*
  * This file is part of cBioPortal.
  *
  * cBioPortal is free software: you can redistribute it and/or modify
@@ -32,128 +17,230 @@
 
 package org.cbioportal.web;
 
-import org.cbioportal.web.config.DataAccessTokenControllerConfig;
-import org.cbioportal.model.DataAccessToken;
-import org.cbioportal.service.DataAccessTokenService;
-import org.cbioportal.service.exception.DataAccessTokenNoUserIdentityException;
-import org.cbioportal.service.exception.DataAccessTokenProhibitedUserException;
-
-import java.util.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.servlet.http.HttpSession;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+
+import org.cbioportal.model.DataAccessToken;
+import org.cbioportal.service.DataAccessTokenService;
+import org.cbioportal.service.exception.TokenNotFoundException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"/applicationContext-web.xml", "/applicationContext-security.xml"})
 @WebAppConfiguration
-//TO-DO: Read from /applicationContext-web.xml without overriding test properties
-@ContextConfiguration(classes = DataAccessTokenControllerConfig.class)
-@TestPropertySource(
-        properties = {
-            "dat.method=uuid",
-            "dat.unauth_users=anonymousUser"
-        },
-        inheritLocations = false)
-public class DataAccessTokenControllerTest {    
+public class DataAccessTokenControllerTest {
+
+    public static final String MOCK_USER = "MOCK_USER";
+    public static final String MOCK_PASSWORD = "MOCK_PASSWORD";
+    public static final String VALID_TOKEN_STRING = "VALID_TOKEN";
+    public static final String NONEXISTENT_TOKEN_STRING = "NONEXISTENT_TOKEN";
+    public static final String NOT_FOUND_ERROR_MESSAGE = "Specified token cannot be found";
+    public static final DataAccessToken MOCK_TOKEN_INFO = new DataAccessToken(VALID_TOKEN_STRING);
+
+    public String receivedArgument = null;
+
+    @Bean
+    public DataAccessTokenService tokenService() {
+        DataAccessTokenService tokenService = Mockito.mock(DataAccessTokenService.class);
+        return tokenService;
+    }
+
+    private MockMvc mockMvc;
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private WebApplicationContext wac;
 
     @Autowired
     private DataAccessTokenService tokenService;
 
     @Autowired
-    private DataAccessTokenController dataAccessTokenController;
+    private FilterChainProxy filterChainProxy;
 
-    public static final String API_TEST_SUBJECT = "testSubject";
-    public static final String NON_API_TEST_SUBJECT = "anonymousUser";
-    public static final String MOCK_TOKEN_STRING = "MockedTokenString";
-    public static final DataAccessToken MOCK_TOKEN_INFO = new DataAccessToken(MOCK_TOKEN_STRING);
+    @Before
+    public void setUp() throws Exception {
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).addFilter(filterChainProxy).build();
+    }
 
-    protected Authentication makePrincipal(String username, boolean isAuthentic) {
-        User user = new User(username, "unused", new ArrayList<GrantedAuthority>());
-        if (isAuthentic) {
-            return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
-        } else {
-            return new UsernamePasswordAuthenticationToken(user, "");
+    public void resetReceivedArgument() {
+        this.receivedArgument = null;
+    }
+
+    private HttpSession getSession(String user, String password) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.post("/j_spring_security_check")
+            .param("j_username", user)
+            .param("j_password", password))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andReturn()
+        .getRequest()
+        .getSession();
+    }
+    /* Tests mapping for GET /data-access-tokens/{token}
+     * Test for valid token - checks returned response type is 200 success
+     */
+    @Test
+    public void getTokenInfoForValidTokenTest() throws Exception {
+        Mockito.when(tokenService.getDataAccessTokenInfo(VALID_TOKEN_STRING)).thenReturn(MOCK_TOKEN_INFO);
+        HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/data-access-tokens/" + VALID_TOKEN_STRING)
+            .session((MockHttpSession) session)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
+    }
+
+    /* Tests mapping for GET /data-access-tokens/{token}
+     * Test for nonexistent token - checks returned response type is 404 not found
+     * Checks response for correct error message
+     */
+    @Test
+    public void getTokenInfoForNonexistentTokenTest() throws Exception {
+        Mockito.doThrow(new TokenNotFoundException()).when(tokenService).getDataAccessTokenInfo(NONEXISTENT_TOKEN_STRING);
+        HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/data-access-tokens/" + NONEXISTENT_TOKEN_STRING)
+            .session((MockHttpSession) session)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+            .andReturn();
+        if (!result.getResponse().getContentAsString().contains(NOT_FOUND_ERROR_MESSAGE)) {
+            Assert.fail("Returned response did not contain expected error message. Expected response: '" + NOT_FOUND_ERROR_MESSAGE + "' Returned response: '" + result.getResponse().getContentAsString() + "'");
         }
     }
 
+    /* Tests mapping for DELETE /data-access-tokens/{token}
+     * Test that proper service method was called
+     */
+    @Test
+    public void revokeValidTokenTest() throws Exception {
+        resetReceivedArgument();
+        Answer<Void> tokenServiceRevokeTokenAnswer = new Answer<Void>() {
+            public Void answer(InvocationOnMock revokeTokenInvocation) {
+                receivedArgument = (String)revokeTokenInvocation.getArguments()[0];
+                return null;
+            }
+        };
+        Mockito.doAnswer(tokenServiceRevokeTokenAnswer).when(tokenService).revokeDataAccessToken(Matchers.anyString());
+        HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/data-access-tokens/" + VALID_TOKEN_STRING)
+            .session((MockHttpSession) session)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
+        if (!receivedArgument.equals(VALID_TOKEN_STRING)) {
+            Assert.fail("Unexpected argument passed to service class. Expected argument: " + VALID_TOKEN_STRING + " Received argument: " + receivedArgument);
+        }
+    }
+
+    /* Tests mapping for GET /data-access-tokens/{token}
+     * Test for nonexistent token - checks returned response type is 404 not found
+     * Checks response for correct error message
+     */
+    @Test
+    public void revokeNonexistentTokenTest() throws Exception {
+        resetReceivedArgument();
+        Mockito.doThrow(new TokenNotFoundException()).when(tokenService).revokeDataAccessToken(NONEXISTENT_TOKEN_STRING);;
+        HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/data-access-tokens/" + NONEXISTENT_TOKEN_STRING)
+            .session((MockHttpSession) session)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+            .andReturn();
+        if (!result.getResponse().getContentAsString().contains(NOT_FOUND_ERROR_MESSAGE)) {
+            Assert.fail("Returned response did not contain expected error message. Expected response: '" + NOT_FOUND_ERROR_MESSAGE + "' Returned response: '" + result.getResponse().getContentAsString() + "'");
+        }
+    }
+
+    /* Tests mapping for POST /data-access-tokens
+     * Tests for 201 (CREATED) response code
+     */
     @Test
     public void createTokenValidUserTest() throws Exception {
-        Mockito.when(tokenService.createDataAccessToken(Matchers.anyString(), Matchers.anyBoolean())).thenReturn(MOCK_TOKEN_INFO);
-        Authentication principal = this.makePrincipal(API_TEST_SUBJECT, true);
-        ResponseEntity<DataAccessToken> serviceResponse = dataAccessTokenController.createDataAccessToken(principal, Boolean.FALSE);
-        checkIfResponseMatches(serviceResponse, HttpStatus.CREATED, MOCK_TOKEN_INFO);
+        Mockito.when(tokenService.createDataAccessToken(Matchers.anyString())).thenReturn(MOCK_TOKEN_INFO);
+        HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/data-access-tokens")
+            .session((MockHttpSession) session)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andReturn();
     }
 
-    @Test(expected = DataAccessTokenNoUserIdentityException.class)
-    public void createTokenInvalidUserTest() throws Exception {
-        Mockito.when(tokenService.createDataAccessToken(Matchers.anyString(), Matchers.anyBoolean())).thenReturn(MOCK_TOKEN_INFO);
-        Authentication principal = this.makePrincipal(API_TEST_SUBJECT, false);
-        ResponseEntity<DataAccessToken> serviceResponse = dataAccessTokenController.createDataAccessToken(principal, Boolean.FALSE);
-    }
-
-    @Test(expected = DataAccessTokenProhibitedUserException.class)
-    public void createTokenNonAPIUserTest() throws Exception {
-        Mockito.when(tokenService.createDataAccessToken(Matchers.anyString(), Matchers.anyBoolean())).thenReturn(MOCK_TOKEN_INFO);
-        Authentication principal = this.makePrincipal(NON_API_TEST_SUBJECT, true);
-        ResponseEntity<DataAccessToken> serviceResponse = dataAccessTokenController.createDataAccessToken(principal, Boolean.FALSE);
-    }
-
-    private void checkIfResponseMatches(ResponseEntity<DataAccessToken> response, HttpStatus expectedStatus, DataAccessToken expectedResponseBody) {
-        HttpStatus responseStatus = response.getStatusCode();
-        if (responseStatus != expectedStatus) {
-            Assert.fail("Response from controller handler (" + responseStatus + ") did not match expected status : " + expectedStatus);
+    /* Tests mapping for DELETE /data-access-tokens
+     * Checks response status code is 200 success
+     * Checks that correct username argument is passed to service class
+     */
+    @Test
+    public void revokeAllTokensForUserTest() throws Exception {
+        resetReceivedArgument();
+        Answer<Void> tokenServiceRevokeAllTokensAnswer = new Answer<Void>() {
+            public Void answer(InvocationOnMock revokeAllTokensInvocation) {
+                receivedArgument = (String)revokeAllTokensInvocation.getArguments()[0];
+                return null;
+            }
+        };
+        Mockito.doAnswer(tokenServiceRevokeAllTokensAnswer).when(tokenService).revokeAllDataAccessTokens(Matchers.anyString());
+        HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/data-access-tokens")
+            .session((MockHttpSession) session)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
+        if(!receivedArgument.equals(MOCK_USER)) {
+            Assert.fail("Unexpected argument passed to service class. Expected argument: " + MOCK_USER + " Received argument: " + receivedArgument);
         }
-        DataAccessToken token = response.getBody();
-        String tokenString = token.getToken();
-        String expectedTokenString = expectedResponseBody.getToken();
-        if (tokenString == null && expectedTokenString == null) {
-            return;
+    }
+
+    /* Tests mapping for GET /data-access-tokens
+     * Checks response status code is 200 success
+     * Checks that correct username argument is passed to service class
+     */
+    @Test
+    public void getAllTokensForUserTest() throws Exception {
+        resetReceivedArgument();
+        Answer<Void> tokenServiceGetAllTokensAnswer = new Answer<Void>() {
+            public Void answer(InvocationOnMock getAllTokensInvocation) {
+                receivedArgument = (String)getAllTokensInvocation.getArguments()[0];
+                return null;
+            }
+        };
+        Mockito.doAnswer(tokenServiceGetAllTokensAnswer).when(tokenService).getAllDataAccessTokens(Matchers.anyString());
+        HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/data-access-tokens")
+            .session((MockHttpSession) session)
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
+        if(!receivedArgument.equals(MOCK_USER)) {
+            Assert.fail("Unexpected argument passed to service class. Expected argument: " + MOCK_USER + " Received argument: " + receivedArgument);
         }
-        if (tokenString == null || !tokenString.equals(expectedTokenString)) {
-            Assert.fail("Response from controller (" + tokenString + ") did not contain the expected response body : " + expectedTokenString);
-        }
     }
-
-    // Test: retrieve a token via GET to dataAccessToken/{token} - [fails]
-    @Test(expected = UnsupportedOperationException.class)
-    public void getDataAccessTokenInfoTest() throws Exception {
-        Mockito.doThrow(new UnsupportedOperationException()).when(tokenService).getDataAccessTokenInfo(Matchers.anyString());
-        ResponseEntity<DataAccessToken> token = dataAccessTokenController.getDataAccessToken(MOCK_TOKEN_STRING);
-    }
-
-    // Test: retrieve tokens via GET to dataAccessToken - return all tokens associated with the user [fails]
-    @Test(expected = UnsupportedOperationException.class)
-    public void getAllDataAccessTokensTest() throws Exception {
-        Mockito.doThrow(new UnsupportedOperationException()).when(tokenService).getAllDataAccessTokens(Matchers.anyString());
-        Authentication principal = this.makePrincipal(API_TEST_SUBJECT, true);
-        ResponseEntity<List<DataAccessToken>> tokens = dataAccessTokenController.getAllDataAccessTokens(principal);
-    }
-
-    // Test: revoke tokens via DELETE to dataAccessToken - revoke all tokens assiciated with the user [fails]
-    @Test(expected = UnsupportedOperationException.class)
-    public void revokeAllDataAccessTokensTest() throws Exception {
-        Mockito.doThrow(new UnsupportedOperationException()).when(tokenService).revokeAllDataAccessTokens(Matchers.anyString());
-        Authentication principal = this.makePrincipal(API_TEST_SUBJECT, true);
-        dataAccessTokenController.revokeAllDataAccessTokens(principal);
-    }
-
-    // Test: revoke a token via DELETE to dataAccessToken/{token} - [fails]
-    @Test(expected = UnsupportedOperationException.class)
-    public void revokeDataAccessTokenTest() throws Exception {
-        Mockito.doThrow(new UnsupportedOperationException()).when(tokenService).revokeDataAccessToken(Matchers.anyString());
-        dataAccessTokenController.revokeDataAccessToken(MOCK_TOKEN_STRING);
-    }
-
 }

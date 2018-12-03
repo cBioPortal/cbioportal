@@ -126,6 +126,7 @@
     <select id="getTags" resultType="org.cbioportal.model.CancerStudyTags">
         SELECT
         cancer_study_tags.CANCER_STUDY_ID AS cancerStudyId,
+        cancer_study.CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
         cancer_study_tags.TAGS AS tags
         FROM cancer_study_tags
         JOIN cancer_study ON cancer_study_tags.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
@@ -135,6 +136,7 @@
     <select id="getTagsForMultipleStudies" resultType="org.cbioportal.model.CancerStudyTags">
         SELECT
         cancer_study_tags.CANCER_STUDY_ID AS cancerStudyId,
+        cancer_study.CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
         cancer_study_tags.TAGS AS tags
         FROM cancer_study_tags
         JOIN cancer_study ON cancer_study_tags.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID

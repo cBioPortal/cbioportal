@@ -138,12 +138,19 @@ public class StudyController {
     @RequestMapping(value = "/studies/tags/fetch", method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the study tags by IDs")
-    public ResponseEntity<List<CancerStudyTags>> getTagsForMultipleStudies(
+    public ResponseEntity<Map<String,Object>> getTagsForMultipleStudies(
         @ApiParam(required = true, value = "List of Study IDs")
-        @RequestBody List<String> studyIds) {
-        
-        List<CancerStudyTags> cancerStudyTags = studyService.getTagsForMultipleStudies(studyIds);
-        
-        return new ResponseEntity<>(cancerStudyTags, HttpStatus.OK);
+        @RequestBody List<String> studyIds) throws IOException {
+
+            Map<String,Object> map = new HashMap<String,Object>();
+            ObjectMapper mapper = new ObjectMapper();
+            List<CancerStudyTags> cancerStudyTags = studyService.getTagsForMultipleStudies(studyIds);
+            if (cancerStudyTags != null) { //If tags is null an empty map is returned
+                for (CancerStudyTags study : cancerStudyTags) {
+                    map.put(study.getCancerStudyIdentifier(), mapper.readValue(study.getTags(), Map.class));
+                }
+            }
+
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 }

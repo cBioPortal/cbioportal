@@ -232,12 +232,6 @@ public class StudyMyBatisRepositoryTest {
 
         List<CancerStudyTags> result = studyMyBatisRepository.getTagsForMultipleStudies(Arrays.asList("study_tcga_pub", "acc_tcga"));
 
-        Assert.assertEquals(2, result.size());
-        CancerStudyTags cancerStudyTags1 = result.get(1);
-        Assert.assertEquals((Integer) 1, cancerStudyTags1.getCancerStudyId());
-        Assert.assertEquals("{\"Analyst\": {\"Name\": \"Jack\", \"Email\": \"jack@something.com\"}, \"Load id\": 35}", cancerStudyTags1.getTags());
-        CancerStudyTags cancerStudyTags2 = result.get(0);
-        Assert.assertEquals((Integer) 2, cancerStudyTags2.getCancerStudyId());
-        Assert.assertEquals("{\"Load id\": 36}", cancerStudyTags2.getTags()); 
+        Assert.assertEquals("{\"study_tcga_pub\": {\"Analyst\": {\"Name\": \"Jack\", \"Email\": \"jack@something.com\"}, \"Load id\": 35}, \"acc_tcga\": {\"Load id\": 36}", result);
     }
 }

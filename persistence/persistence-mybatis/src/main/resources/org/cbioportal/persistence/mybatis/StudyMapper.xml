@@ -56,9 +56,12 @@
                 </foreach>
             </if>
             <if test="keyword != null">
-                <bind name="searchKeyword" value="'%' + keyword.trim().toLowerCase() + '%'" />
-                LOWER(cancer_study.NAME) like #{searchKeyword} OR
-                LOWER(type_of_cancer.NAME) like #{searchKeyword}
+                <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
+                    LOWER(cancer_study.NAME) like CONCAT('%', #{item}, '%') OR
+                    LOWER(cancer_study.CANCER_STUDY_IDENTIFIER) like CONCAT('%', #{item}, '%') OR
+                    LOWER(type_of_cancer.NAME) like CONCAT('%', #{item}, '%') OR
+                    LOWER(type_of_cancer.TYPE_OF_CANCER_ID) like CONCAT('%', #{item}, '%')
+                </foreach>
             </if>
         </where>
     </sql>
@@ -85,8 +88,7 @@
             ORDER BY cancer_study.CANCER_STUDY_IDENTIFIER ASC
         </if>
         <if test="keyword != null">
-            <bind name="orderKeyword" value="keyword.trim().toLowerCase() + '%'" />
-            ORDER BY CASE WHEN cancer_study.NAME LIKE #{orderKeyword} THEN 0 ELSE 1 END,
+            ORDER BY CASE WHEN cancer_study.NAME LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END,
             CASE WHEN cancer_study.NAME LIKE '%tcga%' THEN 0 ELSE 1 END, cancer_study.NAME
         </if>
         <if test="limit != null and limit != 0">

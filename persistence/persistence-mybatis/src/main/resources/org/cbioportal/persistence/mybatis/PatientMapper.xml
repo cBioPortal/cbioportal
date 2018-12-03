@@ -36,8 +36,9 @@
                 </if>
             </if>
             <if test="keyword != null">
-                <bind name="searchKeyword" value="'%' + keyword.trim().toLowerCase() + '%'" />
-                LOWER(patient.STABLE_ID) like #{searchKeyword}
+                <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
+                    LOWER(patient.STABLE_ID) like CONCAT('%', #{item}, '%')
+                </foreach>
             </if>
         </where>
     </sql>
@@ -56,8 +57,7 @@
             ORDER BY patient.STABLE_ID ASC
         </if>
         <if test="keyword != null">
-            <bind name="orderKeyword" value="keyword.trim().toLowerCase() + '%'" />
-            ORDER BY CASE WHEN patient.STABLE_ID LIKE #{orderKeyword} THEN 0 ELSE 1 END, patient.STABLE_ID
+            ORDER BY CASE WHEN patient.STABLE_ID LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, patient.STABLE_ID
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}

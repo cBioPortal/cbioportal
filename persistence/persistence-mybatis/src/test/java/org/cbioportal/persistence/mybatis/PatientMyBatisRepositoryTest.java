@@ -206,22 +206,4 @@ public class PatientMyBatisRepositoryTest {
         Assert.assertEquals("TCGA-A1-A0SD", result.get(0).getStableId());
         Assert.assertEquals("TCGA-A1-A0SB", result.get(1).getStableId());
     }
-
-    @Test
-    public void getStudiesByKeyword() throws Exception {
-        
-        List<Patient> result = patientMyBatisRepository.getAllPatients("SP", "SUMMARY", null, null, null, null);
-
-        Assert.assertEquals(2, result.size());
-        Assert.assertEquals("TCGA-A1-A0SP", result.get(0).getStableId());
-        Assert.assertEquals("TCGA-A1-B0SP", result.get(1).getStableId());
-    }
-
-    @Test
-    public void getMetaStudiesByKeyword() throws Exception {
-        
-        BaseMeta result = patientMyBatisRepository.getMetaPatients("SP");
-
-        Assert.assertEquals((Integer) 2, result.getTotalCount());
-    }
 }

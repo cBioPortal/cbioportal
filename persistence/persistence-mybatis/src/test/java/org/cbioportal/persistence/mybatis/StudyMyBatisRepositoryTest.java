@@ -227,24 +227,6 @@ public class StudyMyBatisRepositoryTest {
  
         Assert.assertEquals("{\"Analyst\": {\"Name\": \"Jack\", \"Email\": \"jack@something.com\"}, \"Load id\": 35}", result.getTags());
     }
-
-    @Test
-    public void getStudiesByKeyword() throws Exception {
-        
-        List<CancerStudy> result = studyMyBatisRepository.getAllStudies("tcga", "SUMMARY", null, null, null, null);
-
-        Assert.assertEquals(2, result.size());
-        Assert.assertEquals("acc_tcga", result.get(0).getCancerStudyIdentifier());
-        Assert.assertEquals("study_tcga_pub", result.get(1).getCancerStudyIdentifier());
-    }
-
-    @Test
-    public void getMetaStudiesByKeyword() throws Exception {
-        
-        BaseMeta result = studyMyBatisRepository.getMetaStudies("tcga");
-
-        Assert.assertEquals((Integer) 2, result.getTotalCount());
-    }
     
     public void getMultipleTags() throws Exception {
 

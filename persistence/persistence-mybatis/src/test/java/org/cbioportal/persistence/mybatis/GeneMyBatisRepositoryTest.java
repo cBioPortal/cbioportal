@@ -258,23 +258,4 @@ public class GeneMyBatisRepositoryTest {
 
         Assert.assertEquals((Integer) 2, result.getTotalCount());
     }
-
-    @Test
-    public void getGenesByKeyword() throws Exception {
-        
-        List<Gene> result = geneMyBatisRepository.getAllGenes("BR", null, "SUMMARY", null, null, null, null);
-
-        Assert.assertEquals(3, result.size());
-        Assert.assertEquals("BRAF", result.get(0).getHugoGeneSymbol());
-        Assert.assertEquals("BRCA1", result.get(1).getHugoGeneSymbol());
-        Assert.assertEquals("BRCA2", result.get(2).getHugoGeneSymbol());
-    }
-
-    @Test
-    public void getMetaGenesByKeyword() throws Exception {
-        
-        BaseMeta result = geneMyBatisRepository.getMetaGenes("BR", null);
-
-        Assert.assertEquals((Integer) 3, result.getTotalCount());
-    }
 }

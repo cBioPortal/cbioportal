@@ -28,8 +28,9 @@
                 gene_alias.GENE_ALIAS = #{alias}
             </if>
             <if test="keyword != null">
-                <bind name="searchKeyword" value="'%' + keyword.trim().toLowerCase() + '%'" />
-                LOWER(gene.HUGO_GENE_SYMBOL) like #{searchKeyword}
+                <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
+                    LOWER(gene.HUGO_GENE_SYMBOL) like CONCAT('%', #{item}, '%')
+                </foreach>
             </if>
         </where>
     </sql>
@@ -48,8 +49,7 @@
             ORDER BY gene.ENTREZ_GENE_ID ASC
         </if>
         <if test="keyword != null">
-            <bind name="orderKeyword" value="keyword.trim().toLowerCase() + '%'" />
-            ORDER BY CASE WHEN gene.HUGO_GENE_SYMBOL LIKE #{orderKeyword} THEN 0 ELSE 1 END, gene.HUGO_GENE_SYMBOL
+            ORDER BY CASE WHEN gene.HUGO_GENE_SYMBOL LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, gene.HUGO_GENE_SYMBOL
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}

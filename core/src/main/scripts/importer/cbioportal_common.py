@@ -37,6 +37,7 @@ IMPORT_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportSampleList"
 ADD_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.AddCaseList"
 VERSION_UTIL_CLASS = "org.mskcc.cbio.portal.util.VersionUtil"
 
+# provides a key for data types to metafile specification dict.  
 class MetaFileTypes(object):
     """how we differentiate between data types."""
     STUDY = 'meta_study'
@@ -59,6 +60,8 @@ class MetaFileTypes(object):
     GENE_PANEL_MATRIX = 'meta_gene_panel_matrix'
     GSVA_SCORES = 'meta_gsva_scores'
     GSVA_PVALUES = 'meta_gsva_pvalues'
+    GENERIC_ASSAY = 'meta_generic_assay'
+
 
 # fields allowed in each meta file type, maps to True if required
 META_FIELD_MAP = {
@@ -246,6 +249,18 @@ META_FIELD_MAP = {
         'data_filename': True,
         'show_profile_in_analysis_tab': True,
         'geneset_def_version': True
+    },
+    MetaFileTypes.GENERIC_ASSAY: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+        'show_profile_in_analysis_tab': True,
+        'pivot_threshold_value': True,
+        'value_sort_order': True
     }
 }
 
@@ -269,7 +284,8 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData",
     MetaFileTypes.GENE_PANEL_MATRIX: "org.mskcc.cbio.portal.scripts.ImportGenePanelProfileMap",
     MetaFileTypes.GSVA_SCORES: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    MetaFileTypes.GSVA_PVALUES: "org.mskcc.cbio.portal.scripts.ImportProfileData"
+    MetaFileTypes.GSVA_PVALUES: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.GENERIC_ASSAY: "org.mskcc.cbio.portal.scripts.ImportProfileData"
 }
 
 IMPORTER_REQUIRES_METADATA = {
@@ -529,7 +545,8 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("GISTIC_GENES_DEL", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,
         ("MUTSIG", "Q-VALUE"): MetaFileTypes.MUTATION_SIGNIFICANCE,
         ("GENESET_SCORE", "GSVA-SCORE"): MetaFileTypes.GSVA_SCORES,
-        ("GENESET_SCORE", "P-VALUE"): MetaFileTypes.GSVA_PVALUES
+        ("GENESET_SCORE", "P-VALUE"): MetaFileTypes.GSVA_PVALUES,
+        ("GENERIC_ASSAY", "LIMIT-VALUE"): MetaFileTypes.GENERIC_ASSAY
     }
     result = None
     if 'genetic_alteration_type' in meta_dictionary and 'datatype' in meta_dictionary:
@@ -590,6 +607,10 @@ def validate_types_and_id(meta_dictionary, logger, filename):
             # unexpected as this is already validated in get_meta_file_type
             raise RuntimeError('Unexpected error: genetic_alteration_type and data_type combination not found in allowed_data_types.txt.',
                                genetic_alteration_type, data_type)
+        # Check whether a wild card ('*') is set in allowed_data_types.txt for the alteration type-data type combination.
+        # For these entries the stable_id is not validated, but assumed to be checked for uniqueness by the user.
+        elif alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)][0] == "*":
+            pass
         # validate stable_id:
         elif stable_id not in alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)]:
             logger.error("Invalid stable id for genetic_alteration_type '%s', "

@@ -363,12 +363,25 @@ class Validator(object):
 
         self.logger.debug('Starting validation of file')
 
+        # Validate whether the file can be opened
         try:
             opened_file = open(self.filename, 'r', newline=None)
+            opened_file.close()
         except OSError:
             self.logger.error('File could not be opened')
             return
-        with opened_file as data_file:
+
+        # Validate whether the file is correct UTF-8
+        try:
+            with open(self.filename, 'r', newline=None) as opened_file:
+                for line in opened_file:
+                    pass
+        except UnicodeDecodeError:
+            self.logger.error("File contains invalid UTF-8 bytes. Please check values in file")
+            return
+
+        # Reopen file from the start
+        with open(self.filename, 'r', newline=None) as data_file:
 
             # parse any block of start-of-file comment lines and the tsv header
             top_comments = []

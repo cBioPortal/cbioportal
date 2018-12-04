@@ -173,7 +173,9 @@ public class ImportGenesetData extends ConsoleRunnable {
     
     /**
      * Start import process for gene set file and supplementary file.
-     */  
+     */ 
+    // TODO Exception should be handled by the callling code. Remove 
+    // handling of exception and replace with `throw` statement.
     public static void startImport(OptionSet options, OptionSpec<String> data, OptionSpec<String> supp, boolean updateInfo, boolean newVersion){
     	try {
        	 	if (options.hasArgument(data)) {

@@ -1,0 +1,11 @@
+entity_stable_id	META:name	META:description	META:url
+17-AAG	Name of 17-AAG	New New desc of 17-AAG	Url of 17-AAG
+AEW541	Name of AEW541	New desc of AEW541	Url of AEW541
+AZD0530	Name of AZD0530	New desc of AZD0530	Url of AZD0530
+AZD6244	Name of AZD6244	New desc of AZD6244	Url of AZD6244
+Erlotinib	Name of Erlotinib	New desc of Erlotinib	Url of Erlotinib
+Irinotecan	Name of Irinotecan	New desc of Irinotecan	Url of Irinotecan
+L-685458	Name of L-685458	New desc of L-685458	Url of L-685458
+Lapatinib	Name of Lapatinib	New desc of Lapatinib	Url of Lapatinib
+LBW242	Name of LBW242	New desc of LBW242	Url of LBW242
+Nilotinib	Name of Nilotinib	New desc of Nilotinib	Url of Nilotinib

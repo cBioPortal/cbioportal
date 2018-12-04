@@ -34,6 +34,8 @@ package org.cbioportal.security.spring;
 
 // imports
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -66,6 +68,7 @@ import org.cbioportal.web.parameter.SampleFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.util.UniqueKeyExtractor;
 
+import org.opensaml.xml.signature.P;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.PermissionEvaluator;
@@ -160,11 +163,20 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             return false;
         }
         
-        if (authentication.isAuthenticated()) {
+        try {
+            Class clazz = Class.forName("org.mskcc.cbio.portal.util.GlobalProperties");
+            if (clazz != null) {
+                Method m = clazz.getDeclaredMethod("usersMustBeAuthorized");
+                boolean authorization = (Boolean) m.invoke(null);
+
+                if (authentication.isAuthenticated() && !authorization) {
+                    return true;
+                }
+            }
+        }
+        
+        catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
             
-            // TODO: This should then check if authorization is enabled - if no, early escape with true, if not continue to below
-            
-            return true;
         }
 
         if ("CancerStudy".equals(targetType)) {
@@ -274,6 +286,22 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 log.debug("hasPermission(), targetDomainObject is null, returning false");
             }
             return false;
+        }
+
+        try {
+            Class clazz = Class.forName("org.mskcc.cbio.portal.util.GlobalProperties");
+            if (clazz != null) {
+                Method m = clazz.getDeclaredMethod("usersMustBeAuthorized");
+                boolean authorization = (Boolean) m.invoke(null);
+
+                if (authentication.isAuthenticated() && !authorization) {
+                    return true;
+                }
+            }
+        }
+
+        catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
+
         }
 
         CancerStudy cancerStudy = null;

@@ -44,8 +44,9 @@ public class ADUserDetailsContextMapper implements UserDetailsContextMapper {
         String givenName = ctx.getAttributeSortedStringSet("givenName").first();
         String lastName = ctx.getAttributeSortedStringSet("sn").first();
 
-        // Construct the resulting PortalUserDetails object.
+        // Construct the resulting PortalUserDetails object.)
         PortalUserDetails result = new PortalUserDetails(username, getGrantedAuthorities(email));
+//        PortalUserDetails result = new PortalUserDetails(username, AuthorityUtils.createAuthorityList("cbioportal:ALL"));
         result.setName(name);
         result.setEmail(email);
         result.setName(MessageFormat.format("{0} {1}", givenName, lastName));

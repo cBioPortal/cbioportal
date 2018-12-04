@@ -159,6 +159,13 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             }
             return false;
         }
+        
+        if (authentication.isAuthenticated()) {
+            
+            // TODO: This should then check if authorization is enabled - if no, early escape with true, if not continue to below
+            
+            return true;
+        }
 
         if ("CancerStudy".equals(targetType)) {
             // everybody has access the 'all' cancer study

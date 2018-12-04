@@ -13,7 +13,7 @@
     * [Protein level Data](#protein-level-data)
     * [Case Lists](#case-lists)
     * [Timeline Data](#timeline-data)
-    * [Gistic Data](#gistic-data)
+    * [GISTIC 2.0 Data](#gistic-20-data)
     * [Mutsig Data](#mutsig-data)
     * [Gene Panel Data](#gene-panel-data)
     * [Gene Set Data](#gene-set-data)
@@ -265,7 +265,7 @@ The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and 
 `MUTATION_COUNT` and `FRACTION_GENOME_ALTERED` are auto populated clinical attributes, and should therefore not be present in clinical data files.
 
 ## Discrete Copy Number Data
-The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC can be [installed](http://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](http://genepattern.broadinstitute.org/gp/pages/login.jsf). For some help on using GISTIC, check the [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).
+The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC 2.0](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](http://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC 2.0 can be [installed](http://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). For some help on using GISTIC 2.0, check the [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).
 
 ##### Meta file 
 The meta file is comprised of the following fields:
@@ -321,8 +321,8 @@ AGRN<TAB>375790<TAB>2<TAB>0<TAB>...
 ...
 ```
 
-#### GISTIC2 Format
-GISTIC2 outputs a tabular file similarly formatted to the cBioPortal format, called `<prefix>_all_thresholded.by_genes.txt`.
+#### GISTIC 2.0 Format
+GISTIC 2.0 outputs a tabular file similarly formatted to the cBioPortal format, called `<prefix>_all_thresholded.by_genes.txt`.
 In this file the gene symbol is found in the `Gene Symbol` column, while Entrez gene IDs are in the `Gene ID` or 
 `Locus ID` column. Please rename `Gene Symbol` to `Hugo_Symbol` and `Gene ID` or `Locus ID` to `Entrez_Gene_Id`. The 
 `Cytoband` column can be kept in the table, but note that these values are ignored in cBioPortal. cBioPortal uses 
@@ -366,8 +366,8 @@ data_filename: data_log2CNA.txt
 
 The log2 copy number data file follows the same format as expression data files.  See [Expression Data](#expression-data) for a description of the expression data file format.
 
-#### GISTIC2 Format
-GISTIC2 outputs a tabular file similarly formatted to the cBioPortal format, called `<prefix>_all_data_by_genes.txt`. 
+#### GISTIC 2.0 Format
+GISTIC 2.0 outputs a tabular file similarly formatted to the cBioPortal format, called `<prefix>_all_data_by_genes.txt`. 
 In this file the gene symbol is found in the `Gene Symbol` column, while Entrez gene IDs are in the `Gene ID` or 
 `Locus ID` column. Please rename `Gene Symbol` to `Hugo_Symbol` and `Gene ID` or `Locus ID` to `Entrez_Gene_Id`. The 
 `Cytoband` column can be kept in the table, but note that these values are ignored in cBioPortal. cBioPortal uses 
@@ -1008,8 +1008,8 @@ CACO2<TAB>250<TAB>LAB_TEST<TAB>PSA<TAB>100
 This will lead to a timeline track for Lab_test with an additional subtrack specifically for PSA. PSA's events will be sized based on the result.
 
 
-## Gistic Data
-Running GISTIC 2.0 on e.g. GenePattern not only provides the [Discrete Copy Number Data](#discrete-copy-number-data), but also provides an amp_genes and a del_genes file. These cannot be directly imported into cBioPortal, but first have to be converted to a different file format. An example can be found in the [ACC TCGA study](https://github.com/cBioPortal/datahub/blob/master/public/acc_tcga/data_gistic_genes_amp.txt) on cBioPortal Datahub.
+## GISTIC 2.0 Data
+Running GISTIC 2.0 on e.g. [GenePattern](https://cloud.genepattern.org) not only provides the [Discrete Copy Number Data](#discrete-copy-number-data), but also provides an amp_genes and a del_genes file. These cannot be directly imported into cBioPortal, but first have to be converted to a different file format. An example can be found in the [ACC TCGA study](https://github.com/cBioPortal/datahub/blob/master/public/acc_tcga/data_gistic_genes_amp.txt) on cBioPortal Datahub.
 
 After uploading a gistic_amp and/or gistic_del file, a new button becomes available in the Enter Gene Set section, called "Select Genes from Recurrent CNAs (Gistic)". 
 
@@ -1055,7 +1055,7 @@ chromosome<TAB>peak_start<TAB>peak_end<TAB>genes_in_region<TAB>amp<TAB>cytoband<
 
 
 ## MutSig Data
-MutSig stands for "Mutation Significance".  MutSig analyzes lists of mutations discovered in DNA sequencing, to identify genes that were mutated more often than expected by chance given background mutation processes. You can download mutsig from [broadinstitute](https://www.broadinstitute.org/cancer/cga/mutsig_download) (MutSigCV 1.4 is available) or run mutsig (MutSigCV 1.2 is available) using [GenePattern](http://genepattern.broadinstitute.org/gp/pages/login.jsf).
+MutSig stands for "Mutation Significance".  MutSig analyzes lists of mutations discovered in DNA sequencing, to identify genes that were mutated more often than expected by chance given background mutation processes. You can download mutsig from [broadinstitute](https://www.broadinstitute.org/cancer/cga/mutsig_download) (MutSigCV 1.4 is available) or run mutsig (MutSigCV 1.2 is available) using [GenePattern](https://cloud.genepattern.org).
 
 **Note:** The tcga files that are uploaded to cBioPortal are generated using MutSig2.0. This version is not available outside broadinstitute. 
 

@@ -90,7 +90,8 @@
         <custom-filter ref="socialAuthenticationFilter" before="PRE_AUTH_FILTER" />
 
         <!--  logout actions -->      
-        <logout logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID"/>
+        <!--<logout logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID"/>-->
+        <logout logout-success-url="/login.jsp?logout_success=true" logout-url="/logout" delete-cookies="JSESSIONID" />
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
         <csrf disabled="true"/>
@@ -187,7 +188,8 @@
       </openid-login>
 
         <!--  logout actions -->      
-        <logout logout-success-url="/login.jsp?logout_success=true"/>
+        <!--<logout logout-success-url="/login.jsp?logout_success=true"/>-->
+        <logout logout-success-url="/login.jsp?logout_success=true" logout-url="/logout" />
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
         <csrf disabled="true"/>
@@ -467,7 +469,8 @@
                 password-parameter="j_password"
                 default-target-url="/index.do"
                 authentication-success-handler-ref="successRedirectHandler" />
-            <logout     logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID" />
+            <!--<logout logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID" >-->
+            <logout logout-success-url="/login.jsp?logout_success=true" logout-url="/logout" delete-cookies="JSESSIONID" />
             <intercept-url pattern="/auth/*" access="permitAll"/>
             <intercept-url pattern="/favicon.ico" access="permitAll"/>
             <intercept-url pattern="/login.jsp*" access="permitAll"/>
@@ -488,7 +491,10 @@
             <b:constructor-arg value="${ad.domain}"/>
             <b:constructor-arg value="${ad.url}"/>
             <b:constructor-arg value="${ad.rootDn}"/>
+            <b:property name="userDetailsContextMapper" ref="activeDirectoryUserContextMapper" />
         </b:bean>
+        
+        <b:bean id="activeDirectoryUserContextMapper" class="org.cbioportal.security.spring.authentication.ad.ADUserDetailsContextMapper" />
     </b:beans>
 
     <!-- begin ldap beans -->
@@ -501,7 +507,8 @@
                 login-processing-url="/j_spring_security_check"
                 default-target-url="/index.do"
                 authentication-success-handler-ref="successRedirectHandler" />
-            <logout     logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID" />
+            <!--<logout logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID" />-->
+            <logout logout-success-url="/login.jsp?logout_success=true" logout-url="/logout" delete-cookies="JSESSIONID" />
             <intercept-url pattern="/auth/*" access="permitAll"/>
             <intercept-url pattern="/favicon.ico" access="permitAll"/>
             <intercept-url pattern="/login.jsp*" access="permitAll"/>

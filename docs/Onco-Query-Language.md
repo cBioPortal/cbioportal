@@ -19,6 +19,7 @@ You can use the Onco Query Language (OQL) to select specific types of alteration
 
 <!-- /TOC -->
 
+<a name="oql-keywords"></a>
 ## OQL Keywords
 Users can define specific subsets of genetic alterations for four data types:
 
@@ -31,6 +32,7 @@ Protein/phosphoprotein level (RPPA) | `PROT` | `PROT < -x` Protein-level under-e
 
 \* These are the default OQL keywords used for each data type when a gene is queried without any explicit OQL.
 
+<a name="basic-usage"></a>
 ## Basic Usage
 When querying a gene without providing any OQL specifications, cBioPortal will default to these OQL terms for a query with Mutation and Copy Number selected in the Genomic Profiles section:
 `MUT FUSION AMP HOMDEL`
@@ -64,7 +66,7 @@ In general, any combination of OQL keywords and/or categories can annotate any g
 
 Below we will go into greater detail about each data type.
 
-
+<a name="mutations"></a>
 ## Mutations
 To view cases with specific mutations, provide the specific amino acid change of interest:
 ```
@@ -96,7 +98,7 @@ For example, to view TP53 truncating mutations and in-frame insertions/deletions
 TP53: MUT = TRUNC INFRAME
 ```
 
-
+<a name="cna"></a>
 ## CNA
 To view cases with specific copy number alterations, provide the appropriate keywords for the copy number alterations of interest. For example, to see amplifications:
 ```
@@ -113,14 +115,14 @@ Which can also be written as:
 CCNE1: GAIN AMP
 ```
 
-
+<a name="expression"></a>
 ## Expression
 Over- or under-expression of a gene is determined by the number of standard deviations (SD) from the mean. For example, to see cases where mRNA for CCNE1 is greater than 3 SD above the mean:
 ```
 CCNE1: EXP > 3
 ```
 
-
+<a name="protein"></a>
 ## Protein
 Protein over- or under-expression is similarly determined by the number of SD from the mean. For example, to see cases that are over-expressed in RPPA protein level by 2 SD above the mean:
 ```
@@ -132,6 +134,7 @@ Or over-expressed at the phospho-protein level:
 EGFR_PY992: PROT > 2
 ```
 
+<a name="the-datatypes-command"></a>
 ## The DATATYPES Command
 To save copying and pasting, the `DATATYPES` command sets the genetic annotation for all subsequent genes. Thus,
 ```
@@ -145,6 +148,7 @@ MDM2: AMP GAIN HOMDEL EXP > 1.5 EXP < -1.5
 TP53: AMP GAIN HOMDEL EXP > 1.5 EXP < -1.5
 ```
 
+<a name="merged-gene-tracks"></a>
 ## Merged Gene Tracks
 OQL can be used to create a merged gene track in OncoPrint, in which alterations in multiple genes appear as a single track. This is done by enclosing a list of genes in square brackets. By default, the track will be labeled by the gene names, separated by '/'. To instead specify a label, type the desired label within double quotes at the beginning of the square brackets. For example:
 ```
@@ -161,7 +165,9 @@ It is possible to include OQL for specific alterations in merged gene tracks, as
 
 Note that merged gene tracks will only appear in OncoPrint. All other pages will show the individual genes.
 
+<a name="example-rb-pathway-alterations"></a>
 ## Example: RB Pathway Alterations
+<a name="using-the-defaults"></a>
 ### Using the Defaults
 Select Ovarian Serous Cystadenocarcinoma (TCGA, Nature 2011) with the following data types:
 * Mutations
@@ -182,6 +188,7 @@ Submit this query and note how many samples have alterations in multiple of thes
 <http://www.cbioportal.org/index.do?session_id=59c16a64498e5df2e2957f19&show_samples=false&>
 
 
+<a name="greater-insight-with-oql"></a>
 ### Greater Insight with OQL
 Given what is known about the RB pathway, the events that are most likely selected for in the tumors are CCNE1 amplification, RB1 deletions or mutations, and loss of expression of CDKN2A. To investigate this hypothesis, we can use OQL to display only these events. Modify the query to reflect this:
 ```
@@ -199,6 +206,6 @@ Examine the updated OncoPrint:
 This shows that alterations in these genes are almost entirely mutually-exclusive -- no cases are altered in all three genes and only six are altered in two genes. This supports the theory that the tumor has selected for these events.
 
 
-
+<a name="questions-feedback"></a>
 ## Questions? Feedback?
 Please share any questions or feedback on OQL with us: <http://groups.google.com/group/cbioportal>

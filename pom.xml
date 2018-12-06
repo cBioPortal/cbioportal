@@ -6,7 +6,9 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>Portal Master</name>
-  <version>1.18.2-SNAPSHOT</version>
+  <!-- project version is generated through git or can be passed as
+	   PROJECT_VERSION env variable (see version.sh) -->
+  <version>0-unknown-version-SNAPSHOT</version>
   <description>master maven module</description>
 
   <scm>
@@ -23,6 +25,12 @@
       </snapshots>
     </repository>
   </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <profiles>
     <profile>
@@ -35,6 +43,17 @@
       </properties>
     <build>
     <plugins>
+          <plugin>
+            <groupId>com.github.inodb.maven-external-version</groupId>
+            <artifactId>maven-external-version-plugin</artifactId>
+            <version>b7bc6a6ff7d51295089d5dc7ff64084063440cc6</version>
+            <extensions>true</extensions>
+            <configuration>
+              <strategy hint="script">
+                <script>./version.sh</script>
+              </strategy>
+            </configuration>
+          </plugin>
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
@@ -250,7 +269,7 @@
     <jacoco-maven-plugin.version>0.7.6.201602180812</jacoco-maven-plugin.version>
     <mockito.version>1.10.19</mockito.version>
 
-    <final.war.name>cbioportal-${project.version}</final.war.name>
+    <final.war.name>cbioportal</final.war.name>
 
   <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
     <!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->

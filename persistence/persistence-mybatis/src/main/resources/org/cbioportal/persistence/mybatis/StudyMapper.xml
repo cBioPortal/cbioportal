@@ -57,10 +57,10 @@
             </if>
             <if test="keyword != null">
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
-                    LOWER(cancer_study.NAME) like CONCAT('%', #{item}, '%') OR
-                    LOWER(cancer_study.CANCER_STUDY_IDENTIFIER) like CONCAT('%', #{item}, '%') OR
-                    LOWER(type_of_cancer.NAME) like CONCAT('%', #{item}, '%') OR
-                    LOWER(type_of_cancer.TYPE_OF_CANCER_ID) like CONCAT('%', #{item}, '%')
+                    cancer_study.NAME like CONCAT('%', #{item}, '%') OR
+                    cancer_study.CANCER_STUDY_IDENTIFIER like CONCAT('%', #{item}, '%') OR
+                    type_of_cancer.NAME like CONCAT('%', #{item}, '%') OR
+                    type_of_cancer.TYPE_OF_CANCER_ID like CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>

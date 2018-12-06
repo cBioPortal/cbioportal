@@ -292,38 +292,6 @@
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>heroku</id>
-      <build>
-        <plugins>
-          <!-- remove core temp build files -->
-          <plugin>
-            <artifactId>maven-clean-plugin</artifactId>
-            <version>2.5</version>
-            <executions>
-              <execution>
-                <id>clean-artifacts</id>
-                <phase>install</phase>
-                <goals>
-                  <goal>clean</goal>
-                </goals>
-                <configuration>
-                  <excludeDefaultDirectories>true</excludeDefaultDirectories>
-                  <filesets>
-                    <fileset>
-                      <directory>target</directory>
-                    </fileset>
-                  </filesets>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
   <build>
     <plugins>
       <!-- surefire (test) config -->

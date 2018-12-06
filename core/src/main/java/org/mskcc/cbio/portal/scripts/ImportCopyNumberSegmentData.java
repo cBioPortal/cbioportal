@@ -48,19 +48,20 @@ import java.util.*;
  */
 public class ImportCopyNumberSegmentData extends ConsoleRunnable {
 
+    private static final String[] requiredHeaderFields = {"ID", "chrom", "loc.start", "loc.end", "num.mark", "seg.mean"};
     private int entriesSkipped;
-    
+
     private void importData(File file, int cancerStudyId) throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
         try {
             String line = buf.readLine(); // skip header line
+            Map<String, Integer> headerIndexMap = getIndexMap(line);
             long segId = DaoCopyNumberSegment.getLargestId();
             while ((line=buf.readLine()) != null) {
                 ProgressMonitor.incrementCurValue();
                 ConsoleUtil.showProgress();
-                
                 String[] strs = line.split("\t");
                 if (strs.length<6) {
                     System.err.println("wrong format: "+line);
@@ -71,7 +72,7 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
                 //procedure. In this new procedure, Patients and Samples should only be added 
                 //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
                 //sample per patient, which is not always the case.
-                String barCode = strs[0];
+                String barCode = strs[headerIndexMap.get("ID")];
                 Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId,
                         StableIdUtil.getSampleId(barCode));
                 if (sample == null ) {
@@ -81,20 +82,20 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
                 }
     
                 String sampleId = StableIdUtil.getSampleId(barCode);
-                String chrom = strs[1].trim(); 
+                String chrom = strs[headerIndexMap.get("chrom")].trim(); 
                 //validate in same way as GistitReader:
                 ValidationUtils.validateChromosome(chrom);
                 
-                long start = Double.valueOf(strs[2]).longValue();
-                long end = Double.valueOf(strs[3]).longValue();
+                long start = Double.valueOf(strs[headerIndexMap.get("loc.start")]).longValue();
+                long end = Double.valueOf(strs[headerIndexMap.get("loc.end")]).longValue();
                 if (start >= end) {
                     //workaround to skip with warning, according to https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415
                     ProgressMonitor.logWarning("Start position of segment is not lower than end position. Skipping this entry.");
                     entriesSkipped++;
                     continue;
                 }            
-                int numProbes = new BigDecimal((strs[4])).intValue();
-                double segMean = Double.parseDouble(strs[5]);
+                int numProbes = new BigDecimal((strs[headerIndexMap.get("num.mark")])).intValue();
+                double segMean = Double.parseDouble(strs[headerIndexMap.get("seg.mean")]);
                 
                 Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
                 if (s == null) {
@@ -149,6 +150,21 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
         } catch (IOException|DaoException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static Map<String, Integer> getIndexMap(String header) {
+        Map<String, Integer> indexMap = new HashMap<String, Integer>();
+        List<String> columns = Arrays.asList(header.split("\t"));
+        int index;
+        for (String field : requiredHeaderFields) {
+            index = columns.indexOf(field);
+            if (index >= 0) {
+                indexMap.put(field, columns.indexOf(field));
+            } else {
+                throw new RuntimeException("Header does not contain required fields");
+            }
+        }
+        return indexMap;
     }
 
     private static CancerStudy getCancerStudy(Properties properties) throws DaoException {

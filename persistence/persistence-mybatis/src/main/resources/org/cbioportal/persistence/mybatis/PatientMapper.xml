@@ -37,7 +37,7 @@
             </if>
             <if test="keyword != null">
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
-                    LOWER(patient.STABLE_ID) like CONCAT('%', #{item}, '%')
+                    patient.STABLE_ID like CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>

@@ -29,7 +29,7 @@
             </if>
             <if test="keyword != null">
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
-                    LOWER(gene.HUGO_GENE_SYMBOL) like CONCAT('%', #{item}, '%')
+                    gene.HUGO_GENE_SYMBOL like CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>

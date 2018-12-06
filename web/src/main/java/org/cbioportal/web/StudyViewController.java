@@ -144,8 +144,8 @@ public class StudyViewController {
                     
                     List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(
                         attribute,
-                        filteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
-                        unfilteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
+                        filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(), Collections.emptyList()),
+                        unfilteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(), Collections.emptyList()),
                         filteredIds,
                         unfilteredIds);
                     dataBins.forEach(dataBin -> dataBin.setClinicalDataType(attribute.getClinicalDataType()));
@@ -162,7 +162,7 @@ public class StudyViewController {
                     
                     List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(
                         attribute,
-                        filteredClinicalDataByAttributeId.get(attribute.getAttributeId()),
+                        filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(), Collections.emptyList()),
                         filteredIds);
                     dataBins.forEach(dataBin -> dataBin.setClinicalDataType(attribute.getClinicalDataType()));
                     clinicalDataBins.addAll(dataBins);

@@ -44,9 +44,9 @@
     <build>
     <plugins>
           <plugin>
-            <groupId>com.github.inodb.maven-external-version</groupId>
+            <groupId>com.github.cbioportal.maven-external-version</groupId>
             <artifactId>maven-external-version-plugin</artifactId>
-            <version>b7bc6a6ff7d51295089d5dc7ff64084063440cc6</version>
+            <version>67e9fc4ebb17333b119ab10e1b521fe8391b7ff2</version>
             <extensions>true</extensions>
             <configuration>
               <strategy hint="script">

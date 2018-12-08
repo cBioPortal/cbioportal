@@ -27,7 +27,7 @@ On Ubuntu:  [See Recommended Installation Instructions](https://www.digitalocean
 
 ## Apache Maven
 
-The cBioPortal source code is an [Apache Maven](https://maven.apache.org/) driven project.  The software needs to be downloaded and installed prior to building the application from source code.  It can be found on the [Apache Maven](https://maven.apache.org/download.cgi) website.
+The cBioPortal source code is an [Apache Maven](https://maven.apache.org/) driven project.  The software needs to be downloaded and installed prior to building the application from source code.  It can be found on the [Apache Maven](https://maven.apache.org/download.cgi) website. We are currently using version 3.5.4.
 
 On Ubuntu:  ```sudo apt-get install maven```
 

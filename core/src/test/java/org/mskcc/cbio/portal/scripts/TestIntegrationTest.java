@@ -205,7 +205,7 @@ public class TestIntegrationTest {
             List<DBClinicalField> clinicalAttributes = apiService.getSampleClinicalAttributes();
             assertEquals(3, clinicalAttributes.size());
             clinicalAttributes = apiService.getPatientClinicalAttributes();
-            assertEquals(4, clinicalAttributes.size());
+            assertEquals(5, clinicalAttributes.size());
             List<DBClinicalSampleData> clinicalComputedSampleData = apiService.getSampleClinicalData("study_es_0", Arrays.asList("MUTATION_COUNT","FRACTION_GENOME_ALTERED"), Arrays.asList("TCGA-A2-A04P-01"));
             Boolean mutationCountExists = false;
             Boolean fractionGenomeAlteredExists = false;

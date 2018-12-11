@@ -539,3 +539,14 @@ WHERE c1.`CANCER_STUDY_ID` = cancer_study.`CANCER_STUDY_ID` GROUP BY cancer_stud
 HAVING SUM(`END`-`START`) > 0;
 
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.2";
+
+##version: 2.7.3
+DELETE FROM `clinical_attribute_meta` WHERE clinical_attribute_meta.`ATTR_ID` = 'SAMPLE_COUNT';
+INSERT INTO `clinical_attribute_meta` SELECT 'SAMPLE_COUNT', 'Number of Samples Per Patient', 
+'Number of Samples Per Patient', 'NUMBER', 1, '1', patient.`CANCER_STUDY_ID` FROM patient 
+GROUP BY patient.`CANCER_STUDY_ID`;
+
+DELETE FROM `clinical_patient` WHERE clinical_patient.`ATTR_ID` = 'SAMPLE_COUNT';
+INSERT INTO `clinical_patient` SELECT patient.`INTERNAL_ID`, 'SAMPLE_COUNT', COUNT(*) FROM sample 
+INNER JOIN patient ON sample.`PATIENT_ID` = patient.`INTERNAL_ID` GROUP BY patient.`INTERNAL_ID`;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.3";

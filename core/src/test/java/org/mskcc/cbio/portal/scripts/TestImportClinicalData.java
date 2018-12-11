@@ -194,7 +194,7 @@ public class TestImportClinicalData {
         importClinicalData.setFile(cancerStudy, clinicalFile, "PATIENT_ATTRIBUTES", false);
         importClinicalData.importData();
         
-		checkSurvivalData(cancerStudy);
+		checkSurvivalDataAndSampleCount(cancerStudy);
 	}
 	
     /**
@@ -212,10 +212,10 @@ public class TestImportClinicalData {
         importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", false);
         importClinicalData.importData();
 
-		checkSurvivalData(cancerStudy);
+		checkSurvivalDataAndSampleCount(cancerStudy);
 	}
 
-	private void checkSurvivalData(CancerStudy cancerStudy) throws DaoException {
+	private void checkSurvivalDataAndSampleCount(CancerStudy cancerStudy) throws DaoException {
         LinkedHashSet <String> caseSet = new LinkedHashSet<String>();
         caseSet.add("TCGA-A1-A0SB");
         caseSet.add("TCGA-A1-A0SE");
@@ -233,10 +233,12 @@ public class TestImportClinicalData {
                 assertEquals ("Recurred/Progressed", patientData.getDiseaseFreeSurvivalStatus());
                 assertEquals (new Double(43.8), patientData.getOverallSurvivalMonths());
                 assertEquals (new Double(15.05), patientData.getDiseaseFreeSurvivalMonths());
+                assertEquals(new Integer(1), patientData.getSampleCount());
                 countChecks++;
         	}
         	else if (patientData.getStableId().equals("TCGA-A1-A0SE")) {
                 assertEquals (null, patientData.getDiseaseFreeSurvivalMonths());
+                assertEquals(new Integer(1), patientData.getSampleCount());
                 countChecks++;
         	}
         	else {
@@ -246,6 +248,7 @@ public class TestImportClinicalData {
                 assertEquals ("DiseaseFree", patientData.getDiseaseFreeSurvivalStatus());
                 assertEquals (new Double(49.02), patientData.getOverallSurvivalMonths());
                 assertEquals (new Double(49.02), patientData.getDiseaseFreeSurvivalMonths());
+                assertEquals(new Integer(1), patientData.getSampleCount());
                 countChecks++;
         	}
         }

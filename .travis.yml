@@ -9,10 +9,10 @@ cache:
   - $HOME/maven
 env:
   matrix:
-  - MAVEN_VERSION=3.3.9 TEST=core
-  - MAVEN_VERSION=3.3.9 TEST=python-validator
-  - MAVEN_VERSION=3.3.9 TEST=sanity-checks
-  - MAVEN_VERSION=3.3.9 TEST=end-to-end
+  - MAVEN_VERSION=3.5.4 TEST=core
+  - MAVEN_VERSION=3.5.4 TEST=python-validator
+  - MAVEN_VERSION=3.5.4 TEST=sanity-checks
+  - MAVEN_VERSION=3.5.4 TEST=end-to-end
 install:
 - |
   if [[ "${TEST}" == core || "${TEST}" == end-to-end ]]
@@ -71,18 +71,19 @@ script:
   then
       ~/maven/$MAVEN_VERSION/bin/mvn \
           -e \
-          -Ppublic \
-          -Dfinal.war.name=cbioportal \
+          -U \
           -Ddb.user=cbio_user \
           -Ddb.password=somepassword \
-          clean integration-test
+          clean \
+          install \
+          integration-test
   fi
 - |
   if [[ "${TEST}" == end-to-end ]]
   then
       ~/maven/$MAVEN_VERSION/bin/mvn \
-          -Ppublic -DskipTests \
-          -Dfinal.war.name=cbioportal \
+          -U \
+          -DskipTests \
           clean install
   fi
 - |

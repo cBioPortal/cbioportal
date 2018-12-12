@@ -213,6 +213,26 @@ public class TestImportClinicalData {
         importClinicalData.importData();
 
 		checkSurvivalDataAndSampleCount(cancerStudy);
+    }
+    
+    @Test
+    public void testImportClinicalDataTwoSampleFiles() throws Exception {
+		
+        File clinicalFile = new File("src/test/resources/clinical_data_small_SAMPLE.txt");
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        importClinicalData.setFile(cancerStudy, clinicalFile, "SAMPLE_ATTRIBUTES", false);
+        importClinicalData.importData();
+        
+        clinicalFile = new File("src/test/resources/clinical_data_small_SAMPLE2.txt");
+        importClinicalData = new ImportClinicalData(null);
+        importClinicalData.setFile(cancerStudy, clinicalFile, "SAMPLE_ATTRIBUTES", false);
+        importClinicalData.importData();
+        
+		LinkedHashSet <String> caseSet = new LinkedHashSet<String>();
+        caseSet.add("TEST-A2-A04P");
+        
+        List<Patient> clinicalCaseList = DaoClinicalData.getSurvivalData(cancerStudy.getInternalId(), caseSet);
+        assertEquals (new Integer(2), clinicalCaseList.get(0).getSampleCount());        
 	}
 
 	private void checkSurvivalDataAndSampleCount(CancerStudy cancerStudy) throws DaoException {

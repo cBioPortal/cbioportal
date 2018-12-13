@@ -111,6 +111,7 @@ public class GlobalProperties {
     public static final String SKIN_RIGHT_NAV_SHOW_DATA_SETS = "skin.right_nav.show_data_sets";
     public static final String SKIN_RIGHT_NAV_SHOW_EXAMPLES = "skin.right_nav.show_examples";
     public static final String SKIN_RIGHT_NAV_SHOW_TESTIMONIALS = "skin.right_nav.show_testimonials";
+    public static final String SKIN_RIGHT_NAV_SHOW_WHATS_NEW = "skin.right_nav.show_whats_new";
     private static String skinAuthorizationMessage;
     @Value("${skin.authorization_message:Access to this portal is only available to authorized users.}")
     public void setSkinAuthorizationMessage(String property) { skinAuthorizationMessage = property; }
@@ -714,6 +715,12 @@ public class GlobalProperties {
     public static boolean showRightNavTestimonials()
     {
         String showFlag = portalProperties.getProperty(SKIN_RIGHT_NAV_SHOW_TESTIMONIALS);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+
+    public static boolean showRightNavWhatsNew()
+    {
+        String showFlag = portalProperties.getProperty(SKIN_RIGHT_NAV_SHOW_WHATS_NEW);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 

@@ -1,3 +1,8 @@
+## December 13, 2018
+*   **Added data**  of 43 samples from 2 studies:
+     *   [Uveal Melanoma (QIMR, Oncotarget 2016)](http://www.cbioportal.org/study?id=um_qimr_2016#summary) *28 samples*
+     *   [Squamous Cell Carcinoma of the Vulva (CUK, Exp Mol Med 2018)](http://www.cbioportal.org/study?id=vsc_cuk_2018) *15 samples*
+*   Updated data for [The Metastatic Breast Cancer Project (Provisional, October 2018)](http://www.cbioportal.org/study?id=brca_mbcproject_wagle_2017) *237 samples*
 ## October 29, 2018
 * The ninth phase of the cBioPortal architectural upgrade is now complete: the _results page_ is now a single-page application with better performance.
 * Supported plotting mutations by type in _Plots_ tab

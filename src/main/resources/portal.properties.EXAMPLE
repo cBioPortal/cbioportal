@@ -62,6 +62,7 @@ skin.login.saml.registration_html=Sign in with MSK
 skin.right_nav.show_data_sets=true
 skin.right_nav.show_examples=true
 skin.right_nav.show_testimonials=true
+skin.right_nav.show_whats_new=true
 
 # settings controlling what to show in the right navigation bar
 skin.study_view.link_text=To build your own case set, try out our enhanced Study View.

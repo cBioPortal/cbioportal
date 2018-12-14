@@ -543,7 +543,7 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.2";
 ##version: 2.7.3
 DELETE FROM `clinical_attribute_meta` WHERE clinical_attribute_meta.`ATTR_ID` = 'SAMPLE_COUNT';
 INSERT INTO `clinical_attribute_meta` SELECT 'SAMPLE_COUNT', 'Number of Samples Per Patient', 
-'Number of Samples Per Patient', 'NUMBER', 1, '1', patient.`CANCER_STUDY_ID` FROM patient 
+'Number of Samples Per Patient', 'STRING', 1, '1', patient.`CANCER_STUDY_ID` FROM patient
 GROUP BY patient.`CANCER_STUDY_ID`;
 
 DELETE FROM `clinical_patient` WHERE clinical_patient.`ATTR_ID` = 'SAMPLE_COUNT';

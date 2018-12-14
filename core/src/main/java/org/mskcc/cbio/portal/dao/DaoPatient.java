@@ -191,7 +191,7 @@ public class DaoPatient {
             ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum(SAMPLE_COUNT_ATTR_ID, cancerStudyId);
             if (clinicalAttribute == null) {
                 ClinicalAttribute attr = new ClinicalAttribute(SAMPLE_COUNT_ATTR_ID, "Number of Samples Per Patient", 
-                    "Number of Samples Per Patient", "NUMBER", true, "1", cancerStudyId);
+                    "Number of Samples Per Patient", "STRING", true, "1", cancerStudyId);
                 DaoClinicalAttributeMeta.addDatum(attr);
             }
             pstmt.executeUpdate();

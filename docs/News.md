@@ -1,3 +1,8 @@
+## December 17, 2018
+* The 10th phase of cBioPortal architectural upgrade is now complete: the _Study View_ has been moved to the new architecture with numerous improvements. This marks the completion of the cBioPortal architectural refactoring! 🎉🎉🎉
+
+[![image](https://user-images.githubusercontent.com/840895/50118410-921a1200-021d-11e9-9bd2-e34f9b599d41.png)](http://www.cbioportal.org/study?id=msk_impact_2017)
+
 ## October 29, 2018
 * The ninth phase of the cBioPortal architectural upgrade is now complete: the _results page_ is now a single-page application with better performance.
 * Supported plotting mutations by type in _Plots_ tab

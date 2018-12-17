@@ -12,7 +12,7 @@ mvn integration-test -Ddb.test.username=cbio -Ddb.test.password=<your_db_passwor
 ```
 This will create the tables in `cgds_test` and populate your schema with test data.
 
-4. you can run all tests with
+4. you can run all other tests with
 ```
 mvn test -Ddb.test.username=cbio -Ddb.test.password=<your_db_password>
 ```

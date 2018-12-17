@@ -105,7 +105,7 @@ Yes, the cBioPortal provides a [Web API](http://www.cbioportal.org/web_api.jsp),
 ### Can I use cBioPortal with my own data?
 cBioPortal provides several options for analyzing your own data. Visit our [Visualize Your Data](http://www.cbioportal.org/tools.jsp) page to generate an OncoPrint or Lollipop Plot with your own data. To utilize the entire suite of analysis and visualization tools, you can also install your own instance of cBioPortal (see next question).
 ### Can I create a local instance of cBioPortal to host my own data?
-Yes, the cBioPortal is open-source, and available on [GitHub](https://github.com/cBioPortal/cbioportal). Our [Wiki pages](https://cbioportal.readthedocs.io/en/latest/) provide complete download and installation instructions.
+Yes, the cBioPortal is open-source, and available on [GitHub](https://github.com/cBioPortal/cbioportal). Our [documentation](https://docs.cbioportal.org) provides complete download and installation instructions.
 ### I'd like to contribute code to the cBioPortal. How do I get started?
 Great! We would love to have your contributions. To get started, head over to our GitHub repository and check out our page on [how to contribute](https://github.com/cBioPortal/cbioportal/blob/master/CONTRIBUTING.md).
 ### What is a Virtual Study?

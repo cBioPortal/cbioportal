@@ -46,6 +46,8 @@ import java.util.*;
  */
 public class DaoPatient {
 
+    private static final String SAMPLE_COUNT_ATTR_ID = "SAMPLE_COUNT";
+
     private static final Map<Integer, Patient> byInternalId = new HashMap<Integer, Patient>();
     private static final Map<Integer, Set<Patient>> byInternalCancerStudyId = new HashMap<Integer, Set<Patient>>();
     private static final MultiKeyMap byCancerIdAndStablePatientId = new MultiKeyMap();
@@ -171,6 +173,33 @@ public class DaoPatient {
         }
 
         clearCache();
+    }
+
+    public static void createSampleCountClinicalData(int cancerStudyId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
+            pstmt = con.prepareStatement(
+                    "REPLACE `clinical_patient`" +
+                    "SELECT patient.`INTERNAL_ID`, 'SAMPLE_COUNT', COUNT(*) FROM sample " + 
+                    "INNER JOIN patient ON sample.`PATIENT_ID` = patient.`INTERNAL_ID`" +
+                    "WHERE patient.`CANCER_STUDY_ID`=? " +
+                    "GROUP BY patient.`INTERNAL_ID`;");
+            pstmt.setInt(1, cancerStudyId);
+            ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum(SAMPLE_COUNT_ATTR_ID, cancerStudyId);
+            if (clinicalAttribute == null) {
+                ClinicalAttribute attr = new ClinicalAttribute(SAMPLE_COUNT_ATTR_ID, "Number of Samples Per Patient", 
+                    "Number of Samples Per Patient", "STRING", true, "1", cancerStudyId);
+                DaoClinicalAttributeMeta.addDatum(attr);
+            }
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoCopyNumberSegment.class, con, pstmt, rs);
+        }
     }
 
     private static Patient extractPatient(ResultSet rs) throws SQLException

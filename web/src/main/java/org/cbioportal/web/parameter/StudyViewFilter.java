@@ -18,8 +18,6 @@ public class StudyViewFilter {
 	private List<CopyNumberGeneFilter> cnaGenes;
 	private Boolean withMutationData;
 	private Boolean withCNAData;
-	@Size(min = 1)
-	private List<Integer> numberOfSamplesPerPatient;
 	private RectangleBounds mutationCountVsCNASelection;
 
 	@AssertTrue
@@ -104,14 +102,6 @@ public class StudyViewFilter {
 
 	public void setWithCNAData(Boolean withCNAData) {
 		this.withCNAData = withCNAData;
-	}
-
-	public List<Integer> getNumberOfSamplesPerPatient() {
-		return numberOfSamplesPerPatient;
-	}
-
-	public void setNumberOfSamplesPerPatient(List<Integer> numberOfSamplesPerPatient) {
-		this.numberOfSamplesPerPatient = numberOfSamplesPerPatient;
 	}
 
 	public RectangleBounds getMutationCountVsCNASelection() {

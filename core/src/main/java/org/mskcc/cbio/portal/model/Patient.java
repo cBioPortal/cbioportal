@@ -134,6 +134,10 @@ public class Patient {
     public Double getAgeAtDiagnosis()
     {
 		return getDoubleValue(ClinicalAttribute.AGE_AT_DIAGNOSIS);
+    }
+    public Integer getSampleCount()
+    {
+		return getIntegerValue(ClinicalAttribute.SAMPLE_COUNT);
 	}
 
 	private Double getDoubleValue(String attribute)
@@ -146,6 +150,22 @@ public class Patient {
         }
         try {
             return Double.valueOf(data.getAttrVal());
+        } catch (NumberFormatException e) {
+            logger.warn("Can't handle clinical attribute of patient: " + stableId);
+            return null;
+        }
+    }
+    
+    private Integer getIntegerValue(String attribute)
+    {
+		ClinicalData data = clinicalDataMap.get(attribute);
+        if (data == null || data.getAttrVal().length() == 0 ||
+                data.getAttrVal().equals(ClinicalAttribute.NA) ||
+                data.getAttrVal().equals(ClinicalAttribute.MISSING)) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(data.getAttrVal());
         } catch (NumberFormatException e) {
             logger.warn("Can't handle clinical attribute of patient: " + stableId);
             return null;

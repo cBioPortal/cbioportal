@@ -138,11 +138,6 @@ public class StudyViewFilterApplier {
             sampleIdentifiers = filterByProfiled(sampleIdentifiers, withCNAData, molecularProfileService::getFirstDiscreteCNAProfileIds);
         }
 
-        List<Integer> numberOfSamplesPerPatient = studyViewFilter.getNumberOfSamplesPerPatient();
-        if (numberOfSamplesPerPatient != null && !sampleIdentifiers.isEmpty()) {
-            sampleIdentifiers = filterNumberOfSamplesByPatient(numberOfSamplesPerPatient, sampleIdentifiers);
-        }
-
         RectangleBounds mutationCountVsCNASelection = studyViewFilter.getMutationCountVsCNASelection();
         if (mutationCountVsCNASelection != null && !sampleIdentifiers.isEmpty()) {
             sampleIdentifiers = filterMutationCountVsCNASelection(mutationCountVsCNASelection, sampleIdentifiers);
@@ -246,22 +241,6 @@ public class StudyViewFilterApplier {
         }
 
         return sampleIdentifiers;
-    }
-
-    private List<SampleIdentifier> filterNumberOfSamplesByPatient(List<Integer> numberOfSamplesPerPatient, List<SampleIdentifier> sampleIdentifiers) {
-        List<String> studyIds = new ArrayList<>();
-        List<String> sampleIds = new ArrayList<>();
-        studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
-        Map<String, Map<String, List<Sample>>> samplesByPatient = sampleService.fetchSamples(studyIds, sampleIds, 
-            Projection.ID.name()).stream().collect(Collectors.groupingBy(Sample::getCancerStudyIdentifier, 
-            Collectors.groupingBy(Sample::getPatientStableId)));
-        List<Sample> filteredSamples = new ArrayList<>();
-        samplesByPatient.forEach((k, v) -> v.forEach((m, n) -> {
-            if (numberOfSamplesPerPatient.contains(n.size())) {
-                filteredSamples.addAll(n);
-            }
-        }));
-        return filteredSamples.stream().map(sampleToSampleIdentifier).collect(Collectors.toList());
     }
 
     private List<SampleIdentifier> filterMutationCountVsCNASelection(RectangleBounds mutationCountVsCNASelection, List<SampleIdentifier> sampleIdentifiers) {

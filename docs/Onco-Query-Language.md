@@ -213,17 +213,20 @@ BRCA1: GERMLINE
 Or to see specifically truncating germline mutations:
 ```
 BRCA1: TRUNC_GERMLINE
+BRCA1: GERMLINE_TRUNC
 ```
+The order is immaterial; both options produce identical results.
 
 Or to see somatic missense mutations:
 ```
 BRCA1: MUT = MISSENSE_SOMATIC
 ``` 
 
-When combining `GERMLINE` or `SOMATIC` with `DRIVER` and another term (e.g. `NONSENSE`), it is essential that the middle term is `GERMLINE` or `SOMATIC` or `DRIVER`; `GERMLINE_NONSENSE_DRIVER` will not work.
+When combining `GERMLINE` or `SOMATIC` with `DRIVER` and another term (e.g. `NONSENSE`), the mutation term must come first or last:
 ```
 BRCA1: NONSENSE_GERMLINE_DRIVER
 ```
+Combing the terms as `GERMLINE_NONSENSE_DRIVER` will not work.
 
 <br>
 

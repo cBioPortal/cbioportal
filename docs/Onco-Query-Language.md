@@ -40,7 +40,7 @@ Protein/phosphoprotein level | `PROT` | `PROT < -x` Protein-level under-expressi
 
 \* These are the default OQL keywords used for each data type when a gene is queried without any explicit OQL.
 
-<a name="oql-modifiers></a>
+<a name="oql-modifiers"></a>
 ### OQL modifiers
 Mutations and copy number alterations can be further refined using modifiers:
 
@@ -241,6 +241,7 @@ The resulting merged gene track will be visible in OncoPrint and can be expanded
 
 ![Image of merged genes in OncoPrint](https://user-images.githubusercontent.com/1334004/47438018-a0950180-d777-11e8-9ab3-b6c8d0b23db1.png)
 
+<http://www.cbioportal.org/results/oncoprint?session_id=5c1966e2e4b05228701f958e>
 
 It is possible to include OQL for specific alterations in merged gene tracks, as well as querying a combination of single and merged gene tracks.
 
@@ -266,7 +267,7 @@ Submit this query and note how many samples have alterations in multiple of thes
 
 ![image of rb oncoprint](https://user-images.githubusercontent.com/1334004/47438020-a12d9800-d777-11e8-8150-4a3ab15d0ca0.png)
 
-<http://www.cbioportal.org/index.do?session_id=59c16a64498e5df2e2957f19&show_samples=false&>
+<http://www.cbioportal.org/results/oncoprint?session_id=5c1966cee4b05228701f958d>
 
 
 <a name="greater-insight-with-oql"></a>
@@ -282,7 +283,7 @@ Examine the updated OncoPrint:
 
 ![image of modified rb oncoprint](https://user-images.githubusercontent.com/1334004/47438019-a0950180-d777-11e8-8934-21f3fbe61662.png)
 
-<http://www.cbioportal.org/index.do?session_id=59c16ab4498e5df2e2957f1f&show_samples=false&>
+<http://www.cbioportal.org/results/oncoprint?session_id=5c1966aee4b05228701f958c>
 
 This shows that alterations in these genes are almost entirely mutually-exclusive -- no cases are altered in all three genes and only six are altered in two genes. This supports the theory that the tumor has selected for these events.
 

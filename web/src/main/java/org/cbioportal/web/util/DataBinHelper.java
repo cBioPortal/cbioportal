@@ -272,6 +272,16 @@ public class DataBinHelper
         return studyViewFilterUtil.calcRange(dataBin.getStart(), startInclusive, dataBin.getEnd(), endInclusive);
     }
 
+    public Range<Double> calcRange(String operator, Double value)
+    {
+        boolean startInclusive = ">=".equals(operator);
+        Double start = operator.contains(">") ? value : null;
+        boolean endInclusive = !"<".equals(operator);
+        Double end = operator.contains("<") ? value : null;
+
+        return studyViewFilterUtil.calcRange(start, startInclusive, end, endInclusive);
+    }
+
     public boolean isNA(String value)
     {
         return value.toUpperCase().equals("NA") || 
@@ -286,6 +296,20 @@ public class DataBinHelper
         return 0.001 > median && median > -0.001;
     }
 
+    public String extractOperator(String value)
+    {
+        int length = 0;
+
+        if (value.trim().startsWith(">=") || value.trim().startsWith("<=")) {
+            length = 2;
+        }
+        else if (value.trim().startsWith(">") || value.trim().startsWith("<")) {
+            length = 1;
+        }
+
+        return value.trim().substring(0, length);
+    }
+    
     public Integer calcExponent(Double value)
     {
         BigDecimal decimal = new BigDecimal(value);
@@ -306,7 +330,7 @@ public class DataBinHelper
 
         return value.trim().substring(length);
     }
-    
+
     public boolean isAgeAttribute(String attributeId)
     {
         return attributeId != null && attributeId.matches("(^AGE$)|(^AGE_.*)|(.*_AGE_.*)|(.*_AGE&)");

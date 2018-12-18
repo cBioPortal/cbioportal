@@ -158,7 +158,7 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
                 clinicalDataCountMap.put(a, counts);
             }
 
-            if (clinicalDataType.equals("SAMPLE")) {
+            if (clinicalDataType == ClinicalDataType.SAMPLE) {
                 naCount = sampleIds.size() - totalCount;
             } else {
                 List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);

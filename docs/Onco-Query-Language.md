@@ -57,11 +57,11 @@ Keyword | Applicable Data Type | Explanation
 When querying a gene without providing any OQL specifications, cBioPortal will default to these OQL terms for a query with Mutation and Copy Number selected in the Genomic Profiles section:
 `MUT FUSION AMP HOMDEL`
 
-![image of basic query](https://user-images.githubusercontent.com/1334004/47438017-a0950180-d777-11e8-9bb3-36758c7d6301.png)
+![image of basic query](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/images/OQL/basic_query.png)
 
 You can see the OQL terms applied by hovering over the gene name in OncoPrint:
 
-![image of basic query oncoprint](https://user-images.githubusercontent.com/1334004/47438015-9ffc6b00-d777-11e8-9d19-cbca5405b26a.png)
+![image of basic query oncoprint](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/images/OQL/basic_query_oncoprint.png)
 
 
 If you select RNA and/or Protein in the "Genomic Profiles" section of the query, the default settings are:
@@ -70,7 +70,7 @@ RNA: `EXP >= 2 EXP <= -2`
 
 Protein: `PROT >= 2 PROT <= -2`
 
-![image of exp prot query oncoprint](https://user-images.githubusercontent.com/1334004/47438014-9ffc6b00-d777-11e8-87ad-dea52965a5e8.png)
+![image of exp prot query oncoprint](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/images/OQL/basic_query_oncoprint_exp_prot.png)
 
 You must select the relevant Genomic Profile in order for OQL to query that data type. For example, you can't add `EXP > 2` to the query without also selecting an RNA profile.
 
@@ -256,7 +256,7 @@ OQL can be used to create a merged gene track in OncoPrint, in which alterations
 
 The resulting merged gene track will be visible in OncoPrint and can be expanded to view the individual gene tracks. For example:
 
-![Image of merged genes in OncoPrint](https://user-images.githubusercontent.com/1334004/47438018-a0950180-d777-11e8-9ab3-b6c8d0b23db1.png)
+![Image of merged genes in OncoPrint](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/images/OQL/merged_genes_oncoprint.png)
 
 <http://www.cbioportal.org/results/oncoprint?session_id=5c1966e2e4b05228701f958e>
 
@@ -280,11 +280,11 @@ Input the following three genes in the RB pathway:
 * RB1
 * CDKN2A
 
-![image of rb query](https://user-images.githubusercontent.com/1334004/47438021-a12d9800-d777-11e8-910c-7b4bcf8a9394.png)
+![image of rb query](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/images/OQL/rb_query.png)
 
 Submit this query and note how many samples have alterations in multiple of these genes:
 
-![image of rb oncoprint](https://user-images.githubusercontent.com/1334004/47438020-a12d9800-d777-11e8-8150-4a3ab15d0ca0.png)
+![image of rb oncoprint](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/images/OQL/rb_query_oncoprint.png)
 
 <http://www.cbioportal.org/results/oncoprint?session_id=5c1966cee4b05228701f958d>
 
@@ -300,7 +300,7 @@ CDKN2A: HOMDEL EXP < -1
 
 Examine the updated OncoPrint:
 
-![image of modified rb oncoprint](https://user-images.githubusercontent.com/1334004/47438019-a0950180-d777-11e8-8934-21f3fbe61662.png)
+![image of modified rb oncoprint](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/images/OQL/rb_query_oncoprint_modified.png)
 
 <http://www.cbioportal.org/results/oncoprint?session_id=5c1966aee4b05228701f958c>
 

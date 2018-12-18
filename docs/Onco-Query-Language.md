@@ -161,7 +161,7 @@ Modifiers can be used on their own or in combination with other OQL terms for mu
 ### Driver
 The `DRIVER` modifier applies to mutations, fusions and copy number alterations. The definition of what qualifies as a driver alteration comes from the "Mutation Color" menu in OncoPrint. By default, drivers are defined as mutations, fusions and copy number alterations in <a href="http://oncokb.org">OncoKB</a> or <a href="http://www.cancerhotspots.org">CancerHotspots</a>.
 
-On its own, the `DRIVER` modifier will include driver mutations, fusions and copy number alterations:
+On its own, the `DRIVER` modifier includes driver mutations, fusions and copy number alterations:
 ```
 EGFR: DRIVER
 ```
@@ -206,7 +206,7 @@ BRCA1: TRUNC_GERMLINE
 
 Or to see somatic missense mutations:
 ```
-BRCA1: MUT=MISSENSE_SOMATIC
+BRCA1: MUT = MISSENSE_SOMATIC
 ``` 
 
 When combining `GERMLINE` or `SOMATIC` with `DRIVER` and another term (e.g. `NONSENSE`), it is essential that the middle term is `GERMLINE` or `SOMATIC` or `DRIVER`; `GERMLINE_NONSENSE_DRIVER` will not work.

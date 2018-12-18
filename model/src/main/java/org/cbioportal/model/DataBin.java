@@ -1,10 +1,12 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 
 public class DataBin implements Serializable {
 
     private String attributeId;
+    private ClinicalDataType clinicalDataType;
     private String specialValue;
     private Double start;
     private Double end;
@@ -17,6 +19,14 @@ public class DataBin implements Serializable {
 	public void setAttributeId(String attributeId) {
 		this.attributeId = attributeId;
 	}
+
+    public ClinicalDataType getClinicalDataType() {
+        return clinicalDataType;
+    }
+
+    public void setClinicalDataType(ClinicalDataType clinicalDataType) {
+        this.clinicalDataType = clinicalDataType;
+    }
 
     public String getSpecialValue() {
         return specialValue;

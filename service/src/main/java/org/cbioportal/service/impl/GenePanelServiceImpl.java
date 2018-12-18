@@ -22,7 +22,6 @@ import org.apache.commons.collections.map.MultiKeyMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -139,60 +138,29 @@ public class GenePanelServiceImpl implements GenePanelService {
     private List<GenePanelData> createGenePanelData(MultiKeyMap genePanelDataMap, List<String> molecularProfileIds,
         List<String> sampleIds) {
 
-        // hacky code until https://github.com/cBioPortal/datahub/issues/200 is fixed
+        sampleIds = new ArrayList<>(sampleIds); // to be able to remove elements from sampleIds (it is originally unmodifiable)
         List<MolecularProfile> molecularProfiles = molecularProfileService.getMolecularProfiles(molecularProfileIds, 
             "SUMMARY");
-        List<MolecularProfile> cnaMolecularProfiles = molecularProfiles.stream().filter(m -> m.getMolecularAlterationType()
-            .equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION)).collect(Collectors.toList());
-        Map<String, String> profileMap = new HashMap<>();
-        MultiKeyMap mutationGenePanelDataMap = new MultiKeyMap();
-        if (!cnaMolecularProfiles.isEmpty()) {
-            List<String> cnaStudyIds = cnaMolecularProfiles.stream().map(MolecularProfile::getCancerStudyIdentifier)
-                .collect(Collectors.toList());
-            List<MolecularProfile> mutationMolecularProfiles = molecularProfileService.getMolecularProfilesInStudies(
-                cnaStudyIds, "SUMMARY").stream().filter(m -> m.getMolecularAlterationType().equals(
-                MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED)).collect(Collectors.toList());
-            List<String> mutationMolecularProfileIds = new ArrayList<>();
-            List<String> mutationSampleIds = new ArrayList<>();
-            for (int i = 0; i < molecularProfileIds.size(); i++) {
-                String molecularProfileId = molecularProfileIds.get(i);
-                Optional<MolecularProfile> cnaProfile = cnaMolecularProfiles.stream().filter(m -> m.getStableId().equals(molecularProfileId)).findFirst();
-                if (cnaProfile.isPresent()) {
-                    Optional<MolecularProfile> mutationProfile = mutationMolecularProfiles.stream().filter(m -> 
-                    m.getCancerStudyIdentifier().equals(cnaProfile.get().getCancerStudyIdentifier())).findFirst();
-                    if (mutationProfile.isPresent()) {
-                        mutationMolecularProfileIds.add(mutationProfile.get().getStableId());
-                        mutationSampleIds.add(sampleIds.get(i));
-                        profileMap.put(cnaProfile.get().getStableId(), mutationProfile.get().getStableId());
-                    }
-                }
-            }
-            List<GenePanelData> mutationGenePanelData = new ArrayList<>();
-            if (!mutationMolecularProfileIds.isEmpty()) {
-                mutationGenePanelData = genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(mutationMolecularProfileIds, mutationSampleIds);
-            }
-            mutationGenePanelDataMap = createGenePanelDataMap(mutationGenePanelData);
-        }
-        // end of hacky code
         Map<String, MolecularProfile> molecularProfileMap = molecularProfiles.stream().collect(
             Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
         List<String> studyIds = new ArrayList<>();
         List<String> sequencedSampleListIds = new ArrayList<>();
-        List<String> molecularProfileIdsToRemove = new ArrayList<>();
-        List<String> sampleIdsToRemove = new ArrayList<>();
+        List<Integer> molecularProfileIndexesToRemove = new ArrayList<>();
         
         for (int i = 0; i < molecularProfileIds.size(); i++) {
             String molecularProfileId = molecularProfileIds.get(i);
             if (molecularProfileMap.containsKey(molecularProfileId)) {
                 studyIds.add(molecularProfileMap.get(molecularProfileId).getCancerStudyIdentifier());
             } else {
-                molecularProfileIdsToRemove.add(molecularProfileId);
-                sampleIdsToRemove.add(sampleIds.get(i));
+                molecularProfileIndexesToRemove.add(i);
             }
         }
-        
-        molecularProfileIds.removeAll(molecularProfileIdsToRemove);
-        sampleIds.removeAll(sampleIdsToRemove);
+
+        Collections.sort(molecularProfileIndexesToRemove, Collections.reverseOrder());
+        for (int i : molecularProfileIndexesToRemove) {
+            molecularProfileIds.remove(i);
+            sampleIds.remove(i);
+        }
 
         MultiKeyMap samples = createSampleMap(studyIds, sampleIds);
         studyIds.stream().distinct().forEach(s -> sequencedSampleListIds.add(s + SEQUENCED_LIST_SUFFIX));
@@ -212,19 +180,7 @@ public class GenePanelServiceImpl implements GenePanelService {
             Optional<GenePanelData> genePanelData =
                 Optional.ofNullable((GenePanelData)genePanelDataMap.get(molecularProfileId, sampleId));
             if (genePanelData.isPresent()) {
-                String genePanelId = genePanelData.get().getGenePanelId();
-                // hacky code until https://github.com/cBioPortal/datahub/issues/200 is fixed
-                if (molecularProfile.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION) && 
-                    genePanelId == null) {
-                    Optional<GenePanelData> mutationPanelData =
-                        Optional.ofNullable((GenePanelData)mutationGenePanelDataMap.get(profileMap.get(molecularProfileId), sampleId));
-                    if (mutationPanelData.isPresent()) {
-                        resultGenePanelData.setGenePanelId(mutationPanelData.get().getGenePanelId());
-                    }
-                } else {
-                    resultGenePanelData.setGenePanelId(genePanelId);
-                }
-                // end of hacky code
+                resultGenePanelData.setGenePanelId(genePanelData.get().getGenePanelId());
                 resultGenePanelData.setProfiled(true);
             } else {
                 List<SampleList> sampleLists = sampleListMap.get(studyId);

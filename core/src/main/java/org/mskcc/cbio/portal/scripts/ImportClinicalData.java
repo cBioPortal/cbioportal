@@ -169,6 +169,11 @@ public class ImportClinicalData extends ConsoleRunnable {
         }
         importData(buff, columnAttrs);
         
+        if (getAttributesType() == ImportClinicalData.AttributeTypes.SAMPLE_ATTRIBUTES ||
+            getAttributesType() == ImportClinicalData.AttributeTypes.MIXED_ATTRIBUTES) {
+            DaoPatient.createSampleCountClinicalData(cancerStudy.getInternalId());
+        }
+        
         if (MySQLbulkLoader.isBulkLoad()) {
             MySQLbulkLoader.flushAll();
             MySQLbulkLoader.relaxedModeOff();

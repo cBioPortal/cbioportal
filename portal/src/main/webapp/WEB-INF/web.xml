@@ -520,25 +520,6 @@
     </servlet-mapping>
     
     <servlet>
-        <servlet-name>cancer_study_view</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.CancerStudyView</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>cancer_study_view</servlet-name>
-        <url-pattern>/study.do</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>cancer_study_view</servlet-name>
-        <url-pattern>/study</url-pattern>
-    </servlet-mapping>
-    
-    
-    <servlet>
-        <servlet-name>cancer_study_view_v2</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.CancerStudyViewV2</servlet-class>
-    </servlet>
-    
-    <servlet>
         <servlet-name>DrugsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.DrugsJSON</servlet-class>
     </servlet>
@@ -668,10 +649,11 @@
         <servlet-name>SinglePageApplication</servlet-name>
         <url-pattern>/results/*</url-pattern>
         <url-pattern>/patient/*</url-pattern>
-        <url-pattern>/newstudy/*</url-pattern>
+        <url-pattern>/study/*</url-pattern>
         <url-pattern>/mutation_mapper/*</url-pattern>
         <url-pattern>/index.do/*</url-pattern>
         <url-pattern>/case.do/*</url-pattern>
+        <url-pattern>/study.do/*</url-pattern>
     </servlet-mapping>
     
     <servlet>

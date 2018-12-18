@@ -5,7 +5,7 @@ import javax.validation.constraints.Size;
 import java.util.List;
 import java.io.Serializable;
 
-public class ClinicalAttributeFilter implements Serializable {
+public class ClinicalAttributeCountFilter implements Serializable {
 
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<SampleIdentifier> sampleIdentifiers;

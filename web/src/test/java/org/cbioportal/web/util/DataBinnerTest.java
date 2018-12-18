@@ -1,7 +1,9 @@
 package org.cbioportal.web.util;
 
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.model.DataBin;
+import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +30,7 @@ public class DataBinnerTest
         LogScaleDataBinner logScaleDataBinner = new LogScaleDataBinner(dataBinHelper);
         
         dataBinner = new DataBinner(
-            dataBinHelper, discreteDataBinner, linearDataBinner, scientificSmallDataBinner, logScaleDataBinner);
+            dataBinHelper, discreteDataBinner, linearDataBinner, scientificSmallDataBinner, studyViewFilterUtil, logScaleDataBinner);
         
         mockData = initMockData();
     }
@@ -128,6 +130,148 @@ public class DataBinnerTest
             "1446","578","97","233","879","448","651"
         });
 
+        mockData.put("genie_INT_DOD", new String[] {
+            "23430","20626","26382","22846","21047","28146","24064","26000","22121","16563","26681","20242","29721",
+            "14095","15632","27135","18821","16191","18587","15939","17558","17165","16308","23305","17557","15944",
+            "24774","18682","21975","24104","26567","18647","22493","16119","24928","29142","<6570","24263","25236",
+            "26013","22960","25002","20883","19673","20122","25160","15665","21131","26712","15645","11500","20010",
+            "22355","15527","19600","18939","6978","16933","30367","29048","30681","21099","21270","16049","24460",
+            "<6570","15319","24884","20317","21380","24561","23929","22852","27210","22676","25305","28152","25298",
+            "13225","17393","18210","24940","21419","20655","25118","20101","9833","22682","30282","23775","25193",
+            "26762","15799","19930","23248","13809","29925","27053","15988","13564","13852","26865","21416","26658",
+            "24606","15218","26446","18709","18072","16544","19759","19167","12031","19599","23655","12525","21453",
+            "16980","23281","19334","20892","26093","22556","22486","23259","14767","13641","21637","22616","20408",
+            "14053","22819","24263","22374","27943","27309","16908","18628","28846","26717","21335","<6570","21923",
+            "29328","25110","23146","26304","<6570","25274","27153","30866","26967","24853","22795","28955","21310",
+            "25252","16858","22786","29486","22203","19297","29743","25013","22353","18059","29596","20594","18610",
+            "17528","21178",">32485","21017","30818","22339","19296","26786","25080","24084","27952","20470","17844",
+            "22822","16961","14125","23770","24414","26299","21986","27407","23680","19727","24865","29221","13220",
+            "22555","26048","21493","23526","26777","25309","20682","25890","23272","21223","17726","25912","27609",
+            "22550","20890","19001","16571","17405","18575","10678","16191","20917","24290","25864","11642","28227",
+            "24645","17803","13517","24497","22063","18565","11785","20367","21461","10392","22530","19479","23656",
+            "21495","19372","13877","19928","20102","27975","19541","22792","19786","30469","25289","22136","11122",
+            "20219","25452","20915","25745","17041","19595","15223","18638","23342","20678","20718","19683","26022",
+            "19910","18233","26086","18665","28321","25498","22040","27769","23533","18339","17194","25384","30319",
+            "21446","23633","21796","19476","22742","28036","26086","20807","18721","25613","26494","21110","22571",
+            "18262","21674","19526","21009","20047","24120","14753","14379","26269","16151","23213","15963","17769",
+            "19871","20623","28343","24467","20843","18267","17283","18663","27337","23793","24626","20263","24851",
+            "20607","27255","19622","18364","23325","21598","21830","19791","22359","28918","24964","24712","25695",
+            "24982","24476","21297","23132","29450",">32485","24645","25740","25643","21793","21510","28954","22882",
+            "29243","24350","23305","21916","12419","26817","27859","17712","25946","24971","24738","29361","23313",
+            "22699","11141","19395",">32485","27336","20452","18893","19431","20232","25199","24556","23656","24029",
+            "26476","27039","21082","31789","26925","27604","22296","24333","7436","13978","20030","29698","28463",
+            "25555","28039","27229","25463","22442","20347","23507","24525","27257","24588","20595","21284","30495",
+            "18203","24034","24221","30494","18502","29325","26391","23484","20253","16882","26690","18580","16333",
+            "24449","22478","30009","8687","24291","22268","24897","29726","21457","19454","18957","19353","17397",
+            "20636","25080","20236","25866","20577","23954","29294","24174","<6570","31901","21034","18472","24370",
+            "26699","18692","22945","26790","21859","24329","21261","22805","22207","23733","19847","10273","20359",
+            "21887","23688","12778","26623","29125","18896","24605","28058","22613","16694","19314","25586","20084",
+            "18243","25814","21583","28624","26263","26953","24557","25218","24934","24035","18815","26319","27207",
+            "23720","24956","20929","27004","12603","24076","23502","19296","24310","21241","22137","21417","20812",
+            "23619","19015","12335","26523","19006","20726","25090","25741","24294","23722","17631","24564","19322",
+            "27479","12074","25989","13103","19320","25805","16605","23144","30034","17495","25825","23235","20526",
+            "12873","21686","24709","25846","32082","19560","26719","18777","7996",">32485","29426","24305","21846",
+            "23945","21657","25406","23025","24511","25225","17914","19843","24706","18450","22279","13769","22013",
+            "21477","<6570","26247","23267","25199","17112","31005","23667","31420","26845","24904","15040","25611",
+            "25017","14263","22504","24721","25565","28169","26427","25611","25847","23696","29716","27579","21461",
+            "22068","24770","28967","23250","16449","18861","20128","21325","22184","23149","17824","20979","29378",
+            "18391","23439","21328","<6570","25384","26367","29021","21594","18820","27295","26249","26114","28002",
+            "23897","23328","28254","25724","23916","18359","22835","22542","27070","19481","29256","28102","25490",
+            "28398","18956","25194","16696","22980","24545","25902","26109","29515","14913","28424","28605","16032",
+            "19904","23743","22746","24784","22553","18258","<6570","28742","22768","27165","20843","18681","27266",
+            "20242","22755","24670","21855","18337","16406","25616","21533","19252","26687","23866","24171","19421",
+            "16188","24918","19701","26537","19468","25982","16533","30732","20378","17068","23774","17836","25671",
+            "25171",">32485","28743","21715","10262","21629","19514","22744","21809","17726","13429","23670","17849",
+            "31656","26519","21302","22221","25532","20554","25526","26438","17007","28105","23624","28299","25970",
+            "25049","16754","21539","31633"
+        });
+
+        mockData.put("crc_msk_2018_MSI_SCORE", new String[]{
+            "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", 
+            "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", 
+            "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", 
+            "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", 
+            "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", 
+            "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", 
+            "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0.06", 
+            "0.07", "0.07", "0.07", "0.07", "0.07", "0.07", "0.07", "0.07", "0.07", "0.07", "0.07", "0.07", "0.07", 
+            "0.07", "0.07", "0.07", "0.07", "0.07", "0.07", "0.07", "0.07", "0.08", "0.08", "0.08", "0.08", "0.08", 
+            "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", 
+            "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", 
+            "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.08", "0.09", "0.09", "0.09", 
+            "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", 
+            "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", "0.09", "0.1", "0.1",
+            "0.1", "0.1", "0.1", "0.1", "0.1", "0.11", "0.11", "0.11", "0.12", "0.12", "0.12", "0.13", "0.13", "0.14", 
+            "0.14", "0.14", "0.14", "0.14", "0.14", "0.14", "0.15", "0.15", "0.15", "0.15", "0.15", "0.15", "0.15", 
+            "0.15", "0.15", "0.15", "0.15", "0.15", "0.15", "0.15", "0.15", "0.15", "0.15", "0.15", "0.15", "0.15", 
+            "0.15", "0.16", "0.16", "0.16", "0.16", "0.16", "0.16", "0.16", "0.16", "0.16", "0.16", "0.16", "0.16", 
+            "0.16", "0.16", "0.16", "0.16", "0.17", "0.17", "0.17", "0.17", "0.17", "0.17", "0.17", "0.17", "0.17", 
+            "0.17", "0.17", "0.17", "0.17", "0.17", "0.17", "0.17", "0.18", "0.18", "0.18", "0.18", "0.18", "0.18", 
+            "0.18", "0.18", "0.18", "0.18", "0.18", "0.19", "0.19", "0.19", "0.19", "0.19", "0.19", "0.19", "0.19", 
+            "0.2", "0.2", "0.2", "0.2", "0.21", "0.21", "0.22", "0.22", "0.22", "0.22", "0.22", "0.22", "0.22", "0.22", 
+            "0.23", "0.23", "0.23", "0.23", "0.24", "0.24", "0.24", "0.24", "0.24", "0.24", "0.24", "0.24", "0.24", 
+            "0.24", "0.25", "0.25", "0.25", "0.25", "0.25", "0.25", "0.25", "0.26", "0.26", "0.26", "0.26", "0.26", 
+            "0.26", "0.26", "0.26", "0.26", "0.26", "0.27", "0.27", "0.27", "0.27", "0.27", "0.27", "0.27", "0.27", 
+            "0.27", "0.28", "0.28", "0.28", "0.28", "0.28", "0.28", "0.29", "0.29", "0.29", "0.3", "0.3", "0.3", "0.3", 
+            "0.3", "0.3", "0.3", "0.31", "0.31", "0.31", "0.31", "0.31", "0.31", "0.31", "0.32", "0.32", "0.32", "0.32", 
+            "0.32", "0.33", "0.33", "0.33", "0.33", "0.33", "0.33", "0.33", "0.33", "0.33", "0.34", "0.34", "0.34", 
+            "0.34", "0.34", "0.34", "0.34", "0.34", "0.34", "0.34", "0.35", "0.35", "0.35", "0.35", "0.35", "0.35", 
+            "0.35", "0.35", "0.35", "0.36", "0.36", "0.36", "0.36", "0.36", "0.36", "0.37", "0.37", "0.37", "0.38", 
+            "0.38", "0.38", "0.38", "0.38", "0.38", "0.38", "0.39", "0.39", "0.39", "0.39", "0.39", "0.39", "0.39", 
+            "0.39", "0.39", "0.4", "0.4", "0.41", "0.41", "0.41", "0.41", "0.41", "0.42", "0.42", "0.42", "0.42", 
+            "0.42", "0.42", "0.42", "0.42", "0.42", "0.43", "0.43", "0.43", "0.43", "0.44", "0.44", "0.44", "0.44", 
+            "0.44", "0.45", "0.45", "0.45", "0.45", "0.45", "0.45", "0.45", "0.46", "0.46", "0.47", "0.47", "0.47", 
+            "0.47", "0.47", "0.47", "0.47", "0.48", "0.48", "0.48", "0.49", "0.49", "0.49", "0.49", "0.49", "0.49", 
+            "0.49", "0.49", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.51", "0.51", "0.52", "0.52", "0.52", 
+            "0.52", "0.52", "0.53", "0.53", "0.53", "0.53", "0.53", "0.54", "0.54", "0.54", "0.54", "0.54", "0.55", 
+            "0.55", "0.55", "0.55", "0.55", "0.55", "0.55", "0.56", "0.57", "0.57", "0.57", "0.57", "0.57", "0.57", 
+            "0.57", "0.58", "0.58", "0.58", "0.58", "0.58", "0.59", "0.59", "0.59", "0.59", "0.59", "0.59", "0.59", 
+            "0.59", "0.6", "0.6", "0.6", "0.6", "0.6", "0.61", "0.61", "0.61", "0.61", "0.62", "0.62", "0.62", "0.62", 
+            "0.63", "0.63", "0.63", "0.63", "0.64", "0.64", "0.64", "0.65", "0.65", "0.65", "0.65", "0.65", "0.65", 
+            "0.65", "0.66", "0.66", "0.66", "0.67", "0.67", "0.67", "0.67", "0.67", "0.67", "0.67", "0.68", "0.68", 
+            "0.68", "0.68", "0.69", "0.69", "0.69", "0.69", "0.7", "0.7", "0.7", "0.7", "0.71", "0.71", "0.72", "0.72",
+            "0.72", "0.72", "0.72", "0.73", "0.73", "0.73", "0.74", "0.74", "0.74", "0.75", "0.75", "0.75", "0.76", 
+            "0.76", "0.76", "0.76", "0.76", "0.77", "0.77", "0.77", "0.77", "0.77", "0.78", "0.78", "0.78", "0.78", 
+            "0.79", "0.79", "0.79", "0.8", "0.81", "0.81", "0.82", "0.82", "0.82", "0.83", "0.83", "0.83", "0.83", 
+            "0.83", "0.84", "0.84", "0.84", "0.84", "0.84", "0.84", "0.85", "0.85", "0.85", "0.85", "0.85", "0.85", 
+            "0.86", "0.86", "0.86", "0.86", "0.87", "0.87", "0.87", "0.88", "0.88", "0.88", "0.88", "0.88", "0.89", 
+            "0.89", "0.89", "0.89", "0.89", "0.89", "0.89", "0.89", "0.89", "0.89", "0.9", "0.9", "0.9", "0.91", "0.91", 
+            "0.92", "0.92", "0.92", "0.93", "0.93", "0.93", "0.94", "0.94", "0.96", "0.97", "0.97", "0.97", "0.97", 
+            "0.98", "0.98", "0.98", "0.98", "0.99", "1", "1", "1.01", "1.02", "1.02", "1.02", "1.02", "1.03", "1.03", 
+            "1.03", "1.03", "1.03", "1.04", "1.04", "1.04", "1.04", "1.04", "1.05", "1.06", "1.06", "1.07", "1.07", 
+            "1.08", "1.08", "1.08", "1.09", "1.09", "1.09", "1.09", "1.1", "1.1", "1.1", "1.1", "1.1", "1.1", "1.11", 
+            "1.11", "1.11", "1.12", "1.13", "1.13", "1.13", "1.14", "1.14", "1.15", "1.15", "1.15", "1.15", "1.16", 
+            "1.16", "1.16", "1.16", "1.17", "1.17", "1.17", "1.17", "1.18", "1.19", "1.19", "1.19", "1.2", "1.21", 
+            "1.21", "1.22", "1.22", "1.22", "1.23", "1.23", "1.24", "1.24", "1.24", "1.24", "1.24", "1.25", "1.25", 
+            "1.25", "1.25", "1.26", "1.26", "1.26", "1.26", "1.27", "1.27", "1.28", "1.29", "1.3", "1.3", "1.3", "1.3", 
+            "1.31", "1.32", "1.32", "1.32", "1.33", "1.33", "1.34", "1.34", "1.34", "1.35", "1.35", "1.35", "1.35", 
+            "1.36", "1.36", "1.37", "1.37", "1.37", "1.38", "1.38", "1.38", "1.39", "1.39", "1.39", "1.4", "1.41", 
+            "1.41", "1.41", "1.41", "1.42", "1.43", "1.43", "1.44", "1.44", "1.44", "1.45", "1.45", "1.45", "1.47", 
+            "1.47", "1.48", "1.48", "1.48", "1.48", "1.49", "1.5", "1.51", "1.51", "1.51", "1.52", "1.52", "1.53", 
+            "1.53", "1.54", "1.55", "1.55", "1.56", "1.57", "1.57", "1.58", "1.59", "1.59", "1.6", "1.6", "1.6", 
+            "1.6", "1.61", "1.61", "1.63", "1.63", "1.63", "1.64", "1.65", "1.66", "1.67", "1.67", "1.68", "1.69", 
+            "1.7", "1.7", "1.74", "1.75", "1.77", "1.77", "1.78", "1.8", "1.81", "1.81", "1.82", "1.83", "1.83", "1.84", 
+            "1.84", "1.84", "1.86", "1.86", "1.86", "1.86", "1.87", "1.87", "1.88", "1.89", "1.9", "1.91", "1.93", 
+            "1.93", "1.93", "1.93", "1.94", "1.95", "1.95", "1.95", "1.97", "1.97", "1.98", "1.99", "2.01", "2.02", 
+            "2.03", "2.03", "2.03", "2.04", "2.07", "2.07", "2.07", "2.07", "2.07", "2.09", "2.13", "2.14", "2.16", 
+            "2.18", "2.2", "2.24", "2.24", "2.26", "2.27", "2.27", "2.28", "2.31", "2.32", "2.33", "2.34", "2.37", 
+            "2.37", "2.39", "2.4", "2.41", "2.43", "2.46", "2.51", "2.52", "2.58", "2.58", "2.59", "2.64", "2.65", 
+            "2.68", "2.72", "2.72", "2.73", "2.74", "2.77", "2.78", "2.8", "2.82", "2.82", "2.84", "2.87", "2.88", 
+            "2.89", "2.9", "2.9", "2.99", "3", "3", "3.01", "3.02", "3.04", "3.1", "3.13", "3.16", "3.2", "3.21", 
+            "3.28", "3.31", "3.31", "3.35", "3.39", "3.39", "3.47", "3.48", "3.55", "3.68", "3.71", "3.75", "3.77", 
+            "3.77", "3.83", "3.87", "3.88", "4.06", "4.08", "4.25", "4.27", "4.5", "4.5", "4.57", "4.8", "5.04", 
+            "5.06", "5.13", "5.31", "5.59", "6.17", "6.38", "6.92", "6.96", "7.36", "8.65", "9.41", "10.15", "12.1", 
+            "14.14", "14.48", "14.76", "16.21", "16.27", "16.51", "17.18", "17.95", "18.87", "20.39", "21.32", "22.23", 
+            "22.62", "23.53", "23.54", "23.55", "23.97", "24.85", "25.44", "26.19", "26.2", "27.12", "27.25", "27.79", 
+            "28.04", "28.31", "28.39", "28.41", "28.56", "28.68", "29.17", "29.27", "29.31", "29.42", "29.5", "29.81", 
+            "29.95", "30.36", "30.43", "30.6", "30.74", "31.2", "31.6", "32.04", "32.87", "33.2", "33.33", "33.36", 
+            "33.56", "33.75", "33.91", "34.14", "34.3", "34.33", "34.6", "34.94", "35.09", "35.18", "35.78", "36.15", 
+            "36.28", "36.42", "37.38", "37.46", "37.83", "37.92", "37.98", "38.06", "38.36", "38.44", "38.64", "38.82", 
+            "39.17", "39.6", "39.84", "40.65", "41.71", "41.9", "41.93", "41.97", "42", "42.22", "42.76", "42.85", 
+            "43.5", "44.05", "44.08", "45.03", "45.45", "45.94", "46.23", "47.19", "47.7", "48.45", "NA", "NA", "NA",
+            "NA", "NA","NA","NA","NA"
+        });
+        
         mockData.put("impact_DNA_INPUT", new String[] {
             "50", "50", "50", "51", "51", "52", "53", "54", "55", "55", "60", "62", "63", "75", "75", "75", "76", "77",
             "78", "78", "79", "80", "82", "88", "89", "90", "91", "92", "93", "96", "98", "100", "102", "102", "104",
@@ -322,6 +466,10 @@ public class DataBinnerTest
             "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66",
             "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66", "66"
         });
+
+        mockData.put("linear_integer_continue", new String[]{
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99", "100"
+        });
         
         return mockData;
     }
@@ -332,11 +480,14 @@ public class DataBinnerTest
         String studyId = "blca_tcga";
         String attributeId = "AGE";
         String[] values = mockData.get("blca_tcga_AGE");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.PATIENT);
 
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
         
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
 
         Assert.assertEquals(11, dataBins.size());
         
@@ -384,25 +535,176 @@ public class DataBinnerTest
         Assert.assertEquals(new Double(90.0), dataBins.get(10).getEnd());
         Assert.assertEquals(13, dataBins.get(10).getCount().intValue());
     }
-    
+
+
+    @Test
+    public void testLinearDataBinnerWithRange()
+    {
+        String studyId = "random";
+        String attributeId = "random";
+        String[] values = mockData.get("linear_integer_continue");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setStart(39.5);
+        clinicalDataBinFilter.setEnd(80.5);
+
+        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
+
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
+
+        Assert.assertEquals(8, dataBins.size());
+
+        Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
+        Assert.assertEquals(new Double(45.0), dataBins.get(0).getEnd());
+        Assert.assertEquals(6, dataBins.get(0).getCount().intValue());
+
+        Assert.assertEquals(new Double(45.0), dataBins.get(1).getStart());
+        Assert.assertEquals(new Double(50.0), dataBins.get(1).getEnd());
+        Assert.assertEquals(5, dataBins.get(1).getCount().intValue());
+
+        Assert.assertEquals(new Double(50), dataBins.get(2).getStart());
+        Assert.assertEquals(new Double(55.0), dataBins.get(2).getEnd());
+        Assert.assertEquals(5, dataBins.get(2).getCount().intValue());
+
+        Assert.assertEquals(new Double(75.0), dataBins.get(7).getStart());
+        Assert.assertEquals(new Double(80.0), dataBins.get(7).getEnd());
+        Assert.assertEquals(5, dataBins.get(7).getCount().intValue());
+    }
+
+
+    @Test
+    public void testLinearDataBinnerWithRangeOne()
+    {
+        String studyId = "random";
+        String attributeId = "random";
+        String[] values = mockData.get("linear_integer_continue");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setStart(39.5);
+        clinicalDataBinFilter.setEnd(80.5);
+
+        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
+
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
+
+        Assert.assertEquals(8, dataBins.size());
+
+        Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
+        Assert.assertEquals(new Double(45.0), dataBins.get(0).getEnd());
+        Assert.assertEquals(6, dataBins.get(0).getCount().intValue());
+
+        Assert.assertEquals(new Double(45.0), dataBins.get(1).getStart());
+        Assert.assertEquals(new Double(50.0), dataBins.get(1).getEnd());
+        Assert.assertEquals(5, dataBins.get(1).getCount().intValue());
+
+        Assert.assertEquals(new Double(50), dataBins.get(2).getStart());
+        Assert.assertEquals(new Double(55.0), dataBins.get(2).getEnd());
+        Assert.assertEquals(5, dataBins.get(2).getCount().intValue());
+
+        Assert.assertEquals(new Double(75.0), dataBins.get(7).getStart());
+        Assert.assertEquals(new Double(80.0), dataBins.get(7).getEnd());
+        Assert.assertEquals(5, dataBins.get(7).getCount().intValue());
+    }
+
+    @Test
+    public void testLinearDataBinnerWithRangeTwo()
+    {
+        String studyId = "random";
+        String attributeId = "random";
+        String[] values = mockData.get("linear_integer_continue");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setStart(39.5);
+        clinicalDataBinFilter.setEnd(81.5);
+
+        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
+
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
+
+        Assert.assertEquals(9, dataBins.size());
+
+        Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
+        Assert.assertEquals(new Double(45.0), dataBins.get(0).getEnd());
+        Assert.assertEquals(6, dataBins.get(0).getCount().intValue());
+
+        Assert.assertEquals(new Double(45.0), dataBins.get(1).getStart());
+        Assert.assertEquals(new Double(50.0), dataBins.get(1).getEnd());
+        Assert.assertEquals(5, dataBins.get(1).getCount().intValue());
+
+        Assert.assertEquals(new Double(50), dataBins.get(2).getStart());
+        Assert.assertEquals(new Double(55.0), dataBins.get(2).getEnd());
+        Assert.assertEquals(5, dataBins.get(2).getCount().intValue());
+
+        Assert.assertEquals(new Double(75.0), dataBins.get(7).getStart());
+        Assert.assertEquals(new Double(80.0), dataBins.get(7).getEnd());
+        Assert.assertEquals(5, dataBins.get(7).getCount().intValue());
+        
+        Assert.assertEquals(new Double(80.0), dataBins.get(8).getStart());
+        Assert.assertEquals(">", dataBins.get(8).getSpecialValue());
+        Assert.assertEquals(1, dataBins.get(8).getCount().intValue());
+    }
+
+    @Test
+    public void testLinearDataBinnerWithRangeAndCustomrBins()
+    {
+        String studyId = "random";
+        String attributeId = "random";
+        String[] values = mockData.get("linear_integer_continue");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setStart(39.5);
+        clinicalDataBinFilter.setEnd(81.5);
+        clinicalDataBinFilter.setCustomBins(Arrays.asList(50.0, 60.0, 70.0));
+
+        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
+
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
+
+        Assert.assertEquals(4, dataBins.size());
+
+        Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
+        Assert.assertEquals(new Double(50.0), dataBins.get(0).getEnd());
+        Assert.assertEquals(11, dataBins.get(0).getCount().intValue());
+
+        Assert.assertEquals(new Double(50.0), dataBins.get(1).getStart());
+        Assert.assertEquals(new Double(60.0), dataBins.get(1).getEnd());
+        Assert.assertEquals(10, dataBins.get(1).getCount().intValue());
+
+        Assert.assertEquals(new Double(60.), dataBins.get(2).getStart());
+        Assert.assertEquals(new Double(70.0), dataBins.get(2).getEnd());
+        Assert.assertEquals(10, dataBins.get(2).getCount().intValue());
+
+        Assert.assertEquals(new Double(70.0), dataBins.get(3).getStart());
+        Assert.assertEquals(">", dataBins.get(3).getSpecialValue());
+        Assert.assertEquals(11, dataBins.get(3).getCount().intValue());
+    }
+
     @Test
     public void testStaticDataBinnerFilter()
     {
         String studyId = "blca_tcga";
         String attributeId = "AGE";
         String[] values = mockData.get("blca_tcga_AGE");
+        
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.PATIENT);
 
         List<ClinicalData> unfilteredClinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> unfilteredPatientIds = 
             unfilteredClinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
         List<DataBin> unfilteredDataBins = dataBinner.calculateClinicalDataBins(
-            attributeId, unfilteredClinicalData, unfilteredPatientIds);
+            clinicalDataBinFilter, unfilteredClinicalData, unfilteredPatientIds);
         
         List<ClinicalData> filteredClinicalData = unfilteredClinicalData.subList(0, 108); // (0, 60] interval
         List<String> filteredPatientIds =
             filteredClinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
         List<DataBin> filteredDataBins = dataBinner.calculateClinicalDataBins(
-            attributeId, filteredClinicalData, unfilteredClinicalData, filteredPatientIds, unfilteredPatientIds);
+            clinicalDataBinFilter, filteredClinicalData, unfilteredClinicalData, filteredPatientIds, unfilteredPatientIds);
         
         // same number of bins for both
         Assert.assertEquals(11, unfilteredDataBins.size());
@@ -481,14 +783,142 @@ public class DataBinnerTest
         String[] patientsWithNoClinicalData = {
             "NA_PATIENT_01", "NA_PATIENT_02", "NA_PATIENT_03", "NA_PATIENT_04"
         };
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.PATIENT);
+        clinicalDataBinFilter.setCustomBins(Arrays.asList(18.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0));
 
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
         patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
 
-        Assert.assertEquals(16, dataBins.size());
+        Assert.assertEquals(10, dataBins.size());
+
+        Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
+        Assert.assertEquals(new Double(18.0), dataBins.get(0).getEnd());
+        Assert.assertEquals(1, dataBins.get(0).getCount().intValue());
+
+        Assert.assertEquals(new Double(18.0), dataBins.get(1).getStart());
+        Assert.assertEquals(new Double(20.0), dataBins.get(1).getEnd());
+        Assert.assertEquals(0, dataBins.get(1).getCount().intValue());
+
+        Assert.assertEquals(new Double(20.0), dataBins.get(2).getStart());
+        Assert.assertEquals(new Double(30.0), dataBins.get(2).getEnd());
+        Assert.assertEquals(9, dataBins.get(2).getCount().intValue());
+
+        Assert.assertEquals(new Double(30.0), dataBins.get(3).getStart());
+        Assert.assertEquals(new Double(40.0), dataBins.get(3).getEnd());
+        Assert.assertEquals(16, dataBins.get(3).getCount().intValue());
+
+        Assert.assertEquals(new Double(40.0), dataBins.get(4).getStart());
+        Assert.assertEquals(new Double(50.0), dataBins.get(4).getEnd());
+        Assert.assertEquals(31, dataBins.get(4).getCount().intValue());
+
+        Assert.assertEquals(new Double(50.0), dataBins.get(5).getStart());
+        Assert.assertEquals(new Double(60.0), dataBins.get(5).getEnd());
+        Assert.assertEquals(25, dataBins.get(5).getCount().intValue());
+
+        Assert.assertEquals(new Double(60.0), dataBins.get(6).getStart());
+        Assert.assertEquals(new Double(70.0), dataBins.get(6).getEnd());
+        Assert.assertEquals(24, dataBins.get(6).getCount().intValue());
+
+        Assert.assertEquals(new Double(70.0), dataBins.get(7).getStart());
+        Assert.assertEquals(new Double(80.0), dataBins.get(7).getEnd());
+        Assert.assertEquals(11, dataBins.get(7).getCount().intValue());
+
+        Assert.assertEquals(new Double(80.0), dataBins.get(8).getStart());
+        Assert.assertEquals(new Double(90.0), dataBins.get(8).getEnd());
+        Assert.assertEquals(2, dataBins.get(8).getCount().intValue());
+
+        Assert.assertEquals("NA", dataBins.get(9).getSpecialValue());
+        Assert.assertEquals(4, dataBins.get(9).getCount().intValue());
+    }
+
+    @Test
+    public void testLinearDataBinnerWithPediatricAgeCustomBinsTest1()
+    {
+        String studyId = "skcm_broad";
+        String attributeId = "AGE_AT_PROCUREMENT";
+        String[] values = mockData.get("skcm_broad_AGE_AT_PROCUREMENT");
+        String[] patientsWithNoClinicalData = {
+            "NA_PATIENT_01", "NA_PATIENT_02", "NA_PATIENT_03", "NA_PATIENT_04"
+        };
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.PATIENT);
+        clinicalDataBinFilter.setCustomBins(Arrays.asList(18.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0));
+
+        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
+        patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
+
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
+
+        Assert.assertEquals(10, dataBins.size());
+
+        Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
+        Assert.assertEquals(new Double(18.0), dataBins.get(0).getEnd());
+        Assert.assertEquals(1, dataBins.get(0).getCount().intValue());
+
+        Assert.assertEquals(new Double(18.0), dataBins.get(1).getStart());
+        Assert.assertEquals(new Double(20.0), dataBins.get(1).getEnd());
+        Assert.assertEquals(0, dataBins.get(1).getCount().intValue());
+
+        Assert.assertEquals(new Double(20.0), dataBins.get(2).getStart());
+        Assert.assertEquals(new Double(30.0), dataBins.get(2).getEnd());
+        Assert.assertEquals(9, dataBins.get(2).getCount().intValue());
+
+        Assert.assertEquals(new Double(30.0), dataBins.get(3).getStart());
+        Assert.assertEquals(new Double(40.0), dataBins.get(3).getEnd());
+        Assert.assertEquals(16, dataBins.get(3).getCount().intValue());
+
+        Assert.assertEquals(new Double(40.0), dataBins.get(4).getStart());
+        Assert.assertEquals(new Double(50.0), dataBins.get(4).getEnd());
+        Assert.assertEquals(31, dataBins.get(4).getCount().intValue());
+
+        Assert.assertEquals(new Double(50.0), dataBins.get(5).getStart());
+        Assert.assertEquals(new Double(60.0), dataBins.get(5).getEnd());
+        Assert.assertEquals(25, dataBins.get(5).getCount().intValue());
+
+        Assert.assertEquals(new Double(60.0), dataBins.get(6).getStart());
+        Assert.assertEquals(new Double(70.0), dataBins.get(6).getEnd());
+        Assert.assertEquals(24, dataBins.get(6).getCount().intValue());
+
+        Assert.assertEquals(new Double(70.0), dataBins.get(7).getStart());
+        Assert.assertEquals(new Double(80.0), dataBins.get(7).getEnd());
+        Assert.assertEquals(11, dataBins.get(7).getCount().intValue());
+
+        Assert.assertEquals(new Double(80.0), dataBins.get(8).getStart());
+        Assert.assertEquals(new Double(90.0), dataBins.get(8).getEnd());
+        Assert.assertEquals(2, dataBins.get(8).getCount().intValue());
+
+        Assert.assertEquals("NA", dataBins.get(9).getSpecialValue());
+        Assert.assertEquals(4, dataBins.get(9).getCount().intValue());
+    }
+
+    @Test
+    public void testLinearDataBinnerWithPediatricAgeCustomBinsTest2()
+    {
+        String studyId = "skcm_broad";
+        String attributeId = "AGE_AT_PROCUREMENT";
+        String[] values = mockData.get("skcm_broad_AGE_AT_PROCUREMENT");
+        String[] patientsWithNoClinicalData = {
+            "NA_PATIENT_01", "NA_PATIENT_02", "NA_PATIENT_03", "NA_PATIENT_04"
+        };
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.PATIENT);
+        clinicalDataBinFilter.setCustomBins(Arrays.asList(18.0, 25.0, 30.0, 35.0));
+
+        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
+        patientIds.addAll(Arrays.asList(patientsWithNoClinicalData));
+
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
+
+        Assert.assertEquals(6, dataBins.size());
 
         Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
         Assert.assertEquals(new Double(18.0), dataBins.get(0).getEnd());
@@ -502,12 +932,63 @@ public class DataBinnerTest
         Assert.assertEquals(new Double(30.0), dataBins.get(2).getEnd());
         Assert.assertEquals(7, dataBins.get(2).getCount().intValue());
 
-        Assert.assertEquals(new Double(85.0), dataBins.get(14).getStart());
-        Assert.assertEquals(">", dataBins.get(14).getSpecialValue());
-        Assert.assertEquals(1, dataBins.get(14).getCount().intValue());
-        
-        Assert.assertEquals("NA", dataBins.get(15).getSpecialValue());
-        Assert.assertEquals(4, dataBins.get(15).getCount().intValue());
+        Assert.assertEquals(new Double(30.0), dataBins.get(3).getStart());
+        Assert.assertEquals(new Double(35.0), dataBins.get(3).getEnd());
+        Assert.assertEquals(7, dataBins.get(3).getCount().intValue());
+
+        Assert.assertEquals(new Double(35.0), dataBins.get(4).getStart());
+        Assert.assertEquals(">", dataBins.get(4).getSpecialValue());
+        Assert.assertEquals(102, dataBins.get(4).getCount().intValue());
+
+        Assert.assertEquals("NA", dataBins.get(5).getSpecialValue());
+        Assert.assertEquals(4, dataBins.get(5).getCount().intValue());
+    }
+    
+    @Test
+    public void testLinearDataBinnerWithPredefinedAttribute() 
+    {
+        String studyId = "crc_msk_2018";
+        String attributeId = "MSI_SCORE";
+        String[] values = mockData.get("crc_msk_2018_MSI_SCORE");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.SAMPLE);
+        clinicalDataBinFilter.setCustomBins(Arrays.asList(1.0, 2.0, 5.0, 10.0, 30.0));
+
+        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<String> sampleIds = clinicalData.stream().map(ClinicalData::getSampleId).collect(Collectors.toList());
+
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, sampleIds);
+
+        Assert.assertEquals(7, dataBins.size());
+
+        Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
+        Assert.assertEquals(new Double(1), dataBins.get(0).getEnd());
+        Assert.assertEquals(722, dataBins.get(0).getCount().intValue());
+
+        Assert.assertEquals(new Double(1.0), dataBins.get(1).getStart());
+        Assert.assertEquals(new Double(2.0), dataBins.get(1).getEnd());
+        Assert.assertEquals(203, dataBins.get(1).getCount().intValue());
+
+        Assert.assertEquals(new Double(2.0), dataBins.get(2).getStart());
+        Assert.assertEquals(new Double(5.0), dataBins.get(2).getEnd());
+        Assert.assertEquals(93, dataBins.get(2).getCount().intValue());
+
+        Assert.assertEquals(new Double(5.0), dataBins.get(3).getStart());
+        Assert.assertEquals(new Double(10.0), dataBins.get(3).getEnd());
+        Assert.assertEquals(12, dataBins.get(3).getCount().intValue());
+
+
+        Assert.assertEquals(new Double(10.0), dataBins.get(4).getStart());
+        Assert.assertEquals(new Double(30.0), dataBins.get(4).getEnd());
+        Assert.assertEquals(39, dataBins.get(4).getCount().intValue());
+
+        Assert.assertEquals(new Double(30.0), dataBins.get(5).getStart());
+        Assert.assertEquals(">", dataBins.get(5).getSpecialValue());
+        Assert.assertEquals(57, dataBins.get(5).getCount().intValue());
+
+        Assert.assertEquals("NA", dataBins.get(6).getSpecialValue());
+        Assert.assertEquals(8, dataBins.get(6).getCount().intValue());
     }
 
     @Test
@@ -516,11 +997,14 @@ public class DataBinnerTest
         String studyId = "blca_tcga";
         String attributeId = "LYMPH_NODE_EXAMINED_COUNT";
         String[] values = mockData.get("blca_tcga_LYMPH_NODE_EXAMINED_COUNT");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.PATIENT);
 
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
 
         Assert.assertEquals(15, dataBins.size());
 
@@ -590,11 +1074,14 @@ public class DataBinnerTest
         String studyId = "impact";
         String attributeId = "DNA_INPUT";
         String[] values = mockData.get("impact_DNA_INPUT");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.SAMPLE);
 
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
-        List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
+        List<String> sampleIds = clinicalData.stream().map(ClinicalData::getSampleId).collect(Collectors.toList());
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, sampleIds);
 
         Assert.assertEquals(19, dataBins.size());
 
@@ -614,11 +1101,14 @@ public class DataBinnerTest
         String studyId = "unknown";
         String attributeId = "DNA_INPUT";
         String[] values = mockData.get("recursively_always_zero_IQR");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.SAMPLE);
 
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
-        List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
+        List<String> sampleIds = clinicalData.stream().map(ClinicalData::getSampleId).collect(Collectors.toList());
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, sampleIds);
 
         Assert.assertEquals(1, dataBins.size());
 
@@ -634,11 +1124,14 @@ public class DataBinnerTest
         String studyId = "acyc_fmi_2014";
         String attributeId = "ACTIONABLE_ALTERATIONS";
         String[] values = mockData.get("acyc_fmi_2014_ACTIONABLE_ALTERATIONS");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.SAMPLE);
 
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
-        List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
+        List<String> sampleIds = clinicalData.stream().map(ClinicalData::getSampleId).collect(Collectors.toList());
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, sampleIds);
 
         Assert.assertEquals(5, dataBins.size());
         
@@ -672,12 +1165,15 @@ public class DataBinnerTest
         String[] samplesWithNoClinicalData = {
             "NA_SAMPLE_01", "NA_SAMPLE_02", "NA_SAMPLE_03", "NA_SAMPLE_04", "NA_SAMPLE_05", "NA_SAMPLE_06"
         };
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.SAMPLE);
 
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> sampleIds = clinicalData.stream().map(ClinicalData::getSampleId).collect(Collectors.toList());
         sampleIds.addAll(Arrays.asList(samplesWithNoClinicalData));
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, sampleIds);
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, sampleIds);
 
         Assert.assertEquals(5, dataBins.size());
 
@@ -707,11 +1203,14 @@ public class DataBinnerTest
         String studyId = "ampca_bcm_2016";
         String attributeId = "DAYS_TO_LAST_FOLLOWUP";
         String[] values = mockData.get("ampca_bcm_2016_DAYS_TO_LAST_FOLLOWUP");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.PATIENT);
 
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
 
         Assert.assertEquals(7, dataBins.size());
 
@@ -750,11 +1249,15 @@ public class DataBinnerTest
         String studyId = "ampca_bcm_2016";
         String attributeId = "DAYS_TO_LAST_FOLLOWUP";
         String[] values = mockData.get("ampca_bcm_2016_DAYS_TO_LAST_FOLLOWUP");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.PATIENT);
+        clinicalDataBinFilter.setDisableLogScale(true);
 
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds, true);
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
 
         Assert.assertEquals(17, dataBins.size());
 
@@ -777,11 +1280,14 @@ public class DataBinnerTest
         String studyId = "acc_tcga";
         String attributeId = "DAYS_TO_BIRTH";
         String[] values = mockData.get("acc_tcga_DAYS_TO_BIRTH");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.PATIENT);
 
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds);
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
 
         Assert.assertEquals(2, dataBins.size());
 
@@ -795,16 +1301,55 @@ public class DataBinnerTest
     }
 
     @Test
+    public void testLogScaleDataBinnerWithSpecialOutliers()
+    {
+        String studyId = "genie";
+        String attributeId = "INT_DOD";
+        String[] values = mockData.get("genie_INT_DOD");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.PATIENT);
+
+        List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
+        List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
+
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
+
+        Assert.assertEquals(5, dataBins.size());
+
+        Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
+        Assert.assertEquals(new Double(6570.0), dataBins.get(0).getEnd());
+        Assert.assertEquals(8, dataBins.get(0).getCount().intValue());
+
+        Assert.assertEquals(new Double(6570.0), dataBins.get(1).getStart());
+        Assert.assertEquals(new Double(10000.0), dataBins.get(1).getEnd());
+
+        Assert.assertEquals(new Double(10000.0), dataBins.get(2).getStart());
+        Assert.assertEquals(new Double(31622.0), dataBins.get(2).getEnd());
+
+        Assert.assertEquals(new Double(31622.0), dataBins.get(3).getStart());
+        Assert.assertEquals(new Double(32485.0), dataBins.get(3).getEnd());
+        
+        Assert.assertEquals(new Double(32485.0), dataBins.get(4).getStart());
+        Assert.assertEquals(">", dataBins.get(4).getSpecialValue());
+        Assert.assertEquals(5, dataBins.get(4).getCount().intValue());
+    }
+    
+    @Test
     public void testNegativeLogScaleDisabledDataBinner()
     {
         String studyId = "acc_tcga";
         String attributeId = "DAYS_TO_BIRTH";
         String[] values = mockData.get("acc_tcga_DAYS_TO_BIRTH");
+        ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+        clinicalDataBinFilter.setAttributeId(attributeId);
+        clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.PATIENT);
+        clinicalDataBinFilter.setDisableLogScale(true);
 
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
 
-        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(attributeId, clinicalData, patientIds, true);
+        List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
 
         Assert.assertEquals(14, dataBins.size());
 

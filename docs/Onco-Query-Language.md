@@ -1,15 +1,23 @@
-# Advanced cancer genomic data visualization: Onco Query Language (OQL)
+# Onco Query Language (OQL)
 
-You can use the Onco Query Language (OQL) to select specific types of alterations on the cBioPortal for Cancer Genomics. OQL-specified alterations will be reflected on most tabs, including OncoPrint, but are not currently reflected on the Plots, Mutations, Co-Expression or Expression tabs. Note that OQL assumes any word that it doesn't recognize is a mutation code.
+The Onco Query Language (OQL) is used to define which specific types of alterations are included in a query on the cBioPortal for Cancer Genomics. By default, querying for a gene includes mutations, fusions, amplifications and deep deletions. OQL can be used to specify specific mutations (e.g. BRAF V600E) or types of mutations (e.g. BRCA1 truncating mutations), lower level copy number alterations (e.g. CDKN2A shallow deletions), changes in mRNA or protein expression, and more.
+
+OQL-specified alterations will be reflected on most tabs, including OncoPrint, but are not currently reflected on the Plots, Co-Expression or Expression tabs.
+
+Note that OQL assumes any word that it doesn't recognize is a mutation code.
 
 <!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [OQL Keywords](#oql-keywords)
+    - [OQL Modifiers](#oql-modifiers)
 - [Basic Usage](#basic-usage)
 - [Mutations](#mutations)
-- [CNA](#cna)
+- [Copy Number Alterations](#cna)
 - [Expression](#expression)
 - [Protein](#protein)
+- [Modifiers](#modifiers)
+    - [Driver](#driver)
+    - [Germline/Somatic](#germline-somatic)
 - [The DATATYPES Command](#the-datatypes-command)
 - [Merged Gene Tracks](#merged-gene-tracks)
 - [Example: RB Pathway Alterations](#example-rb-pathway-alterations)
@@ -25,12 +33,23 @@ Users can define specific subsets of genetic alterations for four data types:
 
 Data Type | Keyword | Categories and Levels | Default*
 --------- | ------- | --------------------- | --------
+Mutations | `MUT` | `MUT` All non-synonymous mutations <br> `MUT = <protein change>` Specific amino acid changes (e.g. `V600E` or `V600`) <br> `MUT = <mutation type>` Acceptable values are: `MISSENSE, NONSENSE, NONSTART, NONSTOP, FRAMESHIFT, INFRAME, SPLICE, TRUNC` <br> `FUSION` Show cases with fusions | `MUT` <br> `FUSION`
 Copy Number Alterations | `CNA` | `AMP` Amplified <br> `HOMDEL` Deep Deletion <br> `GAIN` Gained <br> `HETLOSS` Shallow Deletion <br> Comparison operators can also be used (e.g. `CNA >= GAIN` is the same as `AMP GAIN`) | `AMP` <br> `HOMDEL`
-Mutations | `MUT` | `MUT` All somatic, non-synonymous mutations <br> `MUT = <protein change>` Specific amino acid changes (e.g. `V600E` or `V600`) <br> `MUT = <mutation type>` Acceptable values are: `MISSENSE, NONSENSE, NONSTART, NONSTOP, FRAMESHIFT, INFRAME, SPLICE, TRUNC` <br> `FUSION` Show cases with fusions | `MUT` <br> `FUSION`
 mRNA Expression | `EXP` | `EXP < -x` Under-expression is less than `x` standard deviations (SD) below the mean <br> `EXP > x` Over-expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `EXP >= 2` <br> `EXP <= -2`
-Protein/phosphoprotein level (RPPA) | `PROT` | `PROT < -x` Protein-level under-expression is less than `x` standard deviations (SD) below the mean <br> `PROT > x` Protein-level over-expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `PROT >= 2` <br> `PROT <= -2`
+Protein/phosphoprotein level | `PROT` | `PROT < -x` Protein-level under-expression is less than `x` standard deviations (SD) below the mean <br> `PROT > x` Protein-level over-expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `PROT >= 2` <br> `PROT <= -2`
 
 \* These are the default OQL keywords used for each data type when a gene is queried without any explicit OQL.
+
+<a name="oql-modifiers></a>
+### OQL modifiers
+Mutations and copy number alterations can be further refined using modifiers:
+
+Keyword | Applicable Data Type | Explanation
+------- | -------------------- | -----------
+`DRIVER` | Mutations <br> Copy Number Alterations | Include only mutations and copy number alterations which are driver events, as defined in OncoPrint (default: OncoKB and CancerHotspots).
+`GERMLINE` | Mutations | Include only mutations that are defined as germline events by the study.
+`SOMATIC` | Mutations | Include all mutations that are not defined as germline.
+
 
 <a name="basic-usage"></a>
 ## Basic Usage
@@ -52,13 +71,13 @@ Protein: `PROT >= 2 PROT <= -2`
 
 ![image of exp prot query oncoprint](https://user-images.githubusercontent.com/1334004/47438014-9ffc6b00-d777-11e8-87ad-dea52965a5e8.png)
 
-You must select the relevant Genomic Profile in order for OQL to query that data type. For example, you can't just add `EXP > 2` to the query without also selecting an RNA profile.
+You must select the relevant Genomic Profile in order for OQL to query that data type. For example, you can't add `EXP > 2` to the query without also selecting an RNA profile.
 
 
 Proper formatting for OQL is straightforward: gene name, followed by a colon, followed by any OQL keywords and ending in a semicolon, an end-of-line, or both.
 ```
 GENE1: OQL KEYWORDS;
-GENE2: OQL KEYWORDS;
+GENE2: OQL KEYWORDS
 ```
 In general, any combination of OQL keywords and/or categories can annotate any gene, and the order of the keywords is immaterial.
 
@@ -99,7 +118,7 @@ TP53: MUT = TRUNC INFRAME
 ```
 
 <a name="cna"></a>
-## CNA
+## Copy Number Alterations
 To view cases with specific copy number alterations, provide the appropriate keywords for the copy number alterations of interest. For example, to see amplifications:
 ```
 CCNE1: AMP
@@ -134,6 +153,68 @@ Or over-expressed at the phospho-protein level:
 EGFR_PY992: PROT > 2
 ```
 
+<a name="modifiers"></a>
+## Modifiers
+Modifiers can be used on their own or in combination with other OQL terms for mutations and copy number alterations to further refine the query. Modifiers can be combined with other OQL terms using an underscore.
+
+<a name="driver"></a>
+### Driver
+The `DRIVER` modifier applies to mutations, fusions and copy number alterations. The definition of what qualifies as a driver alteration comes from the "Mutation Color" menu in OncoPrint. By default, drivers are defined as mutations, fusions and copy number alterations in <a href="http://oncokb.org">OncoKB</a> or <a href="http://www.cancerhotspots.org">CancerHotspots</a>.
+
+On its own, the `DRIVER` modifier will include driver mutations, fusions and copy number alterations:
+```
+EGFR: DRIVER
+```
+
+Or it can be used in combination with another OQL term. For example, to see only driver fusion events:
+```
+EGFR: FUSION_DRIVER
+```
+
+Or driver missense mutations:
+```
+EGFR: MUT = MISSENSE_DRIVER
+```
+
+When combining `DRIVER` with another OQL term, the order doesn't matter: `MUT_DRIVER` and `DRIVER_MUT` are equivalent. `DRIVER` can be combined with:
+* `MUT`
+* `MUT = <TYPE>` or `MUT = <protein change>`
+* `FUSION`
+* `CNA`
+* `AMP` or `GAIN` or `HETLOSS` or `HOMDEL`
+* `GERMLINE` or `SOMATIC` (see below)
+
+
+<a name="germline-somatic"></a>
+### Germline/Somatic
+The `GERMLINE` and `SOMATIC` modifiers only apply to mutations. A mutation can be explicitly defined as germline during the data curation process. Note that very few studies on the public cBioPortal contain germline data.
+
+`GERMLINE` or `SOMATIC` can be combined with:
+* `MUT`
+* `MUT = <TYPE>` or `MUT = <protein change>`
+* `DRIVER`
+
+To see all germline BRCA1 mutations:
+```
+BRCA1: GERMLINE
+```
+
+Or to see specifically truncating germline mutations:
+```
+BRCA1: TRUNC_GERMLINE
+```
+
+Or to see somatic missense mutations:
+```
+BRCA1: MUT=MISSENSE_SOMATIC
+``` 
+
+When combining `GERMLINE` or `SOMATIC` with `DRIVER` and another term (e.g. `NONSENSE`), it is essential that the middle term is `GERMLINE` or `SOMATIC` or `DRIVER`; `GERMLINE_NONSENSE_DRIVER` will not work.
+```
+BRCA1: NONSENSE_GERMLINE_DRIVER
+```
+
+
 <a name="the-datatypes-command"></a>
 ## The DATATYPES Command
 To save copying and pasting, the `DATATYPES` command sets the genetic annotation for all subsequent genes. Thus,
@@ -163,7 +244,7 @@ The resulting merged gene track will be visible in OncoPrint and can be expanded
 
 It is possible to include OQL for specific alterations in merged gene tracks, as well as querying a combination of single and merged gene tracks.
 
-Note that merged gene tracks will only appear in OncoPrint. All other pages will show the individual genes.
+Note that merged gene tracks only appear in OncoPrint. All other pages show the individual genes.
 
 <a name="example-rb-pathway-alterations"></a>
 ## Example: RB Pathway Alterations

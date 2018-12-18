@@ -50,6 +50,7 @@ Keyword | Applicable Data Type | Explanation
 `GERMLINE` | Mutations | Include only mutations that are defined as germline events by the study.
 `SOMATIC` | Mutations | Include all mutations that are not defined as germline.
 
+<br>
 
 <a name="basic-usage"></a>
 ## Basic Usage
@@ -85,6 +86,8 @@ In general, any combination of OQL keywords and/or categories can annotate any g
 
 Below we will go into greater detail about each data type.
 
+<br>
+
 <a name="mutations"></a>
 ## Mutations
 To view cases with specific mutations, provide the specific amino acid change of interest:
@@ -117,6 +120,8 @@ For example, to view TP53 truncating mutations and in-frame insertions/deletions
 TP53: MUT = TRUNC INFRAME
 ```
 
+<br>
+
 <a name="cna"></a>
 ## Copy Number Alterations
 To view cases with specific copy number alterations, provide the appropriate keywords for the copy number alterations of interest. For example, to see amplifications:
@@ -134,12 +139,16 @@ Which can also be written as:
 CCNE1: GAIN AMP
 ```
 
+<br>
+
 <a name="expression"></a>
 ## Expression
 Over- or under-expression of a gene is determined by the number of standard deviations (SD) from the mean. For example, to see cases where mRNA for CCNE1 is greater than 3 SD above the mean:
 ```
 CCNE1: EXP > 3
 ```
+
+<br>
 
 <a name="protein"></a>
 ## Protein
@@ -152,6 +161,8 @@ Or over-expressed at the phospho-protein level:
 ```
 EGFR_PY992: PROT > 2
 ```
+
+<br>
 
 <a name="modifiers"></a>
 ## Modifiers
@@ -214,6 +225,7 @@ When combining `GERMLINE` or `SOMATIC` with `DRIVER` and another term (e.g. `NON
 BRCA1: NONSENSE_GERMLINE_DRIVER
 ```
 
+<br>
 
 <a name="the-datatypes-command"></a>
 ## The DATATYPES Command
@@ -228,6 +240,8 @@ CDKN2A: AMP GAIN HOMDEL EXP > 1.5 EXP < -1.5
 MDM2: AMP GAIN HOMDEL EXP > 1.5 EXP < -1.5
 TP53: AMP GAIN HOMDEL EXP > 1.5 EXP < -1.5
 ```
+
+<br>
 
 <a name="merged-gene-tracks"></a>
 ## Merged Gene Tracks
@@ -246,6 +260,8 @@ The resulting merged gene track will be visible in OncoPrint and can be expanded
 It is possible to include OQL for specific alterations in merged gene tracks, as well as querying a combination of single and merged gene tracks.
 
 Note that merged gene tracks only appear in OncoPrint. All other pages show the individual genes.
+
+<br>
 
 <a name="example-rb-pathway-alterations"></a>
 ## Example: RB Pathway Alterations
@@ -287,6 +303,7 @@ Examine the updated OncoPrint:
 
 This shows that alterations in these genes are almost entirely mutually-exclusive -- no cases are altered in all three genes and only six are altered in two genes. This supports the theory that the tumor has selected for these events.
 
+<br>
 
 <a name="questions-feedback"></a>
 ## Questions? Feedback?

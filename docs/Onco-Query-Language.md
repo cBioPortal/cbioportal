@@ -46,7 +46,7 @@ Mutations and copy number alterations can be further refined using modifiers:
 
 Keyword | Applicable Data Type | Explanation
 ------- | -------------------- | -----------
-`DRIVER` | Mutations <br> Copy Number Alterations | Include only mutations and copy number alterations which are driver events, as defined in OncoPrint (default: OncoKB and CancerHotspots).
+`DRIVER` | Mutations <br> Fusions <br> Copy Number Alterations | Include only mutations, fusions and copy number alterations which are driver events, as defined in OncoPrint (default: OncoKB and CancerHotspots).
 `GERMLINE` | Mutations | Include only mutations that are defined as germline events by the study.
 `SOMATIC` | Mutations | Include all mutations that are not defined as germline.
 

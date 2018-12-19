@@ -303,7 +303,7 @@ public class DataBinHelper
     {
         Double median = sortedValues.get((int) Math.ceil((sortedValues.size() * (1.0 / 2.0))));
         
-        return 0.001 > median && median > -0.001;
+        return 0.001 > median && median > -0.001 && !median.equals(0.0);
     }
 
     public String extractOperator(String value)

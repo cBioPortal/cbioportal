@@ -35,9 +35,16 @@ public class ScientificSmallDataBinner
         
         List<Double> intervals = new ArrayList<>();
 
-        Double exponentRange = exponentBoxRange.upperEndpoint() - exponentBoxRange.lowerEndpoint();
-
-        if (exponentRange > 1)
+        Double exponentRange = exponentBoxRange == null ? 
+            null : exponentBoxRange.upperEndpoint() - exponentBoxRange.lowerEndpoint();
+        
+        if (exponentRange == null) {
+            // data set is not compatible with the scientific small data binner,
+            // just set one interval for the entire set
+            intervals.add(sortedNumericalValues.get(0));
+            intervals.add(sortedNumericalValues.get(sortedNumericalValues.size() - 1));
+        }
+        else if (exponentRange > 1)
         {
             Integer interval = Math.round(exponentRange.floatValue() / 4);
 

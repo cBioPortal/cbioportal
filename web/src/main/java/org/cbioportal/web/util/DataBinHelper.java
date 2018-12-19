@@ -99,22 +99,32 @@ public class DataBinHelper
         Double maxValue;
         Double minValue;
 
-        if (0.001 <= q3 && q3 < 1.0) {
+        if (sortedValues.get(0).equals(sortedValues.get(sortedValues.size() - 1))) {
+            // if the first and last values are the same, no need to do any other calculation
+            // we simply set min and max to the same value
+            minValue = sortedValues.get(0);
+            maxValue = minValue;
+        }
+        else if (0.001 <= q3 && q3 < 1.0) {
             //maxValue = Number((q3 + iqr * 1.5).toFixed(3));
             //minValue = Number((q1 - iqr * 1.5).toFixed(3));
             maxValue = (new BigDecimal(q3 + iqr * 1.5)).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
             minValue = (new BigDecimal(q1 - iqr * 1.5)).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
-        } else if (q3 < 0.001) {
+        } 
+        else if (q3 < 0.001) {
             // get IQR for very small number(<0.001)
             maxValue = q3 + iqr * 1.5;
             minValue = q1 - iqr * 1.5;
-        } else {
+        } 
+        else {
             maxValue = Math.ceil(q3 + iqr * 1.5);
             minValue = Math.floor(q1 - iqr * 1.5);
         }
+        
         if (minValue < sortedValues.get(0)) {
             minValue = sortedValues.get(0);
         }
+        
         if (maxValue > sortedValues.get(sortedValues.size() - 1)) {
             maxValue = sortedValues.get(sortedValues.size() - 1);
         }

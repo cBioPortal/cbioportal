@@ -3,12 +3,17 @@
     String baseUrl = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
     baseUrl = baseUrl.replace("https://", "").replace("http://", "");
 %>
-
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <!DOCTYPE html>
 <html class="cbioportal-frontend">
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        
+    <c:if test = "${GlobalProperties.showSitemaps()==false}">
+       <meta name="robots" content="noindex" />
+    </c:if>
+    
     <link rel="icon" href="/images/cbioportal_icon.png"/>
     <title>cBioPortal for Cancer Genomics</title>
     

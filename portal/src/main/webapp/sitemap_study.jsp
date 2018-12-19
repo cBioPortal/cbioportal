@@ -10,6 +10,10 @@
 
 <%
 
+if (GlobalProperties.showSitemaps() == false) {
+    response.setStatus(404);
+} else {
+
 String protocol = (request.isSecure()) ? "https" : "http";
 String studyId = request.getParameter("studyId");
 pageContext.setAttribute("studyId", request.getParameter("studyId"));
@@ -45,3 +49,5 @@ if (GlobalProperties.showSitemaps()) {
     </c:forEach>
 </urlset>
 </c:if>
+
+<% } %>

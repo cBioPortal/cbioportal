@@ -5,6 +5,7 @@
 <% if (!sentryEndpoint.equals("null")) { %>
 <script src="https://browser.sentry-cdn.com/4.1.1/bundle.min.js" crossorigin="anonymous"></script>
 <script>
-Sentry.init({ dsn: '<%=sentryEndpoint.trim()%>',   ignoreErrors: [/document\.registerElement is deprecated and will be removed/]  });
+var release = (typeof FRONTEND_COMMIT === "undefined") ? "norelease" : FRONTEND_COMMIT;
+Sentry.init({ dsn: '<%=sentryEndpoint.trim()%>', release:release, ignoreErrors: [/document\.registerElement is deprecated and will be removed/]  });
 </script>   
 <% } %> 

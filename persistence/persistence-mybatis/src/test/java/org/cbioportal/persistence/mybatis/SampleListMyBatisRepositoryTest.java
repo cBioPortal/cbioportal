@@ -80,8 +80,8 @@ public class SampleListMyBatisRepositoryTest {
             " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
             "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
-        Assert.assertEquals("23000897", cancerStudy.getPmid());
-        Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
+        Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
+        Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
         Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
     }
@@ -148,8 +148,8 @@ public class SampleListMyBatisRepositoryTest {
             " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
             "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
-        Assert.assertEquals("23000897", cancerStudy.getPmid());
-        Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
+        Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
+        Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
         Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
     }
@@ -218,8 +218,8 @@ public class SampleListMyBatisRepositoryTest {
             " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
             "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
-        Assert.assertEquals("23000897", cancerStudy.getPmid());
-        Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
+        Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
+        Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
         Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
     }

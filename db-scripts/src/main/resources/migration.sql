@@ -563,3 +563,7 @@ CREATE TABLE `cancer_study_tags` (
 ALTER TABLE `mutation_count_by_keyword` MODIFY COLUMN `KEYWORD` VARCHAR(255);
 
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.4";
+
+##version: 2.8.0
+ALTER TABLE `cancer_study` MODIFY COLUMN `PMID` varchar(1024) DEFAULT NULL;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.8.0";

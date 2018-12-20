@@ -3426,10 +3426,24 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
                 if ('add_global_case_list' in meta_dictionary and
                         meta_dictionary['add_global_case_list'].lower() == 'true'):
                     case_list_suffix_fns['all'] = filename
-            # raise a warning if pmid is existing, but no citation is available.
-            if 'pmid' in meta_dictionary and not 'citation' in meta_dictionary:
-                logger.warning(
-                'Citation is required when giving a pubmed id (pmid).')
+
+            # Validate PMID field in meta_study
+            if 'pmid' in meta_dictionary:
+                if 'citation' not in meta_dictionary:
+                    logger.warning('Citation is required when providing a PubMed ID (pmid)')
+                stripped_pmid_value_len = len(meta_dictionary['pmid'].strip())
+                no_whitespace_pmid_value_len = len(''.join(meta_dictionary['pmid'].split()))
+                if (no_whitespace_pmid_value_len != stripped_pmid_value_len):
+                    logger.error('The PMID field in meta_study should not contain any embedded whitespace',
+                                 extra={'cause': meta_dictionary['pmid'].strip()})
+                for pmid_entry in [x.strip() for x in meta_dictionary['pmid'].split(',')]:
+                    try:
+                        value = int(pmid_entry)
+                    except ValueError:
+                        logger.error('The PMID field in meta_study should be a comma separated list of integers',
+                                     extra={'cause': pmid_entry})
+
+            # Validate Study Tags file field in meta_study
             if 'tags_file' in meta_dictionary:
                 logger.debug(
                     'Study Tag file found. It will be validated.')

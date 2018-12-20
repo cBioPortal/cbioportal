@@ -17,8 +17,6 @@
     <link rel="icon" href="/images/cbioportal_icon.png"/>
     <title>cBioPortal for Cancer Genomics</title>
     
-    <%@include file="./tracking_include.jsp" %>
-
     <script>
         window.frontendConfig = {
             configurationServiceUrl:"//" + '<%=baseUrl%>' +  "/config_service.jsp",
@@ -57,7 +55,10 @@
 
     </script>
      
-    <script type="text/javascript" src="//<%=baseUrl%>/js/src/load-frontend.js?<%=GlobalProperties.getAppVersion()%>"></script>       
+    <script type="text/javascript" src="//<%=baseUrl%>/js/src/load-frontend.js?<%=GlobalProperties.getAppVersion()%>"></script> 
+    
+    
+          
     <script>
         window.frontendConfig.customTabs && window.frontendConfig.customTabs.forEach(function(tab){
             if (tab.pathsToJs) {
@@ -68,9 +69,12 @@
         });
     </script>
 
+
     <script>
             loadReactApp(window.frontendConfig);
     </script>
+    
+    <%@include file="./tracking_include.jsp" %>
 
 </head>
 

@@ -166,7 +166,7 @@ EGFR_PY992: PROT > 2
 
 <a name="modifiers"></a>
 ## Modifiers
-Modifiers can be used on their own or in combination with other OQL terms for mutations and copy number alterations to further refine the query. Modifiers can be combined with other OQL terms using an underscore.
+Modifiers can be used on their own or in combination with other OQL terms for mutations and copy number alterations to further refine the query. Modifiers can be combined with other OQL terms using an underscore. The order in which terms are combined is immaterial.
 
 <a name="driver"></a>
 ### Driver
@@ -189,7 +189,7 @@ EGFR: MUT = MISSENSE_DRIVER
 
 When combining `DRIVER` with another OQL term, the order doesn't matter: `MUT_DRIVER` and `DRIVER_MUT` are equivalent. `DRIVER` can be combined with:
 * `MUT`
-* `MUT = <TYPE>` or `MUT = <protein change>`
+* `MUT = <type>` or `MUT = <protein change>`
 * `FUSION`
 * `CNA`
 * `AMP` or `GAIN` or `HETLOSS` or `HOMDEL`
@@ -202,7 +202,7 @@ The `GERMLINE` and `SOMATIC` modifiers only apply to mutations. A mutation can b
 
 `GERMLINE` or `SOMATIC` can be combined with:
 * `MUT`
-* `MUT = <TYPE>` or `MUT = <protein change>`
+* `MUT = <type>` or `MUT = <protein change>`
 * `DRIVER`
 
 To see all germline BRCA1 mutations:
@@ -222,11 +222,10 @@ Or to see somatic missense mutations:
 BRCA1: MUT = MISSENSE_SOMATIC
 ``` 
 
-When combining `GERMLINE` or `SOMATIC` with `DRIVER` and another term (e.g. `NONSENSE`), the mutation term must come first or last:
+`GERMLINE` or `SOMATIC` can also be combined with `DRIVER` and, optionally, a more specific mutation term (e.g. `NONSENSE`):
 ```
 BRCA1: NONSENSE_GERMLINE_DRIVER
 ```
-Combing the terms as `GERMLINE_NONSENSE_DRIVER` will not work.
 
 <br>
 

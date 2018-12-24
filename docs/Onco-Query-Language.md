@@ -120,6 +120,15 @@ For example, to view TP53 truncating mutations and in-frame insertions/deletions
 TP53: MUT = TRUNC INFRAME
 ```
 
+OQL for specific mutation types can also be written without `MUT =`. The following examples are identical:
+```
+BRAF: MUT = V600E
+BRAF: V600E
+TP53: MUT = TRUNC INFRAME
+TP53: TRUNC INFRAME
+```
+
+
 <br>
 
 <a name="cna"></a>

@@ -29,14 +29,15 @@ Note that OQL assumes any word that it doesn't recognize is a mutation code.
 
 <a name="oql-keywords"></a>
 ## OQL Keywords
-Users can define specific subsets of genetic alterations for four data types:
+Users can define specific subsets of genetic alterations for five data types:
 
-Data Type | Keyword | Categories and Levels | Default*
---------- | ------- | --------------------- | --------
-Mutations | `MUT` | `MUT` All non-synonymous mutations <br> `MUT = <protein change>` Specific amino acid changes (e.g. `V600E` or `V600`) <br> `MUT = <mutation type>` Acceptable values are: `MISSENSE, NONSENSE, NONSTART, NONSTOP, FRAMESHIFT, INFRAME, SPLICE, TRUNC` <br> `FUSION` Show cases with fusions | `MUT` <br> `FUSION`
-Copy Number Alterations | `CNA` | `AMP` Amplified <br> `HOMDEL` Deep Deletion <br> `GAIN` Gained <br> `HETLOSS` Shallow Deletion <br> Comparison operators can also be used (e.g. `CNA >= GAIN` is the same as `AMP GAIN`) | `AMP` <br> `HOMDEL`
-mRNA Expression | `EXP` | `EXP < -x` Under-expression is less than `x` standard deviations (SD) below the mean <br> `EXP > x` Over-expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `EXP >= 2` <br> `EXP <= -2`
-Protein/phosphoprotein level | `PROT` | `PROT < -x` Protein-level under-expression is less than `x` standard deviations (SD) below the mean <br> `PROT > x` Protein-level over-expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `PROT >= 2` <br> `PROT <= -2`
+Data Type | Keywords and Syntax | Default*
+--------- | ------------------- | --------
+Mutations | `MUT` All non-synonymous mutations <br> `MUT = <protein change>` Specific amino acid changes (e.g. `V600E` or `V600`) <br> `MUT = <mutation type>` Acceptable values are: `MISSENSE, NONSENSE, NONSTART, NONSTOP, FRAMESHIFT, INFRAME, SPLICE, TRUNC` | `MUT`
+Fusions | `FUSION` All fusions (note that many studies lack fusion data) | `FUSION`
+Copy Number Alterations | `AMP` Amplifications <br> `HOMDEL` Deep Deletions <br> `GAIN` Gains <br> `HETLOSS` Shallow Deletions <br> Comparison operators can also be used with `CNA` (e.g. `CNA >= GAIN` is the same as `AMP GAIN`) | `AMP` <br> `HOMDEL`
+mRNA Expression | `EXP < -x` Under-expression is less than `x` standard deviations (SD) below the mean <br> `EXP > x` Over-expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `EXP >= 2` <br> `EXP <= -2`
+Protein/phosphoprotein level | `PROT < -x` Protein-level under-expression is less than `x` standard deviations (SD) below the mean <br> `PROT > x` Protein-level over-expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `PROT >= 2` <br> `PROT <= -2`
 
 \* These are the default OQL keywords used for each data type when a gene is queried without any explicit OQL.
 
@@ -80,7 +81,7 @@ Proper formatting for OQL is straightforward: gene name, followed by a colon, fo
 GENE1: OQL KEYWORDS;
 GENE2: OQL KEYWORDS
 ```
-In general, any combination of OQL keywords and/or categories can annotate any gene, and the order of the keywords is immaterial.
+In general, any combination of OQL keywords and/or expressions can annotate any gene, and the order of the keywords is immaterial.
 
 
 
@@ -102,10 +103,10 @@ BRAF: MUT = V600
 
 Or all mutations of a specific type:
 ```
-TP53: MUT = <TYPE>
+TP53: MUT = <mutation type>
 ```
 
-`<TYPE>` can be one or more of:
+`<mutation type>` can be one or more of:
 * `MISSENSE`
 * `NONSENSE`
 * `NONSTART`
@@ -120,7 +121,7 @@ For example, to view TP53 truncating mutations and in-frame insertions/deletions
 TP53: MUT = TRUNC INFRAME
 ```
 
-OQL for specific mutation types can also be written without `MUT =`. The following examples are identical:
+OQL for mutations can also be written without `MUT =`. The following examples are identical:
 ```
 BRAF: MUT = V600E
 BRAF: V600E
@@ -175,7 +176,7 @@ EGFR_PY992: PROT > 2
 
 <a name="modifiers"></a>
 ## Modifiers
-Modifiers can be used on their own or in combination with other OQL terms for mutations and copy number alterations to further refine the query. Modifiers can be combined with other OQL terms using an underscore. The order in which terms are combined is immaterial.
+Modifiers can be used on their own or in combination with other OQL terms for mutations, fusions and copy number alterations to further refine the query. Modifiers can be combined with other OQL terms using an underscore. The order in which terms are combined is immaterial.
 
 <a name="driver"></a>
 ### Driver
@@ -198,7 +199,7 @@ EGFR: MUT = MISSENSE_DRIVER
 
 When combining `DRIVER` with another OQL term, the order doesn't matter: `MUT_DRIVER` and `DRIVER_MUT` are equivalent. `DRIVER` can be combined with:
 * `MUT`
-* `MUT = <type>` or `MUT = <protein change>`
+* `MUT = <mutation type>` or `MUT = <protein change>`
 * `FUSION`
 * `CNA`
 * `AMP` or `GAIN` or `HETLOSS` or `HOMDEL`
@@ -211,7 +212,7 @@ The `GERMLINE` and `SOMATIC` modifiers only apply to mutations. A mutation can b
 
 `GERMLINE` or `SOMATIC` can be combined with:
 * `MUT`
-* `MUT = <type>` or `MUT = <protein change>`
+* `MUT = <mutation type>` or `MUT = <protein change>`
 * `DRIVER`
 
 To see all germline BRCA1 mutations:

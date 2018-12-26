@@ -51,7 +51,7 @@ public class CopyNumberEnrichmentController {
         @Valid @RequestBody EnrichmentFilter enrichmentFilter) throws MolecularProfileNotFoundException {
 
         return new ResponseEntity<>(copyNumberEnrichmentService.getCopyNumberEnrichments(molecularProfileId,
-            enrichmentFilter.getAlteredIds(), enrichmentFilter.getUnalteredIds(), enrichmentFilter.getQueryGenes(),
+            enrichmentFilter.getAlteredIds(), enrichmentFilter.getUnalteredIds(),
             copyNumberEventType.getAlterationTypes(), enrichmentType.name()), HttpStatus.OK);
     }
 }

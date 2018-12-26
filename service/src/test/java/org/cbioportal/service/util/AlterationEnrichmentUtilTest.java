@@ -29,8 +29,6 @@ public class AlterationEnrichmentUtilTest {
     @Mock
     private LogRatioCalculator logRatioCalculator;
     @Mock
-    private BenjaminiHochbergFDRCalculator benjaminiHochbergFDRCalculator;
-    @Mock
     private GeneService geneService;
 
     @Test
@@ -82,29 +80,26 @@ public class AlterationEnrichmentUtilTest {
         Mockito.when(logRatioCalculator.getLogRatio(1.0, 0.0)).thenReturn(Double.POSITIVE_INFINITY);
         Mockito.when(fisherExactTestCalculator.getCumulativePValue(0, 2, 1, 1)).thenReturn(1.0);
         Mockito.when(fisherExactTestCalculator.getCumulativePValue(2, 0, 0, 2)).thenReturn(0.3);
-        Mockito.when(benjaminiHochbergFDRCalculator.calculate(new double[]{0.3, 1})).thenReturn(new double[]{0.6, 1});
 
         List<AlterationEnrichment> result = alterationEnrichmentUtil.createAlterationEnrichments(2, 2, 
             alterationSampleCountByGenes, alterations, "SAMPLE");
 
         Assert.assertEquals(2, result.size());
         AlterationEnrichment alterationEnrichment1 = result.get(0);
-        Assert.assertEquals((Integer) 3, alterationEnrichment1.getEntrezGeneId());
-        Assert.assertEquals("HUGO3", alterationEnrichment1.getHugoGeneSymbol());
-        Assert.assertEquals("CYTOBAND3", alterationEnrichment1.getCytoband());
-        Assert.assertEquals((Integer) 2, alterationEnrichment1.getAlteredCount());
-        Assert.assertEquals((Integer) 0, alterationEnrichment1.getUnalteredCount());
-        Assert.assertEquals("Infinity", alterationEnrichment1.getLogRatio());
-        Assert.assertEquals(new BigDecimal("0.3"), alterationEnrichment1.getpValue());
-        Assert.assertEquals(new BigDecimal("0.6"), alterationEnrichment1.getqValue());
+        Assert.assertEquals((Integer) 2, alterationEnrichment1.getEntrezGeneId());
+        Assert.assertEquals("HUGO2", alterationEnrichment1.getHugoGeneSymbol());
+        Assert.assertEquals("CYTOBAND2", alterationEnrichment1.getCytoband());
+        Assert.assertEquals((Integer) 1, alterationEnrichment1.getAlteredCount());
+        Assert.assertEquals((Integer) 2, alterationEnrichment1.getUnalteredCount());
+        Assert.assertEquals("-1.0", alterationEnrichment1.getLogRatio());
+        Assert.assertEquals(new BigDecimal("1.0"), alterationEnrichment1.getpValue());
         AlterationEnrichment alterationEnrichment2 = result.get(1);
-        Assert.assertEquals((Integer) 2, alterationEnrichment2.getEntrezGeneId());
-        Assert.assertEquals("HUGO2", alterationEnrichment2.getHugoGeneSymbol());
-        Assert.assertEquals("CYTOBAND2", alterationEnrichment2.getCytoband());
-        Assert.assertEquals((Integer) 1, alterationEnrichment2.getAlteredCount());
-        Assert.assertEquals((Integer) 2, alterationEnrichment2.getUnalteredCount());
-        Assert.assertEquals("-1.0", alterationEnrichment2.getLogRatio());
-        Assert.assertEquals(new BigDecimal("1.0"), alterationEnrichment2.getpValue());
-        Assert.assertEquals(new BigDecimal("1.0"), alterationEnrichment2.getqValue());
+        Assert.assertEquals((Integer) 3, alterationEnrichment2.getEntrezGeneId());
+        Assert.assertEquals("HUGO3", alterationEnrichment2.getHugoGeneSymbol());
+        Assert.assertEquals("CYTOBAND3", alterationEnrichment2.getCytoband());
+        Assert.assertEquals((Integer) 2, alterationEnrichment2.getAlteredCount());
+        Assert.assertEquals((Integer) 0, alterationEnrichment2.getUnalteredCount());
+        Assert.assertEquals("Infinity", alterationEnrichment2.getLogRatio());
+        Assert.assertEquals(new BigDecimal("0.3"), alterationEnrichment2.getpValue());
     }
 }

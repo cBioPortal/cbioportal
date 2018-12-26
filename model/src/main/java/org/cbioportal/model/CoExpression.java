@@ -16,8 +16,6 @@ public class CoExpression implements Serializable {
     private BigDecimal spearmansCorrelation;
     @NotNull
     private BigDecimal pValue;
-    @NotNull
-    private BigDecimal qValue;
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -57,13 +55,5 @@ public class CoExpression implements Serializable {
 
     public void setpValue(BigDecimal pValue) {
         this.pValue = pValue;
-    }
-
-    public BigDecimal getqValue() {
-        return qValue;
-    }
-
-    public void setqValue(BigDecimal qValue) {
-        this.qValue = qValue;
     }
 }

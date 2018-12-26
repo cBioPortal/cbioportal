@@ -83,7 +83,6 @@ public class MutationEnrichmentControllerTest {
         alterationEnrichment1.setUnalteredCount(TEST_NUMBER_OF_SAMPLES_IN_UNALTERED_GROUP_1);
         alterationEnrichment1.setLogRatio(TEST_LOG_RATIO_1);
         alterationEnrichment1.setpValue(TEST_P_VALUE_1);
-        alterationEnrichment1.setqValue(TEST_Q_VALUE_1);
         alterationEnrichments.add(alterationEnrichment1);
         AlterationEnrichment alterationEnrichment2 = new AlterationEnrichment();
         alterationEnrichment2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
@@ -93,12 +92,11 @@ public class MutationEnrichmentControllerTest {
         alterationEnrichment2.setUnalteredCount(TEST_NUMBER_OF_SAMPLES_IN_UNALTERED_GROUP_2);
         alterationEnrichment2.setLogRatio(TEST_LOG_RATIO_2);
         alterationEnrichment2.setpValue(TEST_P_VALUE_2);
-        alterationEnrichment2.setqValue(TEST_Q_VALUE_2);
         alterationEnrichments.add(alterationEnrichment2);
         
         Mockito.when(mutationEnrichmentService.getMutationEnrichments(Mockito.anyString(), 
-            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class),
-            Mockito.anyString())).thenReturn(alterationEnrichments);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString()))
+            .thenReturn(alterationEnrichments);
 
         EnrichmentFilter enrichmentFilter = new EnrichmentFilter();
         enrichmentFilter.setAlteredIds(Arrays.asList("test_sample_id_1"));
@@ -121,7 +119,6 @@ public class MutationEnrichmentControllerTest {
                 TEST_NUMBER_OF_SAMPLES_IN_UNALTERED_GROUP_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].logRatio").value(TEST_LOG_RATIO_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].qValue").value(TEST_Q_VALUE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value(TEST_CYTOBAND_2))
@@ -130,7 +127,6 @@ public class MutationEnrichmentControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].unalteredCount").value(
                 TEST_NUMBER_OF_SAMPLES_IN_UNALTERED_GROUP_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].logRatio").value(TEST_LOG_RATIO_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].qValue").value(TEST_Q_VALUE_2));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2));
     }
 }

@@ -15,7 +15,6 @@ import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.service.util.BenjaminiHochbergFDRCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,13 +39,10 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     private MolecularDataService molecularDataService;
     @Autowired
     private GeneService geneService;
-    @Autowired
-    private BenjaminiHochbergFDRCalculator benjaminiHochbergFDRCalculator;
 
     @Override
     public List<ExpressionEnrichment> getExpressionEnrichments(String molecularProfileId, List<String> alteredIds, 
-                                                               List<String> unalteredIds, List<Integer> queryGenes, 
-                                                               String enrichmentType) 
+                                                               List<String> unalteredIds, String enrichmentType) 
         throws MolecularProfileNotFoundException {
         
         if (enrichmentType.equals("PATIENT")) {
@@ -60,10 +56,6 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
         Map<Integer, List<GeneMolecularData>> alteredMolecularDataMap = molecularDataService.fetchMolecularData(
             molecularProfileId, alteredIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(
                 GeneMolecularData::getEntrezGeneId));
-                
-        for (Integer entrezGeneId : queryGenes) {
-            alteredMolecularDataMap.remove(entrezGeneId);
-        }
         
         Map<Integer, List<GeneMolecularData>> unalteredMolecularDataMap = molecularDataService.fetchMolecularData(
             molecularProfileId, unalteredIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(
@@ -114,7 +106,6 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
             expressionEnrichments.add(expressionEnrichment);
         }
         
-        assignQValue(expressionEnrichments);
         return expressionEnrichments;
     }
     
@@ -145,16 +136,5 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
             descriptiveStatistics.addValue(value);
         }
         return descriptiveStatistics.getStandardDeviation();
-    }
-
-    private void assignQValue(List<ExpressionEnrichment> expressionEnrichments) {
-
-        expressionEnrichments.sort(Comparator.comparing(ExpressionEnrichment::getpValue));
-        double[] qValues = benjaminiHochbergFDRCalculator.calculate(expressionEnrichments.stream().mapToDouble(a ->
-            a.getpValue().doubleValue()).toArray());
-
-        for (int i = 0; i < expressionEnrichments.size(); i++) {
-            expressionEnrichments.get(i).setqValue(BigDecimal.valueOf(qValues[i]));
-        }
     }
 }

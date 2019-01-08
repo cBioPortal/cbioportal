@@ -5,6 +5,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.CancerTypeNotFoundException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CancerTypeService {
 
@@ -14,4 +15,6 @@ public interface CancerTypeService {
     BaseMeta getMetaCancerTypes();
 
     TypeOfCancer getCancerType(String cancerTypeId) throws CancerTypeNotFoundException;
+
+    Map<String, TypeOfCancer> getPrimarySiteMap(); 
 }

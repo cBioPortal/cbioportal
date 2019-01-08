@@ -3,6 +3,7 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.StudyRepository;
+import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,6 +17,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -26,6 +28,8 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
 
     @Mock
     private StudyRepository studyRepository;
+    @Mock
+    private CancerTypeService cancerTypeService;
 
     @Before
     public void setup() {
@@ -40,7 +44,8 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
         expectedCancerStudyList.add(cancerStudy);
 
         Mockito.when(studyRepository.getAllStudies(KEYWORD, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
-                .thenReturn(expectedCancerStudyList);
+            .thenReturn(expectedCancerStudyList);
+        Mockito.when(cancerTypeService.getPrimarySiteMap()).thenReturn(new HashMap<>());
 
         List<CancerStudy> result = studyService.getAllStudies(KEYWORD, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
@@ -53,10 +58,11 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
         BaseMeta expectedBaseMeta = new BaseMeta();
 
         Mockito.when(studyRepository.getMetaStudies(KEYWORD)).thenReturn(expectedBaseMeta);
+        Mockito.when(cancerTypeService.getPrimarySiteMap()).thenReturn(new HashMap<>());
 
         BaseMeta result = studyService.getMetaStudies(KEYWORD);
 
-        Assert.assertEquals(expectedBaseMeta, result);
+        Assert.assertEquals((Integer) 0, result.getTotalCount());
     }
 
     @Test(expected = StudyNotFoundException.class)

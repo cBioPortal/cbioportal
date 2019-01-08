@@ -32,6 +32,7 @@
 package org.cbioportal.persistence;
 
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneAlias;
 import org.cbioportal.model.meta.BaseMeta;
 
 import java.util.List;
@@ -50,6 +51,8 @@ public interface GeneRepository {
     List<String> getAliasesOfGeneByEntrezGeneId(Integer entrezGeneId);
 
     List<String> getAliasesOfGeneByHugoGeneSymbol(String hugoGeneSymbol);
+
+    List<GeneAlias> getAllAliases();
 
     List<Gene> fetchGenesByEntrezGeneIds(List<Integer> entrezGeneIds, String projection);
 

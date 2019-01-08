@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneAlias;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GeneRepository;
 import org.cbioportal.persistence.PersistenceConstants;
@@ -56,6 +57,10 @@ public class GeneMyBatisRepository implements GeneRepository {
         return geneMapper.getAliasesOfGeneByHugoGeneSymbol(hugoGeneSymbol);
     }
 
+    @Override
+    public List<GeneAlias> getAllAliases() {
+        return geneMapper.getAllAliases();
+    }
 
     @Override
     public List<Gene> fetchGenesByEntrezGeneIds(List<Integer> entrezGeneIds, String projection) {

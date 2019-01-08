@@ -41,8 +41,9 @@ public class StudyServiceImpl implements StudyService {
                 primarySiteMatchingStudies = primarySiteMatchingStudies.subList(0, toIndex);
             }
             for (CancerStudy cancerStudy : primarySiteMatchingStudies) {
-                if (!allStudies.stream().anyMatch(c -> c.getCancerStudyIdentifier().equals(cancerStudy.getCancerStudyIdentifier())))
-                allStudies.add(cancerStudy);
+                if (!allStudies.stream().anyMatch(c -> c.getCancerStudyIdentifier().equals(cancerStudy.getCancerStudyIdentifier()))) {
+                    allStudies.add(cancerStudy);
+                }
             }
         }
         // copy the list before returning so @PostFilter doesn't taint the list stored in the mybatis second-level cache

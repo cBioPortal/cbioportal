@@ -17,8 +17,8 @@
 - [The DATATYPES Command](#the-datatypes-command)
 - [Merged Gene Tracks](#merged-gene-tracks)
 - [Example: RB Pathway Alterations](#example-rb-pathway-alterations)
-	- [Using the Defaults](#using-the-defaults)
-	- [Greater Insight with OQL](#greater-insight-with-oql)
+    - [Using the Defaults](#using-the-defaults)
+    - [Greater Insight with OQL](#greater-insight-with-oql)
 - [Questions? Feedback?](#questions-feedback)
 
 <!-- /TOC -->

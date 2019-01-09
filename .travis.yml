@@ -97,5 +97,3 @@ script:
       # screenshots of this portal loaded with the data from the amazon db
       bash test/end-to-end/test_make_screenshots.sh test/end-to-end/screenshots.yml
   fi
-notifications:
-  slack: cbioportal:S2qVTFTFMtizONhCOe8BYxS6

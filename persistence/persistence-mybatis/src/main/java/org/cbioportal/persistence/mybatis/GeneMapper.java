@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneAlias;
 import org.cbioportal.model.meta.BaseMeta;
 
 import java.util.List;
@@ -19,6 +20,8 @@ public interface GeneMapper {
     List<String> getAliasesOfGeneByEntrezGeneId(Integer entrezGeneId);
 
     List<String> getAliasesOfGeneByHugoGeneSymbol(String hugoGeneSymbol);
+
+    List<GeneAlias> getAllAliases();
 
     List<Gene> getGenesByEntrezGeneIds(List<Integer> entrezGeneIds, String projection);
 

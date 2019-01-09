@@ -52,8 +52,9 @@ public class GeneServiceImplTest extends BaseServiceImplTest {
     public void getMetaGenes() throws Exception {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
-        Mockito.when(geneRepository.getMetaGenes(KEYWORD, ALIAS)).thenReturn(expectedBaseMeta);
-        BaseMeta result = geneService.getMetaGenes(KEYWORD, ALIAS);
+        Mockito.when(geneRepository.getMetaGenes(null, ALIAS)).thenReturn(expectedBaseMeta);
+        
+        BaseMeta result = geneService.getMetaGenes(null, ALIAS);
 
         Assert.assertEquals(expectedBaseMeta, result);
     }

@@ -56,13 +56,11 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
     public void getMetaStudies() throws Exception {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
+        Mockito.when(studyRepository.getMetaStudies(null)).thenReturn(expectedBaseMeta);
 
-        Mockito.when(studyRepository.getMetaStudies(KEYWORD)).thenReturn(expectedBaseMeta);
-        Mockito.when(cancerTypeService.getPrimarySiteMap()).thenReturn(new HashMap<>());
+        BaseMeta result = studyService.getMetaStudies(null);
 
-        BaseMeta result = studyService.getMetaStudies(KEYWORD);
-
-        Assert.assertEquals((Integer) 0, result.getTotalCount());
+        Assert.assertEquals(expectedBaseMeta, result);
     }
 
     @Test(expected = StudyNotFoundException.class)

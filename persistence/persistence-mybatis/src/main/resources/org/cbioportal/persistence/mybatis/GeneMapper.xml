@@ -94,6 +94,13 @@
         WHERE gene.HUGO_GENE_SYMBOL = #{hugoGeneSymbol}
     </select>
 
+    <select id="getAllAliases" resultType="org.cbioportal.model.GeneAlias">
+        SELECT 
+        gene_alias.ENTREZ_GENE_ID AS entrezGeneId,
+        LOWER(gene_alias.GENE_ALIAS) AS geneAlias
+        FROM gene_alias
+    </select>
+
     <select id="getGenesByEntrezGeneIds" resultType="org.cbioportal.model.Gene">
         SELECT
         <include refid="select">

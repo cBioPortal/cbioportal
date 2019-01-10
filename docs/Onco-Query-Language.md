@@ -1,13 +1,9 @@
 # Onco Query Language (OQL)
 
-The Onco Query Language (OQL) is used to define which specific types of alterations are included in a query on the cBioPortal for Cancer Genomics. By default, querying for a gene includes mutations, fusions, amplifications and deep deletions. OQL can be used to specify specific mutations (e.g. BRAF V600E) or types of mutations (e.g. BRCA1 truncating mutations), lower level copy number alterations (e.g. CDKN2A shallow deletions), changes in mRNA or protein expression, and more.
-
-OQL-specified alterations will be reflected on most tabs, including OncoPrint, but are not currently reflected on the Plots, Co-Expression or Expression tabs.
-
-Note that OQL assumes any word that it doesn't recognize is a mutation code.
 
 <!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
+- [Introduction to OQL](#introduction)
 - [OQL Keywords](#oql-keywords)
     - [OQL Modifiers](#oql-modifiers)
 - [Basic Usage](#basic-usage)
@@ -21,11 +17,21 @@ Note that OQL assumes any word that it doesn't recognize is a mutation code.
 - [The DATATYPES Command](#the-datatypes-command)
 - [Merged Gene Tracks](#merged-gene-tracks)
 - [Example: RB Pathway Alterations](#example-rb-pathway-alterations)
-	- [Using the Defaults](#using-the-defaults)
-	- [Greater Insight with OQL](#greater-insight-with-oql)
+    - [Using the Defaults](#using-the-defaults)
+    - [Greater Insight with OQL](#greater-insight-with-oql)
 - [Questions? Feedback?](#questions-feedback)
 
 <!-- /TOC -->
+
+<a name="introduction"></a>
+## Introduction to OQL
+The Onco Query Language (OQL) is used to define which specific types of alterations are included in a query on the cBioPortal for Cancer Genomics. By default, querying for a gene includes mutations, fusions, amplifications and deep deletions. OQL can be used to specify specific mutations (e.g. BRAF V600E) or types of mutations (e.g. BRCA1 truncating mutations), lower level copy number alterations (e.g. CDKN2A shallow deletions), changes in mRNA or protein expression, and more.
+
+OQL-specified alterations will be reflected on most tabs, including OncoPrint, but are not currently reflected on the Plots, Co-Expression or Expression tabs.
+
+Note that OQL assumes any word that it doesn't recognize is a mutation code.
+
+Additional explanation and examples using OQL are available in the <a href="http://www.cbioportal.org/tutorials#oql">OQL tutorial</a>.
 
 <a name="oql-keywords"></a>
 ## OQL Keywords
@@ -277,6 +283,9 @@ Note that merged gene tracks only appear in OncoPrint. All other pages show the 
 
 <a name="example-rb-pathway-alterations"></a>
 ## Example: RB Pathway Alterations
+
+Provided below is one example of the power of using OQL. Additional examples are available in the <a href="http://www.cbioportal.org/tutorials#oql">OQL tutorial</a>.
+
 <a name="using-the-defaults"></a>
 ### Using the Defaults
 Select Ovarian Serous Cystadenocarcinoma (TCGA, Nature 2011) with the following data types:
@@ -320,3 +329,5 @@ This shows that alterations in these genes are almost entirely mutually-exclusiv
 <a name="questions-feedback"></a>
 ## Questions? Feedback?
 Please share any questions or feedback on OQL with us: <http://groups.google.com/group/cbioportal>
+
+Also note that additional explanation and examples using OQL are available in the <a href="http://www.cbioportal.org/tutorials#oql">OQL tutorial</a>.

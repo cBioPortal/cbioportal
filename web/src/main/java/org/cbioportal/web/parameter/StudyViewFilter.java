@@ -6,6 +6,10 @@ import java.util.Objects;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+@JsonInclude(Include.NON_NULL)
 public class StudyViewFilter {
 
 	@Size(min = 1)

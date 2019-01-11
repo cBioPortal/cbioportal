@@ -43,9 +43,9 @@ ALTER TABLE `geneset` AUTO_INCREMENT = 1;
 
 After downloading, go to your downloads directory, decompress the file and add it as an argument (--gtf) in the next step.
 
-6- To import gene data type the following commands when in the folder `<your_cbioportal_dir>/core/src/main/scripts`:
+6- To import gene data type the following commands when in the folder `<cbioportal_source_folder>/core/src/main/scripts`:
 ```
- export PORTAL_HOME=<your_cbioportal_dir>
+export PORTAL_HOME=<cbioportal_configuration_folder>
 ./importGenes.pl --genes <ncbi_species.gene_info> --gtf <gencode.v25.annotation.gtf>
 ```
 
@@ -55,11 +55,9 @@ SELECT count(*) FROM cbioportal.gene;
 SELECT count(*) FROM cbioportal.gene_alias;
 ```
 
-8- Additionally, there are several other tables you may want to update now (only in human).
+8- Additionally, there are other tables you may want to update now (only in human).
 
-1. Updating the pfam graphics if you want to see 3D structures, explained in [this document](Updating-pfam_graphics-table.md)
-
-2. Updating the COSMIC coding mutations, can be downloaded from [here](http://cancer.sanger.ac.uk/cosmic/download) and require the script `importCosmicData.pl`
+* Updating the COSMIC coding mutations, can be downloaded from [here](http://cancer.sanger.ac.uk/cosmic/download) and require the script `importCosmicData.pl`
 
 9- Clean-up old data:
 ```sql
@@ -84,7 +82,7 @@ ALTER TABLE uniprot_id_mapping
 
 11- You can import new gene sets using the gene set importer. These gene sets are currently only used for gene set scoring. See [Import-Gene-Sets.md](Import-Gene-Sets.md) and [File-Formats.md#gene-set-data].
 
-For example, run in folder `<your_cbioportal_dir>/core/src/main/scripts`:
+For example, run in folder `<cbioportal_source_folder>/core/src/main/scripts`:
 ```bash
 ./importGenesetData.pl --data ~/Desktop/msigdb.v6.1.entrez.gmt --new-version msigdb_6.1
 ```

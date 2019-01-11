@@ -216,6 +216,7 @@
 <script src="js/src/dashboard/view/StudyViewInitMutationsTab.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/src/dashboard/view/StudyViewInitCNATab.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/src/dashboard/iviz.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/src/dashboard/hijackSubmission.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/src/cbio-util.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/src/download-util.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
@@ -356,7 +357,7 @@
                             appendMutationTab();
                         }
                         var _cnaProfiles = _.filter(_geneticProfiles, function (_profile) {
-                            return _profile.study_id + '_gistic' === _profile.id;
+                            return _profile.genetic_alteration_type === 'COPY_NUMBER_ALTERATION' && _profile.datatype === 'DISCRETE';
                         });
                         if(_cnaProfiles.length>0){
                             appendCnaTab();
@@ -569,16 +570,9 @@
     
     
     </span>
-    
-    
-<script src="js/src/load-frontend.js"></script>
 
-<script>
-        window.loadReactApp({ defaultRoute: 'blank' });
-</script>
 
-<div id="reactRoot" style="display:none"></div>
     
-    
+
 </body>
 </html>

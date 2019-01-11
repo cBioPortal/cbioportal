@@ -24,6 +24,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -198,12 +199,27 @@ public class TestIntegrationTest {
             assertEquals(273, count0506);
             
             //===== Check CLINICAL data ========
-            //in total 5 clinical attributes should be added (4 "patient type" 
-            //and 1 "sample type" attributes) - see also "assumptions" section at start of this test case
+            //in total 7 clinical attributes should be added (4 "patient type" 
+            //and 3 "sample type" attributes including MUTATION_COUNT and FRACTION_GENOME_ALTERED) 
+            //see also "assumptions" section at start of this test case
             List<DBClinicalField> clinicalAttributes = apiService.getSampleClinicalAttributes();
-            assertEquals(1, clinicalAttributes.size());
+            assertEquals(3, clinicalAttributes.size());
             clinicalAttributes = apiService.getPatientClinicalAttributes();
-            assertEquals(4, clinicalAttributes.size());
+            assertEquals(5, clinicalAttributes.size());
+            List<DBClinicalSampleData> clinicalComputedSampleData = apiService.getSampleClinicalData("study_es_0", Arrays.asList("MUTATION_COUNT","FRACTION_GENOME_ALTERED"), Arrays.asList("TCGA-A2-A04P-01"));
+            Boolean mutationCountExists = false;
+            Boolean fractionGenomeAlteredExists = false;
+            for (DBClinicalSampleData dbClinicalSampleData: clinicalComputedSampleData) {
+                if (dbClinicalSampleData.attr_id.equals("MUTATION_COUNT")) {
+                    mutationCountExists = true;
+                    assertEquals("TCGA-A2-A04P-01 should have one mutation in MUTATION_COUNT", "1", dbClinicalSampleData.attr_val);
+                } else if (dbClinicalSampleData.attr_id.equals("FRACTION_GENOME_ALTERED")) {
+                    fractionGenomeAlteredExists = true;
+                    assertEquals("TCGA-A2-A04P-01 should have 0.0 FRACTION_GENOME_ALTERED (the imported segment file spans a very small part of the genome)", 0.0, Float.parseFloat(dbClinicalSampleData.attr_val), 0.01);
+                }
+            }
+            assertTrue("MUTATION_COUNT sample clinical attribute should have been added for TCGA-A2-A04P-01", mutationCountExists);
+            assertTrue("FRACTION_GENOME_ALTERED sample clinical attribute should have been added for TCGA-A2-A04P-01", fractionGenomeAlteredExists);
             
             //===== Check EXPRESSION data ========
             geneticProfileStableIds = new ArrayList<String>();

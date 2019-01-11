@@ -1,3 +1,36 @@
+## December 17, 2018
+* The 10th phase of cBioPortal architectural upgrade is now complete: the _Study View_ has been moved to the new architecture with numerous improvements. This marks the completion of the cBioPortal architectural refactoring! 🎉🎉🎉
+
+[![image](https://user-images.githubusercontent.com/840895/50120599-11aadf80-0224-11e9-9f9f-adae0ed42c72.png)](http://www.cbioportal.org/study?id=msk_impact_2017)
+
+## October 29, 2018
+* The ninth phase of the cBioPortal architectural upgrade is now complete: the _results page_ is now a single-page application with better performance.
+* Supported plotting mutations by type in _Plots_ tab
+
+![image](https://user-images.githubusercontent.com/840895/47598695-d996c700-d96d-11e8-9371-9e591cf25ea3.png)
+
+## October 19, 2018
+
+* Support selection of transcript of interest in the [MutationMapper tool](http://www.cbioportal.org/mutation_mapper.jsp) via [Genome Nexus](https://www.genomenexus.org).
+
+![mutation_mapper_dropdown](https://user-images.githubusercontent.com/1334004/47240017-f99a1980-d3b4-11e8-99a4-e8c73b25ecec.png)
+
+## October 17, 2018
+ *   **Added data**  of 3578 samples from 8 studies:
+     *   [Rhabdoid Cancer (BCGSC, Cancer Cell 2016)](http://www.cbioportal.org/study?id=mrt_bcgsc_2016#summary) *40 samples*
+     *   [Diffuse Large B-Cell Lymphoma (Duke, Cell 2017)](http://www.cbioportal.org/study?id=dlbcl_duke_2017#summary) *1001 samples*
+     *   [Diffuse Large B cell Lymphoma (DFCI, Nat Med 2018)](http://www.cbioportal.org/study?id=dlbcl_dfci_2018#summary) *135 samples*
+     *   [Breast Fibroepithelial Tumors (Duke-NUS, Nat Genet 2015)](http://www.cbioportal.org/study?id=bfn_duke_nus_2015#summary) *22 samples*
+     *   [Uterine Clear Cell Carcinoma (NIH, Cancer 2017)](http://www.cbioportal.org/study?id=uccc_nih_2017#summary) *16 samples*
+     *   [Endometrial Cancer (MSK, 2018)](http://www.cbioportal.org/study?id=ucec_msk_2018#summary) *197 samples*
+     *   [Breast Cancer (MSK, Cancer Cell 2018)](http://www.cbioportal.org/study?id=breast_msk_2018#summary) *1918 samples*
+     *   [MSS Mixed Solid Tumors (Van Allen, 2018)](http://www.cbioportal.org/study?id=mixed_allen_2018#summary) *249 samples*
+*   Updated data for [The Angiosarcoma Project (Provisional, September 2018)](http://www.cbioportal.org/study?id=angs_project_painter_2018#summary) *48 samples*
+## Auguest 20, 2018
+ *   Now you can log in on the public cBioPortal with your Google account and save your virtual studies for quick analysis.
+
+![image](https://user-images.githubusercontent.com/840895/44370286-902a8700-a4a7-11e8-9c8f-dfda87fbd66b.png)
+
 ## August 7, 2018
  *   The eighth phase of the cBioPortal architectural upgrade is now complete: The _Plots_, _Expression_, _Network_, and _Bookmarks_ tabs, and therefore all analysis tabs in the _results page_, have been moved to the new architecture.
  *   Updated the [MutationMapper tool](http://www.cbioportal.org/mutation_mapper.jsp), now connecting to [Genome Nexus](https://genomenexus.org/) for annotating mutations on the fly.
@@ -131,19 +164,20 @@
   ![image](https://user-images.githubusercontent.com/840895/27399281-3ba5357a-568a-11e7-9730-d230285d7805.png)
 
 ## May 12, 2017
-*   **Added data** of 12,211 samples from 11 published studies:
-    *   [MSK-IMPACT Clinical Sequencing Cohort (MSK, Nat Med 2017)](http://www.cbioportal.org/study?id=msk_impact_2017)   *10,945 samples*
-    *   [Whole-genome sequencing of pilocytic astrocytomasatic (DKFZ, Nat Genetics, 2013)](http://www.cbioportal.org/study?id=past_dkfz_heidelberg_2013) *96 samples*
-    *   [Hepatocellular Carcinomas (INSERM, Nat Genet 2015)](http://www.cbioportal.org/study?id=hcc_inserm_fr_2015) *243 samples*
-    *   [Cystic Tumor of the Pancreas (Johns Hopkins, PNAS 2011)](http://www.cbioportal.org/study?id=pact_jhu_2011) *32 samples*
-    *   [Whole-Genome Sequencing of Pancreatic Neuroendocrine Tumors (
-ARC-Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *98 samples*
-    *   [Medulloblastoma (Sickkids, Nature 2016)](http://www.cbioportal.org/study?id=mbl_sickkids_2016) *46 samples*
-    *   [Genetic Characterization of NSCLC young adult patients (University of Turin, Lung Cancer 2016)](http://www.cbioportal.org/study?id=nsclc_unito_2016) *41 samples*
-    *   [Genomic Profile of Patients with Advanced Germ Cell Tumors (MSK, JCO 2016).](http://www.cbioportal.org/study?id=gct_msk_2016) *180 samples*
-    *   [Ampullary Carcinoma (Baylor, Cell Reports 2016)](http://www.cbioportal.org/study?id=ampca_bcm_2016) *160 samples*
-    *   [Mutational profiles of metastatic breast cancer (INSERM, 2016)](http://www.cbioportal.org/study?id=brca_igr_2015) *216 samples*
-    *   [Prostate Adenocarcinoma (Fred Hutchinson CRC, Nat Med 2016)](http://www.cbioportal.org/study?id=prad_fhcrc) *154 samples*
+ *   **Added data** of 12,211 samples from 11 published studies:
+     *   [MSK-IMPACT Clinical Sequencing Cohort (MSK, Nat Med 2017)](http://www.cbioportal.org/study?id=msk_impact_2017)   *10,945 samples*
+     *   [Whole-genome sequencing of pilocytic astrocytomasatic (DKFZ, Nat Genetics, 2013)](http://www.cbioportal.org/study?id=past_dkfz_heidelberg_2013) *96 samples*
+     *   [Hepatocellular Carcinomas (INSERM, Nat Genet 2015)](http://www.cbioportal.org/study?id=hcc_inserm_fr_2015) *243 samples*
+     *   [Cystic Tumor of the Pancreas (Johns Hopkins, PNAS 2011)](http://www.cbioportal.org/study?id=pact_jhu_2011) *32 samples*
+     *   [Whole-Genome Sequencing of Pancreatic Neuroendocrine Tumors (ARC- Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *98 samples*
+     *   [Medulloblastoma (Sickkids, Nature 2016)](http://www.cbioportal.org/study?id=mbl_sickkids_2016) *46 samples*
+     *   [Genetic Characterization of NSCLC young adult patients (University of Turin, Lung Cancer 2016)](http://www.cbioportal.org/study?id=nsclc_unito_2016) *41 samples*
+     *   [Genomic Profile of Patients with Advanced Germ Cell Tumors (MSK, JCO 2016).](http://www.cbioportal.org/study?id=gct_msk_2016) *180 samples*
+     *   [Ampullary Carcinoma (Baylor, Cell Reports 2016)](http://www.cbioportal.org/study?id=ampca_bcm_2016) *160 samples*
+     *   [Mutational profiles of metastatic breast cancer (INSERM, 2016)](http://www.cbioportal.org/study?id=brca_igr_2015) *216 samples*
+     *   [Prostate Adenocarcinoma (Fred Hutchinson CRC, Nat Med 2016)](http://www.cbioportal.org/study?id=prad_fhcrc) *154 samples*
+
+
 ## May 5, 2017
 *   First phase of cBioPortal architectural upgrade complete: Patient view now has fresh look and faster performance. [example](http://bit.ly/2pNY961)
 
@@ -338,12 +372,12 @@ ARC-Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *9
     *   OncoPrints now support color coding of different mutation types
     *   OncoPrints now support multiple clinical annotation tracks
     *   [**OncoPrinter tool**](http://www.cbioportal.org/oncoprinter.jsp) now supports mRNA expression changes  
-        ![Oncoprint with multiple clinical tracks](images/previews/multi-clinical-track-oncoprint.png)
+        ![Oncoprint with multiple clinical tracks](https://user-images.githubusercontent.com/1334004/47188323-9f8e4b00-d305-11e8-8fe9-972104518545.png)
 
 ## January 6, 2015
 
 *   **New feature**: You can now view **frequencies of mutations and copy-number alterations** in the study view. These tables are updated dynamically when selecting subsets of samples.  
-    ![Alterations in heavily copy-number altered endometrial cancer cases](images/previews/study_view_alt_frequencies.png)
+    ![Alterations in heavily copy-number altered endometrial cancer cases](https://user-images.githubusercontent.com/1334004/47188333-9f8e4b00-d305-11e8-8c64-de5cbda0fa54.png)
 
 ## December 9, 2014
 
@@ -391,7 +425,7 @@ ARC-Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *9
 
 *   Improved study summary page including survival analysis based on clinical attributes  
     e.g. [TCGA Endometrial Cancer cohort](http://www.cbioportal.org/study?id=ucec_tcga_pub)  
-    ![Study view](images/previews/study_view.png)
+    ![Study view](https://user-images.githubusercontent.com/1334004/47188334-a026e180-d305-11e8-964c-6c417bb06ca2.png)
 
 ## March 27, 2014
 
@@ -400,7 +434,7 @@ ARC-Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *9
     *   Gene expression correlation analysis (find all genes with expression correlation to your query genes)
     *   The Patient-Centric View now displays mutation frequencies across all cohorts in cBioPortal for each mutation
     *   The Mutation Details Tab and the Patient-Centric View now display the copy-number status of each mutation  
-        ![3D viewer & Co-expression](images/previews/news_3d_coexp.png)
+        ![3D viewer & Co-expression](https://user-images.githubusercontent.com/1334004/47188325-9f8e4b00-d305-11e8-96db-67936cd89f8f.png)
 
 ## March 18, 2014
 
@@ -452,9 +486,9 @@ ARC-Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *9
 ## October 21, 2013
 
 *   Improved interface for survival plots, including information on individual samples via mouse-over
-*   New fusion glyph in OncoPrints    [![FGFR3 fusions in head and neck carcinoma](images/previews/fusion-in-oncoprint.png)](http://www.cbioportal.org/index.do?cancer_study_id=hnsc_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=hnsc_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=hnsc_tcga_pub_gistic&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=hnsc_tcga_pub_sequenced&case_ids=&gene_set_choice=user-defined-list&gene_list=FGFR3%3A+AMP+MUT%3B%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit)
+*   New fusion glyph in OncoPrints    [![FGFR3 fusions in head and neck carcinoma](https://user-images.githubusercontent.com/1334004/47188320-9f8e4b00-d305-11e8-9d8c-09a7ec28d921.png)](http://www.cbioportal.org/index.do?cancer_study_id=hnsc_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=hnsc_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=hnsc_tcga_pub_gistic&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=hnsc_tcga_pub_sequenced&case_ids=&gene_set_choice=user-defined-list&gene_list=FGFR3%3A+AMP+MUT%3B%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit)
 *   Improved cross-cancer query: new alteration frequency histogram (example below - query gene: CDKN2A) and mutation diagram
-    ![Cross Cancer Query](images/previews/cross_cancer.png)
+    ![Cross Cancer Query](https://user-images.githubusercontent.com/1334004/47188319-9ef5b480-d305-11e8-9281-fb31993b7b42.png)
 
 ## September 9, 2013
 
@@ -463,7 +497,7 @@ ARC-Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *9
 *   Enhanced mutation diagrams: color-coding by mutation time and syncing with table filters
 *   Addition of DNA cytoband information in the patient view of copy-number changes
 *   OncoPrints now allow the display of an optional track with clinical annotation (Endometrial cancer example below)
-    ![Oncoprint with clinical track](images/previews/oncoprint_clinical_track.png)
+    ![Oncoprint with clinical track](https://user-images.githubusercontent.com/1334004/47188326-9f8e4b00-d305-11e8-9cf5-52e459d56310.png)
 
 ## July 25, 2013
 
@@ -561,7 +595,7 @@ ARC-Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *9
 *   All data updated to the **latest Broad Firehose run** (January 24, 2012).
 *   Validated mutation data for colorectal cancer.
 *   New feature: **Mutation Diagrams** that show mutations in the context of protein domains.
-    ![TP53 Mutations in Ovarian Cancer](images/previews/tp53_mutations.png)
+    ![TP53 Mutations in Ovarian Cancer](https://user-images.githubusercontent.com/1334004/47188347-a0bf7800-d305-11e8-8c92-7c8763711338.png)
 
 ## January 30, 2012
 
@@ -588,7 +622,7 @@ ARC-Net, Nature, 2017)](http://www.cbioportal.org/study?id=panet_arcnet_2017) *9
 
 *   New and **improved mutation details**, with sorting and filtering capabilities.
 *   In collaboration with Bilkent University, we have added a **new Network tab** to our results pages. The network tab enables users to visualize, analyze and filter cancer genomic data in the context of pathways and interaction networks derived from [Pathway Commons](http://www.pathwaycommons.org).
-    ![GBM Network](images/previews/ova_network.png)
+    ![GBM Network](https://user-images.githubusercontent.com/1334004/47188328-9f8e4b00-d305-11e8-87d7-6336285f7572.png)
 
 ## September 3, 2011
 
@@ -605,7 +639,7 @@ New plotting features and other improvements:
 *   Updated [R Package](http://www.cbioportal.org/cgds_r.jsp) with support for correlation plots and general improvements for retrieving and accessing data in R data frames.
 *   The [Web Interface](http://www.cbioportal.org/web_api.jsp) now supports basic clinical data, e.g. survival data.
 *   [Networks](http://www.cbioportal.org/networks.jsp) for pathway analysis are now available for download.
-    ![Survival Analysis](images/previews/ova_survival_60_percent.png)
+    ![Survival Analysis](https://user-images.githubusercontent.com/1334004/47188329-9f8e4b00-d305-11e8-83e2-0ad816431888.png)
 
 ## December 15, 2010
 
@@ -622,4 +656,4 @@ Several new features, including:
 *   Enhanced [Oncoprints](http://www.cbioportal.org/faq.jsp#what-are-oncoprints), enabling users to quickly visualize genomic alterations across many cases. Oncoprints now also work in all major browsers, including Firefox, Chrome, Safari, and Internet Explorer.
 *   Official release of our [Web Interface](http://www.cbioportal.org/web_api.jsp), enabling programmatic access to all data.
 *   Official release of our [R Package](http://www.cbioportal.org/cgds_r.jsp), enabling programmatic access to all data from the R platform for statistical computing.
-    ![OncoPrints](images/previews/gbm_oncoprint.png)
+    ![OncoPrints](https://user-images.githubusercontent.com/1334004/47188322-9f8e4b00-d305-11e8-9fae-ca188de91267.png)

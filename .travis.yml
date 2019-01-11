@@ -9,9 +9,10 @@ cache:
   - $HOME/maven
 env:
   matrix:
-  - MAVEN_VERSION=3.3.9 TEST=core
-  - MAVEN_VERSION=3.3.9 TEST=python-validator
-  - MAVEN_VERSION=3.3.9 TEST=end-to-end
+  - MAVEN_VERSION=3.5.4 TEST=core
+  - MAVEN_VERSION=3.5.4 TEST=python-validator
+  - MAVEN_VERSION=3.5.4 TEST=sanity-checks
+  - MAVEN_VERSION=3.5.4 TEST=end-to-end
 install:
 - |
   if [[ "${TEST}" == core || "${TEST}" == end-to-end ]]
@@ -26,7 +27,11 @@ install:
 - |
   if [[ "${TEST}" == python-validator ]]
   then
-      sudo -H pip install -r requirements.txt
+      sudo apt-get install python3.4-venv
+      python3.4 -m venv ~/python-env-validator
+      source ~/python-env-validator/bin/activate
+      trap 'deactivate' EXIT
+      pip install -r requirements.txt
   fi
 before_script:
 - |
@@ -38,15 +43,22 @@ before_script:
       mysql --user root --password= <<< "flush privileges"
   fi
 script:
-- export PORTAL_HOME=$(pwd)
 - |
   if [[ "${TEST}" == python-validator ]]
   then
-      export PYTHONPATH=$PYTHONPATH:$PORTAL_HOME/core/src/main/scripts:/usr/local/lib/python2.7/dist-packages:/usr/lib/python2.7/dist-packages && \
-      cd $PORTAL_HOME/core/src/test/scripts/ && \
-      $PORTAL_HOME/core/src/test/scripts/./unit_tests_validate_data.py && \
-      $PORTAL_HOME/core/src/test/scripts/./system_tests_validate_data.py && \
-      cd $PORTAL_HOME
+      source ~/python-env-validator/bin/activate
+      trap 'deactivate' EXIT
+      export PYTHONPATH="$PWD/core/src/main/scripts:$PYTHONPATH" && \
+      pushd core/src/test/scripts/ && \
+      python unit_tests_validate_data.py && \
+      python system_tests_validate_data.py && \
+      python system_tests_validate_studies.py && \
+      popd
+  fi
+- |
+  if [[ "${TEST}" == sanity-checks ]]
+  then
+      bash test/test_db_version.sh
   fi
 - |
   if [[ "${TEST}" == core ]]
@@ -59,27 +71,19 @@ script:
   then
       ~/maven/$MAVEN_VERSION/bin/mvn \
           -e \
-          -DPORTAL_HOME=$PORTAL_HOME \
-          -Ppublic \
-          -Dfinal.war.name=cbioportal \
+          -U \
           -Ddb.user=cbio_user \
           -Ddb.password=somepassword \
-          -Ddb.host=127.0.0.1 \
-          -Ddb.connection_string=jdbc:mysql://127.0.0.1:3306/ \
-          clean integration-test
+          clean \
+          install \
+          integration-test
   fi
 - |
   if [[ "${TEST}" == end-to-end ]]
   then
       ~/maven/$MAVEN_VERSION/bin/mvn \
-          -e -DPORTAL_HOME=$PORTAL_HOME \
-          -Ppublic -DskipTests \
-          -Dfinal.war.name=cbioportal \
-          -Ddb.user=cbio_user \
-          -Ddb.password=cbio_pass \
-          -Ddb.portal_db_name=public_test \
-          -Ddb.connection_string=jdbc:mysql://sm4sa6ozhn5ya6.cuooweljyhix.us-east-1.rds.amazonaws.com:3306/ \
-          -Ddb.host=sm4sa6ozhn5ya6.cuooweljyhix.us-east-1.rds.amazonaws.com \
+          -U \
+          -DskipTests \
           clean install
   fi
 - |
@@ -93,5 +97,3 @@ script:
       # screenshots of this portal loaded with the data from the amazon db
       bash test/end-to-end/test_make_screenshots.sh test/end-to-end/screenshots.yml
   fi
-notifications:
-  slack: cbioportal:S2qVTFTFMtizONhCOe8BYxS6

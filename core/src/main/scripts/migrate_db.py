@@ -1,13 +1,17 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 # imports
+
 import os
 import sys
-import MySQLdb
+import contextlib
 import argparse
 from collections import OrderedDict
 
-# Globals
+import MySQLdb
+
+
+# globals
 
 ERROR_FILE = sys.stderr
 OUTPUT_FILE = sys.stdout
@@ -30,7 +34,9 @@ class PortalProperties(object):
             host_and_port = database_host.split(':')
             self.database_host = host_and_port[0]
             if self.database_host.strip() == 'localhost':
-                print >> ERROR_FILE, "Invalid host config '" + database_host + "' in properties file. If you want to specify a port on local host use '127.0.0.1' instead of 'localhost'"
+                print(
+                    "Invalid host config '" + database_host + "' in properties file. If you want to specify a port on local host use '127.0.0.1' instead of 'localhost'",
+                    file=ERROR_FILE)
                 sys.exit(1)
             self.database_port = int(host_and_port[1])
         else:
@@ -49,14 +55,18 @@ def get_db_cursor(portal_properties):
             user = portal_properties.database_user,
             passwd = portal_properties.database_pw,
             db = portal_properties.database_name)
-    except MySQLdb.Error, msg:
-        print >> ERROR_FILE, msg
+    except MySQLdb.Error as exception:
+        print(exception, file=ERROR_FILE)
         port_info = ''
         if portal_properties.database_host.strip() != 'localhost':
             # only add port info if host is != localhost (since with localhost apparently sockets are used and not the given port) TODO - perhaps this applies for all names vs ips?
             port_info = " on port " + str(portal_properties.database_port)
-        print >> ERROR_FILE, "--> Error connecting to server " + portal_properties.database_host + port_info
-        return None
+        message = (
+            "--> Error connecting to server "
+            + portal_properties.database_host
+            + port_info)
+        print(message, file=ERROR_FILE)
+        raise ConnectionError(message) from exception
 
     if connection is not None:
         return connection, connection.cursor()
@@ -65,28 +75,30 @@ def get_portal_properties(properties_filename):
     """ Returns a properties object """
     
     properties = {}
-    properties_file = open(properties_filename, 'r')
+    with open(properties_filename, 'r') as properties_file:
+        for line in properties_file:
+            line = line.strip()
 
-    for line in properties_file:
-        line = line.strip()
+            # skip line if its blank or a comment
+            if len(line) == 0 or line.startswith('#'):
+                continue
 
-        # skip line if its blank or a comment
-        if len(line) == 0 or line.startswith('#'):
-            continue
-        
-        # store name/value
-        property = line.split('=')
-        if len(property) < 2:
-            print >> ERROR_FILE, 'Skipping invalid entry in property file: ' + line
-            continue
-        properties[property[0]] = property[1].strip()
-    properties_file.close()
+            try:
+                name, value = line.split('=', maxsplit=1)
+            except ValueError:
+                print(
+                    'Skipping invalid entry in property file: ' + line,
+                    file=ERROR_FILE)
+                continue
+            properties[name] = value.strip()
 
     if (DATABASE_HOST not in properties or len(properties[DATABASE_HOST]) == 0 or
         DATABASE_NAME not in properties or len(properties[DATABASE_NAME]) == 0 or
         DATABASE_USER not in properties or len(properties[DATABASE_USER]) == 0 or
         DATABASE_PW not in properties or len(properties[DATABASE_PW]) == 0):
-        print >> ERROR_FILE, 'Missing one or more required properties, please check property file'
+        print(
+            'Missing one or more required properties, please check property file',
+            file=ERROR_FILE)
         return None
     
     # return an instance of PortalProperties
@@ -105,20 +117,20 @@ def get_db_version(cursor):
         for row in cursor.fetchall():
             if VERSION_TABLE == row[0].lower().strip():
                 version_table_exists = True
-    except MySQLdb.Error, msg:
-        print >> ERROR_FILE, msg
+    except MySQLdb.Error as msg:
+        print(msg, file=ERROR_FILE)
         return None
     
     if not version_table_exists:
-        return (0,0,0)
+        return (0, 0, 0)
 
     # Now query the table for the version number
     try:
         cursor.execute('select ' + VERSION_FIELD + ' from ' + VERSION_TABLE)
         for row in cursor.fetchall():
             version = tuple(map(int, row[0].strip().split('.')))
-    except MySQLdb.Error, msg:
-        print >> ERROR_FILE, msg
+    except MySQLdb.Error as msg:
+        print(msg, file=ERROR_FILE)
         return None
 
     return version
@@ -152,7 +164,7 @@ def run_migration(db_version, sql_filename, connection, cursor):
     """
     
     sql_file = open(sql_filename, 'r')
-    sql_version = (0,0,0)
+    sql_version = (0, 0, 0)
     run_line = False
     statements = OrderedDict()
     statement = ''
@@ -181,42 +193,49 @@ def run_migration(db_version, sql_filename, connection, cursor):
                 else:
                     statements[sql_version].append(statement)
                 statement = ''
-    if len(statements.items()) > 0:
+    if len(statements) > 0:
         run_statements(statements, connection, cursor)
     else:
-        print 'Everything up to date, nothing to migrate.'
+        print('Everything up to date, nothing to migrate.')
     
 def run_statements(statements, connection, cursor):
     try:
         cursor.execute('SET autocommit=0;')
-    except MySQLdb.Error, msg:
-        print >> ERROR_FILE, msg
+    except MySQLdb.Error as msg:
+        print(msg, file=ERROR_FILE)
         sys.exit(1)
 
-    for version,statement_list in statements.iteritems():
-        print >> OUTPUT_FILE, 'Running statements for version: ' + '.'.join(map(str,version))
+    for version, statement_list in statements.items():
+        print(
+            'Running statements for version: ' + '.'.join(map(str, version)),
+            file=OUTPUT_FILE)
         for statement in statement_list:
-            print >> OUTPUT_FILE, '\tExecuting statement: ' + statement.strip()
+            print(
+                '\tExecuting statement: ' + statement.strip(),
+                file=OUTPUT_FILE)
             try:
                 cursor.execute(statement.strip())
-            except MySQLdb.Error, msg:
-                print >> ERROR_FILE, msg
+            except MySQLdb.Error as msg:
+                print(msg, file=ERROR_FILE)
                 sys.exit(1)
-        connection.commit();
+        connection.commit()
 
 def warn_user():
-    """
-    warn the user before the script runs, give them a chance to
-    back up their database if desired
-    """
-    response = raw_input('WARNING: This script will alter your database! Be sure to back up your data before running.\nContinue running DB migration? (y/n) ').strip()
+    """Warn the user to back up their database before the script runs."""
+    response = input(
+        'WARNING: This script will alter your database! Be sure to back up your data before running.\nContinue running DB migration? (y/n) '
+    ).strip()
     while response.lower() != 'y' and response.lower() != 'n':
-        response = raw_input('Did not recognize response.\nContinue running DB migration? (y/n) ').strip()
+        response = input(
+            'Did not recognize response.\nContinue running DB migration? (y/n) '
+        ).strip()
     if response.lower() == 'n':
         sys.exit()
 
 def usage():
-    print >> OUTPUT_FILE, 'migrate_db.py --properties-file [portal properties file] --sql [sql migration file]'
+    print(
+        'migrate_db.py --properties-file [portal properties file] --sql [sql migration file]',
+        file=OUTPUT_FILE)
 
 def main():
     """ main function to run mysql migration """
@@ -224,7 +243,7 @@ def main():
     parser = argparse.ArgumentParser(description='cBioPortal DB migration script')
     parser.add_argument('-p', '--properties-file', type=str, required=True,
                         help='Path to portal.properties file')
-    parser.add_argument('-s', '--sql',type=str, required=True,
+    parser.add_argument('-s', '--sql', type=str, required=True,
                         help='Path to official migration.sql script.')
     parser = parser.parse_args()
 
@@ -233,11 +252,13 @@ def main():
 
     # check existence of properties file
     if not os.path.exists(properties_filename):
-        print >> ERROR_FILE, 'properties file ' + properties_filename + ' cannot be found'
+        print(
+            'properties file ' + properties_filename + ' cannot be found',
+            file=ERROR_FILE)
         usage()
         sys.exit(2)
     if not os.path.exists(sql_filename):
-        print >> ERROR_FILE, 'sql file ' + sql_filename + ' cannot be found'
+        print('sql file ' + sql_filename + ' cannot be found', file=ERROR_FILE)
         usage()
         sys.exit(2)
 
@@ -248,14 +269,14 @@ def main():
     connection, cursor = get_db_cursor(portal_properties)
 
     if cursor is None:
-        print >> ERROR_FILE, 'failure connecting to sql database'
+        print('failure connecting to sql database', file=ERROR_FILE)
         sys.exit(1)
 
     # execute - get the database version and run the migration
-    db_version = get_db_version(cursor)
-    run_migration(db_version, sql_filename, connection, cursor)
-    connection.close();
-    print 'Finished.'
+    with contextlib.closing(connection):
+        db_version = get_db_version(cursor)
+        run_migration(db_version, sql_filename, connection, cursor)
+    print('Finished.')
     
 
 # do main

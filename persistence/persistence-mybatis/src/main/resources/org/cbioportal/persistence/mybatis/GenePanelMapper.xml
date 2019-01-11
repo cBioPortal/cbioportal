@@ -101,6 +101,7 @@
             SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
             INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
             WHERE sample_list.STABLE_ID = #{sampleListId}
+            AND sample_list_list.SAMPLE_ID = sample_profile.SAMPLE_ID
         )
     </select>
 
@@ -124,10 +125,19 @@
         <include refid="fromGenePanelData"/>
         <where>
             <if test="sampleIds != null">
-                (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
-                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                    (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
-                </foreach>
+                <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
+                    genetic_profile.STABLE_ID = #{molecularProfileIds[0]} AND
+                    sample.STABLE_ID IN
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
+                    (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                        (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
+                    </foreach>
+                </if>
             </if>
             <if test="sampleIds == null">
                 genetic_profile.STABLE_ID IN

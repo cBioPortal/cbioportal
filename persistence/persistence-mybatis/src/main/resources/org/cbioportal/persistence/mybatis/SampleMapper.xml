@@ -12,8 +12,7 @@
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
             sample.SAMPLE_TYPE AS "${prefix}sampleType",
-            sample.PATIENT_ID AS "${prefix}patientId",
-            sample.TYPE_OF_CANCER_ID AS "${prefix}typeOfCancerId"
+            sample.PATIENT_ID AS "${prefix}patientId"
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -38,10 +37,19 @@
                 </foreach>
             </if>
             <if test="sampleIds != null">
-                (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
-                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                    (#{studyIds[${i}]}, #{sampleIds[${i}]})
-                </foreach>
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+                    sample.STABLE_ID IN
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
+                    (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
+                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
+                    </foreach>
+                </if>
             </if>
             <if test="patientId != null">
                 AND patient.STABLE_ID = #{patientId}
@@ -81,6 +89,7 @@
             <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
                 #{item}
             </foreach>
+            AND sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
         )
     </select>
 
@@ -103,6 +112,7 @@
             <foreach item="item" collection="list" open="(" separator="," close=")">
                 #{item}
             </foreach>
+            AND sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
         )
     </select>
 
@@ -164,9 +174,18 @@
         </include>
         <include refid="from"/>
         WHERE
-        (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
-        <foreach index="i" collection="patientIds" open="(" separator="," close=")">
-            (#{studyIds[${i}]}, #{patientIds[${i}]})
-        </foreach>
+        <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+            cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
+            patient.STABLE_ID IN
+            <foreach item="item" collection="patientIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
+            (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
+            <foreach index="i" collection="patientIds" open="(" separator="," close=")">
+                (#{studyIds[${i}]}, #{patientIds[${i}]})
+            </foreach>
+        </if>
     </select>
 </mapper>

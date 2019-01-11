@@ -46,16 +46,17 @@ import java.util.regex.*;
  */
 public final class DaoMutation {
     public static final String NAN = "NaN";
+    private static final String MUTATION_COUNT_ATTR_ID = "MUTATION_COUNT";
 
     public static int addMutation(ExtendedMutation mutation, boolean newMutationEvent) throws DaoException {
         if (!MySQLbulkLoader.isBulkLoad()) {
             throw new DaoException("You have to turn on MySQLbulkLoader in order to insert mutations");
         } else {
-        	int result = 1;
-        	if (newMutationEvent) {
-        		//add event first, as mutation has a Foreign key constraint to the event:
-        		result = addMutationEvent(mutation.getEvent())+1;
-            } 
+            int result = 1;
+            if (newMutationEvent) {
+                //add event first, as mutation has a Foreign key constraint to the event:
+                result = addMutationEvent(mutation.getEvent())+1;
+            }
             MySQLbulkLoader.getMySQLbulkLoader("mutation").insertRecord(
                     Long.toString(mutation.getMutationEventId()),
                     Integer.toString(mutation.getGeneticProfileId()),
@@ -130,28 +131,60 @@ public final class DaoMutation {
         return 1;
     }
 
-    public static int calculateMutationCount (int profileId) throws DaoException {
+    public static void createMutationCountClinicalData(GeneticProfile geneticProfile) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
+            // add mutation count meta attribute if it does not exist
+            ClinicalAttribute clinicalAttribute = DaoClinicalAttributeMeta.getDatum(MUTATION_COUNT_ATTR_ID, geneticProfile.getCancerStudyId());
+            if (clinicalAttribute == null) {
+                ClinicalAttribute attr = new ClinicalAttribute(MUTATION_COUNT_ATTR_ID, "Mutation Count", "Mutation Count", "NUMBER",
+                    false, "30", geneticProfile.getCancerStudyId());
+                DaoClinicalAttributeMeta.addDatum(attr);
+            }
+
+            /*
+             * Add MUTATION_COUNT for each sample by checking number of
+             * mutations for the given genetic profile.
+             *
+             * We do not add the MUTATION_COUNT clinical data for the sample if
+             * it's not profiled. If it *is* profiled but there are 0
+             * mutations, add a MUTATION_COUNT with 0 value record. Do not
+             * include germline and fusions (msk internal) when counting
+             * mutations.
+             *
+             * Use REPLACE (conditional INSERT/UPDATE) which inserts
+             * new counts if they don't exist and overwrites them if they do.
+             * This is necessary for when the mutation data is split over
+             * multiple files with same profile id. Note that since
+             * clinical_sample has a key contraint on INTERNAL_ID and ATTR_ID,
+             * there can only be one MUTATION_COUNT record for each sample, so
+             * we assume each sample is in only one MUTATION_EXTENDED profile.
+             */
             pstmt = con.prepareStatement(
-                    "INSERT INTO mutation_count " +
-                    "SELECT genetic_profile.`GENETIC_PROFILE_ID`, `SAMPLE_ID`, COUNT(*) AS MUTATION_COUNT " +
-                    "FROM `mutation` , `genetic_profile` " +
-                    "WHERE mutation.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID` " +
+                    "REPLACE `clinical_sample` " +
+                    "SELECT sample_profile.`SAMPLE_ID`, 'MUTATION_COUNT', COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`, " +
+                    "mutation_event.`END_POSITION`, mutation_event.`REFERENCE_ALLELE`, mutation_event.`TUMOR_SEQ_ALLELE`) AS MUTATION_COUNT " +
+                    "FROM `sample_profile` " +
+                    "LEFT JOIN mutation ON mutation.`SAMPLE_ID` = sample_profile.`SAMPLE_ID` " +
+                    "AND ( mutation.`MUTATION_STATUS` <> 'GERMLINE' OR mutation.`MUTATION_STATUS` IS NULL ) " +
+                    "LEFT JOIN mutation_event ON mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` " +
+                    "AND ( mutation_event.`MUTATION_TYPE` <> 'Fusion' OR mutation_event.`MUTATION_TYPE` IS NULL ) " +
+                    "INNER JOIN genetic_profile ON genetic_profile.`GENETIC_PROFILE_ID` = sample_profile.`GENETIC_PROFILE_ID` " +
+                    "WHERE genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED' " +
                     "AND genetic_profile.`GENETIC_PROFILE_ID`=? " +
-                    "GROUP BY genetic_profile.`GENETIC_PROFILE_ID` , `SAMPLE_ID`;");
-            pstmt.setInt(1, profileId);
-            return pstmt.executeUpdate();
+                    "GROUP BY sample_profile.`GENETIC_PROFILE_ID` , sample_profile.`SAMPLE_ID`;");
+            pstmt.setInt(1, geneticProfile.getGeneticProfileId());
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
     }
-    
+
     public static int calculateMutationCountByKeyword(int profileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -805,46 +838,6 @@ public final class DaoMutation {
     }
 
     /**
-     * return the number of mutations for each sample
-     * @param sampleIds if null, return all case available
-     * @param profileId
-     * @return Map &lt; sample id, mutation count &gt;
-     * @throws DaoException
-     * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
-     */
-    @Deprecated
-    public static Map<Integer, Integer> countMutationEvents(int profileId, Collection<Integer> sampleIds) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoMutation.class);
-            String sql;
-            if (sampleIds==null) {
-                sql = "SELECT `SAMPLE_ID`, `MUTATION_COUNT` FROM mutation_count" +
-                        " WHERE `GENETIC_PROFILE_ID`=" + profileId;
-            } else {
-                sql = "SELECT `SAMPLE_ID`, `MUTATION_COUNT` FROM mutation_count" +
-                        " WHERE `GENETIC_PROFILE_ID`=" + profileId +
-                        " AND `SAMPLE_ID` IN ('" + StringUtils.join(sampleIds,"','") + "')";
-            }
-            pstmt = con.prepareStatement(sql);
-            Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-                map.put(rs.getInt(1), rs.getInt(2));
-            }
-            return map;
-        } catch (NullPointerException e) {
-            throw new DaoException(e);
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
-        }
-    }
-
-    /**
      * get events for each sample
      * @return Map &lt; sample id, list of event ids &gt;
      * @throws DaoException
@@ -1012,7 +1005,7 @@ public final class DaoMutation {
      * @param profileId
      * @return Map &lt; event id, sampleCount &gt;
      * @throws DaoException
-     * 
+     *
      * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
      */
     @Deprecated
@@ -1471,7 +1464,7 @@ public final class DaoMutation {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
     }
-    
+
     /**
      * Gets all tiers in alphabetical order.
      *
@@ -1480,17 +1473,17 @@ public final class DaoMutation {
      * @throws DaoException Database Error.
      */
     public static List<String> getTiers(String _cancerStudyStableIds) throws DaoException {
-	String[] cancerStudyStableIds = _cancerStudyStableIds.split(",");
+        String[] cancerStudyStableIds = _cancerStudyStableIds.split(",");
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         List<String> tiers = new ArrayList<String>();
         ArrayList<GeneticProfile> geneticProfiles = new ArrayList<>();
-	for (String cancerStudyStableId: cancerStudyStableIds) {
-		geneticProfiles.addAll(DaoGeneticProfile.getAllGeneticProfiles(
-			DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId()
-		));
-	}
+        for (String cancerStudyStableId: cancerStudyStableIds) {
+            geneticProfiles.addAll(DaoGeneticProfile.getAllGeneticProfiles(
+                DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId()
+            ));
+        }
         for (GeneticProfile geneticProfile : geneticProfiles) {
             if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
                 try {
@@ -1511,10 +1504,10 @@ public final class DaoMutation {
                 }
             }
         }
-        
+
         return tiers;
     }
-    
+
     /**
      * Returns the number of tiers in the cancer study..
      *
@@ -1526,7 +1519,7 @@ public final class DaoMutation {
         List<String> tiers = getTiers(_cancerStudyStableIds);
         return tiers.size();
     }
-    
+
     /**
      * Returns true if there are "Putative_Driver" or "Putative_Passenger" values in the
      * binary annotation column. Otherwise, it returns false.
@@ -1536,17 +1529,17 @@ public final class DaoMutation {
      * @throws DaoException Database Error.
      */
     public static boolean hasDriverAnnotations(String _cancerStudyStableIds) throws DaoException {
-	String[] cancerStudyStableIds = _cancerStudyStableIds.split(",");
-	Connection con = null;
+        String[] cancerStudyStableIds = _cancerStudyStableIds.split(",");
+        Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         List<String> driverValues = new ArrayList<String>();
         ArrayList<GeneticProfile> geneticProfiles = new ArrayList<>();
-	for (String cancerStudyStableId: cancerStudyStableIds) {
-		geneticProfiles.addAll(
-			DaoGeneticProfile.getAllGeneticProfiles(DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId())
-		);
-	}
+        for (String cancerStudyStableId: cancerStudyStableIds) {
+            geneticProfiles.addAll(
+                DaoGeneticProfile.getAllGeneticProfiles(DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId())
+            );
+        }
         for (GeneticProfile geneticProfile : geneticProfiles) {
             if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
                 try {

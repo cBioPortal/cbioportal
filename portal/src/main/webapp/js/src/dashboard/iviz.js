@@ -1284,69 +1284,11 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var self = this;
       var data = {};
 
-      $.when(window.iviz.datamanager.getCnaFractionData(),
-        self.getMutationCountData(_self))
-        .then(function(_cnaFractionData, _mutationCountResult) {
-          var _hasCNAFractionData = _.keys(_cnaFractionData).length > 0;
-          var _hasMutationCountData = false;
-          var groupId = _self.attributes.group_id;
-
-          if (_mutationCountResult[1]) {
-            _hasMutationCountData = _mutationCountResult[1];
-          }
-          data = self.getGroupNdx(groupId);
-
-          _.each(data, function(_sampleDatum) {
-            // cna fraction
-            if (_hasCNAFractionData) {
-              if (_cnaFractionData[_sampleDatum.study_id] === undefined ||
-                _cnaFractionData[_sampleDatum.study_id][_sampleDatum.sample_id] === undefined ||
-                _cnaFractionData[_sampleDatum.study_id][_sampleDatum.sample_id] === null) {
-                _sampleDatum.cna_fraction = 'NA';
-                _sampleDatum.copy_number_alterations = 'NA';
-              } else {
-                _sampleDatum.cna_fraction = _cnaFractionData[_sampleDatum.study_id][_sampleDatum.sample_id];
-                _sampleDatum.copy_number_alterations = _cnaFractionData[_sampleDatum.study_id][_sampleDatum.sample_id];
-              }
-              data_.groups.sample.data[_sampleDatum.sample_uid].cna_fraction = _sampleDatum.cna_fraction;
-              data_.groups.sample.data[_sampleDatum.sample_uid].copy_number_alterations = _sampleDatum.copy_number_alterations;
-            }
-          });
-          def.resolve(data, _hasCNAFractionData, _hasMutationCountData);
-        }, function() {
-          def.reject();
-        });
-      return def.promise();
-    },
-    getMutationCountData: function(_self) {
-      var def = new $.Deferred();
-      var self = this;
-      var data = {};
-
-      $.when(window.iviz.datamanager.getMutationCount())
-        .then(function(_mutationCountData) {
-          var _hasMutationCountData = _.keys(_mutationCountData).length > 0;
+      $.when(window.iviz.datamanager.getSampleClinicalData(['MUTATION_COUNT', 'FRACTION_GENOME_ALTERED']))
+        .then(function(_clinicalData) {
           var groupId = _self.attributes.group_id;
           data = self.getGroupNdx(groupId);
-
-          _.each(data, function(_sampleDatum) {
-            // mutation count
-            if (_hasMutationCountData) {
-              if (_mutationCountData[_sampleDatum.study_id] === undefined ||
-                _mutationCountData[_sampleDatum.study_id][_sampleDatum.sample_id] === undefined ||
-                _mutationCountData[_sampleDatum.study_id][_sampleDatum.sample_id] === null) {
-                if (_self.attributes.sequencedCaseUIdsMap[_sampleDatum.sample_uid] === undefined) {
-                  _sampleDatum.mutation_count = 'NA';
-                } else {
-                  _sampleDatum.mutation_count = 0;
-                }
-              } else {
-                _sampleDatum.mutation_count = _mutationCountData[_sampleDatum.study_id][_sampleDatum.sample_id];
-              }
-              data_.groups.sample.data[_sampleDatum.sample_uid].mutation_count = _sampleDatum.mutation_count;
-            }
-          });
-          def.resolve(data, _hasMutationCountData);
+          def.resolve(data);
         }, function() {
           def.reject();
         });
@@ -1420,7 +1362,7 @@ window.iViz = (function(_, $, cbio, QueryByGeneUtil, QueryByGeneTextArea) {
       var _url = '';
 
       _url = window.cbioURL +
-        'patient?studyId=' +
+        'case.do#/patient?studyId=' +
         _study_id +
         '&caseId=' +
         _selectedCaseIds[0] +
@@ -6061,32 +6003,9 @@ module.exports = {
         height: this.settings.height
       });
 
-      // Mutation_count chart will cost much time to get data, so we treat it individually to avoid performance issue.  
-      // In the future, we may change it.
-      if (_self.attributes.attr_id === 'mutation_count') {
-        $.when(iViz.getMutationCountData(_self))
-          .then(function(_mutationCountData, _hasMutationCountData) {
-            if (!_hasMutationCountData) { //empty data
-              if (_self.attributes.addChartBy === 'default') {// Hide empty chart initially.
-                _self.attributes.show = false;
-                _self.$dispatch('remove-chart', _self.attributes.attr_id, _self.attributes.group_id);//rearrange layout
-              } else { // _self.attributes.addChartBy === 'user'
-                _self.$dispatch('data-loaded', _self.attributes.group_id, _self.chartDivId);
-              }
-              _self.errorMessage = iViz.util.getDataErrorMessage('noData');
-              _self.failedToInit = true;
-            } else {
-              _self.processBarchartData(_mutationCountData);
-            }
-          }, function() {
-            _self.errorMessage = iViz.util.getDataErrorMessage('failedToLoadData');
-            _self.failedToInit = true;
-            _self.$dispatch('data-loaded', _self.attributes.group_id, _self.chartDivId);
-          });
-      } else {
-        _data = iViz.getGroupNdx(this.opts.groupid);
-        _self.processBarchartData(_data);
-      }
+      
+      _data = iViz.getGroupNdx(this.opts.groupid);
+      _self.processBarchartData(_data);
     }
   });
 })(
@@ -6114,12 +6033,12 @@ module.exports = {
     var getQtipString = function(_data) {
       var toReturn = ['Cancer Study:', _data.study_id, '<br>Sample Id: ',
         iViz.getCaseIdUsingUID('sample', _data.sample_uid), '<br>CNA fraction: '];
-      if (isNaN(_data.cna_fraction)) {
-        toReturn.push(_data.cna_fraction);
+      if (isNaN(_data.FRACTION_GENOME_ALTERED)) {
+        toReturn.push(_data.FRACTION_GENOME_ALTERED);
       } else {
-        toReturn.push(cbio.util.toPrecision(_data.cna_fraction, 2, 0.001));
+        toReturn.push(cbio.util.toPrecision(Number(_data.FRACTION_GENOME_ALTERED), 2, 0.001));
       }
-      toReturn.push('<br>Mutation count: ' + _data.mutation_count);
+      toReturn.push('<br>Mutation count: ' + _data.MUTATION_COUNT);
       return toReturn.join('');
     };
 
@@ -6127,10 +6046,10 @@ module.exports = {
       opts_ = $.extend(true, {}, opts);
       chartId_ = opts_.chartId;
       data_ = _.filter(_data, function(datum) {
-        return !isNaN(datum.cna_fraction) && !isNaN(datum.mutation_count);
+        return !isNaN(datum.FRACTION_GENOME_ALTERED) && !isNaN(datum.MUTATION_COUNT);
       });
-      var _xArr = _.pluck(data_, 'cna_fraction');
-      var _yArr = _.pluck(data_, 'mutation_count');
+      var _xArr = _.pluck(data_, 'FRACTION_GENOME_ALTERED').map(Number);
+      var _yArr = _.pluck(data_, 'MUTATION_COUNT').map(Number);
       var _qtips = [];
       _.each(data_, function(_dataObj) {
         _qtips.push(getQtipString(_dataObj));
@@ -6244,8 +6163,8 @@ module.exports = {
       Plotly.deleteTraces(chartId_, _traces);
       var data = [];
       data.push({
-        x: _.pluck(_unselectedData, 'cna_fraction'),
-        y: _.pluck(_unselectedData, 'mutation_count'),
+        x: _.pluck(_unselectedData, 'FRACTION_GENOME_ALTERED'),
+        y: _.pluck(_unselectedData, 'MUTATION_COUNT'),
         text: _unselectedDataQtips,
         mode: 'markers',
         type: 'scattergl',
@@ -6259,8 +6178,8 @@ module.exports = {
         }
       });
       data.push({
-        x: _.pluck(_selectedData, 'cna_fraction'),
-        y: _.pluck(_selectedData, 'mutation_count'),
+        x: _.pluck(_selectedData, 'FRACTION_GENOME_ALTERED'),
+        y: _.pluck(_selectedData, 'MUTATION_COUNT'),
         text: _selectedDataQtips,
         mode: 'markers',
         type: 'scattergl',
@@ -6295,8 +6214,8 @@ module.exports = {
           var _sampleId = iViz.getCaseIdUsingUID('sample', item.sample_uid);
           var _patientId = iViz.getPatientId(item.study_id, _sampleId);
           var _txt = (_patientId ? _patientId : 'NA') +
-            '\t' + _sampleId + '\t' + item.mutation_count + '\t' +
-            item.cna_fraction + '\t' + group.name;
+            '\t' + _sampleId + '\t' + item.MUTATION_COUNT + '\t' +
+            item.FRACTION_GENOME_ALTERED + '\t' + group.name;
           _data.push(_txt);
         });
       });
@@ -6472,7 +6391,7 @@ module.exports = {
               // count as key, dataObj as value (performance concern)
               var _CnaFracMutCntMap = {};
               _.each(data, function(_dataObj) {
-                var _key = _dataObj.cna_fraction + '||' + _dataObj.mutation_count;
+                var _key = Number(_dataObj.FRACTION_GENOME_ALTERED) + '||' + Number(_dataObj.MUTATION_COUNT);
                 _CnaFracMutCntMap[_key] = _dataObj;
               });
               _.each(_eventData.points, function(_pointObj) {
@@ -6511,35 +6430,26 @@ module.exports = {
       });
       
       $.when(iViz.getScatterData(_self))
-        .then(function(_scatterData, _hasCnaFractionData, _hasMutationCountData) {
-          if (!_hasCnaFractionData || !_hasMutationCountData) {
-            if (_self.attributes.addChartBy === 'default') {
-              _self.attributes.show = false;
-              _self.$dispatch('remove-chart', _self.attributes.attr_id,  _self.attributes.group_id);//rearrange layout
-            } 
-            _self.error.noData = true;
-            _self.failedToInit = true;
-          } else {
-            var _opts = {
-              chartId: _self.chartId,
-              chartDivId: _self.chartDivId,
-              title: _self.attributes.display_name,
-              width: window.iViz.styles.vars.scatter.width,
-              height: window.iViz.styles.vars.scatter.height
-            };
-            
-            _self.chartInst = new iViz.view.component.ScatterPlot();
-            _self.chartInst.setDownloadDataTypes(['pdf', 'svg', 'tsv']);
-            _self.chartInst.init(_scatterData, _opts);
+        .then(function(_scatterData) {
+          var _opts = {
+            chartId: _self.chartId,
+            chartDivId: _self.chartDivId,
+            title: _self.attributes.display_name,
+            width: window.iViz.styles.vars.scatter.width,
+            height: window.iViz.styles.vars.scatter.height
+          };
+          
+          _self.chartInst = new iViz.view.component.ScatterPlot();
+          _self.chartInst.setDownloadDataTypes(['pdf', 'svg', 'tsv']);
+          _self.chartInst.init(_scatterData, _opts);
 
-            _self.dataLoaded = true;
-            var _selectedCases =
-              _.pluck(_self.invisibleDimension.top(Infinity), attrId);
-            if (_self.$root.hasfilters) {
-              _self.chartInst.update(_selectedCases);
-            }
-            _self.attachPlotlySelectedEvent();
+          _self.dataLoaded = true;
+          var _selectedCases =
+            _.pluck(_self.invisibleDimension.top(Infinity), attrId);
+          if (_self.$root.hasfilters) {
+            _self.chartInst.update(_selectedCases);
           }
+          _self.attachPlotlySelectedEvent();
          
           _self.showLoad = false;
         }, function() {

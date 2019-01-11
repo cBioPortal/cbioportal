@@ -47,6 +47,7 @@ import java.util.*;
  * @author jj
  */
 public class ImportCopyNumberSegmentData extends ConsoleRunnable {
+
     private int entriesSkipped;
     
     private void importData(File file, int cancerStudyId) throws IOException, DaoException {
@@ -54,97 +55,100 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
         FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
         try {
-	        String line = buf.readLine(); // skip header line
-	        long segId = DaoCopyNumberSegment.getLargestId();
-	        while ((line=buf.readLine()) != null) {
-	            ProgressMonitor.incrementCurValue();
-	            ConsoleUtil.showProgress();
-	            
-	            String[] strs = line.split("\t");
-	            if (strs.length<6) {
-	                System.err.println("wrong format: "+line);
-	            }
-	
-	            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
-	            //TODO - lines below should be removed. Agreed with JJ to remove this as soon as MSK moves to new validation 
-		        //procedure. In this new procedure, Patients and Samples should only be added 
-		        //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
-		        //sample per patient, which is not always the case.
-	            String barCode = strs[0];
-	            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId,
+            String line = buf.readLine(); // skip header line
+            long segId = DaoCopyNumberSegment.getLargestId();
+            while ((line=buf.readLine()) != null) {
+                ProgressMonitor.incrementCurValue();
+                ConsoleUtil.showProgress();
+                
+                String[] strs = line.split("\t");
+                if (strs.length<6) {
+                    System.err.println("wrong format: "+line);
+                }
+    
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+                //TODO - lines below should be removed. Agreed with JJ to remove this as soon as MSK moves to new validation 
+                //procedure. In this new procedure, Patients and Samples should only be added 
+                //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
+                //sample per patient, which is not always the case.
+                String barCode = strs[0];
+                Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId,
                         StableIdUtil.getSampleId(barCode));
                 if (sample == null ) {
-    	            ImportDataUtil.addPatients(new String[] { barCode }, cancerStudy);
-    		        ImportDataUtil.addSamples(new String[] { barCode }, cancerStudy);
-    		        ProgressMonitor.logWarning("WARNING: Sample added on the fly because it was missing in clinical data");
-    		    }
-	
-	            String sampleId = StableIdUtil.getSampleId(barCode);
-	            String chrom = strs[1].trim(); 
-	            //validate in same way as GistitReader:
-	            ValidationUtils.validateChromosome(chrom);
-	            
-	            long start = Double.valueOf(strs[2]).longValue();
-	            long end = Double.valueOf(strs[3]).longValue();
-	            if (start >= end) {
-	            	//workaround to skip with warning, according to https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415
-	            	ProgressMonitor.logWarning("Start position of segment is not lower than end position. Skipping this entry.");
-	            	entriesSkipped++;
-	            	continue;
-	            }            
-	            int numProbes = new BigDecimal((strs[4])).intValue();
-	            double segMean = Double.parseDouble(strs[5]);
-	            
-	            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
-	            if (s == null) {
-	                assert StableIdUtil.isNormal(sampleId);
-	                entriesSkipped++;
-	                continue;
-	            }
-	            CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), chrom, start, end, numProbes, segMean);
-	            cns.setSegId(++segId);
+                    ImportDataUtil.addPatients(new String[] { barCode }, cancerStudy);
+                    ImportDataUtil.addSamples(new String[] { barCode }, cancerStudy);
+                    ProgressMonitor.logWarning("WARNING: Sample added on the fly because it was missing in clinical data");
+                }
+    
+                String sampleId = StableIdUtil.getSampleId(barCode);
+                String chrom = strs[1].trim(); 
+                //validate in same way as GistitReader:
+                ValidationUtils.validateChromosome(chrom);
+                
+                long start = Double.valueOf(strs[2]).longValue();
+                long end = Double.valueOf(strs[3]).longValue();
+                if (start >= end) {
+                    //workaround to skip with warning, according to https://github.com/cBioPortal/cbioportal/issues/839#issuecomment-203452415
+                    ProgressMonitor.logWarning("Start position of segment is not lower than end position. Skipping this entry.");
+                    entriesSkipped++;
+                    continue;
+                }            
+                int numProbes = new BigDecimal((strs[4])).intValue();
+                double segMean = Double.parseDouble(strs[5]);
+                
+                Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+                if (s == null) {
+                    if (StableIdUtil.isNormal(sampleId)) {
+                        entriesSkipped++;
+                        continue;
+                    }
+                    else {
+                        //this likely will not be reached since samples are added on the fly above if not known to database
+                        throw new RuntimeException("Unknown sample id '" + sampleId + "' found in seg file: " + file.getCanonicalPath());
+                    }
+                }
+                CopyNumberSegment cns = new CopyNumberSegment(cancerStudyId, s.getInternalId(), chrom, start, end, numProbes, segMean);
+                cns.setSegId(++segId);
                 DaoCopyNumberSegment.addCopyNumberSegment(cns);
-	        }
-	        MySQLbulkLoader.flushAll();
+            }
+            MySQLbulkLoader.flushAll();
         }
         finally {
-        	buf.close();
+            buf.close();
         }
     }
     
     public void run() {
         try {
-		    String description = "Import 'segment data' files";
-	    	
-		    OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
-		    String dataFile = (String) options.valueOf("data");
-		    File descriptorFile = new File((String) options.valueOf("meta"));
+            String description = "Import 'segment data' files";
+            
+            OptionSet options = ConsoleUtil.parseStandardDataAndMetaOptions(args, description, true);
+            String dataFile = (String) options.valueOf("data");
+            File descriptorFile = new File((String) options.valueOf("meta"));
         
-		    Properties properties = new Properties();
-		    properties.load(new FileInputStream(descriptorFile));
+            Properties properties = new Properties();
+            properties.load(new FileInputStream(descriptorFile));
             
             ProgressMonitor.setCurrentMessage("Reading data from:  " + dataFile);
             
-			SpringUtil.initDataSource();
-		    CancerStudy cancerStudy = getCancerStudy(properties);
-		    
-		    if (segmentDataExistsForCancerStudy(cancerStudy)) {
-			     throw new IllegalArgumentException("Seg data for cancer study " + cancerStudy.getCancerStudyStableId() + " has already been imported: " + dataFile);
-		    }
-		
-		    importCopyNumberSegmentFileMetadata(cancerStudy, properties);
+            SpringUtil.initDataSource();
+            CancerStudy cancerStudy = getCancerStudy(properties);
+            
+            if (segmentDataExistsForCancerStudy(cancerStudy)) {
+                 throw new IllegalArgumentException("Seg data for cancer study " + cancerStudy.getCancerStudyStableId() + " has already been imported: " + dataFile);
+            }
+        
+            importCopyNumberSegmentFileMetadata(cancerStudy, properties);
             importCopyNumberSegmentFileData(cancerStudy, dataFile);
-            importFractionGenomeAltered(cancerStudy);
+            DaoCopyNumberSegment.createFractionGenomeAlteredClinicalData(cancerStudy.getInternalId());
+            if( MySQLbulkLoader.isBulkLoad()) {
+                MySQLbulkLoader.flushAll();
+            }
         } catch (RuntimeException e) {
             throw e;
         } catch (IOException|DaoException e) {
             throw new RuntimeException(e);
         }
-    }
-    
-    private void importFractionGenomeAltered(CancerStudy cancerStudy) throws DaoException {
-
-        DaoCopyNumberSegment.calculateFractionGenomeAltered(cancerStudy.getInternalId());
     }
 
     private static CancerStudy getCancerStudy(Properties properties) throws DaoException {

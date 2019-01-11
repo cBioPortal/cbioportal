@@ -4,7 +4,9 @@
   <parent>
         <artifactId>master</artifactId>
         <groupId>org.mskcc.cbio</groupId>
-        <version>1.15.1-SNAPSHOT</version>
+        <!-- project version is generated through git or can be passed as
+             PROJECT_VERSION env variable (see version.sh) -->
+        <version>0-unknown-version-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>scripts</artifactId>
@@ -65,6 +67,7 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
               <artifactSet>
                 <excludes>
                   <exclude>org.bouncycastle:bcprov-jdk15</exclude>

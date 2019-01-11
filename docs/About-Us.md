@@ -13,8 +13,8 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Angelica Ochoa
 * Aaron Lisman
 * Manda Wilson
-* Jiaojiao Wang
 * Avery Wang
+* Jing Su
 * Nikolaus Schultz
 
 ## Dana-Farber Cancer Institute
@@ -24,7 +24,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Augustin Luna
 * James Lindsay
 * Priti Kumari
-* Catherine Del Vecchio
 * Chris Sander
 
 ## Princess Margaret Cancer Centre, Toronto
@@ -42,9 +41,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Fedde Schaeffer
 * Sander Tan
 * Oleguer Plantalech
-* Irina Pulyakhina
 * Riza Nugraha
-* Dionne Zaal
 * Sjoerd van Hagen
 * Kees van Bochove
 
@@ -64,6 +61,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Fred Criscuolo
 * Gideon Dresdner
 * Andy Dufilie
+* Catherine Del Vecchio Fitz
 * Arthur Goldberg
 * Zachary Heins
 * Michael Heuer
@@ -72,9 +70,12 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Dong Li
 * Tamba Monrose
 * Peter Kok
+* Irina Pulyakhina
 * M. Furkan Sahin
+* Jiaojiao Wang
 * Stuart Watt
 * James Xu
+* Dionne Zaal
 
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided by:
 

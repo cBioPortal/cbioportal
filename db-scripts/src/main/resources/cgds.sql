@@ -68,7 +68,6 @@ DROP TABLE IF EXISTS `interaction`;
 DROP TABLE IF EXISTS `clinical_attribute_meta`;
 DROP TABLE IF EXISTS `clinical_sample`;
 DROP TABLE IF EXISTS `clinical_patient`;
-DROP TABLE IF EXISTS `mutation_count`;
 DROP TABLE IF EXISTS `mutation_count_by_keyword`;
 DROP TABLE IF EXISTS `mutation`;
 DROP TABLE IF EXISTS `mutation_event`;
@@ -85,7 +84,6 @@ DROP TABLE IF EXISTS `gene_alias`;
 DROP TABLE IF EXISTS `geneset_gene`;
 DROP TABLE IF EXISTS `reference_genome_gene`;
 DROP TABLE IF EXISTS `gene`;
-DROP TABLE IF EXISTS `fraction_genome_altered`;
 DROP TABLE IF EXISTS `sample_list_list`;
 DROP TABLE IF EXISTS `sample_list`;
 DROP TABLE IF EXISTS `sample`;
@@ -486,19 +484,9 @@ CREATE TABLE `mutation` (
 ) COMMENT='Mutation Data Details';
 
 -- --------------------------------------------------------
-CREATE TABLE `mutation_count` (
-  `GENETIC_PROFILE_ID` int(11) NOT NULL,
-  `SAMPLE_ID` int(11) NOT NULL,
-  `MUTATION_COUNT` int NOT NULL,
-  KEY (`GENETIC_PROFILE_ID`,`SAMPLE_ID`),
-  FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
 CREATE TABLE `mutation_count_by_keyword` (
     `GENETIC_PROFILE_ID` int(11) NOT NULL,
-    `KEYWORD` varchar(50) DEFAULT NULL,
+    `KEYWORD` varchar(255) DEFAULT NULL,
     `ENTREZ_GENE_ID` int(11) NOT NULL,
     `KEYWORD_COUNT` int NOT NULL,
     `GENE_COUNT` int NOT NULL,
@@ -816,19 +804,9 @@ CREATE TABLE `reference_genome_gene` (
 );
 
 -- --------------------------------------------------------
-CREATE TABLE `fraction_genome_altered` (
-  `CANCER_STUDY_ID` int(11) NOT NULL,
-  `SAMPLE_ID` int(11) NOT NULL,
-  `VALUE` double NOT NULL,
-  PRIMARY KEY (`CANCER_STUDY_ID`,`SAMPLE_ID`),
-  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
 CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24),
   `GENESET_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.6.1', NULL);
+INSERT INTO info VALUES ('2.7.3', NULL);

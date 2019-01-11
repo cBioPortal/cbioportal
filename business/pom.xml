@@ -4,7 +4,9 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.15.1-SNAPSHOT</version>
+    <!-- project version is generated through git or can be passed as
+         PROJECT_VERSION env variable (see version.sh) -->
+    <version>0-unknown-version-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>business</artifactId>
@@ -32,7 +34,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.9.4</version>
+      <version>2.9.8</version>
     </dependency>
   </dependencies>
 
@@ -61,6 +63,7 @@
                     <exclude>**/portal.properties.*</exclude>
                     <exclude>**/log4j.properties.*</exclude>
                     <exclude>**/maven.properties.*</exclude>
+                    <exclude>**/git.properties</exclude>
                     <exclude>**/*.EXAMPLE</exclude>
                   </excludes>
                 </resource>

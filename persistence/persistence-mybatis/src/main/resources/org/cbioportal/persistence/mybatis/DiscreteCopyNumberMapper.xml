@@ -60,6 +60,7 @@
                 SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
                 INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
                 WHERE sample_list.STABLE_ID = #{sampleListId}
+                AND sample_list_list.SAMPLE_ID = sample_cna_event.SAMPLE_ID
             )
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND cna_event.ENTREZ_GENE_ID IN
@@ -78,10 +79,19 @@
 
     <sql id="whereInMultipleMolecularProfiles">
         <where>
-            (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
-            <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
-            </foreach>
+            <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
+                genetic_profile.STABLE_ID = #{molecularProfileIds[0]} AND
+                sample.STABLE_ID IN
+                <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
+                (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
+                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                    (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
+                </foreach>
+            </if>
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND cna_event.ENTREZ_GENE_ID IN
                 <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
@@ -180,14 +190,33 @@
         FROM cna_event
         INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN sample ON sample_cna_event.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         WHERE
         <if test="sampleIds != null and !sampleIds.isEmpty()">
-            (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
-            <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
-            </foreach>
+            sample_cna_event.SAMPLE_ID IN (
+            SELECT sample.INTERNAL_ID from sample
+            INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
+            INNER JOIN genetic_profile ON patient.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+            WHERE 
+            <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
+                genetic_profile.STABLE_ID = #{molecularProfileIds[0]} AND
+                sample.STABLE_ID IN
+                <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
+                (sample.STABLE_ID, genetic_profile.STABLE_ID) IN
+                <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
+                    (#{sampleIds[${i}]}, #{molecularProfileIds[${i}]})
+                </foreach>
+                AND genetic_profile.STABLE_ID IN
+                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            AND sample.INTERNAL_ID = sample_cna_event.SAMPLE_ID 
+            AND genetic_profile.GENETIC_PROFILE_ID = sample_cna_event.GENETIC_PROFILE_ID)
         </if>
         <if test="entrezGeneIds != null">
             AND (cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION) IN

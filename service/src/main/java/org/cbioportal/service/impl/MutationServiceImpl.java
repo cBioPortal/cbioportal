@@ -145,22 +145,6 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    public List<MutationCount> getMutationCountsInMolecularProfileBySampleListId(String molecularProfileId,
-                                                                                 String sampleListId)
-        throws MolecularProfileNotFoundException {
-
-        validateMolecularProfile(molecularProfileId);
-
-        return mutationRepository.getMutationCountsInMolecularProfileBySampleListId(molecularProfileId, sampleListId);
-    }
-
-    @Override
-    public List<MutationCount> fetchMutationCountsInMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds) {
-
-        return mutationRepository.fetchMutationCountsInMolecularProfiles(molecularProfileIds, sampleIds);
-    }
-
-    @Override
     public List<MutationCountByPosition> fetchMutationCountsByPosition(List<Integer> entrezGeneIds,
                                                                        List<Integer> proteinPosStarts,
                                                                        List<Integer> proteinPosEnds) {
@@ -180,8 +164,9 @@ public class MutationServiceImpl implements MutationService {
 
         MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
 
-        if (!molecularProfile.getMolecularAlterationType()
-            .equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED)) {
+        if (!(molecularProfile.getMolecularAlterationType()
+            .equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED) || molecularProfile.getMolecularAlterationType()
+            .equals(MolecularProfile.MolecularAlterationType.MUTATION_UNCALLED))) {
 
             throw new MolecularProfileNotFoundException(molecularProfileId);
         }

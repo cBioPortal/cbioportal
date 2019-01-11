@@ -1,7 +1,8 @@
 package org.cbioportal.service.impl;
 
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.cbioportal.model.CoExpression;
 import org.cbioportal.model.Gene;
@@ -10,11 +11,13 @@ import org.cbioportal.service.CoExpressionService;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.service.util.BenjaminiHochbergFDRCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,9 +29,8 @@ public class CoExpressionServiceImpl implements CoExpressionService {
     private MolecularDataService molecularDataService;
     @Autowired
     private GeneService geneService;
-    
-    private PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
-    private SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation();
+    @Autowired
+    private BenjaminiHochbergFDRCalculator benjaminiHochbergFDRCalculator;
     
     @Override
     public List<CoExpression> getCoExpressions(String molecularProfileId, String sampleListId, Integer entrezGeneId, 
@@ -96,23 +98,36 @@ public class CoExpressionServiceImpl implements CoExpressionService {
             double[] queryValuesNumber = queryValuesCopy.stream().mapToDouble(Double::parseDouble).toArray();
             double[] valuesNumber = values.stream().mapToDouble(Double::parseDouble).toArray();
 
-            if (valuesNumber.length < 2) {
+            if (valuesNumber.length <= 2) {
                 continue;
             }
             
-            double pearsonsValue = pearsonsCorrelation.correlation(queryValuesNumber, valuesNumber);
-            if (Double.isNaN(pearsonsValue) || Math.abs(pearsonsValue) < threshold) {
-                continue;
+            double[][] arrays = new double[valuesNumber.length][2];
+            for (int i = 0; i < valuesNumber.length; i++) {
+                arrays[i][0] = queryValuesNumber[i];
+                arrays[i][1] = valuesNumber[i];
             }
-            coExpression.setPearsonsCorrelation(BigDecimal.valueOf(pearsonsValue));
-            
+
+            SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation(new Array2DRowRealMatrix(arrays, false));
+
             double spearmansValue = spearmansCorrelation.correlation(queryValuesNumber, valuesNumber);
             if (Double.isNaN(spearmansValue) || Math.abs(spearmansValue) < threshold) {
                 continue;
             }
             coExpression.setSpearmansCorrelation(BigDecimal.valueOf(spearmansValue));
+
+            RealMatrix resultMatrix = spearmansCorrelation.getRankCorrelation().getCorrelationPValues();
+            coExpression.setpValue(BigDecimal.valueOf(resultMatrix.getEntry(0, 1)));
             
             coExpressionList.add(coExpression);
+        }
+
+        coExpressionList.sort(Comparator.comparing(CoExpression::getpValue));
+        double[] qValues = benjaminiHochbergFDRCalculator.calculate(coExpressionList.stream().mapToDouble(a ->
+            a.getpValue().doubleValue()).toArray());
+
+        for (int i = 0; i < coExpressionList.size(); i++) {
+            coExpressionList.get(i).setqValue(BigDecimal.valueOf(qValues[i]));
         }
         
         return coExpressionList;

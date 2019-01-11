@@ -45,4 +45,4 @@ If the database is older than what cBioPortal is expecting, the system will ask 
 
 Due to data provider specific restrictions on data re-distribution, the database setup, as outlined above, will lack some of the drug-gene relationships from specific data-resources. If you would like to obtain the complete the data sets from these resources, we encourage you to take advantage of [PiHelper](http://bitbucket.org/armish/pihelper) for aggregating drug-target associations and use the corresponding data importer `importPiHelperData.sh` which is distributed as part of cBioPortal.
 
-[Next Step: Loading a Sample Study](Load-Sample-Cancer-Study.md)
+[Next Step: Deploying the Web Application](Deploying.md)

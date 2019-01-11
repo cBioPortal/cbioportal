@@ -21,6 +21,7 @@
                 <value>file:///${PORTAL_HOME}/portal.properties</value>
                 <value>classpath:portal.properties</value>
                 <value>classpath:maven.properties</value>
+                <value>classpath:git.properties</value>
             </list>
         </property>
     </bean>

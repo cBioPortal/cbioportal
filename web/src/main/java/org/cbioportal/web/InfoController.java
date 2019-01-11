@@ -25,6 +25,36 @@ public class InfoController {
     @Value("${db.version}")
     private String dbVersion;
 
+    @Value("${git.branch}")
+    private String gitBranch;
+
+    @Value("${git.commit.id}")
+    private String gitCommitId;
+
+    @Value("${git.commit.id.abbrev}")
+    private String gitCommitIdAbbrev;
+
+    @Value("${git.commit.id.describe}")
+    private String gitCommitIdDescribe;
+
+    @Value("${git.commit.id.describe-short}")
+    private String gitCommitIdDescribeShort;
+
+    @Value("${git.commit.message.full}")
+    private String gitCommitMessageFull;
+
+    @Value("${git.commit.message.short}")
+    private String gitCommitMessageShort;
+
+    @Value("${git.commit.user.email}")
+    private String gitCommitMessageUserEmail;
+
+    @Value("${git.commit.user.name}")
+    private String gitCommitMessageUserName;
+
+    @Value("${git.dirty}")
+    private String gitDirty;
+
     @RequestMapping(value = "/info", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get information about the running instance")
     public ResponseEntity<Info> getInfo() {
@@ -32,6 +62,15 @@ public class InfoController {
         Info info = new Info();
         info.setPortalVersion(portalVersion);
         info.setDbVersion(dbVersion);
+        info.setGitBranch(gitBranch);
+        info.setGitCommitId(gitCommitId);
+        info.setGitCommitIdDescribe(gitCommitIdDescribe);
+        info.setGitCommitIdDescribeShort(gitCommitIdDescribeShort);
+        info.setGitCommitMessageShort(gitCommitMessageShort);
+        info.setGitCommitMessageFull(gitCommitMessageFull);
+        info.setGitCommitMessageUserEmail(gitCommitMessageUserEmail);
+        info.setGitCommitMessageUserName(gitCommitMessageUserName);
+        info.isGitDirty(Boolean.valueOf(gitDirty));
         return new ResponseEntity<>(info, HttpStatus.OK);
     }
 }

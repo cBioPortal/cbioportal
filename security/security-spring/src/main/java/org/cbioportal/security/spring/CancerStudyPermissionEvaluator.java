@@ -216,8 +216,8 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         else if ("List<MolecularProfileId>".equals(targetType) || "List<GeneticProfileId>".equals(targetType)) {
             return hasAccessToMolecularProfiles(authentication, (List<String>)targetId, permission);
         }
-        else if ("ClinicalAttributeFilter".equals(targetType)) {
-            return hasAccessToCancerStudies(authentication, (ClinicalAttributeFilter)targetId, permission);
+        else if ("ClinicalAttributeCountFilter".equals(targetType)) {
+            return hasAccessToCancerStudies(authentication, (ClinicalAttributeCountFilter)targetId, permission);
         }
         else if ("ClinicalDataMultiStudyFilter".equals(targetType)) {
             return hasAccessToCancerStudies(authentication, (ClinicalDataMultiStudyFilter)targetId, permission);
@@ -335,9 +335,9 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         }
     }
 
-    private boolean hasAccessToCancerStudies(Authentication authentication, ClinicalAttributeFilter clinicalAttributeFilter, Object permission)
+    private boolean hasAccessToCancerStudies(Authentication authentication, ClinicalAttributeCountFilter clinicalAttributeCountFilter, Object permission)
     {
-        String sampleListId = clinicalAttributeFilter.getSampleListId();
+        String sampleListId = clinicalAttributeCountFilter.getSampleListId();
         if (sampleListId != null) {
             SampleList sampleList = sampleLists.get(sampleListId);
             if (sampleList == null || !hasPermission(authentication, sampleList, permission)) {
@@ -348,7 +348,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         else {
             // use hashset as this list can be populated with many duplicate values
             Set<String> studyIds = new HashSet<String>();
-            for (SampleIdentifier identifier : clinicalAttributeFilter.getSampleIdentifiers()) {
+            for (SampleIdentifier identifier : clinicalAttributeCountFilter.getSampleIdentifiers()) {
                 studyIds.add(identifier.getStudyId());
             }
             return hasAccessToCancerStudies(authentication, studyIds, permission);

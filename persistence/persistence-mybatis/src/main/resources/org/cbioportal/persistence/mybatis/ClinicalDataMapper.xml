@@ -56,14 +56,14 @@
                 cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
             </if>
             <if test="sampleIds != null">
-                <if test="studyIds.size() == 1">
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
                     cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
                     sample.STABLE_ID IN
                     <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
                         #{item}
                     </foreach>
                 </if>
-                <if test="studyIds.size() > 1">
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
                     (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
                     <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
                         (#{studyIds[${i}]}, #{sampleIds[${i}]})
@@ -85,14 +85,14 @@
                 cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
             </if>
             <if test="patientIds != null">
-                <if test="studyIds.size() == 1">
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
                     cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
                     patient.STABLE_ID IN
                     <foreach item="item" collection="patientIds" open="(" separator="," close=")">
                         #{item}
                     </foreach>
                 </if>
-                <if test="studyIds.size() > 1">
+                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
                     (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
                     <foreach index="i" collection="patientIds" open="(" separator="," close=")">
                         (#{studyIds[${i}]}, #{patientIds[${i}]})

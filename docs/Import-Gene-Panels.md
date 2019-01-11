@@ -4,14 +4,14 @@ This page describes how to import a gene panel into the cBioPortal database.  It
 
 1. The cBioPortal software has been correctly [built from source](Build-from-Source.md).
 2. The gene panel to import is in the proper file format.  See [File Format](File-Formats.md#gene-panel-data) for more information.
-3. The `PORTAL_HOME` environment variable has been properly defined.  See [Pre-Build-Steps](Pre-Build-Steps.md#set-the-portal-home-variable) for more information.
+3. The `PORTAL_HOME` environment variable has been properly defined.  See [Loading a Sample Study](Load-Sample-Cancer-Study.md#set-the-portal_home-environment-variable) for more information.
 
 #### Import command
 
 In this example, we are loading the example gene panel which resides in the sample dataset `study_es_0`.
 
 ```
-cd $PORTAL_HOME/core/src/main/scripts
+cd <cbioportal_source_folder>/core/src/main/scripts
 ./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/gene_panel_example.txt
 ```
 

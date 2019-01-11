@@ -43,15 +43,15 @@ public class MutationSpectrumController {
         @ApiParam(required = true, value = "List of Sample IDs/Sample List ID")
         @Valid @RequestBody MutationSpectrumFilter mutationSpectrumFilter) throws MolecularProfileNotFoundException {
 
-        List<MutationSpectrum> fractionGenomeAlteredList;
+        List<MutationSpectrum> mutationSpectrums;
         if (mutationSpectrumFilter.getSampleListId() != null) {
-            fractionGenomeAlteredList = mutationSpectrumService.getMutationSpectrums(molecularProfileId,
+            mutationSpectrums = mutationSpectrumService.getMutationSpectrums(molecularProfileId,
                 mutationSpectrumFilter.getSampleListId());
         } else {
-            fractionGenomeAlteredList = mutationSpectrumService.fetchMutationSpectrums(molecularProfileId,
+            mutationSpectrums = mutationSpectrumService.fetchMutationSpectrums(molecularProfileId,
                 mutationSpectrumFilter.getSampleIds());
         }
 
-        return new ResponseEntity<>(fractionGenomeAlteredList, HttpStatus.OK);
+        return new ResponseEntity<>(mutationSpectrums, HttpStatus.OK);
     }
 }

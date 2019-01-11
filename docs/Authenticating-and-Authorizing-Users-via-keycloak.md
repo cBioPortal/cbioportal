@@ -96,7 +96,7 @@ installed. Keycloak may not give an indication of successful
 completion, but when navigating to the **SAML Keys** tab again you
 should now see the certificate and no private key.
 
-## Modifying portal.properties
+## Modifying configuration
 
 1. Within the portal.properties file , make sure that this line is present:
 ```
@@ -108,7 +108,6 @@ should now see the certificate and no private key.
 ```properties
     # authentication
     authorization=true
-    authenticate=saml
     filter_groups_by_appname=false
     saml.sp.metadata.entityid=cbioportal
     saml.idp.metadata.location=classpath:/client-tailored-saml-idp-metadata.xml
@@ -126,6 +125,13 @@ should now see the certificate and no private key.
     # global logout (as opposed to local logout):
     saml.logout.local=false
     saml.logout.url=/
+```
+
+3. Finally, make Tomcat pass the authentication method as a JVM argument
+   by adding this line to `$CATALINA_HOME/bin/setenv.sh`:
+
+```sh
+CATALINA_OPTS='-Dauthenticate=saml'
 ```
 
 ## Obtain user identities
@@ -192,10 +198,7 @@ Sync** and **Periodic Changed Users Sync**.
 ### Create roles to authorize cBioPortal users
 
 The roles you assign to users will be used to tell cBioPortal which
-studies a user is allowed to see. The roles will usually correspond to
-the **groups** specified in the
-[metadata files of studies](<File-Formats.md#cancer-study>), or
-alternatively to individual **study identifiers**.
+studies a user is allowed to see. 
 
 To create a role, head to the **Roles** tab that is displayed along
 the top while configuring the `cbioportal` client – this tab is _not_
@@ -204,6 +207,22 @@ Role** button. Enter a name (e.g.  `brca_tcga_pub`) and description
 for the role and hit the **Save** button.
 
 ![](images/previews/add-role-for-study.png)
+
+#### Groups
+
+Keycloak allows you to create Groups for easy mapping of multiple
+studies to multiple users. One can, for example, make a Keycloak group
+with name `PUBLIC_STUDIES` and add all the individual Keycloak roles
+corresponding to public studies to this group. It is also possible to
+configure a group to be "default" in Keycloak, meaning new users are
+automatically added to this group when logging in for the first time.
+
+Alternatively, the Keycloak roles can correspond to the **groups** specified
+in the [metadata files of studies](<File-Formats.md#cancer-study>) instead
+of corresponding to individual **study identifiers**. Although this will
+result in less roles that need to be added and maintained in Keycloak,
+it does result in group configuration being spread over both Keycloak
+and meta study files.
 
 ### Assign roles to users
 

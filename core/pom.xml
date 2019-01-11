@@ -4,7 +4,9 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.15.1-SNAPSHOT</version>
+    <!-- project version is generated through git or can be passed as
+         PROJECT_VERSION env variable (see version.sh) -->
+    <version>0-unknown-version-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>core</artifactId>
@@ -70,19 +72,7 @@
     <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
-      <version>1.2.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.axis</groupId>
-      <artifactId>axis</artifactId>
-      <version>1.4</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.axis</groupId>
-      <artifactId>axis-jaxrpc</artifactId>
-      <version>1.4</version>
-      <scope>runtime</scope>
+      <version>1.3.3</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
@@ -104,13 +94,6 @@
       <artifactId>commons-cli</artifactId>
       <version>1.3</version>
     </dependency>         
-
-    <!-- guava -->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>14.0.1</version>
-    </dependency>
 
     <!-- jackson -->
     <dependency>
@@ -297,38 +280,6 @@
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>heroku</id>
-      <build>
-        <plugins>
-          <!-- remove core temp build files -->
-          <plugin>
-            <artifactId>maven-clean-plugin</artifactId>
-            <version>2.5</version>
-            <executions>
-              <execution>
-                <id>clean-artifacts</id>
-                <phase>install</phase>
-                <goals>
-                  <goal>clean</goal>
-                </goals>
-                <configuration>
-                  <excludeDefaultDirectories>true</excludeDefaultDirectories>
-                  <filesets>
-                    <fileset>
-                      <directory>target</directory>
-                    </fileset>
-                  </filesets>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
   <build>
     <plugins>
       <!-- surefire (test) config -->
@@ -452,6 +403,7 @@
                     <exclude>**/portal.properties.*</exclude>
                     <exclude>**/log4j.properties.*</exclude>
                     <exclude>**/maven.properties.*</exclude>
+                    <exclude>**/git.properties.*</exclude>
                     <exclude>**/*.EXAMPLE</exclude>
                   </excludes>
                 </resource>

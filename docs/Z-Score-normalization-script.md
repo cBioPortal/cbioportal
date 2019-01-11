@@ -77,10 +77,10 @@ Note: this implies that your full dataset does not have average=0, std=1
 ## Running the script
 
 
-To run the script type the following commands when in the folder `<your_cbioportal_dir>/core/src/main/scripts`: 
+To run the script type the following commands when in the folder `<cbioportal_source_folder>/core/src/main/scripts`:
 
 ```
- export PORTAL_HOME=<your_cbioportal_dir>
+export PORTAL_HOME=<cbioportal_configuration_folder>
 ```
 
 and then 

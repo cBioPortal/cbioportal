@@ -4,7 +4,9 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.15.1-SNAPSHOT</version>
+    <!-- project version is generated through git or can be passed as
+         PROJECT_VERSION env variable (see version.sh) -->
+    <version>0-unknown-version-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>cbioportal</artifactId>
@@ -107,7 +109,7 @@
                 <artifactItem>
                   <groupId>com.github.cbioportal</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
-                  <version>v1.15.0</version>
+                  <version>v2.0.0</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>
@@ -131,7 +133,8 @@
             <resource>
               <directory>${project.parent.basedir}/business/src/main/resources</directory>
               <targetPath>WEB-INF/classes</targetPath>
-              <filtering>true</filtering>
+              <!-- do not hard-set portal.properties config at build-time -->
+              <filtering>false</filtering>
             </resource>
             <resource>
               <directory>${project.parent.basedir}/web/src/main/resources</directory>
@@ -198,6 +201,7 @@
                     <exclude>**/portal.properties.*</exclude>
                     <exclude>**/log4j.properties.*</exclude>
                     <exclude>**/maven.properties.*</exclude>
+                    <exclude>**/git.properties.*</exclude>
                     <exclude>**/*.EXAMPLE</exclude>
                   </excludes>
                 </resource>

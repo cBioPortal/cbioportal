@@ -17,8 +17,8 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 * [Pre-Build Steps](Pre-Build-Steps.md)
 * [Building from Source](Build-from-Source.md)
 * [Importing the Seed Database](Import-the-Seed-Database.md)
-* [Loading a Sample Study](Load-Sample-Cancer-Study.md)  
 * [Deploying the Web Application](Deploying.md)
+* [Loading a Sample Study](Load-Sample-Cancer-Study.md)
 
 ### 2.2 Authorization and Authentication
 * [User Authorization](User-Authorization.md)
@@ -53,14 +53,14 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 * [Data Loading Overview](Data-Loading.md)
    * [Using the Dataset Validator](Using-the-dataset-validator.md)
    * [Using the metaImport Script](Using-the-metaImport-script.md)
-   * [Development, Debugging and Maintenance Using cbioportalImporter](Development,-debugging-and-maintenance-mode-using-cbioportalImporter.md)
    * [File Formats](File-Formats.md)
        * [Z-Score Normalization](Z-Score-normalization-script.md)
-   * [Data Loading: How the loader deals with Hugo Symbols](Data-Loading-How-the-loader-deals-with-Hugo-symbols.md) (TODO)    
-   * [Data Loading: What You Need To Change](Data-Loading-What-You-Need-To-Change.md)
-   * [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md)
-   * [Importer Tool](Importer-Tool.md) (deprecated)
-   * [Importing Gene Sets](Import-Gene-Sets.md)
+   * [Maintaining Studies](Data-Loading-Maintaining-Studies.md)
+   * [For Developers](Data-Loading-For-Developers.md)
+   * [Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md)
+   * [Importing Gene Sets for Gene Set Scoring Data](Import-Gene-Sets.md)
+   * [Importing Gene Panels](Import-Gene-Panels.md)
+   * [Study View Customization with Priority Data](Study-View.md)
 
 ### 5.2 Datasets
 * [Downloads](Downloads.md)

@@ -6,7 +6,9 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>Portal Master</name>
-  <version>1.15.1-SNAPSHOT</version>
+  <!-- project version is generated through git or can be passed as
+	   PROJECT_VERSION env variable (see version.sh) -->
+  <version>0-unknown-version-SNAPSHOT</version>
   <description>master maven module</description>
 
   <scm>
@@ -23,6 +25,12 @@
       </snapshots>
     </repository>
   </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <profiles>
     <profile>
@@ -35,6 +43,17 @@
       </properties>
     <build>
     <plugins>
+          <plugin>
+            <groupId>com.github.cbioportal.maven-external-version</groupId>
+            <artifactId>maven-external-version-plugin</artifactId>
+            <version>f09c2b9608744881111f24e55d55a91e54e6cb5f</version>
+            <extensions>true</extensions>
+            <configuration>
+              <strategy hint="script">
+                <script>./version.sh</script>
+              </strategy>
+            </configuration>
+          </plugin>
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
@@ -133,6 +152,35 @@
               </dependency>
             </dependencies>
           </plugin>
+          <plugin>
+            <groupId>pl.project13.maven</groupId>
+            <artifactId>git-commit-id-plugin</artifactId>
+            <version>2.2.4</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <!-- *NOTE*: The default phase of revision is initialize, but in case you want to change it, you can do so by adding the phase here -->
+                        <phase>initialize</phase>
+                    </execution>
+                    <execution>
+                        <id>validate-the-git-infos</id>
+                        <goals>
+                            <goal>validateRevision</goal>
+                        </goals>
+                        <!-- *NOTE*: The default phase of validateRevision is verify, but in case you want to change it, you can do so by adding the phase here -->
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            <configuration>
+                <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                <gitDescribe>
+                    <tags>true</tags>
+                </gitDescribe>
+            </configuration>
+          </plugin>
     </plugins>
     </build>
     </profile>
@@ -181,6 +229,22 @@
               </execution>
             </executions>
           </plugin>
+		  <!-- don't generate git.properties on heroku (unf doesn't work, since
+			   .git directory is not accessible during build) -->
+          <plugin>
+            <groupId>pl.project13.maven</groupId>
+            <artifactId>git-commit-id-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+						<phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>validate-the-git-infos</id>
+						<phase>none</phase>
+                    </execution>
+                </executions>
+          </plugin>
         </plugins>
       </build>
     </profile>
@@ -191,8 +255,8 @@
     <spring.version>4.3.14.RELEASE</spring.version>
     <spring.context.support.version>4.3.14.RELEASE</spring.context.support.version>
     <spring.integration.version>4.3.14.RELEASE</spring.integration.version>
-    <spring.security.version>3.2.5.RELEASE</spring.security.version>
-    <spring.security.saml.version>1.0.0.RELEASE</spring.security.saml.version>
+    <spring.security.version>5.0.7.RELEASE</spring.security.version>
+    <spring.security.saml.version>1.0.3.RELEASE</spring.security.saml.version>
     <mybatis.spring.version>1.3.0</mybatis.spring.version>
     <mybatis.version>3.4.1</mybatis.version>
     <hibernate.version>3.6.9.Final</hibernate.version>
@@ -205,7 +269,7 @@
     <jacoco-maven-plugin.version>0.7.6.201602180812</jacoco-maven-plugin.version>
     <mockito.version>1.10.19</mockito.version>
 
-    <final.war.name>cbioportal-${project.version}</final.war.name>
+    <final.war.name>cbioportal</final.war.name>
 
   <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
     <!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->
@@ -218,7 +282,7 @@
     <tomcat.session.timeout>720</tomcat.session.timeout>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.6.1</db.version>
+    <db.version>2.7.3</db.version>
   </properties>
 
   <modules>
@@ -261,7 +325,7 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
-      <version>4.3.4</version>
+      <version>4.3.6</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
@@ -439,6 +503,7 @@
         <includes>
           <include>**/portal.properties</include>
           <include>**/maven.properties</include>
+          <include>**/git.properties</include>
         </includes>
       </resource>
       <resource>
@@ -447,6 +512,7 @@
         <excludes>
           <exclude>**/portal.properties</exclude>
           <exclude>**/maven.properties</exclude>
+          <exclude>**/git.properties</exclude>
         </excludes>
       </resource>
     </resources>

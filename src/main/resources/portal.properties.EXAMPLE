@@ -26,7 +26,7 @@ skin.documentation.baseurl=https://raw.githubusercontent.com/cBioPortal/cbioport
 skin.documentation.markdown=true
 skin.documentation.faq=FAQ.md
 skin.documentation.about=About-Us.md
-skin.documentation.skin.news=News.md
+skin.documentation.news=News.md
 skin.documentation.oql=Onco-Query-Language.md
 
 # setting controlling the logos
@@ -71,8 +71,10 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 authorization=false
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=
+
+## change the `-Dauthenticate=` JVM argument to configure
 ## which method of authentication to use (false, googleplus, social_auth, saml, openid, ad, ldap, noauthsessionservice)
-authenticate=false
+
 ## Should the permissions for groups and users be filtered by this instance's app.name?
 ## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)
 filter_groups_by_appname=true
@@ -161,8 +163,6 @@ broad.bam.checking.url=
 include_networks=true
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 
-# bitly, please use your bitly user and apiKey
-bitly.url=http://api.bit.ly/shorten?login=[bitly.user]&apiKey=[bitly.apiKey]&
 # the new API uses the v3 of bitly API, and a java library to make the API call, so you only need to provide the access token  
 bitly.access.token=
 
@@ -179,12 +179,12 @@ recache_study_after_update=false
 # example session-service url: http://localhost:8080/session_service/api/sessions/public_portal/
 # see: https://github.com/cBioPortal/session-service
 # excluding this value or setting it to an empty string will revert to the previous bookmarking method
-# WARNING: do not use session service with authenticate=false
-#  either use authentication or change to authenticate=noauthsessionservice
+# WARNING: do not use session service with -Dauthenticate=false
+#  either use authentication or change to -Dauthenticate=noauthsessionservice
 session.service.url=
-# Only allow requests from here:
-#  e.g. session.service.origin=http://dashi-dev.cbio.mskcc.org:8080
-session.service.origin=*
+# if basic authentication is enabled on session service one should set:
+# session.service.user=user
+# session.service.password=pass
 
 # disabled tabs, | delimited
 # possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV

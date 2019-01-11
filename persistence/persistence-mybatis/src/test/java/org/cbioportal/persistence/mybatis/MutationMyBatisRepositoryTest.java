@@ -12,7 +12,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -309,36 +308,6 @@ public class MutationMyBatisRepositoryTest {
         
         Assert.assertEquals(1, result.size());
         Assert.assertEquals((Integer) 1, result.get(0).getCountByEntity());
-    }
-    
-    @Test
-    public void getMutationCountsInMolecularProfileBySampleListId() throws Exception {
-        
-        List<MutationCount> result = mutationMyBatisRepository.getMutationCountsInMolecularProfileBySampleListId(
-            "study_tcga_pub_mutations", "study_tcga_pub_all");
-
-        Assert.assertEquals(7, result.size());
-        MutationCount mutationCount = result.get(0);
-        Assert.assertEquals("study_tcga_pub_mutations", mutationCount.getMolecularProfileId());
-        Assert.assertEquals("TCGA-A1-A0SB-01", mutationCount.getSampleId());
-        Assert.assertEquals((Integer) 1, mutationCount.getMutationCount());
-    }
-
-    @Test
-    public void fetchMutationCountsInMolecularProfiles() throws Exception {
-
-        List<String> sampleIds = new ArrayList<>();
-        sampleIds.add("TCGA-A1-A0SH-01");
-        sampleIds.add("TCGA-A1-A0SO-01");
-
-        List<MutationCount> result = mutationMyBatisRepository.fetchMutationCountsInMolecularProfiles(
-            Arrays.asList("study_tcga_pub_mutations", "study_tcga_pub_mutations"), sampleIds);
-
-        Assert.assertEquals(2, result.size());
-        MutationCount mutationCount = result.get(0);
-        Assert.assertEquals("study_tcga_pub_mutations", mutationCount.getMolecularProfileId());
-        Assert.assertEquals("TCGA-A1-A0SH-01", mutationCount.getSampleId());
-        Assert.assertEquals((Integer) 2, mutationCount.getMutationCount());
     }
 
     @Test

@@ -484,7 +484,7 @@ CREATE TABLE `mutation` (
 -- --------------------------------------------------------
 CREATE TABLE `mutation_count_by_keyword` (
     `GENETIC_PROFILE_ID` int(11) NOT NULL,
-    `KEYWORD` varchar(50) DEFAULT NULL,
+    `KEYWORD` varchar(255) DEFAULT NULL,
     `ENTREZ_GENE_ID` int(11) NOT NULL,
     `KEYWORD_COUNT` int NOT NULL,
     `GENE_COUNT` int NOT NULL,

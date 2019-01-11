@@ -31,7 +31,7 @@ OQL-specified alterations will be reflected on most tabs, including OncoPrint, b
 
 Note that OQL assumes any word that it doesn't recognize is a mutation code.
 
-Additional explanation and examples using OQL are available in the <a href="http://www.cbioportal.org/tutorials#oql">OQL tutorial</a>.
+Additional explanation and examples using OQL are available in the [OQL tutorial](http://www.cbioportal.org/tutorials#oql).
 
 <a name="oql-keywords"></a>
 ## OQL Keywords
@@ -284,7 +284,7 @@ Note that merged gene tracks only appear in OncoPrint. All other pages show the 
 <a name="example-rb-pathway-alterations"></a>
 ## Example: RB Pathway Alterations
 
-Provided below is one example of the power of using OQL. Additional examples are available in the <a href="http://www.cbioportal.org/tutorials#oql">OQL tutorial</a>.
+Provided below is one example of the power of using OQL. Additional examples are available in the [OQL tutorial](http://www.cbioportal.org/tutorials#oql).
 
 <a name="using-the-defaults"></a>
 ### Using the Defaults
@@ -330,4 +330,4 @@ This shows that alterations in these genes are almost entirely mutually-exclusiv
 ## Questions? Feedback?
 Please share any questions or feedback on OQL with us: <http://groups.google.com/group/cbioportal>
 
-Also note that additional explanation and examples using OQL are available in the <a href="http://www.cbioportal.org/tutorials#oql">OQL tutorial</a>.
+Also note that additional explanation and examples using OQL are available in the [OQL tutorial](http://www.cbioportal.org/tutorials#oql).

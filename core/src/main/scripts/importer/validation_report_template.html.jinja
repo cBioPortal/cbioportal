@@ -65,37 +65,6 @@
         'info': 'Debug'}[level] -%}
       <span class="glyphicon {{ glyphicon_name }}" aria-hidden="true"></span><span class="sr-only">{{ glyphicon_alt }}</span>
     {%- endmacro %}
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h4 class="panel-title">Legend</h4>
-      </div>
-      <div class="panel-body">
-        <p>
-	  Click on a filename below to see a table of messages about the data
-	  in the file. The colors in the tables have the following meanings:
-        </p>
-        <table class="table">
-          <tbody>
-            <tr class="danger">
-              <td>{{ level_icon('danger') }}</td>
-              <td><strong>Error:</strong> cBioPortal will not know how to load this, please revise or remove</td>
-            </tr>
-            <tr class="warning">
-              <td>{{ level_icon('warning') }}</td>
-              <td><strong>Warning:</strong> possible cause of confusion, please check whether this is intended</td>
-            </tr>
-            <tr class="success">
-              <td>{{ level_icon('success') }}</td>
-              <td><strong>Info:</strong> this looks good, no action required</td>
-            </tr>
-            <tr class="info">
-              <td>{{ level_icon('info') }}</td>
-              <td><strong>Verbose output:</strong> details on the progress of the validation script</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
 
     <div class="panel panel-default">
     <div class="panel-body">
@@ -218,6 +187,37 @@
 
     </div>
     </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">Legend</h4>
+      </div>
+      <div class="panel-body">
+        <p>
+	  Click on a filename below to see a table of messages about the data
+	  in the file. The colors in the tables have the following meanings:
+        </p>
+        <table class="table">
+          <tbody>
+            <tr class="danger">
+              <td>{{ level_icon('danger') }}</td>
+              <td><strong>Error:</strong> cBioPortal will not know how to load this, please revise or remove</td>
+            </tr>
+            <tr class="warning">
+              <td>{{ level_icon('warning') }}</td>
+              <td><strong>Warning:</strong> possible cause of confusion, please check whether this is intended</td>
+            </tr>
+            <tr class="success">
+              <td>{{ level_icon('success') }}</td>
+              <td><strong>Info:</strong> this looks good, no action required</td>
+            </tr>
+            <tr class="info">
+              <td>{{ level_icon('info') }}</td>
+              <td><strong>Verbose output:</strong> details on the progress of the validation script</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </body>

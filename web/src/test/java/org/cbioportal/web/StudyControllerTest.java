@@ -69,7 +69,6 @@ public class StudyControllerTest {
     private static final String TEST_DEDICATED_COLOR = "test_dedicated_color";
     private static final String TEST_TYPE_OF_CANCER_SHORT_NAME = "test_type_of_cancer_short_name";
     private static final String TEST_PARENT = "test_parent";
-    private static final String TEST_TAGS_3 = "{\"Analyst\":{\"Name\":\"Frank\",\"Email\":\"frank@something.com\"},\"Load id\":43}";
 
     @Autowired
     private WebApplicationContext wac;
@@ -285,38 +284,6 @@ public class StudyControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.content().string(TEST_TAGS_2));
-    }
-
-    @Test
-    public void getAllTags() throws Exception {
-
-        List<CancerStudyTags> cancerStudyTagsList = new ArrayList<>();
-        CancerStudyTags cancerStudyTags1 = new CancerStudyTags();
-        cancerStudyTags1.setCancerStudyId(TEST_CANCER_STUDY_ID_1);
-        cancerStudyTags1.setTags(TEST_TAGS_1);
-        cancerStudyTagsList.add(cancerStudyTags1);
-
-        CancerStudyTags cancerStudyTags2 = new CancerStudyTags();
-        cancerStudyTags2.setCancerStudyId(TEST_CANCER_STUDY_ID_2);
-        cancerStudyTags2.setTags(TEST_TAGS_3);
-        cancerStudyTagsList.add(cancerStudyTags2);
-
-        Mockito.when(studyService.getTagsForMultipleStudies(Mockito.anyListOf(String.class))).thenReturn(cancerStudyTagsList);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/studies/tags/fetch")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1, 
-                TEST_CANCER_STUDY_IDENTIFIER_2))))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId")
-                    .value(TEST_CANCER_STUDY_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].tags").value(TEST_TAGS_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId")
-                    .value(TEST_CANCER_STUDY_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].tags").value(TEST_TAGS_3));
     }
 
     private List<CancerStudy> createExampleStudies() throws ParseException {

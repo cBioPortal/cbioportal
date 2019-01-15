@@ -91,12 +91,6 @@ public class StudyServiceImpl implements StudyService {
         return studyRepository.getTags(studyId);
     }
 
-    @Override
-    public List<CancerStudyTags> getTagsForMultipleStudies(List<String> studyIds) {
-
-        return studyRepository.getTagsForMultipleStudies(studyIds);
-    }
-
     private List<CancerStudy> findPrimarySiteMatchingStudies(String keyword) {
 
         List<CancerStudy> matchingStudies = new ArrayList<>();

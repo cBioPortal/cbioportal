@@ -133,17 +133,4 @@ public class StudyController {
         
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
-
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/studies/tags/fetch", method = RequestMethod.POST,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get the study tags by IDs")
-    public ResponseEntity<List<CancerStudyTags>> getTagsForMultipleStudies(
-        @ApiParam(required = true, value = "List of Study IDs")
-        @RequestBody List<String> studyIds) {
-        
-        List<CancerStudyTags> cancerStudyTags = studyService.getTagsForMultipleStudies(studyIds);
-        
-        return new ResponseEntity<>(cancerStudyTags, HttpStatus.OK);
-    }
 }

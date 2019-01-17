@@ -558,4 +558,8 @@ CREATE TABLE `cancer_study_tags` (
   PRIMARY KEY (`CANCER_STUDY_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
+
+-- Corresponding change in cgds.sql was missed, hence this duplicate migration statement from version 2.6.1 to ensure dbs installed after v 2.6.1 are in sync.
+ALTER TABLE `mutation_count_by_keyword` MODIFY COLUMN `KEYWORD` VARCHAR(255);
+
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.4";

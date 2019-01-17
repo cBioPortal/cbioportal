@@ -1689,16 +1689,6 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
                         '3': 198022430, '4': 191154276, '5': 180915260,
                         '6': 171115067, '7': 159138663, '8': 146364022,
                         '9': 141213431, 'X': 155270560, 'Y': 59373566}
-            #Todo: Remove hg18 when all public data is liftOvered to hg18. See validator.
-            elif genome_build == 'hg18':
-                return {'1': 247249719, '10': 135374737, '11': 134452384,
-                        '12': 132349534, '13': 114142980, '14': 106368585,
-                        '15': 100338915, '16': 88827254, '17': 78774742,
-                        '18': 76117153, '19': 63811651, '2': 242951149,
-                        '20': 62435964, '21': 46944323, '22': 49691432,
-                        '3': 199501827, '4': 191273063, '5': 180857866,
-                        '6': 170899992, '7': 158821424, '8': 146274826,
-                        '9': 140273252, 'X': 154913754, 'Y': 57772954}
             else:
                 raise ValueError(
                     "load_chromosome_lengths() called with genome build '{}'".format(
@@ -1723,16 +1713,21 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
         for record in record_list:
             self.assertLessEqual(record.levelno, logging.INFO)
 
-    def test_valid_ref_genome_hg18(self):
-        """Validate a segment file which uses hg18 as reference genome"""
-        record_list = self.validate('data_seg_valid_hg18.seg',
+    def test_invalid_ref_genome_hg18(self):
+        """Test validation of a segment file which has hg18 data but is submitted as hg19"""
+        self.logger.setLevel(logging.ERROR)
+
+        # The input file contains a genomic position from hg18 (chr19, 63811651)
+        record_list = self.validate('data_seg_invalid_hg18.seg',
                                     validateData.SegValidator,
                                     extra_meta_fields={'reference_genome_id':
-                                                           'hg18'})
-        # expecting only status messages about the file being validated
-        self.assertEqual(len(record_list), 3)
-        for record in record_list:
-            self.assertLessEqual(record.levelno, logging.INFO)
+                                                       'hg19'})
+        # Expect 1 error
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertLessEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.cause, '63811651')
+        self.assertEqual(record.message, 'Genomic position beyond end of chromosome (chr19:0-59128983)')
 
     def test_unparsable_seg_columns(self):
         """Validate .seg files with non-numeric values and an unsupported chromosome."""

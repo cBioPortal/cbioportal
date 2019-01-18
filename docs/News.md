@@ -1,3 +1,8 @@
+## January 10, 2019
+* cBioPortal now supports queries for driver mutations, fusions and copy number alterations as well as germline/somatic mutations using [Onco Query Language (OQL)](http://www.cbioportal.org/oql) -- see [example](http://www.cbioportal.org/results/oncoprint?session_id=5c23ea81e4b05228701f9d44)
+* A new [tutorial](http://www.cbioportal.org/tutorials) explores OQL and provides examples of how OQL can be a powerful tool to refine queries.
+
+
 ## December 17, 2018
 * The 10th phase of cBioPortal architectural upgrade is now complete: the _Study View_ has been moved to the new architecture with numerous improvements. This marks the completion of the cBioPortal architectural refactoring! 🎉🎉🎉
 

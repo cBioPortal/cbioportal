@@ -190,7 +190,7 @@ public class StudyViewController {
                 .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, true);
             result.sort((a, b) -> b.getCountByEntity() - a.getCountByEntity());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
-            if (distinctStudyIds.size() == 1) {
+            if (distinctStudyIds.size() == 1 && !result.isEmpty()) {
                 Map<Integer, MutSig> mutSigMap = significantlyMutatedGeneService.getSignificantlyMutatedGenes(
                     distinctStudyIds.get(0), Projection.SUMMARY.name(), null, null, null, null).stream().collect(
                         Collectors.toMap(MutSig::getEntrezGeneId, Function.identity()));
@@ -222,7 +222,7 @@ public class StudyViewController {
                 .getFirstDiscreteCNAProfileIds(studyIds, sampleIds), sampleIds, null, Arrays.asList(-2, 2), true);
             result.sort((a, b) -> b.getCountByEntity() - a.getCountByEntity());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
-            if (distinctStudyIds.size() == 1) {
+            if (distinctStudyIds.size() == 1 && !result.isEmpty()) {
                 List<Gistic> gisticList = significantCopyNumberRegionService.getSignificantCopyNumberRegions(
                     distinctStudyIds.get(0), Projection.SUMMARY.name(), null, null, null, null);
                 MultiKeyMap gisticMap = new MultiKeyMap();

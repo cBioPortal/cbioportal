@@ -3,11 +3,11 @@
      *   [Uveal Melanoma (QIMR, Oncotarget 2016)](http://www.cbioportal.org/study?id=um_qimr_2016#summary) *28 samples*
      *   [Squamous Cell Carcinoma of the Vulva (CUK, Exp Mol Med 2018)](http://www.cbioportal.org/study?id=vsc_cuk_2018) *15 samples*
      *   [TMB and Immunotherapy (MSKCC, Nat Genet 2019)](http://www.cbioportal.org/study?id=tmb_mskcc_2018#summary) *1661 samples*
-     *   [Glioma (MSK, 2018)]((http://www.cbioportal.org/study?id=glioma_msk_2018) *91 samples*
+     *   [Glioma (MSK, 2018)](http://www.cbioportal.org/study?id=glioma_msk_2018) *91 samples*
      *   [Urothelial Carcinoma (Cornell/Trento, Nat Gen 2016)](http://www.cbioportal.org/study?id=blca_cornell_2016) *72 samples*
-     *   [Hepatocellular Carcinoma (MSK, Clin Cancer Res 2018)]((http://www.cbioportal.org/study?id=hcc_mskimpact_2018) *127 samples*
+     *   [Hepatocellular Carcinoma (MSK, Clin Cancer Res 2018)](http://www.cbioportal.org/study?id=hcc_mskimpact_2018) *127 samples*
      *   [MSK Thoracic PDX (MSK, Provisional)](http://www.cbioportal.org/study?id=lung_msk_pdx) *139 samples*
-     *   [Cholangiocarcinoma (MSK, Clin Cancer Res 2018)]((http://www.cbioportal.org/study?id=chol_msk_2018) *195 samples*
+     *   [Cholangiocarcinoma (MSK, Clin Cancer Res 2018)](http://www.cbioportal.org/study?id=chol_msk_2018) *195 samples*
  *  **Updated data** for [The Metastatic Breast Cancer Project (Provisional, October 2018)](http://www.cbioportal.org/study?id=brca_mbcproject_wagle_2017) *237 samples*
 ## January 10, 2019
 * cBioPortal now supports queries for driver mutations, fusions and copy number alterations as well as germline/somatic mutations using [Onco Query Language (OQL)](http://www.cbioportal.org/oql) -- see [example](http://www.cbioportal.org/results/oncoprint?session_id=5c23ea81e4b05228701f9d44)

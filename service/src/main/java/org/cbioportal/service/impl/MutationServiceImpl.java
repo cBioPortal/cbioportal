@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -122,11 +123,15 @@ public class MutationServiceImpl implements MutationService {
 	public List<MutationCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
 			List<String> sampleIds, List<Integer> entrezGeneIds, boolean includeFrequency) {
         
-        List<MutationCountByGene> result = mutationRepository.getSampleCountInMultipleMolecularProfiles(
-            molecularProfileIds, sampleIds, entrezGeneIds);
-        
-        if (includeFrequency) {
-            geneFrequencyCalculator.calculate(molecularProfileIds, sampleIds, result);
+        List<MutationCountByGene> result;
+        if (molecularProfileIds.isEmpty()) {
+            result = Collections.emptyList();
+        } else {
+            result = mutationRepository.getSampleCountInMultipleMolecularProfiles(
+                molecularProfileIds, sampleIds, entrezGeneIds);
+            if (includeFrequency) {
+                geneFrequencyCalculator.calculate(molecularProfileIds, sampleIds, result);
+            }
         }
 
         return result;

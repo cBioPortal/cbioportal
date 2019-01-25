@@ -89,8 +89,7 @@ public class TestNormalizeExpressionLevels {
 			daoGene.addGene(new CanonicalGene(6205, "RPS11"));
 			daoGene.addGene(new CanonicalGene(7157, "TP53"));
 			daoGene.addGene(new CanonicalGene(367, "AR"));
-
-			NormalizeExpressionLevels.driver(args);
+			NormalizeExpressionLevels.main(args);
 			// compare with correct
 			String line;
 			Process p = Runtime.getRuntime().exec(

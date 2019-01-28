@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 - 2018 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -47,7 +47,7 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
     StructuralVariantRepository structuralVariantRepository;
     
     @Override
-    @PreAuthorize("hasPermission(#geneticProfileStableIds, 'List<GeneticProfileId>', 'read')")
+    @PreAuthorize("hasPermission(#geneticProfileStableIds, 'Collection<GeneticProfileId>', 'read')")
     public List<StructuralVariant> getStructuralVariant(List<String> geneticProfileStableIds, List<String> hugoGeneSymbols, List<String> sampleStableIds){
         return structuralVariantRepository.getStructuralVariant(geneticProfileStableIds, hugoGeneSymbols, sampleStableIds);
     }

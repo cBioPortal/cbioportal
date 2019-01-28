@@ -9,7 +9,7 @@ SAML (Security Assertion Markup Language).
 
 Please note that configuring your local instance to use Keycloak authentication requires a Keycloak server to be set up. For details on how to set up a Keycloak server, please read online document at <https://www.keycloak.org/docs/latest/server_installation/index.html>.
 
-This document focuses mainly on the steps to configure Keycloak for **authenticating** and **authorizing** cBioPortal users.
+This document focuses mainly on the steps to configure Keycloak for **authenticating** cBioPortal users.
 
 To skip to the authorization section see: [authorization with Keycloak](#authorization-with-keycloak). Or continue reading to learn how to integrate Keycloak with cBioPortal.
 
@@ -106,8 +106,6 @@ should now see the certificate and no private key.
 2. Then, modify the properties under the comment `# authentication`. In particular, see the options listed in the example below:
 
 ```properties
-    # authentication
-    authorization=true
     filter_groups_by_appname=false
     saml.sp.metadata.entityid=cbioportal
     saml.idp.metadata.location=classpath:/client-tailored-saml-idp-metadata.xml

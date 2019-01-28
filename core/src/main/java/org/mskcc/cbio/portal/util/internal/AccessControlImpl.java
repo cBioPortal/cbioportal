@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2018 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -84,7 +84,7 @@ public class AccessControlImpl implements AccessControl {
 
         //  Then, insert "All" Cancer Types at beginning  //TODO - fix this! It conflicts with ALL (Acute Lymphoid Leukemia)!
         ArrayList<CancerStudy> finalCancerStudiesList = new ArrayList<CancerStudy>();
-        String allCancerStudyTitle = (GlobalProperties.usersMustBeAuthorized()) ?
+        String allCancerStudyTitle = (GlobalProperties.usersMustAuthenticate()) ?
             "All Authorized Cancer Studies" : "All Cancer Studies";
         CancerStudy allCancerStudy = new CancerStudy(allCancerStudyTitle, allCancerStudyTitle,
              "all", "all", true);
@@ -131,7 +131,7 @@ public class AccessControlImpl implements AccessControl {
 
     public UserDetails getUserDetails()
     {
-        if (GlobalProperties.usersMustBeAuthorized()) {
+        if (GlobalProperties.usersMustAuthenticate()) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth == null) {
                 String errorMessage = "Possible configuration error detected: authorization=true but no authentication found. "

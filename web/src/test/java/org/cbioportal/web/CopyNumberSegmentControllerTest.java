@@ -30,7 +30,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class CopyNumberSegmentControllerTest {
 
@@ -61,9 +61,11 @@ public class CopyNumberSegmentControllerTest {
 
     @Autowired
     private CopyNumberSegmentService copyNumberSegmentService;
-    private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private MockMvc mockMvc;
 
     @Bean
     public CopyNumberSegmentService copyNumberSegmentService() {

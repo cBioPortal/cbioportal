@@ -29,7 +29,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class SignificantCopyNumberRegionControllerTest {
 
@@ -62,6 +62,7 @@ public class SignificantCopyNumberRegionControllerTest {
 
     @Autowired
     private SignificantCopyNumberRegionService significantCopyNumberRegionService;
+
     private MockMvc mockMvc;
 
     @Bean

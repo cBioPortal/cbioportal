@@ -724,7 +724,7 @@ def parse_metadata_file(filename,
                                       'name': 255,
                                       'description': 1024,
                                       'citation': 200,
-                                      'pmid': 20,
+                                      'pmid': 1024,
                                       'groups': 200,
                                       'short_name': 64
                                       }

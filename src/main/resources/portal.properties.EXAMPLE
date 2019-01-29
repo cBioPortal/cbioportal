@@ -246,3 +246,7 @@ oncoprint.defaultview=patient
 
 # Enable/Disable quick search (currently in beta, default is false)
 # quick_search.enabled=true
+
+# MatchMiner AWS url
+matchminer.url=
+matchminer.token=

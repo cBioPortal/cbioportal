@@ -4,7 +4,7 @@ cbioportal:
     - "8080:8080"
   volumes:
     - $PWD/../../:/cbioportal
-  command: java -Ddbconnector=dbcp -Dauthenticate=false -jar portal/target/dependency/webapp-runner.jar --expand-war portal/target/cbioportal.war
+  command: java -Ddbconnector=dbcp -Dauthenticate=false -jar portal/target/dependency/webapp-runner.jar --enable-compression portal/target/cbioportal.war
   environment:
     PORTAL_HOME: /cbioportal/test/end-to-end/runtime-config
   working_dir: /cbioportal

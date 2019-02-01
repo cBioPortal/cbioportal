@@ -242,7 +242,7 @@ public class GlobalProperties {
     public void setSuppressSchemaVersionMismatchErrors(String property) { suppressSchemaVersionMismatchErrors = Boolean.parseBoolean(property); }
     
     public static final String DARWIN_AUTH_URL = "darwin.auth_url";
-    public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
+    public static final String DDP_RESPONSE_URL = "ddp.response_url";
     public static final String CIS_USER = "cis.user";
     public static final String DISABLED_TABS = "disabled_tabs";
     public static final String BITLY_USER = "bitly.user";
@@ -1022,15 +1022,15 @@ public class GlobalProperties {
         return darwinAuthUrl;
     }
     
-    public static String getDarwinResponseUrl() {
-        String darwinResponseUrl = "";
-        if (portalProperties.containsKey(DARWIN_RESPONSE_URL)) {
+    public static String getDdpResponseUrl() {
+        String ddpResponseUrl = "";
+        if (portalProperties.containsKey(DDP_RESPONSE_URL)) {
             try{
-                darwinResponseUrl = portalProperties.getProperty(DARWIN_RESPONSE_URL);
+                ddpResponseUrl = portalProperties.getProperty(DDP_RESPONSE_URL);
             }
             catch (NullPointerException e) {}
         }
-        return darwinResponseUrl;
+        return ddpResponseUrl;
     }
     
     public static List<String[]> getPriorityStudies() {

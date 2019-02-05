@@ -458,7 +458,9 @@
         <http use-expressions="true" auto-config="true">
             <form-login login-page="/login.jsp"
                 login-processing-url="/j_spring_security_check" 
-                default-target-url="/index.do"
+                username-parameter="j_username" 
+                password-parameter="j_password"                 
+		default-target-url="/index.do"
                 authentication-success-handler-ref="successRedirectHandler" />
             <logout logout-url="/j_spring_security_logout" logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID" />
             <intercept-url pattern="/auth/*" access="permitAll"/>

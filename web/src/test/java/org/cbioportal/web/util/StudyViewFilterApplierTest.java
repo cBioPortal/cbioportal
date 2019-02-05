@@ -13,6 +13,7 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.DiscreteCopyNumberService;
+import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.PatientService;
@@ -61,6 +62,8 @@ public class StudyViewFilterApplierTest {
     private DiscreteCopyNumberService discreteCopyNumberService;
     @Mock
     private MolecularProfileService molecularProfileService;
+    @Mock
+    private GenePanelService genePanelService;
 
     // Do not mock utility classes, we also want to test their functionality
     @InjectMocks
@@ -80,7 +83,7 @@ public class StudyViewFilterApplierTest {
         
         studyViewFilterApplier = new StudyViewFilterApplier(
             sampleService, mutationService, discreteCopyNumberService, 
-            molecularProfileService, clinicalDataEqualityFilterApplier, 
+            molecularProfileService, genePanelService, clinicalDataService, clinicalDataEqualityFilterApplier, 
             clinicalDataIntervalFilterApplier, studyViewFilterUtil);
     }
     

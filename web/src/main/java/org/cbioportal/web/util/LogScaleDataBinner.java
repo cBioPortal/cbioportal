@@ -32,14 +32,30 @@ public class LogScaleDataBinner
             start = boxRange.lowerEndpoint() < 0 ? -Math.ceil(absLogValue) : Math.floor(absLogValue);
         }
         
+        if (lowerOutlier != null) {
+            intervals.add(lowerOutlier);
+        }
+        
         for (double exponent = start; ; exponent += 0.5)
         {
             Double value = calcIntervalValue(exponent);
-            intervals.add(value);
+            
+            if ((lowerOutlier == null || value > lowerOutlier) && 
+                (upperOutlier == null || value <= upperOutlier)) {
+                intervals.add(value);
+            }
 
             if (value > boxRange.upperEndpoint())
             {
-                intervals.add(calcIntervalValue(exponent + 0.5));
+                value = calcIntervalValue(exponent + 0.5);
+                
+                if (upperOutlier == null || value <= upperOutlier) {
+                    intervals.add(value);
+                }
+                else {
+                    intervals.add(upperOutlier);
+                }
+                
                 break;
             }
         }

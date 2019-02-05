@@ -8,6 +8,3 @@
 Sentry.init({ dsn: '<%=sentryEndpoint.trim()%>',   ignoreErrors: [/document\.registerElement is deprecated and will be removed/]  });
 </script>   
 <% } %> 
-
-        
-        

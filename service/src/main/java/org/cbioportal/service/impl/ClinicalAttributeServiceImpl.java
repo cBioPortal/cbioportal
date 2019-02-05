@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalAttributeRepository;
 import org.cbioportal.service.ClinicalAttributeService;
@@ -90,18 +91,14 @@ public class ClinicalAttributeServiceImpl implements ClinicalAttributeService {
         }
 
     @Override
-    public List<ClinicalAttribute> getAllClinicalAttributesInStudiesBySampleIds(List<String> studyIds, List<String> sampleIds, 
-                                                                                String projection, String sortBy, String direction) {
+    public List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleIds(List<String> studyIds, List<String> sampleIds) {
         
-        return clinicalAttributeRepository.getAllClinicalAttributesInStudiesBySampleIds(studyIds, sampleIds, 
-                                                                                        projection, sortBy, direction);
+        return clinicalAttributeRepository.getClinicalAttributeCountsBySampleIds(studyIds, sampleIds);
     }
 
     @Override
-    public List<ClinicalAttribute> getAllClinicalAttributesInStudiesBySampleListId(String sampleListId, String projection, 
-                                                                                   String sortBy, String direction) {
+    public List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleListId(String sampleListId) {
 
-        return clinicalAttributeRepository.getAllClinicalAttributesInStudiesBySampleListId(sampleListId, projection, 
-                                                                                           sortBy, direction);
+        return clinicalAttributeRepository.getClinicalAttributeCountsBySampleListId(sampleListId);
     }
 }

@@ -89,8 +89,7 @@
             "session.url_length_threshold",
             "bitly.api_key",
             "bitly.user",
-            "bitly.access.token",
-            "bitly.url"
+            "bitly.access.token"
            
         }; 
     

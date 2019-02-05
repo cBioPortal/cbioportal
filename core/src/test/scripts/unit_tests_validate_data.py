@@ -254,7 +254,7 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.column_number, 2)
         self.assertIn(record.cause, 'STRING')
 
-        # Expect warning for sample attribute in patient clinical data
+        # Expect error for sample attribute in patient clinical data
         record = next(record_iterator)
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 5)
@@ -1640,6 +1640,20 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.line_number, 9)
         self.assertEqual(record.cause, 'Wildtype')
         self.assertEqual(record.getMessage(), "Mutation will not be loaded due to value in Mutation_Status")
+
+    def test_mutation_invalid_utf8(self):
+        """Test that the validator raises an error when a data file contains invalid UTF-8 bytes".
+        """
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('mutations/data_mutations_invalid_utf8.maf',
+                                    validateData.MutationsExtendedValidator)
+        # we expect 1 ERROR:
+        self.assertEqual(len(record_list), 1)
+
+        # The ERROR should be: "UTF-8 codec can't decode byte"
+        self.assertIn("File contains invalid UTF-8 bytes. Please check values in file", record_list[0].getMessage())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
 
 
 class FusionValidationTestCase(PostClinicalDataFileTestCase):

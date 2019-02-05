@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -125,20 +126,17 @@ public class MutationServiceImpl implements MutationService {
 
     @Override
 	public List<MutationCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
-			List<String> sampleIds, List<Integer> entrezGeneIds, boolean includeFrequency, boolean useSparkParquet) {
-
-        List<MutationCountByGene> result = null;
-        if (useSparkParquet) {
-            result = sparkParquetMutationRepository.getSampleCountInMultipleMolecularProfiles(
+			List<String> sampleIds, List<Integer> entrezGeneIds, boolean includeFrequency) {
+        
+        List<MutationCountByGene> result;
+        if (molecularProfileIds.isEmpty()) {
+            result = Collections.emptyList();
+        } else {
+            result = mutationRepository.getSampleCountInMultipleMolecularProfiles(
                 molecularProfileIds, sampleIds, entrezGeneIds);
-        }
-        else {
-            result = mybatisMutationRepository.getSampleCountInMultipleMolecularProfiles(
-                molecularProfileIds, sampleIds, entrezGeneIds);
-        }
-
-        if (includeFrequency) {
-            geneFrequencyCalculator.calculate(molecularProfileIds, sampleIds, result);
+            if (includeFrequency) {
+                geneFrequencyCalculator.calculate(molecularProfileIds, sampleIds, result);
+            }
         }
 
         return result;

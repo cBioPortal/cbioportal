@@ -160,7 +160,9 @@ public class DataBinner
     public List<Range<Double>> filterSpecialRanges(List<ClinicalData> clinicalData) {
         return clinicalData.stream()
             .map(ClinicalData::getAttrValue)
-            .filter(s -> s.contains(">") || s.contains("<"))
+            .filter(s -> (s.contains(">") || s.contains("<")) &&
+                // ignore any invalid values such as >10PY, <20%, etc.    
+                NumberUtils.isCreatable(dataBinHelper.stripOperator(s)))
             .map(v -> dataBinHelper.calcRange(
                 // only use "<" or ">" to make sure that we only generate open ranges
                 dataBinHelper.extractOperator(v).substring(0,1), 

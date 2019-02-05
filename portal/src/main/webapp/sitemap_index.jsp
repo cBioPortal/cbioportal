@@ -11,6 +11,11 @@
 <%
 String protocol = (request.isSecure()) ? "https" : "http";
 pageContext.setAttribute("serverRoot", protocol + "://" + request.getServerName());
+
+if (GlobalProperties.showSitemaps() == false) {
+    response.setStatus(404);
+} else {
+
 %>
 
 <c:if test = "${GlobalProperties.showSitemaps()}">
@@ -39,3 +44,6 @@ if (GlobalProperties.showSitemaps()) {
    </sitemapindex>
 
 </c:if>
+
+<% } %>
+

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -146,12 +147,17 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     @Override
 	public List<CopyNumberCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
 			List<String> sampleIds, List<Integer> entrezGeneIds, List<Integer> alterations, boolean includeFrequency) {
-        
-        List<CopyNumberCountByGene> result =  discreteCopyNumberRepository
-            .getSampleCountInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds, alterations);
-        
-        if (includeFrequency) {
-            geneFrequencyCalculator.calculate(molecularProfileIds, sampleIds, result);
+
+        List<CopyNumberCountByGene> result;
+        if (molecularProfileIds.isEmpty()) {
+            result = Collections.emptyList();
+        } else {
+            result =  discreteCopyNumberRepository.getSampleCountInMultipleMolecularProfiles(molecularProfileIds, 
+                sampleIds, entrezGeneIds, alterations);
+            
+            if (includeFrequency) {
+                geneFrequencyCalculator.calculate(molecularProfileIds, sampleIds, result);
+            }
         }
 
         return result;

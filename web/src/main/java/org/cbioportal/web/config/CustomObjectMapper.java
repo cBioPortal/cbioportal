@@ -40,6 +40,7 @@ import java.util.Map;
 
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalEvent;
@@ -62,6 +63,7 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.web.mixin.CancerStudyMixin;
+import org.cbioportal.web.mixin.ClinicalAttributeCountMixin;
 import org.cbioportal.web.mixin.ClinicalAttributeMixin;
 import org.cbioportal.web.mixin.ClinicalDataCountMixin;
 import org.cbioportal.web.mixin.ClinicalDataMixin;
@@ -94,6 +96,7 @@ public class CustomObjectMapper extends ObjectMapper {
         Map<Class<?>, Class<?>> mixinMap = new HashMap<>();
         mixinMap.put(CancerStudy.class, CancerStudyMixin.class);
         mixinMap.put(ClinicalAttribute.class, ClinicalAttributeMixin.class);
+        mixinMap.put(ClinicalAttributeCount.class, ClinicalAttributeCountMixin.class);
         mixinMap.put(ClinicalData.class, ClinicalDataMixin.class);
         mixinMap.put(ClinicalDataCount.class, ClinicalDataCountMixin.class);
         mixinMap.put(ClinicalEvent.class, ClinicalEventMixin.class);

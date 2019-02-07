@@ -194,7 +194,7 @@ public class TestImportClinicalData {
         importClinicalData.setFile(cancerStudy, clinicalFile, "PATIENT_ATTRIBUTES", false);
         importClinicalData.importData();
         
-		checkSurvivalData(cancerStudy);
+		checkSurvivalDataAndSampleCount(cancerStudy);
 	}
 	
     /**
@@ -212,10 +212,30 @@ public class TestImportClinicalData {
         importClinicalData.setFile(cancerStudy, clinicalFile, "MIXED_ATTRIBUTES", false);
         importClinicalData.importData();
 
-		checkSurvivalData(cancerStudy);
+		checkSurvivalDataAndSampleCount(cancerStudy);
+    }
+    
+    @Test
+    public void testImportClinicalDataTwoSampleFiles() throws Exception {
+		
+        File clinicalFile = new File("src/test/resources/clinical_data_small_SAMPLE.txt");
+        ImportClinicalData importClinicalData = new ImportClinicalData(null);
+        importClinicalData.setFile(cancerStudy, clinicalFile, "SAMPLE_ATTRIBUTES", false);
+        importClinicalData.importData();
+        
+        clinicalFile = new File("src/test/resources/clinical_data_small_SAMPLE2.txt");
+        importClinicalData = new ImportClinicalData(null);
+        importClinicalData.setFile(cancerStudy, clinicalFile, "SAMPLE_ATTRIBUTES", false);
+        importClinicalData.importData();
+        
+		LinkedHashSet <String> caseSet = new LinkedHashSet<String>();
+        caseSet.add("TEST-A2-A04P");
+        
+        List<Patient> clinicalCaseList = DaoClinicalData.getSurvivalData(cancerStudy.getInternalId(), caseSet);
+        assertEquals (new Integer(2), clinicalCaseList.get(0).getSampleCount());        
 	}
 
-	private void checkSurvivalData(CancerStudy cancerStudy) throws DaoException {
+	private void checkSurvivalDataAndSampleCount(CancerStudy cancerStudy) throws DaoException {
         LinkedHashSet <String> caseSet = new LinkedHashSet<String>();
         caseSet.add("TCGA-A1-A0SB");
         caseSet.add("TCGA-A1-A0SE");
@@ -233,10 +253,12 @@ public class TestImportClinicalData {
                 assertEquals ("Recurred/Progressed", patientData.getDiseaseFreeSurvivalStatus());
                 assertEquals (new Double(43.8), patientData.getOverallSurvivalMonths());
                 assertEquals (new Double(15.05), patientData.getDiseaseFreeSurvivalMonths());
+                assertEquals (new Integer(1), patientData.getSampleCount());
                 countChecks++;
         	}
         	else if (patientData.getStableId().equals("TCGA-A1-A0SE")) {
                 assertEquals (null, patientData.getDiseaseFreeSurvivalMonths());
+                assertEquals (new Integer(1), patientData.getSampleCount());
                 countChecks++;
         	}
         	else {
@@ -246,6 +268,7 @@ public class TestImportClinicalData {
                 assertEquals ("DiseaseFree", patientData.getDiseaseFreeSurvivalStatus());
                 assertEquals (new Double(49.02), patientData.getOverallSurvivalMonths());
                 assertEquals (new Double(49.02), patientData.getDiseaseFreeSurvivalMonths());
+                assertEquals (new Integer(1), patientData.getSampleCount());
                 countChecks++;
         	}
         }
@@ -325,7 +348,7 @@ public class TestImportClinicalData {
         importClinicalData.importData();
 
 		Set<String> paramSet = DaoClinicalData.getDistinctParameters(cancerStudy.getInternalId());
-        assertEquals (9, paramSet.size());
+        assertEquals (10, paramSet.size());
     }
 	
     /**

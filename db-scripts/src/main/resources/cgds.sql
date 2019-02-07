@@ -475,7 +475,7 @@ CREATE TABLE `mutation` (
 -- --------------------------------------------------------
 CREATE TABLE `mutation_count_by_keyword` (
     `GENETIC_PROFILE_ID` int(11) NOT NULL,
-    `KEYWORD` varchar(50) DEFAULT NULL,
+    `KEYWORD` varchar(255) DEFAULT NULL,
     `ENTREZ_GENE_ID` int(11) NOT NULL,
     `KEYWORD_COUNT` int NOT NULL,
     `GENE_COUNT` int NOT NULL,
@@ -798,4 +798,4 @@ CREATE TABLE `info` (
   `GENESET_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.7.2', NULL);
+INSERT INTO info VALUES ('2.7.3', NULL);

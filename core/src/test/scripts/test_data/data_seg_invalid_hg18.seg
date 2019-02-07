@@ -1,0 +1,3 @@
+ID	chrom	loc.start	loc.end	num.mark	seg.mean
+TCGA-A1-A0SB-01	1	58953	59871	1	-0.111
+TCGA-A1-A0SB-01	19	59000000	63811651	1	-0.1368

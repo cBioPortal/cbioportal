@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalAttributeRepository;
 import org.cbioportal.service.StudyService;
@@ -132,27 +133,6 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getAllClinicalAttributesInStudiesBySampleIds() throws Exception {
-
-        List<String> sampleIds = new ArrayList<>();
-        List<String> studyIds = new ArrayList<>();
-        sampleIds.add(SAMPLE_ID1);
-        studyIds.add(STUDY_ID);
-
-        List<ClinicalAttribute> expectedClinicalAttributeList = new ArrayList<>();
-        ClinicalAttribute clinicalAttribute = new ClinicalAttribute();
-        expectedClinicalAttributeList.add(clinicalAttribute);
-
-        Mockito.when(clinicalAttributeRepository.getAllClinicalAttributesInStudiesBySampleIds(sampleIds, studyIds,
-                PROJECTION, SORT, DIRECTION)).thenReturn(expectedClinicalAttributeList);
-
-        List<ClinicalAttribute> result = clinicalAttributeService
-                .getAllClinicalAttributesInStudiesBySampleIds(sampleIds, studyIds, PROJECTION, SORT, DIRECTION);
-
-        Assert.assertEquals(expectedClinicalAttributeList, result);
-    }
-
-    @Test
     public void fetchClinicalAttributes() throws Exception {
 
         List<ClinicalAttribute> expectedClinicalAttributeList = new ArrayList<>();
@@ -168,22 +148,6 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getAllClinicalAttributesInStudiesBySampleListId() throws Exception {
-
-        List<ClinicalAttribute> expectedClinicalAttributeList = new ArrayList<>();
-        ClinicalAttribute clinicalAttribute = new ClinicalAttribute();
-        expectedClinicalAttributeList.add(clinicalAttribute);
-
-        Mockito.when(clinicalAttributeRepository.getAllClinicalAttributesInStudiesBySampleListId(SAMPLE_LIST_ID,
-                PROJECTION, SORT, DIRECTION)).thenReturn(expectedClinicalAttributeList);
-
-        List<ClinicalAttribute> result = clinicalAttributeService
-                .getAllClinicalAttributesInStudiesBySampleListId(SAMPLE_LIST_ID, PROJECTION, SORT, DIRECTION);
-
-        Assert.assertEquals(expectedClinicalAttributeList, result);
-    }
-
-    @Test
     public void fetchMetaClinicalAttributes() throws Exception {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
@@ -191,5 +155,40 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
         BaseMeta result = clinicalAttributeService.fetchMetaClinicalAttributes(Arrays.asList(STUDY_ID));
 
         Assert.assertEquals(expectedBaseMeta, result);
+    }
+
+    @Test
+    public void getClinicalAttributeCountsBySampleIds() throws Exception {
+
+        List<String> sampleIds = new ArrayList<>();
+        List<String> studyIds = new ArrayList<>();
+        sampleIds.add(SAMPLE_ID1);
+        studyIds.add(STUDY_ID);
+
+        List<ClinicalAttributeCount> expectedClinicalAttributeCounts = new ArrayList<>();
+        ClinicalAttributeCount clinicalAttributeCount = new ClinicalAttributeCount();
+        expectedClinicalAttributeCounts.add(clinicalAttributeCount);
+
+        Mockito.when(clinicalAttributeRepository.getClinicalAttributeCountsBySampleIds(sampleIds, studyIds))
+            .thenReturn(expectedClinicalAttributeCounts);
+
+        List<ClinicalAttributeCount> result = clinicalAttributeService.getClinicalAttributeCountsBySampleIds(sampleIds, studyIds);
+
+        Assert.assertEquals(expectedClinicalAttributeCounts, result);
+    }
+
+    @Test
+    public void getClinicalAttributeCountsBySampleListId() throws Exception {
+
+        List<ClinicalAttributeCount> expectedClinicalAttributeList = new ArrayList<>();
+        ClinicalAttributeCount clinicalAttributeCount = new ClinicalAttributeCount();
+        expectedClinicalAttributeList.add(clinicalAttributeCount);
+
+        Mockito.when(clinicalAttributeRepository.getClinicalAttributeCountsBySampleListId(SAMPLE_LIST_ID))
+            .thenReturn(expectedClinicalAttributeList);
+
+        List<ClinicalAttributeCount> result = clinicalAttributeService.getClinicalAttributeCountsBySampleListId(SAMPLE_LIST_ID);
+
+        Assert.assertEquals(expectedClinicalAttributeList, result);
     }
 }

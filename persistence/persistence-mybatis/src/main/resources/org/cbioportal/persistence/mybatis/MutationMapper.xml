@@ -88,6 +88,7 @@
                 SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
                 INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
                 WHERE sample_list.STABLE_ID = #{sampleListId}
+                AND sample_list_list.SAMPLE_ID = mutation.SAMPLE_ID
             )
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
                 AND mutation.ENTREZ_GENE_ID IN
@@ -126,7 +127,9 @@
                     <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
                         #{item}
                     </foreach>
-                </if>)
+                </if>
+                AND sample.INTERNAL_ID = mutation.SAMPLE_ID 
+                AND genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID)
             </if>
             <if test="sampleIds == null">
                 genetic_profile.STABLE_ID IN

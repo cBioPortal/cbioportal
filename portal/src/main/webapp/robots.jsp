@@ -13,3 +13,10 @@ if (!GlobalProperties.showSitemaps()) {
 <c:if test = "${GlobalProperties.showSitemaps()}">
 Sitemap: <%=protocol%>://<%=request.getServerName()%>/sitemap_index.xml
 </c:if>
+
+<c:if test = "${GlobalProperties.showSitemaps()==false}">
+User-agent: *
+Disallow: /
+</c:if>
+
+

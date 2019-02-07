@@ -15,6 +15,7 @@ pageContext.setAttribute("serverRoot", protocol + "://" + request.getServerName(
 if (GlobalProperties.showSitemaps() == false) {
     response.setStatus(404);
 } else {
+    response.setHeader("X-Robots-Tag", "noindex");
 
 %>
 

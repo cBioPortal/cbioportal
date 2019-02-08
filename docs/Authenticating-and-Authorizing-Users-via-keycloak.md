@@ -33,7 +33,7 @@ Keycloak offers three types of roles:
 Keycloak supports both OpenID-Connect and SAML authentication. When you use SAML authentication, the Keycloak server exchanges XML documents with a web application. XML signatures and encryption are then used to verify requests from the application.
 
 ## Configure Keycloak to authenticate your cbioportal instance
-1. Log in to your Keycloak Identity Provider, e.g. <http://localhost:8080/auth>, as an admin user.
+1. Log in to your Keycloak Identity Provider, e.g. <http://localhost:8080/auth>, as an admin user. :warning: when setting this up on something else than localhost (e.g. production), you will need to use/enable https on your Keycloak server. For simplicity, the rest of the documentation below continues on http://localhost.
 2. Hover over the top-left–corner drop down menu (titled ‘**Master**’) to create a new realm.
 ![](images/previews/add-realm.png)
 Please note if you are logged in the master realm, this drop-down menu lists all the realms created. The last entry of this drop-down menu is always **Add Realm**. Click this to add a realm. Then type '_demo_' in the name field and click the **Create** button.

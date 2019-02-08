@@ -589,7 +589,12 @@
 	        <!-- to enable access from matlab, r, python, etc clients -->
 	        <session-management session-fixation-protection="none"/>
             <csrf disabled="true"/>
-	        </http>
+
+            <!-- for mounting network tab through iframe -->
+            <headers>
+                <frame-options policy="SAMEORIGIN"/>
+            </headers>
+        </http>
 	        
 	        <b:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
 	            <b:constructor-arg value="/index.do" />

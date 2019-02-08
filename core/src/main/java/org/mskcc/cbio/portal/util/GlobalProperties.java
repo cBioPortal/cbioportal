@@ -771,8 +771,7 @@ public class GlobalProperties {
 
     public static String getLinkToCancerStudyView(String cancerStudyId)
     {
-        return "study?" + org.mskcc.cbio.portal.servlet.CancerStudyView.ID
-                + "=" + cancerStudyId;
+        return "study?id=" + cancerStudyId;
     }
 
     public static String getLinkToIGVForBAM(String cancerStudyId, String caseId, String locus)

@@ -34,6 +34,7 @@ package org.cbioportal.security.spring;
 
 // imports
 import java.util.*;
+import java.util.stream.Collectors;
 import java.io.Serializable;
 
 import org.apache.commons.logging.*;
@@ -262,6 +263,9 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         else if ("List<SampleIdentifier>".equals(targetType)) {
             return hasAccessToCancerStudiesBySampleIdentifier(authentication, (List<SampleIdentifier>)targetId, permission);
         }
+        else if ("GroupFilter".equals(targetType)) {
+            return hasAccessToCancerStudiesBySampleIdentifier(authentication, (GroupFilter)targetId, permission);
+        }
         else {
             if (log.isDebugEnabled()) {
                 log.debug("hasPermission(), unknown targetType '" + targetType + "'");
@@ -448,6 +452,19 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             }
         }
         return true;
+    }
+    
+    private boolean hasAccessToCancerStudiesBySampleIdentifier(Authentication authentication, GroupFilter groupFilter,
+            Object permission) {
+        // use hashset as this list can be populated with many duplicate values
+
+        List<SampleIdentifier> sampleIdentifiers = groupFilter.getGroups().stream()
+                .flatMap(group -> group.getSampleIdentifiers().stream()).collect(Collectors.toList());
+        Set<String> studyIds = new HashSet<String>();
+        for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
+            studyIds.add(sampleIdentifier.getStudyId());
+        }
+        return hasAccessToCancerStudies(authentication, studyIds, permission);
     }
      
     /**

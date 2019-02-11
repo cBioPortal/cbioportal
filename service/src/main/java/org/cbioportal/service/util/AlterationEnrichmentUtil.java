@@ -26,7 +26,7 @@ public class AlterationEnrichmentUtil {
     private GeneService geneService;
 
     public List<AlterationEnrichment> createAlterationEnrichments(
-        int alteredCount, int unalteredCount,
+        int set1Count, int set2Count,
         List<? extends AlterationCountByGene> alterationCountByGenes,
         List<? extends Alteration> alterations, String enrichmentType) {
 
@@ -42,8 +42,8 @@ public class AlterationEnrichmentUtil {
         for (int i = 0; i < alterationCountByGenes.size(); i++) {
             AlterationCountByGene copyNumberCountByGene = alterationCountByGenes.get(i);
             alterationEnrichments.add(createAlterationEnrichment(discreteCopyNumberDataMap.get(
-                copyNumberCountByGene.getEntrezGeneId()), copyNumberCountByGene, genes.get(i), alteredCount, 
-                unalteredCount, enrichmentType));
+                copyNumberCountByGene.getEntrezGeneId()), copyNumberCountByGene, genes.get(i), set1Count, 
+                set2Count, enrichmentType));
         }
 
         return alterationEnrichments;
@@ -51,8 +51,8 @@ public class AlterationEnrichmentUtil {
 
     private AlterationEnrichment createAlterationEnrichment(List<? extends Alteration> alterations,
                                                            AlterationCountByGene alterationCountByGene,
-                                                           Gene gene, int alteredCount,
-                                                           int unalteredCount, String enrichmentType) {
+                                                           Gene gene, int set1Count,
+                                                           int set2Count, String enrichmentType) {
 
         AlterationEnrichment alterationEnrichment = new AlterationEnrichment();
 
@@ -72,26 +72,28 @@ public class AlterationEnrichmentUtil {
         alterationEnrichment.setEntrezGeneId(alterationCountByGene.getEntrezGeneId());
         alterationEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
         alterationEnrichment.setCytoband(gene.getCytoband());
-        assignLogRatio(alterationEnrichment, alteredCount, unalteredCount);
-        assignPValue(alterationEnrichment, alteredCount, unalteredCount);
+        alterationEnrichment.setProfiledInSet1Count(set1Count);
+        alterationEnrichment.setProfiledInSet2Count(set2Count);
+        assignLogRatio(alterationEnrichment, set1Count, set2Count);
+        assignPValue(alterationEnrichment, set1Count, set2Count);
         return alterationEnrichment;
     }
 
-    private void assignLogRatio(AlterationEnrichment alterationEnrichment, int alteredCount,
-                                int unalteredCount) {
+    private void assignLogRatio(AlterationEnrichment alterationEnrichment, int set1Count,
+                                int set2Count) {
 
-        double alteredRatio = (double) alterationEnrichment.getAlteredInSet1Count() / alteredCount;
-        double unalteredRatio = (double) alterationEnrichment.getAlteredInSet2Count() / unalteredCount;
+        double set1Ratio = (double) alterationEnrichment.getAlteredInSet1Count() / set1Count;
+        double set2Ratio = (double) alterationEnrichment.getAlteredInSet2Count() / set2Count;
 
-        double logRatio = logRatioCalculator.getLogRatio(alteredRatio, unalteredRatio);
+        double logRatio = logRatioCalculator.getLogRatio(set1Ratio, set2Ratio);
         alterationEnrichment.setLogRatio(String.valueOf(logRatio));
     }
 
-    private void assignPValue(AlterationEnrichment alterationEnrichment, int alteredCount,
-                              int unalteredCount) {
+    private void assignPValue(AlterationEnrichment alterationEnrichment, int set1Count,
+                              int set2Count) {
 
-        int alteredInNoneCount = unalteredCount - alterationEnrichment.getAlteredInSet2Count();
-        int alteredOnlyInQueryGenesCount = alteredCount - alterationEnrichment.getAlteredInSet1Count();
+        int alteredInNoneCount = set2Count - alterationEnrichment.getAlteredInSet2Count();
+        int alteredOnlyInQueryGenesCount = set1Count - alterationEnrichment.getAlteredInSet1Count();
 
         double pValue = fisherExactTestCalculator.getCumulativePValue(alteredInNoneCount,
             alterationEnrichment.getAlteredInSet2Count(), alteredOnlyInQueryGenesCount,

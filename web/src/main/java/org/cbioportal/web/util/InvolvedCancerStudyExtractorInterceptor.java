@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.cbioportal.model.Entity;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
@@ -47,6 +48,7 @@ import org.cbioportal.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.web.parameter.GenePanelMultipleStudyFilter;
 import org.cbioportal.web.parameter.MolecularDataMultipleStudyFilter;
 import org.cbioportal.web.parameter.MolecularProfileFilter;
+import org.cbioportal.web.parameter.MultipleStudiesEnrichmentFilter;
 import org.cbioportal.web.parameter.MutationMultipleStudyFilter;
 import org.cbioportal.web.parameter.PatientFilter;
 import org.cbioportal.web.parameter.PatientIdentifier;
@@ -89,6 +91,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String STUDY_VIEW_FILTERED_SAMPLES = "/filtered-samples/fetch";
     public static final String STUDY_VIEW_MUTATED_GENES = "/mutated-genes/fetch";
     public static final String STUDY_VIEW_SAMPLE_COUNTS = "/sample-counts/fetch";
+    public static final String MUTATION_ENRICHMENT_FETCH_PATH = "/mutation-enrichments/fetch";
+    public static final String COPY_NUMBER_ENRICHMENT_FETCH_PATH = "/copy-number-enrichments/fetch";
 
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!request.getMethod().equals("POST")) {
@@ -122,6 +126,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
                 STUDY_VIEW_FILTERED_SAMPLES, STUDY_VIEW_MUTATED_GENES, STUDY_VIEW_SAMPLE_COUNTS)
                 .contains(requestPathInfo)) {
             return extractAttributesFromStudyViewFilter(wrappedRequest);
+        } else if (requestPathInfo.equals(MUTATION_ENRICHMENT_FETCH_PATH) || requestPathInfo.equals(COPY_NUMBER_ENRICHMENT_FETCH_PATH)) {
+            return extractAttributesFromMultipleStudiesEnrichmentFilter(wrappedRequest);
         }
         return true;
     }
@@ -429,6 +435,24 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         return true;
     }
 
+    private boolean extractAttributesFromMultipleStudiesEnrichmentFilter(HttpServletRequest request) {
+        try {
+            MultipleStudiesEnrichmentFilter multiStudyEnrichmentFilter = objectMapper.readValue(request.getReader(), MultipleStudiesEnrichmentFilter.class);
+            LOG.debug("extracted multiStudyEnrichmentFilter: " + multiStudyEnrichmentFilter.toString());
+            LOG.debug("setting interceptedMultiStudyEnrichmentFilter to " + multiStudyEnrichmentFilter);
+            request.setAttribute("interceptedMultiStudyEnrichmentFilter", multiStudyEnrichmentFilter);
+            if (cacheMapUtil.hasCacheEnabled()) {
+                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromMultiStudyEnrichmentFilter(multiStudyEnrichmentFilter.getSet1(), multiStudyEnrichmentFilter.getSet2());
+                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+            }
+        } catch (Exception e) {
+            LOG.error("exception thrown during extraction of mutationMultipleStudyFilter: " + e);
+            return false;
+        }
+        return true;
+    }
+
     private Set<String> extractCancerStudyIdsFromSampleIdentifiers(Collection<SampleIdentifier> sampleIdentifiers) {
         Set<String> studyIdSet = new HashSet<String>();
         extractCancerStudyIdsFromSampleIdentifiers(sampleIdentifiers, studyIdSet);
@@ -490,4 +514,16 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         return studyIdSet;
     }
 
+    private Set<String> extractCancerStudyIdsFromMultiStudyEnrichmentFilter(Collection<Entity> set1, Collection<Entity> set2) {
+        Set<String> molecularProfileIds = new HashSet<>();
+        for (Entity entity : set1) {
+            molecularProfileIds.add(entity.getMolecularProfileId());
+        }
+        for (Entity entity : set2) {
+            molecularProfileIds.add(entity.getMolecularProfileId());
+        }
+        Set<String> studyIdSet = new HashSet<>();
+        extractCancerStudyIdsFromMolecularProfileIds(molecularProfileIds, studyIdSet);
+        return studyIdSet;
+    }
 }

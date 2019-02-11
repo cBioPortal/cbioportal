@@ -57,18 +57,18 @@ public class AlterationEnrichmentUtil {
         AlterationEnrichment alterationEnrichment = new AlterationEnrichment();
 
         if (alterations == null) {
-            alterationEnrichment.setAlteredCount(0);
+            alterationEnrichment.setAlteredInSet1Count(0);
         } else {
             if (enrichmentType.equals("SAMPLE")) {
-                alterationEnrichment.setAlteredCount(alterations.stream().collect(
+                alterationEnrichment.setAlteredInSet1Count(alterations.stream().collect(
                     Collectors.groupingBy(Alteration::getSampleId)).size());
             } else {
-                alterationEnrichment.setAlteredCount(alterations.stream().collect(
+                alterationEnrichment.setAlteredInSet1Count(alterations.stream().collect(
                     Collectors.groupingBy(Alteration::getPatientId)).size());
             }
         }
-        alterationEnrichment.setUnalteredCount(alterationCountByGene.getCountByEntity() -
-            alterationEnrichment.getAlteredCount());
+        alterationEnrichment.setAlteredInSet2Count(alterationCountByGene.getCountByEntity() -
+            alterationEnrichment.getAlteredInSet1Count());
         alterationEnrichment.setEntrezGeneId(alterationCountByGene.getEntrezGeneId());
         alterationEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
         alterationEnrichment.setCytoband(gene.getCytoband());
@@ -80,8 +80,8 @@ public class AlterationEnrichmentUtil {
     private void assignLogRatio(AlterationEnrichment alterationEnrichment, int alteredCount,
                                 int unalteredCount) {
 
-        double alteredRatio = (double) alterationEnrichment.getAlteredCount() / alteredCount;
-        double unalteredRatio = (double) alterationEnrichment.getUnalteredCount() / unalteredCount;
+        double alteredRatio = (double) alterationEnrichment.getAlteredInSet1Count() / alteredCount;
+        double unalteredRatio = (double) alterationEnrichment.getAlteredInSet2Count() / unalteredCount;
 
         double logRatio = logRatioCalculator.getLogRatio(alteredRatio, unalteredRatio);
         alterationEnrichment.setLogRatio(String.valueOf(logRatio));
@@ -90,12 +90,12 @@ public class AlterationEnrichmentUtil {
     private void assignPValue(AlterationEnrichment alterationEnrichment, int alteredCount,
                               int unalteredCount) {
 
-        int alteredInNoneCount = unalteredCount - alterationEnrichment.getUnalteredCount();
-        int alteredOnlyInQueryGenesCount = alteredCount - alterationEnrichment.getAlteredCount();
+        int alteredInNoneCount = unalteredCount - alterationEnrichment.getAlteredInSet2Count();
+        int alteredOnlyInQueryGenesCount = alteredCount - alterationEnrichment.getAlteredInSet1Count();
 
         double pValue = fisherExactTestCalculator.getCumulativePValue(alteredInNoneCount,
-            alterationEnrichment.getUnalteredCount(), alteredOnlyInQueryGenesCount,
-            alterationEnrichment.getAlteredCount());
+            alterationEnrichment.getAlteredInSet2Count(), alteredOnlyInQueryGenesCount,
+            alterationEnrichment.getAlteredInSet1Count());
 
         alterationEnrichment.setpValue(BigDecimal.valueOf(pValue));
     }

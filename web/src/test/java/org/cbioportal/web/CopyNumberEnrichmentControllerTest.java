@@ -79,8 +79,8 @@ public class CopyNumberEnrichmentControllerTest {
         alterationEnrichment1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
         alterationEnrichment1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
         alterationEnrichment1.setCytoband(TEST_CYTOBAND_1);
-        alterationEnrichment1.setAlteredCount(TEST_NUMBER_OF_SAMPLES_IN_ALTERED_GROUP_1);
-        alterationEnrichment1.setUnalteredCount(TEST_NUMBER_OF_SAMPLES_IN_UNALTERED_GROUP_1);
+        alterationEnrichment1.setAlteredInSet1Count(TEST_NUMBER_OF_SAMPLES_IN_ALTERED_GROUP_1);
+        alterationEnrichment1.setAlteredInSet2Count(TEST_NUMBER_OF_SAMPLES_IN_UNALTERED_GROUP_1);
         alterationEnrichment1.setLogRatio(TEST_LOG_RATIO_1);
         alterationEnrichment1.setpValue(TEST_P_VALUE_1);
         alterationEnrichments.add(alterationEnrichment1);
@@ -88,8 +88,8 @@ public class CopyNumberEnrichmentControllerTest {
         alterationEnrichment2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         alterationEnrichment2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
         alterationEnrichment2.setCytoband(TEST_CYTOBAND_2);
-        alterationEnrichment2.setAlteredCount(TEST_NUMBER_OF_SAMPLES_IN_ALTERED_GROUP_2);
-        alterationEnrichment2.setUnalteredCount(TEST_NUMBER_OF_SAMPLES_IN_UNALTERED_GROUP_2);
+        alterationEnrichment2.setAlteredInSet1Count(TEST_NUMBER_OF_SAMPLES_IN_ALTERED_GROUP_2);
+        alterationEnrichment2.setAlteredInSet2Count(TEST_NUMBER_OF_SAMPLES_IN_UNALTERED_GROUP_2);
         alterationEnrichment2.setLogRatio(TEST_LOG_RATIO_2);
         alterationEnrichment2.setpValue(TEST_P_VALUE_2);
         alterationEnrichments.add(alterationEnrichment2);

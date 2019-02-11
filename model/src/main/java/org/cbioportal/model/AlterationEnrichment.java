@@ -12,14 +12,18 @@ public class AlterationEnrichment implements Serializable {
     private String hugoGeneSymbol;
     private String cytoband;
     @NotNull
-    private Integer alteredCount;
+    private Integer alteredInSet1Count;
     @NotNull
-    private Integer unalteredCount;
+    private Integer alteredInSet2Count;
     @NotNull
     private String logRatio;
     @NotNull
     private BigDecimal pValue;
-
+    @NotNull
+    private Integer profiledInSet1Count;
+    @NotNull
+    private Integer profiledInSet2Count;
+    
     public Integer getEntrezGeneId() {
         return entrezGeneId;
     }
@@ -44,20 +48,20 @@ public class AlterationEnrichment implements Serializable {
         this.cytoband = cytoband;
     }
 
-    public Integer getAlteredCount() {
-        return alteredCount;
+    public Integer getAlteredInSet1Count() {
+        return alteredInSet1Count;
     }
 
-    public void setAlteredCount(Integer alteredCount) {
-        this.alteredCount = alteredCount;
+    public void setAlteredInSet1Count(Integer alteredInSet1Count) {
+        this.alteredInSet1Count = alteredInSet1Count;
     }
 
-    public Integer getUnalteredCount() {
-        return unalteredCount;
+    public Integer getAlteredInSet2Count() {
+        return alteredInSet2Count;
     }
 
-    public void setUnalteredCount(Integer unalteredCount) {
-        this.unalteredCount = unalteredCount;
+    public void setAlteredInSet2Count(Integer alteredInSet2Count) {
+        this.alteredInSet2Count = alteredInSet2Count;
     }
 
     public String getLogRatio() {
@@ -74,5 +78,21 @@ public class AlterationEnrichment implements Serializable {
 
     public void setpValue(BigDecimal pValue) {
         this.pValue = pValue;
+    }
+
+    public Integer getProfiledInSet1Count() {
+        return profiledInSet1Count;
+    }
+
+    public void setProfiledInSet1Count(Integer profiledInSet1Count) {
+        this.profiledInSet1Count = profiledInSet1Count;
+    }
+
+    public Integer getProfiledInSet2Count() {
+        return profiledInSet2Count;
+    }
+
+    public void setProfiledInSet2Count(Integer profiledInSet2Count) {
+        this.profiledInSet2Count = profiledInSet2Count;
     }
 }

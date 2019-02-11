@@ -89,16 +89,16 @@ public class AlterationEnrichmentUtilTest {
         Assert.assertEquals((Integer) 2, alterationEnrichment1.getEntrezGeneId());
         Assert.assertEquals("HUGO2", alterationEnrichment1.getHugoGeneSymbol());
         Assert.assertEquals("CYTOBAND2", alterationEnrichment1.getCytoband());
-        Assert.assertEquals((Integer) 1, alterationEnrichment1.getAlteredCount());
-        Assert.assertEquals((Integer) 2, alterationEnrichment1.getUnalteredCount());
+        Assert.assertEquals((Integer) 1, alterationEnrichment1.getAlteredInSet1Count());
+        Assert.assertEquals((Integer) 2, alterationEnrichment1.getAlteredInSet2Count());
         Assert.assertEquals("-1.0", alterationEnrichment1.getLogRatio());
         Assert.assertEquals(new BigDecimal("1.0"), alterationEnrichment1.getpValue());
         AlterationEnrichment alterationEnrichment2 = result.get(1);
         Assert.assertEquals((Integer) 3, alterationEnrichment2.getEntrezGeneId());
         Assert.assertEquals("HUGO3", alterationEnrichment2.getHugoGeneSymbol());
         Assert.assertEquals("CYTOBAND3", alterationEnrichment2.getCytoband());
-        Assert.assertEquals((Integer) 2, alterationEnrichment2.getAlteredCount());
-        Assert.assertEquals((Integer) 0, alterationEnrichment2.getUnalteredCount());
+        Assert.assertEquals((Integer) 2, alterationEnrichment2.getAlteredInSet1Count());
+        Assert.assertEquals((Integer) 0, alterationEnrichment2.getAlteredInSet2Count());
         Assert.assertEquals("Infinity", alterationEnrichment2.getLogRatio());
         Assert.assertEquals(new BigDecimal("0.3"), alterationEnrichment2.getpValue());
     }

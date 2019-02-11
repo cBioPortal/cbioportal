@@ -33,10 +33,10 @@ Keycloak offers three types of roles:
 Keycloak supports both OpenID-Connect and SAML authentication. When you use SAML authentication, the Keycloak server exchanges XML documents with a web application. XML signatures and encryption are then used to verify requests from the application.
 
 ## Configure Keycloak to authenticate your cbioportal instance
-1. Log in to your Keycloak Identity Provider, e.g. <http://localhost:8080/auth>, as an admin user.
+1. Log in to your Keycloak Identity Provider, e.g. <http://localhost:8080/auth>, as an admin user. :warning: when setting this up on something else than localhost (e.g. production), you will need to use/enable https on your Keycloak server. For simplicity, the rest of the documentation below continues on http://localhost.
 2. Hover over the top-left–corner drop down menu (titled ‘**Master**’) to create a new realm.
 ![](images/previews/add-realm.png)
-Please note if you are logged in the master realm, this drop-down menu lists all the realms created. The last entry of this drop-down menu is always **Add Realm**. Click this to add a realm. Then type '_demo_' in the name field and click the **Create** button.
+Please note if you are logged in the master realm, this drop-down menu lists all the realms created. The last entry of this drop-down menu is always **Add Realm**. Click this to add a realm. Then type '_cbioportal_' in the name field and click the **Create** button.
 3. To create a SAML client, go to the **Clients** item in the left menu. On this page, click the **Create** button on the right. This will bring you to the **Add Client** page.
     * Enter a **Client ID** for the client, e.g. '_cbioportal_', this will be the expected `issuer` value in SAML requests sent by the application.
     * Select _saml_ in the **Client Protocol** drop down box.
@@ -109,7 +109,7 @@ should now see the certificate and no private key.
     filter_groups_by_appname=false
     saml.sp.metadata.entityid=cbioportal
     saml.idp.metadata.location=classpath:/client-tailored-saml-idp-metadata.xml
-    saml.idp.metadata.entityid=http://localhost:8080/auth/realms/demo
+    saml.idp.metadata.entityid=http://localhost:8080/auth/realms/cbioportal
     saml.keystore.location=classpath:/samlKeystore.jks
     saml.keystore.password=apollo1
     saml.keystore.private-key.key=secure-key

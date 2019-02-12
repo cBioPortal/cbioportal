@@ -39,8 +39,8 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
         List<MutationCountByGene> mutationCountByGeneListFromRepo = new ArrayList<>();
         List<Mutation> mutations = new ArrayList<>();
 
-        Map<String, List<String>> allMolecularProfileIdToEntityMap = mapMolecularProfileIdToEntityId(allIds);
-        Map<String, List<String>> group1MolecularProfileIdToEntityMap = mapMolecularProfileIdToEntityId(set1);
+        Map<String, List<String>> allMolecularProfileIdToEntityMap = alterationEnrichmentUtil.mapMolecularProfileIdToEntityId(allIds);
+        Map<String, List<String>> group1MolecularProfileIdToEntityMap = alterationEnrichmentUtil.mapMolecularProfileIdToEntityId(set1);
 
         // get mutation count by gene list for set 1 ids
         if (enrichmentType.equals("SAMPLE")) {
@@ -70,37 +70,4 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
         return alterationEnrichmentUtil.createAlterationEnrichments(set1.size(), set2.size(),
             mutationCountByGeneList, mutations, enrichmentType);
     }
-
-    private Map<String, List<String>> mapMolecularProfileIdToEntityId(List<Entity> entities) {
-        Map<String, List<String>> molecularProfileIdToEntityIdMap = new HashMap<>();
-        for (Entity entity : entities) {
-            String molecularProfileId = entity.getMolecularProfileId();
-            String entityId = entity.getEntityId();
-            if (!molecularProfileIdToEntityIdMap.containsKey(molecularProfileId)) {
-                molecularProfileIdToEntityIdMap.put(molecularProfileId, new ArrayList<>());
-            }
-            molecularProfileIdToEntityIdMap.get(molecularProfileId).add(entityId);
-        }
-        return molecularProfileIdToEntityIdMap;
-    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

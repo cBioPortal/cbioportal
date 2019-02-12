@@ -11,9 +11,11 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.cbioportal.model.Entity;
 
 @Component
 public class AlterationEnrichmentUtil {
@@ -42,7 +44,7 @@ public class AlterationEnrichmentUtil {
         for (int i = 0; i < alterationCountByGenes.size(); i++) {
             AlterationCountByGene copyNumberCountByGene = alterationCountByGenes.get(i);
             alterationEnrichments.add(createAlterationEnrichment(discreteCopyNumberDataMap.get(
-                copyNumberCountByGene.getEntrezGeneId()), copyNumberCountByGene, genes.get(i), set1Count, 
+                copyNumberCountByGene.getEntrezGeneId()), copyNumberCountByGene, genes.get(i), set1Count,
                 set2Count, enrichmentType));
         }
 
@@ -100,5 +102,18 @@ public class AlterationEnrichmentUtil {
             alterationEnrichment.getAlteredInSet1Count());
 
         alterationEnrichment.setpValue(BigDecimal.valueOf(pValue));
+    }
+
+    public Map<String, List<String>> mapMolecularProfileIdToEntityId(List<Entity> entities) {
+        Map<String, List<String>> molecularProfileIdToEntityIdMap = new HashMap<>();
+        for (Entity entity : entities) {
+            String molecularProfileId = entity.getMolecularProfileId();
+            String entityId = entity.getEntityId();
+            if (!molecularProfileIdToEntityIdMap.containsKey(molecularProfileId)) {
+                molecularProfileIdToEntityIdMap.put(molecularProfileId, new ArrayList<>());
+            }
+            molecularProfileIdToEntityIdMap.get(molecularProfileId).add(entityId);
+        }
+        return molecularProfileIdToEntityIdMap;
     }
 }

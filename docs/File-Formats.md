@@ -845,7 +845,7 @@ case_list_ids: SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>SAMPLE_ID_3<TAB>...
 ```
 
 #### Case list stable id suffixes
-In order for sample counts to propagate to the data sets widget on the home page and the table on the [Data Sets](http://www.cbioportal.org/public-portal/data_sets.jsp) page, the following case list suffixes need to be used in the stable_id property (e.g. `brca_tcga_pub_sequenced`). This is also needed for correct statistics in the Study view page when calculating the frequency of CNA and of mutations per gene in the respective summary tables.
+In order for sample counts to propagate to the data sets widget on the home page and the table on the [Data Sets](http://www.cbioportal.org/data_sets.jsp) page, the following case list suffixes need to be used in the stable_id property (e.g. `brca_tcga_pub_sequenced`). This is also needed for correct statistics in the Study view page when calculating the frequency of CNA and of mutations per gene in the respective summary tables.
 
 * **Sequenced**: `_sequenced` . When only a mutation profile is selected on the query page, this is the default case list. Also used in the Study Summary to calculate the proportion of samples with mutations.
 * **CNA**: `_cna`. When only a CNA profile is selected on the query page, this is the default case list. Also used in the Study Summary to calculate the proportion of samples with CNA.

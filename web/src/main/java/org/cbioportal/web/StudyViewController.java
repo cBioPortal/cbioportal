@@ -301,6 +301,9 @@ public class StudyViewController {
                 molecularProfileSampleCount.setNumberOfCNAUnprofiledSamples(sampleCount - 
                     molecularProfileSampleCount.getNumberOfCNAProfiledSamples());
             }
+            molecularProfileSampleCount.setNumberOfCNSegmentSamples(Math.toIntExact(sampleService
+                .fetchSamples(studyIds, sampleIds, Projection.DETAILED.name()).stream().filter(
+                    s -> s.getCopyNumberSegmentPresent()).count()));
         }
         return new ResponseEntity<>(molecularProfileSampleCount, HttpStatus.OK);
     }

@@ -99,3 +99,4 @@ package.json
 .vscode/
 *.tramp_history
 pom.xml.*
+db-scripts/src/main/resources/cgds-test.sql

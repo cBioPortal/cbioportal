@@ -41,6 +41,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Fedde Schaeffer
 * Sander Tan
 * Oleguer Plantalech
+* Pim van Nierop
 * Riza Nugraha
 * Sjoerd van Hagen
 * Kees van Bochove

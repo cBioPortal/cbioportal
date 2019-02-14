@@ -98,3 +98,4 @@ portal/reactapp/*
 package.json
 .vscode/
 *.tramp_history
+db-scripts/src/main/resources/cgds-test.sql

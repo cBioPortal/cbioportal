@@ -67,6 +67,14 @@ notify them by requesting a review using the **Reviewers** menu
 to the right of the summary you just wrote
 and/or `@`-mentioning them in a comment.
 
+Reviewers may request you to rephrase or adjust things
+before they allow the changes to be integrated.
+If they do, commit the amendments as new, separate changes,
+to allow the reviewers to see what changed since they last read your code.
+Do not overwrite previously-reviewed commits with
+ones that include additional changes (by `--amend`ing or squashing)
+until the reviewers approve.
+
 ## Automated tests on Travis CI
 All Pull Requests are automatically tested on [Travis
 CI](https://travis-ci.org/cBioPortal/cbioportal/pull_requests). Currently there

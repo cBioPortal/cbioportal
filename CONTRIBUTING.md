@@ -54,6 +54,19 @@ When you are ready to submit your pull-request:
 
 For instructions on submitting a pull-request, please see:  [Using Pull Requests ](https://help.github.com/articles/using-pull-requests/) and [Sending Pull Requests](http://help.github.com/send-pull-requests/).
 
+### Getting your changes reviewed
+
+Once you've submitted your pull request, you want
+other members of the development community to review
+whether integrating your change will cause problems
+for any users or the maintainability of the software.
+
+If you have an idea who might be able to spot such issues
+in the parts of the code and functionality affected by your changes,
+notify them by requesting a review using the **Reviewers** menu
+to the right of the summary you just wrote
+and/or `@`-mentioning them in a comment.
+
 ## Automated tests on Travis CI
 All Pull Requests are automatically tested on [Travis
 CI](https://travis-ci.org/cBioPortal/cbioportal/pull_requests). Currently there

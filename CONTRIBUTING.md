@@ -87,7 +87,7 @@ cBioPortal:
 
 ```bash
 curl 'https://clbin.com/[replace-with-clbin-image-from-log].png' > test/end-to-end/screenshots/[replace-with-image-from-repo].png
-``` 
+```
 
 Then follow the steps outlined in [this blog post](http://www.akikoskinen.info/image-diffs-with-git/) to compare the 
 images locally. Run `git diff` from your repo to see the ImageMagick diff.
@@ -100,6 +100,14 @@ Once you downloaded the images you do the following for each screenshot:
   repo, commit it and push it to your PR's branch.
 
 ## Pull Request Reviewers Guide
+If someone requests your review on a pull request,
+read the title and description and assign any other collaborators
+who would want to know about the proposed change.
+
+Decide whether you think that your input is needed,
+and that the PR should wait for your further review before being merged.
+If not, un-assign yourself as a reviewer and leave a comment.
+
 Here we describe the guidelines for the reviewer. Always follow the checks in
 general, then follow the other checks that apply:
 

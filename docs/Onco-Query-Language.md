@@ -42,8 +42,8 @@ Data Type | Keywords and Syntax | Default*
 Mutations | `MUT` All non-synonymous mutations <br> `MUT = <protein change>` Specific amino acid changes (e.g. `V600E` or `V600`) <br> `MUT = <mutation type>` Acceptable values are: `MISSENSE, NONSENSE, NONSTART, NONSTOP, FRAMESHIFT, INFRAME, SPLICE, TRUNC` | `MUT`
 Fusions | `FUSION` All fusions (note that many studies lack fusion data) | `FUSION`
 Copy Number Alterations | `AMP` Amplifications <br> `HOMDEL` Deep Deletions <br> `GAIN` Gains <br> `HETLOSS` Shallow Deletions <br> Comparison operators can also be used with `CNA` (e.g. `CNA >= GAIN` is the same as `AMP GAIN`) | `AMP` <br> `HOMDEL`
-mRNA Expression | `EXP < -x` Under-expression is less than `x` standard deviations (SD) below the mean <br> `EXP > x` Over-expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `EXP >= 2` <br> `EXP <= -2`
-Protein/phosphoprotein level | `PROT < -x` Protein-level under-expression is less than `x` standard deviations (SD) below the mean <br> `PROT > x` Protein-level over-expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `PROT >= 2` <br> `PROT <= -2`
+mRNA Expression | `EXP < -x` mRNA expression is less than `x` standard deviations (SD) below the mean <br> `EXP > x` mRNA expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `EXP >= 2` <br> `EXP <= -2`
+Protein/phosphoprotein level | `PROT < -x` Protein expression is less than `x` standard deviations (SD) below the mean <br> `PROT > x` Protein expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `PROT >= 2` <br> `PROT <= -2`
 
 \* These are the default OQL keywords used for each data type when a gene is queried without any explicit OQL.
 
@@ -159,7 +159,7 @@ CCNE1: GAIN AMP
 
 <a name="expression"></a>
 ## Expression
-Over- or under-expression of a gene is determined by the number of standard deviations (SD) from the mean. For example, to see cases where mRNA for CCNE1 is greater than 3 SD above the mean:
+High or low mRNA expression of a gene is determined by the number of standard deviations (SD) from the mean. For example, to see cases where mRNA for CCNE1 is greater than 3 SD above the mean:
 ```
 CCNE1: EXP > 3
 ```
@@ -168,12 +168,12 @@ CCNE1: EXP > 3
 
 <a name="protein"></a>
 ## Protein
-Protein over- or under-expression is similarly determined by the number of SD from the mean. For example, to see cases that are over-expressed in RPPA protein level by 2 SD above the mean:
+High or low protein expression is similarly determined by the number of SD from the mean. For example, to see cases where protein expression is 2 SD above the mean:
 ```
 EGFR: PROT > 2
 ```
 
-Or over-expressed at the phospho-protein level:
+Protein expression can also be queried at the phospho-protein level:
 ```
 EGFR_PY992: PROT > 2
 ```

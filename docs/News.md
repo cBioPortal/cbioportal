@@ -1,3 +1,11 @@
+## February 19, 2019
+* Improved *CN Segments* tab in _Results_ page using [igv.js v2](https://github.com/igvteam/igv.js)
+* Added *CN Segments* tab in _Study View_ page - see [example](http://www.cbioportal.org/study?id=ucec_tcga_pub&tab=cnSegments)
+* Added *OncoKB* and *Cancer Hotspots tracks* in _Mutations_ tab in _Results_ page
+
+![image](https://user-images.githubusercontent.com/840895/53054860-d1f6b300-3473-11e9-8178-1df10eed36fc.png)
+
+
 ## January 24, 2019
  *   **Added data**  of 2328 samples from 8 studies:
      *   [Uveal Melanoma (QIMR, Oncotarget 2016)](http://www.cbioportal.org/study?id=um_qimr_2016#summary) *28 samples*

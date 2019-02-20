@@ -124,7 +124,9 @@
         obj.put("frontendConfigOverride",GlobalProperties.getFrontendConfig());
         
         obj.put("authenticationMethod",GlobalProperties.authenticationMethod());
-                  
+        
+        obj.put("mskWholeSlideViewerToken", GlobalProperties.getMskWholeSlideViewerToken());
+
         String enableOncoKBandHotspots = "";
         switch(GlobalProperties.enableOncoKBandHotspots()){
             case "true":

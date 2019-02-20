@@ -32,67 +32,15 @@
 
 package org.mskcc.cbio.portal.util;
 
-
-import com.vlkan.hrrs.api.HttpRequestRecordWriter;
-import com.vlkan.hrrs.api.HttpRequestRecordWriterTarget;
-import com.vlkan.hrrs.serializer.base64.Base64HttpRequestRecord;
-import com.vlkan.hrrs.serializer.base64.Base64HttpRequestRecordWriter;
-import com.vlkan.hrrs.serializer.base64.guava.GuavaBase64Encoder;
-import com.vlkan.hrrs.serializer.file.HttpRequestRecordWriterRotatingFileTarget;
-import com.vlkan.hrrs.servlet.HrrsFilter;
+import java.io.*;
+import com.vlkan.hrrs.servlet.base64.Base64HrrsFilter;
 import com.vlkan.rfos.RotationConfig;
 import com.vlkan.rfos.policy.DailyRotationPolicy;
 
-import java.io.*;
-import java.util.*;
-import javax.servlet.*;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.*;
-import org.cbioportal.model.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.stereotype.Component;
-
-public class DebugHrrsFilter extends HrrsFilter {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DebugHrrsFilter.class);
-
-    private static final String DEFAULT_HRRS_LOGGING_NAME = "/hrrs-logging.csv";
-    
-    private final HttpRequestRecordWriter<String> writer;
-    
-    private final HttpRequestRecordWriterTarget<String> writerTarget;
-
-    public DebugHrrsFilter() {
-        boolean enableHrrsLogging = Boolean.valueOf(GlobalProperties.getProperty("hrrs.enable.logging"));
-        // only initialize writers/writing target if logging is enabled in properties file
-        if (enableHrrsLogging) {
-            RotationConfig rotationConfig = createRotationConfig();
-            this.writerTarget = new HttpRequestRecordWriterRotatingFileTarget(rotationConfig, Base64HttpRequestRecord.CHARSET);
-            this.writer = new Base64HttpRequestRecordWriter(writerTarget, GuavaBase64Encoder.getInstance());
-            this.setEnabled(enableHrrsLogging);
-        } else {
-            this.writer = null;
-            this.writerTarget = null;
-        }
-    }
-
-    public HttpRequestRecordWriterTarget<String> getWriterTarget() {
-        return writerTarget;
-    }
-
-    @Override
-    protected HttpRequestRecordWriter<String> getWriter() {
-        return writer;
-    }
+public class DebugHrrsFilter extends Base64HrrsFilter {
 
     private static RotationConfig createRotationConfig() {
-        // default to tmpdir if logging is enabled but no logging path is provided
-        String hrrsLoggingFilePath = (!StringUtils.isEmpty(GlobalProperties.getProperty("hrrs.logging.filepath")) ? GlobalProperties.getProperty("hrrs.logging.filepath") : System.getProperty("java.io.tmpdir") + DEFAULT_HRRS_LOGGING_NAME);
+        String hrrsLoggingFilePath = GlobalProperties.getProperty("hrrs.logging.filepath");
         String file = new File(hrrsLoggingFilePath).getAbsolutePath();
         String filePattern = new File(hrrsLoggingFilePath + "-%d{yyyyMMdd-HHmmss-SSS}.csv").getAbsolutePath();
         RotationConfig rotationConfig = RotationConfig
@@ -103,15 +51,10 @@ public class DebugHrrsFilter extends HrrsFilter {
                 .build();
         return rotationConfig;
     }
- 
-    @Override
-    public void destroy() {
-        try {
-            if (writerTarget != null) {
-                writerTarget.close();
-            }
-        } catch (IOException error) {
-            LOGGER.error("failed closing writer", error);
-        }
+
+    public DebugHrrsFilter() {
+        super(createRotationConfig());
+        boolean enableHrrsLogging = Boolean.valueOf(GlobalProperties.getProperty("hrrs.enable.logging"));
+        this.setEnabled(enableHrrsLogging);
     }
 }

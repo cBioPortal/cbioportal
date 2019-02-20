@@ -56,7 +56,7 @@ public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
             discreteCopyNumberDataList, "SAMPLE")).thenReturn(expectedAlterationEnrichments);
 
         List<AlterationEnrichment> result = copyNumberEnrichmentService.getCopyNumberEnrichments(MOLECULAR_PROFILE_ID,
-            alteredSampleIds, unalteredSampleIds, Arrays.asList(ENTREZ_GENE_ID_1), alterationTypes, "SAMPLE");
+            alteredSampleIds, unalteredSampleIds, alterationTypes, "SAMPLE");
 
         Assert.assertEquals(result, expectedAlterationEnrichments);
     }

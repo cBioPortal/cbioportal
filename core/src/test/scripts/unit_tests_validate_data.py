@@ -1966,7 +1966,134 @@ class StudyCompositionTestCase(LogBufferTestCase):
                          {'cancer_type_luad.txt', 'cancer_type_lung.txt'})
         # assert that the second error complains about the cancer type
         self.assertEqual(record_list[1].cause, 'luad')
-
+        
+    def test_invalid_tags_file(self):
+        """Test if an error is reported when giving a study tags file with wrong format."""
+        with temp_inputfolder({
+            'meta_study.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                type_of_cancer: brca
+                name: Spam (spam)
+                description: Baked beans
+                short_name: Spam
+                add_global_case_list: true
+                tags_file: study_tags.yml
+                '''),
+            'meta_samples.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                genetic_alteration_type: CLINICAL
+                datatype: SAMPLE_ATTRIBUTES
+                data_filename: data_samples.txt
+                '''),
+            'data_samples.txt': textwrap.dedent('''\
+                #Patient Identifier\tSample Identifier
+                #PatID\tSampId
+                #STRING\tSTRING
+                #1\t1
+                PATIENT_ID\tSAMPLE_ID
+                Patient1\tPatient1-Sample1
+                '''),
+            'study_tags.yml': textwrap.dedent('''\
+                Invalid:
+                {
+                ''')
+        }) as study_dir:
+            self.logger.setLevel(logging.WARNING)
+            validateData.validate_study(
+                study_dir,
+                PORTAL_INSTANCE,
+                self.logger,
+                relaxed_mode=False,
+                strict_maf_checks=False)
+            record_list = self.get_log_records()
+            self.assertEqual(len(record_list), 1)
+            for record in record_list:
+                self.assertEqual(record.levelno, logging.ERROR)
+                self.assertIn('yaml', record.getMessage().lower())
+                
+    def test_valid_JSON_tags_file(self):
+        """Test if no errors are reported when giving a study tags file in JSON format."""
+        with temp_inputfolder({
+            'meta_study.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                type_of_cancer: brca
+                name: Spam (spam)
+                description: Baked beans
+                short_name: Spam
+                add_global_case_list: true
+                tags_file: study_tags.yml
+                '''),
+            'meta_samples.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                genetic_alteration_type: CLINICAL
+                datatype: SAMPLE_ATTRIBUTES
+                data_filename: data_samples.txt
+                '''),
+            'data_samples.txt': textwrap.dedent('''\
+                #Patient Identifier\tSample Identifier
+                #PatID\tSampId
+                #STRING\tSTRING
+                #1\t1
+                PATIENT_ID\tSAMPLE_ID
+                Patient1\tPatient1-Sample1
+                '''),
+            'study_tags.yml': textwrap.dedent('''\
+                { name: study_name }
+                ''')
+        }) as study_dir:
+            self.logger.setLevel(logging.WARNING)
+            validateData.validate_study(
+                study_dir,
+                PORTAL_INSTANCE,
+                self.logger,
+                relaxed_mode=False,
+                strict_maf_checks=False)
+            record_list = self.get_log_records()
+            self.assertEqual(len(record_list), 0)
+            for record in record_list:
+                self.assertEqual(record.levelno, logging.ERROR)
+    
+    def test_valid_YAML_tags_file(self):
+        """Test if no errors are reported when giving a study tags file in YAML format."""
+        with temp_inputfolder({
+            'meta_study.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                type_of_cancer: brca
+                name: Spam (spam)
+                description: Baked beans
+                short_name: Spam
+                add_global_case_list: true
+                tags_file: study_tags.yml
+                '''),
+            'meta_samples.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                genetic_alteration_type: CLINICAL
+                datatype: SAMPLE_ATTRIBUTES
+                data_filename: data_samples.txt
+                '''),
+            'data_samples.txt': textwrap.dedent('''\
+                #Patient Identifier\tSample Identifier
+                #PatID\tSampId
+                #STRING\tSTRING
+                #1\t1
+                PATIENT_ID\tSAMPLE_ID
+                Patient1\tPatient1-Sample1
+                '''),
+            'study_tags.yml': textwrap.dedent('''\
+                name: study_name
+                ''')
+        }) as study_dir:
+            self.logger.setLevel(logging.WARNING)
+            validateData.validate_study(
+                study_dir,
+                PORTAL_INSTANCE,
+                self.logger,
+                relaxed_mode=False,
+                strict_maf_checks=False)
+            record_list = self.get_log_records()
+            self.assertEqual(len(record_list), 0)
+            for record in record_list:
+                self.assertEqual(record.levelno, logging.ERROR)
 
 class CaseListDirTestCase(PostClinicalDataFileTestCase):
 
@@ -2133,10 +2260,10 @@ class MetaFilesTestCase(LogBufferTestCase):
         self.assertEqual(warning.cause, 'stable_id')
 
     def test_exceed_maximum_length_meta_attribute_value(self):
-        """Test to check the length the attribute in meta files."""
+        """Test to check whether the validator throws a warning for invalid length of attributes in meta files."""
         self.logger.setLevel(logging.WARNING)
         validateData.process_metadata_files(
-            'test_data/meta_files',
+            'test_data/meta_study/exceed_maximum_length_meta_attribute_value',
             PORTAL_INSTANCE,
             self.logger, False, False)
         record_list = self.get_log_records()
@@ -2146,6 +2273,27 @@ class MetaFilesTestCase(LogBufferTestCase):
         # expecting one error about the maximum length of 'short_name' meta_study
         record = record_list.pop()
         self.assertEqual("The maximum length of the 'short_name' value is 64", record.getMessage())
+
+    def test_invalid_pmid_values(self):
+        """Test to check whether the validator throws an error for invalid PMID values in meta_study.txt."""
+        self.logger.setLevel(logging.ERROR)
+        validateData.process_metadata_files(
+            'test_data/meta_study/invalid_pmid_values',
+            PORTAL_INSTANCE,
+            self.logger, False, False)
+
+        # expecting three errors about invalid PMID
+        record_list = self.get_log_records()
+        self.assertEqual(len(record_list), 3)
+        record = record_list.pop()
+        self.assertEqual('The PMID field in meta_study should be a comma separated list of integers', record.getMessage())
+        self.assertEqual('29617662 29625055', record.cause)
+        record = record_list.pop()
+        self.assertEqual('The PMID field in meta_study should be a comma separated list of integers', record.getMessage())
+        self.assertEqual('29622463A', record.cause)
+        record = record_list.pop()
+        self.assertEqual('The PMID field in meta_study should not contain any embedded whitespace', record.getMessage())
+        self.assertEqual('29625048, 29596782, 29622463A, 29617662 29625055, 29625050', record.cause)
 
 class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
 

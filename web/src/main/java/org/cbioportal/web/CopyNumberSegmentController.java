@@ -55,6 +55,8 @@ public class CopyNumberSegmentController {
         @PathVariable String studyId,
         @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")
         @PathVariable String sampleId,
+        @ApiParam("Chromosome")
+        @RequestParam(required = false) String chromosome,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
@@ -73,11 +75,11 @@ public class CopyNumberSegmentController {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, copyNumberSegmentService
-                .getMetaCopyNumberSegmentsInSampleInStudy(studyId, sampleId).getTotalCount().toString());
+                .getMetaCopyNumberSegmentsInSampleInStudy(studyId, sampleId, chromosome).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(studyId, sampleId,
+                copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(studyId, sampleId, chromosome,
                     projection.name(), pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(),
                     direction.name()), HttpStatus.OK);
         }
@@ -91,6 +93,8 @@ public class CopyNumberSegmentController {
         @ApiParam(required = true, value = "List of sample identifiers")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody List<SampleIdentifier> sampleIdentifiers,
+        @ApiParam("Chromosome")
+        @RequestParam(required = false) String chromosome,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
@@ -105,11 +109,11 @@ public class CopyNumberSegmentController {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, copyNumberSegmentService
-                .fetchMetaCopyNumberSegments(studyIds, sampleIds).getTotalCount().toString());
+                .fetchMetaCopyNumberSegments(studyIds, sampleIds, chromosome).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                copyNumberSegmentService.fetchCopyNumberSegments(studyIds, sampleIds, projection.name()), 
+                copyNumberSegmentService.fetchCopyNumberSegments(studyIds, sampleIds, chromosome, projection.name()), 
                 HttpStatus.OK);
         }
     }

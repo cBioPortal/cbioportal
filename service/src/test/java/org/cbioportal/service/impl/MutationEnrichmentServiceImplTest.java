@@ -53,7 +53,7 @@ public class MutationEnrichmentServiceImplTest extends BaseServiceImplTest {
             mutations, "SAMPLE")).thenReturn(expectedAlterationEnrichments);
         
         List<AlterationEnrichment> result = mutationEnrichmentService.getMutationEnrichments(MOLECULAR_PROFILE_ID, 
-            alteredSampleIds, unalteredSampleIds, Arrays.asList(ENTREZ_GENE_ID_1), "SAMPLE");
+            alteredSampleIds, unalteredSampleIds, "SAMPLE");
 
         Assert.assertEquals(result, expectedAlterationEnrichments);
     }

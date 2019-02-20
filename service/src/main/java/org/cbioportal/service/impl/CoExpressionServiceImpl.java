@@ -11,7 +11,6 @@ import org.cbioportal.service.CoExpressionService;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.service.util.BenjaminiHochbergFDRCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +28,6 @@ public class CoExpressionServiceImpl implements CoExpressionService {
     private MolecularDataService molecularDataService;
     @Autowired
     private GeneService geneService;
-    @Autowired
-    private BenjaminiHochbergFDRCalculator benjaminiHochbergFDRCalculator;
     
     @Override
     public List<CoExpression> getCoExpressions(String molecularProfileId, String sampleListId, Integer entrezGeneId, 
@@ -120,14 +117,6 @@ public class CoExpressionServiceImpl implements CoExpressionService {
             coExpression.setpValue(BigDecimal.valueOf(resultMatrix.getEntry(0, 1)));
             
             coExpressionList.add(coExpression);
-        }
-
-        coExpressionList.sort(Comparator.comparing(CoExpression::getpValue));
-        double[] qValues = benjaminiHochbergFDRCalculator.calculate(coExpressionList.stream().mapToDouble(a ->
-            a.getpValue().doubleValue()).toArray());
-
-        for (int i = 0; i < coExpressionList.size(); i++) {
-            coExpressionList.get(i).setqValue(BigDecimal.valueOf(qValues[i]));
         }
         
         return coExpressionList;

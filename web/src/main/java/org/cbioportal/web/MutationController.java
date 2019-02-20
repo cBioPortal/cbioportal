@@ -156,7 +156,8 @@ public class MutationController {
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutations in multiple molecular profiles by sample IDs")
     public ResponseEntity<List<Mutation>> fetchMutationsInMultipleMolecularProfiles(
-        @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs and Entrez Gene IDs")
+        @ApiParam(required = true, value = "List of Molecular Profile IDs or List of Molecular Profile ID / Sample ID pairs," +
+            " and List of Entrez Gene IDs")
         @Valid @RequestBody MutationMultipleStudyFilter mutationMultipleStudyFilter,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,

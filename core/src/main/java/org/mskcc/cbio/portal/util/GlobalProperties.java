@@ -259,6 +259,8 @@ public class GlobalProperties {
     
     public static final String SETSOFGENES_LOCATION = "querypage.setsofgenes.location";
 
+    public static final String MSK_WHOLE_SLIDE_VIEWER_SECRET_KEY = "msk.whole.slide.viewer.secret.key";
+
     private static boolean showCivic;
     @Value("${show.civic:false}") // default is false
     public void setShowCivic(String property) { showCivic = Boolean.parseBoolean(property); }
@@ -1182,5 +1184,17 @@ public class GlobalProperties {
     public static String getQuerySetsOfGenes() {
         String fileName = portalProperties.getProperty(SETSOFGENES_LOCATION, null);
         return readFile(fileName);
+    }
+
+    public static String getMskWholeSlideViewerToken()
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String secretKey = portalProperties.getProperty(MSK_WHOLE_SLIDE_VIEWER_SECRET_KEY);
+        
+        if(authentication != null && authentication.isAuthenticated() && secretKey != null && !secretKey.isEmpty()) {
+            return MskWholeSlideViewerTokenGenerator.generateTokenByHmacSHA256(authentication.getName(), secretKey);
+        } else {
+            return null;
+        }
     }
 }

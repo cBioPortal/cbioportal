@@ -486,11 +486,17 @@
       <artifactId>mybatis</artifactId>
       <version>${mybatis.version}</version>
     </dependency>
+
+    <dependency>
+        <groupId>com.vlkan.hrrs</groupId>
+        <artifactId>hrrs-servlet-filter-base64</artifactId>
+        <version>0.5</version>
+    </dependency>
     <!-- guava -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>19.0</version>
+      <version>23.6-jre</version>
     </dependency>
     <dependency>
         <groupId>org.apache.commons</groupId>

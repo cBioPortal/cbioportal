@@ -1,8 +1,4 @@
 ## February 19, 2019
-* Improved *CN Segments* tab in _Results_ page using [igv.js v2](https://github.com/igvteam/igv.js)
-* **New feature**: *CN Segments* tab in _Study View_ page - see [example](http://www.cbioportal.org/study?id=ucec_tcga_pub&tab=cnSegments)
-* **New feature**: *OncoKB* and *Cancer Hotspots tracks* in _Mutations_ tab in _Results_ page
-
 * **New feature**: *Copy-Number Segments tab* on the _Study View_ page using [igv.js v2](https://github.com/igvteam/igv.js) - see [example](https://www.cbioportal.org/study?id=ucec_tcga_pub&tab=cnSegments)
 * Improved *Copy-Number Segments* tab on the _Results_ page
 * **New feature**: *OncoKB* and *Cancer Hotspots tracks* in the Mutations tab on the _Results_ page

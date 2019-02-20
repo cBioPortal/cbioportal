@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -64,6 +65,7 @@ public class StudyViewController {
     @Autowired
     private StudyViewFilterUtil studyViewFilterUtil;
 
+    @PreAuthorize("hasPermission(#clinicalDataCountFilter, 'ClinicalDataCountFilter', 'read')")
     @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data counts by study view filter")
@@ -96,6 +98,7 @@ public class StudyViewController {
         return new ResponseEntity<>(combinedResult, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#clinicalDataBinCountFilter, 'ClinicalDataBinCountFilter', 'read')")
     @RequestMapping(value = "/clinical-data-bin-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data bin counts by study view filter")
@@ -173,6 +176,7 @@ public class StudyViewController {
         return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', 'read')")
     @RequestMapping(value = "/mutated-genes/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutated genes by study view filter")
@@ -204,7 +208,8 @@ public class StudyViewController {
         
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
-
+    
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', 'read')")
     @RequestMapping(value = "/cna-genes/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch CNA genes by study view filter")
@@ -243,6 +248,7 @@ public class StudyViewController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', 'read')")
     @RequestMapping(value = "/filtered-samples/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample IDs by study view filter")
@@ -265,6 +271,7 @@ public class StudyViewController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', 'read')")
     @RequestMapping(value = "/sample-counts/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample counts by study view filter")
@@ -308,6 +315,7 @@ public class StudyViewController {
         return new ResponseEntity<>(molecularProfileSampleCount, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#studyViewFilter, 'StudyViewFilter', 'read')")
     @RequestMapping(value = "/clinical-data-density-plot/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data density plot bins by study view filter")

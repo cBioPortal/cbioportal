@@ -3,6 +3,10 @@
 * **New feature**: *CN Segments* tab in _Study View_ page - see [example](http://www.cbioportal.org/study?id=ucec_tcga_pub&tab=cnSegments)
 * **New feature**: *OncoKB* and *Cancer Hotspots tracks* in _Mutations_ tab in _Results_ page
 
+* **New feature**: *Copy-Number Segments tab* on the _Study View_ page using [igv.js v2](https://github.com/igvteam/igv.js) - see [example](https://www.cbioportal.org/study?id=ucec_tcga_pub&tab=cnSegments)
+* Improved *Copy-Number Segments* tab on the _Results_ page
+* **New feature**: *OncoKB* and *Cancer Hotspots tracks* in the Mutations tab on the _Results_ page
+
 ![image](https://user-images.githubusercontent.com/840895/53054860-d1f6b300-3473-11e9-8178-1df10eed36fc.png)
 
 

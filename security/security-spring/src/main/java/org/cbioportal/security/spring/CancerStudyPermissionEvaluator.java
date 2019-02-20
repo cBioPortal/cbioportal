@@ -137,7 +137,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     }
 
     private void populateCancerStudyMap() {
-        for (CancerStudy cs : studyRepository.getAllStudies("SUMMARY",
+        for (CancerStudy cs : studyRepository.getAllStudies(null, "SUMMARY",
                                                                                       PagingConstants.MAX_PAGE_SIZE,
                                                                                       PagingConstants.MIN_PAGE_NUMBER,
                                                                                       null,
@@ -312,6 +312,12 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             if (cancerStudy == null) {
                 // cancer study was not included so get it
                 cancerStudy = cancerStudies.get(((SampleList) targetDomainObject).getCancerStudyIdentifier());
+            }
+        } else if (targetDomainObject instanceof Patient) {
+            cancerStudy = ((Patient) targetDomainObject).getCancerStudy();
+            if (cancerStudy == null) {
+                // cancer study was not included so get it
+                cancerStudy = cancerStudies.get(((Patient) targetDomainObject).getCancerStudyIdentifier());
             }
         } else { 
             if (log.isDebugEnabled()) {

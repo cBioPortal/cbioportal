@@ -23,8 +23,6 @@ public class AlterationEnrichmentUtil {
     @Autowired
     private LogRatioCalculator logRatioCalculator;
     @Autowired
-    private BenjaminiHochbergFDRCalculator benjaminiHochbergFDRCalculator;
-    @Autowired
     private GeneService geneService;
 
     public List<AlterationEnrichment> createAlterationEnrichments(
@@ -48,7 +46,6 @@ public class AlterationEnrichmentUtil {
                 unalteredCount, enrichmentType));
         }
 
-        assignQValue(alterationEnrichments);
         return alterationEnrichments;
     }
 
@@ -78,17 +75,6 @@ public class AlterationEnrichmentUtil {
         assignLogRatio(alterationEnrichment, alteredCount, unalteredCount);
         assignPValue(alterationEnrichment, alteredCount, unalteredCount);
         return alterationEnrichment;
-    }
-
-    private void assignQValue(List<AlterationEnrichment> alterationEnrichments) {
-
-        alterationEnrichments.sort(Comparator.comparing(AlterationEnrichment::getpValue));
-        double[] qValues = benjaminiHochbergFDRCalculator.calculate(alterationEnrichments.stream().mapToDouble(a ->
-            a.getpValue().doubleValue()).toArray());
-
-        for (int i = 0; i < alterationEnrichments.size(); i++) {
-            alterationEnrichments.get(i).setqValue(BigDecimal.valueOf(qValues[i]));
-        }
     }
 
     private void assignLogRatio(AlterationEnrichment alterationEnrichment, int alteredCount,

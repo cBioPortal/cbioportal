@@ -24,13 +24,20 @@
 
     <sql id="where">
         <where>
-            <if test="patientIds == null">
-                cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
+            <if test="keyword == null">
+                <if test="patientIds == null and studyIds != null">
+                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]}
+                </if>
+                <if test="patientIds != null">
+                    (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
+                    <foreach index="i" collection="patientIds" open="(" separator="," close=")">
+                        (#{studyIds[${i}]}, #{patientIds[${i}]})
+                    </foreach>
+                </if>
             </if>
-            <if test="patientIds != null">
-                (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
-                <foreach index="i" collection="patientIds" open="(" separator="," close=")">
-                    (#{studyIds[${i}]}, #{patientIds[${i}]})
+            <if test="keyword != null">
+                <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
+                    patient.STABLE_ID like CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
@@ -43,11 +50,14 @@
         </include>
         <include refid="from"/>
         <include refid="where"/>
-        <if test="sortBy != null and projection != 'ID'">
+        <if test="sortBy != null and projection != 'ID' and keyword == null">
             ORDER BY ${sortBy} ${direction}
         </if>
-        <if test="projection == 'ID'">
+        <if test="projection == 'ID' and keyword == null">
             ORDER BY patient.STABLE_ID ASC
+        </if>
+        <if test="keyword != null">
+            ORDER BY CASE WHEN patient.STABLE_ID LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, patient.STABLE_ID
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}

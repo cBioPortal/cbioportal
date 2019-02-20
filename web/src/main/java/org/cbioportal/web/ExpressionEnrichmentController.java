@@ -48,7 +48,6 @@ public class ExpressionEnrichmentController {
         @Valid @RequestBody EnrichmentFilter enrichmentFilter) throws MolecularProfileNotFoundException {
 
         return new ResponseEntity<>(expressionEnrichmentService.getExpressionEnrichments(molecularProfileId,
-            enrichmentFilter.getAlteredIds(), enrichmentFilter.getUnalteredIds(), enrichmentFilter.getQueryGenes(), 
-            enrichmentType.name()), HttpStatus.OK);
+            enrichmentFilter.getAlteredIds(), enrichmentFilter.getUnalteredIds(), enrichmentType.name()), HttpStatus.OK);
     }
 }

@@ -1,8 +1,10 @@
 package org.cbioportal.web.parameter;
 
+import java.io.Serializable;
+
 import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 
-public class ClinicalDataFilter 
+public class ClinicalDataFilter  implements Serializable
 {
     private String attributeId;
     private ClinicalDataType clinicalDataType;

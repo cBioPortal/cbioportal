@@ -40,6 +40,8 @@ import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
 import org.cbioportal.web.parameter.ClinicalAttributeCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataBinCountFilter;
+import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.web.parameter.GenePanelMultipleStudyFilter;
@@ -51,10 +53,10 @@ import org.cbioportal.web.parameter.PatientIdentifier;
 import org.cbioportal.web.parameter.SampleFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
+import org.cbioportal.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -80,6 +82,13 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String MOLECULAR_DATA_MULTIPLE_STUDY_FETCH_PATH = "/molecular-data/fetch";
     public static final String MUTATION_MULTIPLE_STUDY_FETCH_PATH = "/mutations/fetch";
     public static final String COPY_NUMBER_SEG_FETCH_PATH = "/copy-number-segments/fetch";
+    public static final String STUDY_VIEW_CLINICAL_DATA_BIN_COUNTS_PATH = "/clinical-data-bin-counts/fetch";
+    public static final String STUDY_VIEW_CLINICAL_DATA_COUNTS_PATH = "/clinical-data-counts/fetch";
+    public static final String STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH = "/clinical-data-density-palot/fetch";
+    public static final String STUDY_VIEW_CNA_GENES = "/cna-genes/fetch";
+    public static final String STUDY_VIEW_FILTERED_SAMPLES = "/filtered-samples/fetch";
+    public static final String STUDY_VIEW_MUTATED_GENES = "/mutated-genes/fetch";
+    public static final String STUDY_VIEW_SAMPLE_COUNTS = "/sample-counts/fetch";
 
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!request.getMethod().equals("POST")) {
@@ -105,6 +114,14 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             return extractAttributesFromMutationMultipleStudyFilter(wrappedRequest);
         } else if (requestPathInfo.equals(COPY_NUMBER_SEG_FETCH_PATH)) {
             return extractAttributesFromSampleIdentifiers(wrappedRequest);
+        } else if (requestPathInfo.equals(STUDY_VIEW_CLINICAL_DATA_BIN_COUNTS_PATH)) {
+            return extractAttributesFromClinicalDataBinCountFilter(wrappedRequest);
+        } else if (requestPathInfo.equals(STUDY_VIEW_CLINICAL_DATA_COUNTS_PATH)) {
+            return extractAttributesFromClinicalDataCountFilter(wrappedRequest);
+        } else if (Arrays.asList(STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH, STUDY_VIEW_CNA_GENES,
+                STUDY_VIEW_FILTERED_SAMPLES, STUDY_VIEW_MUTATED_GENES, STUDY_VIEW_SAMPLE_COUNTS)
+                .contains(requestPathInfo)) {
+            return extractAttributesFromStudyViewFilter(wrappedRequest);
         }
         return true;
     }
@@ -353,6 +370,64 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         }
         return true;
     }
+    
+    private boolean extractAttributesFromClinicalDataBinCountFilter(HttpServletRequest request) {
+        try {
+            ClinicalDataBinCountFilter clinicalDataBinCountFilter = objectMapper.readValue(request.getReader(),
+                    ClinicalDataBinCountFilter.class);
+            LOG.debug("extracted clinicalDataBinCountFilter: " + clinicalDataBinCountFilter.toString());
+            LOG.debug("setting interceptedClinicalDataBinCountFilter to " + clinicalDataBinCountFilter);
+            request.setAttribute("interceptedClinicalDataBinCountFilter", clinicalDataBinCountFilter);
+            if (cacheMapUtil.hasCacheEnabled()) {
+                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromClinicalDataBinCountFilter(
+                        clinicalDataBinCountFilter);
+                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+            }
+        } catch (Exception e) {
+            LOG.error("exception thrown during extraction of clinicalDataBinCountFilter: " + e);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean extractAttributesFromClinicalDataCountFilter(HttpServletRequest request) {
+        try {
+            ClinicalDataCountFilter clinicalDataCountFilter = objectMapper.readValue(request.getReader(),
+                    ClinicalDataCountFilter.class);
+            LOG.debug("extracted clinicalDataBinCountFilter: " + clinicalDataCountFilter.toString());
+            LOG.debug("setting interceptedClinicalDataCountFilter to " + clinicalDataCountFilter);
+            request.setAttribute("interceptedClinicalDataCountFilter", clinicalDataCountFilter);
+            if (cacheMapUtil.hasCacheEnabled()) {
+                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromClinicalDataCountFilter(
+                        clinicalDataCountFilter);
+                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+            }
+        } catch (Exception e) {
+            LOG.error("exception thrown during extraction of clinicalDataBinCountFilter: " + e);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean extractAttributesFromStudyViewFilter(HttpServletRequest request) {
+        try {
+            StudyViewFilter studyViewFilter = objectMapper.readValue(request.getReader(), StudyViewFilter.class);
+            LOG.debug("extracted studyViewFilter: " + studyViewFilter.toString());
+            LOG.debug("setting interceptedStudyViewFilter to " + studyViewFilter);
+            request.setAttribute("interceptedStudyViewFilter", studyViewFilter);
+            if (cacheMapUtil.hasCacheEnabled()) {
+                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromStudyViewFilter(studyViewFilter);
+                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+            }
+        } catch (Exception e) {
+            LOG.error("exception thrown during extraction of clinicalDataBinCountFilter: " + e);
+            return false;
+        }
+        return true;
+    }
 
     private Set<String> extractCancerStudyIdsFromSampleIdentifiers(Collection<SampleIdentifier> sampleIdentifiers) {
         Set<String> studyIdSet = new HashSet<String>();
@@ -387,6 +462,32 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
         }
         extractCancerStudyIdsFromMolecularProfileIds(molecularProfileIds, studyIdSet);
+    }
+
+    private Set<String> extractCancerStudyIdsFromClinicalDataBinCountFilter(
+            ClinicalDataBinCountFilter clinicalDataBinCountFilter) {
+        if (clinicalDataBinCountFilter.getStudyViewFilter() != null) {
+            return extractCancerStudyIdsFromStudyViewFilter(clinicalDataBinCountFilter.getStudyViewFilter());
+        }
+        return new HashSet<String>();
+    }
+
+    private Set<String> extractCancerStudyIdsFromClinicalDataCountFilter(
+            ClinicalDataCountFilter clinicalDataCountFilter) {
+        if (clinicalDataCountFilter.getStudyViewFilter() != null) {
+            return extractCancerStudyIdsFromStudyViewFilter(clinicalDataCountFilter.getStudyViewFilter());
+        }
+        return new HashSet<String>();
+    }
+
+    private Set<String> extractCancerStudyIdsFromStudyViewFilter(StudyViewFilter studyViewFilter) {
+        Set<String> studyIdSet = new HashSet<String>();
+        if (studyViewFilter.getSampleIdentifiers() != null && !studyViewFilter.getSampleIdentifiers().isEmpty()) {
+            extractCancerStudyIdsFromSampleIdentifiers(studyViewFilter.getSampleIdentifiers(), studyIdSet);
+        } else {
+            studyIdSet.addAll(studyViewFilter.getStudyIds());
+        }
+        return studyIdSet;
     }
 
 }

@@ -1,8 +1,9 @@
 package org.cbioportal.web.parameter;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class RectangleBounds {
+public class RectangleBounds implements Serializable {
 
     private BigDecimal xStart;
     private BigDecimal xEnd;

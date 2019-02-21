@@ -424,7 +424,6 @@ window.loadReactApp({ defaultRoute: 'results' });
                 content: {text: "This analysis finds alterations " +
                 "(mutations, copy number alterations, mRNA expression changes, and protein expression changes, if available) " +
                 "that are enriched in either altered samples (with at least one alteration based on query) or unaltered samples. "},
-                //"The analysis is only performed on annotated cancer genes. <a href='cancer_gene_list.jsp' target='_blank'>[List of Portal Cancer Genes]</a>"},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
                 show: {event: "mouseover", delay: 0},
                 hide: {fixed:true, delay: 100, event: "mouseout"},

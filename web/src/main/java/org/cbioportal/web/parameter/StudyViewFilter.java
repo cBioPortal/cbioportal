@@ -1,12 +1,17 @@
 package org.cbioportal.web.parameter;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 
-public class StudyViewFilter {
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+@JsonInclude(Include.NON_NULL)
+public class StudyViewFilter implements Serializable {
 
 	@Size(min = 1)
 	private List<SampleIdentifier> sampleIdentifiers;

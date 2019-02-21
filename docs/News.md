@@ -1,5 +1,5 @@
 ## February 21, 2019
-* **New feature**: option to show regression line in the Plots tab on the _Results_ page
+* **New feature**: option to show regression line in the scatter plot in the Plots tab on the _Results_ page
 
 ![image](https://user-images.githubusercontent.com/840895/53193265-99271d00-35de-11e9-8ffc-352afc2ba906.png)
 

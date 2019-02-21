@@ -100,3 +100,4 @@ package.json
 *.tramp_history
 pom.xml.*
 db-scripts/src/main/resources/cgds-test.sql
+pom.xml.*

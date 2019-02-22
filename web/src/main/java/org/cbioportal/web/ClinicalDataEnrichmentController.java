@@ -105,8 +105,6 @@ public class ClinicalDataEnrichmentController {
 
             clinicalEnrichments.addAll(
                     clinicalDataEnrichmentUtil.createEnrichmentsForNumericData(clinicalAttributes, groupedSamples));
-
-            clinicalDataEnrichmentUtil.calculateQValues(clinicalEnrichments);
         }
         return clinicalEnrichments;
     }

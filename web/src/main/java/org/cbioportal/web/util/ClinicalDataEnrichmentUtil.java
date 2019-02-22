@@ -17,7 +17,6 @@ import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.model.ClinicalDataEnrichment;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalDataService;
-import org.cbioportal.service.util.BenjaminiHochbergFDRCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,12 +37,8 @@ public class ClinicalDataEnrichmentUtil {
 
     private ClinicalDataService clinicalDataService;
 
-    private BenjaminiHochbergFDRCalculator benjaminiHochbergFDRCalculator;
-
     @Autowired
-    public ClinicalDataEnrichmentUtil(ClinicalDataService clinicalDataService,
-            BenjaminiHochbergFDRCalculator benjaminiHochbergFDRCalculator) {
-        this.benjaminiHochbergFDRCalculator = benjaminiHochbergFDRCalculator;
+    public ClinicalDataEnrichmentUtil(ClinicalDataService clinicalDataService) {
         this.clinicalDataService = clinicalDataService;
     }
 
@@ -255,16 +250,6 @@ public class ClinicalDataEnrichmentUtil {
                 (attribute.getPatientAttribute() ? patientAttributes : sampleAttributes).add(attribute);
             }
         });
-    }
-
-    public void calculateQValues(List<ClinicalDataEnrichment> clinicalEnrichments) {
-        clinicalEnrichments.sort(Comparator.comparing(ClinicalDataEnrichment::getpValue));
-        double[] qValues = benjaminiHochbergFDRCalculator
-                .calculate(clinicalEnrichments.stream().mapToDouble(a -> a.getpValue().doubleValue()).toArray());
-
-        for (int i = 0; i < clinicalEnrichments.size(); i++) {
-            clinicalEnrichments.get(i).setqValue(BigDecimal.valueOf(qValues[i]));
-        }
     }
 
     // For categorical values, group data is valid if all the values are not 0

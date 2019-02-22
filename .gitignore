@@ -98,4 +98,5 @@ portal/reactapp/*
 package.json
 .vscode/
 *.tramp_history
+pom.version.*
 pom.xml.*

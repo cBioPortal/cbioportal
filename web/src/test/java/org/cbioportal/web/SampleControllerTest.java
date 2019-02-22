@@ -54,11 +54,6 @@ public class SampleControllerTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Bean
-    public SampleService sampleService() {
-        return Mockito.mock(SampleService.class);
-    }
-
     @Before
     public void setUp() throws Exception {
 

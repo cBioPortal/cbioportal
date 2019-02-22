@@ -1,6 +1,6 @@
 ## February 22, 2019
-* **Enhancement**: Exon number and HGVSc columns are available in the Mutations tab on the _Results_ page and _Patient View_ page.
-* **New feature**: option to show regression line in the scatter plot in the Plots tab on the _Results_ page
+* **Enhancement**: Exon number and HGVSc annotations are available in optional columns in the Mutations tab on the _Results_ page and in the _Patient View_.
+* **New feature**: option to a show regression line in the scatter plot in the Plots tab on the _Results_ page
 
 ![image](https://user-images.githubusercontent.com/840895/53193265-99271d00-35de-11e9-8ffc-352afc2ba906.png)
 

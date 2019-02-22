@@ -46,6 +46,8 @@ public class GeneController {
     @RequestMapping(value = "/genes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all genes")
     public ResponseEntity<List<Gene>> getAllGenes(
+        @ApiParam("Search keyword that applies to hugo gene symbol of the genes")
+        @RequestParam(required = false) String keyword,
         @ApiParam("Alias of the gene")
         @RequestParam(required = false) String alias,
         @ApiParam("Level of detail of the response")
@@ -64,12 +66,12 @@ public class GeneController {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, geneService.getMetaGenes(alias).getTotalCount()
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, geneService.getMetaGenes(keyword, alias).getTotalCount()
                 .toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                geneService.getAllGenes(alias, projection.name(), pageSize, pageNumber,
+                geneService.getAllGenes(keyword, alias, projection.name(), pageSize, pageNumber,
                     sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }

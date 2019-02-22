@@ -9,7 +9,7 @@ SAML (Security Assertion Markup Language).
 
 Please note that configuring your local instance to use Keycloak authentication requires a Keycloak server to be set up. For details on how to set up a Keycloak server, please read online document at <https://www.keycloak.org/docs/latest/server_installation/index.html>.
 
-This document focuses mainly on the steps to configure Keycloak for **authenticating** and **authorizing** cBioPortal users.
+This document focuses mainly on the steps to configure Keycloak for **authenticating** cBioPortal users.
 
 To skip to the authorization section see: [authorization with Keycloak](#authorization-with-keycloak). Or continue reading to learn how to integrate Keycloak with cBioPortal.
 
@@ -36,7 +36,7 @@ Keycloak supports both OpenID-Connect and SAML authentication. When you use SAML
 1. Log in to your Keycloak Identity Provider, e.g. <http://localhost:8080/auth>, as an admin user. :warning: when setting this up on something else than localhost (e.g. production), you will need to use/enable https on your Keycloak server. For simplicity, the rest of the documentation below continues on http://localhost.
 2. Hover over the top-left–corner drop down menu (titled ‘**Master**’) to create a new realm.
 ![](images/previews/add-realm.png)
-Please note if you are logged in the master realm, this drop-down menu lists all the realms created. The last entry of this drop-down menu is always **Add Realm**. Click this to add a realm. Then type '_demo_' in the name field and click the **Create** button.
+Please note if you are logged in the master realm, this drop-down menu lists all the realms created. The last entry of this drop-down menu is always **Add Realm**. Click this to add a realm. Then type '_cbioportal_' in the name field and click the **Create** button.
 3. To create a SAML client, go to the **Clients** item in the left menu. On this page, click the **Create** button on the right. This will bring you to the **Add Client** page.
     * Enter a **Client ID** for the client, e.g. '_cbioportal_', this will be the expected `issuer` value in SAML requests sent by the application.
     * Select _saml_ in the **Client Protocol** drop down box.
@@ -106,12 +106,10 @@ should now see the certificate and no private key.
 2. Then, modify the properties under the comment `# authentication`. In particular, see the options listed in the example below:
 
 ```properties
-    # authentication
-    authorization=true
     filter_groups_by_appname=false
     saml.sp.metadata.entityid=cbioportal
     saml.idp.metadata.location=classpath:/client-tailored-saml-idp-metadata.xml
-    saml.idp.metadata.entityid=http://localhost:8080/auth/realms/demo
+    saml.idp.metadata.entityid=http://localhost:8080/auth/realms/cbioportal
     saml.keystore.location=classpath:/samlKeystore.jks
     saml.keystore.password=apollo1
     saml.keystore.private-key.key=secure-key

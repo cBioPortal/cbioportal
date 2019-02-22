@@ -8,6 +8,24 @@
                         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
+    <!-- profiles
+        spring profiles determine the authentication mode of cBioPortal.
+        profiles are selected through the java system property "authenticate" (e.g. java -Dauthenticate=saml) or the portal.properties property "authenticate".
+        The following profiles are available:
+            "googleplus"    - authentication required (provided by google oauth2 server).
+            "social_auth"   - authentication optional (provided by google oauth2 server).
+            "openid"        - authentication required (provided by google, yahoo, or myopenid).
+                            - note : some/all of these openid providers are no longer providing openid authentication services
+            "saml"          - authentication required (provided by a saml SSO authentication server).
+            "ad"            - authentication required (provided by an active directory domain controller).
+            "ldap"          - authentication required (provided by an ldap directory server).
+            "false"         - no authentication occurs when connecting to the portal
+            "noauthsessionservice"
+                            - no authentication occurs when connecting to the portal
+                            - note: similar to the "false" profile, but allows testing of the session-service (which normally requires authentication)
+        User authorities determine study access in the following profiles: googleplus, openid, saml, ad, ldap
+        All studies are available to all users in the following profiles: social_auth, false, noauthsessionservice
+    -->
 
     <!-- beans shared across any authentication system -->
     <b:beans profile="googleplus,openid,saml,ad,ldap">
@@ -22,9 +40,6 @@
              </b:list>
            </b:property>
         </b:bean>
-
-    <!-- We are autowiring some components from web into the customPermissionEvaluator below -->
-    <context:component-scan base-package="org.cbioportal.web.util" />
 
     <!-- support for general annotations within class definitions (used in AccessControl) -->
     <context:annotation-config/>
@@ -52,7 +67,7 @@
     <http pattern="/reactapp/**" security="none"/>
     <http pattern="/api/swagger-resources/**" security="none"/>
     <http pattern="/api/swagger-ui.html" security="none"/>
-        
+
     <!-- This must come before the default entry point which will capture everything not matched by pattern -->
     <http use-expressions="true" pattern="/api/**" entry-point-ref="restAuthenticationEntryPoint" create-session="never">
         <intercept-url pattern="/**" access="isAuthenticated()"/>
@@ -67,14 +82,14 @@
         <b:property name="alwaysUseDefaultTargetUrl" value="false"/>
         <b:property name="targetUrlParameter" value="spring-security-redirect"/>
     </b:bean>
-		
+
     <!-- end beans shared across any authentication provider -->
     </b:beans>
 
     <!-- googleplus beans -->
     <b:beans profile="googleplus">
 
-    <http entry-point-ref="authenticationEntryPoint" use-expressions="true"> 
+    <http entry-point-ref="authenticationEntryPoint" use-expressions="true">
         <intercept-url pattern="/auth/*" access="permitAll"/>
         <intercept-url pattern="/favicon.ico" access="permitAll"/>
         <intercept-url pattern="/login.jsp*" access="permitAll"/>
@@ -85,7 +100,7 @@
         <!-- used for google+ authentication (spring social) -->
         <custom-filter ref="socialAuthenticationFilter" before="PRE_AUTH_FILTER" />
 
-        <!--  logout actions -->      
+        <!--  logout actions -->
         <logout logout-url="/j_spring_security_logout" logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID"/>
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
@@ -115,7 +130,7 @@
         </authentication-provider>
         <authentication-provider ref="socialAuthenticationProvider"/>
     </authentication-manager>
-    
+
     <!-- beans used to compare token returned by authentication-provider against portal user db tables -->
     <b:bean id="userDetailsService" class="org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService">
     </b:bean>
@@ -125,7 +140,7 @@
         <b:constructor-arg index="0" ref="usersConnectionRepository" />
         <b:constructor-arg index="1" ref="socialUserDetailsService" />
     </b:bean>
-    
+
     <b:bean id="socialUserDetailsService" class="org.cbioportal.security.spring.authentication.googleplus.GoogleplusUserDetailsService">
         <b:constructor-arg index="0" ref="userDetailsService" />
     </b:bean>
@@ -134,7 +149,7 @@
     <!--Implementation of UserIdSource that returns the Spring Security Authentication's name as the user ID -->
     <b:bean id="userIdSource" class="org.springframework.social.security.AuthenticationNameUserIdSource"/>
 
-    <b:bean id="usersConnectionRepository" 
+    <b:bean id="usersConnectionRepository"
             class="org.springframework.social.connect.mem.InMemoryUsersConnectionRepository">
         <b:constructor-arg ref="connectionFactoryLocator" />
         <b:property name="connectionSignUp" ref="connectionSignUp"/>
@@ -157,14 +172,14 @@
         <b:constructor-arg value="${googleplus.consumer.key}" />
         <b:constructor-arg value="${googleplus.consumer.secret}" />
     </b:bean>
-   
+
     <!-- end googleplus beans -->
     </b:beans>
 
     <!-- openid beans -->
     <b:beans profile="openid">
 
-    <http use-expressions="true"> 
+    <http use-expressions="true">
 
         <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">
             <attribute-exchange identifier-match="https://www.google.com/.*">
@@ -182,7 +197,7 @@
             </attribute-exchange>
       </openid-login>
 
-        <!--  logout actions -->      
+        <!--  logout actions -->
         <logout logout-url="/j_spring_security_logout" logout-success-url="/login.jsp?logout_success=true"/>
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
@@ -267,7 +282,7 @@
     <b:bean id="defaultBinding" class="org.springframework.security.saml.websso.WebSSOProfileOptions">
 	<b:property name="includeScoping" value="false"/>
     </b:bean>
-    
+
     <b:bean id="specificBinding" class="org.springframework.security.saml.websso.WebSSOProfileOptions">
 	<b:property name="includeScoping" value="false"/>
 	<b:property name="binding" value="urn:oasis:names:tc:SAML:2.0:${saml.idp.comm.binding.type}"/>
@@ -459,7 +474,7 @@
     <b:beans profile="ad">
         <http use-expressions="true" auto-config="true">
             <form-login login-page="/login.jsp"
-                login-processing-url="/j_spring_security_check" 
+                login-processing-url="/j_spring_security_check"
                 default-target-url="/index.do"
                 authentication-success-handler-ref="successRedirectHandler" />
             <logout logout-url="/j_spring_security_logout" logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID" />
@@ -533,7 +548,7 @@
         <!-- end ldap beans -->
     </b:beans>
 
-    <!-- authenticate is off beans --> 
+    <!-- authenticate is off beans -->
     <b:beans profile="false">
         <global-method-security pre-post-annotations="disabled"/>
         <http pattern="/**" security="none"/>
@@ -552,7 +567,7 @@
         </http>
         <authentication-manager alias="authenticationManager"/>
     </b:beans>
-    
+
     <b:beans profile="social_auth">
 
 	    <b:bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -567,34 +582,37 @@
 	            </b:list>
 	        </b:property>
 	    </b:bean>
-	    
+
 	    <global-method-security pre-post-annotations="disabled"/>
-	
+
 	    <!-- support for general annotations within class definitions (used in AccessControl) -->
 	    <context:annotation-config/>
-	        
+
 	    <!-- Handler deciding where to redirect user after successful login -->
 	    <b:bean id="successRedirectHandler" class="org.cbioportal.security.spring.PortalSavedRequestAwareAuthenticationSuccessHandler">
 	        <b:property name="defaultTargetUrl" value="/index.do"/>
 	        <b:property name="alwaysUseDefaultTargetUrl" value="false"/>
 	        <b:property name="targetUrlParameter" value="spring-security-redirect"/>
 	    </b:bean>
-	
-	
+
 	    <http entry-point-ref="authenticationEntryPoint"  use-expressions="true">
 	        <intercept-url pattern="/**" access="permitAll"/>
 	        <custom-filter ref="socialAuthenticationFilter" before="PRE_AUTH_FILTER" />
-	            <!--  logout actions -->      
+	            <!--  logout actions -->
 	        <logout logout-url="/j_spring_security_logout" logout-success-url="/" delete-cookies="JSESSIONID"/>
 	        <!-- to enable access from matlab, r, python, etc clients -->
 	        <session-management session-fixation-protection="none"/>
             <csrf disabled="true"/>
-	        </http>
-	        
+            <!-- for mounting network tab through iframe -->
+            <headers>
+                <frame-options policy="SAMEORIGIN"/>
+            </headers>
+        </http>
+
 	        <b:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
 	            <b:constructor-arg value="/index.do" />
 	        </b:bean>
-	
+
 	    <!-- google+ beans -->
 	    <b:bean id="socialAuthenticationFilter" class="org.springframework.social.security.SocialAuthenticationFilter">
 	        <b:constructor-arg index="0" ref="authenticationManager" />
@@ -608,24 +626,24 @@
 	        <!-- UsernameNotFoundException will be stored in session with username as message -->
 	        <b:property name="allowSessionCreation" value="true" />
 	    </b:bean>
-	
+
 	    <authentication-manager alias="authenticationManager">
 	        <authentication-provider ref="socialAuthenticationProvider"/>
 	    </authentication-manager>
-	    
+
 	     <!-- configure the social authentication provider which processes authentication requests -->
 	    <b:bean id="socialAuthenticationProvider" class="org.springframework.social.security.SocialAuthenticationProvider">
 	        <b:constructor-arg index="0" ref="usersConnectionRepository" />
 	        <b:constructor-arg index="1" ref="socialUserDetailsService" />
 	    </b:bean>
-	    
+
 	    <b:bean id="socialUserDetailsService" class="org.cbioportal.security.spring.authentication.googleplus.CustomUserDetailsService" />
-	
+
 	    <!-- returns the spring security account id for the user -->
 	    <!--Implementation of UserIdSource that returns the Spring Security Authentication's name as the user ID -->
 	    <b:bean id="userIdSource" class="org.springframework.social.security.AuthenticationNameUserIdSource"/>
-	
-	    <b:bean id="usersConnectionRepository" 
+
+	    <b:bean id="usersConnectionRepository"
 	            class="org.springframework.social.connect.mem.InMemoryUsersConnectionRepository">
 	        <b:constructor-arg ref="connectionFactoryLocator" />
 	        <b:property name="connectionSignUp" ref="connectionSignUp"/>
@@ -648,7 +666,7 @@
 	        <b:constructor-arg value="${googleplus.consumer.key}" />
 	        <b:constructor-arg value="${googleplus.consumer.secret}" />
 	    </b:bean>
-	   
+
 	    <!-- end googleplus beans -->
 	</b:beans>
 

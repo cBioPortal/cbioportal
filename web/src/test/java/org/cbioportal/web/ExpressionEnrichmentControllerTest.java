@@ -29,7 +29,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class ExpressionEnrichmentControllerTest {
 
@@ -41,7 +41,6 @@ public class ExpressionEnrichmentControllerTest {
     private static final BigDecimal TEST_STANDARD_DEVIATION_IN_ALTERED_GROUP_1 = new BigDecimal(2.1);
     private static final BigDecimal TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_1 = new BigDecimal(2.6);
     private static final BigDecimal TEST_P_VALUE_1 = new BigDecimal(1.1);
-    private static final BigDecimal TEST_Q_VALUE_1 = new BigDecimal(1.1);
     private static final int TEST_ENTREZ_GENE_ID_2 = 2;
     private static final String TEST_HUGO_GENE_SYMBOL_2 = "test_hugo_gene_symbol_2";
     private static final String TEST_CYTOBAND_2 = "test_cytoband_2";
@@ -50,16 +49,17 @@ public class ExpressionEnrichmentControllerTest {
     private static final BigDecimal TEST_STANDARD_DEVIATION_IN_ALTERED_GROUP_2 = new BigDecimal(2.9);
     private static final BigDecimal TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_2 = new BigDecimal(3.1);
     private static final BigDecimal TEST_P_VALUE_2 = new BigDecimal(2.1);
-    private static final BigDecimal TEST_Q_VALUE_2 = new BigDecimal(2.1);
 
     @Autowired
     private WebApplicationContext wac;
 
     @Autowired
     private ExpressionEnrichmentService expressionEnrichmentService;
-    private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private MockMvc mockMvc;
 
     @Bean
     public ExpressionEnrichmentService expressionEnrichmentService() {
@@ -86,7 +86,6 @@ public class ExpressionEnrichmentControllerTest {
         expressionEnrichment1.setStandardDeviationInAlteredGroup(TEST_STANDARD_DEVIATION_IN_ALTERED_GROUP_1);
         expressionEnrichment1.setStandardDeviationInUnalteredGroup(TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_1);
         expressionEnrichment1.setpValue(TEST_P_VALUE_1);
-        expressionEnrichment1.setqValue(TEST_Q_VALUE_1);
         expressionEnrichments.add(expressionEnrichment1);
         ExpressionEnrichment expressionEnrichment2 = new ExpressionEnrichment();
         expressionEnrichment2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
@@ -97,12 +96,11 @@ public class ExpressionEnrichmentControllerTest {
         expressionEnrichment2.setStandardDeviationInAlteredGroup(TEST_STANDARD_DEVIATION_IN_ALTERED_GROUP_2);
         expressionEnrichment2.setStandardDeviationInUnalteredGroup(TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_2);
         expressionEnrichment2.setpValue(TEST_P_VALUE_2);
-        expressionEnrichment2.setqValue(TEST_Q_VALUE_2);
         expressionEnrichments.add(expressionEnrichment2);
 
         Mockito.when(expressionEnrichmentService.getExpressionEnrichments(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), 
-            Mockito.anyString())).thenReturn(expressionEnrichments);
+            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString()))
+            .thenReturn(expressionEnrichments);
 
         EnrichmentFilter enrichmentFilter = new EnrichmentFilter();
         enrichmentFilter.setAlteredIds(Arrays.asList("test_sample_id_1"));
@@ -128,7 +126,6 @@ public class ExpressionEnrichmentControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].standardDeviationInUnalteredGroup").value(
                 TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].qValue").value(TEST_Q_VALUE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value(TEST_CYTOBAND_2))
@@ -140,7 +137,6 @@ public class ExpressionEnrichmentControllerTest {
                 TEST_STANDARD_DEVIATION_IN_ALTERED_GROUP_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].standardDeviationInUnalteredGroup").value(
                 TEST_STANDARD_DEVIATION_IN_UNALTERED_GROUP_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].qValue").value(TEST_Q_VALUE_2));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2));
     }
 }

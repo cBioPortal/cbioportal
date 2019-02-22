@@ -23,6 +23,7 @@ window.legacySupportFrontendConfig = {
     skinRightNavShowDatasets : <%=GlobalProperties.showRightNavDataSets()%>,
     skinRightNavShowExamples : <%=GlobalProperties.showRightNavExamples()%>,
     skinRightNavShowTestimonials : <%=GlobalProperties.showRightNavTestimonials()%>,
+    skinRightNavShowWhatsNew : <%=GlobalProperties.showRightNavWhatsNew()%>,
     skinRightNavExamplesHTML : '<%=GlobalProperties.getExamplesRightColumnHtml()%>',
     skinRightNavExamplesHTML : '<%=GlobalProperties.getExamplesRightColumnHtml()%>',
     skinRightNavWhatsNewBlurb : '<%=GlobalProperties.getRightNavWhatsNewBlurb()%>',

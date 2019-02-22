@@ -171,7 +171,8 @@ public class SampleServiceImpl implements SampleService {
 
             List<Integer> samplesWithCopyNumberSeg = copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
                 samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()), 
-                samples.stream().map(Sample::getStableId).collect(Collectors.toList())
+                samples.stream().map(Sample::getStableId).collect(Collectors.toList()),
+                null
             );
             
             Set<Integer> samplesWithCopyNumberSegMap = new HashSet<>();

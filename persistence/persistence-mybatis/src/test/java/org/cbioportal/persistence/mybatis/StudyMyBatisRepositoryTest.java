@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.junit.Assert;
@@ -27,7 +28,7 @@ public class StudyMyBatisRepositoryTest {
     @Test
     public void getAllStudiesIdProjection() throws Exception {
 
-        List<CancerStudy> result = studyMyBatisRepository.getAllStudies("ID", null, null, null, null);
+        List<CancerStudy> result = studyMyBatisRepository.getAllStudies(null, "ID", null, null, null, null);
 
         Assert.assertEquals(2, result.size());
         CancerStudy cancerStudy = result.get(0);
@@ -39,7 +40,7 @@ public class StudyMyBatisRepositoryTest {
     @Test
     public void getAllStudiesSummaryProjection() throws Exception {
 
-        List<CancerStudy> result = studyMyBatisRepository.getAllStudies("SUMMARY", null, null, null, null);
+        List<CancerStudy> result = studyMyBatisRepository.getAllStudies(null, "SUMMARY", null, null, null, null);
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -55,8 +56,8 @@ public class StudyMyBatisRepositoryTest {
                 " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
                 "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
-        Assert.assertEquals("23000897", cancerStudy.getPmid());
-        Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
+        Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
+        Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
         Assert.assertEquals((Integer) 0 , cancerStudy.getStatus());
         Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), cancerStudy.getImportDate());
@@ -67,7 +68,7 @@ public class StudyMyBatisRepositoryTest {
     @Test
     public void getAllStudiesDetailedProjection() throws Exception {
 
-        List<CancerStudy> result = studyMyBatisRepository.getAllStudies("DETAILED", null, null, null, null);
+        List<CancerStudy> result = studyMyBatisRepository.getAllStudies(null, "DETAILED", null, null, null, null);
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -83,8 +84,8 @@ public class StudyMyBatisRepositoryTest {
                 " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
                 "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
-        Assert.assertEquals("23000897", cancerStudy.getPmid());
-        Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
+        Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
+        Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
         Assert.assertEquals((Integer) 0 , cancerStudy.getStatus());
         Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), cancerStudy.getImportDate());
@@ -110,7 +111,7 @@ public class StudyMyBatisRepositoryTest {
     @Test
     public void getAllStudiesSummaryProjection1PageSize() throws Exception {
 
-        List<CancerStudy> result = studyMyBatisRepository.getAllStudies("SUMMARY", 1, 0, null, null);
+        List<CancerStudy> result = studyMyBatisRepository.getAllStudies(null, "SUMMARY", 1, 0, null, null);
 
         Assert.assertEquals(1, result.size());
     }
@@ -118,7 +119,7 @@ public class StudyMyBatisRepositoryTest {
     @Test
     public void getAllStudiesSummaryProjectionCancerStudyIdentifierSort() throws Exception {
 
-        List<CancerStudy> result = studyMyBatisRepository.getAllStudies("SUMMARY", null, null, "cancerStudyIdentifier",
+        List<CancerStudy> result = studyMyBatisRepository.getAllStudies(null, "SUMMARY", null, null, "cancerStudyIdentifier",
                 "ASC");
 
         Assert.assertEquals(2, result.size());
@@ -129,7 +130,7 @@ public class StudyMyBatisRepositoryTest {
     @Test
     public void getMetaStudies() throws Exception {
 
-        BaseMeta result = studyMyBatisRepository.getMetaStudies();
+        BaseMeta result = studyMyBatisRepository.getMetaStudies(null);
 
         Assert.assertEquals((Integer) 2, result.getTotalCount());
     }
@@ -159,8 +160,8 @@ public class StudyMyBatisRepositoryTest {
                 " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
                 "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", result.getDescription());
         Assert.assertEquals(true, result.getPublicStudy());
-        Assert.assertEquals("23000897", result.getPmid());
-        Assert.assertEquals("TCGA, Nature 2012", result.getCitation());
+        Assert.assertEquals("23000897,26451490", result.getPmid());
+        Assert.assertEquals("TCGA, Nature 2012, ...", result.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", result.getGroups());
         Assert.assertEquals((Integer) 0 , result.getStatus());
         Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), result.getImportDate());
@@ -202,8 +203,8 @@ public class StudyMyBatisRepositoryTest {
                 " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
                 "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
-        Assert.assertEquals("23000897", cancerStudy.getPmid());
-        Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
+        Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
+        Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
         Assert.assertEquals((Integer) 0 , cancerStudy.getStatus());
         Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), cancerStudy.getImportDate());
@@ -217,5 +218,26 @@ public class StudyMyBatisRepositoryTest {
         BaseMeta result = studyMyBatisRepository.fetchMetaStudies(Arrays.asList("study_tcga_pub", "acc_tcga"));
 
         Assert.assertEquals((Integer) 2, result.getTotalCount());
+    }
+    
+    @Test
+    public void getTags() throws Exception {
+
+        CancerStudyTags result = studyMyBatisRepository.getTags("study_tcga_pub");
+ 
+        Assert.assertEquals("{\"Analyst\": {\"Name\": \"Jack\", \"Email\": \"jack@something.com\"}, \"Load id\": 35}", result.getTags());
+    }
+    
+    public void getMultipleTags() throws Exception {
+
+        List<CancerStudyTags> result = studyMyBatisRepository.getTagsForMultipleStudies(Arrays.asList("study_tcga_pub", "acc_tcga"));
+
+        Assert.assertEquals(2, result.size());
+        CancerStudyTags cancerStudyTags1 = result.get(1);
+        Assert.assertEquals((Integer) 1, cancerStudyTags1.getCancerStudyId());
+        Assert.assertEquals("{\"Analyst\": {\"Name\": \"Jack\", \"Email\": \"jack@something.com\"}, \"Load id\": 35}", cancerStudyTags1.getTags());
+        CancerStudyTags cancerStudyTags2 = result.get(0);
+        Assert.assertEquals((Integer) 2, cancerStudyTags2.getCancerStudyId());
+        Assert.assertEquals("{\"Load id\": 36}", cancerStudyTags2.getTags()); 
     }
 }

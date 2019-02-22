@@ -2,7 +2,7 @@ type_of_cancer: pan_cancer
 cancer_study_identifier: multi_cancer_study
 name: Multi Cancer Study Test
 description: Multi Cancer Study Test
-citation: TCGA, Nature 2012
-pmid: 23000897
+citation: TCGA, Nature 2012, ...
+pmid: 23000897,26451490
 groups: PUBLIC;GDAC;SU2C-PI3K
 short_name: PANCAN

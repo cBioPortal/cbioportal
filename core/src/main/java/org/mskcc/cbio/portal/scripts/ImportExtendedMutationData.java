@@ -454,6 +454,11 @@ public class ImportExtendedMutationData{
         if( MySQLbulkLoader.isBulkLoad()) {
             MySQLbulkLoader.flushAll();
         }
+        // run sanity check on `mutation_event` to determine whether duplicate
+        // events were introduced during current import
+        if (DaoMutation.hasDuplicateMutationEvents()) {
+            throw new DaoException("Duplicate mutation events were detected during this import. Aborting...");
+        }
 
         /*
          * At MSKCC there are some MUTATION_UNCALLED and FUSION

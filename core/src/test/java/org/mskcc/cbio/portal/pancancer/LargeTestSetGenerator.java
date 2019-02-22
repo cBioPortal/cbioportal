@@ -92,8 +92,8 @@ public class LargeTestSetGenerator {
 			"cancer_study_identifier: " + studyId+ "\n"+
 			"name: " + studyId+ "\n"+
 			"description: <a >" + studyId+ "</a>.\n"+
-			"citation: The Hyve, Pieter Lukasse\n"+
-			"pmid: 23000897\n"+
+			"citation: The Hyve, Pieter Lukasse, ...\n"+
+			"pmid: 23000897,26451490\n"+
 			"groups: PUBLIC;GDAC;SU2C-PI3K\n"+
 			"short_name: " + studyId+ " (TEST)");
 		resultFile.close();

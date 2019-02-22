@@ -19,13 +19,13 @@ public class CNSegmentServiceImpl implements CNSegmentService {
     private CNSegmentRepository cnSegmentRepository;
 
     @Override
-    @PreAuthorize("hasPermission(#cancerStudyId, 'CancerStudy', 'read')")
+    @PreAuthorize("hasPermission(#cancerStudyId, 'CancerStudyId', 'read')")
     public List<CNSegmentData> getCNSegmentData(String cancerStudyId, List<String> chromosomes, List<String> sampleIds) {
         return cnSegmentRepository.getCNSegmentData(cancerStudyId, chromosomes, sampleIds);
     }
     
     @Override
-    @PreAuthorize("hasPermission(#cancerStudyId, 'CancerStudy', 'read')")
+    @PreAuthorize("hasPermission(#cancerStudyId, 'CancerStudyId', 'read')")
     public String getCNSegmentFile(String cancerStudyId, List<String> sampleIds) {
         List<CNSegmentData> results = cnSegmentRepository.getCNSegmentData(cancerStudyId, null, sampleIds);
         StringBuilder fileContent = new StringBuilder();

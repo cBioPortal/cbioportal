@@ -334,6 +334,25 @@ public final class DaoCancerStudy {
         reCacheAll();
     }
 
+    public static void addCancerStudyTags(CancerStudyTags cancerStudyTags) throws DaoException {
+    
+            Connection con = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            try {
+                con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
+                pstmt = con.prepareStatement("INSERT INTO cancer_study_tags " +
+                        "( `CANCER_STUDY_ID`,`TAGS` ) VALUES (?,?)");
+                pstmt.setInt(1, cancerStudyTags.getCancerStudyId());
+                pstmt.setString(2, cancerStudyTags.getTags());
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new DaoException(e);
+            } finally {
+                JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
+            }
+        } 
+
     /**
      * Return the cancerStudy identified by the internal cancer study ID, if it exists.
      *

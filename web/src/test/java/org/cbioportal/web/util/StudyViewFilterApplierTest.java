@@ -204,6 +204,43 @@ public class StudyViewFilterApplierTest {
         Mockito.when(sampleService.fetchSamples(studyIds, sampleIds, "ID")).thenReturn(samples);
         Mockito.when(patientService.getPatientsOfSamples(studyIds, sampleIds)).thenReturn(patients);
 
+        List<ClinicalData> patientClinicalDataList = new ArrayList<>();
+        ClinicalData patientClinicalData1 = new ClinicalData();
+        patientClinicalData1.setAttrId(CLINICAL_ATTRIBUTE_ID_2);
+        patientClinicalData1.setAttrValue("value2");
+        patientClinicalData1.setPatientId(PATIENT_ID1);
+        patientClinicalData1.setStudyId(STUDY_ID);
+        patientClinicalDataList.add(patientClinicalData1);
+        ClinicalData patientClinicalData2 = new ClinicalData();
+        patientClinicalData2.setAttrId(CLINICAL_ATTRIBUTE_ID_2);
+        patientClinicalData2.setAttrValue("N/A");
+        patientClinicalData2.setPatientId(PATIENT_ID2);
+        patientClinicalData2.setStudyId(STUDY_ID);
+        patientClinicalDataList.add(patientClinicalData2);
+        ClinicalData patientClinicalData3 = new ClinicalData();
+        patientClinicalData3.setAttrId(CLINICAL_ATTRIBUTE_ID_2);
+        patientClinicalData3.setAttrValue("value3");
+        patientClinicalData3.setPatientId(PATIENT_ID3);
+        patientClinicalData3.setStudyId(STUDY_ID);
+        patientClinicalDataList.add(patientClinicalData3);
+
+        Mockito.when(clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), patientIds,
+            Arrays.asList(CLINICAL_ATTRIBUTE_ID_2), "PATIENT", "SUMMARY")).thenReturn(patientClinicalDataList);
+
+        List<String> updatedPatientIds = new ArrayList<>();
+        updatedPatientIds.add(PATIENT_ID1);
+        updatedPatientIds.add(PATIENT_ID2);
+        updatedPatientIds.add(PATIENT_ID4);
+
+        List<Sample> updatedSamples = new ArrayList<>();
+        updatedSamples.add(sample1);
+        updatedSamples.add(sample2);
+        updatedSamples.add(sample4);
+        updatedSamples.add(sample5);
+        
+        Mockito.when(sampleService.getSamplesOfPatientsInMultipleStudies(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID),
+            updatedPatientIds, "ID")).thenReturn(updatedSamples);
+        
         List<ClinicalData> sampleClinicalDataList = new ArrayList<>();
         ClinicalData sampleClinicalData1 = new ClinicalData();
         sampleClinicalData1.setAttrId(CLINICAL_ATTRIBUTE_ID_1);
@@ -236,25 +273,14 @@ public class StudyViewFilterApplierTest {
         sampleClinicalData5.setStudyId(STUDY_ID);
         sampleClinicalDataList.add(sampleClinicalData5);
 
-        Mockito.when(clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), 
-            sampleIds, Arrays.asList(CLINICAL_ATTRIBUTE_ID_1), "SAMPLE", "SUMMARY")).thenReturn(sampleClinicalDataList);
-
         List<String> updatedSampleIds = new ArrayList<>();
         updatedSampleIds.add(SAMPLE_ID1);
         updatedSampleIds.add(SAMPLE_ID2);
         updatedSampleIds.add(SAMPLE_ID4);
         updatedSampleIds.add(SAMPLE_ID5);
-
-        List<Sample> updatedSamples = new ArrayList<>();
-        updatedSamples.add(sample1);
-        updatedSamples.add(sample2);
-        updatedSamples.add(sample4);
-        updatedSamples.add(sample5);
-
-        List<String> updatedPatientIds = new ArrayList<>();
-        updatedPatientIds.add(PATIENT_ID1);
-        updatedPatientIds.add(PATIENT_ID2);
-        updatedPatientIds.add(PATIENT_ID4);
+        
+        Mockito.when(clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID),
+            updatedSampleIds, Arrays.asList(CLINICAL_ATTRIBUTE_ID_1), "SAMPLE", "SUMMARY")).thenReturn(sampleClinicalDataList);
 
         List<Patient> updatedPatients = new ArrayList<>();
         Patient updatedPatient1 = new Patient();
@@ -272,32 +298,6 @@ public class StudyViewFilterApplierTest {
 
         Mockito.when(patientService.getPatientsOfSamples(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), 
             updatedSampleIds)).thenReturn(updatedPatients);
-
-        List<ClinicalData> patientClinicalDataList = new ArrayList<>();
-        ClinicalData patientClinicalData1 = new ClinicalData();
-        patientClinicalData1.setAttrId(CLINICAL_ATTRIBUTE_ID_2);
-        patientClinicalData1.setAttrValue("value2");
-        patientClinicalData1.setPatientId(PATIENT_ID1);
-        patientClinicalData1.setStudyId(STUDY_ID);
-        patientClinicalDataList.add(patientClinicalData1);
-        ClinicalData patientClinicalData2 = new ClinicalData();
-        patientClinicalData2.setAttrId(CLINICAL_ATTRIBUTE_ID_2);
-        patientClinicalData2.setAttrValue("N/A");
-        patientClinicalData2.setPatientId(PATIENT_ID2);
-        patientClinicalData2.setStudyId(STUDY_ID);
-        patientClinicalDataList.add(patientClinicalData2);
-        ClinicalData patientClinicalData3 = new ClinicalData();
-        patientClinicalData3.setAttrId(CLINICAL_ATTRIBUTE_ID_2);
-        patientClinicalData3.setAttrValue("value3");
-        patientClinicalData3.setPatientId(PATIENT_ID3);
-        patientClinicalData3.setStudyId(STUDY_ID);
-        patientClinicalDataList.add(patientClinicalData3);
-
-        Mockito.when(clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID), updatedPatientIds, 
-            Arrays.asList(CLINICAL_ATTRIBUTE_ID_2), "PATIENT", "SUMMARY")).thenReturn(patientClinicalDataList);
-
-        Mockito.when(sampleService.getSamplesOfPatientsInMultipleStudies(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID), 
-            updatedPatientIds, "ID")).thenReturn(updatedSamples);
 
         Mockito.when(molecularProfileService.getFirstMutationProfileIds(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), 
             updatedSampleIds)).thenReturn(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1));

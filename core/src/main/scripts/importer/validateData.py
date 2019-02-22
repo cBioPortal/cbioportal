@@ -40,6 +40,7 @@ import csv
 import itertools
 import requests
 import json
+import yaml
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from base64 import urlsafe_b64encode
@@ -677,23 +678,24 @@ class Validator(object):
         # set to upper, as both maps contain symbols in upper
         if gene_symbol is not None:
             gene_symbol = gene_symbol.upper()
-            # Check in case gene symbol is not null if it starts with an integer
-            if gene_symbol is not '':
-                # Check if the gene_symbol starts with a number
-                if gene_symbol[0] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
-                    # In case portal properties are defined check if the gene symbol that starts
-                    # with an integer is in the alias table, if not report an error
-                    if self.portal.hugo_entrez_map is not None and self.portal.alias_entrez_map is not None:
-                        if gene_symbol not in self.portal.hugo_entrez_map and \
-                                gene_symbol not in self.portal.alias_entrez_map:
-                            self.logger.error('Hugo Symbol is not in gene or alias table and starts with a '
-                                              'number. This can be caused by unintentional gene conversion in Excel.',
-                                              extra={'line_number': self.line_number, 'cause': gene_symbol})
-                    # If alias table cannot be checked report warning that hugo symbols normally do not start
-                    # with a number
-                    else:
-                        self.logger.warning('Hugo Symbol should not start with a number.',
-                                            extra={'line_number': self.line_number, 'cause': gene_symbol})
+            if self.portal.species == "human":
+                # Check in case gene symbol is not null if it starts with an integer
+                if gene_symbol is not '':
+                    # Check if the gene_symbol starts with a number
+                    if gene_symbol[0] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
+                        # In case portal properties are defined check if the gene symbol that starts
+                        # with an integer is in the alias table, if not report an error
+                        if self.portal.hugo_entrez_map is not None and self.portal.alias_entrez_map is not None:
+                            if gene_symbol not in self.portal.hugo_entrez_map and \
+                                    gene_symbol not in self.portal.alias_entrez_map:
+                                self.logger.error('Hugo Symbol is not in gene or alias table and starts with a '
+                                'number. This can be caused by unintentional gene conversion in Excel.',
+                                                    extra={'line_number': self.line_number, 'cause': gene_symbol})
+                        # If alias table cannot be checked report warning that hugo symbols normally do not start
+                        # with a number
+                        else:
+                            self.logger.warning('Hugo Symbol should not start with a number.',
+                                                extra={'line_number': self.line_number, 'cause': gene_symbol})
 
         if entrez_id is not None:
             try:
@@ -3367,7 +3369,7 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
 
     # get filenames for all meta files in the directory
     filenames = [os.path.join(directory, f) for
-                 f in os.listdir(directory) if
+                 f in sorted(os.listdir(directory)) if
                  re.search(r'(\b|_)meta(\b|[_0-9])', f,
                            flags=re.IGNORECASE) and
                  not f.startswith('.') and
@@ -3384,6 +3386,7 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
     validators_by_type = {}
     case_list_suffix_fns = {}
     stable_ids = []
+    tags_file_path = None
 
     for filename in filenames:
 
@@ -3424,10 +3427,28 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
                 if ('add_global_case_list' in meta_dictionary and
                         meta_dictionary['add_global_case_list'].lower() == 'true'):
                     case_list_suffix_fns['all'] = filename
-            # raise a warning if pmid is existing, but no citation is available.
-            if 'pmid' in meta_dictionary and not 'citation' in meta_dictionary:
-                logger.warning(
-                'Citation is required when giving a pubmed id (pmid).')
+
+            # Validate PMID field in meta_study
+            if 'pmid' in meta_dictionary:
+                if 'citation' not in meta_dictionary:
+                    logger.warning('Citation is required when providing a PubMed ID (pmid)')
+                stripped_pmid_value_len = len(meta_dictionary['pmid'].strip())
+                no_whitespace_pmid_value_len = len(''.join(meta_dictionary['pmid'].split()))
+                if (no_whitespace_pmid_value_len != stripped_pmid_value_len):
+                    logger.error('The PMID field in meta_study should not contain any embedded whitespace',
+                                 extra={'cause': meta_dictionary['pmid'].strip()})
+                for pmid_entry in [x.strip() for x in meta_dictionary['pmid'].split(',')]:
+                    try:
+                        value = int(pmid_entry)
+                    except ValueError:
+                        logger.error('The PMID field in meta_study should be a comma separated list of integers',
+                                     extra={'cause': pmid_entry})
+
+            # Validate Study Tags file field in meta_study
+            if 'tags_file' in meta_dictionary:
+                logger.debug(
+                    'Study Tag file found. It will be validated.')
+                tags_file_path = os.path.join(directory, meta_dictionary['tags_file'])
 
         # create a list for the file type in the dict
         if meta_file_type not in validators_by_type:
@@ -3455,7 +3476,7 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
                 case_list_suffix_fns[suffix]
 
     return (validators_by_type, defined_case_list_fns,
-            study_cancer_type, study_id)
+            study_cancer_type, study_id, tags_file_path)
 
 
 def processCaseListDirectory(caseListDir, cancerStudyId, logger,
@@ -3599,7 +3620,7 @@ def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logge
     if cancer_study_id + '_all' not in case_list_ids:
         logger.error(
                 "No case list found with stable_id '%s', consider adding "
-                    "'add_global_case_list: true' to the study metadata file",
+                    "'add_global_case_list: true' to the meta_study.txt file",
                 cancer_study_id + '_all')
 
     if 'meta_mutations_extended' in file_types:
@@ -3625,6 +3646,19 @@ def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logge
                 "case list to specify which samples are profiled for this data type. On the query page, this "
                 "case list will be selected by default when both mutation and CNA data are available.",
                 cancer_study_id + '_cnaseq')
+
+def validateStudyTags(tags_file_path, logger):
+        """Validate the study tags file."""
+        logger.debug('Starting validation of study tags file',
+        	extra={'filename_': tags_file_path})
+        with open(tags_file_path, 'r') as stream:
+            try:
+                parsedYaml = yaml.load(stream)
+                logger.info('Validation of study tags file complete.',
+                extra={'filename_': tags_file_path})
+            except yaml.YAMLError as exc:
+                logger.error('The file provided is not in YAML or JSON format',
+                extra={'filename_': tags_file_path})
 
 def validate_dependencies(validators_by_meta_type, logger):
 
@@ -3932,7 +3966,8 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
     (validators_by_meta_type,
      defined_case_list_fns,
      study_cancer_type,
-     study_id) = process_metadata_files(study_dir, portal_instance, logger, relaxed_mode, strict_maf_checks)
+     study_id,
+     tags_file_path) = process_metadata_files(study_dir, portal_instance, logger, relaxed_mode, strict_maf_checks)
 
     # first parse and validate cancer type files
     studydefined_cancer_types = []
@@ -4007,7 +4042,10 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
                 validators_by_meta_type[
                     cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES])})
 
-    # next validate all other data files, from meta_aaa to meta_zzz
+    # then validate the study tags YAML file if it exists
+    if tags_file_path is not None:
+        validateStudyTags(tags_file_path, logger=logger)
+    # next validate all other data files
     for meta_file_type in sorted(validators_by_meta_type):
         # skip cancer type and clinical files, they have already been validated
         if meta_file_type in (cbioportal_common.MetaFileTypes.CANCER_TYPE,

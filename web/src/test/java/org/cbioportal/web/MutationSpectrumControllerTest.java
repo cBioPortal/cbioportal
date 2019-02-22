@@ -28,7 +28,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class MutationSpectrumControllerTest {
 
@@ -53,9 +53,11 @@ public class MutationSpectrumControllerTest {
 
     @Autowired
     private MutationSpectrumService mutationSpectrumService;
-    private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private MockMvc mockMvc;
 
     @Bean
     public MutationSpectrumService mutationSpectrumService() {

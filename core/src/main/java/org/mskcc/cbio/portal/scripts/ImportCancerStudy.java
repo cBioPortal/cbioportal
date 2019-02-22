@@ -55,11 +55,16 @@ public class ImportCancerStudy extends ConsoleRunnable {
             File file = new File(args[0]);
             SpringUtil.initDataSource();
             CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(file);
-            ProgressMonitor.setCurrentMessage(
-                    "Loaded the following cancer study:" +
-                    "\n --> Study ID:  " + cancerStudy.getInternalId() +
-                    "\n --> Name:  " + cancerStudy.getName() +
-                    "\n --> Description:  " + cancerStudy.getDescription());
+            CancerStudyTags cancerStudyTags = CancerStudyTagsReader.loadCancerStudyTags(file, cancerStudy);
+            String message = "Loaded the following cancer study:" +
+                "\n --> Study ID:  " + cancerStudy.getInternalId() +
+                "\n --> Name:  " + cancerStudy.getName() +
+                "\n --> Description:  " + cancerStudy.getDescription();
+
+            if (cancerStudyTags != null) {
+                message += "\n --> Study Tags:  " + cancerStudyTags.getTags();
+            }
+            ProgressMonitor.setCurrentMessage(message);
         }
         catch (RuntimeException e) {
             throw e;

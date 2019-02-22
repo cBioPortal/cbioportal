@@ -7,10 +7,10 @@ import java.util.List;
 
 public interface PatientMapper {
 
-    List<Patient> getPatients(List<String> studyIds, List<String> patientIds, String projection, Integer limit, 
-                              Integer offset, String sortBy, String direction);
+    List<Patient> getPatients(List<String> studyIds, List<String> patientIds, String keyword, String projection, 
+        Integer limit, Integer offset, String sortBy, String direction);
 
-    BaseMeta getMetaPatients(List<String> studyIds, List<String> patientIds);
+    BaseMeta getMetaPatients(List<String> studyIds, List<String> patientIds, String keyword);
 
     Patient getPatient(String studyId, String patientId, String projection);
 

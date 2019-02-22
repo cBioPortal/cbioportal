@@ -91,7 +91,7 @@ brca<TAB>Breast Invasive Carcinoma<TAB>breast,breast invasive<TAB>HotPink<TAB>Br
 
 The clinical data is used to capture both clinical attributes and the mapping between patient and sample ids. The software supports multiple samples per patient.  
 
-As of March 2016, the clinical file is split into a patient file and a clinical file. The *sample* file is required, whereas the *patient* file is optional. cBioPortal has specific functionality for a core set of patient and sample columns, but can also display custom columns (see section ["Custom columns in clinical data"](#custom-columns-in-clinical-data)).
+As of March 2016, the clinical file is split into a patient clinical file and a sample clinical file. The *sample* file is required, whereas the *patient* file is optional. cBioPortal has specific functionality for a core set of patient and sample columns, but can also display custom columns (see section ["Custom columns in clinical data"](#custom-columns-in-clinical-data)).
 
 #### Meta files
 The two clinical metadata files (or just one metadata file if you choose to leave the *patient* file out) have to contain the following fields:

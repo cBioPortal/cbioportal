@@ -272,12 +272,15 @@ public class ProxySessionServiceController {
 			RestTemplate restTemplate = new RestTemplate();
 
 			HttpEntity<String> httpEntity = new HttpEntity<String>(query, getHttpHeaders());
+			
+            ResponseEntity<List<VirtualStudy>> responseEntity = restTemplate.exchange(
+                    sessionServiceURL + SessionType.group + "/query/fetch", HttpMethod.POST, httpEntity,
+                    new ParameterizedTypeReference<List<VirtualStudy>>() {
+                    });
 
-			return restTemplate.exchange(
-					sessionServiceURL + SessionType.group + "/query/fetch",
-					HttpMethod.POST,
-					httpEntity,
-					new ParameterizedTypeReference<List<VirtualStudy>>() {});
+            List<VirtualStudy> virtualStudies = responseEntity.getBody();
+
+            return new ResponseEntity<>(virtualStudies, HttpStatus.OK);
 
 		}
 		return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);

@@ -28,7 +28,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class SignificantlyMutatedGenesControllerTest {
 
@@ -54,6 +54,7 @@ public class SignificantlyMutatedGenesControllerTest {
 
     @Autowired
     private SignificantlyMutatedGeneService significantlyMutatedGeneService;
+
     private MockMvc mockMvc;
 
     @Bean

@@ -7,7 +7,6 @@ import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.accept.PathExtensionContentNegotiationStrategy;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,17 +20,30 @@ public class PatientMyBatisRepository implements PatientRepository {
     private OffsetCalculator offsetCalculator;
 
     @Override
+    public List<Patient> getAllPatients(String keyword, String projection, Integer pageSize, Integer pageNumber,
+            String sortBy, String direction) {
+        return patientMapper.getPatients(null, null, keyword, projection, pageSize,
+            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+    }
+
+    @Override
+    public BaseMeta getMetaPatients(String keyword) {
+
+        return patientMapper.getMetaPatients(null, null, keyword);
+    }
+
+    @Override
     public List<Patient> getAllPatientsInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber,
                                                String sortBy, String direction) {
 
-        return patientMapper.getPatients(Arrays.asList(studyId), null, projection, pageSize,
+        return patientMapper.getPatients(Arrays.asList(studyId), null, null, projection, pageSize,
             offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
     public BaseMeta getMetaPatientsInStudy(String studyId) {
 
-        return patientMapper.getMetaPatients(Arrays.asList(studyId), null);
+        return patientMapper.getMetaPatients(Arrays.asList(studyId), null, null);
     }
 
     @Override
@@ -43,13 +55,13 @@ public class PatientMyBatisRepository implements PatientRepository {
     @Override
     public List<Patient> fetchPatients(List<String> studyIds, List<String> patientIds, String projection) {
 
-        return patientMapper.getPatients(studyIds, patientIds, projection, 0, 0, null, null);
+        return patientMapper.getPatients(studyIds, patientIds, null, projection, 0, 0, null, null);
     }
 
     @Override
     public BaseMeta fetchMetaPatients(List<String> studyIds, List<String> patientIds) {
 
-        return patientMapper.getMetaPatients(studyIds, patientIds);
+        return patientMapper.getMetaPatients(studyIds, patientIds, null);
     }
 
 	@Override

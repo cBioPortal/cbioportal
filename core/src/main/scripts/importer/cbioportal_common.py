@@ -76,7 +76,8 @@ META_FIELD_MAP = {
         'citation': False,
         'pmid': False,
         'groups': False,
-        'add_global_case_list': False
+        'add_global_case_list': False,
+        'tags_file': False
     },
     MetaFileTypes.SAMPLE_ATTRIBUTES: {
         'cancer_study_identifier': True,
@@ -723,7 +724,7 @@ def parse_metadata_file(filename,
                                       'name': 255,
                                       'description': 1024,
                                       'citation': 200,
-                                      'pmid': 20,
+                                      'pmid': 1024,
                                       'groups': 200,
                                       'short_name': 64
                                       }

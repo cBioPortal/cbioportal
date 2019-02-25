@@ -5,7 +5,6 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.MolecularDataService;
-import org.cbioportal.service.util.BenjaminiHochbergFDRCalculator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,8 +28,6 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
     private MolecularDataService molecularDataService;
     @Mock
     private GeneService geneService;
-    @Mock
-    private BenjaminiHochbergFDRCalculator benjaminiHochbergFDRCalculator;
     
     @Test
     public void getExpressionEnrichments() throws Exception {
@@ -96,36 +93,31 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
 
         Mockito.when(geneService.fetchGenes(Arrays.asList("2", "3"), "ENTREZ_GENE_ID", "SUMMARY")).thenReturn(genes);
 
-        Mockito.when(benjaminiHochbergFDRCalculator.calculate(new double[]{0.8716148250471419, 0.9475795430163914}))
-            .thenReturn(new double[]{0.6, 1});
-
         List<ExpressionEnrichment> result = expressionEnrichmentService.getExpressionEnrichments(MOLECULAR_PROFILE_ID, 
-            alteredSampleIds, unalteredSampleIds, Arrays.asList(ENTREZ_GENE_ID_1), "SAMPLE");
+            alteredSampleIds, unalteredSampleIds, "SAMPLE");
 
         Assert.assertEquals(2, result.size());
         ExpressionEnrichment expressionEnrichment1 = result.get(0);
-        Assert.assertEquals((Integer) 3, expressionEnrichment1.getEntrezGeneId());
-        Assert.assertEquals("HUGO3", expressionEnrichment1.getHugoGeneSymbol());
-        Assert.assertEquals("CYTOBAND3", expressionEnrichment1.getCytoband());
-        Assert.assertEquals(new BigDecimal("3.05"), expressionEnrichment1.getMeanExpressionInAlteredGroup());
-        Assert.assertEquals(new BigDecimal("2.65"), expressionEnrichment1.getMeanExpressionInUnalteredGroup());
-        Assert.assertEquals(new BigDecimal("2.7577164466275352"), 
-            expressionEnrichment1.getStandardDeviationInAlteredGroup());
-        Assert.assertEquals(new BigDecimal("0.4949747468305834"), 
-            expressionEnrichment1.getStandardDeviationInUnalteredGroup());
-        Assert.assertEquals(new BigDecimal("0.8716148250471419"), expressionEnrichment1.getpValue());
-        Assert.assertEquals(new BigDecimal("0.6"), expressionEnrichment1.getqValue());
-        ExpressionEnrichment expressionEnrichment2 = result.get(1);
-        Assert.assertEquals((Integer) 2, expressionEnrichment2.getEntrezGeneId());
-        Assert.assertEquals("HUGO2", expressionEnrichment2.getHugoGeneSymbol());
-        Assert.assertEquals("CYTOBAND2", expressionEnrichment2.getCytoband());
-        Assert.assertEquals(new BigDecimal("2.5"), expressionEnrichment2.getMeanExpressionInAlteredGroup());
-        Assert.assertEquals(new BigDecimal("2.55"), expressionEnrichment2.getMeanExpressionInUnalteredGroup());
+        Assert.assertEquals((Integer) 2, expressionEnrichment1.getEntrezGeneId());
+        Assert.assertEquals("HUGO2", expressionEnrichment1.getHugoGeneSymbol());
+        Assert.assertEquals("CYTOBAND2", expressionEnrichment1.getCytoband());
+        Assert.assertEquals(new BigDecimal("2.5"), expressionEnrichment1.getMeanExpressionInAlteredGroup());
+        Assert.assertEquals(new BigDecimal("2.55"), expressionEnrichment1.getMeanExpressionInUnalteredGroup());
         Assert.assertEquals(new BigDecimal("0.7071067811865476"), 
-            expressionEnrichment2.getStandardDeviationInAlteredGroup());
+            expressionEnrichment1.getStandardDeviationInAlteredGroup());
         Assert.assertEquals(new BigDecimal("0.6363961030678927"), 
+            expressionEnrichment1.getStandardDeviationInUnalteredGroup());
+        Assert.assertEquals(new BigDecimal("0.9475795430163914"), expressionEnrichment1.getpValue());
+        ExpressionEnrichment expressionEnrichment2 = result.get(1);
+        Assert.assertEquals((Integer) 3, expressionEnrichment2.getEntrezGeneId());
+        Assert.assertEquals("HUGO3", expressionEnrichment2.getHugoGeneSymbol());
+        Assert.assertEquals("CYTOBAND3", expressionEnrichment2.getCytoband());
+        Assert.assertEquals(new BigDecimal("3.05"), expressionEnrichment2.getMeanExpressionInAlteredGroup());
+        Assert.assertEquals(new BigDecimal("2.65"), expressionEnrichment2.getMeanExpressionInUnalteredGroup());
+        Assert.assertEquals(new BigDecimal("2.7577164466275352"), 
+            expressionEnrichment2.getStandardDeviationInAlteredGroup());
+        Assert.assertEquals(new BigDecimal("0.4949747468305834"), 
             expressionEnrichment2.getStandardDeviationInUnalteredGroup());
-        Assert.assertEquals(new BigDecimal("0.9475795430163914"), expressionEnrichment2.getpValue());
-        Assert.assertEquals(new BigDecimal("1.0"), expressionEnrichment2.getqValue());
+        Assert.assertEquals(new BigDecimal("0.8716148250471419"), expressionEnrichment2.getpValue());
     }
 }

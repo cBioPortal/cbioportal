@@ -8,7 +8,6 @@ import java.util.List;
 public interface ExpressionEnrichmentService {
     
     List<ExpressionEnrichment> getExpressionEnrichments(String molecularProfileId, List<String> alteredSampleIds, 
-                                                        List<String> unalteredSampleIds, List<Integer> queryGenes,
-                                                        String enrichmentType) 
+                                                        List<String> unalteredSampleIds, String enrichmentType) 
         throws MolecularProfileNotFoundException;
 }

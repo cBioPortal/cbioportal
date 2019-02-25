@@ -25,10 +25,10 @@
         <param-name>spring.profiles.active</param-name>
         <param-value>${dbconnector:jndi},${authenticate}</param-value>
     </context-param>
-    <context-param>  
-        <param-name>spring.liveBeansView.mbeanDomain</param-name>  
+    <context-param>
+        <param-name>spring.liveBeansView.mbeanDomain</param-name>
         <param-value>${dbconnector:jndi},${authenticate}</param-value>
-    </context-param> 
+    </context-param>
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
@@ -43,7 +43,7 @@
     <context-param>
       <param-name>log4jConfigLocation</param-name>
       <param-value>classpath:log4j.properties</param-value>
-    </context-param> 
+    </context-param>
 
     <!-- listeners -->
     <listener>
@@ -99,7 +99,7 @@
       <filter-name>CorsFilter</filter-name>
       <url-pattern>/*</url-pattern>
     </filter-mapping>
-    
+
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -110,12 +110,28 @@
       <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <!-- for mounting network tab through iframe -->
+    <filter>
+        <filter-name>httpHeaderSecurity</filter-name>
+        <filter-class>org.apache.catalina.filters.HttpHeaderSecurityFilter</filter-class>
+        <async-supported>true</async-supported>
+        <init-param>
+          <param-name>antiClickJackingOption</param-name>
+          <param-value>SAMEORIGIN</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+      <filter-name>httpHeaderSecurity</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
     <filter>
         <filter-name>FileUpload</filter-name>
         <display-name>File Upload</display-name>
         <description>
             Applied to file upload requests.
-            Wraps the request, allowing it to be used as a regular request, 
+            Wraps the request, allowing it to be used as a regular request,
             'as if' it were parsed by the Servlet API.
         </description>
         <filter-class>org.mskcc.cbio.portal.util.FileUploadFilter</filter-class>
@@ -152,6 +168,18 @@
         <url-pattern>/cross_cancer.do</url-pattern>
     </filter-mapping>
 
+    <filter>
+        <filter-name>ResettableHttpServletRequestFilter</filter-name>
+        <display-name>Reusable Http Servlet RequestFilter</display-name>
+        <description>This allows body of a request to be read multiple times.</description>
+        <filter-class>org.cbioportal.web.util.ResettableHttpServletRequestFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>ResettableHttpServletRequestFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+        <url-pattern>/api-legacy/*</url-pattern>
+    </filter-mapping>
+
     <!-- make sure XssFilter runs last, so that any new parameters added
          (for example in SessionServiceFilter) are also cleaned -->
     <filter>
@@ -172,7 +200,7 @@
 
 
     <!-- servlet definitions & mappings -->
-    
+
     <servlet>
         <servlet-name>api-legacy</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -324,7 +352,7 @@
         <servlet-name>CheckGeneSymbolJSON</servlet-name>
         <url-pattern>/CheckGeneSymbol.json</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
     	<servlet-name>ClinicalFreeFormJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalFreeFormJSON</servlet-class>
@@ -450,7 +478,7 @@
         <servlet-name>ClinicalTimelineData</servlet-name>
         <url-pattern>/clinical_timeline_data.json</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>patient_view</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.PatientView</servlet-class>
@@ -500,7 +528,7 @@
         <servlet-name>CnaJSON</servlet-name>
         <url-pattern>/cna.json</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>SVGtoPDFConverter</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.SvgConverter</servlet-class>
@@ -518,7 +546,7 @@
         <servlet-name>SimilarPatientsJSON</servlet-name>
         <url-pattern>/similar_patients.json</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>DrugsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.DrugsJSON</servlet-class>
@@ -617,7 +645,7 @@
         <servlet-name>calcFisherExactTest</servlet-name>
         <url-pattern>/calcFisherExact.do</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>overRepresentationAnalysisJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.EnrichmentsJSON</servlet-class>
@@ -655,7 +683,7 @@
         <url-pattern>/case.do/*</url-pattern>
         <url-pattern>/study.do/*</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>SiteMapIndex</servlet-name>
         <jsp-file>/sitemap_index.jsp</jsp-file>
@@ -665,7 +693,7 @@
         <servlet-name>SiteMapIndex</servlet-name>
         <url-pattern>/sitemap_index.xml</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>SiteMapStudy</servlet-name>
         <jsp-file>/sitemap_study.jsp</jsp-file>

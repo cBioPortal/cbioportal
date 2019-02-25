@@ -1,6 +1,7 @@
 package org.cbioportal.web;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import springfox.documentation.annotations.ApiIgnore;
 
 @InternalApi
 @RestController
@@ -48,13 +51,18 @@ public class ClinicalDataEnrichmentController {
     @Autowired
     private SampleService sampleService;
 
-    @PreAuthorize("hasPermission(#groupFilter, 'GroupFilter', 'read')")
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/clinical-data-enrichments/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data enrichments for the sample groups")
     public ResponseEntity<List<ClinicalDataEnrichment>> fetchClinicalEnrichments(
-            @ApiParam(required = true, value = "List of altered and unaltered Sample/Patient IDs") @Valid @RequestBody GroupFilter groupFilter) {
+            @ApiParam(required = true, value = "List of altered and unaltered Sample/Patient IDs")
+            @Valid @RequestBody(required = false) GroupFilter groupFilter,
+            @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+            @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+            @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+            @RequestAttribute(required = false, value = "interceptedGroupFilter") GroupFilter interceptedGroupFilter) {
 
-        List<String> studyIds = groupFilter.getGroups().stream()
+        List<String> studyIds = interceptedGroupFilter.getGroups().stream()
                 .flatMap(group -> group.getSampleIdentifiers().stream().map(SampleIdentifier::getStudyId))
                 .collect(Collectors.toList());
 
@@ -70,7 +78,7 @@ public class ClinicalDataEnrichmentController {
                 .forEach(sample -> sampleSet.put(sample.getCancerStudyIdentifier(), sample.getStableId(), sample));
 
         // samples for each group
-        List<List<Sample>> groupedSamples = groupFilter.getGroups().stream()
+        List<List<Sample>> groupedSamples = interceptedGroupFilter.getGroups().stream()
                 .map(group -> group.getSampleIdentifiers().stream()
                         .map(sampleIdentifier -> (Sample) sampleSet.get(sampleIdentifier.getStudyId(),
                                 sampleIdentifier.getSampleId()))
@@ -97,8 +105,6 @@ public class ClinicalDataEnrichmentController {
 
             clinicalEnrichments.addAll(
                     clinicalDataEnrichmentUtil.createEnrichmentsForNumericData(clinicalAttributes, groupedSamples));
-
-            clinicalDataEnrichmentUtil.calculateQValues(clinicalEnrichments);
         }
         return clinicalEnrichments;
     }

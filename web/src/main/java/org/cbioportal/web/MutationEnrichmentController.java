@@ -34,7 +34,7 @@ public class MutationEnrichmentController {
     @Autowired
     private MutationEnrichmentService mutationEnrichmentService;
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutation-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -48,7 +48,6 @@ public class MutationEnrichmentController {
         @Valid @RequestBody EnrichmentFilter enrichmentFilter) throws MolecularProfileNotFoundException {
 
         return new ResponseEntity<>(mutationEnrichmentService.getMutationEnrichments(molecularProfileId,
-            enrichmentFilter.getAlteredIds(), enrichmentFilter.getUnalteredIds(), enrichmentFilter.getQueryGenes(), 
-            enrichmentType.name()), HttpStatus.OK);
+            enrichmentFilter.getAlteredIds(), enrichmentFilter.getUnalteredIds(), enrichmentType.name()), HttpStatus.OK);
     }
 }

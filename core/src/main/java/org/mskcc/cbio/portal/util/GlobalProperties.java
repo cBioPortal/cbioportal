@@ -1195,11 +1195,15 @@ public class GlobalProperties {
 
     public static String getMskWholeSlideViewerToken()
     {
+        // this token is for the msk portal 
+        // the token is generated based on users' timestamp to let the slide viewer know whether the token is expired and then decide whether to allow the user to login the viewer
+        // every time when we refresh the page or goto the new page, a new token should be generated
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String secretKey = portalProperties.getProperty(MSK_WHOLE_SLIDE_VIEWER_SECRET_KEY);
+        String timeStamp = String.valueOf(System.currentTimeMillis());
         
-        if(authentication != null && authentication.isAuthenticated() && secretKey != null && !secretKey.isEmpty()) {
-            return MskWholeSlideViewerTokenGenerator.generateTokenByHmacSHA256(authentication.getName(), secretKey);
+        if(authentication != null && authentication.isAuthenticated() && secretKey != null && !secretKey.isEmpty()) {           
+            return "{ \"token\":\"" + MskWholeSlideViewerTokenGenerator.generateTokenByHmacSHA256(authentication.getName(), secretKey, timeStamp) + "\", \"time\":\"" + timeStamp + "\"}";
         } else {
             return null;
         }

@@ -71,7 +71,7 @@ public class SampleListController {
         }
     }
 
-    @PreAuthorize("hasPermission(#sampleListId, 'SampleList', 'read')")
+    @PreAuthorize("hasPermission(#sampleListId, 'SampleListId', 'read')")
     @RequestMapping(value = "/sample-lists/{sampleListId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get sample list")
@@ -82,7 +82,7 @@ public class SampleListController {
         return new ResponseEntity<>(sampleListService.getSampleList(sampleListId), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
     @RequestMapping(value = "/studies/{studyId}/sample-lists", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all sample lists in a study")
@@ -115,7 +115,7 @@ public class SampleListController {
         }
     }
 
-    @PreAuthorize("hasPermission(#sampleListId, 'SampleList', 'read')")
+    @PreAuthorize("hasPermission(#sampleListId, 'SampleListId', 'read')")
     @RequestMapping(value = "/sample-lists/{sampleListId}/sample-ids", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all sample IDs in a sample list")
@@ -126,7 +126,7 @@ public class SampleListController {
         return new ResponseEntity<>(sampleListService.getAllSampleIdsInSampleList(sampleListId), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#sampleListIds, 'List<SampleListId>', 'read')")
+    @PreAuthorize("hasPermission(#sampleListIds, 'Collection<SampleListId>', 'read')")
     @RequestMapping(value = "/sample-lists/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
     produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample lists by ID")

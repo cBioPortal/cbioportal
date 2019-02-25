@@ -27,7 +27,7 @@ public class ClinicalAttributeServiceImpl implements ClinicalAttributeService {
     private String AUTHENTICATE;
 
     @Override
-    @PostFilter("hasPermission(filterObject.cancerStudyIdentifier, 'CancerStudy', 'read')")
+    @PostFilter("hasPermission(filterObject.cancerStudyIdentifier, 'CancerStudyId', 'read')")
     public List<ClinicalAttribute> getAllClinicalAttributes(String projection, Integer pageSize, Integer pageNumber,
                                                             String sortBy, String direction) {
         

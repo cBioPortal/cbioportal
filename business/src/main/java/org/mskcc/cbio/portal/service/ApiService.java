@@ -98,7 +98,7 @@ public class ApiService {
 	}
 
   @Transactional
-  @PostFilter("filterObject['studyID'] == null || hasPermission(filterObject['studyID'], 'CancerStudy', 'read')")
+  @PostFilter("filterObject['studyID'] == null || hasPermission(filterObject['studyID'], 'CancerStudyId', 'read')")
 	public List<Map<String, String>> getMutationsCounts(Map<String,String[]> customizedAttrs, String type, Boolean per_study, List<String> studyIds, List<String> genes, List<Integer> starts, List<Integer> ends, List<String> echo) {
 
             List<Map<String, String>> results = new ArrayList<Map<String, String>>();
@@ -151,23 +151,23 @@ public class ApiService {
 	}
         
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBClinicalSampleData> getSampleClinicalData(String study_id, List<String> attribute_ids) {
 		return clinicalDataMapperLegacy.getSampleClinicalDataByStudyAndAttribute(study_id, attribute_ids);
 	}
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBClinicalSampleData> getSampleClinicalData(String study_id, List<String> attribute_ids, List<String> sample_ids) {
 		return clinicalDataMapperLegacy.getSampleClinicalDataBySampleAndAttribute(study_id, attribute_ids, sample_ids);
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBClinicalPatientData> getPatientClinicalData(String study_id, List<String> attribute_ids) {
 		return clinicalDataMapperLegacy.getPatientClinicalDataByStudyAndAttribute(study_id, attribute_ids);
 	}
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBClinicalPatientData> getPatientClinicalData(String study_id, List<String> attribute_ids, List<String> patient_ids) {
 		return clinicalDataMapperLegacy.getPatientClinicalDataByPatientAndAttribute(study_id, attribute_ids, patient_ids);
 	}
@@ -178,7 +178,7 @@ public class ApiService {
 	}
         
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBClinicalField> getClinicalAttributes(String study_id) {
        Integer internal_study_id = studyMapperLegacy.getStudies(Arrays.asList(study_id)).get(0).internal_id;
 		return clinicalFieldMapper.getAllClinicalFieldsByStudy(internal_study_id);
@@ -193,7 +193,7 @@ public class ApiService {
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBClinicalField> getSampleClinicalAttributes(String study_id) {
 		List<String> study_ids = new LinkedList<>();
 		study_ids.add(study_id);
@@ -206,7 +206,7 @@ public class ApiService {
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBClinicalField> getSampleClinicalAttributes(String study_id, List<String> sample_ids) {
 		List<Integer> internal_sample_ids = sampleMapperLegacy.getSampleInternalIdsBySample(study_id, sample_ids);
 		return getSampleClinicalAttributesByInternalIds(internal_sample_ids);
@@ -224,7 +224,7 @@ public class ApiService {
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBClinicalField> getPatientClinicalAttributes(String study_id) {
 		List<String> study_ids = new LinkedList<>();
 		study_ids.add(study_id);
@@ -237,7 +237,7 @@ public class ApiService {
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBClinicalField> getPatientClinicalAttributes(String study_id, List<String> patient_ids) {
 		List<Integer> internal_patient_ids = patientMapperLegacy.getPatientInternalIdsByPatient(study_id, patient_ids);
 		return clinicalFieldMapper.getPatientClinicalFieldsByPatientInternalIds(internal_patient_ids);
@@ -270,19 +270,19 @@ public class ApiService {
 	}
 	
 	@Transactional
-  @PostFilter("hasPermission(filterObject.study_id, 'CancerStudy', 'read')")
+  @PostFilter("hasPermission(filterObject.study_id, 'CancerStudyId', 'read')")
 	public List<DBGeneticProfile> getGeneticProfiles() {
 		return geneticProfileMapperLegacy.getAllGeneticProfiles();
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBGeneticProfile> getGeneticProfiles(String study_id) {
 		return geneticProfileMapperLegacy.getGeneticProfilesByStudy(study_id);
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#genetic_profile_ids, 'List<GeneticProfileId>', 'read')")
+  @PreAuthorize("hasPermission(#genetic_profile_ids, 'Collection<GeneticProfileId>', 'read')")
 	public List<DBGeneticProfile> getGeneticProfiles(List<String> genetic_profile_ids) {
 		return geneticProfileMapperLegacy.getGeneticProfiles(genetic_profile_ids);
 	}
@@ -300,73 +300,73 @@ public class ApiService {
 	}
 
 	@Transactional
-  @PostFilter("hasPermission(filterObject.study_id, 'CancerStudy', 'read')")
+  @PostFilter("hasPermission(filterObject.study_id, 'CancerStudyId', 'read')")
 	public List<DBSampleList> getSampleLists() {
 		return addSampleIdsToSampleLists(sampleListMapperLegacy.getAllIncompleteSampleLists());
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBSampleList> getSampleLists(String study_id) {
 		return addSampleIdsToSampleLists(sampleListMapperLegacy.getIncompleteSampleListsByStudy(study_id));
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#sample_list_ids, 'List<SampleListId>', 'read')")
+  @PreAuthorize("hasPermission(#sample_list_ids, 'Collection<SampleListId>', 'read')")
 	public List<DBSampleList> getSampleLists(List<String> sample_list_ids) {
 		return addSampleIdsToSampleLists(sampleListMapperLegacy.getIncompleteSampleLists(sample_list_ids));
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBPatient> getPatients(String study_id) {
 		return patientMapperLegacy.getPatientsByStudy(study_id);
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBPatient> getPatientsByPatient(String study_id, List<String> patient_ids) {
 		return patientMapperLegacy.getPatientsByPatient(study_id, patient_ids);
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBPatient> getPatientsBySample(String study_id, List<String> sample_ids) {
 		return patientMapperLegacy.getPatientsBySample(study_id, sample_ids);
 	}
 
     @Transactional
-    @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+    @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
     public List<Integer> getPatientInternalIdsByStudy(String study_id) {
         return patientMapperLegacy.getPatientInternalIdsByStudy(study_id);
     }
 
     @Transactional
-    @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+    @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
     public List<Integer> getSampleInternalIds(String study_id) {
         return sampleMapperLegacy.getSampleInternalIdsByStudy(study_id);
     }
 
 	@Transactional
-  @PreAuthorize("hasPermission(#genetic_profile_ids, 'List<GeneticProfileId>', 'read')")
+  @PreAuthorize("hasPermission(#genetic_profile_ids, 'Collection<GeneticProfileId>', 'read')")
 	public List<DBProfileData> getGeneticProfileData(List<String> genetic_profile_ids, List<String> genes) {
 		return getGeneticProfileData(genetic_profile_ids, genes, null, null);
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#genetic_profile_ids, 'List<GeneticProfileId>', 'read')")
+  @PreAuthorize("hasPermission(#genetic_profile_ids, 'Collection<GeneticProfileId>', 'read')")
 	public List<DBProfileData> getGeneticProfileDataBySampleList(List<String> genetic_profile_ids, List<String> genes, String sample_list_id) {
 		return getGeneticProfileData(genetic_profile_ids, genes, null, sample_list_id);
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#genetic_profile_ids, 'List<GeneticProfileId>', 'read')")
+  @PreAuthorize("hasPermission(#genetic_profile_ids, 'Collection<GeneticProfileId>', 'read')")
 	public List<DBProfileData> getGeneticProfileDataBySample(List<String> genetic_profile_ids, List<String> genes, List<String> sample_ids) {
 		return getGeneticProfileData(genetic_profile_ids, genes, sample_ids, null);
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#genetic_profile_ids, 'List<GeneticProfileId>', 'read')")
+  @PreAuthorize("hasPermission(#genetic_profile_ids, 'Collection<GeneticProfileId>', 'read')")
 	public List<DBProfileData> getGeneticProfileData(List<String> genetic_profile_ids, List<String> genes, List<String> sample_ids, String sample_list_id) {
 		List<DBGeneticProfile> profiles = getGeneticProfiles(genetic_profile_ids);
 		List<String> mutation_profiles = new ArrayList<>();
@@ -528,31 +528,31 @@ public class ApiService {
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBSample> getSamples(String study_id) {
 		return sampleMapperLegacy.getSamplesByStudy(study_id);
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBSample> getSamplesBySample(String study_id, List<String> sample_ids) {
 		return sampleMapperLegacy.getSamplesBySample(study_id, sample_ids);
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<DBSample> getSamplesByPatient(String study_id, List<String> patient_ids) {
 		return sampleMapperLegacy.getSamplesByPatient(study_id, patient_ids);
 	}
 
 	@Transactional
-  @PostFilter("hasPermission(filterObject.id, 'CancerStudy', 'read')")
+  @PostFilter("hasPermission(filterObject.id, 'CancerStudyId', 'read')")
 	public List<DBStudy> getStudies() {
 		return studyMapperLegacy.getAllStudies();
 	}
 
 	@Transactional
-  @PreAuthorize("hasPermission(#study_ids, 'List<CancerStudyId>', 'read')")
+  @PreAuthorize("hasPermission(#study_ids, 'Collection<CancerStudyId>', 'read')")
 	public List<DBStudy> getStudies(List<String> study_ids) {
 		return studyMapperLegacy.getStudies(study_ids);
 	}

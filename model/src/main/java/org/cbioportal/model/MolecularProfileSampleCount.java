@@ -8,6 +8,7 @@ public class MolecularProfileSampleCount implements Serializable {
 	private Integer numberOfMutationUnprofiledSamples;
 	private Integer numberOfCNAProfiledSamples;
     private Integer numberOfCNAUnprofiledSamples;
+    private Integer numberOfCNSegmentSamples; // TODO this is not actually molecular profile data, we should probably change the name of the model
 
 	public Integer getNumberOfMutationProfiledSamples() {
 		return numberOfMutationProfiledSamples;
@@ -40,4 +41,12 @@ public class MolecularProfileSampleCount implements Serializable {
 	public void setNumberOfCNAUnprofiledSamples(Integer numberOfCNAUnprofiledSamples) {
 		this.numberOfCNAUnprofiledSamples = numberOfCNAUnprofiledSamples;
 	}
+
+    public Integer getNumberOfCNSegmentSamples() {
+        return numberOfCNSegmentSamples;
+    }
+
+    public void setNumberOfCNSegmentSamples(Integer numberOfCNSegmentSamples) {
+        this.numberOfCNSegmentSamples = numberOfCNSegmentSamples;
+    }
 }

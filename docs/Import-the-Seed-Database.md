@@ -14,7 +14,7 @@ After download, the files can be unzipped by entering the following command:
 
 **Important:** Before importing, make sure that you have [followed the pre-build steps](Pre-Build-Steps.md) for creating the `cbioportal` database (see section "Create the cBioPortal MySQL Databases and User").
 
-1. Import the database schema:
+1. Import the database schema (/db-scripts/src/main/resources/cgds.sql):
 
     ```
     mysql --user=cbio_user --password=somepassword cbioportal < cgds.sql

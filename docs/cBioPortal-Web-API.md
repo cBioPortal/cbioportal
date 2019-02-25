@@ -1005,7 +1005,7 @@ POST /api/studies
 <tr><td>groups</td><td>false</td><td>string</td></tr>
 <tr><td>id</td><td>false</td><td>string</td></tr>
 <tr><td>name</td><td>false</td><td>string</td></tr>
-<tr><td>pmid</td><td>false</td><td>integer (int64)</td></tr>
+<tr><td>pmid</td><td>false</td><td>string</td></tr>
 <tr><td>short_name</td><td>false</td><td>string</td></tr>
 <tr><td>type_of_cancer</td><td>false</td><td>string</td></tr>
 </table>

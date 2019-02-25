@@ -28,7 +28,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class ClinicalEventControllerTest {
 
@@ -57,6 +57,7 @@ public class ClinicalEventControllerTest {
 
     @Autowired
     private ClinicalEventService clinicalEventService;
+
     private MockMvc mockMvc;
 
     @Bean

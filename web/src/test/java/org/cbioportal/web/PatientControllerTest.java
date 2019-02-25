@@ -32,7 +32,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class PatientControllerTest {
 
@@ -54,9 +54,11 @@ public class PatientControllerTest {
 
     @Autowired
     private PatientService patientService;
-    private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private MockMvc mockMvc;
 
     @Bean
     public PatientService patientService() {
@@ -68,6 +70,45 @@ public class PatientControllerTest {
 
         Mockito.reset(patientService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+    }
+
+    @Test
+    public void getAllPatientsDefaultProjection() throws Exception {
+
+        List<Patient> patientList = createExamplePatients();
+
+        Mockito.when(patientService.getAllPatients(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(),
+            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(patientList);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/patients")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyIdentifier").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudy").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").value(TEST_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyIdentifier").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudy").doesNotExist());
+    }
+
+    @Test
+    public void getAllPatientsMetaProjection() throws Exception {
+
+        BaseMeta baseMeta = new BaseMeta();
+        baseMeta.setTotalCount(2);
+
+        Mockito.when(patientService.getMetaPatients(Mockito.anyString())).thenReturn(baseMeta);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/patients")
+            .param("projection", "META"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
     
     @Test

@@ -7,10 +7,10 @@ import java.util.List;
 
 public interface CoExpressionService {
     
-    List<CoExpression> getCoExpressions(String molecularProfileId, String sampleListId, Integer entrezGeneId, 
-                                       Double threshold) throws MolecularProfileNotFoundException;
+    List<CoExpression> getCoExpressions(String geneticEntityId, CoExpression.GeneticEntityType geneticEntityType, String sampleListId, String molecularProfileIdA, 
+                                       String molecularProfileIdB, Double threshold) throws MolecularProfileNotFoundException, Exception;
 
 
-    List<CoExpression> fetchCoExpressions(String molecularProfileId, List<String> sampleIds, Integer entrezGeneId, 
-                                         Double threshold) throws MolecularProfileNotFoundException;
+    List<CoExpression> fetchCoExpressions(String geneticEntityId, CoExpression.GeneticEntityType geneticEntityType, List<String> sampleIds, String molecularProfileIdA, 
+                                         String molecularProfileIdB, Double threshold) throws MolecularProfileNotFoundException, Exception;
 }

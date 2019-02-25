@@ -1,6 +1,5 @@
 package org.cbioportal.web.util;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,14 +14,12 @@ import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalAttributeService;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.SampleService;
-import org.cbioportal.service.util.BenjaminiHochbergFDRCalculator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,9 +54,6 @@ public class ClinicalDataEnrichmentUtilTest {
 
     @Mock
     private SampleService sampleService;
-
-    @Spy
-    private BenjaminiHochbergFDRCalculator benjaminiHochbergFDRCalculator;
 
     @Test
     public void fetchClinicalDataEnrichemnts() {
@@ -377,27 +371,4 @@ public class ClinicalDataEnrichmentUtilTest {
         Assert.assertEquals("0.08771942638231253", actualClinicalDataEnrichments.get(0).getScore().toString());
         Assert.assertEquals("Kruskal Wallis Test", actualClinicalDataEnrichments.get(0).getMethod());
     }
-
-    @Test
-    public void calculateQValues() {
-        List<ClinicalDataEnrichment> actualClinicalDataEnrichments = new ArrayList<ClinicalDataEnrichment>();
-
-        clinicalDataEnrichmentUtil.calculateQValues(actualClinicalDataEnrichments);
-        Assert.assertTrue(actualClinicalDataEnrichments.isEmpty());
-
-        ClinicalDataEnrichment clinicalDataEnrichment1 = new ClinicalDataEnrichment();
-        clinicalDataEnrichment1.setpValue(new BigDecimal(0.08208499862670093));
-        actualClinicalDataEnrichments.add(clinicalDataEnrichment1);
-        clinicalDataEnrichmentUtil.calculateQValues(actualClinicalDataEnrichments);
-
-        Assert.assertEquals("0.08208499862670093", actualClinicalDataEnrichments.get(0).getqValue().toString());
-
-        ClinicalDataEnrichment clinicalDataEnrichment2 = new ClinicalDataEnrichment();
-        clinicalDataEnrichment2.setpValue(new BigDecimal(0.7670968826920188));
-        actualClinicalDataEnrichments.add(clinicalDataEnrichment2);
-        clinicalDataEnrichmentUtil.calculateQValues(actualClinicalDataEnrichments);
-
-        Assert.assertEquals("0.16416999725340187", actualClinicalDataEnrichments.get(0).getqValue().toString());
-    }
-
 }

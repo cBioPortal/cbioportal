@@ -21,7 +21,7 @@ public class CopyNumberSegmentServiceImpl implements CopyNumberSegmentService {
     private SampleService sampleService;
 
     @Override
-    public List<CopyNumberSeg> getCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId,
+    public List<CopyNumberSeg> getCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId, String chromosome,
                                                                     String projection, Integer pageSize,
                                                                     Integer pageNumber, String sortBy,
                                                                     String direction) throws SampleNotFoundException, 
@@ -29,36 +29,40 @@ public class CopyNumberSegmentServiceImpl implements CopyNumberSegmentService {
         
         sampleService.getSampleInStudy(studyId, sampleId);
 
-        return copyNumberSegmentRepository.getCopyNumberSegmentsInSampleInStudy(studyId, sampleId, projection, pageSize,
-            pageNumber, sortBy, direction);
+        return copyNumberSegmentRepository.getCopyNumberSegmentsInSampleInStudy(studyId, sampleId, chromosome, 
+            projection, pageSize, pageNumber, sortBy, direction);
     }
 
     @Override
-    public BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId)
+    public BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId, String chromosome)
         throws SampleNotFoundException, StudyNotFoundException {
 
         sampleService.getSampleInStudy(studyId, sampleId);
         
-        return copyNumberSegmentRepository.getMetaCopyNumberSegmentsInSampleInStudy(studyId, sampleId);
+        return copyNumberSegmentRepository.getMetaCopyNumberSegmentsInSampleInStudy(studyId, sampleId, chromosome);
     }
 
     @Override
-    public List<CopyNumberSeg> fetchCopyNumberSegments(List<String> studyIds, List<String> sampleIds, 
+    public List<CopyNumberSeg> fetchCopyNumberSegments(List<String> studyIds, 
+                                                       List<String> sampleIds,
+                                                       String chromosome,
                                                        String projection) {
         
-        return copyNumberSegmentRepository.fetchCopyNumberSegments(studyIds, sampleIds, projection);
+        return copyNumberSegmentRepository.fetchCopyNumberSegments(studyIds, sampleIds, chromosome, projection);
     }
 
     @Override
-    public BaseMeta fetchMetaCopyNumberSegments(List<String> studyIds, List<String> sampleIds) {
+    public BaseMeta fetchMetaCopyNumberSegments(List<String> studyIds, List<String> sampleIds, String chromsome) {
         
-        return copyNumberSegmentRepository.fetchMetaCopyNumberSegments(studyIds, sampleIds);
+        return copyNumberSegmentRepository.fetchMetaCopyNumberSegments(studyIds, sampleIds, chromsome);
     }
 
     @Override
-    public List<CopyNumberSeg> getCopyNumberSegmentsBySampleListId(String studyId, String sampleListId, 
+    public List<CopyNumberSeg> getCopyNumberSegmentsBySampleListId(String studyId, 
+                                                                   String sampleListId,
+                                                                   String chromosome,
                                                                    String projection) {
         
-        return copyNumberSegmentRepository.getCopyNumberSegmentsBySampleListId(studyId, sampleListId, projection);
+        return copyNumberSegmentRepository.getCopyNumberSegmentsBySampleListId(studyId, sampleListId, chromosome, projection);
     }
 }

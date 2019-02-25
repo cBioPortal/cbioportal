@@ -19,20 +19,21 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @PublicApi
 @RestController
@@ -46,7 +47,7 @@ public class CopyNumberSegmentController {
     @Autowired
     private CopyNumberSegmentService copyNumberSegmentService;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
     @RequestMapping(value = "/studies/{studyId}/samples/{sampleId}/copy-number-segments", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get copy number segments in a sample in a study")
@@ -55,6 +56,8 @@ public class CopyNumberSegmentController {
         @PathVariable String studyId,
         @ApiParam(required = true, value = "Sample ID e.g. TCGA-OR-A5J2-01")
         @PathVariable String sampleId,
+        @ApiParam("Chromosome")
+        @RequestParam(required = false) String chromosome,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
@@ -73,31 +76,37 @@ public class CopyNumberSegmentController {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, copyNumberSegmentService
-                .getMetaCopyNumberSegmentsInSampleInStudy(studyId, sampleId).getTotalCount().toString());
+                .getMetaCopyNumberSegmentsInSampleInStudy(studyId, sampleId, chromosome).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(studyId, sampleId,
+                copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(studyId, sampleId, chromosome,
                     projection.name(), pageSize, pageNumber, sortBy == null ? null : sortBy.getOriginalValue(),
                     direction.name()), HttpStatus.OK);
         }
     }
 
-    @PreAuthorize("hasPermission(#sampleIdentifiers, 'List<SampleIdentifier>', 'read')")
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/copy-number-segments/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch copy number segments by sample ID")
     public ResponseEntity<List<CopyNumberSeg>> fetchCopyNumberSegments(
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @RequestAttribute(required = false, value = "interceptedSampleIdentifiers") List<SampleIdentifier> interceptedSampleIdentifiers,
         @ApiParam(required = true, value = "List of sample identifiers")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-        @RequestBody List<SampleIdentifier> sampleIdentifiers,
+        @RequestBody(required = false) List<SampleIdentifier> sampleIdentifiers,
+        @ApiParam("Chromosome")
+        @RequestParam(required = false) String chromosome,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
 
-        for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
+        for (SampleIdentifier sampleIdentifier : interceptedSampleIdentifiers) {
             studyIds.add(sampleIdentifier.getStudyId());
             sampleIds.add(sampleIdentifier.getSampleId());
         }
@@ -105,11 +114,11 @@ public class CopyNumberSegmentController {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, copyNumberSegmentService
-                .fetchMetaCopyNumberSegments(studyIds, sampleIds).getTotalCount().toString());
+                .fetchMetaCopyNumberSegments(studyIds, sampleIds, chromosome).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                copyNumberSegmentService.fetchCopyNumberSegments(studyIds, sampleIds, projection.name()), 
+                copyNumberSegmentService.fetchCopyNumberSegments(studyIds, sampleIds, chromosome, projection.name()), 
                 HttpStatus.OK);
         }
     }

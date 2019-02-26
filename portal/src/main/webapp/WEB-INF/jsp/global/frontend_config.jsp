@@ -98,6 +98,9 @@ if (window.localdist || window.localdev) {
 } else if (localStorage.heroku) {
 	var herokuInstance = '//' + localStorage.getItem('heroku') + '.herokuapp.com/';
 	window.frontendConfig.frontendUrl = herokuInstance;
+} else if (localStorage.netlify) {
+	var netlifyInstance = '//' + localStorage.getItem('netlify') + '.netlify.com/';
+	window.frontendConfig.frontendUrl = netlifyInstance;
 }
 // clean userEmailAddress config
 if (!window.frontendConfig.userEmailAddress || window.frontendConfig.userEmailAddress === 'anonymousUser') {

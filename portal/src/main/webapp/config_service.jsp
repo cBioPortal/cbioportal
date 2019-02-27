@@ -33,8 +33,9 @@
             "oncoprint.custom_driver_annotation.binary.menu_label",
             "disabled_tabs",            
             "civic.url",
-            "oncoprint.custom_driver_annotation.default",
-            "oncoprint.oncokb_hotspots.default",
+            "oncoprint.custom_driver_annotation.binary.default",
+            "oncoprint.oncokb.default",
+            "oncoprint.hotspots.default",
             "genomenexus.url",
             "google_analytics_profile_id",
             "oncoprint.hide_vus.default",
@@ -90,7 +91,8 @@
             "session.url_length_threshold",
             "bitly.api_key",
             "bitly.user",
-            "bitly.access.token"
+            "bitly.access.token",
+            "oncoprint.custom_driver_annotation.tiers.default"
            
         }; 
     

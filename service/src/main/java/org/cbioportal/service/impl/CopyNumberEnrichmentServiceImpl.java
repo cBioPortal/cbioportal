@@ -3,7 +3,7 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.Entity;
+import org.cbioportal.model.MolecularProfileCase;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.CopyNumberEnrichmentService;
@@ -31,32 +31,35 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
     private AlterationEnrichmentUtil alterationEnrichmentUtil;
 
     @Override
-    public List<AlterationEnrichment> getCopyNumberEnrichments(List<Entity> set1, List<Entity> set2, List<Integer> alterationTypes, String enrichmentType) throws MolecularProfileNotFoundException {
-        List<Entity> allIds = new ArrayList<>(set1);
-        allIds.addAll(set2);
+    public List<AlterationEnrichment> getCopyNumberEnrichments(List<MolecularProfileCase> molecularProfileCaseSet1,
+            List<MolecularProfileCase> molecularProfileCaseSet2,
+            List<Integer> alterationTypes,
+            String enrichmentType) throws MolecularProfileNotFoundException {
+        List<MolecularProfileCase> allIds = new ArrayList<>(molecularProfileCaseSet1);
+        allIds.addAll(molecularProfileCaseSet2);
         List<CopyNumberCountByGene> copyNumberCountByGeneListFromRepo = new ArrayList<>();
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = new ArrayList<>(0);
 
-        Map<String, List<String>> allMolecularProfileIdToEntityMap = alterationEnrichmentUtil.mapMolecularProfileIdToEntityId(allIds);
-        Map<String, List<String>> group1MolecularProfileIdToEntityMap = alterationEnrichmentUtil.mapMolecularProfileIdToEntityId(set1);
+        Map<String, List<String>> allMolecularProfileIdToCaseMap = alterationEnrichmentUtil.mapMolecularProfileIdToCaseId(allIds);
+        Map<String, List<String>> group1MolecularProfileIdToCaseMap = alterationEnrichmentUtil.mapMolecularProfileIdToCaseId(molecularProfileCaseSet1);
 
         if (enrichmentType.equals("SAMPLE")) {
-            for (String molecularProfileId : allMolecularProfileIdToEntityMap.keySet()) {
+            for (String molecularProfileId : allMolecularProfileIdToCaseMap.keySet()) {
                 copyNumberCountByGeneListFromRepo.addAll(discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(molecularProfileId,
-                        allMolecularProfileIdToEntityMap.get(molecularProfileId), null, null));
+                        allMolecularProfileIdToCaseMap.get(molecularProfileId), null, null));
             }
-            for (String molecularProfileId : group1MolecularProfileIdToEntityMap.keySet()) {
+            for (String molecularProfileId : group1MolecularProfileIdToCaseMap.keySet()) {
                 discreteCopyNumberDataList.addAll(discreteCopyNumberService
-                    .fetchDiscreteCopyNumbersInMolecularProfile(molecularProfileId, group1MolecularProfileIdToEntityMap.get(molecularProfileId), null, alterationTypes, "ID"));
+                    .fetchDiscreteCopyNumbersInMolecularProfile(molecularProfileId, group1MolecularProfileIdToCaseMap.get(molecularProfileId), null, alterationTypes, "ID"));
             }
         } else {
-            for (String molecularProfileId : allMolecularProfileIdToEntityMap.keySet()) {
+            for (String molecularProfileId : allMolecularProfileIdToCaseMap.keySet()) {
                 copyNumberCountByGeneListFromRepo.addAll(discreteCopyNumberService.getPatientCountByGeneAndAlterationAndPatientIds(molecularProfileId,
-                        allMolecularProfileIdToEntityMap.get(molecularProfileId), null, null));
+                        allMolecularProfileIdToCaseMap.get(molecularProfileId), null, null));
             }
-            for (String molecularProfileId : group1MolecularProfileIdToEntityMap.keySet()) {
+            for (String molecularProfileId : group1MolecularProfileIdToCaseMap.keySet()) {
                 MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
-                List<Sample> sampleList = sampleService.getAllSamplesOfPatientsInStudy(molecularProfile.getCancerStudyIdentifier(), group1MolecularProfileIdToEntityMap.get(molecularProfileId), "ID");
+                List<Sample> sampleList = sampleService.getAllSamplesOfPatientsInStudy(molecularProfile.getCancerStudyIdentifier(), group1MolecularProfileIdToCaseMap.get(molecularProfileId), "ID");
                 discreteCopyNumberDataList.addAll(discreteCopyNumberService
                     .fetchDiscreteCopyNumbersInMolecularProfile(molecularProfileId,
                         sampleList.stream().map(Sample::getStableId).collect(Collectors.toList()), null, alterationTypes,
@@ -67,7 +70,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
             new ArrayList<CopyNumberCountByGene>(copyNumberCountByGeneListFromRepo);
         copyNumberCountByGeneList.removeIf(m -> !alterationTypes.contains(m.getAlteration()));
 
-        return alterationEnrichmentUtil.createAlterationEnrichments(set1.size(), set2.size(),
+        return alterationEnrichmentUtil.createAlterationEnrichments(molecularProfileCaseSet1.size(), molecularProfileCaseSet2.size(),
             copyNumberCountByGeneList, discreteCopyNumberDataList, enrichmentType);
     }
 }

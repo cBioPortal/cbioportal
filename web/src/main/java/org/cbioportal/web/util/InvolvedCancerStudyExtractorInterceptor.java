@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.cbioportal.model.Entity;
+import org.cbioportal.model.MolecularProfileCase;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
@@ -442,7 +442,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             LOG.debug("setting interceptedMultiStudyEnrichmentFilter to " + multiStudyEnrichmentFilter);
             request.setAttribute("interceptedMultiStudyEnrichmentFilter", multiStudyEnrichmentFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
-                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromMultiStudyEnrichmentFilter(multiStudyEnrichmentFilter.getSet1(), multiStudyEnrichmentFilter.getSet2());
+                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromMultiStudyEnrichmentFilter(multiStudyEnrichmentFilter.getMolecularProfileCaseSet1(), multiStudyEnrichmentFilter.getMolecularProfileCaseSet2());
                 LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
@@ -514,13 +514,14 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         return studyIdSet;
     }
 
-    private Set<String> extractCancerStudyIdsFromMultiStudyEnrichmentFilter(Collection<Entity> set1, Collection<Entity> set2) {
+    private Set<String> extractCancerStudyIdsFromMultiStudyEnrichmentFilter(Collection<MolecularProfileCase> molecularProfileCaseSet1, Collection<MolecularProfileCase> molecularProfileCaseSet2) {
+>>>>>>> Renamed Entity to MolecularProfileCase
         Set<String> molecularProfileIds = new HashSet<>();
-        for (Entity entity : set1) {
-            molecularProfileIds.add(entity.getMolecularProfileId());
+        for (MolecularProfileCase mpc : molecularProfileCaseSet1) {
+            molecularProfileIds.add(mpc.getMolecularProfileId());
         }
-        for (Entity entity : set2) {
-            molecularProfileIds.add(entity.getMolecularProfileId());
+        for (MolecularProfileCase mpc : molecularProfileCaseSet2) {
+            molecularProfileIds.add(mpc.getMolecularProfileId());
         }
         Set<String> studyIdSet = new HashSet<>();
         extractCancerStudyIdsFromMolecularProfileIds(molecularProfileIds, studyIdSet);

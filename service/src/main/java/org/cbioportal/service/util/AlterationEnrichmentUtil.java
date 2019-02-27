@@ -15,7 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.cbioportal.model.Entity;
+import org.cbioportal.model.AlterationCount;
+import org.cbioportal.model.MolecularProfileCase;
 
 @Component
 public class AlterationEnrichmentUtil {
@@ -28,7 +29,7 @@ public class AlterationEnrichmentUtil {
     private GeneService geneService;
 
     public List<AlterationEnrichment> createAlterationEnrichments(
-        int set1Count, int set2Count,
+        int molecularProfileCaseSet1Count, int molecularProfileCaseSet2Count,
         List<? extends AlterationCountByGene> alterationCountByGenes,
         List<? extends Alteration> alterations, String enrichmentType) {
 
@@ -44,8 +45,8 @@ public class AlterationEnrichmentUtil {
         for (int i = 0; i < alterationCountByGenes.size(); i++) {
             AlterationCountByGene copyNumberCountByGene = alterationCountByGenes.get(i);
             alterationEnrichments.add(createAlterationEnrichment(discreteCopyNumberDataMap.get(
-                copyNumberCountByGene.getEntrezGeneId()), copyNumberCountByGene, genes.get(i), set1Count,
-                set2Count, enrichmentType));
+                copyNumberCountByGene.getEntrezGeneId()), copyNumberCountByGene, genes.get(i), molecularProfileCaseSet1Count,
+                molecularProfileCaseSet2Count, enrichmentType));
         }
 
         return alterationEnrichments;
@@ -53,67 +54,70 @@ public class AlterationEnrichmentUtil {
 
     private AlterationEnrichment createAlterationEnrichment(List<? extends Alteration> alterations,
                                                            AlterationCountByGene alterationCountByGene,
-                                                           Gene gene, int set1Count,
-                                                           int set2Count, String enrichmentType) {
+                                                           Gene gene, int molecularProfileCaseSet1Count,
+                                                           int molecularProfileCaseSet2Count, String enrichmentType) {
 
         AlterationEnrichment alterationEnrichment = new AlterationEnrichment();
-
+        AlterationCount set1AlterationCount = new AlterationCount();
+        AlterationCount set2AlterationCount = new AlterationCount();
         if (alterations == null) {
-            alterationEnrichment.setAlteredInSet1Count(0);
+            set1AlterationCount.setAlteredCount(0);
         } else {
             if (enrichmentType.equals("SAMPLE")) {
-                alterationEnrichment.setAlteredInSet1Count(alterations.stream().collect(
+                set1AlterationCount.setAlteredCount(alterations.stream().collect(
                     Collectors.groupingBy(Alteration::getSampleId)).size());
             } else {
-                alterationEnrichment.setAlteredInSet1Count(alterations.stream().collect(
+                set1AlterationCount.setAlteredCount(alterations.stream().collect(
                     Collectors.groupingBy(Alteration::getPatientId)).size());
             }
         }
-        alterationEnrichment.setAlteredInSet2Count(alterationCountByGene.getCountByEntity() -
-            alterationEnrichment.getAlteredInSet1Count());
+        set1AlterationCount.setProfiledCount(molecularProfileCaseSet1Count);
+        set2AlterationCount.setAlteredCount(alterationCountByGene.getCountByCase() -
+            set1AlterationCount.getAlteredCount());
+        set2AlterationCount.setProfiledCount(molecularProfileCaseSet2Count);
+        alterationEnrichment.setSet1AlterationCount(set1AlterationCount);
+        alterationEnrichment.setSet2AlterationCount(set2AlterationCount);
         alterationEnrichment.setEntrezGeneId(alterationCountByGene.getEntrezGeneId());
         alterationEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
         alterationEnrichment.setCytoband(gene.getCytoband());
-        alterationEnrichment.setProfiledInSet1Count(set1Count);
-        alterationEnrichment.setProfiledInSet2Count(set2Count);
-        assignLogRatio(alterationEnrichment, set1Count, set2Count);
-        assignPValue(alterationEnrichment, set1Count, set2Count);
+        assignLogRatio(alterationEnrichment, molecularProfileCaseSet1Count, molecularProfileCaseSet2Count);
+        assignPValue(alterationEnrichment, molecularProfileCaseSet1Count, molecularProfileCaseSet2Count);
         return alterationEnrichment;
     }
 
-    private void assignLogRatio(AlterationEnrichment alterationEnrichment, int set1Count,
-                                int set2Count) {
+    private void assignLogRatio(AlterationEnrichment alterationEnrichment, int molecularProfileCaseSet1Count,
+                                int molecularProfileCaseSet2Count) {
 
-        double set1Ratio = (double) alterationEnrichment.getAlteredInSet1Count() / set1Count;
-        double set2Ratio = (double) alterationEnrichment.getAlteredInSet2Count() / set2Count;
+        double molecularProfileCaseSet1Ratio = (double) alterationEnrichment.getSet1AlterationCount().getAlteredCount() / molecularProfileCaseSet1Count;
+        double molecularProfileCaseSet2Ratio = (double) alterationEnrichment.getSet2AlterationCount().getAlteredCount() / molecularProfileCaseSet2Count;
 
-        double logRatio = logRatioCalculator.getLogRatio(set1Ratio, set2Ratio);
+        double logRatio = logRatioCalculator.getLogRatio(molecularProfileCaseSet1Ratio, molecularProfileCaseSet2Ratio);
         alterationEnrichment.setLogRatio(String.valueOf(logRatio));
     }
 
-    private void assignPValue(AlterationEnrichment alterationEnrichment, int set1Count,
-                              int set2Count) {
+    private void assignPValue(AlterationEnrichment alterationEnrichment, int molecularProfileCaseSet1Count,
+                              int molecularProfileCaseSet2Count) {
 
-        int alteredInNoneCount = set2Count - alterationEnrichment.getAlteredInSet2Count();
-        int alteredOnlyInQueryGenesCount = set1Count - alterationEnrichment.getAlteredInSet1Count();
+        int alteredInNoneCount = molecularProfileCaseSet2Count - alterationEnrichment.getSet2AlterationCount().getAlteredCount();
+        int alteredOnlyInQueryGenesCount = molecularProfileCaseSet1Count - alterationEnrichment.getSet1AlterationCount().getAlteredCount();
 
         double pValue = fisherExactTestCalculator.getCumulativePValue(alteredInNoneCount,
-            alterationEnrichment.getAlteredInSet2Count(), alteredOnlyInQueryGenesCount,
-            alterationEnrichment.getAlteredInSet1Count());
+            alterationEnrichment.getSet2AlterationCount().getAlteredCount(), alteredOnlyInQueryGenesCount,
+            alterationEnrichment.getSet1AlterationCount().getAlteredCount());
 
         alterationEnrichment.setpValue(BigDecimal.valueOf(pValue));
     }
 
-    public Map<String, List<String>> mapMolecularProfileIdToEntityId(List<Entity> entities) {
-        Map<String, List<String>> molecularProfileIdToEntityIdMap = new HashMap<>();
-        for (Entity entity : entities) {
-            String molecularProfileId = entity.getMolecularProfileId();
-            String entityId = entity.getEntityId();
-            if (!molecularProfileIdToEntityIdMap.containsKey(molecularProfileId)) {
-                molecularProfileIdToEntityIdMap.put(molecularProfileId, new ArrayList<>());
+    public Map<String, List<String>> mapMolecularProfileIdToCaseId(List<MolecularProfileCase> molecularProfileCases) {
+        Map<String, List<String>> molecularProfileIdToCaseIdMap = new HashMap<>();
+        for (MolecularProfileCase mpc : molecularProfileCases) {
+            String molecularProfileId = mpc.getMolecularProfileId();
+            String entityId = mpc.getCaseId();
+            if (!molecularProfileIdToCaseIdMap.containsKey(molecularProfileId)) {
+                molecularProfileIdToCaseIdMap.put(molecularProfileId, new ArrayList<>());
             }
-            molecularProfileIdToEntityIdMap.get(molecularProfileId).add(entityId);
+            molecularProfileIdToCaseIdMap.get(molecularProfileId).add(entityId);
         }
-        return molecularProfileIdToEntityIdMap;
+        return molecularProfileIdToCaseIdMap;
     }
 }

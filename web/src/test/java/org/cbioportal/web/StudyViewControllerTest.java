@@ -255,13 +255,13 @@ public class StudyViewControllerTest {
         MutationCountByGene mutationCount1 = new MutationCountByGene();
         mutationCount1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
         mutationCount1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
-        mutationCount1.setCountByEntity(1);
+        mutationCount1.setCountByCase(1);
         mutationCount1.setTotalCount(3);
         mutationCounts.add(mutationCount1);
         MutationCountByGene mutationCount2 = new MutationCountByGene();
         mutationCount2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         mutationCount2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
-        mutationCount2.setCountByEntity(2);
+        mutationCount2.setCountByCase(2);
         mutationCount2.setTotalCount(2);
         mutationCounts.add(mutationCount2);
 
@@ -305,14 +305,14 @@ public class StudyViewControllerTest {
         CopyNumberCountByGene cnaCount1 = new CopyNumberCountByGene();
         cnaCount1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
         cnaCount1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
-        cnaCount1.setCountByEntity(1);
+        cnaCount1.setCountByCase(1);
         cnaCount1.setCytoband(TEST_CYTOBAND_1);
         cnaCount1.setAlteration(-2);
         cnaCounts.add(cnaCount1);
         CopyNumberCountByGene cnaCount2 = new CopyNumberCountByGene();
         cnaCount2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         cnaCount2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
-        cnaCount2.setCountByEntity(2);
+        cnaCount2.setCountByCase(2);
         cnaCount2.setCytoband(TEST_CYTOBAND_2);
         cnaCount2.setAlteration(2);
         cnaCounts.add(cnaCount2);

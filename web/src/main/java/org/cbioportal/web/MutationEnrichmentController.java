@@ -52,7 +52,7 @@ public class MutationEnrichmentController {
         @Valid @RequestBody(required = false) MultipleStudiesEnrichmentFilter multipleStudiesEnrichmentFilter) throws MolecularProfileNotFoundException {
         return new ResponseEntity<>(
                 mutationEnrichmentService.getMutationEnrichments(
-                        interceptedMultiStudyEnrichmentFilter.getSet1(), interceptedMultiStudyEnrichmentFilter.getSet2(), enrichmentType.name()),
+                        interceptedMultiStudyEnrichmentFilter.getMolecularProfileCaseSet1(), interceptedMultiStudyEnrichmentFilter.getMolecularProfileCaseSet2(), enrichmentType.name()),
                 HttpStatus.OK);
     }
 }

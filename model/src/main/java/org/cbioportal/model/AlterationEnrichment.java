@@ -12,17 +12,13 @@ public class AlterationEnrichment implements Serializable {
     private String hugoGeneSymbol;
     private String cytoband;
     @NotNull
-    private Integer alteredInSet1Count;
-    @NotNull
-    private Integer alteredInSet2Count;
-    @NotNull
     private String logRatio;
     @NotNull
     private BigDecimal pValue;
     @NotNull
-    private Integer profiledInSet1Count;
+    private AlterationCount set1AlterationCount;
     @NotNull
-    private Integer profiledInSet2Count;
+    private AlterationCount set2AlterationCount;
     
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -48,22 +44,6 @@ public class AlterationEnrichment implements Serializable {
         this.cytoband = cytoband;
     }
 
-    public Integer getAlteredInSet1Count() {
-        return alteredInSet1Count;
-    }
-
-    public void setAlteredInSet1Count(Integer alteredInSet1Count) {
-        this.alteredInSet1Count = alteredInSet1Count;
-    }
-
-    public Integer getAlteredInSet2Count() {
-        return alteredInSet2Count;
-    }
-
-    public void setAlteredInSet2Count(Integer alteredInSet2Count) {
-        this.alteredInSet2Count = alteredInSet2Count;
-    }
-
     public String getLogRatio() {
         return logRatio;
     }
@@ -80,19 +60,19 @@ public class AlterationEnrichment implements Serializable {
         this.pValue = pValue;
     }
 
-    public Integer getProfiledInSet1Count() {
-        return profiledInSet1Count;
+    public AlterationCount getSet1AlterationCount() {
+        return set1AlterationCount;
     }
 
-    public void setProfiledInSet1Count(Integer profiledInSet1Count) {
-        this.profiledInSet1Count = profiledInSet1Count;
+    public void setSet1AlterationCount(AlterationCount set1AlterationCount) {
+        this.set1AlterationCount = set1AlterationCount;
     }
 
-    public Integer getProfiledInSet2Count() {
-        return profiledInSet2Count;
+    public AlterationCount getSet2AlterationCount() {
+        return set2AlterationCount;
     }
 
-    public void setProfiledInSet2Count(Integer profiledInSet2Count) {
-        this.profiledInSet2Count = profiledInSet2Count;
+    public void setSet2AlterationCount(AlterationCount set2AlterationCount) {
+        this.set2AlterationCount = set2AlterationCount;
     }
 }

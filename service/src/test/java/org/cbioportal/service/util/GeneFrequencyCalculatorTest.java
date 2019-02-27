@@ -87,15 +87,15 @@ public class GeneFrequencyCalculatorTest {
         List<AlterationCountByGene> alterationCounts = new ArrayList<>();
         AlterationCountByGene alterationCount1 = new AlterationCountByGene();
         alterationCount1.setEntrezGeneId(ENTREZ_GENE_ID_1);
-        alterationCount1.setCountByEntity(3);
+        alterationCount1.setCountByCase(3);
         alterationCounts.add(alterationCount1);
         AlterationCountByGene alterationCount2 = new AlterationCountByGene();
         alterationCount2.setEntrezGeneId(ENTREZ_GENE_ID_2);
-        alterationCount2.setCountByEntity(1);
+        alterationCount2.setCountByCase(1);
         alterationCounts.add(alterationCount2);
         AlterationCountByGene alterationCount3 = new AlterationCountByGene();
         alterationCount3.setEntrezGeneId(ENTREZ_GENE_ID_3);
-        alterationCount3.setCountByEntity(2);
+        alterationCount3.setCountByCase(2);
         alterationCounts.add(alterationCount3);
 
         geneFrequencyCalculator.calculate(Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID), 

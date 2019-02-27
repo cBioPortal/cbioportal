@@ -54,8 +54,8 @@ public class CopyNumberEnrichmentController {
         @ApiParam(required = true, value = "List of entities")
         @Valid @RequestBody(required = false) MultipleStudiesEnrichmentFilter multipleStudiesEnrichmentFilter) throws MolecularProfileNotFoundException {
         return new ResponseEntity<>(
-                copyNumberEnrichmentService.getCopyNumberEnrichments(interceptedMultiStudyEnrichmentFilter.getSet1(),
-                        interceptedMultiStudyEnrichmentFilter.getSet2(), copyNumberEventType.getAlterationTypes(), enrichmentType.name()),
+                copyNumberEnrichmentService.getCopyNumberEnrichments(interceptedMultiStudyEnrichmentFilter.getMolecularProfileCaseSet1(),
+                        interceptedMultiStudyEnrichmentFilter.getMolecularProfileCaseSet2(), copyNumberEventType.getAlterationTypes(), enrichmentType.name()),
                 HttpStatus.OK);
     }
 }

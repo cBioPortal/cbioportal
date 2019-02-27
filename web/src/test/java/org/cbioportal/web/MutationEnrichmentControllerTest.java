@@ -25,7 +25,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.cbioportal.model.Entity;
+import org.cbioportal.model.AlterationCount;
+import org.cbioportal.model.MolecularProfileCase;
 import org.cbioportal.web.parameter.MultipleStudiesEnrichmentFilter;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -81,41 +82,50 @@ public class MutationEnrichmentControllerTest {
 
         List<AlterationEnrichment> alterationEnrichments = new ArrayList<>();
         AlterationEnrichment alterationEnrichment1 = new AlterationEnrichment();
+        AlterationCount alterationEnrichment1Set1Count = new AlterationCount();
+        AlterationCount alterationEnrichment1Set2Count = new AlterationCount();
         alterationEnrichment1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
         alterationEnrichment1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
         alterationEnrichment1.setCytoband(TEST_CYTOBAND_1);
-        alterationEnrichment1.setAlteredInSet1Count(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_1);
-        alterationEnrichment1.setAlteredInSet2Count(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_1);
         alterationEnrichment1.setLogRatio(TEST_LOG_RATIO_1);
         alterationEnrichment1.setpValue(TEST_P_VALUE_1);
-        alterationEnrichment1.setProfiledInSet1Count(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1);
-        alterationEnrichment1.setProfiledInSet2Count(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2);
+        alterationEnrichment1Set1Count.setAlteredCount(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_1);
+        alterationEnrichment1Set1Count.setProfiledCount(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1);
+        alterationEnrichment1Set2Count.setAlteredCount(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_1);
+        alterationEnrichment1Set2Count.setProfiledCount(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2);
+        alterationEnrichment1.setSet1AlterationCount(alterationEnrichment1Set1Count);
+        alterationEnrichment1.setSet2AlterationCount(alterationEnrichment1Set2Count);
         alterationEnrichments.add(alterationEnrichment1);
+
         AlterationEnrichment alterationEnrichment2 = new AlterationEnrichment();
+        AlterationCount alterationEnrichment2Set1Count = new AlterationCount();
+        AlterationCount alterationEnrichment2Set2Count = new AlterationCount();
         alterationEnrichment2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         alterationEnrichment2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
         alterationEnrichment2.setCytoband(TEST_CYTOBAND_2);
-        alterationEnrichment2.setAlteredInSet1Count(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_2);
-        alterationEnrichment2.setAlteredInSet2Count(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_2);
         alterationEnrichment2.setLogRatio(TEST_LOG_RATIO_2);
         alterationEnrichment2.setpValue(TEST_P_VALUE_2);
-        alterationEnrichment2.setProfiledInSet1Count(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1);
-        alterationEnrichment2.setProfiledInSet2Count(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2);
+        alterationEnrichment2Set1Count.setAlteredCount(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_2);
+        alterationEnrichment2Set1Count.setProfiledCount(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1);
+        alterationEnrichment2Set2Count.setAlteredCount(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_2);
+        alterationEnrichment2Set2Count.setProfiledCount(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2);
+        alterationEnrichment2.setSet1AlterationCount(alterationEnrichment2Set1Count);
+        alterationEnrichment2.setSet2AlterationCount(alterationEnrichment2Set2Count);
         alterationEnrichments.add(alterationEnrichment2);
 
-        Mockito.when(mutationEnrichmentService.getMutationEnrichments(Mockito.anyListOf(Entity.class),
-                Mockito.anyListOf(Entity.class), Mockito.anyString()))
+        Mockito.when(mutationEnrichmentService.getMutationEnrichments(Mockito.anyListOf(MolecularProfileCase.class),
+                Mockito.anyListOf(MolecularProfileCase.class), Mockito.anyString()))
             .thenReturn(alterationEnrichments);
 
-        Entity entity1 = new Entity();
-        entity1.setEntityId("test_sample_id_1");
+        MolecularProfileCase entity1 = new MolecularProfileCase();
+        entity1.setCaseId("test_sample_id_1");
         entity1.setMolecularProfileId("test_1_mutations");
-        Entity entity2 = new Entity();
-        entity2.setEntityId("test_sample_id_2");
+        MolecularProfileCase entity2 = new MolecularProfileCase();
+        entity2.setCaseId("test_sample_id_2");
         entity2.setMolecularProfileId("test_2_mutations");
         MultipleStudiesEnrichmentFilter multiStudyEnrichmentFilter = new MultipleStudiesEnrichmentFilter();
-        multiStudyEnrichmentFilter.setSet1(Arrays.asList(entity1));
-        multiStudyEnrichmentFilter.setSet2(Arrays.asList(entity2));
+        multiStudyEnrichmentFilter.setMolecularProfileCaseSet1(Arrays.asList(entity1));
+        multiStudyEnrichmentFilter.setMolecularProfileCaseSet2(Arrays.asList(entity2));
 
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/mutation-enrichments/fetch")

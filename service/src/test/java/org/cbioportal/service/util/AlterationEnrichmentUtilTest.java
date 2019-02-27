@@ -37,11 +37,11 @@ public class AlterationEnrichmentUtilTest {
         List<AlterationCountByGene> alterationSampleCountByGenes = new ArrayList<>();
         AlterationCountByGene alterationSampleCountByGene1 = new AlterationCountByGene();
         alterationSampleCountByGene1.setEntrezGeneId(2);
-        alterationSampleCountByGene1.setCountByEntity(3);
+        alterationSampleCountByGene1.setCountByCase(3);
         alterationSampleCountByGenes.add(alterationSampleCountByGene1);
         AlterationCountByGene alterationSampleCountByGene2 = new AlterationCountByGene();
         alterationSampleCountByGene2.setEntrezGeneId(3);
-        alterationSampleCountByGene2.setCountByEntity(2);
+        alterationSampleCountByGene2.setCountByCase(2);
         alterationSampleCountByGenes.add(alterationSampleCountByGene2);
 
         List<Gene> genes = new ArrayList<>();
@@ -89,16 +89,16 @@ public class AlterationEnrichmentUtilTest {
         Assert.assertEquals((Integer) 2, alterationEnrichment1.getEntrezGeneId());
         Assert.assertEquals("HUGO2", alterationEnrichment1.getHugoGeneSymbol());
         Assert.assertEquals("CYTOBAND2", alterationEnrichment1.getCytoband());
-        Assert.assertEquals((Integer) 1, alterationEnrichment1.getAlteredInSet1Count());
-        Assert.assertEquals((Integer) 2, alterationEnrichment1.getAlteredInSet2Count());
+        Assert.assertEquals((Integer) 1, alterationEnrichment1.getSet1AlterationCount().getAlteredCount());
+        Assert.assertEquals((Integer) 2, alterationEnrichment1.getSet2AlterationCount().getAlteredCount());
         Assert.assertEquals("-1.0", alterationEnrichment1.getLogRatio());
         Assert.assertEquals(new BigDecimal("1.0"), alterationEnrichment1.getpValue());
         AlterationEnrichment alterationEnrichment2 = result.get(1);
         Assert.assertEquals((Integer) 3, alterationEnrichment2.getEntrezGeneId());
         Assert.assertEquals("HUGO3", alterationEnrichment2.getHugoGeneSymbol());
         Assert.assertEquals("CYTOBAND3", alterationEnrichment2.getCytoband());
-        Assert.assertEquals((Integer) 2, alterationEnrichment2.getAlteredInSet1Count());
-        Assert.assertEquals((Integer) 0, alterationEnrichment2.getAlteredInSet2Count());
+        Assert.assertEquals((Integer) 2, alterationEnrichment2.getSet1AlterationCount().getAlteredCount());
+        Assert.assertEquals((Integer) 0, alterationEnrichment2.getSet2AlterationCount().getAlteredCount());
         Assert.assertEquals("Infinity", alterationEnrichment2.getLogRatio());
         Assert.assertEquals(new BigDecimal("0.3"), alterationEnrichment2.getpValue());
     }

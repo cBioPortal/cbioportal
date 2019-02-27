@@ -295,6 +295,7 @@ public class ProxySessionServiceController {
 			VirtualStudy virtualStudy = mapper.readValue(virtualStudyStr, VirtualStudy.class);
 
 			String user = ((UserDetails) authentication.getPrincipal()).getUsername();
+			//only allow owner to update virtual study
 			if (user == virtualStudy.getData().getOwner() && virtualStudy.getType() == type.toString()) {
 
 				VirtualStudyData updatedVirtualStudyData = mapper.readValue(body.toString(), VirtualStudyData.class);
@@ -307,12 +308,13 @@ public class ProxySessionServiceController {
 				HttpEntity<Object> httpEntity = new HttpEntity<Object>(updatedVirtualStudyData, getHttpHeaders());
 				
 				restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
-				
+				response.setStatus(HttpStatus.OK.value());
 			} else {
 				response.setStatus(HttpStatus.UNAUTHORIZED.value());
 			}
+		} else {
+		    response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
 		}
-		response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
 	}
 }
 

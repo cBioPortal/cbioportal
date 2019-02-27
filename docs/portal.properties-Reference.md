@@ -176,17 +176,17 @@ oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation
 oncoprint.custom_driver_annotation.tiers.menu_label=Custom driver tiers
 ```
 
-#### Automatic selection of custom annotations
-OncoKB and Hotspots are by default automatically selected as annotation source. To add automatic selection of custom driver or custom driver tiers annotations, set the respective property to `true`. Default is `false`.
+#### Automatic selection of OncoKB, hotspots and custom annotations
+OncoKB and Hotspots are by default automatically selected as annotation source, if `show.oncokb` and `show.hotspots` are set to `true`. To add automatic selection of custom driver or custom driver tiers annotations, set the respective property to `true`. Default is `false`.
 ```
-oncoprint.custom_driver_annotation.default=true|false
-oncoprint.custom_driver_tiers_annotation.default=true|false
+oncoprint.custom_driver_annotation.binary.default=true|false
+oncoprint.custom_driver_annotation.tiers.default=true|false
 ```
 
-#### Automatic selection of OncoKB annotations
-OncoKB and Hotspots are by default automatically selected as annotation source. To disable this, set the following property to `false`. To only select OncoKB and Hotspots when there are no custom driver mutation annotations, set this property to `custom`. Default is `true`.
+If you want to disable the automatic selection of OncoKB and hotspots as annotation source, set these properties to `false`:
 ```
-oncoprint.oncokb_hotspots.default=true|false|custom
+oncoprint.oncokb.default=true|false
+oncoprint.hotspots.default=true|false
 ``` 
 
 #### Automatic hiding of variants of unknown significance (VUS)

@@ -201,12 +201,13 @@ ucsc.build=hg19
 oncoprint.defaultview=patient
 
 # OncoPrint driver mutation annotations
-# oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation
-# oncoprint.custom_driver_annotation.tiers.menu_label=Custom driver tiers
-# oncoprint.custom_driver_annotation.default=true
-# oncoprint.custom_driver_tiers_annotation.default=true
-# oncoprint.oncokb_hotspots.default=custom
-# oncoprint.hide_vus.default=false
+#   oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation
+#   oncoprint.custom_driver_annotation.tiers.menu_label=Custom driver tiers
+#   oncoprint.custom_driver_annotation.binary.default=true
+#   oncoprint.custom_driver_annotation.tiers.default=true
+  oncoprint.oncokb.default=true
+  oncoprint.hotspots.default=true
+#  oncoprint.hide_vus.default=true
 
 # Custom gene sets
 # querypage.setsofgenes.location=file:/<path>

@@ -140,7 +140,8 @@
              
         obj.put("oncoprintOncoKbHotspotsDefault",enableOncoKBandHotspots);    
         
-        obj.put("sessionServiceEnabled",GlobalProperties.getSessionServiceUrl()!= "");        
+        // we don't want to expose session service url to frontend so we need this flag
+        obj.put("sessionServiceEnabled",!GlobalProperties.getSessionServiceUrl().equals(""));      
                 
         out.println(obj.toJSONString());       
                       

@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.scripts;
 
+import java.io.BufferedReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,10 +47,14 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -61,38 +66,50 @@ import java.util.Set;
 @Transactional
 public class TestImportTabDelimData {
 
-	int studyId;
-	int geneticProfileId;
-	int sample1;
-	int sample2;
-	int sample3;
-	int sample4;
-	int sample5;
-	
-	@Before
-	public void setUp() throws DaoException {
-		DaoCancerStudy.reCacheAll();
-		DaoGeneOptimized.getInstance().reCache();
-		ProgressMonitor.resetWarnings();
-		
-		studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
-		
-		GeneticProfile newGeneticProfile = new GeneticProfile();
-		newGeneticProfile.setCancerStudyId(studyId);
-		newGeneticProfile.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
-		newGeneticProfile.setStableId("study_tcga_pub_test");
-		newGeneticProfile.setProfileName("Barry CNA Results");
-		newGeneticProfile.setDatatype("test");
-		DaoGeneticProfile.addGeneticProfile(newGeneticProfile);
-		
-		geneticProfileId =  DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_test").getGeneticProfileId();
-		
-		sample1 = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SB-01").getInternalId();
-		sample2 = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SD-01").getInternalId();
-		sample3 = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SE-01").getInternalId();
-		sample4 = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SF-01").getInternalId();
-		sample5 = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SG-01").getInternalId();
-	}
+    private final Set<String> NON_CASE_ID_COLS = new HashSet<>(Arrays.asList(
+            "Gene Symbol",
+            "Hugo_Symbol",
+            "Entrez_Gene_Id",
+            "Locus ID",
+            "Cytoband",
+            "Composite.Element.Ref",
+            "geneset_id"
+    ));
+
+    private int studyId;
+    private int geneticProfileId;
+    private int sample1;
+    private int sample2;
+    private int sample3;
+    private int sample4;
+    private int sample5;
+    private CancerStudy study;
+
+    @Before
+    public void setUp() throws DaoException {
+        DaoCancerStudy.reCacheAll();
+        DaoGeneOptimized.getInstance().reCache();
+        ProgressMonitor.resetWarnings();
+
+        study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
+        studyId =study.getInternalId();
+
+        GeneticProfile newGeneticProfile = new GeneticProfile();
+        newGeneticProfile.setCancerStudyId(studyId);
+        newGeneticProfile.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
+        newGeneticProfile.setStableId("study_tcga_pub_test");
+        newGeneticProfile.setProfileName("Barry CNA Results");
+        newGeneticProfile.setDatatype("test");
+        DaoGeneticProfile.addGeneticProfile(newGeneticProfile);
+
+        geneticProfileId =  DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_test").getGeneticProfileId();
+
+        sample1 = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SB-01").getInternalId();
+        sample2 = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SD-01").getInternalId();
+        sample3 = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SE-01").getInternalId();
+        sample4 = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SF-01").getInternalId();
+        sample5 = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SG-01").getInternalId();
+    }
 
     /**
      * Test importing of cna_test.txt file.
@@ -282,6 +299,7 @@ public class TestImportTabDelimData {
         ProgressMonitor.setConsoleMode(true);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("src/test/resources/mrna_test.txt");
+        addTestPatientAndSampleRecords(file);
         ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId, null);
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
@@ -335,6 +353,7 @@ public class TestImportTabDelimData {
         ProgressMonitor.setConsoleMode(true);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("src/test/resources/tabDelimitedData/data_expression2.txt");
+        addTestPatientAndSampleRecords(file);
         ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId, null);
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
@@ -427,6 +446,7 @@ public class TestImportTabDelimData {
         ProgressMonitor.setConsoleMode(true);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("src/test/resources/tabDelimitedData/data_rppa.txt");
+        addTestPatientAndSampleRecords(file);
         ImportTabDelimData parser = new ImportTabDelimData(file, newGeneticProfileId, null);
         int numLines = FileUtil.getNumLines(file);
         parser.importData(numLines);
@@ -456,5 +476,35 @@ public class TestImportTabDelimData {
         gene.setAliases(aliases);
         return gene;
 	}
+
+    private void addTestPatientAndSampleRecords(File file) throws FileNotFoundException, IOException, DaoException {
+        // extract sample ids from header
+        FileReader reader = new FileReader(file);
+        BufferedReader buf = new BufferedReader(reader);
+        String headerLine = buf.readLine();
+        String parts[] = headerLine.split("\t");
+        List<String> sampleIds = new ArrayList<>();
+        for (int i=0; i<parts.length; i++) {
+            boolean isSample = Boolean.TRUE;
+            for (String nonCaseIdCol : NON_CASE_ID_COLS) {
+                if (nonCaseIdCol.equalsIgnoreCase(parts[i])) {
+                    isSample = Boolean.FALSE;
+                    break;
+                }
+            }
+            if (isSample) {
+                sampleIds.add(parts[i]);
+            }
+        }
+        reader.close();
+        // add sample + patient records to db
+        for (String sampleId : sampleIds) {
+            // fetch patient from db or add new one if does not exist
+            Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(studyId, sampleId);
+            Integer pId = (p == null) ? DaoPatient.addPatient(new Patient(study, sampleId)) : p.getInternalId();
+            DaoSample.addSample(new Sample(sampleId, pId, study.getTypeOfCancerId()));
+        }
+        MySQLbulkLoader.flushAll();
+    }
     
 }

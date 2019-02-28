@@ -38,7 +38,7 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
         List<MolecularProfileCase> allIds = new ArrayList<>(molecularProfileCaseSet1);
         allIds.addAll(molecularProfileCaseSet2);
         List<CopyNumberCountByGene> copyNumberCountByGeneListFromRepo = new ArrayList<>();
-        List<DiscreteCopyNumberData> discreteCopyNumberDataList = new ArrayList<>(0);
+        List<DiscreteCopyNumberData> discreteCopyNumberDataList = new ArrayList<>();
 
         Map<String, List<String>> allMolecularProfileIdToCaseMap = alterationEnrichmentUtil.mapMolecularProfileIdToCaseId(allIds);
         Map<String, List<String>> group1MolecularProfileIdToCaseMap = alterationEnrichmentUtil.mapMolecularProfileIdToCaseId(molecularProfileCaseSet1);

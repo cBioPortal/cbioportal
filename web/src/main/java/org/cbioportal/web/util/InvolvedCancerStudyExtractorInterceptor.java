@@ -515,7 +515,6 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     }
 
     private Set<String> extractCancerStudyIdsFromMultiStudyEnrichmentFilter(Collection<MolecularProfileCase> molecularProfileCaseSet1, Collection<MolecularProfileCase> molecularProfileCaseSet2) {
->>>>>>> Renamed Entity to MolecularProfileCase
         Set<String> molecularProfileIds = new HashSet<>();
         for (MolecularProfileCase mpc : molecularProfileCaseSet1) {
             molecularProfileIds.add(mpc.getMolecularProfileId());

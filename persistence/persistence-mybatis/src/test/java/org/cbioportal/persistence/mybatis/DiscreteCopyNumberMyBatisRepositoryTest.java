@@ -155,11 +155,11 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         CopyNumberCountByGene copyNumberSampleCountByGene1 = result.get(0);
         Assert.assertEquals((Integer) 207, copyNumberSampleCountByGene1.getEntrezGeneId());
         Assert.assertEquals((Integer) (-2), copyNumberSampleCountByGene1.getAlteration());
-        Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene1.getCountByEntity());
+        Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene1.getCountByCase());
         CopyNumberCountByGene copyNumberSampleCountByGene2 = result.get(1);
         Assert.assertEquals((Integer) 208, copyNumberSampleCountByGene2.getEntrezGeneId());
         Assert.assertEquals((Integer) (2), copyNumberSampleCountByGene2.getAlteration());
-        Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene2.getCountByEntity());
+        Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene2.getCountByCase());
     }
 
     @Test
@@ -173,10 +173,10 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         CopyNumberCountByGene copyNumberSampleCountByGene1 = result.get(0);
         Assert.assertEquals((Integer) 207, copyNumberSampleCountByGene1.getEntrezGeneId());
         Assert.assertEquals((Integer) (-2), copyNumberSampleCountByGene1.getAlteration());
-        Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene1.getCountByEntity());
+        Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene1.getCountByCase());
         CopyNumberCountByGene copyNumberSampleCountByGene2 = result.get(1);
         Assert.assertEquals((Integer) 208, copyNumberSampleCountByGene2.getEntrezGeneId());
         Assert.assertEquals((Integer) (2), copyNumberSampleCountByGene2.getAlteration());
-        Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene2.getCountByEntity());
+        Assert.assertEquals((Integer) 1, copyNumberSampleCountByGene2.getCountByCase());
     }
 }

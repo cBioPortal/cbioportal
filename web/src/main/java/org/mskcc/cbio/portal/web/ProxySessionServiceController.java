@@ -296,7 +296,7 @@ public class ProxySessionServiceController {
 
 			String user = ((UserDetails) authentication.getPrincipal()).getUsername();
 			//only allow owner to update virtual study
-			if (user == virtualStudy.getData().getOwner() && virtualStudy.getType() == type.toString()) {
+			if (user.equals(virtualStudy.getData().getOwner()) && virtualStudy.getType().equals(type.toString())) {
 
 				VirtualStudyData updatedVirtualStudyData = mapper.readValue(body.toString(), VirtualStudyData.class);
 				updatedVirtualStudyData.setCreated(virtualStudy.getData().getCreated());

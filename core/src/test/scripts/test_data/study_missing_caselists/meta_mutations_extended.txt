@@ -7,4 +7,3 @@ profile_description: Mutation data from whole exome sequencing.
 profile_name: Mutations
 data_filename: brca_tcga_pub.maf
 swissprot_identifier: name
-gene_panel: example_gene_panel_stable_id

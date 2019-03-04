@@ -35,6 +35,8 @@ class ValidateDataSystemTester(unittest.TestCase):
             return "test_data/test.xml"
         self.orig_get_pom_path = validateData.get_pom_path
         validateData.get_pom_path = dummy_get_pom_path
+        self.orig_study_meta_dictionary = validateData.study_meta_dictionary
+        self.study_cancer_type = validateData.study_cancer_type
 
         # Prepare global variables related to sample profiled for mutations and gene panels
         self.mutation_sample_ids = None
@@ -48,6 +50,8 @@ class ValidateDataSystemTester(unittest.TestCase):
         validateData.mutation_sample_ids = None
         validateData.mutation_file_sample_ids = set()
         validateData.fusion_file_sample_ids = set()
+        validateData.study_meta_dictionary = self.orig_study_meta_dictionary
+        validateData.study_cancer_type = None
 
         # get the logger used in validateData.main_validate()
         validator_logger = logging.getLogger(validateData.__name__)
@@ -246,6 +250,18 @@ class ValidateDataSystemTester(unittest.TestCase):
         self.assertEqual(1, exit_status)
         self.assertFileGenerated(out_file_name,
                                  'test_data/study_quotes/result_report.html')
+
+    def test_valid_gene_panel_study(self):
+        """Tests the study with gene panel information that succeeds with errors.
+        """
+        print('==test_valid_gene_panel_study==')
+        args = ['--study_directory', 'test_data/gene_panels/valid_study',
+                '--portal_info_dir', PORTAL_INFO_DIR]
+        args = validateData.interface(args)
+
+        # should succeed
+        exit_status = validateData.main_validate(args)
+        self.assertEqual(0, exit_status)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,8 @@
+cancer_study_identifier: test_study
+genetic_alteration_type: FUSION
+datatype: FUSION
+stable_id: fusion
+profile_description: Fusions.
+show_profile_in_analysis_tab: true
+profile_name: Fusions
+data_filename: data_fusions.txt

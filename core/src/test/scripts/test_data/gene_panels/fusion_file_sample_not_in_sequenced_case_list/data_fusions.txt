@@ -1,0 +1,3 @@
+Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Fusion	DNA_support	RNA_support	Method	Frame	Fusion_Status
+FGFR3	2261	saturn	TEST-A2B8-01	TMPRSS2-ERG fusion	yes	yes	unknown	unknown	unknown
+ERBB2	2064	jupiter	TEST-A2FF-01	Fusion2	yes	yes	unknown	unknown	unknown

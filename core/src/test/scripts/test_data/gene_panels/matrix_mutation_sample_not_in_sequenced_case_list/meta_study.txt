@@ -1,0 +1,9 @@
+type_of_cancer: brca
+cancer_study_identifier: test_study
+name: Test study
+description: Study created for testing purposes
+citation: The Hyve
+pmid: 23000897
+groups: PUBLIC;GDAC;SU2C-PI3K
+short_name: Test
+add_global_case_list: true

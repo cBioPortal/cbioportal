@@ -1,0 +1,6 @@
+#Patient Identifier	Sample Identifier	Subtype
+#Patient identifier	Sample identifier	Subtype description
+#STRING	STRING	STRING
+#1	1	1
+PATIENT_ID	SAMPLE_ID	SUBTYPE
+TEST_PATIENT_15	TEST_SAMPLE_15	NA

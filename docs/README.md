@@ -47,6 +47,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
    * [API and API Client](The-API-and-API-Client-[Beta].md)
 * [Providing cBioPortal Parameters](providing-cBioPortal-parameters.md)
 * [Manual test cases](manual-test-cases.md)
+* [Build cBioPortal with a different frontend version](Build-Different-Frontend.md)
 
 ## 5. Data Loading
 ### 5.1 Data Loading

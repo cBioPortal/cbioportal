@@ -66,7 +66,7 @@ public class ClinicalDataEnrichmentController {
                 .flatMap(group -> group.getSampleIdentifiers().stream().map(SampleIdentifier::getStudyId))
                 .collect(Collectors.toList());
 
-        List<String> sampleIds = groupFilter.getGroups().stream()
+        List<String> sampleIds = interceptedGroupFilter.getGroups().stream()
                 .flatMap(group -> group.getSampleIdentifiers().stream().map(SampleIdentifier::getSampleId))
                 .collect(Collectors.toList());
 

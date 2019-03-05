@@ -23,8 +23,9 @@ public class JdbcDataSource extends BasicDataSource {
         this.setUsername(userName);
         this.setPassword(password);
         this.setUrl(url);
-        //  By pooling/reusing PreparedStatements, we get a major performance gain
-        this.setPoolPreparedStatements(true);
+        // Disable this to avoid caching statements (TODO: might need to make
+        // this a property, so importer could choose to cache them)
+        this.setPoolPreparedStatements(false);
         // these are the values cbioportal has been using in their production
         // context.xml files when using jndi
         this.setMaxTotal(500);

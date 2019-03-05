@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.cbioportal.model.MolecularProfileCase;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
@@ -514,12 +514,12 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         return studyIdSet;
     }
 
-    private Set<String> extractCancerStudyIdsFromMultiStudyEnrichmentFilter(Collection<MolecularProfileCase> molecularProfileCaseSet1, Collection<MolecularProfileCase> molecularProfileCaseSet2) {
+    private Set<String> extractCancerStudyIdsFromMultiStudyEnrichmentFilter(Collection<MolecularProfileCaseIdentifier> molecularProfileCaseSet1, Collection<MolecularProfileCaseIdentifier> molecularProfileCaseSet2) {
         Set<String> molecularProfileIds = new HashSet<>();
-        for (MolecularProfileCase mpc : molecularProfileCaseSet1) {
+        for (MolecularProfileCaseIdentifier mpc : molecularProfileCaseSet1) {
             molecularProfileIds.add(mpc.getMolecularProfileId());
         }
-        for (MolecularProfileCase mpc : molecularProfileCaseSet2) {
+        for (MolecularProfileCaseIdentifier mpc : molecularProfileCaseSet2) {
             molecularProfileIds.add(mpc.getMolecularProfileId());
         }
         Set<String> studyIdSet = new HashSet<>();

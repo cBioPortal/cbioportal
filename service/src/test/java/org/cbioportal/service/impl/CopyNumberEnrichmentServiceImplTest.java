@@ -3,7 +3,7 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.MolecularProfileCase;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.junit.Assert;
@@ -30,27 +30,27 @@ public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
     @Test
     public void getCopyNumberEnrichments() throws Exception {
         // create molecularProfileCaseSet1, molecularProfileCaseSet2 list of entities
-        MolecularProfileCase molecularProfileCase1 = new MolecularProfileCase();
+        MolecularProfileCaseIdentifier molecularProfileCase1 = new MolecularProfileCaseIdentifier();
         molecularProfileCase1.setCaseId("sample_id_1");
         molecularProfileCase1.setMolecularProfileId("test1_cna");
-        MolecularProfileCase molecularProfileCase2 = new MolecularProfileCase();
+        MolecularProfileCaseIdentifier molecularProfileCase2 = new MolecularProfileCaseIdentifier();
         molecularProfileCase2.setCaseId("sample_id_2");
         molecularProfileCase2.setMolecularProfileId("test2_cna");
-        List<MolecularProfileCase> molecularProfileCaseSet1 = new ArrayList<>();
+        List<MolecularProfileCaseIdentifier> molecularProfileCaseSet1 = new ArrayList<>();
         molecularProfileCaseSet1.add(molecularProfileCase1);
         molecularProfileCaseSet1.add(molecularProfileCase2);
 
-        MolecularProfileCase molecularProfileCase3 = new MolecularProfileCase();
+        MolecularProfileCaseIdentifier molecularProfileCase3 = new MolecularProfileCaseIdentifier();
         molecularProfileCase3.setCaseId("sample_id_3");
         molecularProfileCase3.setMolecularProfileId("test3_cna");
-        MolecularProfileCase molecularProfileCase4 = new MolecularProfileCase();
+        MolecularProfileCaseIdentifier molecularProfileCase4 = new MolecularProfileCaseIdentifier();
         molecularProfileCase4.setCaseId("sample_id_4");
         molecularProfileCase4.setMolecularProfileId("test4_cna");
-        List<MolecularProfileCase> molecularProfileCaseSet2 = new ArrayList<>();
+        List<MolecularProfileCaseIdentifier> molecularProfileCaseSet2 = new ArrayList<>();
         molecularProfileCaseSet2.add(molecularProfileCase3);
         molecularProfileCaseSet2.add(molecularProfileCase4);
 
-        List<MolecularProfileCase> allEntities = new ArrayList<>(molecularProfileCaseSet1);
+        List<MolecularProfileCaseIdentifier> allEntities = new ArrayList<>(molecularProfileCaseSet1);
         allEntities.addAll(molecularProfileCaseSet2);
 
         Mockito.when(alterationEnrichmentUtil.mapMolecularProfileIdToCaseId(allEntities)).thenReturn(new HashMap<String, List<String>>() {{

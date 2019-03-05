@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author ochoaa
  */
-public class AlterationCount implements Serializable {
+public class CountSummary implements Serializable {
 
     @NotNull
     private Integer alteredCount;

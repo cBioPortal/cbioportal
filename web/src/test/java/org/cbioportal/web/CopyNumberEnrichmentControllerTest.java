@@ -25,8 +25,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.cbioportal.model.AlterationCount;
-import org.cbioportal.model.MolecularProfileCase;
+import org.cbioportal.model.CountSummary;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.web.parameter.MultipleStudiesEnrichmentFilter;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -80,8 +80,8 @@ public class CopyNumberEnrichmentControllerTest {
 
         List<AlterationEnrichment> alterationEnrichments = new ArrayList<>();
         AlterationEnrichment alterationEnrichment1 = new AlterationEnrichment();
-        AlterationCount alterationEnrichment1Set1Count = new AlterationCount();
-        AlterationCount alterationEnrichment1Set2Count = new AlterationCount();
+        CountSummary alterationEnrichment1Set1Count = new CountSummary();
+        CountSummary alterationEnrichment1Set2Count = new CountSummary();
         alterationEnrichment1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
         alterationEnrichment1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
         alterationEnrichment1.setCytoband(TEST_CYTOBAND_1);
@@ -91,13 +91,13 @@ public class CopyNumberEnrichmentControllerTest {
         alterationEnrichment1Set1Count.setProfiledCount(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1);
         alterationEnrichment1Set2Count.setAlteredCount(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_1);
         alterationEnrichment1Set2Count.setProfiledCount(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2);
-        alterationEnrichment1.setSet1AlterationCount(alterationEnrichment1Set1Count);
-        alterationEnrichment1.setSet2AlterationCount(alterationEnrichment1Set2Count);
+        alterationEnrichment1.setSet1CountSummary(alterationEnrichment1Set1Count);
+        alterationEnrichment1.setSet2CountSummary(alterationEnrichment1Set2Count);
         alterationEnrichments.add(alterationEnrichment1);
 
         AlterationEnrichment alterationEnrichment2 = new AlterationEnrichment();
-        AlterationCount alterationEnrichment2Set1Count = new AlterationCount();
-        AlterationCount alterationEnrichment2Set2Count = new AlterationCount();
+        CountSummary alterationEnrichment2Set1Count = new CountSummary();
+        CountSummary alterationEnrichment2Set2Count = new CountSummary();
         alterationEnrichment2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         alterationEnrichment2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
         alterationEnrichment2.setCytoband(TEST_CYTOBAND_2);
@@ -107,19 +107,19 @@ public class CopyNumberEnrichmentControllerTest {
         alterationEnrichment2Set1Count.setProfiledCount(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1);
         alterationEnrichment2Set2Count.setAlteredCount(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_2);
         alterationEnrichment2Set2Count.setProfiledCount(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2);
-        alterationEnrichment2.setSet1AlterationCount(alterationEnrichment2Set1Count);
-        alterationEnrichment2.setSet2AlterationCount(alterationEnrichment2Set2Count);
+        alterationEnrichment2.setSet1CountSummary(alterationEnrichment2Set1Count);
+        alterationEnrichment2.setSet2CountSummary(alterationEnrichment2Set2Count);
 
         alterationEnrichments.add(alterationEnrichment2);
 
-        Mockito.when(copyNumberEnrichmentService.getCopyNumberEnrichments(Mockito.anyListOf(MolecularProfileCase.class),
-                Mockito.anyListOf(MolecularProfileCase.class), Mockito.anyListOf(Integer.class),
+        Mockito.when(copyNumberEnrichmentService.getCopyNumberEnrichments(Mockito.anyListOf(MolecularProfileCaseIdentifier.class),
+                Mockito.anyListOf(MolecularProfileCaseIdentifier.class), Mockito.anyListOf(Integer.class),
             Mockito.anyString())).thenReturn(alterationEnrichments);
 
-        MolecularProfileCase entity1 = new MolecularProfileCase();
+        MolecularProfileCaseIdentifier entity1 = new MolecularProfileCaseIdentifier();
         entity1.setCaseId("test_sample_id_1");
         entity1.setMolecularProfileId("test_1_mutations");
-        MolecularProfileCase entity2 = new MolecularProfileCase();
+        MolecularProfileCaseIdentifier entity2 = new MolecularProfileCaseIdentifier();
         entity2.setCaseId("test_sample_id_2");
         entity2.setMolecularProfileId("test_2_mutations");
         MultipleStudiesEnrichmentFilter multiStudyEnrichmentFilter = new MultipleStudiesEnrichmentFilter();

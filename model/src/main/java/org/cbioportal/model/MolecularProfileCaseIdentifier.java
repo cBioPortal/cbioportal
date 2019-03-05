@@ -2,7 +2,7 @@ package org.cbioportal.model;
 
 import javax.validation.constraints.NotNull;
 
-public class MolecularProfileCase {
+public class MolecularProfileCaseIdentifier {
 
     @NotNull
     private String molecularProfileId;

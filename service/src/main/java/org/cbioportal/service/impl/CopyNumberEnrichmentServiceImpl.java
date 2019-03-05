@@ -3,7 +3,7 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CopyNumberCountByGene;
 import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.MolecularProfileCase;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.CopyNumberEnrichmentService;
@@ -31,11 +31,11 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
     private AlterationEnrichmentUtil alterationEnrichmentUtil;
 
     @Override
-    public List<AlterationEnrichment> getCopyNumberEnrichments(List<MolecularProfileCase> molecularProfileCaseSet1,
-            List<MolecularProfileCase> molecularProfileCaseSet2,
+    public List<AlterationEnrichment> getCopyNumberEnrichments(List<MolecularProfileCaseIdentifier> molecularProfileCaseSet1,
+            List<MolecularProfileCaseIdentifier> molecularProfileCaseSet2,
             List<Integer> alterationTypes,
             String enrichmentType) throws MolecularProfileNotFoundException {
-        List<MolecularProfileCase> allIds = new ArrayList<>(molecularProfileCaseSet1);
+        List<MolecularProfileCaseIdentifier> allIds = new ArrayList<>(molecularProfileCaseSet1);
         allIds.addAll(molecularProfileCaseSet2);
         List<CopyNumberCountByGene> copyNumberCountByGeneListFromRepo = new ArrayList<>();
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = new ArrayList<>();

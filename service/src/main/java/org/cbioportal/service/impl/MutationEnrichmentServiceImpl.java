@@ -5,7 +5,7 @@ import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.Sample;
-import org.cbioportal.model.MolecularProfileCase;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationEnrichmentService;
 import org.cbioportal.service.MutationService;
@@ -31,12 +31,12 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
     private AlterationEnrichmentUtil alterationEnrichmentUtil;
 
     @Override
-    public List<AlterationEnrichment> getMutationEnrichments(List<MolecularProfileCase> molecularProfileCaseSet1,
-            List<MolecularProfileCase> molecularProfileCaseSet2,
+    public List<AlterationEnrichment> getMutationEnrichments(List<MolecularProfileCaseIdentifier> molecularProfileCaseSet1,
+            List<MolecularProfileCaseIdentifier> molecularProfileCaseSet2,
             String enrichmentType)
         throws MolecularProfileNotFoundException {
 
-        List<MolecularProfileCase> allIds = new ArrayList<>(molecularProfileCaseSet1);
+        List<MolecularProfileCaseIdentifier> allIds = new ArrayList<>(molecularProfileCaseSet1);
         allIds.addAll(molecularProfileCaseSet2);
         List<MutationCountByGene> mutationCountByGeneListFromRepo = new ArrayList<>();
         List<Mutation> mutations = new ArrayList<>();

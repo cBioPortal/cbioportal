@@ -16,9 +16,9 @@ public class AlterationEnrichment implements Serializable {
     @NotNull
     private BigDecimal pValue;
     @NotNull
-    private AlterationCount set1AlterationCount;
+    private CountSummary set1CountSummary;
     @NotNull
-    private AlterationCount set2AlterationCount;
+    private CountSummary set2CountSummary;
     
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -60,19 +60,19 @@ public class AlterationEnrichment implements Serializable {
         this.pValue = pValue;
     }
 
-    public AlterationCount getSet1AlterationCount() {
-        return set1AlterationCount;
+    public CountSummary getSet1CountSummary() {
+        return set1CountSummary;
     }
 
-    public void setSet1AlterationCount(AlterationCount set1AlterationCount) {
-        this.set1AlterationCount = set1AlterationCount;
+    public void setSet1CountSummary(CountSummary set1CountSummary) {
+        this.set1CountSummary = set1CountSummary;
     }
 
-    public AlterationCount getSet2AlterationCount() {
-        return set2AlterationCount;
+    public CountSummary getSet2CountSummary() {
+        return set2CountSummary;
     }
 
-    public void setSet2AlterationCount(AlterationCount set2AlterationCount) {
-        this.set2AlterationCount = set2AlterationCount;
+    public void setSet2CountSummary(CountSummary set2CountSummary) {
+        this.set2CountSummary = set2CountSummary;
     }
 }

@@ -110,7 +110,7 @@ public class LinkOut extends HttpServlet {
     }
 
     private String createCrossCancerForwardingUrl(String hostURL, String geneList) {
-        String ret = hostURL + "/index.do?";
+        String ret = hostURL + "/results/cancerTypesSummary?";
         ret += QueryBuilder.GENE_LIST+"="+geneList;
         ret += "&";
         ret += QueryBuilder.ACTION_NAME+"="+QueryBuilder.ACTION_SUBMIT;
@@ -121,7 +121,7 @@ public class LinkOut extends HttpServlet {
         StringBuilder cancerStudyListBuilder = new StringBuilder();
         try {
             for (CancerStudy cs: accessControl.getCancerStudies()) {
-                if (!cs.getCancerStudyStableId().equals("all")) {
+                if (!cs.getCancerStudyStableId().equals("all") && cs.getCancerStudyStableId().contains("pan_can_atlas") ) {
                     cancerStudyListBuilder.append(",");
                     cancerStudyListBuilder.append(cs.getCancerStudyStableId());
                 }
@@ -131,7 +131,7 @@ public class LinkOut extends HttpServlet {
         String cancerStudyList = cancerStudyListBuilder.substring(1);
         ret += QueryBuilder.CANCER_STUDY_LIST+"="+cancerStudyList;
         ret += "&case_set_id=all&tab_index=tab_visualize";
-        // ret += "crosscancer/overview/0/"+geneList+"/"+cancerStudyList;
+       
         return ret;
     }
 
@@ -162,19 +162,13 @@ public class LinkOut extends HttpServlet {
         String geneList = linkOutRequest.getGeneList();
         HashMap<String, GeneticProfile> defaultGeneticProfileSet = getDefaultGeneticProfileSet(cancerStudyId);
         SampleList defaultCaseList = getDefaultSampleList(cancerStudyId);
-        /*ForwardingRequest forwardingRequest = new ForwardingRequest(httpServletRequest);
-        createStudySpecificForwardingRequest(forwardingRequest, cancerStudyId, geneList, defaultGeneticProfileSet,
-            defaultCaseList, output);
-        ServletContext context = getServletContext();
-        RequestDispatcher dispatcher = context.getRequestDispatcher("/index.do");
-        dispatcher.forward(forwardingRequest, httpServletResponse);*/
         httpServletResponse.sendRedirect(createStudySpecificForwardingUrl(cancerStudyId, geneList,
             defaultGeneticProfileSet, defaultCaseList, output));
     }
 
     private String createStudySpecificForwardingUrl(String cancerStudyId, String geneList,
                                                     HashMap<String, GeneticProfile> defaultGeneticProfileSet, SampleList defaultSampleList, String output) {
-        String ret = "index.do?";
+        String ret = "results?";
         ret += QueryBuilder.GENE_LIST+"="+geneList;
         ret += "&";
         ret += QueryBuilder.ACTION_NAME+"="+QueryBuilder.ACTION_SUBMIT;

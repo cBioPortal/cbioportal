@@ -15,6 +15,8 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Manda Wilson
 * Avery Wang
 * Jing Su
+* Gaofei Zhao
+* Xiang Li
 * Nikolaus Schultz
 
 ## Dana-Farber Cancer Institute
@@ -49,7 +51,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 ## Bilkent University
 * Ugur Dogrusoz
 * Istemi Bahceci
-* Leonard Dervishi
+* Kaan Sancak
 
 ## Weill Cornell Medicine
 * Alexandros Sigaras
@@ -60,6 +62,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Caitlin Byrne
 * Hsiao-Wei Chen
 * Fred Criscuolo
+* Leonard Dervishi
 * Gideon Dresdner
 * Andy Dufilie
 * Catherine Del Vecchio Fitz

@@ -440,7 +440,7 @@ The expression metadata file should contain the following fields:
 
 #### Supported stable_id values for MRNA_EXPRESSION
 For historical reasons, cBioPortal expects the `stable_id` to be one of those listed in the following static set.
-The stable_id for continuous RNA-seq data has two options: `rna_seq_mrna` or `rna_seq_v2_mrna`. These options were added to distinguish between two different TCGA pipelines, which perform different types of normalization (see [RNASeq](https://wiki.nci.nih.gov/display/TCGA/RNASeq) and [RNASeq version 2](https://wiki.nci.nih.gov/display/tcga/rnaseq+version+2)). However, for custom datasets either one of these `stable_id` can be chosen.
+The stable_id for continuous RNA-seq data has two options: `rna_seq_mrna` or `rna_seq_v2_mrna`. These options were added to distinguish between two different TCGA pipelines, which perform different types of normalization (RPKM and RSEM). However, for custom datasets either one of these `stable_id` can be chosen.
 
 <table>
 <thead>
@@ -566,7 +566,7 @@ Please use the [Gene Panel Matrix file](gene-panel-matrix-file) when:
 
 #### Variant classification filter
 The `variant_classification_filter` field can be used to filter out specific mutations. This field should contain a comma separated list of `Variant_Classification` values. By default, cBioPortal filters out `Silent, Intron, IGR, 3'UTR, 5'UTR, 3'Flank and 5'Flank`, except for the promoter mutations of the TERT gene. For no filtering, include this field in the metadata file, but leave it empty. For cBioPortal default filtering, do not include this field in the metadata file.
-Allowed values to filter out (mainly from [Mutation Annotation Format page](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification)): `Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame, Splice_Region and Unknown`
+Allowed values to filter out (mainly from [Mutation Annotation Format page](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/)): `Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame, Splice_Region and Unknown`
 
 #### Tumor seq allele ambiguity
 Bugs may exist in MAF data that make it ambiguous as to whether `Tumor_Seq_Allele1` or `Tumor_Seq_Allele2` should be seen as the variant allele to be used when a new mutation record is created and imported in cBioPortal. In such cases, preference is given to the tumor seq allele value that matches a valid nucleotide pattern `^[ATGC]*$` versus a null or empty value, or "-".
@@ -588,7 +588,7 @@ data_filename: brca_tcga_pub.maf
 ```
 
 ### Data file
-The mutation data file extends the [Mutation Annotation Format](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification) (MAF) created as part of [The Cancer Genome Atlas](https://wiki.nci.nih.gov/display/TCGA/TCGA+Home) project, by adding *extra annotations* to each mutation record. This section describes two types of MAF files:
+The mutation data file extends the [Mutation Annotation Format](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/) (MAF) created as part of The Cancer Genome Atlas (TCGA) project, by adding *extra annotations* to each mutation record. This section describes two types of MAF files:
 1. A minimal MAF file with only the columns required for cBioPortal.
 2. An extended MAF file created with [vcf2maf or maf2maf](https://github.com/mskcc/vcf2maf).
 
@@ -596,7 +596,7 @@ The mutation data file extends the [Mutation Annotation Format](https://wiki.nci
 A minimal mutation annotations file can contain just three of the MAF columns plus one annotation column. From this minimal MAF, it is possible to create an extended MAF by running maf2maf.
 1. **Hugo_Symbol (Required)**: (MAF column) A [HUGO](http://www.genenames.org/) gene symbol.
 2. **Tumor_Sample_Barcode (Required)**: (MAF column) This is the sample ID as listed in the clinical data file.
-3. **Variant_Classification (Required)**: (MAF column) Translational effect of variant allele. Allowed values (from [Mutation Annotation Format page](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification)): `Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame`. cBioPortal skips the following types during the import: `Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR and RNA`. Two extra values are allowed by cBioPortal here as well: `Splice_Region, Unknown`. :warning: the values should be in the correct case. E.g. `missense_mutation` is not allowed, while `Missense_Mutation` is.
+3. **Variant_Classification (Required)**: (MAF column) Translational effect of variant allele. Allowed values (from [Mutation Annotation Format page](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/)): `Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame`. cBioPortal skips the following types during the import: `Silent, Intron, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR and RNA`. Two extra values are allowed by cBioPortal here as well: `Splice_Region, Unknown`. :warning: the values should be in the correct case. E.g. `missense_mutation` is not allowed, while `Missense_Mutation` is.
 4. **HGVSp_Short (Required)**: (annotation column) Amino Acid Change, e.g. p.V600E.
 
 Next to Hugo_Symbol, it is recommended to have the Entrez gene ID:
@@ -613,7 +613,7 @@ If your mutation data is already in [VCF](http://www.1000genomes.org/wiki/Analys
 
 #### Extended MAF format
 The extended MAF format recognized by the portal has:
-* 32 columns from the [TCGA MAF format](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification).
+* 32 columns from the [TCGA MAF format](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/).
 * 1 column with the amino acid change.
 * 4 columns with information on reference and variant allele counts in tumor and normal samples. 
 

@@ -270,6 +270,13 @@ public class GlobalProperties {
     @Value("${show.genomenexus:true}") // default is true
     public void setShowGenomeNexus(String property) { showGenomeNexus = Boolean.parseBoolean(property); }
 
+    private static boolean datRevokeOtherTokens;
+    @Value("${dat.uuid.revoke_other_tokens:true}") // default is true
+    public void setDatRevokeOtherTokens(String property) { datRevokeOtherTokens = Boolean.parseBoolean(property);}
+
+    private static String datMethod;
+    @Value("${dat.method:none}") // default is 'none'
+    public void setDatMethod(String property) { datMethod = property;}
 	/*
      * Trim whitespace of url and append / if it does not exist. Return empty
      * string otherwise.
@@ -1169,5 +1176,13 @@ public class GlobalProperties {
         } else {
             return null;
         }
+    }
+
+    public static Boolean getRevokeOtherTokens() {
+        return datRevokeOtherTokens;
+    }
+
+    public static String getDatMethod() {
+        return datMethod;
     }
 }

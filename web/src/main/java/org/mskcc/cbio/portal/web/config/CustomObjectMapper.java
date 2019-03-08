@@ -3,6 +3,8 @@ package org.mskcc.cbio.portal.web.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.cbioportal.model.DataAccessToken;
+import org.cbioportal.web.mixin.DataAccessTokenMixin;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
 import org.cbioportal.weblegacy.mixin.VirtualStudyDataMixin;
@@ -22,6 +24,7 @@ public class CustomObjectMapper extends ObjectMapper {
         Map<Class<?>, Class<?>> mixinMap = new HashMap<>();
         mixinMap.put(VirtualStudy.class, VirtualStudyMixin.class);
         mixinMap.put(VirtualStudyData.class, VirtualStudyDataMixin.class);
+        mixinMap.put(DataAccessToken.class, DataAccessTokenMixin.class);
         super.setMixIns(mixinMap);
     }
 }

@@ -66,7 +66,7 @@ For more information on the `--portal_info_dir` option, see [Offline validation]
 When running the validator with parameter `-r` the validator will run the validation of the clinical data it will ignore all failing checks
 about values in the headers of the clinical data file.
 
-When running the validator with parameter `-m` the validator will run the validation of the specific [MAF file checks](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+(MAF)+Specification) for the mutation file in strict maf check mode. This means that
+When running the validator with parameter `-m` the validator will run the validation of the specific [MAF file checks](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/) for the mutation file in strict maf check mode. This means that
 when the validator encounters these validation checks it will report them as an error instead of a warning.
 
 ### Example 1: test study_es_0

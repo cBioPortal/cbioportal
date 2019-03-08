@@ -27,6 +27,38 @@
         All studies are available to all users in the following profiles: social_auth, false, noauthsessionservice
     -->
 
+    <!-- Data Access Tokens beans -->
+    <b:bean id="tokenAuthenticationFilter" class="org.cbioportal.security.spring.authentication.token.TokenAuthenticationFilter">
+        <b:property name="authenticationManager" ref="tokenAuthenticationManager" />
+        <b:property name="authenticationSuccessHandler" ref="tokenSuccessRedirectHandler"/>
+    </b:bean>
+
+    <!-- Choose a supported Data Access Token method implementation [uuid, jwt, none (default)] by setting value of dat.method in portal.properties.
+        Note: UUID implementation requires a backend database/token store but allows for greater control over tokens -->
+    <b:alias name="${dat.method}" alias="tokenService" />
+    <b:bean  id="tokenServiceFactory" class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean">
+        <b:property name="serviceLocatorInterface" value="org.cbioportal.service.DataAccessTokenServiceFactory"/>
+    </b:bean>
+
+    <!-- WARNING: if you define another authentication-manager AFTER this one, this one
+        will be overridden, even if you use <http ... pattern="/api/**" ... authentication-manager-ref="tokenAuthenticationManager">
+        AND even though the authenticationManager is defined as a property of tokenAuthenticationFilter
+        so you must add <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/> to your
+        other authentication-manager, and tokenUserDetailsAuthenticationProvider should come before other authentication-providers -->
+    <authentication-manager alias="tokenAuthenticationManager">
+        <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
+    </authentication-manager>
+
+    <b:bean id="tokenSuccessRedirectHandler" class="org.cbioportal.security.spring.authentication.token.TokenAuthenticationSuccessHandler"/>
+
+    <b:bean id="tokenUserDetailsAuthenticationProvider" class="org.cbioportal.security.spring.authentication.token.TokenUserDetailsAuthenticationProvider">
+        <b:constructor-arg index="0" ref="tokenUserDetailsService" />
+    </b:bean>
+
+    <!-- Used to compare token returned by authentication-provider against portal user db tables -->
+    <b:bean id="tokenUserDetailsService" class="org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService"/>
+    <!-- End of Data Access Tokens beans -->
+
     <!-- beans shared across any authentication system -->
     <b:beans profile="googleplus,openid,saml,ad,ldap">
         <b:bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -72,6 +104,7 @@
     <http use-expressions="true" pattern="/api/**" entry-point-ref="restAuthenticationEntryPoint" create-session="never">
         <intercept-url pattern="/**" access="isAuthenticated()"/>
         <csrf disabled="true"/>
+        <custom-filter ref="tokenAuthenticationFilter" before="FORM_LOGIN_FILTER"/>
     </http>
 
     <b:bean id="restAuthenticationEntryPoint" class="org.cbioportal.security.spring.sessionservice.RestAuthenticationEntryPoint"/>
@@ -98,7 +131,7 @@
         <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
         <intercept-url pattern="/**" access="isAuthenticated()"/>
         <!-- used for google+ authentication (spring social) -->
-        <custom-filter ref="socialAuthenticationFilter" before="PRE_AUTH_FILTER" />
+        <custom-filter ref="socialAuthenticationFilter" before="PRE_AUTH_FILTER"/>
 
         <!--  logout actions -->
         <logout logout-url="/j_spring_security_logout" logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID"/>
@@ -125,9 +158,11 @@
         <b:property name="allowSessionCreation" value="true" />
     </b:bean>
 
+    <!-- You can use multiple authentication-provider elements, in which case they will be
+         checked in the order they are declared when attempting to authenticate a user. -->
     <authentication-manager alias="authenticationManager">
-        <authentication-provider user-service-ref="userDetailsService">
-        </authentication-provider>
+        <!-- token access for the API -->
+        <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
         <authentication-provider ref="socialAuthenticationProvider"/>
     </authentication-manager>
 
@@ -204,7 +239,10 @@
         <csrf disabled="true"/>
     </http>
 
-    <authentication-manager alias="authenticationManager"/>
+    <authentication-manager alias="authenticationManager">
+        <!-- token access for the API -->
+        <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
+    </authentication-manager>
 
     <b:bean id="customUserService" class="org.cbioportal.security.spring.authentication.openID.PortalUserDetailsService">
     </b:bean>
@@ -244,7 +282,6 @@
         </filter-chain-map>
     </b:bean>
 
-
     <!-- Handler deciding where to redirect user after failed login -->
     <b:bean id="failureRedirectHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
         <!--<b:property name="useForward" value="true"/>-->
@@ -257,6 +294,8 @@
     </b:bean>
 
     <authentication-manager alias="authenticationManager">
+        <!-- token access for the API -->
+        <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
         <authentication-provider ref="samlAuthenticationProvider"/>
     </authentication-manager>
 
@@ -492,6 +531,8 @@
 
         <!-- Add Authentication Manager -->
         <authentication-manager>
+            <!-- token access for the API -->
+            <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
             <authentication-provider ref="adAuthenticationProvider" />
         </authentication-manager>
 
@@ -539,6 +580,8 @@
         </b:bean>
 
         <authentication-manager>
+            <!-- token access for the API -->
+            <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
             <ldap-authentication-provider
                 server-ref="ldapServer" user-search-filter="(${ldap.attributes.username}={0})"
                 user-search-base="${ldap.user_search_base}"
@@ -557,6 +600,7 @@
     <!-- authenticate is off but we have session-service beans -->
     <b:beans profile="noauthsessionservice">
         <global-method-security pre-post-annotations="disabled"/>
+        <b:bean id="restAuthenticationEntryPoint" class="org.cbioportal.security.spring.sessionservice.RestAuthenticationEntryPoint"/>
         <b:bean id="sessionSecurity" class="org.cbioportal.security.spring.sessionservice.SessionServiceSecurity"/>
         <!-- create-session is never so spring security will not create the session,
             this relies on the app creating the session -->
@@ -598,7 +642,7 @@
 	    <http entry-point-ref="authenticationEntryPoint"  use-expressions="true">
 	        <intercept-url pattern="/**" access="permitAll"/>
 	        <custom-filter ref="socialAuthenticationFilter" before="PRE_AUTH_FILTER" />
-	            <!--  logout actions -->
+	        <!--  logout actions -->
 	        <logout logout-url="/j_spring_security_logout" logout-success-url="/" delete-cookies="JSESSIONID"/>
 	        <!-- to enable access from matlab, r, python, etc clients -->
 	        <session-management session-fixation-protection="none"/>
@@ -628,6 +672,8 @@
 	    </b:bean>
 
 	    <authentication-manager alias="authenticationManager">
+            <!-- token access for the API -->
+            <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
 	        <authentication-provider ref="socialAuthenticationProvider"/>
 	    </authentication-manager>
 

@@ -200,7 +200,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
                 .filter(p -> p.getEntrezGeneId().equals(entrezGeneId) && p.getAlteration().equals(alteration))
                 .findFirst();
             copyNumberSampleCountByGene.ifPresent(m -> copyNumberCount.setNumberOfSamplesWithAlterationInGene(m
-                .getCountByEntity()));
+                .getNumberOfAlteredCases()));
 
             copyNumberCounts.add(copyNumberCount);
         }

@@ -72,7 +72,7 @@ public class AlterationEnrichmentUtil {
             }
         }
         set1CountSummary.setProfiledCount(molecularProfileCaseSet1Count);
-        set2CountSummary.setAlteredCount(alterationCountByGene.getCountByCase() -
+        set2CountSummary.setAlteredCount(alterationCountByGene.getNumberOfAlteredCases() -
             set1CountSummary.getAlteredCount());
         set2CountSummary.setProfiledCount(molecularProfileCaseSet2Count);
         alterationEnrichment.setSet1CountSummary(set1CountSummary);

@@ -245,7 +245,7 @@
         mutation.ENTREZ_GENE_ID AS entrezGeneId,
         gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
         COUNT(*) AS totalCount,
-        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS countByCase
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS numberOfAlteredCases
         FROM mutation
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
@@ -259,7 +259,7 @@
         mutation.ENTREZ_GENE_ID AS entrezGeneId,
         gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
         COUNT(*) AS totalCount,
-        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS countByCase
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS numberOfAlteredCases
         FROM mutation
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
@@ -273,7 +273,7 @@
         mutation.ENTREZ_GENE_ID AS entrezGeneId,
         gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
         COUNT(*) AS totalCount,
-        COUNT(DISTINCT(patient.INTERNAL_ID)) AS countByCase
+        COUNT(DISTINCT(patient.INTERNAL_ID)) AS numberOfAlteredCases
         FROM mutation
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID

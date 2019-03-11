@@ -61,7 +61,7 @@ public class GeneFrequencyCalculator {
             } else {
                 denominator = profiled.size();
             }
-            alterationCountByGene.setFrequency(new BigDecimal((double) alterationCountByGene.getCountByCase() /
+            alterationCountByGene.setFrequency(new BigDecimal((double) alterationCountByGene.getNumberOfAlteredCases() /
                 denominator * 100).setScale(2, BigDecimal.ROUND_HALF_UP));
         }
     }

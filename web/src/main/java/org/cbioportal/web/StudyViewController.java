@@ -206,7 +206,7 @@ public class StudyViewController {
             studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
             result = mutationService.getSampleCountInMultipleMolecularProfiles(molecularProfileService
                 .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, true);
-            result.sort((a, b) -> b.getCountByCase() - a.getCountByCase());
+            result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1 && !result.isEmpty()) {
                 Map<Integer, MutSig> mutSigMap = significantlyMutatedGeneService.getSignificantlyMutatedGenes(
@@ -243,7 +243,7 @@ public class StudyViewController {
             studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
             result = discreteCopyNumberService.getSampleCountInMultipleMolecularProfiles(molecularProfileService
                 .getFirstDiscreteCNAProfileIds(studyIds, sampleIds), sampleIds, null, Arrays.asList(-2, 2), true);
-            result.sort((a, b) -> b.getCountByCase() - a.getCountByCase());
+            result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1 && !result.isEmpty()) {
                 List<Gistic> gisticList = significantCopyNumberRegionService.getSignificantCopyNumberRegions(

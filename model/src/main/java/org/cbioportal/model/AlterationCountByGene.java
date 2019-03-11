@@ -7,7 +7,7 @@ public class AlterationCountByGene implements Serializable {
 
     private Integer entrezGeneId;
     private String hugoGeneSymbol;
-    private Integer countByCase;
+    private Integer numberOfAlteredCases;
 	private Integer totalCount;
 	private BigDecimal frequency;
 	private BigDecimal qValue;
@@ -28,12 +28,12 @@ public class AlterationCountByGene implements Serializable {
 		this.hugoGeneSymbol = hugoGeneSymbol;
 	}
 
-	public Integer getCountByCase() {
-		return countByCase;
+	public Integer getNumberOfAlteredCases() {
+		return numberOfAlteredCases;
 	}
 
-	public void setCountByCase(Integer countByCase) {
-		this.countByCase = countByCase;
+	public void setNumberOfAlteredCases(Integer numberOfAlteredCases) {
+		this.numberOfAlteredCases = numberOfAlteredCases;
 	}
 
 	public Integer getTotalCount() {

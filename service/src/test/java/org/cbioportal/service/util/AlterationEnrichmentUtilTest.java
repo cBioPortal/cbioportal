@@ -37,11 +37,11 @@ public class AlterationEnrichmentUtilTest {
         List<AlterationCountByGene> alterationSampleCountByGenes = new ArrayList<>();
         AlterationCountByGene alterationSampleCountByGene1 = new AlterationCountByGene();
         alterationSampleCountByGene1.setEntrezGeneId(2);
-        alterationSampleCountByGene1.setCountByCase(3);
+        alterationSampleCountByGene1.setNumberOfAlteredCases(3);
         alterationSampleCountByGenes.add(alterationSampleCountByGene1);
         AlterationCountByGene alterationSampleCountByGene2 = new AlterationCountByGene();
         alterationSampleCountByGene2.setEntrezGeneId(3);
-        alterationSampleCountByGene2.setCountByCase(2);
+        alterationSampleCountByGene2.setNumberOfAlteredCases(2);
         alterationSampleCountByGenes.add(alterationSampleCountByGene2);
 
         List<Gene> genes = new ArrayList<>();

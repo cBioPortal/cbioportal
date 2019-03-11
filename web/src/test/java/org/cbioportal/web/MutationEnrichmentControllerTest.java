@@ -138,20 +138,20 @@ public class MutationEnrichmentControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(TEST_CYTOBAND_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].set1AlterationCount.alteredCount").value(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].set2AlterationCount.alteredCount").value(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].set1CountSummary.alteredCount").value(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].set2CountSummary.alteredCount").value(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].logRatio").value(TEST_LOG_RATIO_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].set1AlterationCount.profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].set2AlterationCount.profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].set1CountSummary.profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].set2CountSummary.profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value(TEST_CYTOBAND_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].set1AlterationCount.alteredCount").value(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].set2AlterationCount.alteredCount").value(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].set1CountSummary.alteredCount").value(TEST_NUMBER_OF_SAMPLES_ALTERED_IN_SET_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].set2CountSummary.alteredCount").value(TEST_NUMBER_OF_SAMPLES_UNALTERED_IN_SET_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].logRatio").value(TEST_LOG_RATIO_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].set1AlterationCount.profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].set2AlterationCount.profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].set1CountSummary.profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].set2CountSummary.profiledCount").value(TEST_NUMBER_OF_SAMPLES_PROFILED_IN_SET_2));
     }
 }

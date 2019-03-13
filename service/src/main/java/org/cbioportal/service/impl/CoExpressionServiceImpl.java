@@ -33,27 +33,25 @@ public class CoExpressionServiceImpl implements CoExpressionService {
     public List<CoExpression> getCoExpressions(String molecularProfileId, String sampleListId, Integer entrezGeneId, 
                                               Double threshold) throws MolecularProfileNotFoundException {
 
-        List<GeneMolecularData> molecularDataList = molecularDataService.getMolecularData(molecularProfileId, 
-            sampleListId, null, "SUMMARY");
+        Map<Integer, List<GeneMolecularData>> molecularDataMap = molecularDataService.getMolecularData(molecularProfileId, 
+            sampleListId, null, "SUMMARY").stream().collect(Collectors.groupingBy(GeneMolecularData::getEntrezGeneId));
         
-        return createCoExpressions(molecularDataList, entrezGeneId, threshold);
+        return createCoExpressions(molecularDataMap, entrezGeneId, threshold);
     }
 
     @Override
     public List<CoExpression> fetchCoExpressions(String molecularProfileId, List<String> sampleIds, Integer entrezGeneId, 
                                                 Double threshold) throws MolecularProfileNotFoundException {
 
-        List<GeneMolecularData> molecularDataList = molecularDataService.fetchMolecularData(molecularProfileId, 
-            sampleIds, null, "SUMMARY");
+        Map<Integer, List<GeneMolecularData>> molecularDataMap = molecularDataService.fetchMolecularData(molecularProfileId, 
+            sampleIds, null, "SUMMARY").stream().collect(Collectors.groupingBy(GeneMolecularData::getEntrezGeneId));
         
-        return createCoExpressions(molecularDataList, entrezGeneId, threshold);
+        return createCoExpressions(molecularDataMap, entrezGeneId, threshold);
     }
     
-    private List<CoExpression> createCoExpressions(List<GeneMolecularData> molecularDataList, Integer queryEntrezGeneId,
+    private List<CoExpression> createCoExpressions(Map<Integer, List<GeneMolecularData>> molecularDataMap, Integer queryEntrezGeneId,
                                                    Double threshold) {
 
-        Map<Integer, List<GeneMolecularData>> molecularDataMap = molecularDataList.stream()
-                .collect(Collectors.groupingBy(GeneMolecularData::getEntrezGeneId));
         List<GeneMolecularData> queryMolecularDataList = molecularDataMap.remove(queryEntrezGeneId);
 
         Map<Integer, List<Gene>> genes = geneService.fetchGenes(molecularDataMap.keySet().stream()

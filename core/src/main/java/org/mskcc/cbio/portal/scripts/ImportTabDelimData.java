@@ -63,7 +63,7 @@ public class ImportTabDelimData {
     private int entriesSkipped = 0;
     private int nrExtraRecords = 0;
     private Set<String> arrayIdSet = new HashSet<String>();
-    private String genePanelID;
+    private String genePanel;
 
     /**
      * Constructor.
@@ -75,11 +75,11 @@ public class ImportTabDelimData {
      * 
      * @deprecated : TODO shall we deprecate this feature (i.e. the targetLine)? 
      */
-    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId, String genePanelID) {
+    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId, String genePanel) {
         this.dataFile = dataFile;
         this.targetLine = targetLine;
         this.geneticProfileId = geneticProfileId;
-        this.genePanelID = genePanelID;
+        this.genePanel = genePanel;
     }
 
     /**
@@ -88,10 +88,10 @@ public class ImportTabDelimData {
      * @param dataFile         Data File containing Copy Number Alteration, MRNA Expression Data, or protein RPPA data
      * @param geneticProfileId GeneticProfile ID.
      */
-    public ImportTabDelimData(File dataFile, int geneticProfileId, String genePanelID) {
+    public ImportTabDelimData(File dataFile, int geneticProfileId, String genePanel) {
         this.dataFile = dataFile;
         this.geneticProfileId = geneticProfileId;
-        this.genePanelID = genePanelID;
+        this.genePanel = genePanel;
     }
 
     /**
@@ -152,22 +152,9 @@ public class ImportTabDelimData {
             ArrayList <Integer> orderedSampleList = new ArrayList<Integer>();
             ArrayList <Integer> filteredSampleIndices = new ArrayList<Integer>();
             for (int i = 0; i < sampleIds.length; i++) {
-                // backwards compatible part (i.e. in the new process, the sample should already be there. TODO - replace this workaround later with an exception:
                 Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
                                                                            StableIdUtil.getSampleId(sampleIds[i]));
-                if (sample == null ) {
-                    //TODO - as stated above, this part should be removed. Agreed with JJ to remove this as soon as MSK moves to new validation 
-                    //procedure. In this new procedure, Patients and Samples should only be added 
-                    //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
-                    //sample per patient, which is not always the case.
-                    ImportDataUtil.addPatients(new String[] { sampleIds[i] }, geneticProfileId);
-                    // add the sample (except if it is a 'normal' sample):
-                    nrUnknownSamplesAdded += ImportDataUtil.addSamples(new String[] { sampleIds[i] }, geneticProfileId);
-                }
-                // check again (repeated because of workaround above):
-                sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
-                                                                           StableIdUtil.getSampleId(sampleIds[i]));
-                // can be null in case of 'normal' sample:
+                // can be null in case of 'normal' sample, throw exception if not 'normal' and sample not found in db
                 if (sample == null) {
                     if (StableIdUtil.isNormal(sampleIds[i])) {
                         filteredSampleIndices.add(i);
@@ -178,7 +165,10 @@ public class ImportTabDelimData {
                         throw new RuntimeException("Unknown sample id '" + StableIdUtil.getSampleId(sampleIds[i]) + "' found in tab-delimited file: " + this.dataFile.getCanonicalPath());
                     }
                 }
-                ImportDataUtil.addSampleProfile(sample, geneticProfileId, genePanelID);
+                if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
+                    Integer genePanelID = (genePanel == null) ? null : GeneticProfileUtil.getGenePanelId(genePanel);
+                    DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, genePanelID);
+                }
                 orderedSampleList.add(sample.getInternalId());
             }
             if (nrUnknownSamplesAdded > 0) {

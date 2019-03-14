@@ -50,7 +50,44 @@ skin.show_news_tab=
 skin.show_tools_tab=
 skin.show_about_tab=
 ```
-*Note: `skin.show_tools_tab` refers to the `Visualize Your Data` tab, while `skin.show_data_tab` refers to the `Data Sets` tab.
+
+**Note:** `skin.show_tools_tab` refers to the `Visualize Your Data` tab, while `skin.show_data_tab` refers to the `Data Sets` tab.
+
+## Quick Search (BETA)
+Settings related to quick search (currently in beta):
+
+![Quick search example](images/previews/quick_search_example.png)
+
+```
+# default is false
+skin.quick_search.show=true
+# for studies queried when typing in a single gene use this when session
+# service is disabled: 
+skin.quick_search.gene_query.cancer_study_list=
+skin.quick_search.gene_query.cancer_study_list_name=
+# or this if you do have session service (title will be pulled from the
+# virtual_study):
+skin.quick_search.gene_query.session_id=
+```
+
+One can show show quick search by setting `skin.quick_search.show=true`
+(default is false). The studies being queried when querying a gene is
+configured by specifying a cancer study list e.g.
+
+```
+skin.quick_search.gene_query.cancer_study_list=laml_tcga_pan_can_atlas_2018,uvm_tcga_pan_can_atlas_2018
+skin.quick_search.gene_query.cancer_study_list_name="TCGA PanCan Atlas studies"
+```
+
+or by specifying a session id of a virtual study:
+
+```
+skin.quick_search.gene_query.session_id=5c8a7d55e4b046111fee2296
+```
+
+When using a session id, the title will be pulled from the virtual study. Make
+sure to create a `virtual_study` with studies that everybody has access to and
+don't use a `main_session` id.
 
 ## Hide sections in the right navigation bar
 Settings controlling what to show in the right navigation bar. Set them to `false` if you want to hide those sections, otherwise set the properties to `true`.

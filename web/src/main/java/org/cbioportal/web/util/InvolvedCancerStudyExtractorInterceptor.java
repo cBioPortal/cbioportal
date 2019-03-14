@@ -34,6 +34,8 @@ package org.cbioportal.web.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
+import java.util.stream.Collectors;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
@@ -46,6 +48,7 @@ import org.cbioportal.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.web.parameter.GenePanelMultipleStudyFilter;
+import org.cbioportal.web.parameter.GroupFilter;
 import org.cbioportal.web.parameter.MolecularDataMultipleStudyFilter;
 import org.cbioportal.web.parameter.MolecularProfileFilter;
 import org.cbioportal.web.parameter.MultipleStudiesEnrichmentFilter;
@@ -91,6 +94,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String STUDY_VIEW_FILTERED_SAMPLES = "/filtered-samples/fetch";
     public static final String STUDY_VIEW_MUTATED_GENES = "/mutated-genes/fetch";
     public static final String STUDY_VIEW_SAMPLE_COUNTS = "/sample-counts/fetch";
+    public static final String CLINICAL_DATA_ENRICHMENT_FETCH_PATH = "/clinical-data-enrichments/fetch";
     public static final String MUTATION_ENRICHMENT_FETCH_PATH = "/mutation-enrichments/fetch";
     public static final String COPY_NUMBER_ENRICHMENT_FETCH_PATH = "/copy-number-enrichments/fetch";
 
@@ -126,6 +130,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
                 STUDY_VIEW_FILTERED_SAMPLES, STUDY_VIEW_MUTATED_GENES, STUDY_VIEW_SAMPLE_COUNTS)
                 .contains(requestPathInfo)) {
             return extractAttributesFromStudyViewFilter(wrappedRequest);
+        }  else if (requestPathInfo.equals(CLINICAL_DATA_ENRICHMENT_FETCH_PATH)) {
+            return extractAttributesFromGroupFilter(wrappedRequest);
         } else if (requestPathInfo.equals(MUTATION_ENRICHMENT_FETCH_PATH) || requestPathInfo.equals(COPY_NUMBER_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromMultipleStudiesEnrichmentFilter(wrappedRequest);
         }
@@ -412,6 +418,27 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             }
         } catch (Exception e) {
             LOG.error("exception thrown during extraction of clinicalDataBinCountFilter: " + e);
+            return false;
+        }
+        return true;
+    }
+    
+    private boolean extractAttributesFromGroupFilter(HttpServletRequest request) {
+        try {
+            GroupFilter groupFilter = objectMapper.readValue(request.getReader(),
+                    GroupFilter.class);
+            LOG.debug("extracted groupFilter: " + groupFilter.toString());
+            LOG.debug("setting interceptedGroupFilter to " + groupFilter);
+            request.setAttribute("interceptedGroupFilter", groupFilter);
+            if (cacheMapUtil.hasCacheEnabled()) {
+                List<SampleIdentifier> sampleIdentifiers = groupFilter.getGroups().stream()
+                        .flatMap(group -> group.getSampleIdentifiers().stream()).collect(Collectors.toList());
+                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromSampleIdentifiers(sampleIdentifiers);
+                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+            }
+        } catch (Exception e) {
+            LOG.error("exception thrown during extraction of groupFilter: " + e);
             return false;
         }
         return true;

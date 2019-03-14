@@ -1,3 +1,9 @@
+## February 22, 2019
+* **Enhancement**: Exon number and HGVSc annotations are available in optional columns in the Mutations tab on the _Results_ page and in the _Patient View_.
+* **New feature**: option to a show regression line in the scatter plot in the Plots tab on the _Results_ page
+
+![image](https://user-images.githubusercontent.com/840895/53193265-99271d00-35de-11e9-8ffc-352afc2ba906.png)
+
 ## February 19, 2019
 * **New feature**: *Copy-Number Segments tab* on the _Study View_ page using [igv.js v2](https://github.com/igvteam/igv.js) - see [example](https://www.cbioportal.org/study?id=ucec_tcga_pub&tab=cnSegments)
 * Improved *Copy-Number Segments* tab on the _Results_ page

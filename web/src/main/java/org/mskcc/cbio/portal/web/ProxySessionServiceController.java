@@ -155,19 +155,50 @@ public class ProxySessionServiceController {
         
         return addSession(SessionType.virtual_study, Optional.of(SessionOperation.save), body);
     }
+	
+    @RequestMapping(value = "/{type:virtual_study|group}/{operation}/{id}", method = RequestMethod.GET)
+    public void updateUsersInVirtualStudy(@PathVariable SessionType type, @PathVariable String id,
+            @PathVariable Operation operation, HttpServletResponse response) throws IOException {
 
-	@RequestMapping(value = "/virtual_study/add/{id}", method = RequestMethod.GET)
-	public void addUsertoVirtualStudy(@PathVariable String id, HttpServletResponse response) throws IOException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        // updates only allowed for type group for now
+        List<SessionType> validSessionTypes = Arrays.asList(SessionType.virtual_study, SessionType.group);
 
-		updateVirtualStudyUsers(id, Operation.add, response);
-	}
+        if (validSessionTypes.contains(type) && isSessionServiceEnabled()
+                && !(authentication == null || authentication instanceof AnonymousAuthenticationToken)) {
 
-	@RequestMapping(value = "/virtual_study/delete/{id}", method = RequestMethod.GET)
-	public void removeUserFromVirtualStudy(@PathVariable String id, HttpServletResponse response) throws IOException {
+            String user = ((UserDetails) authentication.getPrincipal()).getUsername();
 
-		updateVirtualStudyUsers(id, Operation.delete, response);
+            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                    false);
+            String virtualStudyStr = mapper.writeValueAsString(getSession(type, id, response));
+            VirtualStudy virtualStudy = mapper.readValue(virtualStudyStr, VirtualStudy.class);
+            Set<String> users = virtualStudy.getData().getUsers();
+            
+            switch (operation) {
+                case add: {
+                    users.add(user);
+                    break;
+                }
+                case delete: {
+                    users.remove(user);
+                    break;
+                }
+            }
+            virtualStudy.getData().setUsers(users);
+            RestTemplate restTemplate = new RestTemplate();
+            HttpEntity<Object> httpEntity = new HttpEntity<Object>(virtualStudy.getData(), getHttpHeaders());
 
-	}
+            restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
+            
+            response.sendError(HttpStatus.OK.value());
+            
+        } else {
+            response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value());
+        }
+
+    }
     
 	private ResponseEntity<HashMap> addSession(SessionType type, Optional<SessionOperation> operation, JSONObject body) {
 		try {
@@ -198,8 +229,10 @@ public class ProxySessionServiceController {
 			// (Jackson 2 is on classpath)
 			// was String when default converter StringHttpMessageConverter was used
 			RestTemplate restTemplate = new RestTemplate();
-			return restTemplate.exchange(sessionServiceURL + type, HttpMethod.POST,
+			ResponseEntity<HashMap> resp =  restTemplate.exchange(sessionServiceURL + type, HttpMethod.POST,
 					httpEntity, HashMap.class);
+			
+			return new ResponseEntity<>(resp.getBody(), resp.getStatusCode());
 
 		} catch (IOException e) {
 			LOG.error(e);
@@ -208,51 +241,6 @@ public class ProxySessionServiceController {
 	}
     
     
-	private void updateVirtualStudyUsers(String id, Operation operation, HttpServletResponse response)
-			throws IOException {
-
-		try {
-
-			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-			if (isSessionServiceEnabled()
-					&& !(authentication == null || authentication instanceof AnonymousAuthenticationToken)) {
-
-				String user = ((UserDetails) authentication.getPrincipal()).getUsername();
-
-				ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-						false);
-				String virtualStudyStr = mapper.writeValueAsString(getSession(SessionType.virtual_study, id, response));
-				VirtualStudy virtualStudy = mapper.readValue(virtualStudyStr, VirtualStudy.class);
-				Set<String> users = virtualStudy.getData().getUsers();
-				
-				switch (operation) {
-					case add: {
-						users.add(user);
-						break;
-					}
-					case delete: {
-						users.remove(user);
-						break;
-					}
-				}
-				virtualStudy.getData().setUsers(users);
-				RestTemplate restTemplate = new RestTemplate();
-				HttpEntity<Object> httpEntity = new HttpEntity<Object>(virtualStudy.getData(), getHttpHeaders());
-
-				restTemplate.exchange(sessionServiceURL + SessionType.virtual_study + "/" + id, HttpMethod.PUT,
-						httpEntity, HashMap.class);
-			} else {
-				response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value());
-			}
-
-		} catch (Exception e) {
-			LOG.error(e);
-			response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value());
-		}
-
-	}
-
 	@RequestMapping(value = "/groups/fetch", method = RequestMethod.POST)
 	public ResponseEntity<List<VirtualStudy>> fetchUserGroups(
 			@Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds,
@@ -272,12 +260,15 @@ public class ProxySessionServiceController {
 			RestTemplate restTemplate = new RestTemplate();
 
 			HttpEntity<String> httpEntity = new HttpEntity<String>(query, getHttpHeaders());
+			
+            ResponseEntity<List<VirtualStudy>> responseEntity = restTemplate.exchange(
+                    sessionServiceURL + SessionType.group + "/query/fetch", HttpMethod.POST, httpEntity,
+                    new ParameterizedTypeReference<List<VirtualStudy>>() {
+                    });
 
-			return restTemplate.exchange(
-					sessionServiceURL + SessionType.group + "/query/fetch",
-					HttpMethod.POST,
-					httpEntity,
-					new ParameterizedTypeReference<List<VirtualStudy>>() {});
+            List<VirtualStudy> virtualStudies = responseEntity.getBody();
+
+            return new ResponseEntity<>(virtualStudies, HttpStatus.OK);
 
 		}
 		return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
@@ -295,7 +286,7 @@ public class ProxySessionServiceController {
 		// updates only allowed for type group for now
 		List<SessionType> validSessionTypes = Arrays.asList(SessionType.group);
 
-		if (validSessionTypes.contains(type) && isSessionServiceEnabled() || !(authentication == null
+		if (validSessionTypes.contains(type) && isSessionServiceEnabled() && !(authentication == null
 				|| (authentication instanceof AnonymousAuthenticationToken))) {
 
 			ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
@@ -304,7 +295,8 @@ public class ProxySessionServiceController {
 			VirtualStudy virtualStudy = mapper.readValue(virtualStudyStr, VirtualStudy.class);
 
 			String user = ((UserDetails) authentication.getPrincipal()).getUsername();
-			if (user == virtualStudy.getData().getOwner() && virtualStudy.getType() == type.toString()) {
+			//only allow owner to update virtual study
+			if (user.equals(virtualStudy.getData().getOwner()) && virtualStudy.getType().equals(type.toString())) {
 
 				VirtualStudyData updatedVirtualStudyData = mapper.readValue(body.toString(), VirtualStudyData.class);
 				updatedVirtualStudyData.setCreated(virtualStudy.getData().getCreated());
@@ -316,12 +308,13 @@ public class ProxySessionServiceController {
 				HttpEntity<Object> httpEntity = new HttpEntity<Object>(updatedVirtualStudyData, getHttpHeaders());
 				
 				restTemplate.put(sessionServiceURL + type + "/" + id, httpEntity);
-				
+				response.setStatus(HttpStatus.OK.value());
 			} else {
 				response.setStatus(HttpStatus.UNAUTHORIZED.value());
 			}
+		} else {
+		    response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
 		}
-		response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
 	}
 }
 

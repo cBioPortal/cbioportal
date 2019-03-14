@@ -43,6 +43,10 @@ import java.util.*;
  * Data access object for sample_profile table
  */
 public final class DaoSampleProfile {
+    /**
+     * Adds a record to the sample_profile table. This is part of adding records from genetic profiles.
+     * Can use the bulk loader.
+     */
     private DaoSampleProfile() {}
 
     private static final int NO_SUCH_PROFILE_ID = -1;
@@ -50,19 +54,27 @@ public final class DaoSampleProfile {
 
     public static int addSampleProfile(Integer sampleId, Integer geneticProfileId, Integer panelId) throws DaoException {        
         if (MySQLbulkLoader.isBulkLoad()) {
+
+            // Add new record using bulk loader. Order of fields is:
+            // 1. sample ID
+            // 2. genetic Profile ID
+            // 3. gene panel ID
             if (panelId != null) {
-                MySQLbulkLoader.getMySQLbulkLoader(TABLE_NAME).insertRecord(Integer.toString(sampleId),
+                MySQLbulkLoader.getMySQLbulkLoader(TABLE_NAME).insertRecord(
+                    Integer.toString(sampleId),
                     Integer.toString(geneticProfileId),
-                    Integer.toString(panelId));            
-            }
-            else {
-                MySQLbulkLoader.getMySQLbulkLoader(TABLE_NAME).insertRecord(Integer.toString(sampleId),
-                    Integer.toString(geneticProfileId), null);     
+                    Integer.toString(panelId));
+            } else {
+                MySQLbulkLoader.getMySQLbulkLoader(TABLE_NAME).insertRecord(
+                    Integer.toString(sampleId),
+                    Integer.toString(geneticProfileId),
+                    null);
             }
 
             return 1;
         }
 
+        // Add new record without using bulk loader
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -83,6 +95,7 @@ public final class DaoSampleProfile {
                 }
                 return pstmt.executeUpdate();
             } else {
+                // This should be an error, because the record already exists.
                 return 0;
             }
         } catch (NullPointerException e) {
@@ -94,6 +107,41 @@ public final class DaoSampleProfile {
         }
     }
 
+    public static void updateSampleProfile(Integer sampleId, Integer geneticProfileId, Integer panelId) throws DaoException {
+        /**
+         * Update a record in the sample_profile table when adding gene panel field from the sample profile matrix. 
+         * Can not use the bulk loader, because the sample might already be added, which requires an UPDATE of the 
+         * record.
+         */
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = JdbcUtil.getDbConnection(DaoSampleProfile.class);
+            if (!sampleExistsInGeneticProfile(sampleId, geneticProfileId)) {
+                pstmt = con.prepareStatement
+                    ("INSERT INTO sample_profile (`SAMPLE_ID`, `GENETIC_PROFILE_ID`, `PANEL_ID`) VALUES (?,?,?)");
+                pstmt.setInt(1, sampleId);
+                pstmt.setInt(2, geneticProfileId);
+                pstmt.setInt(3, panelId);
+            } else {
+                pstmt = con.prepareStatement
+                    ("UPDATE `sample_profile` SET `PANEL_ID` = ? WHERE (`SAMPLE_ID` = ? AND `GENETIC_PROFILE_ID` = ?)");
+                pstmt.setInt(1, panelId);
+                pstmt.setInt(2, sampleId);
+                pstmt.setInt(3, geneticProfileId);
+            }
+            pstmt.executeUpdate();
+        } catch (NullPointerException e) {
+            throw new DaoException(e);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoSampleProfile.class, con, pstmt, rs);
+        }
+    }
+    
     public static boolean sampleExistsInGeneticProfile(int sampleId, int geneticProfileId)
             throws DaoException {
         Connection con = null;

@@ -2,3 +2,5 @@ Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Fusion	DNA_support	RNA_su
 FGFR3	2261	saturn	TEST-A2B8-01	TMPRSS2-ERG fusion	yes	yes	unknown	unknown	
 ERBB2	2064	jupiter	TEST-A2FF-01	Fusion2	yes	yes	unknown	unknown	
 ERBB2	2064	uranus	TCGA-GI-A2C8-01	ERBB2-TEST Fusion	yes	yes	unknown	frameshift	
+ACPP	55	moon	TEST_SAMPLE_5	ACPP-TEST Fusion	yes	yes	unknown	frameshift	
+ACPP	55	moon	TEST_SAMPLE_6	ACPP-TEST Fusion	yes	yes	unknown	frameshift	

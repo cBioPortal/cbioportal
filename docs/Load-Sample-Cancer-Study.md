@@ -27,8 +27,11 @@ The sample gene panel has to be imported before gene panel study data can be add
 
 ```
 cd <your_cbioportal_dir>/core/src/main/scripts
-./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/gene_panel_example.txt
+./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt
+./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt
 ```
+
+After loading gene panels into the database, please restart Tomcat so that the validator can retrieve gene panel information from the cBioPortal API.
 
 More details to load your own gene panel and gene set data can be found here: [Import Gene Panels](Import-Gene-Panels.md).
 
@@ -68,11 +71,13 @@ and then run the following command:
 ./metaImport.py -s ../../../test/scripts/test_data/study_es_0/ -n -o
 ```
 
-You will see a series of output messages, hopefulling ending with a status message like this:
+You will see a series of output messages, hopefully ending with a status message like this:
 
 ```
 Done.
 Total time:  7742 ms
 ```
+
+After loading the study data, please restart Tomcat.
 
 [Steps Complete: Return Home](README.md)

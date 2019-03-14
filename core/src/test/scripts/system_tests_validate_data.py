@@ -36,10 +36,18 @@ class ValidateDataSystemTester(unittest.TestCase):
         self.orig_get_pom_path = validateData.get_pom_path
         validateData.get_pom_path = dummy_get_pom_path
 
+        # Prepare global variables related to sample profiled for mutations and gene panels
+        self.mutation_sample_ids = None
+        self.mutation_file_sample_ids = set()
+        self.fusion_file_sample_ids = set()
+
     def tearDown(self):
         """Close logging handlers after running validator and remove tmpdir."""
         # restore original function
         validateData.get_pom_path = self.orig_get_pom_path
+        validateData.mutation_sample_ids = None
+        validateData.mutation_file_sample_ids = set()
+        validateData.fusion_file_sample_ids = set()
 
         # get the logger used in validateData.main_validate()
         validator_logger = logging.getLogger(validateData.__name__)

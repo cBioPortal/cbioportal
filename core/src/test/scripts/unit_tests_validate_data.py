@@ -25,6 +25,7 @@ PATIENTS_WITH_SAMPLES = None
 PORTAL_INSTANCE = None
 prior_validated_sample_ids = None
 prior_validated_geneset_ids = None
+mutation_sample_ids = None
 
 def setUpModule():
     """Initialise mock data used throughout the module."""
@@ -32,12 +33,14 @@ def setUpModule():
     global DEFINED_SAMPLE_ATTRIBUTES
     global PATIENTS_WITH_SAMPLES
     global PORTAL_INSTANCE
+    global mutation_sample_ids
     # mock information parsed from the sample attribute file
     DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01", "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
     DEFINED_SAMPLE_ATTRIBUTES = {'PATIENT_ID', 'SAMPLE_ID', 'SUBTYPE', 'CANCER_TYPE', 'CANCER_TYPE_DETAILED'}
     PATIENTS_WITH_SAMPLES = set("TEST-PAT{}".format(num) for
                                 num in list(range(1, 10)) if
                                 num != 8)
+    mutation_sample_ids = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01"]
     logger = logging.getLogger(__name__)
     # parse mock API results from a local directory
     PORTAL_INSTANCE = validateData.load_portal_info('test_data/api_json_unit_tests/',
@@ -140,11 +143,16 @@ class PostClinicalDataFileTestCase(DataFileTestCase):
         self.orig_patients_with_samples = validateData.PATIENTS_WITH_SAMPLES
         validateData.PATIENTS_WITH_SAMPLES = PATIENTS_WITH_SAMPLES
 
-        # reset all gene set global variables when starting a test
+        # Prepare global variables related to gene sets
         self.orig_prior_validated_sample_ids = validateData.prior_validated_sample_ids
         validateData.prior_validated_sample_ids = prior_validated_sample_ids
         self.orig_prior_validated_geneset_ids = validateData.prior_validated_geneset_ids
         validateData.prior_validated_geneset_ids = prior_validated_geneset_ids
+
+        # Prepare global variables related to sample profiled for mutations and gene panels
+        self.mutation_sample_ids = validateData.mutation_sample_ids
+        validateData.mutation_sample_ids = mutation_sample_ids
+
 
     def tearDown(self):
         """Restore the environment to before setUp() was called."""
@@ -153,6 +161,7 @@ class PostClinicalDataFileTestCase(DataFileTestCase):
         validateData.PATIENTS_WITH_SAMPLES = self.orig_patients_with_samples
         validateData.prior_validated_sample_ids = self.orig_prior_validated_sample_ids
         validateData.prior_validated_geneset_ids = self.orig_prior_validated_geneset_ids
+        validateData.mutation_sample_ids = self.mutation_sample_ids
         super(PostClinicalDataFileTestCase, self).tearDown()
 
 
@@ -442,13 +451,15 @@ class CancerTypeFileValidationTestCase(DataFileTestCase):
     def test_new_cancer_type(self):
         """Test when a study defines a new cancer type."""
         # {"id":"luad","name":"Lung Adenocarcinoma","color":"Gainsboro"}
-        self.logger.setLevel(logging.WARNING)
+        self.logger.setLevel(logging.INFO)
         record_list = self.validate('data_cancertype_lung.txt',
                                     validateData.CancerTypeValidator)
-        # expecting a warning about a new cancer type being added
-        self.assertEqual(len(record_list), 1)
+        # expecting an info message being about a new cancer type being added
+        self.assertEqual(len(record_list), 3)
         record = record_list.pop()
-        self.assertEqual(record.levelno, logging.WARNING)
+        record = record_list.pop()
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.INFO)
         self.assertEqual(record.cause, 'luad')
         self.assertIn('will be added', record.getMessage().lower())
 

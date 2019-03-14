@@ -12,14 +12,14 @@ public class AlterationEnrichment implements Serializable {
     private String hugoGeneSymbol;
     private String cytoband;
     @NotNull
-    private Integer alteredCount;
-    @NotNull
-    private Integer unalteredCount;
-    @NotNull
     private String logRatio;
     @NotNull
     private BigDecimal pValue;
-
+    @NotNull
+    private CountSummary set1CountSummary;
+    @NotNull
+    private CountSummary set2CountSummary;
+    
     public Integer getEntrezGeneId() {
         return entrezGeneId;
     }
@@ -44,22 +44,6 @@ public class AlterationEnrichment implements Serializable {
         this.cytoband = cytoband;
     }
 
-    public Integer getAlteredCount() {
-        return alteredCount;
-    }
-
-    public void setAlteredCount(Integer alteredCount) {
-        this.alteredCount = alteredCount;
-    }
-
-    public Integer getUnalteredCount() {
-        return unalteredCount;
-    }
-
-    public void setUnalteredCount(Integer unalteredCount) {
-        this.unalteredCount = unalteredCount;
-    }
-
     public String getLogRatio() {
         return logRatio;
     }
@@ -74,5 +58,21 @@ public class AlterationEnrichment implements Serializable {
 
     public void setpValue(BigDecimal pValue) {
         this.pValue = pValue;
+    }
+
+    public CountSummary getSet1CountSummary() {
+        return set1CountSummary;
+    }
+
+    public void setSet1CountSummary(CountSummary set1CountSummary) {
+        this.set1CountSummary = set1CountSummary;
+    }
+
+    public CountSummary getSet2CountSummary() {
+        return set2CountSummary;
+    }
+
+    public void setSet2CountSummary(CountSummary set2CountSummary) {
+        this.set2CountSummary = set2CountSummary;
     }
 }

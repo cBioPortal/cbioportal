@@ -512,14 +512,3 @@ INSERT INTO authorities (EMAIL, AUTHORITY) values ('jami@gmail.com', 'ROLE_USER'
 INSERT INTO authorities (EMAIL, AUTHORITY) values ('Lonnie@openid.org', 'ROLE_USER');
 INSERT INTO authorities (EMAIL, AUTHORITY) values ('Dhorak@yahoo.com', 'ROLE_USER');
 INSERT INTO authorities (EMAIL, AUTHORITY) values ('Dhorak@yahoo.com', 'ROLE_MANAGER');
-
-INSERT INTO "gene_panel" ("INTERNAL_ID", "STABLE_ID", "DESCRIPTION") VALUES(1, 'TESTPANEL1', 'A test panel consisting of a few genes');
-INSERT INTO "gene_panel" ("INTERNAL_ID", "STABLE_ID", "DESCRIPTION") VALUES(2, 'TESTPANEL2', 'Another test panel consisting of a few genes');
-
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 207);
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 369);
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 672);
-
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 207);
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 208);
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 4893);

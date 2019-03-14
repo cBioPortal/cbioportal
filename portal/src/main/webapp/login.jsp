@@ -173,8 +173,8 @@
 
                 <% } else if (authenticationMethod.equals("ad") || authenticationMethod.equals("ldap")){ %>
                   <div>
-                    <label for=username>Username: </label> <input type='text' id='username' name='j_username' value=''>  <br/>
-                    <label for=password>Password: </label> <input type='password' name='j_password' /> <br/>
+                    <label for=username>Username: </label> <input type='text' id='username' name='username' value=''>  <br/>
+                    <label for=password>Password: </label> <input type='password' name='password' /> <br/>
                     <input name="submit" type="submit" value="submit" />
                   </div>
                 </fieldset>

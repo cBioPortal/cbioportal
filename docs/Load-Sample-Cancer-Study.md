@@ -11,7 +11,7 @@ The cBioPortal distribution includes a [small dummy study, `study_es_0`](https:/
 Most cBioPortal command-line tools, including the data loading pipeline,
 expect the environment variable `$PORTAL_HOME` to point to a folder
 containing the `portal.properties` configuration file,
-as explained during [the previous step](Deployment.md).
+as explained during [the previous step](Deploying.md).
 
 Configure your shell to keep the variable set to the right folder.
 On GNU/Linux and macOS this usually means appending a line

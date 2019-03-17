@@ -46,6 +46,7 @@ import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.dao.DaoMutation;
+import org.mskcc.cbio.portal.dao.DaoPatient;
 import org.mskcc.cbio.portal.dao.DaoSample;
 import org.mskcc.cbio.portal.dao.DaoSampleProfile;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
@@ -56,10 +57,10 @@ import org.mskcc.cbio.portal.model.ClinicalData;
 import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.model.Sample;
 
 import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.ImportDataUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -273,8 +274,13 @@ public class TestImportProfileData {
         CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyStableId);
         studyId = study.getInternalId();
         //will be needed when relational constraints are active:
-        ImportDataUtil.addPatients(sampleIds, study);
-        ImportDataUtil.addSamples(sampleIds, study);
+        for (String sampleId : sampleIds) {
+            // fetch patient from db or add new one if does not exist
+            Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(studyId, sampleId);
+            Integer pId = (p == null) ? DaoPatient.addPatient(new Patient(study, sampleId)) : p.getInternalId();
+            DaoSample.addSample(new Sample(sampleId, pId, study.getTypeOfCancerId()));
+        }
+
         try {
             ImportProfileData runner = new ImportProfileData(args);
             runner.run();

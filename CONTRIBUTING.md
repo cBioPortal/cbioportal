@@ -73,6 +73,8 @@ to allow the reviewers to see what changed since they last read your code.
 Do not overwrite previously-reviewed commits with
 ones that include additional changes (by `--amend`ing or squashing)
 until the reviewers approve.
+Reviewers may request you to squash such amendment commits afterwards,
+or offer to push rewritten versions of your commits themselves.
 
 ## Automated tests on Travis CI
 All Pull Requests are automatically tested on [Travis

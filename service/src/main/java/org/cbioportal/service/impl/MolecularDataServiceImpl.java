@@ -74,6 +74,10 @@ public class MolecularDataServiceImpl implements MolecularDataService {
         }
         List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfMolecularProfile.split(","))
             .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
+        Map<Integer, Integer> internalSampleIdsMap = new HashMap<>();
+        for (int lc = 0; lc < internalSampleIds.size(); lc++) {
+            internalSampleIdsMap.put(internalSampleIds.get(lc), lc);
+        }
 
         List<Sample> samples;
         if (sampleIds == null) {
@@ -89,8 +93,8 @@ public class MolecularDataServiceImpl implements MolecularDataService {
             molecularProfileId, entrezGeneIds, projection);
         
         for (Sample sample : samples) {
-            int indexOfSampleId = internalSampleIds.indexOf(sample.getInternalId());
-            if (indexOfSampleId != -1) {
+            Integer indexOfSampleId = internalSampleIdsMap.get(sample.getInternalId());
+            if (indexOfSampleId != null) {
                 for (GeneMolecularAlteration molecularAlteration : molecularAlterations) {
                     GeneMolecularData molecularData = new GeneMolecularData();
                     molecularData.setMolecularProfileId(molecularProfileId);

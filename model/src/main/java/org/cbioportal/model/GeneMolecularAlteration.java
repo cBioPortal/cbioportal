@@ -1,6 +1,7 @@
 package org.cbioportal.model;
 
 import java.io.Serializable;
+import org.cbioportal.model.MolecularAlteration;
 
 public class GeneMolecularAlteration extends MolecularAlteration implements Serializable {
     

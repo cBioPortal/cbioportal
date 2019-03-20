@@ -49,7 +49,7 @@ public class MolecularDataServiceImpl implements MolecularDataService {
         }
         return fetchMolecularData(molecularProfileId, sampleIds, entrezGeneIds, projection);
     }
-
+    
     @Override
     public BaseMeta getMetaMolecularData(String molecularProfileId, String sampleListId, List<Integer> entrezGeneIds) 
         throws MolecularProfileNotFoundException {
@@ -58,7 +58,29 @@ public class MolecularDataServiceImpl implements MolecularDataService {
         baseMeta.setTotalCount(getMolecularData(molecularProfileId, sampleListId, entrezGeneIds, "ID").size());
         return baseMeta;
     }
+    
+    @Override
+    public List<GeneMolecularAlteration> getMolecularAlterations(String molecularProfileId,
+                                                      List<Integer> entrezGeneIds, String projection)
+        throws MolecularProfileNotFoundException {
 
+        validateMolecularProfile(molecularProfileId);
+        List<GeneMolecularAlteration> molecularAlterationList = new ArrayList<>();
+
+        String commaSeparatedSampleIdsOfMolecularProfile = molecularDataRepository
+            .getCommaSeparatedSampleIdsOfMolecularProfile(molecularProfileId);
+        if (commaSeparatedSampleIdsOfMolecularProfile == null) {
+            return molecularAlterationList;
+        }
+        List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfMolecularProfile.split(","))
+            .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
+
+        List<GeneMolecularAlteration> molecularAlterations = molecularDataRepository.getGeneMolecularAlterations(
+            molecularProfileId, entrezGeneIds, projection);
+
+        return molecularAlterations;
+    }
+    
     @Override
     public List<GeneMolecularData> fetchMolecularData(String molecularProfileId, List<String> sampleIds,
                                                       List<Integer> entrezGeneIds, String projection) 

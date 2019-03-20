@@ -3,6 +3,7 @@ package org.cbioportal.service;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.model.GeneMolecularAlteration;
 
 import java.util.List;
 
@@ -11,8 +12,11 @@ public interface MolecularDataService {
     List<GeneMolecularData> getMolecularData(String molecularProfileId, String sampleListId, 
                                              List<Integer> entrezGeneIds, String projection) 
         throws MolecularProfileNotFoundException;
-
+    
     BaseMeta getMetaMolecularData(String molecularProfileId, String sampleListId, List<Integer> entrezGeneIds) 
+        throws MolecularProfileNotFoundException;
+
+    List<GeneMolecularAlteration> getMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds, String projection)
         throws MolecularProfileNotFoundException;
     
     List<GeneMolecularData> fetchMolecularData(String molecularProfileId, List<String> sampleIds, 

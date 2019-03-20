@@ -187,6 +187,9 @@ session.service.url=
 # session.service.user=user
 # session.service.password=pass
 
+                                 
+
+
 # disabled tabs, | delimited
 # possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV
 disabled_tabs=

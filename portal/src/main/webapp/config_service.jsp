@@ -69,6 +69,7 @@
             "skin.documentation.news",
             "skin.documentation.oql",
             "skin.query.max_tree_depth",
+            "skin.quick_select_buttons",
             "skin.right_logo",
             "skin.right_nav.show_data_sets",
             "skin.right_nav.show_examples",

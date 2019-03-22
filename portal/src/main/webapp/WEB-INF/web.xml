@@ -682,6 +682,7 @@
         <url-pattern>/index.do/*</url-pattern>
         <url-pattern>/case.do/*</url-pattern>
         <url-pattern>/study.do/*</url-pattern>
+        <url-pattern>/loading/*</url-pattern>
     </servlet-mapping>
 
     <servlet>

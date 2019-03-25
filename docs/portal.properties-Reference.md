@@ -70,9 +70,9 @@ skin.quick_search.gene_query.cancer_study_list_name=
 skin.quick_search.gene_query.session_id=
 ```
 
-One can show show quick search by setting `skin.quick_search.show=true`
-(default is false). The studies being queried when querying a gene is
-configured by specifying a cancer study list e.g.
+One can show quick search by setting `skin.quick_search.show=true` (default is
+false). The studies being queried when querying a gene is configured by
+specifying a cancer study list e.g.
 
 ```
 skin.quick_search.gene_query.cancer_study_list=laml_tcga_pan_can_atlas_2018,uvm_tcga_pan_can_atlas_2018
@@ -88,6 +88,8 @@ skin.quick_search.gene_query.session_id=5c8a7d55e4b046111fee2296
 When using a session id, the title will be pulled from the virtual study. Make
 sure to create a `virtual_study` with studies that everybody has access to and
 don't use a `main_session` id.
+
+**Note:** When `skin.quick_search.gene_query.cancer_study_list` or `skin.quick_search.gene_query.session_id` is defined it will also be used as the default study for the `/ln?=TP53:MUT` links.
 
 ## Hide sections in the right navigation bar
 Settings controlling what to show in the right navigation bar. Set them to `false` if you want to hide those sections, otherwise set the properties to `true`.

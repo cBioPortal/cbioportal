@@ -217,3 +217,17 @@ oncoprint.defaultview=patient
 # Disable cache (for non authorized portals this can sometimes avoid running
 # out of memory with relatively little performance loss)
 # mybatis.cache.enabled=false
+
+# Quick search config (Beta)
+#
+# Enable/Disable quick search (default is false)
+# quick_search.show=true
+# for studies queried when typing in a single gene use this when session
+# service is disabled:
+# quick_search.gene_query.cancer_study_list=
+# quick_search.gene_query.cancer_study_list_name=
+# or this if you do have session service (title will be pulled from the
+# virtual_study):
+# quick_search.gene_query.session_id=
+# Note that linkouts of form /ln?TP53:MUT also use the studies specified in
+# quick_search.gene_query

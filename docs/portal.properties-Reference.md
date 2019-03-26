@@ -53,43 +53,54 @@ skin.show_about_tab=
 
 **Note:** `skin.show_tools_tab` refers to the `Visualize Your Data` tab, while `skin.show_data_tab` refers to the `Data Sets` tab.
 
+## Cross Cancer Study Query Default
+The cross cancer study query default is a list of studies used when querying
+one or more genes and not specifying a specific study or list of studies. There
+are two ways in which the default cross cancer study list is used:
+
+1. When using the linkout links without a study e.g. `/ln?q=TP53:MUT`. Those
+   links are used mostly used to allow for easy linking to particular queries.
+   One can't get those links using the cBioPortal user interface itself, they
+   are only mentioned in the documentation of the Web API
+   (https://www.cbioportal.org/webAPI).
+2. In the quick search when querying for a gene. Quick search is
+   disabled by default. It is a beta feature. See the
+   [quick search documentation](#quick-search-beta).
+
+The configuration is set with the following if you have session service
+enabled:
+
+```
+default_cross_cancer_study_session_id=
+```
+
+The title will be pulled from the virtual study. Make sure to create a
+`virtual_study` with studies that everybody has access to and don't use a
+`main_session` id.
+
+If session service is disabled one can use the following instead:
+
+```
+# query this comma separated list of studies
+default_cross_cancer_study_list=
+default_cross_cancer_study_list_name=
+```
+
 ## Quick Search (BETA)
 ![Quick search example](images/previews/quick_search_example.png)
 
-All settings related to quick search (currently in beta):
+Enable or disable the quick search with the following:
 
 ```
 # Enable/Disable quick search (default is false)
-quick_search.show=true
-# for studies queried when typing in a single gene use this when session
-# service is disabled: 
-quick_search.gene_query.cancer_study_list=
-quick_search.gene_query.cancer_study_list_name=
-# or this if you do have session service (title will be pulled from the
-# virtual_study):
-quick_search.gene_query.session_id=
+quick_search.enabled=true
 ```
 
-One can show quick search by setting `quick_search.show=true` (default is
-false). The studies being queried when querying a gene is configured by
-specifying a cancer study list e.g.
+The default studies queried when searching for a single gene is defined with
+the `default_cross_cancer_study_session_id` or
+`default_cross_cancer_study_list` properties as described in the
+[cross cancer study query default section](#cross-cancer-study-query-default).
 
-```
-quick_search.gene_query.cancer_study_list=laml_tcga_pan_can_atlas_2018,uvm_tcga_pan_can_atlas_2018
-quick_search.gene_query.cancer_study_list_name="TCGA PanCan Atlas studies"
-```
-
-or by specifying a session id of a virtual study:
-
-```
-quick_search.gene_query.session_id=5c8a7d55e4b046111fee2296
-```
-
-When using a session id, the title will be pulled from the virtual study. Make
-sure to create a `virtual_study` with studies that everybody has access to and
-don't use a `main_session` id.
-
-**Note:** When `quick_search.gene_query.cancer_study_list` or `quick_search.gene_query.session_id` is defined it will also be used as the default study for the `/ln?=TP53:MUT` links.
 
 ## Hide sections in the right navigation bar
 Settings controlling what to show in the right navigation bar. Set them to `false` if you want to hide those sections, otherwise set the properties to `true`.

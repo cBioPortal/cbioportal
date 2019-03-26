@@ -218,16 +218,18 @@ oncoprint.defaultview=patient
 # out of memory with relatively little performance loss)
 # mybatis.cache.enabled=false
 
-# Quick search config (Beta)
+# Default cross cancer study query
+# query this session id when not specifying a study for
+# linkout links e.g. /ln?q=TP53:MUT or when querying a single gene in quick
+# search
 #
-# Enable/Disable quick search (default is false)
-# quick_search.show=true
-# for studies queried when typing in a single gene use this when session
-# service is disabled:
-# quick_search.gene_query.cancer_study_list=
-# quick_search.gene_query.cancer_study_list_name=
-# or this if you do have session service (title will be pulled from the
-# virtual_study):
-# quick_search.gene_query.session_id=
-# Note that linkouts of form /ln?TP53:MUT also use the studies specified in
-# quick_search.gene_query
+# default_cross_cancer_study_session_id=
+#
+# if session service is not enabled, specify a comma separated list of studies
+# here instead e.g.:
+#
+# default_cross_cancer_study_list=mixed_pipseq_2017,cellline_nci60
+# default_cross_cancer_study_list_name=My list of studies
+
+# Enable/Disable quick search (currently in beta, default is false)
+# quick_search.enabled=true

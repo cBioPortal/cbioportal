@@ -1,3 +1,15 @@
+## March 19, 2019
+* **New Feature**: Use the new quick search tab on the homepage to more easily navigate to:
+    * a study
+    
+        ![Screen Shot 2019-03-27 at 4 42 36 PM](https://user-images.githubusercontent.com/1334004/55111129-06cbda80-50b0-11e9-9bed-40d428c2a8e0.png)
+    * a gene
+    
+        ![Screen Shot 2019-03-27 at 4 43 20 PM](https://user-images.githubusercontent.com/1334004/55111127-06cbda80-50b0-11e9-98c0-9210773c40db.png)
+    * a patient
+    
+        ![Screen Shot 2019-03-27 at 4 51 03 PM](https://user-images.githubusercontent.com/1334004/55111339-8bb6f400-50b0-11e9-9c93-4fd1e2cfa75a.png)
+   
 ## March 15, 2019
  *   **Added data**  of 338 samples from 4 studies:  
      *  [Adenoid Cystic Carcinoma (MGH, Nat Gen  2016)](https://www.cbioportal.org/study?id=acyc_mgh_2016) *10 samples*

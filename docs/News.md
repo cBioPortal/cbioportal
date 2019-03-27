@@ -1,14 +1,6 @@
 ## March 19, 2019
-* **New Feature**: Use the new quick search tab on the homepage to more easily navigate to:
-    * a study
-    
-        ![quick search study](https://user-images.githubusercontent.com/1334004/55111129-06cbda80-50b0-11e9-9bed-40d428c2a8e0.png)
-    * a gene
-    
-        ![quick search gene](https://user-images.githubusercontent.com/1334004/55111127-06cbda80-50b0-11e9-98c0-9210773c40db.png)
-    * a patient
-    
-        ![quick search patient](https://user-images.githubusercontent.com/1334004/55111339-8bb6f400-50b0-11e9-9c93-4fd1e2cfa75a.png)
+* **New Feature**: Use the new quick search tab on the homepage to more easily navigate to a study, gene or patient:
+    ![quick_search_news](https://user-images.githubusercontent.com/1334004/55113078-8f4c7a00-50b4-11e9-9d95-e9a6e1dcda52.gif)
    
 ## March 15, 2019
  *   **Added data**  of 338 samples from 4 studies:  

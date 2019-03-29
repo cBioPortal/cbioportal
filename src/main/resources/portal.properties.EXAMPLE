@@ -217,3 +217,19 @@ oncoprint.defaultview=patient
 # Disable cache (for non authorized portals this can sometimes avoid running
 # out of memory with relatively little performance loss)
 # mybatis.cache.enabled=false
+
+# Default cross cancer study query
+# query this session id when not specifying a study for
+# linkout links e.g. /ln?q=TP53:MUT or when querying a single gene in quick
+# search
+#
+# default_cross_cancer_study_session_id=
+#
+# if session service is not enabled, specify a comma separated list of studies
+# here instead e.g.:
+#
+# default_cross_cancer_study_list=mixed_pipseq_2017,cellline_nci60
+# default_cross_cancer_study_list_name=My list of studies
+
+# Enable/Disable quick search (currently in beta, default is false)
+# quick_search.enabled=true

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.ArrayList;
 
 @Service
@@ -33,21 +34,24 @@ public class StudyServiceImpl implements StudyService {
                                            String sortBy, String direction) {
 
         List<CancerStudy> allStudies = studyRepository.getAllStudies(keyword, projection, pageSize, pageNumber, sortBy, direction);
+        Map<String,CancerStudy> allStudiesByCancerStudyIdentifier = allStudies.stream().collect(Collectors.toMap(c -> c.getCancerStudyIdentifier(), c -> c));
+
         if (keyword != null && (pageSize == null || allStudies.size() < pageSize)) {
             List<CancerStudy> primarySiteMatchingStudies = findPrimarySiteMatchingStudies(keyword);
-            if (pageSize != null) {
-                int toIndex = primarySiteMatchingStudies.size() > pageSize - allStudies.size() ? 
-                    pageSize - allStudies.size() : primarySiteMatchingStudies.size();
-                primarySiteMatchingStudies = primarySiteMatchingStudies.subList(0, toIndex);
-            }
             for (CancerStudy cancerStudy : primarySiteMatchingStudies) {
-                if (!allStudies.stream().anyMatch(c -> c.getCancerStudyIdentifier().equals(cancerStudy.getCancerStudyIdentifier()))) {
-                    allStudies.add(cancerStudy);
+                if (!allStudiesByCancerStudyIdentifier.containsKey(cancerStudy.getCancerStudyIdentifier())) {
+                    allStudiesByCancerStudyIdentifier.put(cancerStudy.getCancerStudyIdentifier(), cancerStudy);
+                }
+                if (pageSize != null && allStudiesByCancerStudyIdentifier.size() == pageSize) {
+                    break;
                 }
             }
         }
-        // copy the list before returning so @PostFilter doesn't taint the list stored in the mybatis second-level cache
-        return (AUTHENTICATE.equals("false")) ? allStudies : new ArrayList<CancerStudy>(allStudies);
+        // For authenticated portals it is essential to make a new list, such
+        // that @PostFilter does not taint the list stored in the mybatis
+        // second-level cache. When making changes to this make sure to copy the
+        // allStudies list at least for the AUTHENTICATE.equals("true") case
+        return allStudiesByCancerStudyIdentifier.values().stream().collect(Collectors.toList());
     }
 
     @Override

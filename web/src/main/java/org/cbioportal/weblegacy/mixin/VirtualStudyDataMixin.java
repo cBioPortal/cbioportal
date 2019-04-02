@@ -14,5 +14,6 @@ public class VirtualStudyDataMixin {
 	private Float version;
 	@JsonIgnore
 	private Set<String> users;
-	
+    @JsonIgnore
+    private Long lastUpdated;
 }

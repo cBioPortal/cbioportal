@@ -44,12 +44,16 @@ import java.io.*;
 import java.util.*;
 
 
-public class ImportMutationalSignatureMetadata extends ConsoleRunnable {
+public class ImportMutationalSignatureMetaData extends ConsoleRunnable {
 
     @Override
     public void run() {
-        String progName = "ImportMutationalSignatureMetadata";
-        Options options = ImportMutationalSignatureMetadata.getOptions(args);
+        if (args.length == 0) {
+            System.out.println(ImportMutationalSignatureMetaData.printImportMutationalSignatureMetadataHelp());
+            return;
+        }
+        String progName = "ImportMutationalSignatureMetaData";
+        Options options = ImportMutationalSignatureMetaData.getOptions(args);
         CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = null;
         
@@ -57,7 +61,7 @@ public class ImportMutationalSignatureMetadata extends ConsoleRunnable {
             commandLine = parser.parse(options, args);
 
             if(commandLine.hasOption( "h" ) ){
-                System.out.println(ImportMutationalSignatureMetadata.printImportMutationalSignatureMetadataHelp());
+                System.out.println(ImportMutationalSignatureMetaData.printImportMutationalSignatureMetadataHelp());
             }
             
             // Check options
@@ -77,12 +81,12 @@ public class ImportMutationalSignatureMetadata extends ConsoleRunnable {
                 if(replace){
                     System.out.println("All mutational signature descriptions will be replaced with those in " + mutationalSignatureMetaFile.getAbsolutePath());
                 }
-                ImportMutationalSignatureMetadata.importData(mutationalSignatureMetaFile, replace);
+                ImportMutationalSignatureMetaData.importData(mutationalSignatureMetaFile, replace);
             }
             
         } 
         catch(ParseException ex){
-            throw new UsageException(progName, "Error parsing arguments.", ImportMutationalSignatureMetadata.printImportMutationalSignatureMetadataHelp());
+            throw new UsageException(progName, "Error parsing arguments.", ImportMutationalSignatureMetaData.printImportMutationalSignatureMetadataHelp());
         }
         catch (RuntimeException e) {
             throw e;
@@ -179,7 +183,7 @@ public class ImportMutationalSignatureMetadata extends ConsoleRunnable {
             "'-r' to replace data already in the database";
     }
     
-    public ImportMutationalSignatureMetadata(String[] args){
+    public ImportMutationalSignatureMetaData(String[] args){
         super(args);
     }
     
@@ -189,7 +193,7 @@ public class ImportMutationalSignatureMetadata extends ConsoleRunnable {
      * @param args  the arguments given on the command line
      */
     public static void main(String[] args) {
-        ConsoleRunnable runner = new ImportMutationalSignatureMetadata(args);
+        ConsoleRunnable runner = new ImportMutationalSignatureMetaData(args);
         runner.runInConsole();
     }
 

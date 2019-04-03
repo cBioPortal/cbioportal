@@ -52,23 +52,28 @@ More information on configuring Apache Tomcat connection pooling can be found [h
 
 Apache Tomcat provides the database database connection pool to the cBioPortal.  To setup a database connection pool managed by Tomcat, add the following line to `$CATALINA_HOME/conf/context.xml`, making sure that the properties match your system:
 
-     <Context>
-         ...
-         <Resource name="jdbc/cbioportal" auth="Container" type="javax.sql.DataSource"
-            maxActive="100" maxIdle="30" maxWait="10000"
-            username="cbio_user" password="somepassword" driverClassName="com.mysql.jdbc.Driver"
-            connectionProperties="zeroDateTimeBehavior=convertToNull;"
-            testOnBorrow="true"
-            validationQuery="SELECT 1"
-            url="jdbc:mysql://localhost:3306/cbioportal"/>
+``` xml
+<Context>
     ...
-    </Context>
-
+    <Resource name="jdbc/cbioportal" auth="Container"
+    type="javax.sql.DataSource"
+    maxActive="100" maxIdle="30" maxWait="10000"
+    username="cbio_user" password="somepassword"
+    driverClassName="com.mysql.jdbc.Driver"
+    connectionProperties="zeroDateTimeBehavior=convertToNull;"
+    testOnBorrow="true"
+    validationQuery="SELECT 1"
+    url="jdbc:mysql://localhost:3306/cbioportal"/>
+...
+</Context>
+```
 ## Deploy the cBioPortal WAR
 
 A tomcat server is usually started by running the following command:
 
-	$CATALINA_HOME/bin/catalina.sh start
+``` bash
+$CATALINA_HOME/bin/catalina.sh start
+```
 
 or, if you are following the [recommended Ubuntu instructions](https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-8-on-ubuntu-14-04)
 
@@ -76,7 +81,7 @@ or, if you are following the [recommended Ubuntu instructions](https://www.digit
 
 After the tomcat server has been started, to deploy the WAR file, run the following command:
 
-```
+``` bash
 sudo cp portal/target/cbioportal-*-SNAPSHOT.war $CATALINA_HOME/webapps/cbioportal.war
 ```
 
@@ -101,7 +106,9 @@ If you are actively developing for cBioPortal, you may notice OutOfMemory issues
 
 To do so, create a file:  `$CATALINA_HOME/setenv.sh`, and add the following line:
 
-    export CATALINA_OPTS="$CATALINA_OPTS -XX:MaxPermSize=256m"
+``` bash
+export CATALINA_OPTS="$CATALINA_OPTS -XX:MaxPermSize=256m"
+```
 
 ## Gotcha:  Broken MySQL Pipe after long periods of inactivity
 

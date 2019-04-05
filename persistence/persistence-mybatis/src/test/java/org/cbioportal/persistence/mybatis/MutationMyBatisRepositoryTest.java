@@ -294,7 +294,7 @@ public class MutationMyBatisRepositoryTest {
             "study_tcga_pub_mutations", null, entrezGeneIds);
         
         Assert.assertEquals(1, result.size());
-        Assert.assertEquals((Integer) 4, result.get(0).getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 4, result.get(0).getCountByEntity());
     }
 
     @Test
@@ -307,7 +307,7 @@ public class MutationMyBatisRepositoryTest {
             "acc_tcga_mutations", null, entrezGeneIds);
         
         Assert.assertEquals(1, result.size());
-        Assert.assertEquals((Integer) 1, result.get(0).getNumberOfAlteredCases());
+        Assert.assertEquals((Integer) 1, result.get(0).getCountByEntity());
     }
 
     @Test

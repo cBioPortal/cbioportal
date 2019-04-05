@@ -34,7 +34,7 @@ public class GeneFrequencyCalculatorTest {
 
     @InjectMocks
     private GeneFrequencyCalculator geneFrequencyCalculator;
-    
+
     @Mock
     private SampleListService sampleListService;
     @Mock
@@ -42,7 +42,6 @@ public class GeneFrequencyCalculatorTest {
 
     @Test
     public void calculate() throws Exception {
-
 
         List<GenePanelData> genePanelDataList = new ArrayList<>();
         GenePanelData genePanelData1 = new GenePanelData();
@@ -57,8 +56,9 @@ public class GeneFrequencyCalculatorTest {
         genePanelData3.setProfiled(true);
         genePanelDataList.add(genePanelData3);
 
-        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, 
-            MOLECULAR_PROFILE_ID), Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3))).thenReturn(genePanelDataList);
+        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
+                Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
+                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3))).thenReturn(genePanelDataList);
 
         List<GenePanel> genePanels = new ArrayList<>();
         GenePanel genePanel1 = new GenePanel();
@@ -82,27 +82,37 @@ public class GeneFrequencyCalculatorTest {
         genePanels.add(genePanel2);
 
         Mockito.when(genePanelService.fetchGenePanels(Arrays.asList(GENE_PANEL_ID_2, GENE_PANEL_ID_1), "DETAILED"))
-            .thenReturn(genePanels);
+                .thenReturn(genePanels);
 
         List<AlterationCountByGene> alterationCounts = new ArrayList<>();
         AlterationCountByGene alterationCount1 = new AlterationCountByGene();
         alterationCount1.setEntrezGeneId(ENTREZ_GENE_ID_1);
-        alterationCount1.setNumberOfAlteredCases(3);
+        alterationCount1.setCountByEntity(3);
         alterationCounts.add(alterationCount1);
         AlterationCountByGene alterationCount2 = new AlterationCountByGene();
         alterationCount2.setEntrezGeneId(ENTREZ_GENE_ID_2);
-        alterationCount2.setNumberOfAlteredCases(1);
+        alterationCount2.setCountByEntity(1);
         alterationCounts.add(alterationCount2);
         AlterationCountByGene alterationCount3 = new AlterationCountByGene();
         alterationCount3.setEntrezGeneId(ENTREZ_GENE_ID_3);
-        alterationCount3.setNumberOfAlteredCases(2);
+        alterationCount3.setCountByEntity(2);
         alterationCounts.add(alterationCount3);
 
-        geneFrequencyCalculator.calculate(Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID), 
-            Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts);
+        geneFrequencyCalculator.calculate(
+                Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
+                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts);
 
-        Assert.assertEquals(new BigDecimal("100.00"), alterationCounts.get(0).getFrequency());
-        Assert.assertEquals(new BigDecimal("50.00"), alterationCounts.get(1).getFrequency());
-        Assert.assertEquals(new BigDecimal("66.67"), alterationCounts.get(2).getFrequency());
+        Assert.assertEquals(new BigDecimal("100.00"),
+                new BigDecimal((double) alterationCounts.get(0).getCountByEntity()
+                        / alterationCounts.get(0).getNumberOfSamplesProfiled() * 100).setScale(2,
+                                BigDecimal.ROUND_HALF_UP));
+        Assert.assertEquals(new BigDecimal("50.00"),
+                new BigDecimal((double) alterationCounts.get(1).getCountByEntity()
+                        / alterationCounts.get(0).getNumberOfSamplesProfiled() * 100).setScale(2,
+                                BigDecimal.ROUND_HALF_UP));
+        Assert.assertEquals(new BigDecimal("66.67"),
+                new BigDecimal((double) alterationCounts.get(2).getCountByEntity()
+                        / alterationCounts.get(0).getNumberOfSamplesProfiled() * 100).setScale(2,
+                                BigDecimal.ROUND_HALF_UP));
     }
 }

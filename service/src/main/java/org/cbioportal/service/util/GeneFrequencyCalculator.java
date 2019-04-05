@@ -1,6 +1,5 @@
 package org.cbioportal.service.util;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,8 +60,7 @@ public class GeneFrequencyCalculator {
             } else {
                 denominator = profiled.size();
             }
-            alterationCountByGene.setFrequency(new BigDecimal((double) alterationCountByGene.getNumberOfAlteredCases() /
-                denominator * 100).setScale(2, BigDecimal.ROUND_HALF_UP));
+            alterationCountByGene.setNumberOfSamplesProfiled(denominator);
         }
     }
 }

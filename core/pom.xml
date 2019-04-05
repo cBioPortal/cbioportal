@@ -35,7 +35,6 @@
         <groupId>org.mskcc.cbio</groupId>
         <artifactId>service</artifactId>
         <version>${project.version}</version>
-        <scope>test</scope>
     </dependency>
 
     <!-- antisamy -->

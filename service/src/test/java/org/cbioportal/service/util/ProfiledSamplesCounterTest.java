@@ -1,6 +1,5 @@
 package org.cbioportal.service.util;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +19,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GeneFrequencyCalculatorTest {
+public class ProfiledSamplesCounterTest {
 
     private static final String MOLECULAR_PROFILE_ID = "molecular_profile_id";
     private static final String GENE_PANEL_ID_1 = "gene_panel_id_1";
@@ -33,8 +32,8 @@ public class GeneFrequencyCalculatorTest {
     private static final String SAMPLE_ID_3 = "sample_id_3";
 
     @InjectMocks
-    private GeneFrequencyCalculator geneFrequencyCalculator;
-    
+    private ProfiledSamplesCounter profiledSamplesCounter;
+
     @Mock
     private SampleListService sampleListService;
     @Mock
@@ -42,7 +41,6 @@ public class GeneFrequencyCalculatorTest {
 
     @Test
     public void calculate() throws Exception {
-
 
         List<GenePanelData> genePanelDataList = new ArrayList<>();
         GenePanelData genePanelData1 = new GenePanelData();
@@ -57,8 +55,9 @@ public class GeneFrequencyCalculatorTest {
         genePanelData3.setProfiled(true);
         genePanelDataList.add(genePanelData3);
 
-        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, 
-            MOLECULAR_PROFILE_ID), Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3))).thenReturn(genePanelDataList);
+        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
+                Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
+                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3))).thenReturn(genePanelDataList);
 
         List<GenePanel> genePanels = new ArrayList<>();
         GenePanel genePanel1 = new GenePanel();
@@ -82,27 +81,25 @@ public class GeneFrequencyCalculatorTest {
         genePanels.add(genePanel2);
 
         Mockito.when(genePanelService.fetchGenePanels(Arrays.asList(GENE_PANEL_ID_2, GENE_PANEL_ID_1), "DETAILED"))
-            .thenReturn(genePanels);
+                .thenReturn(genePanels);
 
         List<AlterationCountByGene> alterationCounts = new ArrayList<>();
         AlterationCountByGene alterationCount1 = new AlterationCountByGene();
         alterationCount1.setEntrezGeneId(ENTREZ_GENE_ID_1);
-        alterationCount1.setNumberOfAlteredCases(3);
         alterationCounts.add(alterationCount1);
         AlterationCountByGene alterationCount2 = new AlterationCountByGene();
         alterationCount2.setEntrezGeneId(ENTREZ_GENE_ID_2);
-        alterationCount2.setNumberOfAlteredCases(1);
         alterationCounts.add(alterationCount2);
         AlterationCountByGene alterationCount3 = new AlterationCountByGene();
         alterationCount3.setEntrezGeneId(ENTREZ_GENE_ID_3);
-        alterationCount3.setNumberOfAlteredCases(2);
         alterationCounts.add(alterationCount3);
 
-        geneFrequencyCalculator.calculate(Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID), 
-            Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts);
+        profiledSamplesCounter.calculate(
+                Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
+                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts);
 
-        Assert.assertEquals(new BigDecimal("100.00"), alterationCounts.get(0).getFrequency());
-        Assert.assertEquals(new BigDecimal("50.00"), alterationCounts.get(1).getFrequency());
-        Assert.assertEquals(new BigDecimal("66.67"), alterationCounts.get(2).getFrequency());
+        Assert.assertEquals(new Integer(3), alterationCounts.get(0).getNumberOfSamplesProfiled());
+        Assert.assertEquals(new Integer(2), alterationCounts.get(1).getNumberOfSamplesProfiled());
+        Assert.assertEquals(new Integer(3), alterationCounts.get(2).getNumberOfSamplesProfiled());
     }
 }

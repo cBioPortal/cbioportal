@@ -8,9 +8,11 @@ import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,13 +22,17 @@ public class PatientServiceImpl implements PatientService {
     private PatientRepository patientRepository;
     @Autowired
     private StudyService studyService;
+    @Value("${authenticate:false}")
+    private String AUTHENTICATE;
 
     @Override
     @PostFilter("hasPermission(filterObject, 'read')")
     public List<Patient> getAllPatients(String keyword, String projection, Integer pageSize, Integer pageNumber,
             String sortBy, String direction) {
         
-        return patientRepository.getAllPatients(keyword, projection, pageSize, pageNumber, sortBy, direction);
+        List<Patient> patients = patientRepository.getAllPatients(keyword, projection, pageSize, pageNumber, sortBy, direction);
+        // copy the list before returning so @PostFilter doesn't taint the list stored in the mybatis second-level cache
+        return (AUTHENTICATE.equals("false")) ? patients : new ArrayList<Patient>(patients);
     }
 
     @Override

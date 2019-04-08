@@ -33,7 +33,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     @Autowired
     private MolecularProfileService molecularProfileService;
     @Autowired
-    private ProfiledSamplesCounter profiledSamplesCalculator;
+    private ProfiledSamplesCounter profiledSamplesCounter;
 
     @Override
     public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMolecularProfileBySampleListId(
@@ -156,7 +156,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
                 sampleIds, entrezGeneIds, alterations);
             
             if (includeFrequency) {
-                profiledSamplesCalculator.calculate(molecularProfileIds, sampleIds, result);
+                profiledSamplesCounter.calculate(molecularProfileIds, sampleIds, result);
             }
         }
 

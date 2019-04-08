@@ -27,7 +27,7 @@ public class MutationServiceImpl implements MutationService {
     @Autowired
     private ChromosomeCalculator chromosomeCalculator;
     @Autowired
-    private ProfiledSamplesCounter profiledSamplesCalculator;
+    private ProfiledSamplesCounter profiledSamplesCounter;
 
     @Override
     public List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
@@ -130,7 +130,7 @@ public class MutationServiceImpl implements MutationService {
             result = mutationRepository.getSampleCountInMultipleMolecularProfiles(
                 molecularProfileIds, sampleIds, entrezGeneIds);
             if (includeFrequency) {
-                profiledSamplesCalculator.calculate(molecularProfileIds, sampleIds, result);
+                profiledSamplesCounter.calculate(molecularProfileIds, sampleIds, result);
             }
         }
 

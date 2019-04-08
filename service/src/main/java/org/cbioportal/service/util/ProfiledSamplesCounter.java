@@ -47,20 +47,20 @@ public class ProfiledSamplesCounter {
 
         for (AlterationCountByGene alterationCountByGene : alterationCounts) {
 
-            int denominator = 0;
+            int numberOfSamplesProfiled = 0;
             Integer entrezGeneId = alterationCountByGene.getEntrezGeneId();
             List<GenePanelData> profiled = genePanelDataList.stream().filter(g -> g.getProfiled()).collect(Collectors.toList());
             if (geneGenePanelMap.containsKey(entrezGeneId)) {
                 List<GenePanel> matchingGenePanels = geneGenePanelMap.get(entrezGeneId);
                 for (GenePanel genePanel : matchingGenePanels) {
-                    denominator += genePanelDataMap.get(genePanel.getStableId()).size();
+                    numberOfSamplesProfiled += genePanelDataMap.get(genePanel.getStableId()).size();
                 }
                 
-                denominator += profiled.stream().filter(g -> g.getGenePanelId() == null).count();
+                numberOfSamplesProfiled += profiled.stream().filter(g -> g.getGenePanelId() == null).count();
             } else {
-                denominator = profiled.size();
+                numberOfSamplesProfiled = profiled.size();
             }
-            alterationCountByGene.setNumberOfSamplesProfiled(denominator);
+            alterationCountByGene.setNumberOfSamplesProfiled(numberOfSamplesProfiled);
         }
     }
 }

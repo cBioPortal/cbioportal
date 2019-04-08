@@ -1,6 +1,5 @@
 package org.cbioportal.service.util;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GeneFrequencyCalculator {
+public class ProfiledSamplesCounter {
 
     @Autowired
     private GenePanelService genePanelService;
@@ -61,8 +60,7 @@ public class GeneFrequencyCalculator {
             } else {
                 denominator = profiled.size();
             }
-            alterationCountByGene.setFrequency(new BigDecimal((double) alterationCountByGene.getNumberOfAlteredCases() /
-                denominator * 100).setScale(2, BigDecimal.ROUND_HALF_UP));
+            alterationCountByGene.setNumberOfSamplesProfiled(denominator);
         }
     }
 }

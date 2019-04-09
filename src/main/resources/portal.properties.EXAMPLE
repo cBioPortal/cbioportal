@@ -122,8 +122,8 @@ ldap.attributes.email=mail
 # study view settings
 # always show studies with this group
 always_show_study_group=
-mdacc.heatmap.study.meta.url=//bioinformatics.mdanderson.org/study2url?studyid=
-mdacc.heatmap.study.url=//bioinformatics.mdanderson.org/TCGA/NGCHMPortal/?
+mdacc.heatmap.study.meta.url=https://bioinformatics.mdanderson.org/study2url?studyid=
+mdacc.heatmap.study.url=https://bioinformatics.mdanderson.org/TCGA/NGCHMPortal/?
 
 # patient view settings
 patient_view_placeholder=false
@@ -131,8 +131,8 @@ digitalslidearchive.iframe.url=http://cancer.digitalslidearchive.net/index_mskcc
 digitalslidearchive.meta.url=http://cancer.digitalslidearchive.net/local_php/get_slide_list_from_db_groupid_not_needed.php?slide_name_filter=
 tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/
 tcga_path_report.url=https://github.com/cbioportal/datahub/raw/master/tcga/pathology_reports/pathology_reports.txt
-mdacc.heatmap.patient.url=//bioinformatics.mdanderson.org/TCGA/NGCHMPortal/?participant=
-mdacc.heatmap.meta.url=//bioinformatics.mdanderson.org/participant2maps?participant=
+mdacc.heatmap.patient.url=https://bioinformatics.mdanderson.org/TCGA/NGCHMPortal/?participant=
+mdacc.heatmap.meta.url=https://bioinformatics.mdanderson.org/participant2maps?participant=
 
 # various url's
 segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/

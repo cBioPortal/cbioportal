@@ -79,12 +79,10 @@ public class ClinicalEventController {
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
     @RequestMapping(value = "/studies/{studyId}/clinical-events", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all clinical events of a patient in a study")
+    @ApiOperation("Get all clinical events in a study")
     public ResponseEntity<List<ClinicalEvent>> getAllClinicalEventsInStudy(
         @ApiParam(required = true, value = "Study ID e.g. lgg_ucsf_2014")
         @PathVariable String studyId,
-        @ApiParam(required = true, value = "Patient ID e.g. P01")
-        @PathVariable String patientId,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")

@@ -75,4 +75,41 @@ public class ClinicalEventController {
                     sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
+
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
+    @RequestMapping(value = "/studies/{studyId}/clinical-events", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get all clinical events of a patient in a study")
+    public ResponseEntity<List<ClinicalEvent>> getAllClinicalEventsInStudy(
+        @ApiParam(required = true, value = "Study ID e.g. lgg_ucsf_2014")
+        @PathVariable String studyId,
+        @ApiParam(required = true, value = "Patient ID e.g. P01")
+        @PathVariable String patientId,
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection,
+        @ApiParam("Page size of the result list")
+        @Max(PagingConstants.MAX_PAGE_SIZE)
+        @Min(PagingConstants.MIN_PAGE_SIZE)
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
+        @ApiParam("Page number of the result list")
+        @Min(PagingConstants.MIN_PAGE_NUMBER)
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
+        @ApiParam("Name of the property that the result list is sorted by")
+        @RequestParam(required = false) ClinicalEventSortBy sortBy,
+        @ApiParam("Direction of the sort")
+        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException, 
+        StudyNotFoundException {
+
+        if (projection == Projection.META) {
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, clinicalEventService.getMetaClinicalEvents(
+                studyId).getTotalCount().toString());
+            return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(
+                clinicalEventService.getAllClinicalEventsInStudy(
+                    studyId, projection.name(), pageSize, pageNumber,
+                    sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
+        }
+    }
 }

@@ -53,4 +53,29 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
         
         return clinicalEventRepository.getMetaPatientClinicalEvents(studyId, patientId);
     }
+
+    @Override
+    public List<ClinicalEvent> getAllClinicalEventsInStudy(String studyId, String projection, Integer pageSize,
+                                                           Integer pageNumber, String sortBy, String direction)
+        throws StudyNotFoundException {
+
+        List<ClinicalEvent> clinicalEvents = clinicalEventRepository.getAllClinicalEventsInStudy(studyId,
+            projection, pageSize, pageNumber, sortBy, direction);
+
+        if (!projection.equals("ID")) {
+
+            List<ClinicalEventData> clinicalEventDataList = clinicalEventRepository.getDataOfClinicalEvents(
+                clinicalEvents.stream().map(ClinicalEvent::getClinicalEventId).collect(Collectors.toList()));
+
+            clinicalEvents.forEach(c -> c.setAttributes(clinicalEventDataList.stream().filter(a -> 
+                a.getClinicalEventId().equals(c.getClinicalEventId())).collect(Collectors.toList())));
+        }
+        
+        return clinicalEvents;
+    }
+
+    @Override
+    public BaseMeta getMetaClinicalEvents(String studyId) throws StudyNotFoundException {
+        return clinicalEventRepository.getMetaClinicalEvents(studyId);
+    }
 }

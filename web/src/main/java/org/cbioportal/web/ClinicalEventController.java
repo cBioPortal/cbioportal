@@ -33,7 +33,7 @@ import java.util.List;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Clinical Events", description = " ")
+@Api(tags = "H. Clinical Events", description = " ")
 public class ClinicalEventController {
 
     @Autowired

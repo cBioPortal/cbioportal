@@ -44,7 +44,7 @@ import java.util.Map;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Studies", description = " ")
+@Api(tags = "B. Studies", description = " ")
 public class StudyController {
 
     @Autowired

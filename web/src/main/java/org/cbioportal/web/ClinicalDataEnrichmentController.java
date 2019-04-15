@@ -61,7 +61,7 @@ public class ClinicalDataEnrichmentController {
             @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
             @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
             @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-            @RequestAttribute(required = false, value = "interceptedGroupFilter") GroupFilter interceptedGroupFilter) {
+            @Valid @RequestAttribute(required = false, value = "interceptedGroupFilter") GroupFilter interceptedGroupFilter) {
 
         List<String> studyIds = interceptedGroupFilter.getGroups().stream()
                 .flatMap(group -> group.getSampleIdentifiers().stream().map(SampleIdentifier::getStudyId))

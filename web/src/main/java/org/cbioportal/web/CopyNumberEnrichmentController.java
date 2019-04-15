@@ -46,7 +46,7 @@ public class CopyNumberEnrichmentController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @RequestAttribute(required = false, value = "interceptedMultiStudyEnrichmentFilter") MultipleStudiesEnrichmentFilter interceptedMultiStudyEnrichmentFilter,
+        @Valid @RequestAttribute(required = false, value = "interceptedMultiStudyEnrichmentFilter") MultipleStudiesEnrichmentFilter interceptedMultiStudyEnrichmentFilter,
         @ApiParam("Type of the copy number event")
         @RequestParam(defaultValue = "HOMDEL") CopyNumberEnrichmentEventType copyNumberEventType,
         @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")

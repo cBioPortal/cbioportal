@@ -40,7 +40,7 @@ import java.util.List;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Molecular Data", description = " ")
+@Api(tags = "I. Molecular Data", description = " ")
 public class MolecularDataController {
     
     @Autowired

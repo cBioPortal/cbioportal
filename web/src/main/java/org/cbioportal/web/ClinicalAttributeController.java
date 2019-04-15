@@ -41,7 +41,7 @@ import java.util.List;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Clinical Attributes", description = " ")
+@Api(tags = "F. Clinical Attributes", description = " ")
 public class ClinicalAttributeController {
 
     @Autowired

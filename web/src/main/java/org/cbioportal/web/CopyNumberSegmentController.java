@@ -37,7 +37,7 @@ import java.util.List;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Copy Number Segments", description = " ")
+@Api(tags = "M. Copy Number Segments", description = " ")
 public class CopyNumberSegmentController {
 
     private static final int COPY_NUMBER_SEGMENT_MAX_PAGE_SIZE = 20000;

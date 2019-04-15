@@ -41,7 +41,7 @@ import java.util.List;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Clinical Data", description = " ")
+@Api(tags = "G. Clinical Data", description = " ")
 public class ClinicalDataController {
 
     public static final int CLINICAL_DATA_MAX_PAGE_SIZE = 10000000;

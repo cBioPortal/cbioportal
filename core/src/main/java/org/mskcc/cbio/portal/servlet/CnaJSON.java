@@ -100,6 +100,9 @@ public class CnaJSON extends HttpServlet {
         String mrnaProfileId = request.getParameter(PatientView.MRNA_PROFILE);
         String drugType = request.getParameter(PatientView.DRUG_TYPE);
         Boolean filterByCbioGene = Boolean.parseBoolean(request.getParameter(CBIO_GENES_FILTER));
+        if (filterByCbioGene) {
+            throw new ServletException("filtering using the " + CBIO_GENES_FILTER + " argument is no longer supported by this API");
+        }
         boolean fdaOnly = false;
         boolean cancerDrug = true;
         if (drugType!=null && drugType.equalsIgnoreCase(PatientView.DRUG_TYPE_FDA_ONLY)) {
@@ -133,8 +136,7 @@ public class CnaJSON extends HttpServlet {
         	            }else{
         	                internalSampleIds = InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), Arrays.asList(sampleIds));
         	            }
-        	            cnaEvents = DaoCnaEvent.getCnaEvents(internalSampleIds,
-        	                    (filterByCbioGene?daoGeneOptimized.getEntrezGeneIds(daoGeneOptimized.getCbioCancerGenes()):null), cnaProfile.getGeneticProfileId(), Arrays.asList((short)-2,(short)2));
+        	            cnaEvents = DaoCnaEvent.getCnaEvents(internalSampleIds, null, cnaProfile.getGeneticProfileId(), Arrays.asList((short)-2,(short)2));
         	            if (!cnaEvents.isEmpty()) {
                             String concatEventIds = getConcatEventIds(cnaEvents);
                             int profileId = cnaProfile.getGeneticProfileId();
@@ -449,15 +451,13 @@ public class CnaJSON extends HttpServlet {
         data.get("altrate").add(context);
         
         boolean isSangerGene = false;
-        boolean isCbioCancerGene = false;
         try {
             isSangerGene = DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(symbol);
-            isCbioCancerGene = daoGeneOptimized.isCbioCancerGene(gene);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         data.get("sanger").add(isSangerGene);
-        data.get("cancer-gene").add(isCbioCancerGene);
+        data.get("cancer-gene").add(false);
         
         // drug
         data.get("drug").add(drugs);

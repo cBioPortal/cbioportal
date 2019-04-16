@@ -15,7 +15,8 @@
 # author: ochoaa
 # last update: 2019/02/13
 
-CGDS_SCHEMA_FILE=$(find . -type f -name "*cgds.sql" | grep -v target)
+CGDS_SCHEMA_FILE=$(find . -type f -name "cgds.sql" | grep -v target)
 DIR=$(dirname $CGDS_SCHEMA_FILE)
 CGDS_TEST_SCHEMA_FILE=$DIR/cgds-test.sql
 grep -v "KEY_MUTATION_EVENT_DETAILS" $CGDS_SCHEMA_FILE > $CGDS_TEST_SCHEMA_FILE
+exit 0

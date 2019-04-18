@@ -4,7 +4,7 @@ This page describes various system software required to run the cBioPortal.
 
 ## Hardware
 
-Hardware requirements will vary depending on the volume of users you anticipate will access your cBioPortal instance.  As a guideline, we run [cbioportal.org](http://www.cbioportal.org) on an Intel Xeon 2.60GHz/8-core processor with 192GB of RAM. Minimally, 2GB of RAM is needed to run a cBioPortal instance. The public database consumes ~50 GB of disk space. If you do not plan to import public studies, depending on the size of your private data, 10GB of disk space may be sufficient.
+Hardware requirements will vary depending on the volume of users you anticipate will access your cBioPortal instance.  As a guideline, we run [cbioportal.org](https://www.cbioportal.org) on an Intel Xeon 2.60GHz/8-core processor with 192GB of RAM. Minimally, 2GB of RAM is needed to run a cBioPortal instance. The public database consumes ~50 GB of disk space. If you do not plan to import public studies, depending on the size of your private data, 10GB of disk space may be sufficient.
 
 ## MySQL
 

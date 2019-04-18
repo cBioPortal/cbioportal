@@ -23,7 +23,7 @@ Maintained by [Anders Jacobsen](http://cbio.mskcc.org/people/info/anders_jacobse
 ## Example usage
 
 	# Create CGDS object
-	mycgds = CGDS("http://www.cbioportal.org/")
+	mycgds = CGDS("https://www.cbioportal.org/")
 
 	test(mycgds)
 
@@ -74,7 +74,7 @@ An included tutorial ("showdemo cgdstutorial") shows how to use all the function
 	% Get started by adding the CGDS toolbox directory to the path (this will depend
 	% on install location) and setting the server URL
 	addpath('/MATLAB/cgds');
-	cgdsURL = 'http://www.cbioportal.org/';
+	cgdsURL = 'https://www.cbioportal.org/';
 
 	% Show toolbox help ('helpwin cgds' will open in the Help window)
 	help cgds;

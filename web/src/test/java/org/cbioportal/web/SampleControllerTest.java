@@ -51,8 +51,7 @@ public class SampleControllerTest {
     @Autowired
     private SampleService sampleService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

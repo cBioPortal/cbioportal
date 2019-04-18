@@ -44,8 +44,7 @@ public class CosmicCountControllerTest {
     @Autowired
     private CosmicCountService cosmicCountService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

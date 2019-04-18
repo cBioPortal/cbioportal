@@ -80,7 +80,7 @@
 			</span>
 		</td>
 		<td valign="middle" width="25%">
-			Powered by:<br/><a href="http://cbioportal.org/"><%= GlobalProperties.getTitle() %></a>
+			Powered by:<br/><a href="https://www.cbioportal.org/"><%= GlobalProperties.getTitle() %></a>
 		</td>
 	</tr>
 </table>

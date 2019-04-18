@@ -177,7 +177,7 @@
 * New __gene symbol validation__ service.  You can now use gene aliases and/or Entrez Gene IDs within your gene sets.
 * Improved __links to IGV__ for visualization of DNA copy-number changes.
 * Background information from the [Sanger Cancer Gene Census](http://www.sanger.ac.uk/genetics/CGP/Census/).
-* Two __new [Tutorials](tutorial.jsp)__ to get you quickly started in using the portal.
+* Two __new [Tutorials](tutorials)__ to get you quickly started in using the portal.
 
 # December 5, 2011
 

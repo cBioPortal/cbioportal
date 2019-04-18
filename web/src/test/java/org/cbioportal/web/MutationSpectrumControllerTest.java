@@ -54,8 +54,7 @@ public class MutationSpectrumControllerTest {
     @Autowired
     private MutationSpectrumService mutationSpectrumService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

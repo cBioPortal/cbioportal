@@ -50,8 +50,7 @@ public class CoExpressionControllerTest {
     @Autowired
     private CoExpressionService coExpressionService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

@@ -63,8 +63,7 @@ public class SampleListControllerTest {
     @Autowired
     private SampleListService sampleListService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

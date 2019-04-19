@@ -109,4 +109,11 @@ public class GenesetDataServiceImpl implements GenesetDataService {
         List<String> sampleIds = sampleListService.getAllSampleIdsInSampleList(sampleListId);
         return fetchGenesetData(geneticProfileId, sampleIds, genesetIds);
     }
+
+    @Override
+    public List<GenesetMolecularAlteration> getGenesetAlterations(String molecularProfileId, List<String> genesetIds)
+        throws MolecularProfileNotFoundException {
+
+        return molecularDataRepository.getGenesetMolecularAlterations(molecularProfileId, genesetIds, "SUMMARY");
+    }
 }

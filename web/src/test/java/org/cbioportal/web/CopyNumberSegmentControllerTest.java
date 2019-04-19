@@ -62,8 +62,7 @@ public class CopyNumberSegmentControllerTest {
     @Autowired
     private CopyNumberSegmentService copyNumberSegmentService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

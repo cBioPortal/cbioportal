@@ -71,8 +71,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     @Autowired
     private UniqueKeyExtractor uniqueKeyExtractor;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     private CacheMapUtil cacheMapUtil;

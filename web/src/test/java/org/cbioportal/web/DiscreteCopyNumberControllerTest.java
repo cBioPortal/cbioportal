@@ -67,8 +67,7 @@ public class DiscreteCopyNumberControllerTest {
     @Autowired
     private DiscreteCopyNumberService discreteCopyNumberService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

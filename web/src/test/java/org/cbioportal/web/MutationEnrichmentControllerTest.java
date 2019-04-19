@@ -60,8 +60,7 @@ public class MutationEnrichmentControllerTest {
     @Autowired
     private MutationEnrichmentService mutationEnrichmentService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

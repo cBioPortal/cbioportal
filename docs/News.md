@@ -1,3 +1,8 @@
+## March 29, 2019
+* **New Feature**: Use the new quick search tab on the homepage to more easily navigate to a study, gene or patient:
+
+    ![quick_search_news](https://user-images.githubusercontent.com/1334004/55113078-8f4c7a00-50b4-11e9-9d95-e9a6e1dcda52.gif)
+   
 ## March 15, 2019
  *   **Added data**  of 338 samples from 4 studies:  
      *  [Adenoid Cystic Carcinoma (MGH, Nat Gen  2016)](https://www.cbioportal.org/study?id=acyc_mgh_2016) *10 samples*

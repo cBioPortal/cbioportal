@@ -122,6 +122,15 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     }
 
     @Override
+    public List<GeneMolecularAlteration> getMolecularAlterations(String molecularProfileId, 
+                                                                 List<Integer> entrezGeneIds, String projection)
+        throws MolecularProfileNotFoundException {
+
+        validateMolecularProfile(molecularProfileId);
+        return molecularDataRepository.getGeneMolecularAlterations(molecularProfileId, entrezGeneIds, projection);
+    }
+
+    @Override
     public Integer getNumberOfSamplesInMolecularProfile(String molecularProfileId) {
 
         String commaSeparatedSampleIdsOfMolecularProfile = molecularDataRepository

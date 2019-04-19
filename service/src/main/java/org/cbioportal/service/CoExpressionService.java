@@ -12,7 +12,7 @@ public interface CoExpressionService {
 
     List<CoExpression> getCoExpressions(String molecularProfileId, String sampleListId, String geneticEntityId, 
                                                CoExpression.GeneticEntityType geneticEntityType, Double threshold)
-        throws MolecularProfileNotFoundException;
+        throws MolecularProfileNotFoundException, GenesetNotFoundException, GeneNotFoundException;
     
     List<CoExpression> getCoExpressions(String geneticEntityId, CoExpression.GeneticEntityType geneticEntityType, 
                                         String sampleListId, String molecularProfileIdA, String molecularProfileIdB, 
@@ -23,9 +23,9 @@ public interface CoExpressionService {
     List<CoExpression> fetchCoExpressions(String geneticEntityId, CoExpression.GeneticEntityType geneticEntityType, 
                                           List<String> sampleIds, String molecularProfileIdA, String molecularProfileIdB, 
                                           Double threshold) 
-        throws MolecularProfileNotFoundException, Exception;
+        throws MolecularProfileNotFoundException, GenesetNotFoundException, GeneNotFoundException;
 
     List<CoExpression> fetchCoExpressions(String molecularProfileId, List<String> sampleIds, String geneticEntityId, 
                                           CoExpression.GeneticEntityType geneticEntityType, Double threshold) 
-        throws MolecularProfileNotFoundException;
+        throws MolecularProfileNotFoundException ,GenesetNotFoundException, GeneNotFoundException;
 }

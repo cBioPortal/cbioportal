@@ -58,9 +58,11 @@ public class ImportGeneData extends ConsoleRunnable {
      * @throws IOException
      * @throws DaoException
      */
-    public static void importData(File geneFile) throws IOException, DaoException {
+    public static void importData(File geneFile, String genomeBuild) throws IOException, DaoException {
         Map<String, Set<CanonicalGene>> genesWithSymbolFromNomenClatureAuthority = new LinkedHashMap<>();
         Map<String, Set<CanonicalGene>> genesWithoutSymbolFromNomenClatureAuthority = new LinkedHashMap<>();
+        Map<String, Set<ReferenceGenomeGene>> refGenesWithSymbolFromNomenClatureAuthority = new LinkedHashMap<>();
+        Map<String, Set<ReferenceGenomeGene>> refGenesWithoutSymbolFromNomenClatureAuthority = new LinkedHashMap<>();
         try (FileReader reader = new FileReader(geneFile)) {
             BufferedReader buf = new BufferedReader(reader);
             String line;
@@ -94,6 +96,8 @@ public class ImportGeneData extends ConsoleRunnable {
                     String strAliases = parts[4];
                     String strXrefs = parts[5];
                     String cytoband = parts[7];
+                    String chr = cytoband.split("p|q")[0];
+                    int referenceGenomeId = DaoReferenceGenome.getReferenceGenomeByBuildName(genomeBuild).getReferenceGenomeId();
                     String desc = parts[8];
                     String type = parts[9];
                     String mainSymbol = parts[10]; // use 10 instead of 2 since column 2 may have duplication
@@ -112,24 +116,41 @@ public class ImportGeneData extends ConsoleRunnable {
                     }
                     
                     CanonicalGene gene = null;
+                    ReferenceGenomeGene refGene = null;
                     if (!mainSymbol.equals("-")) {
                         //Try the main symbol:
                         gene = new CanonicalGene(entrezGeneId, mainSymbol, aliases);
+                        refGene = new ReferenceGenomeGene(entrezGeneId, referenceGenomeId, chr, cytoband, 0, 0, 0);
                         Set<CanonicalGene> genes = genesWithSymbolFromNomenClatureAuthority.get(mainSymbol);
+                        Set<ReferenceGenomeGene> refGenes = refGenesWithSymbolFromNomenClatureAuthority.get(mainSymbol);
+                        
                         if (genes==null) {
                             genes = new HashSet<CanonicalGene>();
                             genesWithSymbolFromNomenClatureAuthority.put(mainSymbol, genes);
                         }
+                        if (refGenes==null) {
+                            refGenes = new HashSet<ReferenceGenomeGene>();
+                            refGenesWithSymbolFromNomenClatureAuthority.put(mainSymbol, refGenes);
+                        }
                         genes.add(gene);
+                        refGenes.add(refGene);
                     } else if (!geneSymbol.equals("-")) {
                         //there is no main symbol, so import using the temporary/unofficial(?) symbol:
                         gene = new CanonicalGene(entrezGeneId, geneSymbol, aliases);
+                        refGene = new ReferenceGenomeGene(entrezGeneId, referenceGenomeId, chr, 
+                            cytoband, 0, 0, 0);
                         Set<CanonicalGene> genes = genesWithoutSymbolFromNomenClatureAuthority.get(geneSymbol);
                         if (genes==null) {
                             genes = new HashSet<CanonicalGene>();
                             genesWithoutSymbolFromNomenClatureAuthority.put(geneSymbol, genes);
                         }
                         genes.add(gene);
+                        Set<ReferenceGenomeGene> refGenes = refGenesWithoutSymbolFromNomenClatureAuthority.get(geneSymbol);
+                        if (refGenes==null) {
+                            refGenes = new HashSet<ReferenceGenomeGene>();
+                            refGenesWithoutSymbolFromNomenClatureAuthority.put(geneSymbol, refGenes);
+                        }
+                        refGenes.add(refGene);
                     }
                     
                     if (gene!=null) {
@@ -137,6 +158,8 @@ public class ImportGeneData extends ConsoleRunnable {
                     }
             }
             addGenesToDB(genesWithSymbolFromNomenClatureAuthority, genesWithoutSymbolFromNomenClatureAuthority);
+            addReferenceGenomeGenesToDB(refGenesWithSymbolFromNomenClatureAuthority, 
+                refGenesWithoutSymbolFromNomenClatureAuthority);
         }
     }
         
@@ -153,7 +176,7 @@ public class ImportGeneData extends ConsoleRunnable {
                   Map<String, Set<CanonicalGene>> genesWithoutSymbolFromNomenClatureAuthority) throws DaoException {
                      
           DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-                  int nrExisting = 0;
+          int nrExisting = 0;
         // Add genes with symbol from nomenclature authority
         for (Map.Entry<String, Set<CanonicalGene>> entry : genesWithSymbolFromNomenClatureAuthority.entrySet()) {
             Set<CanonicalGene> genes = entry.getValue();
@@ -216,6 +239,89 @@ public class ImportGeneData extends ConsoleRunnable {
             ProgressMonitor.logWarning("Number of records skipped because the gene was already in the gene table (updates are not allowed - see specific warnings above): " + nrExisting);
         }
     }
+    /**
+     * Iterate over the reference genome genes found in the given maps and try to add them to the DB.
+     *
+     * @param refGenesWithSymbolFromNomenClatureAuthority: reference genome genes with official symbol
+     * @param refGenesWithoutSymbolFromNomenClatureAuthority: reference genome genes without official symbol (can happen, some entrez genes
+     * have no official symbol yet, but a temporary symbol).
+     *
+     * @throws DaoException
+     */
+    private static void addReferenceGenomeGenesToDB(Map<String, Set<ReferenceGenomeGene>> refGenesWithSymbolFromNomenClatureAuthority,
+                                     Map<String, Set<ReferenceGenomeGene>> refGenesWithoutSymbolFromNomenClatureAuthority) throws DaoException {
+
+        DaoReferenceGenomeGene daoReferenceGenomeGene = DaoReferenceGenomeGene.getInstance();
+
+        int nrExisting = 0;
+        // Add genes with symbol from nomenclature authority
+        for (Map.Entry<String, Set<ReferenceGenomeGene>> entry : refGenesWithSymbolFromNomenClatureAuthority.entrySet()) {
+            Set<ReferenceGenomeGene> refGenes = entry.getValue();
+            if (refGenes.size()==1) {
+                ReferenceGenomeGene refGene = refGenes.iterator().next();
+                // first check if gene exists. If exists, give warning and skip record:
+                if (daoReferenceGenomeGene.getGene(refGene.getEntrezGeneId(), refGene.getReferenceGenomeId()) != null) {
+                    ProgressMonitor.logWarning("Reference Genome Gene is already in table. Updates are not allowed. If you need to update the `gene` table, please remove all studies first and empty the `gene` table.");
+                    nrExisting++;
+                    continue;
+                }
+                try {
+                    daoReferenceGenomeGene.addOrUpdateGene(refGene);
+                } catch (Exception e) {
+                    ProgressMonitor.logWarning("chromosome too large" + refGene.getChr());
+                    continue;
+                }
+                ProgressMonitor.logWarning("New reference genome gene with official symbol added");
+            } else {
+                //TODO - is unexpected for official symbols...raise Exception instead?
+                logDuplicateReferenceGenomeGeneSymbolWarning(entry.getKey(), refGenes, true);
+            }
+        }
+
+        // Add genes without symbol from nomenclature authority
+        if (refGenesWithoutSymbolFromNomenClatureAuthority.keySet().size() > 0) {
+            int nrImported = 0;
+            int nrSkipped = 0;
+            for (Map.Entry<String, Set<ReferenceGenomeGene>> entry : refGenesWithoutSymbolFromNomenClatureAuthority.entrySet()) {
+                Set<ReferenceGenomeGene> refGenes = entry.getValue();
+                String symbol = entry.getKey();
+                if (refGenes.size()==1) {
+                    ReferenceGenomeGene refGene = refGenes.iterator().next();
+                    //only add the gene if it does not conflict with an official symbol:
+                    if (!refGenesWithSymbolFromNomenClatureAuthority.containsKey(symbol)) {
+                        //first check if gene exists. If exists, give warning and skip record since we don't allow updates in this process:
+                        if (daoReferenceGenomeGene.getGene(refGene.getEntrezGeneId(), refGene.getReferenceGenomeId()) != null) {
+                            ProgressMonitor.logWarning("Gene is already in table. Updates are not allowed. If you need to update the `gene` table, please remove all studies first and empty the `gene` table.");
+                            nrSkipped++;
+                            nrExisting++;
+                            continue;
+                        }
+                        daoReferenceGenomeGene.addOrUpdateGene(refGene);
+                        ProgressMonitor.logWarning("New gene with *no* official symbol added");
+                        nrImported++;
+                    } else {
+                        // ignore entries with a symbol that have the same value as stardard one
+                        ProgressMonitor.logWarning("Ignored line with entrez gene id "+refGene.getEntrezGeneId() + " because its 'unnoficial' symbol " +
+                            symbol+" is already an 'official symbol' of another gene");
+                        nrSkipped++;
+                        continue;
+                    }
+                } else {
+                    logDuplicateReferenceGenomeGeneSymbolWarning(entry.getKey(), refGenes, true);
+                    nrSkipped++;
+                    continue;
+                }
+            }
+            ProgressMonitor.logWarning("There were " +refGenesWithoutSymbolFromNomenClatureAuthority.keySet().size() +
+                " genes names in this file without an official symbol from nomenclature authority. Imported: " + nrImported +
+                ". Gene names skipped (because of duplicate symbol entry or because symbol is an 'official symbol' of another gene): " + nrSkipped);
+        }
+
+        if (nrExisting > 0) {
+            ProgressMonitor.logWarning("Number of records skipped because the gene was already in the gene table (updates are not allowed - see specific warnings above): " + nrExisting);
+        }
+    }
+
     
     private static void logDuplicateGeneSymbolWarning(String symbol, Set<CanonicalGene> genes, boolean isOfficialSymbol) {
         StringBuilder sb = new StringBuilder();
@@ -230,6 +336,23 @@ public class ImportGeneData extends ConsoleRunnable {
             sb.append(" ")
                     .append(gene.getEntrezGeneId())
                     .append(". Ignore...");
+        }
+        ProgressMonitor.logWarning(sb.toString());
+    }
+
+    private static void logDuplicateReferenceGenomeGeneSymbolWarning(String symbol, Set<ReferenceGenomeGene> refGenes, boolean isOfficialSymbol) {
+        StringBuilder sb = new StringBuilder();
+        if (isOfficialSymbol) {
+            sb.append("More than 1 gene has the same (official) symbol ");
+        } else {
+            sb.append("More than 1 gene has the same (unofficial) symbol ");
+        }
+        sb.append(symbol)
+            .append(":");
+        for (ReferenceGenomeGene refGene : refGenes) {
+            sb.append(" ")
+                .append(refGene.getEntrezGeneId())
+                .append(". Ignore...");
         }
         ProgressMonitor.logWarning(sb.toString());
     }
@@ -279,7 +402,7 @@ public class ImportGeneData extends ConsoleRunnable {
         //Set the variables needed for the method
         FileReader reader = new FileReader(geneFile);
         BufferedReader buf = new BufferedReader(reader);
-        int referenceGenomeId = DaoReferenceGenome.getReferenceGenomeIdByName(genomeBuild, species);
+        int referenceGenomeId = DaoReferenceGenome.getReferenceGenomeByBuildName(genomeBuild).getReferenceGenomeId();
         String line;
         ProgressMonitor.setCurrentMessage("\nUpdating gene lengths... \n"); //Display a message in the console
         boolean geneUpdated = false;
@@ -292,7 +415,6 @@ public class ImportGeneData extends ConsoleRunnable {
         String currentChrom = "";
         Long currentStart;
         Long currentStop;
-        String cytoband = "";
         
         String parts[] = null;
         List<long[]> loci = new ArrayList<long[]>();
@@ -305,7 +427,6 @@ public class ImportGeneData extends ConsoleRunnable {
                 }
                 parts = line.split("\t");
                 currentChrom = parts[0];
-                cytoband = getCytoband(parts[7], species);
                 currentStart = Long.parseLong(parts[3]);
                 currentStop = Long.parseLong(parts[4]) + 1; // We have to add 1 here, because the last base is also included.
                 
@@ -341,14 +462,14 @@ public class ImportGeneData extends ConsoleRunnable {
                     }   
                     /// If there is a switch
                     else {
-                        geneUpdated = updateLength(previousSymbol, previousChrom, loci, 
-                                referenceGenomeId, hasGenes, cytoband);
+                        geneUpdated = updateLength(previousSymbol, previousChrom, loci,
+                            referenceGenomeId);
                         if (geneUpdated) {
-                                nrGenesUpdated++;
+                            nrGenesUpdated++;
                         }
                         /// At the end of writing a new gene, clear the loci and save the new ensemblID.
                         loci.clear();
-                        
+
                         previousEnsembl = currentEnsembl;
                         previousSymbol = currentSymbol;
                         previousChrom = currentChrom;
@@ -357,14 +478,12 @@ public class ImportGeneData extends ConsoleRunnable {
                 }
             }
         }
-      
         /// Write the last gene
         /// First check if the gene exists in the database
-        geneUpdated = updateLength(previousSymbol, previousChrom, loci,  referenceGenomeId, hasGenes, cytoband);
+        geneUpdated = updateLength(previousSymbol, previousChrom, loci, referenceGenomeId);
         if (geneUpdated) {
-                nrGenesUpdated++;
+            nrGenesUpdated++;
         }
- 
         ProgressMonitor.setCurrentMessage("Updated length info for " + nrGenesUpdated + " genes\n");
         
         buf.close();
@@ -382,53 +501,36 @@ public class ImportGeneData extends ConsoleRunnable {
      * @throws IOException
      * @throws DaoException
      */
-    public static boolean updateLength(String symbol, String chromosome, List<long[]> loci, int refreneceGenomeId, 
-                                       boolean hasGenes, String cytoband) throws IOException, DaoException {
+    public static boolean updateLength(String symbol, String chromosome, List<long[]> loci, int refreneceGenomeId) throws IOException, DaoException {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(symbol);
+        System.out.println(" --> update reference genome gene:  " + gene.getHugoGeneSymbolAllCaps());
+        DaoReferenceGenomeGene daoReferenceGenomeGene = DaoReferenceGenomeGene.getInstance();
         boolean lengthUpdated = false;
         /// Check if the gene is in the database
-        CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(symbol, chromosome, false); //Identify unambiguously the gene (with the symbol and the chromosome)
-        DaoReferenceGenomeGene daoReferenceGenomeGene = DaoReferenceGenomeGene.getInstance();
-        ReferenceGenomeGene refGene = DaoReferenceGenomeGene.getInstance().getGene(gene.getEntrezGeneId(), refreneceGenomeId);
+        ReferenceGenomeGene refGene = daoReferenceGenomeGene.getGene(gene.getEntrezGeneId(), refreneceGenomeId);
         /// If it's not in the database, don't add it
-        if (!(gene==null)) {
+        if (refGene != null) {
                 /// Calc length
             long[] exonic = calculateGeneLength(loci);
                 
-            /// If there is no cytoband in the database, just write it (can also be an overwrite)
-            if (cytoband == null) {
-                if (hasGenes) {
-                    daoGeneOptimized.updateGene(gene);
-                    lengthUpdated = true;
-                }
-            }
-                
             /// If there is a cytoband in database, check if cytoband-chr matches input-chr
+            String cbChr = "chr"+refGene.getCytoband();
+            System.out.println(" updateLength--> cytoband of the gene:  " + cbChr);
+            if (cbChr.equals(chromosome)) { //Update the length only if the chromosome matches
+                // update reference genome gene
+                System.out.println(" updateLength--> update reference genome gene:  " + gene.getHugoGeneSymbolAllCaps());
+                refGene.setExonicLength((int) exonic[2]);
+                refGene.setStart(exonic[0]);
+                refGene.setEnd(exonic[1]);
+                daoReferenceGenomeGene.updateGene(refGene);
+                System.out.println(" updateLength--> exonic length of the gene:  " + 
+                        daoReferenceGenomeGene.getGene(gene.getEntrezGeneId(), refreneceGenomeId).getExonicLength());
+                lengthUpdated = true;
+            }
             else {
-                String cbChr = "chr"+cytoband.split("p|q")[0];
-                if (cbChr.equals(chromosome)) { //Update the length only if the chromosome matches
-                    if (hasGenes) {
-                        //gene.setLength((int) exonic[2]);
-                        daoGeneOptimized.updateGene(gene);
-                    }
-                        
-                    // update reference genome gene
-                    if (refGene == null) {
-                        refGene = new ReferenceGenomeGene(gene.getGeneticEntityId(), refreneceGenomeId);
-                    }
-                    refGene.setEntrezGeneId(gene.getEntrezGeneId());
-                    refGene.setChr(chromosome.replace("chr", ""));
-                    refGene.setCytoband(cytoband);
-                    refGene.setExonicLength((int) exonic[2]);
-                    refGene.setStart(exonic[0]);
-                    refGene.setEnd(exonic[1]);
-                    daoReferenceGenomeGene.addOrUpdateGene(refGene);
-                    lengthUpdated = true;
-                }
-                else {
-                        ProgressMonitor.logWarning("Cytoband does not match, gene not saved (likely another version of gene in gtf has correct chr and is saved)");
-                }
-        }
+                ProgressMonitor.logWarning("Cytoband does not match, gene not saved (likely another version of gene in gtf has correct chr and is saved)");
+            }
         }
         return lengthUpdated;
     }
@@ -525,17 +627,17 @@ public class ImportGeneData extends ConsoleRunnable {
                 
                 File geneFile;
                 int numLines;
-                        if(options.has("genes")) {
-                                geneFile = new File((String) options.valueOf("genes"));
-                        
-                        System.out.println("Reading gene data from:  " + geneFile.getAbsolutePath());
-                        numLines = FileUtil.getNumLines(geneFile);
-                        System.out.println(" --> total number of lines:  " + numLines);
-                        ProgressMonitor.setMaxValue(numLines);
-                        MySQLbulkLoader.bulkLoadOn();
-                        ImportGeneData.importData(geneFile);
-                        MySQLbulkLoader.flushAll(); //Gene and gene_alias should be updated before calculating gene length (gtf)!
-                        }
+                if(options.has("genes")) {
+                    geneFile = new File((String) options.valueOf("genes"));
+                    
+                    System.out.println("Reading gene data from:  " + geneFile.getAbsolutePath());
+                    numLines = FileUtil.getNumLines(geneFile);
+                    System.out.println(" --> total number of lines:  " + numLines);
+                    ProgressMonitor.setMaxValue(numLines);
+                    MySQLbulkLoader.bulkLoadOn();
+                    ImportGeneData.importData(geneFile, (String)options.valueOf("genome-build"));
+                    MySQLbulkLoader.flushAll(); //Gene and gene_alias should be updated before calculating gene length (gtf)!
+                }
                 
                 if(options.has("supp-genes")) {
                     File suppGeneFile = new File((String) options.valueOf("genes"));

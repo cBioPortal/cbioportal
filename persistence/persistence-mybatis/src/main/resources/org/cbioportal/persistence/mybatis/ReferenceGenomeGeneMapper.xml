@@ -88,7 +88,6 @@
                 reference_genome.NAME = #{genomeName} AND gene.ENTREZ_GENE_ID = #{geneId}
             </if>  
         </where>
-
     </select>
     <select id="getReferenceGenomeGeneByEntityId" resultType="org.cbioportal.model.ReferenceGenomeGene">
         SELECT

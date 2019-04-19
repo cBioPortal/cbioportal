@@ -241,7 +241,7 @@ public class GetCoExpressionJSON extends HttpServlet {
                                 double spearman = spearmansCorrelation.correlation(new_query_gene_exp, new_compared_gene_exp);
                                 CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
                                 fullResutlStr.append(
-                                    comparedGene.getHugoGeneSymbolAllCaps() + "\t" + "\t" +
+                                    comparedGene.getHugoGeneSymbolAllCaps() + "\t" +
                                     (double) Math.round(pearson * 100) / 100 + "\t" +
                                     (double) Math.round(spearman * 100) / 100 + "\n"
                                 );

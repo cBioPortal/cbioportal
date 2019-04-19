@@ -14,10 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.mskcc.cbio.portal.model;
-
-
 /**
  * Class to wrap Reference Genome Gene.
  * @author Kelsey Zhu
@@ -63,15 +60,21 @@ public class ReferenceGenomeGene {
     }
     
 
-    public void setReferenceGenomeId(int referenceGenomeId) { this.referenceGenomeId = referenceGenomeId; }
+    public void setReferenceGenomeId(int referenceGenomeId) { 
+        this.referenceGenomeId = referenceGenomeId; 
+    }
     
     public int getReferenceGenomeId() {
         return referenceGenomeId;
     }
     
-    public void setEntrezGeneId(long entrezGeneId) { this.entrezGeneId = entrezGeneId; }
+    public void setEntrezGeneId(long entrezGeneId) { 
+        this.entrezGeneId = entrezGeneId; 
+    }
     
-    public long getEntrezGeneId() { return entrezGeneId; }
+    public long getEntrezGeneId() { 
+        return entrezGeneId; 
+    }
 
     public String getChr() {
         return chr;
@@ -96,13 +99,21 @@ public class ReferenceGenomeGene {
         this.exonicLength = exonicLength;
     }
 
-    public long getStart() { return this.start; }
+    public long getStart() { 
+        return this.start; 
+    }
 
-    public void setStart(long start) { this.start = start; }
+    public void setStart(long start) { 
+        this.start = start; 
+    }
 
-    public long getEnd() { return this.end = end; }
+    public long getEnd() { 
+        return this.end = end; 
+    }
 
-    public void setEnd(long end) { this.end = end; }
+    public void setEnd(long end) { 
+        this.end = end; 
+    }
 
     @Override
     public boolean equals(Object obj0) {
@@ -116,8 +127,7 @@ public class ReferenceGenomeGene {
         }
         return false;
     }
-
-
+    
     @Override
     public int hashCode() {
         int result = 2;
@@ -125,5 +135,4 @@ public class ReferenceGenomeGene {
         result = 31 * result + this.referenceGenomeId;
         return result;
     }
-
 }

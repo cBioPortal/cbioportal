@@ -1,6 +1,5 @@
 package org.cbioportal.persistence.mybatis;
 
-
 import java.util.List;
 
 import org.cbioportal.model.ReferenceGenomeGene;

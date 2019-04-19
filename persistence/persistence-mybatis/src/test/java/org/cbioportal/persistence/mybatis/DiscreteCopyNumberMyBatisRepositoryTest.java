@@ -1,6 +1,9 @@
 package org.cbioportal.persistence.mybatis;
 
-import org.cbioportal.model.*;
+import org.cbioportal.model.CopyNumberCountByGene;
+import org.cbioportal.model.DiscreteCopyNumberData;
+import org.cbioportal.model.Gene;
+import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.junit.Assert;
 import org.junit.Test;
@@ -63,7 +66,7 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         List<DiscreteCopyNumberData> result =  discreteCopyNumberMyBatisRepository
             .getDiscreteCopyNumbersInMolecularProfileBySampleListId("study_tcga_pub_gistic", "study_tcga_pub_all", 
                 entrezGeneIds, alterations, "DETAILED");
-        
+
         Assert.assertEquals(3, result.size());
         DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
         Assert.assertEquals("study_tcga_pub_gistic", discreteCopyNumberData.getMolecularProfileId());

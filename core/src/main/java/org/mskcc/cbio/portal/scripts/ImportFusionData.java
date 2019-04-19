@@ -119,7 +119,7 @@ public class ImportFusionData {
                 }
                 if (gene == null) {
                     // If Entrez Gene ID Fails, try Symbol.
-                    gene = daoGene.getNonAmbiguousGene(geneSymbol, null);
+                    gene = daoGene.getNonAmbiguousGene(geneSymbol, true);
                 }
                 if(gene == null) {
                     ProgressMonitor.logWarning("Gene not found:  " + geneSymbol + " ["

@@ -779,7 +779,7 @@ public class ImportTabDelimData {
                 ProgressMonitor.logWarning("Gene " + symbol + " will be interpreted as 'Not Available' in this case. Record will be skipped for this gene.");
             }
             else {
-                CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, null);
+                CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, true);
                 if (gene!=null) {
                     genes.add(gene);
                 }

@@ -1,7 +1,5 @@
 package org.cbioportal.service.util;
 
-import org.cbioportal.model.Gene;
-import org.cbioportal.model.ReferenceGenomeGene;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;

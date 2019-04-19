@@ -39,7 +39,6 @@ public class ImportReferenceGenome extends ConsoleRunnable {
 
     /**
      * Adds the genes parsed from the file into the Database.
-     *
      * @param referenceGenomeFile File with reference genome information
      * @throws IOException
      * @throws DaoException
@@ -82,24 +81,21 @@ public class ImportReferenceGenome extends ConsoleRunnable {
             }
             addReferenceGenomesToDB(referenceGenomes);
         }
-
     }
 
     /**
      * Iterate over the genes found in the given maps and try to add them to the DB.
-     *
      * @param referenceGenomes: reference genomes
      * @throws DaoException
      */
     private static void addReferenceGenomesToDB(Set<ReferenceGenome> referenceGenomes) throws DaoException {
-
-
         int nrExisting = 0;
         for (ReferenceGenome refGenome: referenceGenomes) {
             if (DaoReferenceGenome.getReferenceGenomeByInternalId(refGenome.getReferenceGenomeId()) != null) {
                 ProgressMonitor.logWarning("Reference genome updated");
-                int rows = DaoReferenceGenome.updateReferenceGenome(refGenome);
-                if (rows != 1) {
+                try {
+                    DaoReferenceGenome.updateReferenceGenome(refGenome);
+                } catch (DaoException e) {
                     ProgressMonitor.logWarning("No change for " + refGenome.getGenomeName());
                 }
             } else {
@@ -108,8 +104,7 @@ public class ImportReferenceGenome extends ConsoleRunnable {
             }
         }
     }
-
-
+    
     @Override
     public void run() {
         try {
@@ -164,7 +159,6 @@ public class ImportReferenceGenome extends ConsoleRunnable {
 
     /**
      * Makes an instance to run with the given command line arguments.
-     *
      * @param args  the command line arguments to be used
      */
     public ImportReferenceGenome(String[] args) {
@@ -173,7 +167,6 @@ public class ImportReferenceGenome extends ConsoleRunnable {
 
     /**
      * Runs the command as a script and exits with an appropriate exit code.
-     *
      * @param args  the arguments given on the command line
      */
     public static void main(String[] args) {

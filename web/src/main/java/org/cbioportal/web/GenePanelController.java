@@ -42,7 +42,7 @@ import java.util.*;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Gene Panels", description = " ")
+@Api(tags = "O. Gene Panels", description = " ")
 public class GenePanelController {
 
     @Autowired

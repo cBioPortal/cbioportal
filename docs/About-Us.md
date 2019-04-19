@@ -15,6 +15,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Manda Wilson
 * Avery Wang
 * Jing Su
+* Ramyasree Madupuri
 * Gaofei Zhao
 * Xiang Li
 * Nikolaus Schultz

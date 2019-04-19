@@ -40,7 +40,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Clinical Attributes", description = " ")
+@Api(tags = "F. Clinical Attributes", description = " ")
 public class ClinicalAttributeController {
 
     @Autowired

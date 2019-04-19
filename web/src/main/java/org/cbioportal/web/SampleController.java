@@ -37,7 +37,7 @@ import java.util.*;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Samples", description = " ")
+@Api(tags = "D. Samples", description = " ")
 public class SampleController {
 
     public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;

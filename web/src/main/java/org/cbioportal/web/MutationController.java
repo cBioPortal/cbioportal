@@ -44,7 +44,7 @@ import java.util.*;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Mutations", description = " ")
+@Api(tags = "K. Mutations", description = " ")
 public class MutationController {
 
     public static final int MUTATION_MAX_PAGE_SIZE = 10000000;

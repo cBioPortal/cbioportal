@@ -476,7 +476,6 @@ window.loadReactApp({ defaultRoute: 'results' });
             }
         );
 
-        //Move code related to expression tab from cross_cancer_results.jsp to here
         if (window.serverVars.theQuery.trim() != "") {
             window.ccQueriedGenes = window.frontendVars.oqlGenes(window.serverVars.theQuery);
         }

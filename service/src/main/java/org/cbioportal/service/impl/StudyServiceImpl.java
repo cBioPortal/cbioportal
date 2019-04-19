@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 @Service
 public class StudyServiceImpl implements StudyService {
@@ -34,15 +35,15 @@ public class StudyServiceImpl implements StudyService {
                                            String sortBy, String direction) {
 
         List<CancerStudy> allStudies = studyRepository.getAllStudies(keyword, projection, pageSize, pageNumber, sortBy, direction);
-        Map<String,CancerStudy> allStudiesByCancerStudyIdentifier = allStudies.stream().collect(Collectors.toMap(c -> c.getCancerStudyIdentifier(), c -> c));
+        Map<String,CancerStudy> sortedAllStudiesByCancerStudyIdentifier = allStudies.stream().collect(Collectors.toMap(c -> c.getCancerStudyIdentifier(), c -> c, (e1, e2) -> e2, LinkedHashMap::new));
 
         if (keyword != null && (pageSize == null || allStudies.size() < pageSize)) {
             List<CancerStudy> primarySiteMatchingStudies = findPrimarySiteMatchingStudies(keyword);
             for (CancerStudy cancerStudy : primarySiteMatchingStudies) {
-                if (!allStudiesByCancerStudyIdentifier.containsKey(cancerStudy.getCancerStudyIdentifier())) {
-                    allStudiesByCancerStudyIdentifier.put(cancerStudy.getCancerStudyIdentifier(), cancerStudy);
+                if (!sortedAllStudiesByCancerStudyIdentifier.containsKey(cancerStudy.getCancerStudyIdentifier())) {
+                    sortedAllStudiesByCancerStudyIdentifier.put(cancerStudy.getCancerStudyIdentifier(), cancerStudy);
                 }
-                if (pageSize != null && allStudiesByCancerStudyIdentifier.size() == pageSize) {
+                if (pageSize != null && sortedAllStudiesByCancerStudyIdentifier.size() == pageSize) {
                     break;
                 }
             }
@@ -51,7 +52,7 @@ public class StudyServiceImpl implements StudyService {
         // that @PostFilter does not taint the list stored in the mybatis
         // second-level cache. When making changes to this make sure to copy the
         // allStudies list at least for the AUTHENTICATE.equals("true") case
-        return allStudiesByCancerStudyIdentifier.values().stream().collect(Collectors.toList());
+        return sortedAllStudiesByCancerStudyIdentifier.values().stream().collect(Collectors.toList());
     }
 
     @Override

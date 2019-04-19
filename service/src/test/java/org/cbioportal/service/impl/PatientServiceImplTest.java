@@ -7,12 +7,14 @@ import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +30,11 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
     private PatientRepository patientRepository;
     @Mock
     private StudyService studyService;
+    
+    @Before
+    public void setup() {
+        ReflectionTestUtils.setField(patientService, "AUTHENTICATE", "false");
+    }
 
     @Test
     public void getAllPatients() throws Exception {

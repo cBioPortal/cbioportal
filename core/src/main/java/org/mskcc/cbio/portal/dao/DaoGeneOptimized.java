@@ -285,7 +285,7 @@ public class DaoGeneOptimized {
     /**
      * Gets Gene By Entrez Gene ID.
      *
-     * @param entrezId Entrez Gene ID.
+     * @param geneticEntityId Gene Entity ID.
      * @return Canonical Gene Object.
      */
     public CanonicalGene getGeneByEntityId(int geneticEntityId) {
@@ -335,24 +335,8 @@ public class DaoGeneOptimized {
 
         List<CanonicalGene> genes = geneAliasMap.get(geneId.toUpperCase());
         if (genes!=null) {
-            if (chr==null) {
-                return Collections.unmodifiableList(genes);
-            }
-
-            String nchr = normalizeChr(chr);
-
-            List<CanonicalGene> ret = new ArrayList<CanonicalGene>();
-            for (CanonicalGene cg : genes) {
-                //String gchr = getChrFromCytoband(cg.getCytoband());
-                String gchr = null;
-                if (gchr==null // TODO: should we exlude this?
-                        || gchr.equals(nchr)) {
-                    ret.add(cg);
-                }
-            }
-            return ret;
+            return Collections.unmodifiableList(genes);
         }
-
         return Collections.emptyList();
     }
 
@@ -408,7 +392,7 @@ public class DaoGeneOptimized {
      * @return a gene that can be non-ambiguously determined, or null if cannot.
      */
     public CanonicalGene getNonAmbiguousGene(String geneId) {
-        return getNonAmbiguousGene(geneId, null);
+        return getNonAmbiguousGene(geneId, true);
     }
 
     /**
@@ -418,19 +402,18 @@ public class DaoGeneOptimized {
      * @return a gene that can be non-ambiguously determined, or null if cannot.
      */
     public CanonicalGene getNonAmbiguousGene(String geneId, String chr) {
-        return getNonAmbiguousGene(geneId, chr, true);
+        return getNonAmbiguousGene(geneId, true);
     }
 
     /**
      * Look for gene that can be non-ambiguously determined
      * @param geneId an Entrez Gene ID or HUGO symbol or gene alias
-     * @param chr chromosome
-     * @param issueWarning if true and gene is not ambiguous,
+     * @param issueWarning if true and gene is not ambiguous, 
      * print all the Entrez Ids corresponding to the geneId provided
      * @return a gene that can be non-ambiguously determined, or null if cannot.
      */
-    public CanonicalGene getNonAmbiguousGene(String geneId, String chr, boolean issueWarning) {
-        List<CanonicalGene> genes = guessGene(geneId, chr);
+    public CanonicalGene getNonAmbiguousGene(String geneId, boolean issueWarning) {
+        List<CanonicalGene> genes = guessGene(geneId);
         if (genes.isEmpty()) {
             return null;
         }

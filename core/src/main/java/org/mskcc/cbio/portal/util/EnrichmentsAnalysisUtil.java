@@ -660,7 +660,7 @@ public class EnrichmentsAnalysisUtil implements DaoGeneticAlteration.AlterationP
             try {
                 genomeName = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId).getReferenceGenome();
             } catch (NullPointerException ne) {
-                genomeName = ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME;
+                genomeName = GlobalProperties.getReferenceGenomeName();
             }
             int genomeId = DaoReferenceGenome.getReferenceGenomeByGenomeName(genomeName).getReferenceGenomeId();
             return DaoReferenceGenomeGene.getInstance().getGene(geneticEntityId, genomeId).getCytoband();

@@ -3,19 +3,11 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.cbioportal.model.Gene;
 import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.service.ReferenceGenomeGeneService;
 import org.cbioportal.service.exception.GeneNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
-import org.cbioportal.web.parameter.Direction;
-import org.cbioportal.web.parameter.GeneIdType;
-import org.cbioportal.web.parameter.HeaderKeyConstants;
-import org.cbioportal.web.parameter.PagingConstants;
-import org.cbioportal.web.parameter.Projection;
-import org.cbioportal.web.parameter.sort.GeneSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,14 +16,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.util.List;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @PublicApi
@@ -48,7 +36,7 @@ public class ReferenceGenomeGeneController {
 
     @RequestMapping(value = "/reference-genome-genes/{genomeName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all reference genes")
-    public ResponseEntity<List<ReferenceGenomeGene>> getAllRefGenes(
+    public ResponseEntity<List<ReferenceGenomeGene>> getAllReferenceGenomeGenes(
         @ApiParam(required = true, value = "Name of Reference Genome hg19")
         @PathVariable String genomeName)  {
         
@@ -58,7 +46,7 @@ public class ReferenceGenomeGeneController {
 
     @RequestMapping(value = "/reference-genome-genes/{genomeName}/{geneId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get a gene of a reference genome of interest")
-    public ResponseEntity<ReferenceGenomeGene> getGene(
+    public ResponseEntity<ReferenceGenomeGene> getReferenceGenomeGene(
         @ApiParam(required = true, value = "Name of Reference Genome hg19")
         @PathVariable String genomeName,
         @ApiParam(required = true, value = "Entrez Gene ID 207")
@@ -70,7 +58,7 @@ public class ReferenceGenomeGeneController {
     @RequestMapping(value = "/reference-genome-genes/{genomeName}/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch genes of reference genome of interest")
-    public ResponseEntity<List<ReferenceGenomeGene>> fetchGenes(
+    public ResponseEntity<List<ReferenceGenomeGene>> fetchReferenceGenomeGenes(
         @ApiParam(required = true, value = "Name of Reference Genome hg19")
         @PathVariable String genomeName,
         @ApiParam(required = true, value = "List of Entrez Gene IDs")

@@ -67,13 +67,9 @@ public class TestImportGeneData {
     public void testImportGeneData() throws Exception {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         ProgressMonitor.setConsoleMode(false);
-	
-        /* those isoforms from MSKCC clinical bioinformatics pipeline need to be manually added 
-        File file = new File("src/test/resources/supp-genes.txt");
-        ImportGeneData.importSuppGeneData(file, ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_BUILD);*/
         
         File file = new File("src/test/resources/genes_test.txt");
-        ImportGeneData.importData(file);
+        ImportGeneData.importData(file, "GRCh37");
 
         CanonicalGene gene = daoGene.getGene(10);
         assertEquals("NAT2", gene.getHugoGeneSymbolAllCaps());

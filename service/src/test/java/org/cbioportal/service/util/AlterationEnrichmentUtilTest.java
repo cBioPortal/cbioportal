@@ -147,7 +147,7 @@ public class AlterationEnrichmentUtilTest {
         alterationEnrichment1 = result.get(0);
         Assert.assertEquals((Integer) 2, alterationEnrichment1.getEntrezGeneId());
         Assert.assertEquals("HUGO2", alterationEnrichment1.getHugoGeneSymbol());
-        Assert.assertEquals("CYTOBAND2", alterationEnrichment1.getCytoband());
+        Assert.assertEquals(null, alterationEnrichment1.getCytoband());
         Assert.assertEquals(3, alterationEnrichment1.getCounts().size());
 
         Assert.assertEquals(new BigDecimal("0.4723665527410149"), alterationEnrichment1.getpValue());
@@ -164,7 +164,7 @@ public class AlterationEnrichmentUtilTest {
         alterationEnrichment2 = result.get(1);
         Assert.assertEquals((Integer) 3, alterationEnrichment2.getEntrezGeneId());
         Assert.assertEquals("HUGO3", alterationEnrichment2.getHugoGeneSymbol());
-        Assert.assertEquals("CYTOBAND3", alterationEnrichment2.getCytoband());
+        Assert.assertEquals(null, alterationEnrichment2.getCytoband());
         Assert.assertEquals(3, alterationEnrichment2.getCounts().size());
 
         Assert.assertEquals(new BigDecimal("0.04978706836786395"), alterationEnrichment2.getpValue());

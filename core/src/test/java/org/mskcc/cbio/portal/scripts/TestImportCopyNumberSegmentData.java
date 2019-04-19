@@ -87,7 +87,8 @@ public class TestImportCopyNumberSegmentData {
     public void testImportSegmentDataNewStudy() throws Exception {
 		//new dummy study to simulate importing clinical data in empty study:
 		CancerStudy cancerStudy = new CancerStudy("testnewseg","testnewseg","testnewseg","brca",true);
-        DaoCancerStudy.addCancerStudy(cancerStudy);
+        cancerStudy.setReferenceGenome("hg19");
+		DaoCancerStudy.addCancerStudy(cancerStudy);
         addTestPatientAndSampleRecords(new File("src/test/resources/segment/data_cna_hg19.seg"), cancerStudy);
 
         String[] args = {

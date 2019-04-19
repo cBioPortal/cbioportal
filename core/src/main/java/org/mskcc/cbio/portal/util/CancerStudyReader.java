@@ -34,6 +34,7 @@ package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoReferenceGenome;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.ReferenceGenome;
 import org.mskcc.cbio.portal.scripts.TrimmedProperties;
@@ -72,6 +73,20 @@ public class CancerStudyReader {
         return cancerStudy;
     }
 
+    private static Boolean checkSpecies(String studyId, String genomeName) {
+        if (genomeName == null || genomeName == "") {
+            return true;
+        }
+        try {
+            CancerStudy oldCancerStudy = DaoCancerStudy.getCancerStudyByStableId(studyId);
+            ReferenceGenome referenceGenome = DaoReferenceGenome.getReferenceGenomeByGenomeName(
+                                oldCancerStudy.getReferenceGenome());
+            return referenceGenome.getGenomeName().equalsIgnoreCase(genomeName);
+        } catch (DaoException | NullPointerException e) {
+            return true;
+        }
+    }
+    
     private static CancerStudy getCancerStudy(TrimmedProperties properties)
     {
         String cancerStudyIdentifier = properties.getProperty("cancer_study_identifier");
@@ -99,6 +114,7 @@ public class CancerStudyReader {
             throw new IllegalArgumentException("short_name is not specified.");
         }
 
+        
         CancerStudy cancerStudy = new CancerStudy(name, description, cancerStudyIdentifier,
                                                   typeOfCancer, publicStudy(properties));
         cancerStudy.setPmid(properties.getProperty("pmid"));
@@ -106,11 +122,14 @@ public class CancerStudyReader {
         cancerStudy.setGroupsInUpperCase(properties.getProperty("groups"));
         cancerStudy.setShortName(shortName);
         String referenceGenome = properties.getProperty("reference_genome");
+        
         if (referenceGenome == null) {
-            referenceGenome = ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME;
+            referenceGenome = GlobalProperties.getReferenceGenomeName();
+        }
+        if (!checkSpecies(cancerStudyIdentifier, referenceGenome)) {
+            throw new IllegalArgumentException("Species not match with old study");
         }
         cancerStudy.setReferenceGenome(referenceGenome);
-
         return cancerStudy;
     }
 

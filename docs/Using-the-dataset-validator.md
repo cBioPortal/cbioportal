@@ -40,10 +40,10 @@ optional arguments:
                         installation
   -species SPECIES, --species SPECIES
                         species information (default: assumed human)
-  -genome REFERENCE_GENOME, --reference_genome REFERENCE_GENOME
-                        reference genome build (default: assumed hg19)
-  -build GENOME_BUILD, --genome_build GENOME_BUILD
-                        reference genome build (default: assumed 37 for reference genome hg19)
+  -ucsc UCSC_BUILD_NAME, --ucsc_build_name UCSC_BUILD_NAME
+                        UCSC reference genome assembly name (default: assumed hg19)
+  -ncbi NCBI_BUILD_NUMBER, --ncbi_build_number NCBI_BUILD_NUMBER
+                        NCBI reference genome build number (default: assumed 37 for UCSC reference genome build hg19)
   -html HTML_TABLE, --html_table HTML_TABLE
                         path to html report output file
   -e ERROR_FILE, --error_file ERROR_FILE
@@ -429,18 +429,18 @@ Validation of study succeeded with warnings.
 
 ## Validation of non-human data ##
 When importing a study, the validator assumes by default that the following three parameters 
-`--species` , `--reference_genome` , `--genome_build` are set to the following:
+`--species` , `--ucsc_build_name` , `--ncbi_build_number` are set to the following:
 ```
---species human
---reference_genome hg19
---genome_build 37
+--species=human
+--ncbi_build_number=37
+--ucsc_build_name=hg19
 ```
 
 cBioPortal is gradually introducing support for mouse. If you want to load mouse studies and you have [set up your database for mouse](Import-the-Seed-Database.md#download-the-cbioportal-database), you should set the previous parameters to:
 ```
---species mouse
---reference_genome mm10
---genome_build 38
+--species=mouse
+--ncbi_build_number=38
+--ucsc_build_name=mm10
 ```
 
 As an example, the command for the mouse example using the three parameters is given:
@@ -483,10 +483,10 @@ optional arguments:
                         installation
   -species SPECIES, --species SPECIES
                         species information (default: assumed human)
-  -genome REFERENCE_GENOME, --reference_genome REFERENCE_GENOME
-                        reference genome build (default: assumed hg19)
-  -build GENOME_BUILD, --genome_build GENOME_BUILD
-                        reference genome build (default: assumed 37 for reference genome hg19)
+  -ucsc UCSC_BUILD_NAME, --ucsc_build_name UCSC_BUILD_NAME
+                        UCSC reference genome assembly name (default: assumed hg19)
+  -ncbi NCBI_BUILD_NUMBER, --ncbi_build_number NCBI_BUILD_NUMBER
+                        NCBI reference genome build number (default: assumed 37 for UCSC genome build hg19)
   -m, --strict_maf_checks
                         Option to enable strict mode for validator when
                         validating mutation data

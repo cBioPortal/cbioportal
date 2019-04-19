@@ -70,6 +70,7 @@ public class TestDaoCancerStudy {
 		assertEquals("breast,breast invasive", DaoTypeOfCancer.getTypeOfCancerById("BRCA").getClinicalTrialKeywords());
 
         CancerStudy cancerStudy = new CancerStudy("GBM", "GBM Description", "gbm", "brca", false);
+        cancerStudy.setReferenceGenome("hg19");
         DaoCancerStudy.addCancerStudy(cancerStudy);
 
         // Removed testing that depends on internal ids
@@ -87,6 +88,7 @@ public class TestDaoCancerStudy {
         assertEquals("Glioblastoma", cancerStudy.getDescription());
 
         CancerStudy cancerStudy2 = new CancerStudy("Breast", "Breast Description", "breast", "brca", false);
+        cancerStudy2.setReferenceGenome("hg19");
         DaoCancerStudy.addCancerStudy(cancerStudy2);
         
         // Removed testing that depends on internal ids

@@ -216,7 +216,7 @@ public class CoExpressionServiceImpl implements CoExpressionService {
             }
             List<String> internalValues = new ArrayList<>(Arrays.asList(ma.getSplitValues()));
             List<String> values = includedIndexes.stream().map(index -> internalValues.get(index)).collect(Collectors.toList());
-            CoExpression ce = computeCoExpressions(entityId, values, includedQueryValues, isMolecularProfileBOfGenesetType, threshold);
+            CoExpression ce = computeCoExpressions(entityId, values, includedQueryValues, isMolecularProfileBOfGenesetType, threshold,molecularProfileId);
             if (ce != null) {
                 toReturn.add(ce);
             }
@@ -286,7 +286,7 @@ public class CoExpressionServiceImpl implements CoExpressionService {
         for (String entityId : molecularDataMapB.keySet()) {
             List<String> internalValues = molecularDataMapB.get(entityId).stream().map(g -> g.getValue())
                 .collect(Collectors.toList());
-            CoExpression co = computeCoExpressions(entityId, internalValues, valuesB, isMolecularProfileBOfGenesetType, threshold);
+            CoExpression co = computeCoExpressions(entityId, internalValues, valuesB, isMolecularProfileBOfGenesetType, threshold, molecularProfileId);
             if (co != null) {
                 coExpressionList.add(co);
             }
@@ -297,7 +297,7 @@ public class CoExpressionServiceImpl implements CoExpressionService {
     }
 
     private CoExpression computeCoExpressions(String entityId, List<String> valuesA, List<String> valuesB, 
-            Boolean isMolecularProfileBOfGenesetType, Double threshold) throws GenesetNotFoundException, GeneNotFoundException {
+            Boolean isMolecularProfileBOfGenesetType, Double threshold, String molecularProfileId) throws GenesetNotFoundException, GeneNotFoundException {
 
         List<String> valuesACopy = new ArrayList<>(valuesA);
         List<String> valuesBCopy = new ArrayList<>(valuesB);

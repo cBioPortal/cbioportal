@@ -11,7 +11,7 @@ On this page we aim to describe the necessary parameters for cBioPortal to:
 The parameters are described below. At the bottom of the page we provide some jsfiddle examples how this could be done. 
 
 ###URL
-The URL to be used is `http://<your_server>/index.do`, e.g. `http://www.cbioportal.org/index.do`
+The URL to be used is `http://<your_server>/index.do`, e.g. `https://www.cbioportal.org/index.do`
 
 To display specific tabs in the results page, you can add the tab id to the URL. Examples:
 - `http:/<your_server>/index.do`: show the query results in the default oncoprint tab

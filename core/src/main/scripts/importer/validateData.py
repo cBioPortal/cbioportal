@@ -288,11 +288,7 @@ class PortalInstance(object):
                 for entrez_list in list(entrez_map.values()):
                     for entrez_id in entrez_list:
                         self.entrez_set.add(entrez_id)
-
-        # Set defaults for genome version and species
-        self.species = 'human'
-        self.ncbi_build = '37'
-        self.genome_build = 'hg19'
+                        
         #Set defaults for genome version and species
         self.__species = 'human'
         self.__ncbi_build = '37'
@@ -4313,29 +4309,29 @@ def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logge
                     "'add_global_case_list: true' to the meta_study.txt file",
                 cancer_study_id + '_all')
 
-        if 'meta_mutations_extended' in file_types:
-            if cancer_study_id + '_sequenced' not in case_list_ids:
-                logger.error(
-                    "No case list found with stable_id '%s', please add this "
-                    "case list to specify which samples are profiled for mutations. This "
-                    "is required for calculation of samples with mutations in OncoPrint and Study Summary.",
-                    cancer_study_id + '_sequenced')
-    
-        if 'meta_CNA' in file_types:
-            if cancer_study_id + '_cna' not in case_list_ids:
-                logger.error(
-                    "No case list found with stable_id '%s', please add this "
-                    "case list to specify which samples are profiled for mutations. This "
-                    "is required for calculation of samples with CNA in OncoPrint and Study Summary.",
-                    cancer_study_id + '_cna')
-    
-        if 'meta_mutations_extended' in file_types and 'meta_CNA' in file_types:
-            if cancer_study_id + '_cnaseq' not in case_list_ids:
-                logger.warning(
-                    "No case list found with stable_id '%s', please add this "
-                    "case list to specify which samples are profiled for this data type. On the query page, this "
-                    "case list will be selected by default when both mutation and CNA data are available.",
-                    cancer_study_id + '_cnaseq')
+    if 'meta_mutations_extended' in file_types:
+        if cancer_study_id + '_sequenced' not in case_list_ids:
+            logger.error(
+                "No case list found with stable_id '%s', please add this "
+                "case list to specify which samples are profiled for mutations. This "
+                "is required for calculation of samples with mutations in OncoPrint and Study Summary.",
+                cancer_study_id + '_sequenced')
+
+    if 'meta_CNA' in file_types:
+        if cancer_study_id + '_cna' not in case_list_ids:
+            logger.error(
+                "No case list found with stable_id '%s', please add this "
+                "case list to specify which samples are profiled for mutations. This "
+                "is required for calculation of samples with CNA in OncoPrint and Study Summary.",
+                cancer_study_id + '_cna')
+
+    if 'meta_mutations_extended' in file_types and 'meta_CNA' in file_types:
+        if cancer_study_id + '_cnaseq' not in case_list_ids:
+            logger.warning(
+                "No case list found with stable_id '%s', please add this "
+                "case list to specify which samples are profiled for this data type. On the query page, this "
+                "case list will be selected by default when both mutation and CNA data are available.",
+                cancer_study_id + '_cnaseq')
 
 def validateStudyTags(tags_file_path, logger):
         """Validate the study tags file."""
@@ -4616,11 +4612,11 @@ def interface(args=None):
     parser.add_argument('-species', '--species', type=str, default='human',
                         help='species information (default: assumed human)',
                         required=False)
-    parser.add_argument('-genome', '--reference_genome', type=str, default='hg19',
-                        help='reference genome build (default: assumed hg19)',
+    parser.add_argument('-ucsc', '--ucsc_build_name', type=str, default='hg19',
+                        help='UCSC reference genome assembly name(default: assumed hg19)',
                         required=False)   
-    parser.add_argument('-build', '--genome_build', type=str, default='37',
-                         help='reference genome build (default: assumed 37 for reference genome hg19)',
+    parser.add_argument('-ncbi', '--ncbi_build_number', type=str, default='37',
+                         help='NCBI reference genome build number (default: assumed 37 for UCSC reference genome build hg19)',
                          required=False)    
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
@@ -4928,8 +4924,8 @@ def main_validate(args):
 
     # specify species and genomic information
     portal_instance.species = args.species
-    portal_instance.genome_build = args.reference_genome
-    portal_instance.ncbi_build = args.genome_build
+    portal_instance.genome_build = args.ucsc_build_name
+    portal_instance.ncbi_build = args.ncbi_build_number
        
     validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_checks)
 

@@ -123,8 +123,7 @@ CREATE TABLE `reference_genome` (
     `URL` varchar(256) NOT NULL,
     `RELEASE_DATE` datetime DEFAULT NULL,
     PRIMARY KEY (`REFERENCE_GENOME_ID`),
-    UNIQUE INDEX `BUILD_NAME_UNIQUE` (`BUILD_NAME` ASC),
-    CHECK(`SPECIES` = 'human')
+    UNIQUE INDEX `BUILD_NAME_UNIQUE` (`BUILD_NAME` ASC)
 );
 
 -- --------------------------------------------------------

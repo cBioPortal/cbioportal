@@ -80,13 +80,13 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("2", coExpression1.getGeneticEntityId());
         Assert.assertEquals("HUGO2", coExpression1.getGeneticEntityName());
-        Assert.assertEquals("CYTOBAND2", coExpression1.getCytoband());
+        Assert.assertEquals("-", coExpression1.getCytoband());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getpValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("3", coExpression2.getGeneticEntityId());
         Assert.assertEquals("HUGO3", coExpression2.getGeneticEntityName());
-        Assert.assertEquals("CYTOBAND3", coExpression2.getCytoband());
+        Assert.assertEquals("-", coExpression2.getCytoband());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getpValue());
     }

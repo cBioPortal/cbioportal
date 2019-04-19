@@ -46,9 +46,8 @@ public class ReferenceGenomeGeneControllerTest {
 
     @Autowired
     private ReferenceGenomeGeneService referenceGenomeGeneService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

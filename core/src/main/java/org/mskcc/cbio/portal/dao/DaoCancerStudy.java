@@ -95,7 +95,7 @@ public final class DaoCancerStudy {
                 CancerStudy cancerStudy = extractCancerStudy(rs);
                 cacheCancerStudy(cancerStudy, new java.util.Date());
             }
-        } catch (SQLException e) {
+        } catch (SQLException | DaoException e) {
             e.printStackTrace();
         } finally {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
@@ -324,7 +324,7 @@ public final class DaoCancerStudy {
                 pstmt.setInt(12, referenceGenome.getReferenceGenomeId());
             }
             catch (NullPointerException e) {
-                pstmt.setInt(12,1); //#TODO default reference genome to use
+                throw new DaoException("Unsupported reference genome");
             }
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
@@ -619,25 +619,25 @@ public final class DaoCancerStudy {
     /**
      * Extracts Cancer Study JDBC Results.
      */
-    private static CancerStudy extractCancerStudy(ResultSet rs) throws SQLException {
-        CancerStudy cancerStudy = new CancerStudy(rs.getString("NAME"),
-                rs.getString("DESCRIPTION"),
-                rs.getString("CANCER_STUDY_IDENTIFIER"),
-                rs.getString("TYPE_OF_CANCER_ID"),
-                rs.getBoolean("PUBLIC"));
-        cancerStudy.setPmid(rs.getString("PMID"));
-        cancerStudy.setCitation(rs.getString("CITATION"));
-        cancerStudy.setGroupsInUpperCase(rs.getString("GROUPS"));
-        cancerStudy.setShortName(rs.getString("SHORT_NAME"));
-        cancerStudy.setInternalId(rs.getInt("CANCER_STUDY_ID"));
-        cancerStudy.setImportDate(rs.getDate("IMPORT_DATE"));
+    private static CancerStudy extractCancerStudy(ResultSet rs) throws DaoException {
         try {
+            CancerStudy cancerStudy = new CancerStudy(rs.getString("NAME"),
+                    rs.getString("DESCRIPTION"),
+                    rs.getString("CANCER_STUDY_IDENTIFIER"),
+                    rs.getString("TYPE_OF_CANCER_ID"),
+                    rs.getBoolean("PUBLIC"));
+            cancerStudy.setPmid(rs.getString("PMID"));
+            cancerStudy.setCitation(rs.getString("CITATION"));
+            cancerStudy.setGroupsInUpperCase(rs.getString("GROUPS"));
+            cancerStudy.setShortName(rs.getString("SHORT_NAME"));
+            cancerStudy.setInternalId(rs.getInt("CANCER_STUDY_ID"));
+            cancerStudy.setImportDate(rs.getDate("IMPORT_DATE"));
             cancerStudy.setReferenceGenome(DaoReferenceGenome.getReferenceGenomeByInternalId(
                 rs.getInt("REFERENCE_GENOME_ID")).getGenomeName());
-        } catch (DaoException e) {
-            cancerStudy.setReferenceGenome(ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
+            return cancerStudy;
+        } catch (SQLException e) {
+            throw new DaoException(e);
         }
-        return cancerStudy;
     }
 
     private static boolean studyNeedsRecaching(String stableId, Integer ... internalId) {

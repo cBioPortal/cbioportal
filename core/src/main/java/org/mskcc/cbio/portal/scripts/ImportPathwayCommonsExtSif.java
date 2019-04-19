@@ -82,10 +82,10 @@ public class ImportPathwayCommonsExtSif {
 
             String geneAId = parts[0];
 
-            CanonicalGene geneA = daoGene.getNonAmbiguousGene(geneAId, null);
+            CanonicalGene geneA = daoGene.getNonAmbiguousGene(geneAId);
             if (geneA != null) {
                 String geneBId = parts[2];
-                CanonicalGene geneB = daoGene.getNonAmbiguousGene(geneBId, null);
+                CanonicalGene geneB = daoGene.getNonAmbiguousGene(geneBId, true);
 
                 if (geneB != null) {
                     String interactionType = parts[1];

@@ -58,8 +58,7 @@ public class GeneServiceImpl implements GeneService {
                 }
             }
         }
-
-        //geneList.forEach(gene -> chromosomeCalculator.setChromosome(gene));
+        
         return geneList;
     }
 
@@ -99,8 +98,6 @@ public class GeneServiceImpl implements GeneService {
         if (gene == null) {
             throw new GeneNotFoundException(geneId);
         }
-
-        //chromosomeCalculator.setChromosome(gene);
         return gene;
     }
 
@@ -127,8 +124,6 @@ public class GeneServiceImpl implements GeneService {
         } else {
             geneList = geneRepository.fetchGenesByHugoGeneSymbols(geneIds, projection);
         }
-
-        //geneList.forEach(gene -> chromosomeCalculator.setChromosome(gene));
         return geneList;
     }
 

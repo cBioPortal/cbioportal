@@ -185,7 +185,8 @@ public class CoExpressionServiceImpl implements CoExpressionService {
                     .collect(Collectors.toList());
             values.put(entityId, includedInternalValues);
         }
-        coExpressionList = computeCoExpressions(values, includedQueryValues, isMolecularProfileBOfGenesetType, threshold);  
+        coExpressionList = computeCoExpressions(values, includedQueryValues, isMolecularProfileBOfGenesetType, threshold,molecularProfileId);  
+        coExpressionList = computeCoExpressions(values, queryValues, isMolecularProfileBOfGenesetType, threshold, molecularProfileId);  
         return coExpressionList;
     }
 
@@ -255,14 +256,14 @@ public class CoExpressionServiceImpl implements CoExpressionService {
             values.put(entityId, internalValues);
         }
         List<String> valuesB = finalMolecularDataListA.stream().map(g -> g.getValue()).collect(Collectors.toList());
-        coExpressionList = computeCoExpressions(values, valuesB, isMolecularProfileBOfGenesetType, threshold);
+        coExpressionList = computeCoExpressions(values, valuesB, isMolecularProfileBOfGenesetType, threshold, molecularProfileId);
 
         return coExpressionList;
 
     }
 
     private List<CoExpression> computeCoExpressions(Map<String, List<String>> valuesA, List<String> valuesB, 
-            Boolean isMolecularProfileBOfGenesetType, Double threshold) throws GenesetNotFoundException, GeneNotFoundException {
+            Boolean isMolecularProfileBOfGenesetType, Double threshold, String molecularProfileId) throws GenesetNotFoundException, GeneNotFoundException {
         
         
         List<CoExpression> coExpressionList = new ArrayList<>();
@@ -280,7 +281,9 @@ public class CoExpressionServiceImpl implements CoExpressionService {
             for (int i = 0; i < valuesToRemove.size(); i++) {
                 int valueToRemove = valuesToRemove.get(i) - i;
                 valuesBCopy.remove(valueToRemove);
-                values.remove(valueToRemove);
+                if (valueToRemove < valuesToRemove.size()) {
+                    values.remove(valueToRemove);
+                }
             }
             
             CoExpression coExpression = new CoExpression();
@@ -297,7 +300,7 @@ public class CoExpressionServiceImpl implements CoExpressionService {
                         gene.getEntrezGeneId(),
                         molecularProfile.getCancerStudy().getReferenceGenome());
                     coExpression.setCytoband(refGene.getCytoband()); //value will be set by the frontend
-                } catch (NullPointerException e) {
+                } catch (NullPointerException | MolecularProfileNotFoundException e) {
                     coExpression.setCytoband("-");
                 }
                 coExpression.setGeneticEntityName(gene.getHugoGeneSymbol());

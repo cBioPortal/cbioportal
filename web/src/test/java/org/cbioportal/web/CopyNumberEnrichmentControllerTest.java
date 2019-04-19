@@ -58,8 +58,7 @@ public class CopyNumberEnrichmentControllerTest {
     @Autowired
     private CopyNumberEnrichmentService copyNumberEnrichmentService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

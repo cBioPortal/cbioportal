@@ -1,5 +1,5 @@
 # Study View Customization with Priority Data
-Example of study view in public portal: http://www.cbioportal.org/study?id=acc_tcga,lgg_tcga#summary
+Example of study view in public portal: https://www.cbioportal.org/study?id=acc_tcga,lgg_tcga#summary
 
 ## Priorities
 

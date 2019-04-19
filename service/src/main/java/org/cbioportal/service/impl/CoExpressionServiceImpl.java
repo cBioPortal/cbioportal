@@ -5,7 +5,7 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneMolecularAlteration;
+import org.cbioportal.model.MolecularAlteration;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.Geneset;
 import org.cbioportal.model.GenesetMolecularData;
@@ -125,14 +125,21 @@ public class CoExpressionServiceImpl implements CoExpressionService {
                                                  Double threshold)
         throws MolecularProfileNotFoundException, GenesetNotFoundException, GeneNotFoundException {
         
-        List<GeneMolecularAlteration> molecularAlterations = molecularDataService.getMolecularAlterations(
-            molecularProfileId, null, "SUMMARY");
+        List<? extends MolecularAlteration> molecularAlterations = null;
+        if (geneticEntityType.equals(GeneticEntityType.GENE)) {
+            molecularAlterations = molecularDataService.getMolecularAlterations(
+                molecularProfileId, null, "SUMMARY");
+        } else if (geneticEntityType.equals(GeneticEntityType.GENESET)) {
+            molecularAlterations = genesetDataService.getGenesetAlterations(
+                molecularProfileId, null);
+        }
 
-        Map<String, GeneMolecularAlteration> molecularDataMap = molecularAlterations.stream()
-                .collect(Collectors.toMap(GeneMolecularAlteration::getStableId, Function.identity()));
-        GeneMolecularAlteration queryMolecularDataList = molecularDataMap.remove(queryGeneticEntityId);
+        Map<String, MolecularAlteration> molecularDataMap = molecularAlterations.stream()
+                .collect(Collectors.toMap(MolecularAlteration::getStableId, Function.identity()));
+        MolecularAlteration queryMolecularDataList = molecularDataMap.remove(queryGeneticEntityId);
         
         List<CoExpression> coExpressionList = new ArrayList<>();
+
         if (queryMolecularDataList == null) {
             return coExpressionList;
         }

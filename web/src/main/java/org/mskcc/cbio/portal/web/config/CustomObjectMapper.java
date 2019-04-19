@@ -5,8 +5,11 @@ import java.util.Map;
 
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.web.mixin.DataAccessTokenMixin;
+import org.cbioportal.web.parameter.PageSession;
+import org.cbioportal.web.parameter.StudyPageSettings;
 import org.cbioportal.web.parameter.VirtualStudy;
 import org.cbioportal.web.parameter.VirtualStudyData;
+import org.cbioportal.weblegacy.mixin.StudyPageSettingsMixin;
 import org.cbioportal.weblegacy.mixin.VirtualStudyDataMixin;
 import org.cbioportal.weblegacy.mixin.VirtualStudyMixin;
 
@@ -25,6 +28,8 @@ public class CustomObjectMapper extends ObjectMapper {
         mixinMap.put(VirtualStudy.class, VirtualStudyMixin.class);
         mixinMap.put(VirtualStudyData.class, VirtualStudyDataMixin.class);
         mixinMap.put(DataAccessToken.class, DataAccessTokenMixin.class);
+        mixinMap.put(PageSession.class, VirtualStudyMixin.class);
+        mixinMap.put(StudyPageSettings.class, StudyPageSettingsMixin.class);
         super.setMixIns(mixinMap);
     }
 }

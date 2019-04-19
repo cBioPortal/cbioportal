@@ -8,17 +8,19 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
-public class VirtualStudy implements Serializable {
+public class PageSession implements Serializable {
 
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
-
     private String id;
     private String source;
-    private String type;
-    private VirtualStudyData data;
+    private SessionType type;
+
+    // replace Object with SessionData once model for main_session and
+    // comparison_session are finalized
+    private StudyPageSettings data;
 
     public String getId() {
         return id;
@@ -26,14 +28,6 @@ public class VirtualStudy implements Serializable {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public VirtualStudyData getData() {
-        return data;
-    }
-
-    public void setData(VirtualStudyData data) {
-        this.data = data;
     }
 
     public String getSource() {
@@ -44,14 +38,19 @@ public class VirtualStudy implements Serializable {
         this.source = source;
     }
 
-    public String getType() {
+    public SessionType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(SessionType type) {
         this.type = type;
     }
-    
+
+    public StudyPageSettings getData() {
+        return data;
+    }
+
+    public void setData(StudyPageSettings data) {
+        this.data = data;
+    }
 }
-
-

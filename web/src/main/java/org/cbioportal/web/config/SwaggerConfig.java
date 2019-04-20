@@ -60,7 +60,7 @@ public class SwaggerConfig {
                 "Please note that this API is currently in beta and subject to change.",
             "1.0 (beta)",
             null,
-            new Contact("cBioPortal", "http://www.cbioportal.org", "cbioportal@googlegroups.com"),
+            new Contact("cBioPortal", "https://www.cbioportal.org", "cbioportal@googlegroups.com"),
             "License",
             "https://github.com/cBioPortal/cbioportal/blob/master/LICENSE", Collections.emptyList());
         return apiInfo;

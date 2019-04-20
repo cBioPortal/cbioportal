@@ -1,7 +1,7 @@
 _**Note: this API is still under development and subject to change.**_
 
 Please see the documentation for the API
-[here](http://www.cbioportal.org/api/swagger-ui.html).  We are using
+[here](https://www.cbioportal.org/api/swagger-ui.html).  We are using
 Swagger/OpenAPI to describe the API, so you can easily generate a client to
 connect to it in whichever language you prefer. We list some common examples
 below, but if your language is not listed, fear not, there is likely a
@@ -13,7 +13,7 @@ like this:
 
 ```python
 from bravado.client import SwaggerClient
-cbioportal = SwaggerClient.from_url('http://www.cbioportal.org/api/api-docs')
+cbioportal = SwaggerClient.from_url('https://www.cbioportal.org/api/api-docs')
 ```
 This allows you to access all API endpoints:
 ```python
@@ -52,5 +52,5 @@ muts = cbioportal.mutations.getMutationsInMolecularProfileBySampleListIdUsingGET
 Generate a client in R using [rapiclient](https://github.com/bergant/rapiclient):
 ```R
 library(rapiclient)
-client <- get_api(url = "http://www.cbioportal.org/api/api-docs")
+client <- get_api(url = "https://www.cbioportal.org/api/api-docs")
 ```

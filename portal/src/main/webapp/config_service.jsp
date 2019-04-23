@@ -69,6 +69,7 @@
             "skin.documentation.news",
             "skin.documentation.oql",
             "skin.query.max_tree_depth",
+            "skin.quick_select_buttons",
             "skin.right_logo",
             "skin.right_nav.show_data_sets",
             "skin.right_nav.show_examples",
@@ -83,6 +84,10 @@
             "skin.show_tutorials_tab",
             "skin.show_web_api_tab",
             "skin.show_tweet_button",
+            "quick_search.enabled",
+            "default_cross_cancer_study_session_id",
+            "default_cross_cancer_study_list",
+            "default_cross_cancer_study_list_name",
             "skin.description",
             "skin.title",
             "skin.authorization_message",
@@ -124,7 +129,9 @@
         obj.put("frontendConfigOverride",GlobalProperties.getFrontendConfig());
         
         obj.put("authenticationMethod",GlobalProperties.authenticationMethod());
-                  
+        
+        obj.put("mskWholeSlideViewerToken", GlobalProperties.getMskWholeSlideViewerToken());
+
         String enableOncoKBandHotspots = "";
         switch(GlobalProperties.enableOncoKBandHotspots()){
             case "true":

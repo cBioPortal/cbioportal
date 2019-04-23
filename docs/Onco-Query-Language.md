@@ -31,7 +31,7 @@ OQL-specified alterations will be reflected on most tabs, including OncoPrint, b
 
 Note that OQL assumes any word that it doesn't recognize is a mutation code.
 
-Additional explanation and examples using OQL are available in the [OQL tutorial](http://www.cbioportal.org/tutorials#oql).
+Additional explanation and examples using OQL are available in the [OQL tutorial](https://www.cbioportal.org/tutorials#oql).
 
 <a name="oql-keywords"></a>
 ## OQL Keywords
@@ -42,8 +42,8 @@ Data Type | Keywords and Syntax | Default*
 Mutations | `MUT` All non-synonymous mutations <br> `MUT = <protein change>` Specific amino acid changes (e.g. `V600E` or `V600`) <br> `MUT = <mutation type>` Acceptable values are: `MISSENSE, NONSENSE, NONSTART, NONSTOP, FRAMESHIFT, INFRAME, SPLICE, TRUNC` | `MUT`
 Fusions | `FUSION` All fusions (note that many studies lack fusion data) | `FUSION`
 Copy Number Alterations | `AMP` Amplifications <br> `HOMDEL` Deep Deletions <br> `GAIN` Gains <br> `HETLOSS` Shallow Deletions <br> Comparison operators can also be used with `CNA` (e.g. `CNA >= GAIN` is the same as `AMP GAIN`) | `AMP` <br> `HOMDEL`
-mRNA Expression | `EXP < -x` Under-expression is less than `x` standard deviations (SD) below the mean <br> `EXP > x` Over-expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `EXP >= 2` <br> `EXP <= -2`
-Protein/phosphoprotein level | `PROT < -x` Protein-level under-expression is less than `x` standard deviations (SD) below the mean <br> `PROT > x` Protein-level over-expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `PROT >= 2` <br> `PROT <= -2`
+mRNA Expression | `EXP < -x` mRNA expression is less than `x` standard deviations (SD) below the mean <br> `EXP > x` mRNA expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `EXP >= 2` <br> `EXP <= -2`
+Protein/phosphoprotein level | `PROT < -x` Protein expression is less than `x` standard deviations (SD) below the mean <br> `PROT > x` Protein expression is greater than `x` SD above the mean <br> The comparison operators `<=` and `>=` also work | `PROT >= 2` <br> `PROT <= -2`
 
 \* These are the default OQL keywords used for each data type when a gene is queried without any explicit OQL.
 
@@ -159,7 +159,7 @@ CCNE1: GAIN AMP
 
 <a name="expression"></a>
 ## Expression
-Over- or under-expression of a gene is determined by the number of standard deviations (SD) from the mean. For example, to see cases where mRNA for CCNE1 is greater than 3 SD above the mean:
+High or low mRNA expression of a gene is determined by the number of standard deviations (SD) from the mean. For example, to see cases where mRNA for CCNE1 is greater than 3 SD above the mean:
 ```
 CCNE1: EXP > 3
 ```
@@ -168,12 +168,12 @@ CCNE1: EXP > 3
 
 <a name="protein"></a>
 ## Protein
-Protein over- or under-expression is similarly determined by the number of SD from the mean. For example, to see cases that are over-expressed in RPPA protein level by 2 SD above the mean:
+High or low protein expression is similarly determined by the number of SD from the mean. For example, to see cases where protein expression is 2 SD above the mean:
 ```
 EGFR: PROT > 2
 ```
 
-Or over-expressed at the phospho-protein level:
+Protein expression can also be queried at the phospho-protein level:
 ```
 EGFR_PY992: PROT > 2
 ```
@@ -273,7 +273,7 @@ The resulting merged gene track will be visible in OncoPrint and can be expanded
 
 ![Image of merged genes in OncoPrint](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/images/OQL/merged_genes_oncoprint.png)
 
-<http://www.cbioportal.org/results/oncoprint?session_id=5c1966e2e4b05228701f958e>
+<https://www.cbioportal.org/results/oncoprint?session_id=5c1966e2e4b05228701f958e>
 
 It is possible to include OQL for specific alterations in merged gene tracks, as well as querying a combination of single and merged gene tracks.
 
@@ -284,7 +284,7 @@ Note that merged gene tracks only appear in OncoPrint. All other pages show the 
 <a name="example-rb-pathway-alterations"></a>
 ## Example: RB Pathway Alterations
 
-Provided below is one example of the power of using OQL. Additional examples are available in the [OQL tutorial](http://www.cbioportal.org/tutorials#oql).
+Provided below is one example of the power of using OQL. Additional examples are available in the [OQL tutorial](https://www.cbioportal.org/tutorials#oql).
 
 <a name="using-the-defaults"></a>
 ### Using the Defaults
@@ -304,7 +304,7 @@ Submit this query and note how many samples have alterations in multiple of thes
 
 ![image of rb oncoprint](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/images/OQL/rb_query_oncoprint.png)
 
-<http://www.cbioportal.org/results/oncoprint?session_id=5c1966cee4b05228701f958d>
+<https://www.cbioportal.org/results/oncoprint?session_id=5c1966cee4b05228701f958d>
 
 
 <a name="greater-insight-with-oql"></a>
@@ -320,7 +320,7 @@ Examine the updated OncoPrint:
 
 ![image of modified rb oncoprint](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/images/OQL/rb_query_oncoprint_modified.png)
 
-<http://www.cbioportal.org/results/oncoprint?session_id=5c1966aee4b05228701f958c>
+<https://www.cbioportal.org/results/oncoprint?session_id=5c1966aee4b05228701f958c>
 
 This shows that alterations in these genes are almost entirely mutually-exclusive -- no cases are altered in all three genes and only six are altered in two genes. This supports the theory that the tumor has selected for these events.
 
@@ -330,4 +330,4 @@ This shows that alterations in these genes are almost entirely mutually-exclusiv
 ## Questions? Feedback?
 Please share any questions or feedback on OQL with us: <http://groups.google.com/group/cbioportal>
 
-Also note that additional explanation and examples using OQL are available in the [OQL tutorial](http://www.cbioportal.org/tutorials#oql).
+Also note that additional explanation and examples using OQL are available in the [OQL tutorial](https://www.cbioportal.org/tutorials#oql).

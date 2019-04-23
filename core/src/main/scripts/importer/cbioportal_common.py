@@ -76,7 +76,8 @@ META_FIELD_MAP = {
         'citation': False,
         'pmid': False,
         'groups': False,
-        'add_global_case_list': False
+        'add_global_case_list': False,
+        'tags_file': False
     },
     MetaFileTypes.SAMPLE_ATTRIBUTES: {
         'cancer_study_identifier': True,
@@ -608,7 +609,8 @@ def parse_metadata_file(filename,
                         logger,
                         study_id=None,
                         genome_name=None,
-                        case_list=False):
+                        case_list=False,
+                        gene_panel_list=None):
 
     """Validate a metafile and return a dictionary of values read from it and
     the meta_file_type according to get_meta_file_type.
@@ -624,6 +626,8 @@ def parse_metadata_file(filename,
     :param genome_name: (optional - set if you want this to be validated)
                     supported reference genome name, for validation
     :param case_list: whether this meta file is a case list (special case)
+    :param gene_panel_list: (optional - set if you want this to be validated)
+                           list of gene panels in the database
     """
 
     logger.debug('Starting validation of meta file', extra={'filename_': filename})
@@ -723,7 +727,7 @@ def parse_metadata_file(filename,
                                       'name': 255,
                                       'description': 1024,
                                       'citation': 200,
-                                      'pmid': 20,
+                                      'pmid': 1024,
                                       'groups': 200,
                                       'short_name': 64
                                       }
@@ -759,8 +763,26 @@ def parse_metadata_file(filename,
                        'cause': meta_dictionary['swissprot_identifier']})
             meta_dictionary['meta_file_type'] = None
 
+        # Check whether the gene panel property is included in the mutation meta file. This should be an error.
+        if 'gene_panel' in meta_dictionary:
+            logger.warning("Including the stable ID for gene panels in meta file might lead to incorrect "
+                           "results for samples that are profiled but nu mutations are called. Consider adding a column"
+                           " for mutation profile to gene panel matrix file",
+                           extra={'filename_': filename,
+                                  'cause': 'gene_panel: %s' % meta_dictionary['gene_panel']})
+
+    # When validating
+    if gene_panel_list:
+        # Check whether the gene panel in the gene panel property field corresponds with a gene panel in the database
+        if 'gene_panel' in meta_dictionary:
+            if meta_dictionary['gene_panel'] not in gene_panel_list and meta_dictionary['gene_panel'] != 'NA':
+                logger.error('Gene panel ID is not in database. Please import this gene panel before loading '
+                             'study data.',
+                             extra={'filename_': filename,
+                                    'cause': meta_dictionary['gene_panel']})
+
     # Save information regarding `source_stable_id`, so that after all meta files are validated,
-    # we can validate fields between meta files in validate_dependencies() in validateData.py
+    # we can validate fields between meta files in validate_data_relations() in validateData.py
     global gsva_scores_stable_id
     global gsva_scores_source_stable_id
     global gsva_pvalues_source_stable_id

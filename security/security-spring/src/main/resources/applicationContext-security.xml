@@ -79,6 +79,7 @@
         <intercept-url pattern="/favicon.ico" access="permitAll"/>
         <intercept-url pattern="/login.jsp*" access="permitAll"/>
         <intercept-url pattern="/case.do*" access="permitAll"/>
+        <intercept-url pattern="/patient*" access="permitAll"/>
         <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
         <intercept-url pattern="/**" access="isAuthenticated()"/>
         <!-- used for google+ authentication (spring social) -->
@@ -204,6 +205,7 @@
         <intercept-url pattern="/favicon.ico" access="permitAll"/>
         <intercept-url pattern="/login.jsp*" access="permitAll"/>
         <intercept-url pattern="/case.do*" access="permitAll"/>
+        <intercept-url pattern="/patient*" access="permitAll"/>
         <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
         <intercept-url pattern="/**" access="isAuthenticated()"/>
         <!-- used for saml authentication -->
@@ -465,6 +467,7 @@
             <intercept-url pattern="/favicon.ico" access="permitAll"/>
             <intercept-url pattern="/login.jsp*" access="permitAll"/>
             <intercept-url pattern="/case.do*" access="permitAll"/>
+            <intercept-url pattern="/patient*" access="permitAll"/>
             <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
             <intercept-url pattern="/**" access="isAuthenticated()"/>
             <!-- to enable access from matlab, r, python, etc clients -->
@@ -496,6 +499,7 @@
             <intercept-url pattern="/favicon.ico" access="permitAll"/>
             <intercept-url pattern="/login.jsp*" access="permitAll"/>
             <intercept-url pattern="/case.do*" access="permitAll"/>
+            <intercept-url pattern="/patient*" access="permitAll"/>
             <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
             <intercept-url pattern="/**" access="isAuthenticated()"/>
 
@@ -585,7 +589,12 @@
 	        <!-- to enable access from matlab, r, python, etc clients -->
 	        <session-management session-fixation-protection="none"/>
             <csrf disabled="true"/>
-	        </http>
+
+            <!-- for mounting network tab through iframe -->
+            <headers>
+                <frame-options policy="SAMEORIGIN"/>
+            </headers>
+        </http>
 	        
 	        <b:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
 	            <b:constructor-arg value="/index.do" />

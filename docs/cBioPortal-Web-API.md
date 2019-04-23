@@ -1,9 +1,9 @@
 ## Current Web API
 
-The current Web API offers services through the servlet `webservice.do`. It is described on [the `web_api.jsp` webpage](http://www.cbioportal.org/web_api.jsp), and responds to these commands: getTypesOfCancer getCancerStudies getGeneticProfiles getCaseLists getCaseLists getMutationData getClinicalData getProteinArrayInfo getProteinArrayData.
+The current Web API offers services through the servlet `webservice.do`. It is described on [the `web_api.jsp` webpage](https://www.cbioportal.org/web_api.jsp), and responds to these commands: getTypesOfCancer getCancerStudies getGeneticProfiles getCaseLists getCaseLists getMutationData getClinicalData getProteinArrayInfo getProteinArrayData.
 
 ## Revised Web API (**In Development**)
-There is a new Web API in development. A few of these functions are currently in use in cBioPortal, but the API is currently being expanded and revised. Below is a summary of the API captured with OpenAPI/swagger annotation (generated using tools from [the SpringFox project](http://springfox.github.io/springfox/) and [the Swagger2Markup project](https://github.com/Swagger2Markup)). There is also a springfox swagger-ui [webpage](http://www.cbioportal.org/beta/swagger-ui.html).
+There is a new Web API in development. A few of these functions are currently in use in cBioPortal, but the API is currently being expanded and revised. Below is a summary of the API captured with OpenAPI/swagger annotation (generated using tools from [the SpringFox project](http://springfox.github.io/springfox/) and [the Swagger2Markup project](https://github.com/Swagger2Markup)). There is also a springfox swagger-ui [webpage](https://www.cbioportal.org/beta/swagger-ui.html).
 
 ### Sections
 * [Overview](#Overview)
@@ -1005,7 +1005,7 @@ POST /api/studies
 <tr><td>groups</td><td>false</td><td>string</td></tr>
 <tr><td>id</td><td>false</td><td>string</td></tr>
 <tr><td>name</td><td>false</td><td>string</td></tr>
-<tr><td>pmid</td><td>false</td><td>integer (int64)</td></tr>
+<tr><td>pmid</td><td>false</td><td>string</td></tr>
 <tr><td>short_name</td><td>false</td><td>string</td></tr>
 <tr><td>type_of_cancer</td><td>false</td><td>string</td></tr>
 </table>

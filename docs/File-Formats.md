@@ -126,7 +126,7 @@ The first four rows of the clinical data file contain tab-delimited metadata abo
 - Row 1: **The attribute Display Names**: The display name for each clinical attribute
 - Row 2: **The attribute Descriptions**: Long(er) description of each clinical attribute
 - Row 3: **The attribute Datatype**: The datatype of each clinical attribute (must be one of:  STRING, NUMBER, BOOLEAN)
-- Row 4: **The attribute Priority**: A number which indicates the importance of each attribute.  In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages (such as the [Study View](http://www.cbioportal.org/study?id=brca_tcga)). A higher number indicates a higher priority.
+- Row 4: **The attribute Priority**: A number which indicates the importance of each attribute.  In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages (such as the [Study View](https://www.cbioportal.org/study?id=brca_tcga)). A higher number indicates a higher priority.
     ```
     To promote certain chart in study view, please increase priority to a certain number. The higher the score, the higher priority it will be displayed in the study view.
     If you want to hide chart, please set the priority to 0. For combination chart, as long as one of the clinical attribute has been set to 0, it will be hidden.
@@ -173,7 +173,7 @@ data - see examples below
 The file containing the patient attributes has one **required** column:
 - **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
 
-The following columns are used by the study view as well as the patient view. In the [study view](http://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header](http://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P05). 
+The following columns are used by the study view as well as the patient view. In the [study view](https://www.cbioportal.org/study?id=brca_tcga) they are used to create the survival plots. In the patient view they are used to add information to the [header](https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P05). 
 - **OS_STATUS**:  Overall patient survival status
     - Possible values: DECEASED, LIVING
     - In the patient view, LIVING creates a green label, DECEASED a red label.
@@ -210,9 +210,9 @@ The file containing the sample attributes has two **required** columns:
 - **PATIENT_ID (required)**: A patient ID. This field can only contain numbers, letters, points, underscores and hyphens.
 - **SAMPLE_ID (required)**: A sample ID. This field can only contain numbers, letters, points, underscores and hyphens.
 
-By adding `PATIENT_ID` here, cBioPortal will map the given sample to this patient. This enables one to associate multiple samples to one patient. For example, a single patient may have had multiple biopsies, each of which has been genomically profiled. See [this example for a patient with multiple samples](http://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P04).
+By adding `PATIENT_ID` here, cBioPortal will map the given sample to this patient. This enables one to associate multiple samples to one patient. For example, a single patient may have had multiple biopsies, each of which has been genomically profiled. See [this example for a patient with multiple samples](https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P04).
 
-The following columns are required for the pan-cancer summary statistics tab ([example](http://www.cbioportal.org/index.do?cancer_study_id=msk_impact_2017&Z_SCORE_THRESHOLD=2&RPPA_SCORE_THRESHOLD=2&data_priority=0&case_set_id=msk_impact_2017_cnaseq&gene_list=BRAF&geneset_list=+&tab_index=tab_visualize&Action=Submit&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna)).
+The following columns are required for the pan-cancer summary statistics tab ([example](https://www.cbioportal.org/index.do?cancer_study_id=msk_impact_2017&Z_SCORE_THRESHOLD=2&RPPA_SCORE_THRESHOLD=2&data_priority=0&case_set_id=msk_impact_2017_cnaseq&gene_list=BRAF&geneset_list=+&tab_index=tab_visualize&Action=Submit&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna)).
 - **CANCER_TYPE**: Cancer Type
 - **CANCER_TYPE_DETAILED**: Cancer Type Detailed, a sub-type of the specified CANCER_TYPE
 
@@ -259,7 +259,7 @@ These columns can be in either the patient or sample file.
 - **DRIVER_MUTATIONS**
 
 ##### Custom columns in clinical data
-cBioPortal supports custom columns with clinical data in either the patient or sample file. They should follow the previously described 5-row header format. Be sure to provide the correct `Datatype`, for optimal search, sorting, filtering (in [clinical data tab](http://www.cbioportal.org/study?id=brca_tcga#clinical)) and visualization.
+cBioPortal supports custom columns with clinical data in either the patient or sample file. They should follow the previously described 5-row header format. Be sure to provide the correct `Datatype`, for optimal search, sorting, filtering (in [clinical data tab](https://www.cbioportal.org/study?id=brca_tcga#clinical)) and visualization.
 
 The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and should be followed to make the clinical data comparable between studies. This dictionary provides a definition whether an attribute should be defined on the patient or sample level, as well as provides a name, description and datatype. The data curator can choose to ignore these proposed definitions, but not following this dictionary might make comparing data between studies more difficult. It should however not break any cBioPortal functionality. See GET /api/ at [http://oncotree.mskcc.org/cdd/swagger-ui.html#/](http://oncotree.mskcc.org/cdd/swagger-ui.html#/) for the data dictionary of all known clinical attributes.
 
@@ -379,7 +379,7 @@ the seed database.
 
 ## Segmented Data
 
-A SEG file (segmented data; .seg or .cbs) is a tab-delimited text file that lists loci and associated numeric values. The segmented data file format is the output of the Circular Binary Segmentation algorithm (Olshen et al., 2004).  **Segment data for import into the cBioPortal should be based on build 37 (hg19)**. This Segment data enables the 'CNA' lane in the Genomic overview of the Patient view (as [can be seen in this example](http://www.cbioportal.org/patient?sampleId=TCGA-BH-A0E6-01&studyId=brca_tcga)). 
+A SEG file (segmented data; .seg or .cbs) is a tab-delimited text file that lists loci and associated numeric values. The segmented data file format is the output of the Circular Binary Segmentation algorithm (Olshen et al., 2004).  **Segment data for import into the cBioPortal should be based on build 37 (hg19)**. This Segment data enables the 'CNA' lane in the Genomic overview of the Patient view (as [can be seen in this example](https://www.cbioportal.org/patient?sampleId=TCGA-BH-A0E6-01&studyId=brca_tcga)). 
 
 #### Meta file
 The segmented metadata file should contain the following fields:
@@ -605,8 +605,8 @@ Next to Hugo_Symbol, it is recommended to have the Entrez gene ID:
  
 The following extra annotation columns are important for making sure mutation specific UI functionality works well in the portal:
 
-6. **Protein_position (Optional)**: (annotation column) Required to initialize the 3D viewer in [mutations view](http://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details)
-7. **SWISSPROT (Optional)**: (annotation column) UniProtKB/SWISS-PROT name (formerly called ID) or accession code depending on the value of the `swissprot_identifier` metadatum, e.g. O11H1_HUMAN or Q8NG94. Is not required, but not having it may result in inconsistent PDB structure matching in [mutations view](http://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details).
+6. **Protein_position (Optional)**: (annotation column) Required to initialize the 3D viewer in [mutations view](https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details)
+7. **SWISSPROT (Optional)**: (annotation column) UniProtKB/SWISS-PROT name (formerly called ID) or accession code depending on the value of the `swissprot_identifier` metadatum, e.g. O11H1_HUMAN or Q8NG94. Is not required, but not having it may result in inconsistent PDB structure matching in [mutations view](https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit#mutation_details).
 
 #### Creating an extended MAF file with vcf2maf or maf2maf
 If your mutation data is already in [VCF](http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41) format (which most variant callers produce by default) you can use the [vcf2maf](https://github.com/mskcc/vcf2maf) converter. This tool parses VCF and MAF files, runs Ensembl Variant Effect Predictor (VEP) and selects a single effect per variant. Protein identifiers should be mapped to UniProt canonical isoforms by adding the `--custom-enst` flag and [this mapping file](https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot). This will override the Ensembl canonical isoforms with UniProt canonical isoforms, which ensures the SWISSPROT column can be used correctly by cBioPortal.
@@ -671,7 +671,7 @@ You can learn more about configuring these annotations in the [portal.properties
 ![schreenshot mutation color menu](images/screenshot-mutation-color-menu.png) 
 
 #### Adding your own mutation annotation columns
-Adding additional mutation annotation columns to the extended MAF rows can also be done. In this way, the portal will parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](http://mutationassessor.org/), which leads to a "Mutation Assessor" column in the [mutation table](http://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
+Adding additional mutation annotation columns to the extended MAF rows can also be done. In this way, the portal will parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](http://mutationassessor.org/), which leads to a "Mutation Assessor" column in the [mutation table](https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
 
 #### Example MAF
 An example MAF can be found in the cBioPortal test study [study_es_0](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/core/src/test/scripts/test_data/study_es_0/brca_tcga_pub.maf).
@@ -747,7 +747,7 @@ profile_name: Protein expression (RPPA)
 data_filename: data_rppa.txt
 ```
 
-**NB:** You also need a Z-SCORE file if you want protein levels to be available in query UI and in [Oncoprint visualization](http://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&genetic_profile_ids_PROFILE_PROTEIN_EXPRESSION=brca_tcga_pub_rppa_Zscores&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53+SOX9+RAN+TNK2+EP300+PXN+NCOA2+AR+NRIP1+NCOR1+NCOR2&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit). E.g.:
+**NB:** You also need a Z-SCORE file if you want protein levels to be available in query UI and in [Oncoprint visualization](https://www.cbioportal.org/index.do?cancer_study_list=brca_tcga_pub&cancer_study_id=brca_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_pub_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_pub_mrna_median_Zscores&Z_SCORE_THRESHOLD=2.0&genetic_profile_ids_PROFILE_PROTEIN_EXPRESSION=brca_tcga_pub_rppa_Zscores&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=brca_tcga_pub_complete&case_ids=&patient_case_select=sample&gene_set_choice=prostate-cancer%3A-ar-signaling-%2810-genes%29&gene_list=TP53+SOX9+RAN+TNK2+EP300+PXN+NCOA2+AR+NRIP1+NCOR1+NCOR2&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit). E.g.:
 
 ```
 cancer_study_identifier: brca_tcga
@@ -859,7 +859,7 @@ case_list_ids: SAMPLE_ID_1<TAB>SAMPLE_ID_2<TAB>SAMPLE_ID_3<TAB>...
 ```
 
 #### Case list stable id suffixes
-In order for sample counts to propagate to the data sets widget on the home page and the table on the [Data Sets](http://www.cbioportal.org/data_sets.jsp) page, the following case list suffixes need to be used in the stable_id property (e.g. `brca_tcga_pub_sequenced`). This is also needed for correct statistics in the Study view page when calculating the frequency of CNA and of mutations per gene in the respective summary tables.
+In order for sample counts to propagate to the data sets widget on the home page and the table on the [Data Sets](https://www.cbioportal.org/data_sets.jsp) page, the following case list suffixes need to be used in the stable_id property (e.g. `brca_tcga_pub_sequenced`). This is also needed for correct statistics in the Study view page when calculating the frequency of CNA and of mutations per gene in the respective summary tables.
 
 * **Sequenced**: `_sequenced` . When only a mutation profile is selected on the query page, this is the default case list. Also used in the Study Summary to calculate the proportion of samples with mutations.
 * **CNA**: `_cna`. When only a CNA profile is selected on the query page, this is the default case list. Also used in the Study Summary to calculate the proportion of samples with CNA.

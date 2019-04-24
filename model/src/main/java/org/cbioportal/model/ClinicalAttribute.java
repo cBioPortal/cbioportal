@@ -81,36 +81,5 @@ public class ClinicalAttribute implements Serializable {
     public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
         this.cancerStudyIdentifier = cancerStudyIdentifier;
     }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((attrId == null) ? 0 : attrId.hashCode());
-        result = prime * result + ((patientAttribute == null) ? 0 : patientAttribute.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ClinicalAttribute other = (ClinicalAttribute) obj;
-        if (attrId == null) {
-            if (other.attrId != null)
-                return false;
-        } else if (!attrId.equals(other.attrId))
-            return false;
-        if (patientAttribute == null) {
-            if (other.patientAttribute != null)
-                return false;
-        } else if (!patientAttribute.equals(other.patientAttribute))
-            return false;
-        return true;
-    }
     
 }

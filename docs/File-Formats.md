@@ -553,7 +553,7 @@ The mutation metadata file should contain the following fields:
 6. **profile_name**: A name for the mutation data, e.g., "Mutations".
 7. **profile_description**: A description of the mutation data, e.g., "Mutation data from whole exome sequencing.".
 8. **data_filename**: your data file
-9. **gene_panel (optional)**: gene panel stable id. See [Gene panels for mutation data](gene-panels-for-mutation-data).
+9. **gene_panel (optional)**: gene panel stable id. See [Gene panels for mutation data](#gene-panels-for-mutation-data).
 10. **swissprot_identifier (optional)**: `accession` or `name`, indicating the type of identifier in the `SWISSPROT` column
 11. **variant_classification_filter (optional)**: List of `Variant_Classifications` values to be filtered out.
 

@@ -1,6 +1,7 @@
 This page describes the main properties within portal.properties.
 
 - [Database Settings](#database-settings)
+- [cBioPortal Customization](#cbioportal-customization)
 - [Segment File URL](#segment-file-url)
 - [Bitly API Username and Key](#bitly-api-username-and-key)
 - [Google Analytics](#google-analytics)
@@ -32,6 +33,112 @@ db.connection_string=jdbc:mysql://localhost/
 db.tomcat_resource_name is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
 ```
 db.tomcat_resource_name=jdbc/cbioportal
+```
+
+# cBioPortal Customization
+
+## Hide tabs (pages)
+Settings controlling which tabs (pages) to hide. Set them to `false` if you want to hide those tabs, otherwise set the properties to `true`.
+
+```
+skin.show_data_tab=
+skin.show_web_api_tab=
+skin.show_r_matlab_tab=
+skin.show_tutorials_tab=
+skin.show_faqs_tab=
+skin.show_news_tab=
+skin.show_tools_tab=
+skin.show_about_tab=
+```
+
+**Note:** `skin.show_tools_tab` refers to the `Visualize Your Data` tab, while `skin.show_data_tab` refers to the `Data Sets` tab.
+
+## Cross Cancer Study Query Default
+The cross cancer study query default is a list of studies used when querying
+one or more genes and not specifying a specific study or list of studies. There
+are two ways in which the default cross cancer study list is used:
+
+1. When using the linkout links without a study e.g. `/ln?q=TP53:MUT`. Those
+   links are used mostly used to allow for easy linking to particular queries.
+   One can't get those links using the cBioPortal user interface itself, they
+   are only mentioned in the documentation of the Web API
+   (https://www.cbioportal.org/webAPI).
+2. In the quick search when querying for a gene. Quick search is
+   disabled by default. It is a beta feature. See the
+   [quick search documentation](#quick-search-beta).
+
+The configuration is set with the following if you have session service
+enabled:
+
+```
+default_cross_cancer_study_session_id=
+```
+
+The title will be pulled from the virtual study. Make sure to create a
+`virtual_study` with studies that everybody has access to and don't use a
+`main_session` id.
+
+If session service is disabled one can use the following instead:
+
+```
+# query this comma separated list of studies
+default_cross_cancer_study_list=
+default_cross_cancer_study_list_name=
+```
+
+## Quick Search (BETA)
+![Quick search example](images/previews/quick_search_example.png)
+
+Enable or disable the quick search with the following:
+
+```
+# Enable/Disable quick search (default is false)
+quick_search.enabled=true
+```
+
+The default studies queried when searching for a single gene is defined with
+the `default_cross_cancer_study_session_id` or
+`default_cross_cancer_study_list` properties as described in the
+[cross cancer study query default section](#cross-cancer-study-query-default).
+
+
+## Hide sections in the right navigation bar
+Settings controlling what to show in the right navigation bar. Set them to `false` if you want to hide those sections, otherwise set the properties to `true`.
+
+```
+#Cancer Studies section:
+skin.right_nav.show_data_sets=
+
+#Example Queries section:
+skin.right_nav.show_examples=
+
+#Testimonials section:
+skin.right_nav.show_testimonials=
+
+#What's New section
+skin.right_nav.show_whats_new=
+```
+
+## Control the content of specific sections
+Setting controlling the blurb: you can add any HTML code here that you want to visualize. This will be shown between the cBioPortal menu and the Query selector in the main page.
+```
+skin.blurb=
+```
+
+Setting controlling the footer: you can add any HTML code here that you want to visualize. If the field is left empty, the default footer (from www.cbioportal.org) will be shown.
+```
+skin.footer=
+```
+
+Settings controlling the "What's New" blurb in the right navigation bar: you can add any HTML code here that you want to visualize. If the field is left empty, the Twitter timeline will be shown (as long as `skin.right_nav.show_whats_new` is `true`, otherwise this section will not be displayed).
+
+```
+skin.right_nav.whats_new_blurb=
+```
+
+Add a custom logo in the right side of the menu. Place here the full name of the logo file (e.g. `logo.png`). This file should be saved in `$PORTAL_HOME/portal/images/`.
+```
+skin.right_logo=
 ```
 
 # Segment File URL

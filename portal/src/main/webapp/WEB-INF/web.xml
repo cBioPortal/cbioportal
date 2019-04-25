@@ -268,15 +268,6 @@
         <url-pattern>/webservice.do</url-pattern>
     </servlet-mapping>
 
-    <!--<servlet>-->
-        <!--<servlet-name>cross_cancer_query</servlet-name>-->
-        <!--<servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerStudyServlet</servlet-class>-->
-    <!--</servlet>-->
-    <!--<servlet-mapping>-->
-        <!--<servlet-name>cross_cancer_query</servlet-name>-->
-        <!--<url-pattern>/cross_cancer.do</url-pattern>-->
-    <!--</servlet-mapping>-->
-
     <servlet>
         <servlet-name>portal_meta_data_json</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.PortalMetaDataJSON</servlet-class>
@@ -641,19 +632,6 @@
     <servlet-mapping>
         <servlet-name>overRepresentationAnalysisJSON</servlet-name>
         <url-pattern>/oranalysis.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>link_out</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.LinkOut</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>link_out</servlet-name>
-        <url-pattern>/link.do</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>link_out</servlet-name>
-        <url-pattern>/ln</url-pattern>
     </servlet-mapping>
 
     <servlet>

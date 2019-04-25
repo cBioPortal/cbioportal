@@ -1,0 +1,4 @@
+#sequenced_samples: TCGA-AA-3664-01 TCGA-AA-3665-01
+Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Verification_Status	Validation_Status	Mutation_Status	Sequencer	Chromosome	Start_position	End_position	Variant_Classification	HGVSp_Short	MA:FImpact	MA:link.MSA	MA:link.PDB
+NLRP3	114548	broad.mit.edu	TCGA-AA-3664-01	Unknown	valid	Unknown	Illumina GAIIx	chr1	245674681	245674681	Missense_Mutation	G982G	--	--	--
+NLRP3	114548	broad.mit.edu	TCGA-AA-3665-01	Unknown	valid	Unknown	Illumina GAIIx	chr1	245674681	245674681	Missense_Mutation	G982G	--	--	--

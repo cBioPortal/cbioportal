@@ -32,8 +32,8 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
     
     @Override
     public List<AlterationEnrichment> getCopyNumberEnrichments(String molecularProfileId, List<String> alteredIds,
-                                                               List<String> unalteredIds, List<Integer> queryGenes, 
-                                                               List<Integer> alterationTypes, String enrichmentType)
+                                                               List<String> unalteredIds, List<Integer> alterationTypes, 
+                                                               String enrichmentType)
         throws MolecularProfileNotFoundException {
 
         List<String> allIds = new ArrayList<>(alteredIds);
@@ -60,7 +60,6 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
         List<CopyNumberCountByGene> copyNumberCountByGeneList =
             new ArrayList<CopyNumberCountByGene>(copyNumberCountByGeneListFromRepo);
         copyNumberCountByGeneList.removeIf(m -> !alterationTypes.contains(m.getAlteration()));
-        copyNumberCountByGeneList.removeIf(m -> queryGenes.contains(m.getEntrezGeneId()));
 
         return alterationEnrichmentUtil.createAlterationEnrichments(alteredIds.size(), unalteredIds.size(),
             copyNumberCountByGeneList, discreteCopyNumberDataList, enrichmentType);

@@ -1,12 +1,11 @@
 package org.cbioportal.web.parameter;
 
-import com.google.common.collect.Range;
-
-import javax.validation.constraints.AssertTrue;
+import java.io.Serializable;
 import java.util.List;
 
-public class ClinicalDataBinFilter extends ClinicalDataFilter
-{
+import javax.validation.constraints.AssertTrue;
+
+public class ClinicalDataBinFilter extends ClinicalDataFilter implements Serializable {
     private Boolean disableLogScale = false;
 
     private List<Double> customBins;

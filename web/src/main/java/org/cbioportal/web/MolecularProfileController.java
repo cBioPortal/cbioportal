@@ -36,7 +36,7 @@ import java.util.List;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Molecular Profiles", description = " ")
+@Api(tags = "J. Molecular Profiles", description = " ")
 public class MolecularProfileController {
 
     @Autowired

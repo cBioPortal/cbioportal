@@ -11,7 +11,7 @@ db.connection_string=jdbc:mysql://localhost/
 db.tomcat_resource_name=jdbc/cbioportal
 # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
 db.suppress_schema_version_mismatch_errors=false
-
+db.use_ssl=false
 # web page cosmetics
 skin.title=cBioPortal for Cancer Genomics
 skin.email_contact=cbioportal at googlegroups dot com
@@ -62,6 +62,7 @@ skin.login.saml.registration_html=Sign in with MSK
 skin.right_nav.show_data_sets=true
 skin.right_nav.show_examples=true
 skin.right_nav.show_testimonials=true
+skin.right_nav.show_whats_new=true
 
 # settings controlling what to show in the right navigation bar
 skin.study_view.link_text=To build your own case set, try out our enhanced Study View.
@@ -216,3 +217,19 @@ oncoprint.defaultview=patient
 # Disable cache (for non authorized portals this can sometimes avoid running
 # out of memory with relatively little performance loss)
 # mybatis.cache.enabled=false
+
+# Default cross cancer study query
+# query this session id when not specifying a study for
+# linkout links e.g. /ln?q=TP53:MUT or when querying a single gene in quick
+# search
+#
+# default_cross_cancer_study_session_id=
+#
+# if session service is not enabled, specify a comma separated list of studies
+# here instead e.g.:
+#
+# default_cross_cancer_study_list=mixed_pipseq_2017,cellline_nci60
+# default_cross_cancer_study_list_name=My list of studies
+
+# Enable/Disable quick search (currently in beta, default is false)
+# quick_search.enabled=true

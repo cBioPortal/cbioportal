@@ -1,8 +1,9 @@
 package org.cbioportal.web.parameter;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class CopyNumberGeneFilter {
+public class CopyNumberGeneFilter implements Serializable {
 
     private List<CopyNumberGeneFilterElement> alterations;
 

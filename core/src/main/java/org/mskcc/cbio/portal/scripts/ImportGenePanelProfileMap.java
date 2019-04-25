@@ -39,16 +39,14 @@ import org.mskcc.cbio.portal.util.*;
 import java.io.*;
 import joptsimple.*;
 import java.util.*;
-import org.mskcc.cbio.portal.repository.GenePanelRepositoryLegacy;
 
 /**
  *
- * @author heinsz
+ * @author heinsz, sandertan
  */
 public class ImportGenePanelProfileMap extends ConsoleRunnable {
 
     private File genePanelProfileMapFile;
-    private static Properties properties;
     private String cancerStudyStableId;
 
     @Override
@@ -56,7 +54,7 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
         try {
             String progName = "ImportGenePanelProfileMap";
             String description = "Import gene panel profile map files.";
-            // usage: --data <data_file.txt> --meta <meta_file.txt> --loadMode [directLoad|bulkLoad (default)] [--noprogress]
+            // usage: --data <data_file.txt> --meta <meta_file.txt> [--noprogress]
 
             OptionParser parser = new OptionParser();
             OptionSpec<String> data = parser.accepts( "data",
@@ -65,7 +63,7 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
                    "gene panel file" ).withRequiredArg().describedAs( "meta_file.txt" ).ofType( String.class );
             parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
 
-            OptionSet options = null;
+            OptionSet options;
             try {
                 options = parser.parse( args );
             } catch (OptionException e) {
@@ -73,7 +71,7 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
                         progName, description, parser,
                         e.getMessage());
             }
-            File genePanel_f = null;
+            File genePanel_f;
             if( options.has( data ) ){
                 genePanel_f = new File( options.valueOf( data ) );
             } else {
@@ -83,7 +81,7 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
             }
 
             if( options.has( meta ) ){
-                properties = new TrimmedProperties();
+                Properties properties = new TrimmedProperties();
                 properties.load(new FileInputStream(options.valueOf(meta)));
                 cancerStudyStableId = properties.getProperty("cancer_study_identifier");
             } else {
@@ -103,69 +101,67 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
     }
 
     public void importData() throws Exception {
-        List<Integer> samplesToDelete = new ArrayList();
-        List<Integer> profilesToDelete = new ArrayList();
-        ProgressMonitor.setCurrentMessage("Reading data from:  " + genePanelProfileMapFile.getAbsolutePath());
-        GenePanelRepositoryLegacy genePanelRepositoryLegacy = (GenePanelRepositoryLegacy)SpringUtil.getApplicationContext().getBean("genePanelRepositoryLegacy");
-
-        FileReader reader =  new FileReader(genePanelProfileMapFile);
+        
+        ProgressMonitor.setCurrentMessage("Reading data from: " + genePanelProfileMapFile.getAbsolutePath());
+        FileReader reader = new FileReader(genePanelProfileMapFile);
         BufferedReader buff = new BufferedReader(reader);
+        
+        // Extract and parse first line which contains the profile names
         List<String> profiles = getProfilesLine(buff);
         Integer sampleIdIndex = profiles.indexOf("SAMPLE_ID");
         if (sampleIdIndex < 0) {
             throw new RuntimeException("Missing SAMPLE_ID column in file " + genePanelProfileMapFile.getAbsolutePath());
         }
         profiles.remove((int)sampleIdIndex);
-        List<Integer> profileIds = getProfileIds(profiles, genePanelRepositoryLegacy);
-
-        // delete if the profile mapping are there already
-        for (Integer id : profileIds) {
-            if(genePanelRepositoryLegacy.sampleProfileMappingExistsByProfile(id)) {
-                genePanelRepositoryLegacy.deleteSampleProfileMappingByProfile(id);
-            }
-        }
-
-        String line;
-        CancerStudy cs = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
-        while((line = buff.readLine()) != null) {
-            List<String> data  = new LinkedList<>(Arrays.asList(line.split("\t")));
-            String sampleId = data.get(sampleIdIndex);
-
-            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cs.getInternalId() ,sampleId);
-
-            data.remove((int)sampleIdIndex);
-            for (int i = 0; i < data.size(); i++) {
-                GenePanel genePanel = DaoGenePanel.getGenePanelByStableId(data.get(i));             
-                if (genePanel != null) {
-                    if (DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), profileIds.get(i))) {
-                        samplesToDelete.add(sample.getInternalId());
-                        profilesToDelete.add(profileIds.get(i));                           
-                    }   
-                    DaoSampleProfile.addSampleProfile(sample.getInternalId(), profileIds.get(i), genePanel.getInternalId());
-                }
-                else {
-                    ProgressMonitor.logWarning("No gene panel exists: " + data.get(i));
-                }
-            }
-        }
-        ProgressMonitor.setCurrentMessage("Deleting necessary records from sample_profile.");
-        DaoSampleProfile.deleteRecords(samplesToDelete, profilesToDelete);
+        List<Integer> profileIds = getProfileIds(profiles);
+        
+        // Get cancer study
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
+        
+        // Loop over gene panel matrix and load into database
         ProgressMonitor.setCurrentMessage("Loading gene panel profile matrix data to database..");
-        MySQLbulkLoader.flushAll();
+        String row;
+        while((row = buff.readLine()) != null) {
+            List<String> row_data = new LinkedList<>(Arrays.asList(row.split("\t")));
+            
+            // Extract and parse sample ID
+            String sampleId = row_data.get(sampleIdIndex);
+            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sampleId);
+            row_data.remove((int)sampleIdIndex);
+            
+            // Loop over the values in the row
+            for (int i = 0; i < row_data.size(); i++) {
+                
+                // Extract gene panel ID
+                String genePanelName = row_data.get(i);
+                GenePanel genePanel = DaoGenePanel.getGenePanelByStableId(genePanelName);
+
+                // Add gene panel information to database
+                if (genePanel != null) {
+                    DaoSampleProfile.updateSampleProfile(
+                        sample.getInternalId(), 
+                        profileIds.get(i), 
+                        genePanel.getInternalId());
+
+                // Throw an error if gene panel is not in database and is not NA
+                } else {
+                    if (!genePanelName.equals("NA")) {
+                        throw new RuntimeException("Gene panel cannot be found in database: " + genePanelName);
+                    }
+                }
+            }
+        }
     }
 
-    public List<String> getProfilesLine(BufferedReader buff) throws Exception {
+    private List<String> getProfilesLine(BufferedReader buff) throws Exception {
         String line = buff.readLine();
         while(line.startsWith("#")) {
             line = buff.readLine();
         }
-
-        List<String> profiles = new LinkedList<>(Arrays.asList(line.split("\t")));
-
-        return profiles;
+        return new LinkedList<>(Arrays.asList(line.split("\t")));
     }
 
-    public List<Integer> getProfileIds(List<String> profiles, GenePanelRepositoryLegacy genePanelRepositoryLegacy) {
+    private List<Integer> getProfileIds(List<String> profiles) {
         List<Integer> geneticProfileIds = new LinkedList<>();
         for(String profile : profiles) {
             if (!profile.startsWith(cancerStudyStableId)) {

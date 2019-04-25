@@ -137,7 +137,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     }
 
     private void populateCancerStudyMap() {
-        for (CancerStudy cs : studyRepository.getAllStudies("SUMMARY",
+        for (CancerStudy cs : studyRepository.getAllStudies(null, "SUMMARY",
                                                                                       PagingConstants.MAX_PAGE_SIZE,
                                                                                       PagingConstants.MIN_PAGE_NUMBER,
                                                                                       null,
@@ -259,6 +259,15 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         else if ("SampleFilter".equals(targetType)) {
             return hasAccessToCancerStudies(authentication, (SampleFilter)targetId, permission);
         }
+        else if ("ClinicalDataCountFilter".equals(targetType)) {
+            return hasAccessToCancerStudiesByClinicalDataCountFilter(authentication, (ClinicalDataCountFilter) targetId, permission);
+        }
+        else if ("ClinicalDataBinCountFilter".equals(targetType)) {
+            return hasAccessToCancerStudiesByClinicalDataBinCountFilter(authentication, (ClinicalDataBinCountFilter) targetId, permission);
+        }
+        else if ("StudyViewFilter".equals(targetType)) {
+            return hasAccessToCancerStudiesByStudyViewFilter(authentication, (StudyViewFilter) targetId, permission);
+        }
         else if ("List<SampleIdentifier>".equals(targetType)) {
             return hasAccessToCancerStudiesBySampleIdentifier(authentication, (List<SampleIdentifier>)targetId, permission);
         }
@@ -303,6 +312,12 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             if (cancerStudy == null) {
                 // cancer study was not included so get it
                 cancerStudy = cancerStudies.get(((SampleList) targetDomainObject).getCancerStudyIdentifier());
+            }
+        } else if (targetDomainObject instanceof Patient) {
+            cancerStudy = ((Patient) targetDomainObject).getCancerStudy();
+            if (cancerStudy == null) {
+                // cancer study was not included so get it
+                cancerStudy = cancerStudies.get(((Patient) targetDomainObject).getCancerStudyIdentifier());
             }
         } else { 
             if (log.isDebugEnabled()) {
@@ -449,7 +464,34 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         }
         return true;
     }
-     
+    
+    private boolean hasAccessToCancerStudiesByClinicalDataCountFilter(Authentication authentication,
+            ClinicalDataCountFilter clinicalDataCountFilter, Object permission) {
+        if (clinicalDataCountFilter.getStudyViewFilter() != null) {
+            return hasAccessToCancerStudiesByStudyViewFilter(authentication,
+                    clinicalDataCountFilter.getStudyViewFilter(), permission);
+        }
+        return true;
+    }
+
+    private boolean hasAccessToCancerStudiesByClinicalDataBinCountFilter(Authentication authentication,
+            ClinicalDataBinCountFilter clinicalDataBinCountFilter, Object permission) {
+        if (clinicalDataBinCountFilter.getStudyViewFilter() != null) {
+            return hasAccessToCancerStudiesByStudyViewFilter(authentication,
+                    clinicalDataBinCountFilter.getStudyViewFilter(), permission);
+        }
+        return true;
+    }
+
+    private boolean hasAccessToCancerStudiesByStudyViewFilter(Authentication authentication,
+            StudyViewFilter studyViewFilter, Object permission) {
+        if (studyViewFilter.getSampleIdentifiers() != null && !studyViewFilter.getSampleIdentifiers().isEmpty()) {
+            return hasAccessToCancerStudiesBySampleIdentifier(authentication, studyViewFilter.getSampleIdentifiers(),
+                    permission);
+        }
+        return hasAccessToCancerStudies(authentication, studyViewFilter.getStudyIds(), permission);
+    }
+    
     /**
      * Helper function to determine if given user has access to given cancer study.
      *

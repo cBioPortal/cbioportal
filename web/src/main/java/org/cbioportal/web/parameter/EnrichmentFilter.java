@@ -12,7 +12,6 @@ public class EnrichmentFilter {
     @NotNull
     @Size(min = 1)
     private List<String> unalteredIds;
-    private List<Integer> queryGenes;
 
     public List<String> getAlteredIds() {
         return alteredIds;
@@ -29,12 +28,4 @@ public class EnrichmentFilter {
     public void setUnalteredIds(List<String> unalteredIds) {
         this.unalteredIds = unalteredIds;
     }
-
-	public List<Integer> getQueryGenes() {
-		return queryGenes;
-	}
-
-	public void setQueryGenes(List<Integer> queryGenes) {
-		this.queryGenes = queryGenes;
-	}
 }

@@ -165,8 +165,9 @@ public class ImportFusionData {
                         DaoMutation.addMutation(mutation, addEvent);
                         mutations.put(mutation, mutation);
                     }
-                    if (!sampleSet.contains(sample.getStableId())) {
-                        ImportDataUtil.addSampleProfile(sample, geneticProfileId, genePanelID);
+                    if (!sampleSet.contains(sample.getStableId()) && !DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
+                        Integer panelId = (genePanel == null) ? null : genePanel.getInternalId();
+                        DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, panelId);
                     }                    
                     sampleSet.add(sample.getStableId());
                 }

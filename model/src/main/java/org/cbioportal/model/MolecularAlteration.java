@@ -31,4 +31,6 @@ public abstract class MolecularAlteration implements Serializable {
         }
         return splitValues;
     }
+
+    public abstract String getStableId();
 }

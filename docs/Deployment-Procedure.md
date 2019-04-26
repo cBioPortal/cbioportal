@@ -25,8 +25,10 @@ events that can require a new deployment:
 ## New frontend commit in master
 Currently we are auto-deploying the frontend master branch to netlify:
 https://cbioportal-frontend.netlify.com. So any change should be automatically
-deployed to the relevant portals if the frontend configuration has been set up
-properly.
+built and deployed to the relevant portals if the frontend configuration has
+been set up properly. Do note that the current build time for the frontend
+project is ~15 minutes or so. To see what frontend commit is deployed, check
+`window.FRONTEND_COMMIT` in the console of the browser.
 
 ### Public Portal Frontend URL
 The public portal is on AWS and running inside a Kubernetes cluster.

@@ -260,35 +260,30 @@ public class StudyViewFilterApplier {
             }
         }
         List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
-        int index = 0;
-        for (String sampleId : sampleIds) {
-            String studyId = studyIds.get(index);
-            List<ClinicalData> entityClinicalData = (List<ClinicalData>)clinicalDataMap.get(sampleId, studyId);
-            if (entityClinicalData == null) {
-                continue;
-            }
-            Optional<ClinicalData> fractionGenomeAlteredData = entityClinicalData.stream().filter(c -> 
-                c.getAttrId().equals(FRACTION_GENOME_ALTERED)).findFirst();
-            Optional<ClinicalData> mutationCountData = entityClinicalData.stream().filter(c -> 
-                c.getAttrId().equals(MUTATION_COUNT)).findFirst();
-            
-            if (fractionGenomeAlteredData.isPresent() && mutationCountData.isPresent()) {
-                BigDecimal fractionGenomeAlteredValue = new BigDecimal(fractionGenomeAlteredData.get().getAttrValue());
-                BigDecimal mutationCountValue = new BigDecimal(mutationCountData.get().getAttrValue());
-                if (fractionGenomeAlteredValue.compareTo(mutationCountVsCNASelection.getxStart()) >= 0 && 
-                    fractionGenomeAlteredValue.compareTo(mutationCountVsCNASelection.getxEnd()) < 0 && 
-                    mutationCountValue.compareTo(mutationCountVsCNASelection.getyStart()) >= 0 &&
-                    mutationCountValue.compareTo(mutationCountVsCNASelection.getyEnd()) < 0)  {
+        sampleIdentifiers.forEach(sampleIdentifier -> {
+            List<ClinicalData> entityClinicalData = (List<ClinicalData>) clinicalDataMap
+                    .get(sampleIdentifier.getSampleId(), sampleIdentifier.getStudyId());
+            if (entityClinicalData != null) {
+                Optional<ClinicalData> fractionGenomeAlteredData = entityClinicalData.stream()
+                        .filter(c -> c.getAttrId().equals(FRACTION_GENOME_ALTERED)).findFirst();
+                Optional<ClinicalData> mutationCountData = entityClinicalData.stream()
+                        .filter(c -> c.getAttrId().equals(MUTATION_COUNT)).findFirst();
 
-                    SampleIdentifier sampleIdentifier = new SampleIdentifier();
-                    sampleIdentifier.setSampleId(sampleId);
-                    sampleIdentifier.setStudyId(studyId);
-                    filteredSampleIdentifiers.add(sampleIdentifier);
+                if (fractionGenomeAlteredData.isPresent() && mutationCountData.isPresent()) {
+                    BigDecimal fractionGenomeAlteredValue = new BigDecimal(
+                            fractionGenomeAlteredData.get().getAttrValue());
+                    BigDecimal mutationCountValue = new BigDecimal(mutationCountData.get().getAttrValue());
+                    if (fractionGenomeAlteredValue.compareTo(mutationCountVsCNASelection.getxStart()) >= 0
+                            && fractionGenomeAlteredValue.compareTo(mutationCountVsCNASelection.getxEnd()) < 0
+                            && mutationCountValue.compareTo(mutationCountVsCNASelection.getyStart()) >= 0
+                            && mutationCountValue.compareTo(mutationCountVsCNASelection.getyEnd()) < 0) {
+
+                        filteredSampleIdentifiers.add(sampleIdentifier);
+                    }
                 }
             }
-            
-            index++;
-        }
+
+        });
         return filteredSampleIdentifiers;
     }
 }

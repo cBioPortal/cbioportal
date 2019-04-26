@@ -1,3 +1,9 @@
+## April 26, 2019
+ *   **Added data**  of 124 samples from 3 studies:
+     *  [Adenoid Cystic Carcinoma (JHU, Cancer Prev Res 2016)](https://www.cbioportal.org/study?id=acyc_jhu_2016) *25 samples*
+     *  [Histiocytosis Cobimetinib (MSK, Nature 2019)](https://www.cbioportal.org/study?id=histiocytosis_cobi_msk_2019) *52 samples*
+     *  [Upper Tract Urothelial Carcinoma (Cornell/Baylor/MDACC, Nat Comm 2019)](https://www.cbioportal.org/study?id=utuc_cornell_baylor_mdacc_2019) *47 samples*
+
 ## March 29, 2019
 * **New Feature**: Use the new quick search tab on the homepage to more easily navigate to a study, gene or patient:
 

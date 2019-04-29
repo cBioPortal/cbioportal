@@ -2,7 +2,9 @@ package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.GeneMolecularData;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;
+import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.web.parameter.MolecularDataFilter;
 import org.cbioportal.web.parameter.MolecularDataMultipleStudyFilter;
@@ -28,10 +30,11 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.HashMap;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class MolecularDataControllerTest {
 
@@ -50,9 +53,11 @@ public class MolecularDataControllerTest {
 
     @Autowired
     private MolecularDataService molecularDataService;
-    private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired 
+    private ObjectMapper objectMapper;
+
+    private MockMvc mockMvc;
 
     @Bean
     public MolecularDataService molecularDataService() {
@@ -65,7 +70,7 @@ public class MolecularDataControllerTest {
         Mockito.reset(molecularDataService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void getAllMolecularDataInMolecularProfileSummaryProjection() throws Exception {
 

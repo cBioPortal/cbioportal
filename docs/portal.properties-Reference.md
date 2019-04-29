@@ -188,10 +188,9 @@ This can be done by adding the following line to the Tomcat config file
 CATALINA_OPTS='-Dauthenticate=googleplus'
 ```
 
-In addition, set these properties in `portal.properties`:
+In addition, set this property in `portal.properties`:
 ```
 app.name=cbioportal
-authorization=true
 ```
 app.name should be set to the name of the portal instance referenced in the "AUTHORITY" column of the "AUTHORITIES" table.  See the [User Authorization](User-Authorization.md) for more information.
 

@@ -108,7 +108,7 @@ public class MutationalSignatureServiceImpl implements MutationalSignatureServic
 		return mutationProfile;
 	}
 
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<MutationalSignature> getMutationalSignaturesBySampleIds(String study_id, List<String> sample_ids) {
 		MolecularProfile mutationProfile = getMutationProfile(study_id);
 		if (mutationProfile == null) {
@@ -119,7 +119,7 @@ public class MutationalSignatureServiceImpl implements MutationalSignatureServic
 		}
 	}
 
-  @PreAuthorize("hasPermission(#study_id, 'CancerStudy', 'read')")
+  @PreAuthorize("hasPermission(#study_id, 'CancerStudyId', 'read')")
 	public List<MutationalSignature> getMutationalSignatures(String study_id) {
 		MolecularProfile mutationProfile = getMutationProfile(study_id);
 		if (mutationProfile == null) {

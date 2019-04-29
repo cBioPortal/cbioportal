@@ -1,5 +1,5 @@
 --
--- Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+-- Copyright (c) 2016 - 2018 Memorial Sloan-Kettering Cancer Center.
 --
 -- This library is distributed in the hope that it will be useful, but WITHOUT
 -- ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -97,6 +97,7 @@ DROP TABLE IF EXISTS `geneset_hierarchy_leaf`;
 DROP TABLE IF EXISTS `geneset_hierarchy_node`;
 DROP TABLE IF EXISTS `geneset`;
 DROP TABLE IF EXISTS `genetic_entity`;
+DROP TABLE IF EXISTS `reference_genome_gene`;
 DROP TABLE IF EXISTS `reference_genome`;
 
 -- --------------------------------------------------------
@@ -209,7 +210,7 @@ CREATE TABLE `gene` (
   `CYTOBAND` varchar(64),
   `LENGTH` int(11),
   PRIMARY KEY (`ENTREZ_GENE_ID`),
-  UNIQUE KEY `GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID`),  
+  UNIQUE KEY `GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID`),
   KEY `HUGO_GENE_SYMBOL` (`HUGO_GENE_SYMBOL`),
   FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
 );

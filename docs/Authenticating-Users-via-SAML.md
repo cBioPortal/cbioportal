@@ -16,9 +16,7 @@ In its simplest terms, SAML boils down to four terms:
 
 * **service provider**:  any web site or web application that provides a service, but should only be available to authenticated and authorized users.  In the documentation below, the cBioPortal is the service provider.
 
-* **authentication**:  a means of verifying that a user is who they purport to be.  Authentication is performed by the identify provider, by extracting the user name and password provided in a login form, and matching this with information stored in a database.
-
-* **authorization**:  defines resources a user can access.  When authorization is turned on with cBioPortal, users can only access cancer studies they are specifically authorized to view (or PUBLIC studies, [if the server has been configured to contain these](User-Authorization.md#configuring-public-studies)).  This enables one to store multiple cancer studies within a single instance of cBioPortal, but provide fine-grained control over which users can access which studies.  Authorization is implemented within the core cBioPortal code, and not the identify provider.
+* **authentication**:  a means of verifying that a user is who they purport to be.  Authentication is performed by the identify provider, by extracting the user name and password provided in a login form, and matching this with information stored in a database. When authentication is enabled, multiple cancer studies can be stored within a single instance of cBioPortal while providing fine-grained control over which users can access which studies.  Authorization is implemented within the core cBioPortal code, and *not* the identify provider.
 
 ## Why is SAML Relevant to cBioPortal?
 
@@ -134,8 +132,6 @@ Within portal.properties, make sure that:
 
 Then, modify the section labeled `authentication`. See SAML parameters shown in example below:
 
-    # authentication
-    authorization=true
     saml.sp.metadata.entityid=cbioportal
     saml.idp.metadata.location=classpath:/onelogin_metadata_620035.xml
     saml.idp.metadata.entityid=https://app.onelogin.com/saml/metadata/620035

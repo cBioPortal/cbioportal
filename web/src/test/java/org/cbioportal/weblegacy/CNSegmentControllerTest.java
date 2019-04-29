@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Memorial Sloan Kettering Cancer Center.
+ * Copyright (c) 2016 - 2018 Memorial Sloan Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,6 +32,7 @@
 
 package org.cbioportal.weblegacy;
 
+import org.cbioportal.web.config.CacheMapUtilConfig;
 import java.util.ArrayList;
 import java.util.List;
 import org.mskcc.cbio.portal.model.CNSegmentData;
@@ -55,7 +56,7 @@ import org.mskcc.cbio.portal.service.CNSegmentService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = {CNSegmentControllerConfig.class, CustomObjectMapper.class})
+@ContextConfiguration(classes = {CNSegmentControllerConfig.class, CustomObjectMapper.class, CacheMapUtilConfig.class})
 public class CNSegmentControllerTest {
     @Autowired
     private WebApplicationContext webApplicationContext;

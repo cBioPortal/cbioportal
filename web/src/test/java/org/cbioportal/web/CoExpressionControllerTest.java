@@ -55,6 +55,8 @@ public class CoExpressionControllerTest {
 
     private MockMvc mockMvc;
 
+    private MockMvc mockMvc;
+
     @Bean
     public CoExpressionService coExpressionService() {
         return Mockito.mock(CoExpressionService.class);

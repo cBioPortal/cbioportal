@@ -27,8 +27,18 @@ MRNA_EXPRESSION	DISCRETE	mrna_outliers
 MRNA_EXPRESSION	Z-SCORE	mrna_zbynorm
 MRNA_EXPRESSION	CONTINUOUS	rna_seq_mrna_capture
 MRNA_EXPRESSION	Z-SCORE	rna_seq_mrna_capture_Zscores
+MRNA_EXPRESSION	CONTINUOUS	mrna_seq_fpkm
+MRNA_EXPRESSION	CONTINUOUS	mrna_seq_fpkm_capture
+MRNA_EXPRESSION	CONTINUOUS	mrna_seq_fpkm_polya
+MRNA_EXPRESSION	Z-SCORE	mrna_Zscores
+MRNA_EXPRESSION	Z-SCORE	mrna_seq_fpkm_capture_Zscores
+MRNA_EXPRESSION	Z-SCORE	mrna_seq_fpkm_polya_Zscores
 METHYLATION	CONTINUOUS	methylation_hm27
 METHYLATION	CONTINUOUS	methylation_hm450
+METHYLATION	CONTINUOUS	methylation_promoters_hmEPIC
+METHYLATION	CONTINUOUS	methylation_promoters_wgbs
+METHYLATION	CONTINUOUS	methylation_genebodies_hmEPIC
+METHYLATION	CONTINUOUS	methylation_genebodies_wgbs
 FUSION	FUSION	fusion
 PROTEIN_LEVEL	LOG2-VALUE	rppa
 PROTEIN_LEVEL	Z-SCORE	rppa_Zscores
@@ -36,3 +46,4 @@ PROTEIN_LEVEL	CONTINUOUS	protein_quantification
 PROTEIN_LEVEL	Z-SCORE	protein_quantification_zscores
 GENESET_SCORE	GSVA-SCORE	gsva_scores
 GENESET_SCORE	P-VALUE	gsva_pvalues
+MUTSIG	Q-VALUE	mutsig

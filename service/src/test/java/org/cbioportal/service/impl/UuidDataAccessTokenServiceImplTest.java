@@ -154,6 +154,17 @@ public class UuidDataAccessTokenServiceImplTest {
         }
     }
 
+    /* Tests validation of a token when there is a failure retrieving the token
+     * Should return false
+     */
+    @Test
+    public void validateFailedToGetToken() {
+        Boolean failedToGetTokenIsValid = uuidDataAccessTokenServiceImpl.isValid(UuidDataAccessTokenServiceImplTestConfiguration.FAIL_TO_GET_TOKEN_STRING);
+        if (failedToGetTokenIsValid) {
+            Assert.fail("Validation of token that we failed to look up returned true, expected false.");
+        }
+    }
+
     /* Tests validation of a token which has expired
      * Mock is configured to test a token with expiration date 100000 seconds before current time
      * Should return false

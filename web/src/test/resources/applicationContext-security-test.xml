@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<b:beans xmlns="http://www.springframework.org/schema/security"
+         xmlns:b="http://www.springframework.org/schema/beans"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:context="http://www.springframework.org/schema/context"
+         xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+   
+    <!-- support for general annotations within class definitions (used in AccessControl) -->
+    <context:annotation-config/>
+
+    <!-- This must come before the default entry point which will capture everything not matched by pattern -->
+    <http use-expressions="true" entry-point-ref="restAuthenticationEntryPoint">
+        <intercept-url pattern="/**" access="isAuthenticated()"/>
+        <csrf disabled="true"/>
+        <custom-filter ref="basicAuthenticationFilter" position="FORM_LOGIN_FILTER" />
+    </http>
+
+    <b:bean id="restAuthenticationEntryPoint" class="org.cbioportal.web.config.RestAuthenticationEntryPoint"/>
+
+    <b:bean id="basicAuthenticationFilter" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
+      <b:property name="authenticationManager" ref="authenticationManager"/>
+      <b:property name="authenticationSuccessHandler" ref="successRedirectHandler"/>
+      <b:property name="postOnly" value="false"/>
+      <b:property name="usernameParameter" value="j_username"/>
+      <b:property name="passwordParameter" value="j_password"/>
+      <b:property name="filterProcessesUrl" value="/j_spring_security_check"/>
+    </b:bean>
+
+    <b:bean id="successRedirectHandler" class="org.cbioportal.web.config.TokenAuthenticationSuccessHandler"/>
+
+     <!-- WARNING: if you define another authentication-manager AFTER this one, this one
+        will be overridden, even if you use <http ... pattern="/api/**" ... authentication-manager-ref="tokenAuthenticationManager">
+        AND even though the authenticationManager is defined as a property of tokenAuthenticationFilter
+        so you must add <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/> to your
+        other authentication-manager, and tokenUserDetailsAuthenticationProvider should come before other authentication-providers -->
+    <authentication-manager alias="authenticationManager">
+        <authentication-provider>
+            <user-service>
+              <!-- name and password should match what is in MockMVC test -->
+                <user name="MOCK_USER" password="{noop}MOCK_PASSWORD" authorities="PLACEHOLDER_ROLE" />
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
+    
+    <b:bean  id="tokenServiceFactory" class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean">
+        <b:property name="serviceLocatorInterface" value="org.cbioportal.service.DataAccessTokenServiceFactory"/>
+    </b:bean>
+
+</b:beans>

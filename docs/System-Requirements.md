@@ -1,10 +1,18 @@
 # Hardware and Software Requirements
 
 This page describes various system software required to run the cBioPortal.
+Note that one can also run cBioPortal using [Docker](Docker-Prerequisites.md),
+which is considerably easier.
 
 ## Hardware
 
-Hardware requirements will vary depending on the volume of users you anticipate will access your cBioPortal instance.  As a guideline, we run [cbioportal.org](https://www.cbioportal.org) on an Intel Xeon 2.60GHz/8-core processor with 192GB of RAM. Minimally, 2GB of RAM is needed to run a cBioPortal instance. The public database consumes ~50 GB of disk space. If you do not plan to import public studies, depending on the size of your private data, 10GB of disk space may be sufficient.
+Hardware requirements will vary depending on the volume of users you anticipate
+will access your cBioPortal instance.  As a guideline, we run
+[cbioportal.org](https://www.cbioportal.org) on an AWS r5.xlarge instance with
+32 GB and 4 vCPUs. Minimally, 2GB of RAM is needed to run a cBioPortal
+instance. The public database consumes ~50 GB of disk space. If you do not plan
+to import public studies, depending on the size of your private data, 10GB of
+disk space may be sufficient.
 
 ## MySQL
 
@@ -18,12 +26,6 @@ On Ubuntu:  ```sudo apt-get install mysql-server```
 As of this writing, the cBioPortal can be compiled and run from Java 8.0 and above.  The software can be found and download from the [Oracle](http://www.oracle.com/us/technologies/java/overview/index.html) website.
 
 On Ubuntu:  ```sudo apt-get install default-jdk```
-
-## Apache Tomcat
-
-As of this writing, the cBioPortal runs properly on Apache Tomcat version 8 and above.  The software can be found and downloaded from the [Apache Tomcat website](http://tomcat.apache.org).
-
-On Ubuntu:  [See Recommended Installation Instructions](https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-8-on-ubuntu-14-04)
 
 ## Apache Maven
 

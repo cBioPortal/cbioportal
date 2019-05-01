@@ -125,13 +125,6 @@ should now see the certificate and no private key.
     saml.logout.url=/
 ```
 
-3. Finally, make Tomcat pass the authentication method as a JVM argument
-   by adding this line to `$CATALINA_HOME/bin/setenv.sh`:
-
-```sh
-CATALINA_OPTS='-Dauthenticate=saml'
-```
-
 ## Obtain user identities
 
 ### Optional: create users in Keycloak
@@ -245,7 +238,14 @@ You are now ready to go. Rebuild the WAR file and re-deploy:
 
 ```
 mvn -DskipTests clean install
-cp portal/target/cbioportal.war $CATALINA_HOME/webapps/
+java \
+    -Dauthorization=true \
+    -Dauthenticate=saml \
+    -Ddbconnector=dbcp \
+    -jar \
+    portal/target/dependency/webapp-runner.jar \
+    --path /cbioportal \
+    portal/target/cbioportal.war
 ```
 
 Then, go to:  [http://localhost:8081/cbioportal/](http://localhost:8081/cbioportal/).

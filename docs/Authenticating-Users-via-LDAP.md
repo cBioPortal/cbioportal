@@ -23,12 +23,8 @@ The cBioPortal code has no means of storing user name and passwords and no means
 
 ## Modifying configuration
 
-Make Tomcat pass the authentication method as a JVM argument
-by adding this line to `$CATALINA_HOME/bin/setenv.sh`:
-
-    CATALINA_OPTS='-Dauthenticate=ldap'
-
-In portal.properties, modify the section labeled `authentication`.  For example:
+In portal.properties, modify the section labeled `authentication`.  For
+example:
 
     ## configuration for the LDAP access
     ldap.user_search_base=DC=example,DC=com
@@ -73,7 +69,14 @@ Rebuild the WAR file and re-deploy:
 
 ```
 mvn -DskipTests clean install
-cp portal/target/cbioportal.war $CATALINA_HOME/webapps/
+java \
+    -Dauthorization=true \
+    -Dauthenticate=ldap \
+    -Ddbconnector=dbcp \
+    -jar \
+    portal/target/dependency/webapp-runner.jar \
+    --path /cbioportal \
+    portal/target/cbioportal.war
 ```
 
 Then, go to:  [http://localhost:8080/cbioportal/](http://localhost:8080/cbioportal/).
@@ -103,4 +106,3 @@ If you get stuck or get an obscure error message, you can try to turn on all DEB
     log4j.category.org.mskcc=DEBUG
 
 Then, rebuild the WAR, redeploy, and try to authenticate again.  
-

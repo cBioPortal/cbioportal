@@ -121,11 +121,6 @@ both keystore and secure-key. This seems to be an extra restriction by Tomcat.
 
 ## Modifying configuration
 
-Make Tomcat pass the authentication method as a JVM argument
-by adding this line to `$CATALINA_HOME/bin/setenv.sh`:
-
-    CATALINA_OPTS='-Dauthenticate=saml'
-
 Within portal.properties, make sure that:
 
     app.name=cbioportal
@@ -216,7 +211,14 @@ Rebuild the WAR file and re-deploy:
 
 ```
 mvn -DskipTests clean install
-cp portal/target/cbioportal.war $CATALINA_HOME/webapps/
+java \
+    -Dauthorization=true \
+    -Dauthenticate=saml \
+    -Ddbconnector=dbcp \
+    -jar \
+    portal/target/dependency/webapp-runner.jar \
+    --path /cbioportal \
+    portal/target/cbioportal.war
 ```
 
 Then, go to:  [http://localhost:8080/cbioportal/](http://localhost:8080/cbioportal/).

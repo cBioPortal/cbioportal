@@ -180,12 +180,17 @@ googleplus.consumer.secret=2jCfg4SPWdGfXF44WC588dK
 ```
 (note: these are just examples, you need to get your own) You will also need to go to "Google+ API" and click Enable button. In case of problems make sure to enable DEBUG logging for org.springframework.social and org.springframework.security.web.authentication.
 
-To activate password authentication,
-pass the `-Dauthenticate=googleplus` argument to the web server JVM.
-This can be done by adding the following line to the Tomcat config file
-`$CATALINA_HOME/bin/setenv.sh`:
+To activate password authentication, pass the `-Dauthenticate=googleplus`  to
+the command to run the portal:
 ```sh
-CATALINA_OPTS='-Dauthenticate=googleplus'
+java \
+    -Dauthorization=false \
+    -Dauthenticate=googleplus \
+    -Ddbconnector=dbcp \
+    -jar \
+    portal/target/dependency/webapp-runner.jar \
+    --path /cbioportal \
+    portal/target/cbioportal.war
 ```
 
 In addition, set this property in `portal.properties`:

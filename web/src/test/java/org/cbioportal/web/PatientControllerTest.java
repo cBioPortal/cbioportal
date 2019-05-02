@@ -55,7 +55,10 @@ public class PatientControllerTest {
     @Autowired
     private PatientService patientService;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private MockMvc mockMvc;
 
     private MockMvc mockMvc;
 

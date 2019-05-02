@@ -54,7 +54,10 @@ public class MolecularDataControllerTest {
     @Autowired
     private MolecularDataService molecularDataService;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired 
+    private ObjectMapper objectMapper;
+
+    private MockMvc mockMvc;
 
     private MockMvc mockMvc;
 

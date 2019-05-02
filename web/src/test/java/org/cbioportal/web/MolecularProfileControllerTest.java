@@ -67,7 +67,10 @@ public class MolecularProfileControllerTest {
     @Autowired
     private MolecularProfileService molecularProfileService;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private MockMvc mockMvc;
 
     private MockMvc mockMvc;
 

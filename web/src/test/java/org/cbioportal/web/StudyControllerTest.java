@@ -77,7 +77,10 @@ public class StudyControllerTest {
     @Autowired
     private StudyService studyService;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private MockMvc mockMvc;
 
     private MockMvc mockMvc;
 

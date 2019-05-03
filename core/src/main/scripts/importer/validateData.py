@@ -3226,6 +3226,19 @@ class TimelineValidator(Validator):
     def checkLine(self, data):
         super(TimelineValidator, self).checkLine(data)
         # TODO check the values
+        for col_index, col_name in enumerate(self.cols):
+            # treat cells beyond the end of the line as blanks,
+            # super().checkLine() has already logged an error
+            value = ''
+            if col_index < len(data):
+                value = data[col_index].strip()
+            if col_name == 'START_DATE':
+                if not value.strip().isdigit():
+                    self.logger.error(
+                        'Invalid START_DATE',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
 
 class CancerTypeValidator(Validator):
 

@@ -19,10 +19,8 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 * [Hardware Requirements](Hardware-Requirements.md)
 
 #### 2.1.1 Docker
-* [Docker Prerequisites](Docker-Prerequisites.md)
-* [Deploy using Docker](Deploy-Using-Docker.md)
-* [Uninstall Docker cBioPortal](Uninstall-Docker-cBioPortal.md)
-* [Import a Study Using Docker](Import-Study-Using-Docker.md)
+* [Docker Prerequisites](docker/prerequisites.md)
+* [Deploy with Docker](docker/deploy.md)
 
 #### 2.1.2 Without Docker
 * [Software Requirements](Software-Requirements.md)

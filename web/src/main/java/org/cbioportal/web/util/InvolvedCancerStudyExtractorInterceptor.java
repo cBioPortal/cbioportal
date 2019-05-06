@@ -50,6 +50,7 @@ import org.cbioportal.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.web.parameter.GenePanelMultipleStudyFilter;
 import org.cbioportal.web.parameter.GroupFilter;
 import org.cbioportal.web.parameter.MolecularDataMultipleStudyFilter;
+import org.cbioportal.web.parameter.MolecularProfileCasesGroup;
 import org.cbioportal.web.parameter.MolecularProfileFilter;
 import org.cbioportal.web.parameter.MultipleStudiesEnrichmentFilter;
 import org.cbioportal.web.parameter.MutationMultipleStudyFilter;
@@ -468,7 +469,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             LOG.debug("setting interceptedMultiStudyEnrichmentFilter to " + multiStudyEnrichmentFilter);
             request.setAttribute("interceptedMultiStudyEnrichmentFilter", multiStudyEnrichmentFilter);
             if (cacheMapUtil.hasCacheEnabled()) {
-                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromMultiStudyEnrichmentFilter(multiStudyEnrichmentFilter.getMolecularProfileCaseSet1(), multiStudyEnrichmentFilter.getMolecularProfileCaseSet2());
+                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromMultiStudyEnrichmentFilter(multiStudyEnrichmentFilter.getGroups());
                 LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
@@ -539,15 +540,12 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         }
         return studyIdSet;
     }
-
-    private Set<String> extractCancerStudyIdsFromMultiStudyEnrichmentFilter(Collection<MolecularProfileCaseIdentifier> molecularProfileCaseSet1, Collection<MolecularProfileCaseIdentifier> molecularProfileCaseSet2) {
-        Set<String> molecularProfileIds = new HashSet<>();
-        for (MolecularProfileCaseIdentifier mpc : molecularProfileCaseSet1) {
-            molecularProfileIds.add(mpc.getMolecularProfileId());
-        }
-        for (MolecularProfileCaseIdentifier mpc : molecularProfileCaseSet2) {
-            molecularProfileIds.add(mpc.getMolecularProfileId());
-        }
+    
+    private Set<String> extractCancerStudyIdsFromMultiStudyEnrichmentFilter(Collection<MolecularProfileCasesGroup> groups) {
+        Set<String> molecularProfileIds = groups.stream().flatMap(group -> {
+            return group.getMolecularProfileCaseIdentifiers().stream()
+                    .map(MolecularProfileCaseIdentifier::getMolecularProfileId);
+        }).collect(Collectors.toSet());
         Set<String> studyIdSet = new HashSet<>();
         extractCancerStudyIdsFromMolecularProfileIds(molecularProfileIds, studyIdSet);
         return studyIdSet;

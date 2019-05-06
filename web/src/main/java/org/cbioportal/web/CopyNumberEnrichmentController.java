@@ -1,32 +1,38 @@
 package org.cbioportal.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+
 import org.cbioportal.model.AlterationEnrichment;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.CopyNumberEnrichmentService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.CopyNumberEnrichmentEventType;
-import org.cbioportal.web.parameter.MultipleStudiesEnrichmentFilter;
 import org.cbioportal.web.parameter.EnrichmentType;
+import org.cbioportal.web.parameter.MolecularProfileCasesGroup;
+import org.cbioportal.web.parameter.MultipleStudiesEnrichmentFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.validation.Valid;
-import java.util.List;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import springfox.documentation.annotations.ApiIgnore;
 
 @InternalApi
 @RestController
@@ -53,9 +59,13 @@ public class CopyNumberEnrichmentController {
         @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
         @ApiParam(required = true, value = "List of entities")
         @Valid @RequestBody(required = false) MultipleStudiesEnrichmentFilter multipleStudiesEnrichmentFilter) throws MolecularProfileNotFoundException {
+        
+        Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = interceptedMultiStudyEnrichmentFilter
+                .getGroups().stream().collect(Collectors.toMap(MolecularProfileCasesGroup::getName,
+                        MolecularProfileCasesGroup::getMolecularProfileCaseIdentifiers));
+        
         return new ResponseEntity<>(
-                copyNumberEnrichmentService.getCopyNumberEnrichments(interceptedMultiStudyEnrichmentFilter.getMolecularProfileCaseSet1(),
-                        interceptedMultiStudyEnrichmentFilter.getMolecularProfileCaseSet2(), copyNumberEventType.getAlterationTypes(), enrichmentType.name()),
+                copyNumberEnrichmentService.getCopyNumberEnrichments(groupCaseIdentifierSet, copyNumberEventType.getAlterationTypes(), enrichmentType.name()),
                 HttpStatus.OK);
     }
 }

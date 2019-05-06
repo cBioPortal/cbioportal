@@ -2,6 +2,8 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 public class AlterationEnrichment implements Serializable {
@@ -12,14 +14,10 @@ public class AlterationEnrichment implements Serializable {
     private String hugoGeneSymbol;
     private String cytoband;
     @NotNull
-    private String logRatio;
-    @NotNull
     private BigDecimal pValue;
     @NotNull
-    private CountSummary set1CountSummary;
-    @NotNull
-    private CountSummary set2CountSummary;
-    
+    private List<CountSummary> counts;
+
     public Integer getEntrezGeneId() {
         return entrezGeneId;
     }
@@ -44,14 +42,6 @@ public class AlterationEnrichment implements Serializable {
         this.cytoband = cytoband;
     }
 
-    public String getLogRatio() {
-        return logRatio;
-    }
-
-    public void setLogRatio(String logRatio) {
-        this.logRatio = logRatio;
-    }
-
     public BigDecimal getpValue() {
         return pValue;
     }
@@ -60,19 +50,12 @@ public class AlterationEnrichment implements Serializable {
         this.pValue = pValue;
     }
 
-    public CountSummary getSet1CountSummary() {
-        return set1CountSummary;
+    public List<CountSummary> getCounts() {
+        return counts;
     }
 
-    public void setSet1CountSummary(CountSummary set1CountSummary) {
-        this.set1CountSummary = set1CountSummary;
+    public void setCounts(List<CountSummary> counts) {
+        this.counts = counts;
     }
 
-    public CountSummary getSet2CountSummary() {
-        return set2CountSummary;
-    }
-
-    public void setSet2CountSummary(CountSummary set2CountSummary) {
-        this.set2CountSummary = set2CountSummary;
-    }
 }

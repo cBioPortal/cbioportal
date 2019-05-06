@@ -560,7 +560,7 @@ The mutation metadata file should contain the following fields:
 #### Gene panels for mutation data
 Using the `gene_panel` property it is possible to annotate **all samples in the MAF file** as being profiled on the **same** specified gene panel. 
 
-Please use the [Gene Panel Matrix file](gene-panel-matrix-file) when:
+Please use the [Gene Panel Matrix file](#gene-panel-matrix-file) when:
 - Data contains samples that are profiled but no mutations are called. Also please add these to the `_sequenced` case list. 
 - Multiple gene panels are used to profile the samples in the MAF file.
 
@@ -833,7 +833,7 @@ RET<TAB>5979<TAB>center.edu<TAB>SAMPLE_ID_3<TAB>Fusion<TAB>unknown<TAB>yes<TAB>u
 
 #### Gene panels for fusion data
 Currently, Fusion events are saved in the same database table as mutation data. Therefore, these must share the same gene panel. 
- Adding gene panel annotations to samples profiled for fusions can be done with the [Gene Panel Matrix file](gene-panel-matrix-file)
+ Adding gene panel annotations to samples profiled for fusions can be done with the [Gene Panel Matrix file](#gene-panel-matrix-file)
  and adding them to the column for mutations.
 
 ## Case Lists

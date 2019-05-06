@@ -40,6 +40,7 @@
             "oncoprint.hotspots.default",
             "genomenexus.url",
             "google_analytics_profile_id",
+            "analytics_report_url"
             "oncoprint.hide_vus.default",
             "mycancergenome.show",
             "oncokb.public_api.url",

@@ -234,6 +234,14 @@ oncoprint.defaultview=patient
 # Disable cache (for non authorized portals this can sometimes avoid running
 # out of memory with relatively little performance loss)
 # mybatis.cache.enabled=false
+ehcache.xml.configuration=/ehcache-mixed.xml
+ehcache.enable.statistics=true
+ehcache.persistence.path=
+
+ehcache.RepositoryCache.maxBytesHeap=100
+ehcache.RepositoryCache.maxBytesHeapUnits=MB
+ehcache.RepositoryCache.maxBytesLocalDisk=250
+ehcache.RepositoryCache.maxBytesLocalDiskUnits=MB
 
 # Default cross cancer study query
 # query this session id when not specifying a study for
@@ -262,3 +270,6 @@ matchminer.token=
 # see: https://github.com/vy/hrrs/blob/master/README.md
 #hrrs.logging.filepath=
 #hrrs.enable.logging=false
+
+# Enable cache statistics endpoint for EHCache monitoring
+cache.statistics.endpoint.enabled=false

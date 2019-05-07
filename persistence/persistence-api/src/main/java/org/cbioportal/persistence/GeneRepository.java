@@ -35,32 +35,45 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneAlias;
 import org.cbioportal.model.meta.BaseMeta;
 
+import org.springframework.cache.annotation.Cacheable;
+
 import java.util.List;
 
 public interface GeneRepository {
 
+    @Cacheable("RepositoryCache")
     List<Gene> getAllGenes(String keyword, String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy, 
                            String direction);
 
+    @Cacheable("RepositoryCache")
     BaseMeta getMetaGenes(String keyword, String alias);
     
     Gene getGeneByGeneticEntityId(Integer geneticEntityId);
 
+    @Cacheable("RepositoryCache")
     Gene getGeneByEntrezGeneId(Integer entrezGeneId);
 
+    @Cacheable("RepositoryCache")
     Gene getGeneByHugoGeneSymbol(String hugoGeneSymbol);
 
+    @Cacheable("RepositoryCache")
     List<String> getAliasesOfGeneByEntrezGeneId(Integer entrezGeneId);
 
+    @Cacheable("RepositoryCache")
     List<String> getAliasesOfGeneByHugoGeneSymbol(String hugoGeneSymbol);
 
+    @Cacheable("RepositoryCache")
     List<GeneAlias> getAllAliases();
 
+    @Cacheable("RepositoryCache")
     List<Gene> fetchGenesByEntrezGeneIds(List<Integer> entrezGeneIds, String projection);
 
+    @Cacheable("RepositoryCache")
     List<Gene> fetchGenesByHugoGeneSymbols(List<String> hugoGeneSymbols, String projection);
 
+    @Cacheable("RepositoryCache")
     BaseMeta fetchMetaGenesByEntrezGeneIds(List<Integer> entrezGeneIds);
 
+    @Cacheable("RepositoryCache")
     BaseMeta fetchMetaGenesByHugoGeneSymbols(List<String> hugoGeneSymbols);
 }

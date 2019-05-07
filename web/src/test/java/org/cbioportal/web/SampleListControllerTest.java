@@ -4,6 +4,7 @@ import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SampleListService;
+import org.cbioportal.service.CacheStatisticsService;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.hamcrest.Matchers;
@@ -70,6 +71,11 @@ public class SampleListControllerTest {
     @Bean
     public SampleListService sampleListService() {
         return Mockito.mock(SampleListService.class);
+    }
+
+    @Bean
+    public CacheStatisticsService cacheStatisticsService() {
+        return Mockito.mock(CacheStatisticsService .class);
     }
 
     @Before

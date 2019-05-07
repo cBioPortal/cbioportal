@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.DataAccessTokenMapper">
-    <cache readOnly="false"/>
 
     <sql id="select">
         data_access_tokens.TOKEN AS "${prefix}token",

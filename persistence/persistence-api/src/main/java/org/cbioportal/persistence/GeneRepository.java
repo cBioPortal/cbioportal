@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Memorial Sloan Kettering Cancer Center.
+ * Copyright (c) 2016 - 2019 Memorial Sloan Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -35,30 +35,43 @@ import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneAlias;
 import org.cbioportal.model.meta.BaseMeta;
 
+import org.springframework.cache.annotation.Cacheable;
+
 import java.util.List;
 
 public interface GeneRepository {
 
+    @Cacheable("StaticRepositoryCacheOne")
     List<Gene> getAllGenes(String keyword, String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy, 
                            String direction);
 
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaGenes(String keyword, String alias);
 
+    @Cacheable("StaticRepositoryCacheOne")
     Gene getGeneByEntrezGeneId(Integer entrezGeneId);
 
+    @Cacheable("StaticRepositoryCacheOne")
     Gene getGeneByHugoGeneSymbol(String hugoGeneSymbol);
 
+    @Cacheable("StaticRepositoryCacheOne")
     List<String> getAliasesOfGeneByEntrezGeneId(Integer entrezGeneId);
 
+    @Cacheable("StaticRepositoryCacheOne")
     List<String> getAliasesOfGeneByHugoGeneSymbol(String hugoGeneSymbol);
 
+    // not cached because this is called only a single time, during @PostConstruct method of GeneServiceImpl
     List<GeneAlias> getAllAliases();
 
+    @Cacheable("GeneralRepositoryCache")
     List<Gene> fetchGenesByEntrezGeneIds(List<Integer> entrezGeneIds, String projection);
 
+    @Cacheable("GeneralRepositoryCache")
     List<Gene> fetchGenesByHugoGeneSymbols(List<String> hugoGeneSymbols, String projection);
 
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta fetchMetaGenesByEntrezGeneIds(List<Integer> entrezGeneIds);
 
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta fetchMetaGenesByHugoGeneSymbols(List<String> hugoGeneSymbols);
 }

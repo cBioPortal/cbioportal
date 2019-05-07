@@ -220,20 +220,35 @@ ucsc.build=hg19
 oncoprint.defaultview=patient
 
 # OncoPrint driver mutation annotations
-#   oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation
-#   oncoprint.custom_driver_annotation.tiers.menu_label=Custom driver tiers
-#   oncoprint.custom_driver_annotation.binary.default=true
-#   oncoprint.custom_driver_annotation.tiers.default=true
-  oncoprint.oncokb.default=true
-  oncoprint.hotspots.default=true
-#  oncoprint.hide_vus.default=true
+# oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation
+# oncoprint.custom_driver_annotation.tiers.menu_label=Custom driver tiers
+# oncoprint.custom_driver_annotation.binary.default=true
+# oncoprint.custom_driver_annotation.tiers.default=true
+oncoprint.oncokb.default=true
+oncoprint.hotspots.default=true
+# oncoprint.hide_vus.default=true
 
 # Custom gene sets
 # querypage.setsofgenes.location=file:/<path>
-#
-# Disable cache (for non authorized portals this can sometimes avoid running
-# out of memory with relatively little performance loss)
-# mybatis.cache.enabled=false
+
+# to disable use of Ehcache, set ehcache.cache.enabled to false
+ehcache.cache_enabled=true
+ehcache.xml_configuration=/ehcache.xml
+ehcache.statistics_enabled=true
+# Enable cache statistics endpoint for Ehcache monitoring
+cache.statistics_endpoint_enabled=false
+
+# Properties for specifying cache size constraints
+# - Zero is not an accepted value, will break deployment
+# - disk size (if used) must be greater than heap size
+
+ehcache.general_repository_cache.max_mega_bytes_heap=5120
+ehcache.static_repository_cache_one.max_mega_bytes_heap=30
+
+# To enable disk cache, edit ehcache.xml (see comments within) and uncomment and set properties below
+#ehcache.persistence_path=/tmp
+#ehcache.general_repository_cache.max_mega_bytes_local_disk=
+#ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
 
 # Default cross cancer study query
 # query this session id when not specifying a study for
@@ -254,3 +269,11 @@ oncoprint.defaultview=patient
 # MatchMiner AWS url
 matchminer.url=
 matchminer.token=
+
+# enable/disable hrrs logging
+# hrrs can be used for debugging - when enabled incoming web requests
+# will be logged into the specified directory
+# logs must be decrypted for more in-depth information
+# see: https://github.com/vy/hrrs/blob/master/README.md
+#hrrs.logging.filepath=
+#hrrs.enable.logging=false

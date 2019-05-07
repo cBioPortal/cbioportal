@@ -14,6 +14,7 @@ This page describes the main properties within portal.properties.
 	- [Automatic selection of OncoKB annotations](#automatic-selection-of-oncokb-annotations)
 	- [Automatic hiding of putative passenger mutations](#automatic-hiding-of-putative-passenger-mutations)
 - [Gene sets used for gene querying](#gene-sets-used-for-gene-querying)
+- [Ehcache Settings](#ehcache-settings)
 
 # Database Settings
 
@@ -280,3 +281,58 @@ This gene set will add the following in the query box:
 ```
 "BRCA genes" BRCA1: MUT=E1258D; BRCA2: HOMDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;
 ```
+# Ehcache Settings
+cBioPortal is supported on the backend with Ehcache. The configuration, size, and location of these caches are configurable from within portal.properties through the following properties.
+
+First, select a cache configuration using `ehcache.xml_configuration`. This should be the name of an Ehcache xml configuration file; the default provided is `ehcache.xml` which configures a heap-only cache. To change caching configuration, directly edit `/ehcache.xml`. Alternatively, you can create your own Ehcache xml configuration file, place it under `/persistence/persistence-api/src/main/resources/` and set `ehcache.xml_configuration` to `/<Ehcache xml configuration filename>`.  
+```
+ehcache.xml_configuration=
+```
+
+If the cache is configured to use disk resources, users must make a directory available and set it with the `ehcache.persistence_path` property. Ehcache will create separate directories under the provided path for each cache defined in the ehcache.xml_configuration file. 
+```
+ehcache.persistence_path=[location on the disk filesystem where Ehcache can write the cache to /tmp/]
+```
+
+Cache size must be set for heap and/or disk depending which are in use; Ehcache requires disk size to be greater than heap size in a hybrid configuration. Zero is not a supported size and will cause an exception. Units are in megabytes. Default values are provided. The general repository cache is specified to use 5120MB of heap. The static repository cache is specified to use 30MB of heap. For installations with increased traffic or data, cache sizes can be increased to further improve performance. 
+```
+ehcache.general_repository_cache.max_mega_bytes_heap=
+ehcache.general_repository_cache.max_mega_bytes_local_disk=
+
+ehcache.static_repository_cache_one.max_mega_bytes_heap=
+ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
+```
+
+To configure a system where no caching occurs, set `ehcache.cache_enabled` to false. 
+```
+ehcache.cache_enabled=false
+```
+This will prevent any response from being stored in the cache.
+
+Additional properties can be specified for cache statistics monitoring. To log metrics regarding memory usage, set `ehcache.statistics_enabled` to true. Logged metrics and additional information such as cache size and cached keys are available through an optional endpoint. The optional endpoint is turned off by default but can be turned on by setting `cache.statistics_endpoint_enabled` to true. 
+```
+ehcache.statistics_enabled=true[true or false]
+cache.statistics_endpoint_enabled=false[true or false]
+```
+The cache statistics endpoint is hidden on the api page; users must directly access the URL to view the response. The cache statistics endpoint can be accessed in the following ways.
+
+For general statistics about the cache such as memory usage:
+```
+/api/cacheStatistics
+```
+
+For a list of all keys in the cache:
+```
+/api/[name of cache]/keysInCache
+```
+
+For a list of counts of keys in cache per repository class:
+```
+/api/[name of cache]/keyCountsPerClass
+```
+
+**WARNING**: It must be noted that since cache statistics endpoint returns data on cache keys, the endpoint may expose otherwise hidden database query parameters such as sample identifiers, study names, etc. Generally, it is recommended that the endpoint only be turned on during cache-related development for testing. Deployers of a protected portal where users only have authorities to a subset of studies should carefully consider whether or not to turn on the cache statistics endpoint, as it does not filter the results. 
+
+For more information on Ehcache, refer to the official documentation [here](https://www.ehcache.org/documentation/3.7/index.html)
+
+For more information on how Ehcache is implemented in cBioPortal refer to the [Caching](Caching.md) documentation.

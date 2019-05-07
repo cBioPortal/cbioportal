@@ -3,8 +3,6 @@
 
 <mapper namespace="org.mskcc.cbio.portal.persistence.StudyMapperLegacy">
     
-<cache/>
-
 <select id="getStudies" resultType="DBStudy">
     select
         CANCER_STUDY_IDENTIFIER as id,

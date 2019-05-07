@@ -85,7 +85,8 @@
             <property name="objectFactory" ref="customObjectFactory" />
             <property name="configuration">
                 <bean class="org.apache.ibatis.session.Configuration">
-                    <property name="cacheEnabled" value="${mybatis.cache.enabled:true}" />
+                    <!-- second level caching is provided via Ehcache -->
+                    <property name="cacheEnabled" value="false" />
                 </bean>
             </property>
             <!-- mapper locations is set here to support interdependency between mappers without -->

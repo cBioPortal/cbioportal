@@ -39,7 +39,6 @@ import org.mskcc.cbio.portal.model.User;
 import org.mskcc.cbio.portal.dao.DaoUser;
 import org.mskcc.cbio.portal.model.UserAuthorities;
 import org.mskcc.cbio.portal.dao.DaoUserAuthorities;
-import org.mskcc.cbio.portal.scripts.ImportUsers;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -55,8 +54,8 @@ import static org.junit.Assert.*;
 @TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
 @Transactional
 public class TestImportUsers {
-   
-	@Test
+
+   @Test
    public void testImportUsers() throws Exception{
 
       // TBD: change this to use getResourceAsStream()

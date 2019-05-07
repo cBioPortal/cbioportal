@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.MolecularProfileMapper">
-    <cache readOnly="true"/>
+    
 
     <sql id="select">
         genetic_profile.GENETIC_PROFILE_ID AS "${prefix}molecularProfileId",

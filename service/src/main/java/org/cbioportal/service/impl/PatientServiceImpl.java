@@ -31,7 +31,7 @@ public class PatientServiceImpl implements PatientService {
             String sortBy, String direction) {
         
         List<Patient> patients = patientRepository.getAllPatients(keyword, projection, pageSize, pageNumber, sortBy, direction);
-        // copy the list before returning so @PostFilter doesn't taint the list stored in the mybatis second-level cache
+        // copy the list before returning so @PostFilter doesn't taint the list stored in the persistence layer cache
         return (AUTHENTICATE.equals("false")) ? patients : new ArrayList<Patient>(patients);
     }
 

@@ -67,9 +67,7 @@ def main(args):
         print("\n=== Validating study %s" %study)
 
         # Check which portal info variable is given as input, and set correctly in the arguments for validateData
-        if args.portal_info_dir is not None:
-            validator_args = ['-v', '--study_directory', study, '-p', args.portal_info_dir]
-        elif args.no_portal_checks:
+        if args.no_portal_checks:
             validator_args = ['-v', '--study_directory', study, '-n']
         else:
             validator_args = ['-v', '--study_directory', study, '-u', args.url_server]
@@ -163,11 +161,6 @@ def interface(args=None):
                                    help='URL to cBioPortal server. You can '
                                         'set this if your URL is not '
                                         'http://localhost:8080/cbioportal')
-    portal_mode_group.add_argument('-p', '--portal_info_dir',
-                                   type=str,
-                                   help='Path to a directory of cBioPortal '
-                                        'info files to be used instead of '
-                                        'contacting a server')
     portal_mode_group.add_argument('-n', '--no_portal_checks',
                                    action='store_true',
                                    help='Skip tests requiring information '

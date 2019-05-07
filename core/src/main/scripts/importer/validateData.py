@@ -4016,11 +4016,6 @@ def interface(args=None):
                                    help='URL to cBioPortal server. You can '
                                         'set this if your URL is not '
                                         'http://localhost:8080/cbioportal')
-    portal_mode_group.add_argument('-p', '--portal_info_dir',
-                                   type=str,
-                                   help='Path to a directory of cBioPortal '
-                                        'info files to be used instead of '
-                                        'contacting a server')
     portal_mode_group.add_argument('-n', '--no_portal_checks',
                                    action='store_true',
                                    help='Skip tests requiring information '
@@ -4323,9 +4318,6 @@ def main_validate(args):
                                          alias_entrez_map=None,
                                          gene_set_list=None,
                                          gene_panel_list=None)
-    elif args.portal_info_dir:
-        portal_instance = load_portal_info(args.portal_info_dir, logger,
-                                           offline=True)
     else:
         portal_instance = load_portal_info(server_url, logger)
 

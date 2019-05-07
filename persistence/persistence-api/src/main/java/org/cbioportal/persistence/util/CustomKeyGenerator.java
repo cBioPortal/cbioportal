@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2019 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -28,46 +28,25 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-package org.mskcc.cbio.portal.mut_diagram;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.mut_diagram.IdMappingService;
-import org.mskcc.cbio.portal.mut_diagram.impl.CgdsIdMappingService;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import static org.junit.Assert.*;
-
-/**
- * Abstract unit test for implementations of IdMappingService.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-public class TestAbstractIdMappingService {
-    protected IdMappingService idMappingService;
 
-    @Before
-    public void setUp() throws DaoException {
-        idMappingService = new CgdsIdMappingService(DaoGeneOptimized.getInstance());
-    }
+package org.cbioportal.persistence.util;
 
-    @Test
-    public final void testCreateIdMappingService() {
-        assertNotNull(idMappingService);
-    }
+import java.lang.reflect.Method;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.util.StringUtils;
 
-    @Test
-    public final void testGetUniProtIdNullHugoGeneSymbol() {
-        try {
-            idMappingService.mapFromHugoToUniprotAccessions(null);
-            fail("Null Pointer Exception should have been thrown.");
-        } catch (NullPointerException e) {
-        }
+public class CustomKeyGenerator implements KeyGenerator {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CustomKeyGenerator.class);
+
+    public Object generate(Object target, Method method, Object... params) {
+        String key = target.getClass().getSimpleName() + "_"
+            + method.getName() + "_"
+            + StringUtils.arrayToDelimitedString(params, "_");
+        LOG.debug("Created key: " + key);
+        return key;
     }
 }

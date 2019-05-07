@@ -17,6 +17,29 @@
             <artifactId>model</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+          <groupId>javax.cache</groupId>
+          <artifactId>cache-api</artifactId>
+          <version>1.1.0</version>
+        </dependency>
+        <dependency>
+          <groupId>org.ehcache</groupId>
+          <artifactId>ehcache</artifactId>
+          <version>3.7.1</version>
+        </dependency>
     </dependencies>
 
+    <build>
+      <!-- for grabbing ehcache settings from portal.properties -->
+      <filters>
+        <filter>../../src/main/resources/portal.properties</filter>
+      </filters>
+      <resources>
+        <resource>
+          <directory>src/main/resources</directory>
+          <filtering>true</filtering>
+        </resource>
+      </resources>
+    </build>
+    
 </project>

@@ -81,6 +81,7 @@ public class UuidDataAccessTokenServiceImplTestConfiguration {
     public static String MOCK_USERNAME_WITH_ONE_TOKEN = "MOCK_USER_WITH_ONE_TOKEN";
     public static String MOCK_USERNAME_WITH_FIVE_TOKENS = "MOCK_USER_WITH_FIVE_TOKENS";
     public static String NONEXISTENT_TOKEN_STRING = "NONEXISTENT_TOKEN_STRING";
+    public static String FAIL_TO_GET_TOKEN_STRING = "FAIL_TO_GET_TOKEN_STRING";
     public static String EXPIRED_TOKEN_STRING = "EXPIRED_TOKEN_STRING";
     public static String VALID_TOKEN_STRING = "VALID_TOKEN_STRING";
     public static String OLDEST_TOKEN_UUID = "OLDEST_TOKEN_UUID";
@@ -114,7 +115,8 @@ public class UuidDataAccessTokenServiceImplTestConfiguration {
             }
         };
         DataAccessTokenRepository dataAccessTokenRepository = Mockito.mock(DataAccessTokenRepository.class);
-        Mockito.when(dataAccessTokenRepository.getDataAccessToken(NONEXISTENT_TOKEN_STRING)).thenThrow(new RuntimeException("Nonexistant token requested"));
+        Mockito.when(dataAccessTokenRepository.getDataAccessToken(FAIL_TO_GET_TOKEN_STRING)).thenThrow(new RuntimeException("Fail to get this token"));
+        Mockito.when(dataAccessTokenRepository.getDataAccessToken(NONEXISTENT_TOKEN_STRING)).thenReturn(null);
         Mockito.when(dataAccessTokenRepository.getDataAccessToken(EXPIRED_TOKEN_STRING)).thenReturn(makeExpiredDataAccessToken());
         Mockito.when(dataAccessTokenRepository.getDataAccessToken(VALID_TOKEN_STRING)).thenReturn(makeValidDataAccessToken());
         Mockito.when(dataAccessTokenRepository.getAllDataAccessTokensForUsername(MOCK_USERNAME_WITH_ONE_TOKEN)).thenReturn(dataAccessTokenListForMockUserWithOneToken);

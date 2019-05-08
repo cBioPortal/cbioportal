@@ -1,6 +1,6 @@
 ## May 8, 2019
-* **New Feature**: Show *Post Translational Modification (PTM)* information from [dbPTM](http://dbptm.mbc.nctu.edu.tw/) on the _Mutation Mapper_:
-
+* **New Feature**: Show *Post Translational Modification (PTM)* information from [dbPTM](http://dbptm.mbc.nctu.edu.tw/) on the _Mutation Mapper_ - see [example](https://bit.ly/2VVrWdi)
+    
     ![ptm feature_news](https://user-images.githubusercontent.com/1334004/57391288-34667200-718c-11e9-9fcc-b849542c74b3.gif)
 
 ## April 26, 2019

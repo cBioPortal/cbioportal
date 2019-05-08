@@ -199,15 +199,6 @@ public class ClinicalDataEnrichmentControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                         .value("groups[1].sampleIdentifiers size must be between 1 and 10000000"));
 
-        group2.setSampleIdentifiers(
-                new ArrayList<SampleIdentifier>(Arrays.asList(sampleIdentifier1, sampleIdentifier2)));
-
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()).andExpect(MockMvcResultMatchers
-                        .jsonPath("$.message").value("groupsContainsDistinctSamples must be true"));
-
         group2.setSampleIdentifiers(new ArrayList<SampleIdentifier>(
                 Arrays.asList(sampleIdentifier3, sampleIdentifier4, sampleIdentifier5)));
 

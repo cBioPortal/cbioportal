@@ -156,7 +156,7 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
         }
         Calendar calendar = Calendar.getInstance();
         Date currentDate = calendar.getTime();
-        if (storedDataAccessToken.getExpiration().before(currentDate)) {
+        if (storedDataAccessToken == null || storedDataAccessToken.getExpiration().before(currentDate)) {
             return Boolean.FALSE;
         }
         return Boolean.TRUE;

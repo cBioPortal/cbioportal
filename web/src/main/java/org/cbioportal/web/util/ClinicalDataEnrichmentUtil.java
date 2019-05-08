@@ -3,7 +3,6 @@ package org.cbioportal.web.util;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,8 +88,7 @@ public class ClinicalDataEnrichmentUtil {
 
         List<ClinicalDataEnrichment> clinicalEnrichments = new ArrayList<ClinicalDataEnrichment>();
 
-        // ClinicalDataCountItem for all STRING datatype attributes and for all sample
-        // groups
+        // ClinicalDataCountItem for all STRING datatype attributes and for all sample groups
         List<Map<String, ClinicalDataCountItem>> dataCountsByGroupAndByAttribute = groupedSamples.stream()
                 .map(groupSamples -> getClinicalDataCounts(attributes, groupSamples)).collect(Collectors.toList());
 

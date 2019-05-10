@@ -28,7 +28,6 @@ if your properties file is at `PORTAL_HOME/portal.properties`
 java \
     -Dauthorization=false \
     -Dauthenticate=false \
-    -Ddbconnector=dbcp \
     -jar \
     portal/target/dependency/webapp-runner.jar \
     --path /cbioportal \

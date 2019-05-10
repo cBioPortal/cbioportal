@@ -72,7 +72,6 @@ mvn -DskipTests clean install
 java \
     -Dauthorization=true \
     -Dauthenticate=ldap \
-    -Ddbconnector=dbcp \
     -jar \
     portal/target/dependency/webapp-runner.jar \
     --path /cbioportal \

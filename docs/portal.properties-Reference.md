@@ -186,7 +186,6 @@ the command to run the portal:
 java \
     -Dauthorization=false \
     -Dauthenticate=googleplus \
-    -Ddbconnector=dbcp \
     -jar \
     portal/target/dependency/webapp-runner.jar \
     --path /cbioportal \

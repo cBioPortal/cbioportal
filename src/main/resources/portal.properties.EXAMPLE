@@ -8,7 +8,10 @@ db.host=localhost
 db.portal_db_name=cbioportal
 db.driver=com.mysql.jdbc.Driver
 db.connection_string=jdbc:mysql://localhost/
-db.tomcat_resource_name=jdbc/cbioportal
+# set tomcat_resource_name when using dbconnector=jndi instead of the defaault
+# dbconnector=dbcp
+# db.tomcat_resource_name=jdbc/cbioportal
+
 # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
 db.suppress_schema_version_mismatch_errors=false
 db.use_ssl=false

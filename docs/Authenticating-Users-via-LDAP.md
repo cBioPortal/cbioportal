@@ -78,7 +78,7 @@ java \
     portal/target/cbioportal.war
 ```
 
-Then, go to:  [http://localhost:8080/cbioportal/](http://localhost:8080/cbioportal/).
+Then, go to:  [http://localhost:8080/](http://localhost:8080/).
 
 If all goes well, the following should happen:
 

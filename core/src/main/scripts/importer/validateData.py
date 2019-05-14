@@ -4012,10 +4012,10 @@ def interface(args=None):
     portal_mode_group = parser.add_mutually_exclusive_group()
     portal_mode_group.add_argument('-u', '--url_server',
                                    type=str,
-                                   default='http://localhost:8080/cbioportal',
+                                   default='http://localhost:8080',
                                    help='URL to cBioPortal server. You can '
                                         'set this if your URL is not '
-                                        'http://localhost:8080/cbioportal')
+                                        'http://localhost:8080')
     portal_mode_group.add_argument('-p', '--portal_info_dir',
                                    type=str,
                                    help='Path to a directory of cBioPortal '

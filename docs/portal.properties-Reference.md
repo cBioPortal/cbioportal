@@ -184,7 +184,7 @@ To activate password authentication, pass the `-Dauthenticate=googleplus`  to
 the command to run the portal:
 ```sh
 java \
-    -Dauthorization=false \
+    -Dauthorization=true \
     -Dauthenticate=googleplus \
     -jar \
     portal/target/dependency/webapp-runner.jar \

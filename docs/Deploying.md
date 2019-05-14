@@ -26,11 +26,8 @@ if your properties file is at `PORTAL_HOME/portal.properties`
 
 ```
 java \
-    -Dauthorization=false \
-    -Dauthenticate=false \
     -jar \
     portal/target/dependency/webapp-runner.jar \
-    --path /cbioportal \
     portal/target/cbioportal.war
 ```
 
@@ -50,7 +47,7 @@ usually it is best to define the properties there.
 ## Verify the Web Application
 
 Lastly, open a browser and go to:  
-<http://localhost:8080/cbioportal>
+<http://localhost:8080>
 
 ## Important
 

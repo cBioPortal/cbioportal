@@ -44,9 +44,9 @@ To get started:
 * Under the Configuration Tab for OneLogin SAML Test (IdP w/attr), paste the following fields (this is assuming you are testing everything via localhost).
 
     * Audience: cbioportal
-    * Recipient: http://localhost:8080/cbioportal/saml/SSO
+    * Recipient: http://localhost:8080/saml/SSO
     * ACS (Consumer) URL Validator*:  ^http:\/\/localhost\:8080\/cbioportal\/saml\/SSO$
-    * ACS (Consumer) URL*:  http://localhost:8080/cbioportal/saml/SSO
+    * ACS (Consumer) URL*:  http://localhost:8080/saml/SSO
 
 ![](images/previews/onelogin-config.png)
 
@@ -220,7 +220,7 @@ java \
     portal/target/cbioportal.war
 ```
 
-Then, go to:  [http://localhost:8080/cbioportal/](http://localhost:8080/cbioportal/).
+Then, go to:  [http://localhost:8080/](http://localhost:8080/).
 
 If all goes well, the following should happen:
 
@@ -256,5 +256,5 @@ By default, the portal will automatically generate a Service Provider (SP) Meta 
 
 You can access the Service Provider Meta Data File via a URL such as:
 
-[http://localhost:8080/cbioportal/saml/metadata](http://localhost:8080/cbioportal/saml/metadata)
+[http://localhost:8080/saml/metadata](http://localhost:8080/saml/metadata)
 

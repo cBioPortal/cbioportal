@@ -15,7 +15,6 @@ import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.CopyNumberEnrichmentEventType;
 import org.cbioportal.web.parameter.EnrichmentType;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroup;
-import org.cbioportal.web.parameter.MultipleStudiesEnrichmentFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -52,20 +51,19 @@ public class CopyNumberEnrichmentController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedMultiStudyEnrichmentFilter") MultipleStudiesEnrichmentFilter interceptedMultiStudyEnrichmentFilter,
+        @Valid @RequestAttribute(required = false, value = "interceptedGroups") List<MolecularProfileCasesGroup> interceptedGroups,
         @ApiParam("Type of the copy number event")
         @RequestParam(defaultValue = "HOMDEL") CopyNumberEnrichmentEventType copyNumberEventType,
         @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
         @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
         @ApiParam(required = true, value = "List of entities")
-        @Valid @RequestBody(required = false) MultipleStudiesEnrichmentFilter multipleStudiesEnrichmentFilter) throws MolecularProfileNotFoundException {
+        @Valid @RequestBody(required = false) List<MolecularProfileCasesGroup> groups) throws MolecularProfileNotFoundException {
         
-        Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = interceptedMultiStudyEnrichmentFilter
-                .getGroups().stream().collect(Collectors.toMap(MolecularProfileCasesGroup::getName,
+        Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = interceptedGroups.stream()
+                .collect(Collectors.toMap(MolecularProfileCasesGroup::getName,
                         MolecularProfileCasesGroup::getMolecularProfileCaseIdentifiers));
-        
-        return new ResponseEntity<>(
-                copyNumberEnrichmentService.getCopyNumberEnrichments(groupCaseIdentifierSet, copyNumberEventType.getAlterationTypes(), enrichmentType.name()),
-                HttpStatus.OK);
+
+        return new ResponseEntity<>(copyNumberEnrichmentService.getCopyNumberEnrichments(groupCaseIdentifierSet,
+                copyNumberEventType.getAlterationTypes(), enrichmentType.name()), HttpStatus.OK);
     }
 }

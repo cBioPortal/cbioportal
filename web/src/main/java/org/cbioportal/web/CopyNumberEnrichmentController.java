@@ -41,7 +41,7 @@ public class CopyNumberEnrichmentController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch copy number enrichments in a molecular profile")
     public ResponseEntity<List<AlterationEnrichment>> fetchCopyNumberEnrichments(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_mutations")
+        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_gistic")
         @PathVariable String molecularProfileId,
         @ApiParam("Type of the copy number event")
         @RequestParam(defaultValue = "HOMDEL") CopyNumberEnrichmentEventType copyNumberEventType,

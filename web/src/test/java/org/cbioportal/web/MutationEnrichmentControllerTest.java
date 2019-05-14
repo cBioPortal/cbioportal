@@ -10,7 +10,6 @@ import org.cbioportal.model.CountSummary;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.MutationEnrichmentService;
 import org.cbioportal.web.parameter.MolecularProfileCasesGroup;
-import org.cbioportal.web.parameter.MultipleStudiesEnrichmentFilter;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,14 +125,11 @@ public class MutationEnrichmentControllerTest {
         casesGroup2.setName("unaltered group");
         casesGroup2.setMolecularProfileCaseIdentifiers(Arrays.asList(entity2));
         
-        MultipleStudiesEnrichmentFilter multiStudyEnrichmentFilter = new MultipleStudiesEnrichmentFilter();
-        multiStudyEnrichmentFilter.setGroups(Arrays.asList(casesGroup1,casesGroup2));
-
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/mutation-enrichments/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(multiStudyEnrichmentFilter)))
+            .content(objectMapper.writeValueAsString(Arrays.asList(casesGroup1,casesGroup2))))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

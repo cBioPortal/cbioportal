@@ -250,7 +250,7 @@
 		{{geneSummary}}
 	</div>
 	<!--div class='node-details-footer'>
-		<a href='http://cbio.mskcc.org/biogene/index.html' target='blank'>more</a>
+		<a href='https://biogene.herokuapp.com/index.html' target='blank'>more</a>
 	</div-->
 </script>
 

@@ -1,7 +1,7 @@
 <?php
 
 //Biogene url
-$url = "http://cbio.mskcc.org/biogene/retrieve.do";
+$url = "https://biogene.herokuapp.com/retrieve.do";
 
 //Biogene query parameters
 $query = urlencode($_POST["query"]);

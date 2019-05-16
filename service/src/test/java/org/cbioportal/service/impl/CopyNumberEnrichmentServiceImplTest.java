@@ -1,8 +1,12 @@
 package org.cbioportal.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CopyNumberCountByGene;
-import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
@@ -13,8 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
@@ -29,6 +31,7 @@ public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
 
     @Test
     public void getCopyNumberEnrichments() throws Exception {
+
         // create molecularProfileCaseSet1, molecularProfileCaseSet2 list of entities
         MolecularProfileCaseIdentifier molecularProfileCase1 = new MolecularProfileCaseIdentifier();
         molecularProfileCase1.setCaseId("sample_id_1");
@@ -50,25 +53,9 @@ public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
         molecularProfileCaseSet2.add(molecularProfileCase3);
         molecularProfileCaseSet2.add(molecularProfileCase4);
 
-        List<MolecularProfileCaseIdentifier> allEntities = new ArrayList<>(molecularProfileCaseSet1);
-        allEntities.addAll(molecularProfileCaseSet2);
-
-        Mockito.when(alterationEnrichmentUtil.mapMolecularProfileIdToCaseId(allEntities)).thenReturn(new HashMap<String, List<String>>() {{
-            put("test1_cna", Arrays.asList("sample_id_1"));
-            put("test2_cna", Arrays.asList("sample_id_2"));
-            put("test3_cna", Arrays.asList("sample_id_3"));
-            put("test4_cna", Arrays.asList("sample_id_4"));
-        }});
-        Mockito.when(alterationEnrichmentUtil.mapMolecularProfileIdToCaseId(molecularProfileCaseSet1)).thenReturn(new HashMap<String, List<String>>() {{
-            put("test1_cna", Arrays.asList("sample_id_1"));
-            put("test2_cna", Arrays.asList("sample_id_2"));
-        }});
-        Map<String, List<String>> allMolecularProfileIdToCaseMap = alterationEnrichmentUtil.mapMolecularProfileIdToCaseId(allEntities);
-        Map<String, List<String>> group1MolecularProfileIdToCaseMap = alterationEnrichmentUtil.mapMolecularProfileIdToCaseId(molecularProfileCaseSet1);
-
-        // check size of all vs. group 1 molecular profile case maps
-        Assert.assertEquals(4, allMolecularProfileIdToCaseMap.size());
-        Assert.assertEquals(2, group1MolecularProfileIdToCaseMap.size());
+        Map<String, List<MolecularProfileCaseIdentifier>> groupMolecularProfileCaseSets = new HashMap<String, List<MolecularProfileCaseIdentifier>>();
+        groupMolecularProfileCaseSets.put("altered group", molecularProfileCaseSet1);
+        groupMolecularProfileCaseSets.put("unaltered group", molecularProfileCaseSet2);
 
         List<String> alteredSampleIds = new ArrayList<>();
         alteredSampleIds.add("sample_id_1");
@@ -82,23 +69,27 @@ public class CopyNumberEnrichmentServiceImplTest extends BaseServiceImplTest {
         List<Integer> alterationTypes = new ArrayList<>();
         alterationTypes.add(-2);
 
-        List<CopyNumberCountByGene> copyNumberSampleCountByGenes = new ArrayList<>();
-        for (String molecularProfileId : allMolecularProfileIdToCaseMap.keySet()) {
-            Mockito.when(discreteCopyNumberService.getSampleCountByGeneAndAlterationAndSampleIds(molecularProfileId,
-            allMolecularProfileIdToCaseMap.get(molecularProfileId), null, null)).thenReturn(copyNumberSampleCountByGenes);
-        }
+        for (String molecularProfileId : groupMolecularProfileCaseSets.keySet()) {
 
-        List<DiscreteCopyNumberData> discreteCopyNumberDataList = new ArrayList<>();
-        for (String molecularProfileId : group1MolecularProfileIdToCaseMap.keySet()) {
-            Mockito.when(discreteCopyNumberService.fetchDiscreteCopyNumbersInMolecularProfile(molecularProfileId,
-                group1MolecularProfileIdToCaseMap.get(molecularProfileId), null, alterationTypes, "ID")).thenReturn(discreteCopyNumberDataList);
+            List<String> molecularProfileIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+
+            groupMolecularProfileCaseSets.getOrDefault(molecularProfileId, new ArrayList<>())
+                    .forEach(molecularProfileCase -> {
+                        molecularProfileIds.add(molecularProfileCase.getMolecularProfileId());
+                        sampleIds.add(molecularProfileCase.getCaseId());
+                    });
+
+            Mockito.when(discreteCopyNumberService.getSampleCountInMultipleMolecularProfiles(molecularProfileIds,
+                    sampleIds, null, null, false)).thenReturn(new ArrayList<CopyNumberCountByGene>());
         }
 
         List<AlterationEnrichment> expectedAlterationEnrichments = new ArrayList<>();
-        Mockito.when(alterationEnrichmentUtil.createAlterationEnrichments(2, 2, copyNumberSampleCountByGenes,
-            discreteCopyNumberDataList, "SAMPLE")).thenReturn(expectedAlterationEnrichments);
+        Mockito.when(alterationEnrichmentUtil.createAlterationEnrichments(new HashMap<>(),
+                groupMolecularProfileCaseSets, "SAMPLE")).thenReturn(expectedAlterationEnrichments);
 
-        List<AlterationEnrichment> result = copyNumberEnrichmentService.getCopyNumberEnrichments(molecularProfileCaseSet1, molecularProfileCaseSet2, alterationTypes, "SAMPLE");
+        List<AlterationEnrichment> result = copyNumberEnrichmentService
+                .getCopyNumberEnrichments(groupMolecularProfileCaseSets, alterationTypes, "SAMPLE");
         Assert.assertEquals(result, expectedAlterationEnrichments);
     }
 }

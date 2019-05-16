@@ -9,7 +9,7 @@ import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.CountSummary;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.CopyNumberEnrichmentService;
-import org.cbioportal.web.parameter.MolecularProfileCasesGroup;
+import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,11 +122,11 @@ public class CopyNumberEnrichmentControllerTest {
         MolecularProfileCaseIdentifier entity2 = new MolecularProfileCaseIdentifier();
         entity2.setCaseId("test_sample_id_2");
         entity2.setMolecularProfileId("test_2_mutations");
-        MolecularProfileCasesGroup casesGroup1 = new MolecularProfileCasesGroup();
+        MolecularProfileCasesGroupFilter casesGroup1 = new MolecularProfileCasesGroupFilter();
         casesGroup1.setName("altered group");
         casesGroup1.setMolecularProfileCaseIdentifiers(Arrays.asList(entity1));
         
-        MolecularProfileCasesGroup casesGroup2 = new MolecularProfileCasesGroup();
+        MolecularProfileCasesGroupFilter casesGroup2 = new MolecularProfileCasesGroupFilter();
         casesGroup2.setName("unaltered group");
         casesGroup2.setMolecularProfileCaseIdentifiers(Arrays.asList(entity2));
         

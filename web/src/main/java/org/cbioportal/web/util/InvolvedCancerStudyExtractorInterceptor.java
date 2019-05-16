@@ -50,7 +50,7 @@ import org.cbioportal.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.web.parameter.GenePanelMultipleStudyFilter;
 import org.cbioportal.web.parameter.GroupFilter;
 import org.cbioportal.web.parameter.MolecularDataMultipleStudyFilter;
-import org.cbioportal.web.parameter.MolecularProfileCasesGroup;
+import org.cbioportal.web.parameter.MolecularProfileCasesGroupFilter;
 import org.cbioportal.web.parameter.MolecularProfileFilter;
 import org.cbioportal.web.parameter.MutationMultipleStudyFilter;
 import org.cbioportal.web.parameter.PatientFilter;
@@ -463,17 +463,19 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromMolecularProfileCasesGroups(HttpServletRequest request) {
         try {
-            List<MolecularProfileCasesGroup> groups = Arrays.asList(objectMapper.readValue(request.getReader(), MolecularProfileCasesGroup[].class));
-            LOG.debug("extracted groups: " + groups.toString());
-            LOG.debug("setting interceptedGroups to " + groups);
-            request.setAttribute("interceptedGroups", groups);
+            List<MolecularProfileCasesGroupFilter> molecularProfileCasesGroupFilters = Arrays
+                    .asList(objectMapper.readValue(request.getReader(), MolecularProfileCasesGroupFilter[].class));
+            LOG.debug("extracted molecularProfileCasesGroupFilters: " + molecularProfileCasesGroupFilters.toString());
+            LOG.debug("setting interceptedMolecularProfileCasesGroupFilters to " + molecularProfileCasesGroupFilters);
+            request.setAttribute("interceptedMolecularProfileCasesGroupFilters", molecularProfileCasesGroupFilters);
             if (cacheMapUtil.hasCacheEnabled()) {
-                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromMolecularProfileCasesGroups(groups);
+                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromMolecularProfileCasesGroups(
+                        molecularProfileCasesGroupFilters);
                 LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
                 request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
             }
         } catch (Exception e) {
-            LOG.error("exception thrown during extraction of groups: " + e);
+            LOG.error("exception thrown during extraction of molecularProfileCasesGroupFilters: " + e);
             return false;
         }
         return true;
@@ -540,8 +542,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         return studyIdSet;
     }
     
-    private Set<String> extractCancerStudyIdsFromMolecularProfileCasesGroups(Collection<MolecularProfileCasesGroup> groups) {
-        Set<String> molecularProfileIds = groups.stream().flatMap(group -> {
+    private Set<String> extractCancerStudyIdsFromMolecularProfileCasesGroups(Collection<MolecularProfileCasesGroupFilter> molecularProfileCasesGroupFilters) {
+        Set<String> molecularProfileIds = molecularProfileCasesGroupFilters.stream().flatMap(group -> {
             return group.getMolecularProfileCaseIdentifiers().stream()
                     .map(MolecularProfileCaseIdentifier::getMolecularProfileId);
         }).collect(Collectors.toSet());

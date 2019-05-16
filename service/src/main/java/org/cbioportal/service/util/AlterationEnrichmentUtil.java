@@ -27,20 +27,35 @@ public class AlterationEnrichmentUtil {
 
     public List<AlterationEnrichment> createAlterationEnrichments(
             Map<String, List<? extends AlterationCountByGene>> mutationCountsbyGroup,
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, String enrichmentType) {
-
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
+            String enrichmentType) {
+        
         Map<String, Map<Integer, AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = mutationCountsbyGroup
-                .entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey(), entry -> {
-                    return entry.getValue().stream()
-                            .collect(Collectors.toMap(AlterationCountByGene::getEntrezGeneId, c -> c));
-                }));
+                    .entrySet()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            entry -> entry.getKey(),
+                            entry -> {
+                                //convert list of alterations to map with EntrezGeneId as key
+                                return entry.getValue().stream()
+                                        .collect(Collectors.toMap(AlterationCountByGene::getEntrezGeneId, c -> c));
+                            }));
 
-        Set<Integer> allGeneIds = mutationCountsbyEntrezGeneIdAndGroup.values().stream()
-                .flatMap(x -> x.keySet().stream()).collect(Collectors.toSet());
+        Set<Integer> allGeneIds = mutationCountsbyEntrezGeneIdAndGroup
+                .values()
+                .stream()
+                .flatMap(x -> x.keySet().stream())
+                .collect(Collectors.toSet());
+        
         Set<String> groups = mutationCountsbyEntrezGeneIdAndGroup.keySet();
 
         List<Gene> genes = geneService.fetchGenes(
-                allGeneIds.stream().map(Object::toString).collect(Collectors.toList()), "ENTREZ_GENE_ID", "SUMMARY");
+                allGeneIds
+                    .stream()
+                    .map(Object::toString)
+                    .collect(Collectors.toList()),
+                "ENTREZ_GENE_ID",
+                "SUMMARY");
 
         return genes.stream().map(gene -> {
 
@@ -49,26 +64,31 @@ public class AlterationEnrichmentUtil {
             alterationEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
             alterationEnrichment.setCytoband(gene.getCytoband());
 
-            List<CountSummary> counts = groups.stream().map(group -> {
-                CountSummary groupCasesCount = new CountSummary();
-                AlterationCountByGene mutationCountByGene = mutationCountsbyEntrezGeneIdAndGroup
-                        .getOrDefault(group, new HashMap<Integer, AlterationCountByGene>()).get(gene.getEntrezGeneId());
-                Integer count = mutationCountByGene != null ? mutationCountByGene.getNumberOfAlteredCases() : 0;
-                groupCasesCount.setName(group);
-                groupCasesCount.setAlteredCount(count);
-                groupCasesCount.setProfiledCount(molecularProfileCaseSets.get(group).size());
-                return groupCasesCount;
-            }).collect(Collectors.toList());
+            List<CountSummary> counts = groups
+                    .stream()
+                    .map(group -> {
+                        CountSummary groupCasesCount = new CountSummary();
+                        AlterationCountByGene mutationCountByGene = mutationCountsbyEntrezGeneIdAndGroup
+                                .getOrDefault(group, new HashMap<Integer, AlterationCountByGene>()).get(gene.getEntrezGeneId());
+                        Integer count = mutationCountByGene != null ? mutationCountByGene.getNumberOfAlteredCases() : 0;
+                        groupCasesCount.setName(group);
+                        groupCasesCount.setAlteredCount(count);
+                        groupCasesCount.setProfiledCount(molecularProfileCaseSets.get(group).size());
+                        return groupCasesCount;
+                    })
+                    .collect(Collectors.toList());
 
             double pValue;
             // if groups size is two do Fisher Exact test else do Chi-Square test
             if (groups.size() == 2) {
-
+                
                 int alteredInNoneCount = counts.get(1).getProfiledCount() - counts.get(1).getAlteredCount();
                 int alteredOnlyInQueryGenesCount = counts.get(0).getProfiledCount() - counts.get(0).getAlteredCount();
 
+                System.out.println(alteredInNoneCount+"  "+counts.get(1).getAlteredCount()+"  "+alteredOnlyInQueryGenesCount+"  "+counts.get(0).getAlteredCount()+"  ");
                 pValue = fisherExactTestCalculator.getCumulativePValue(alteredInNoneCount,
                         counts.get(1).getAlteredCount(), alteredOnlyInQueryGenesCount, counts.get(0).getAlteredCount());
+                System.out.println(pValue+"   "+new BigDecimal(pValue));
             } else {
 
                 long[][] array = counts.stream().map(count -> {

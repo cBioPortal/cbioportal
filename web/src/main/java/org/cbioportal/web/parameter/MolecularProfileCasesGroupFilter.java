@@ -6,7 +6,7 @@ import javax.validation.constraints.Size;
 
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 
-public class MolecularProfileCasesGroup {
+public class MolecularProfileCasesGroupFilter {
 
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<MolecularProfileCaseIdentifier> MolecularProfileCaseIdentifiers;

@@ -27,53 +27,79 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
 
     @Override
     public List<AlterationEnrichment> getCopyNumberEnrichments(
-            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, List<Integer> alterationTypes,
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
+            List<Integer> alterationTypes,
             String enrichmentType) throws MolecularProfileNotFoundException {
 
         Map<String, List<? extends AlterationCountByGene>> copyNumberCountByGeneAndGroup = new HashMap<>();
 
         if (enrichmentType.equals("SAMPLE")) {
-            copyNumberCountByGeneAndGroup = molecularProfileCaseSets.entrySet().stream()
-                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> {
-                        List<String> molecularProfileIds = new ArrayList<>();
-                        List<String> sampleIds = new ArrayList<>();
-
-                        entry.getValue().forEach(molecularProfileCase -> {
-                            molecularProfileIds.add(molecularProfileCase.getMolecularProfileId());
-                            sampleIds.add(molecularProfileCase.getCaseId());
-                        });
-                        List<CopyNumberCountByGene> copyNumberCountByGeneListFromRepo = discreteCopyNumberService
-                                .getSampleCountInMultipleMolecularProfiles(molecularProfileIds, sampleIds, null, null,
-                                        false);
-
-                        List<CopyNumberCountByGene> copyNumberCountByGeneList = new ArrayList<CopyNumberCountByGene>(
-                                copyNumberCountByGeneListFromRepo);
-                        copyNumberCountByGeneList.removeIf(m -> !alterationTypes.contains(m.getAlteration()));
-
-                        return copyNumberCountByGeneList;
-                    }));
+            copyNumberCountByGeneAndGroup = molecularProfileCaseSets
+                    .entrySet()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            entry -> entry.getKey(),
+                            entry -> { //set value of each group to list of CopyNumberCountByGene
+                                List<String> molecularProfileIds = new ArrayList<>();
+                                List<String> sampleIds = new ArrayList<>();
+        
+                                entry.getValue().forEach(molecularProfileCase -> {
+                                    molecularProfileIds.add(molecularProfileCase.getMolecularProfileId());
+                                    sampleIds.add(molecularProfileCase.getCaseId());
+                                });
+                                List<CopyNumberCountByGene> copyNumberCountByGeneListFromRepo = discreteCopyNumberService
+                                        .getSampleCountInMultipleMolecularProfiles(
+                                                molecularProfileIds,
+                                                sampleIds,
+                                                null,
+                                                null,
+                                                false);
+        
+                                List<CopyNumberCountByGene> copyNumberCountByGeneList = new ArrayList<CopyNumberCountByGene>(
+                                        copyNumberCountByGeneListFromRepo);
+        
+                                // remove alteration not present in given alterationTypes
+                                copyNumberCountByGeneList.removeIf(m -> !alterationTypes.contains(m.getAlteration()));
+        
+                                return copyNumberCountByGeneList;
+                            }));
         } else {
             copyNumberCountByGeneAndGroup = molecularProfileCaseSets.entrySet().stream()
-                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> {
-                        Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseIdentifiersMap = entry
-                                .getValue().stream()
-                                .collect(Collectors.groupingBy(MolecularProfileCaseIdentifier::getMolecularProfileId));
-
-                        List<CopyNumberCountByGene> mutationCounts = molecularProfileCaseIdentifiersMap.entrySet()
-                                .stream().flatMap(molecularProfileCaseIdentifiers -> {
-                                    String molecularProfileId = molecularProfileCaseIdentifiers.getKey();
-                                    List<String> caseIds = molecularProfileCaseIdentifiers.getValue().stream()
-                                            .map(MolecularProfileCaseIdentifier::getCaseId)
-                                            .collect(Collectors.toList());
-                                    return discreteCopyNumberService.getPatientCountByGeneAndAlterationAndPatientIds(
-                                            molecularProfileId, caseIds, null, alterationTypes).stream();
-                                }).collect(Collectors.toList());
-
-                        return mutationCounts;
-                    }));
+                    .collect(Collectors.toMap(
+                            entry -> entry.getKey(),
+                            entry -> { //set value of each group to list of CopyNumberCountByGene
+                                Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseIdentifiersMap = entry
+                                        .getValue().stream()
+                                        .collect(Collectors.groupingBy(MolecularProfileCaseIdentifier::getMolecularProfileId));
+        
+                                return molecularProfileCaseIdentifiersMap
+                                        .entrySet()
+                                        .stream()
+                                        .flatMap(molecularProfileCaseIdentifiers -> {
+                                            
+                                            String molecularProfileId = molecularProfileCaseIdentifiers.getKey();
+                                            
+                                            List<String> caseIds = molecularProfileCaseIdentifiers
+                                                    .getValue()
+                                                    .stream()
+                                                    .map(MolecularProfileCaseIdentifier::getCaseId)
+                                                    .collect(Collectors.toList());
+                                            return discreteCopyNumberService
+                                                    .getPatientCountByGeneAndAlterationAndPatientIds(
+                                                            molecularProfileId,
+                                                            caseIds,
+                                                            null,
+                                                            alterationTypes)
+                                                    .stream();
+                                        })
+                                        .collect(Collectors.toList());
+                            }));
         }
 
-        return alterationEnrichmentUtil.createAlterationEnrichments(copyNumberCountByGeneAndGroup,
-                molecularProfileCaseSets, enrichmentType);
+        return alterationEnrichmentUtil
+                .createAlterationEnrichments(
+                        copyNumberCountByGeneAndGroup,
+                        molecularProfileCaseSets,
+                        enrichmentType);
     }
 }

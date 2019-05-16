@@ -6,9 +6,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.MolecularAlteration;
-import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.Geneset;
-import org.cbioportal.model.GenesetMolecularData;
 import org.cbioportal.model.MolecularData;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
@@ -148,9 +146,9 @@ public class CoExpressionServiceImpl implements CoExpressionService {
             .getCommaSeparatedSampleIdsOfMolecularProfile(molecularProfileId);
         List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfMolecularProfile.split(","))
             .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
-        Map<Integer, Integer> internalSampleIdsMap = new HashMap<>();
+        Map<Integer, Integer> internalSampleIdToIndexMap = new HashMap<>();
         for (int lc = 0; lc < internalSampleIds.size(); lc++) {
-            internalSampleIdsMap.put(internalSampleIds.get(lc), lc);
+            internalSampleIdToIndexMap.put(internalSampleIds.get(lc), lc);
         }
 
         MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
@@ -162,22 +160,28 @@ public class CoExpressionServiceImpl implements CoExpressionService {
             selectedSampleIdsMap.put(samples.get(lc).getInternalId(), lc);
         }
 
-        Set<Integer> excludedIndexes = new HashSet<>();
+        Set<Integer> includedIndexes = new HashSet<>();
         for (Integer internalSampleId : internalSampleIds) {
-            if (!selectedSampleIdsMap.containsKey(internalSampleId)) {
-                excludedIndexes.add(internalSampleIdsMap.get(internalSampleId));
+            if (selectedSampleIdsMap.containsKey(internalSampleId)) {
+                includedIndexes.add(internalSampleIdToIndexMap.get(internalSampleId));
             }
         }
-
+        
         Boolean isMolecularProfileBOfGenesetType = molecularProfile.getMolecularAlterationType()
                 .equals(MolecularProfile.MolecularAlterationType.GENESET_SCORE);
         List<String> queryValues = Arrays.asList(queryMolecularDataList.getSplitValues());
+        List<String> includedQueryValues = includedIndexes.stream().map(index -> queryValues.get(index))
+                .collect(Collectors.toList());
+
         Map<String,List<String>> values = new HashMap<String,List<String>>();
         for (String entityId : molecularDataMap.keySet()) {
-            List<String> internalValues = new ArrayList<>(Arrays.asList(molecularDataMap.get(entityId).getSplitValues()));
-            values.put(entityId, internalValues);
+            List<String> internalValues = new ArrayList<>(
+                    Arrays.asList(molecularDataMap.get(entityId).getSplitValues()));
+            List<String> includedInternalValues = includedIndexes.stream().map(index -> internalValues.get(index))
+                    .collect(Collectors.toList());
+            values.put(entityId, includedInternalValues);
         }
-        coExpressionList = computeCoExpressions(values, queryValues, isMolecularProfileBOfGenesetType, threshold);  
+        coExpressionList = computeCoExpressions(values, includedQueryValues, isMolecularProfileBOfGenesetType, threshold);  
         return coExpressionList;
     }
 

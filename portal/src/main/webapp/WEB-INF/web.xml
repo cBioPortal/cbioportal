@@ -23,11 +23,11 @@
     <!-- dbcp profile is defined here to prevent exceptions during war deployment -->
     <context-param>
         <param-name>spring.profiles.active</param-name>
-        <param-value>${dbconnector:dbcp},${authenticate:false}</param-value>
+        <param-value>${dbconnector:dbcp},${authenticate}</param-value>
     </context-param>
     <context-param>
         <param-name>spring.liveBeansView.mbeanDomain</param-name>
-        <param-value>${dbconnector:dbcp},${authenticate:false}</param-value>
+        <param-value>${dbconnector:dbcp},${authenticate}</param-value>
     </context-param>
 
     <context-param>

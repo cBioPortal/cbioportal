@@ -13,7 +13,19 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 
 ## 2. cBioPortal Deployment
 ### 2.1 Deployment
-* [Hardware and Software Requirements](System-Requirements.md)
+
+* [Architecture overview](Architecture-Overview.md)
+* [Hardware Requirements](Hardware-Requirements.md)
+
+#### 2.1.1 Docker
+* [Pre-Build Steps](Pre-Build-Steps.md)
+* [Building from Source](Build-from-Source.md)
+* [Importing the Seed Database](Import-the-Seed-Database.md)
+* [Deploying the Web Application](Deploying.md)
+* [Loading a Sample Study](Load-Sample-Cancer-Study.md)
+
+#### 2.1.2 Without Docker
+* [Software Requirements](Software-Requirements.md)
 * [Pre-Build Steps](Pre-Build-Steps.md)
 * [Building from Source](Build-from-Source.md)
 * [Importing the Seed Database](Import-the-Seed-Database.md)
@@ -31,7 +43,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 * [Customizing your cBioPortal Instance via portal.properties](Customizing-your-instance-of-cBioPortal.md)
 * [More portal.properties Settings](portal.properties-Reference.md)
 
-### 2.4 Docker
+### 2.4 Docker Deployment
 * [Docker Prerequisites](Docker-Prerequisites.md)
 * [Deploy using Docker](Deploy-Using-Docker.md)
 * [Uninstall Docker cBioPortal](Uninstall-Docker-cBioPortal.md)

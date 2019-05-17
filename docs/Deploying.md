@@ -23,15 +23,69 @@ export PORTAL_HOME=$HOME/cbioportal
 if your properties file is at `PORTAL_HOME/portal.properties`
 
 ## Run the app
+There are three main ways to run the portal: without authentication, with
+optional login and with required login.
+
+### Without authentication
+In this mode users are able to use the portal, but they won't be able to save
+their own virtual studies and groups. See the [optional login
+section](#optional-login) to enable this.
+ 
+```bash
+java \
+    -jar \
+    -Dauthenticate=noauthsessionservice \
+    portal/target/dependency/webapp-runner.jar \
+    portal/target/cbioportal.war
+```
+
+### Optional login
+
+In this mode users can see all the data in the portal, but to save their own
+groups and virtual studies they are required to log in. This will allow them to
+store user data in the session service. See the
+[tutorials](https://www.cbioportal.org/tutorials) section to read more about
+these features.
+
+```bash
+java \
+    -jar \
+    -Dauthenticate=social_auth
+    portal/target/dependency/webapp-runner.jar \
+    portal/target/cbioportal.war
+```
+
+Only google is supported as optional login currently. One needs to set the
+Google related configuration in the `portal.properties` file:
 
 ```
+googleplus.consumer.key=
+googleplus.consumer.secret=
+```
+
+See [Google's Sign in
+Documentation](https://developers.google.com/identity/sign-in/web/sign-in#before_you_begin)
+to obtain these values.
+
+
+### Required login
+
+```bash
 java \
+    -Dauthenticate=CHOOSE_DESIRED_AUTHENTICATION_METHOD \
     -jar \
     portal/target/dependency/webapp-runner.jar \
     portal/target/cbioportal.war
 ```
 
-As you can see the configuration defined in `portal.properties` can also be
+Change `CHOOSE_DESIRED_AUTHENTICATION_METHOD` to one of `googleplus`,
+`social_auth`, `saml`, `openid`, `ad`, `ldap`. The various methods of
+authentication are described in the [Authorization and
+Authentication](https://docs.cbioportal.org/#2-2-authorization-and-authentication)
+section.
+
+### Property configuration
+The configuration defined in `portal.properties` can also be
 passed as command line arguments. The priority of property loading is as
 follows:
 
@@ -40,9 +94,12 @@ follows:
 3. `portal.properties` supplied at compile time
 4. Defaults defined in code
 
-Note that some scripts require a `${PORTAL_HOME}/portal.properties` file, so
-usually it is best to define the properties there.
+Note that the `authenticate` property is currently required to be set as a
+command line argument, it won't work when set in `portal.properties` (See issue
+[#6109](https://github.com/cBioPortal/cbioportal/issues/6109)).
 
+Some scripts require a `${PORTAL_HOME}/portal.properties` file, so it is best
+to define the properties there.
 
 ## Verify the Web Application
 

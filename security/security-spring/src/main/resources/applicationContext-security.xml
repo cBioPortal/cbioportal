@@ -35,7 +35,7 @@
 
     <!-- Choose a supported Data Access Token method implementation [uuid, jwt, none (default)] by setting value of dat.method in portal.properties.
         Note: UUID implementation requires a backend database/token store but allows for greater control over tokens -->
-    <b:alias name="${dat.method}" alias="tokenService" />
+    <b:alias name="${dat.method:none}" alias="tokenService" />
     <b:bean  id="tokenServiceFactory" class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean">
         <b:property name="serviceLocatorInterface" value="org.cbioportal.service.DataAccessTokenServiceFactory"/>
     </b:bean>
@@ -102,6 +102,16 @@
 
     <!-- This must come before the default entry point which will capture everything not matched by pattern -->
     <http use-expressions="true" pattern="/api/**" entry-point-ref="restAuthenticationEntryPoint" create-session="never">
+        <intercept-url pattern="/**" access="isAuthenticated()"/>
+        <csrf disabled="true"/>
+        <custom-filter ref="tokenAuthenticationFilter" before="FORM_LOGIN_FILTER"/>
+    </http>
+    <http use-expressions="true" pattern="/api-legacy/**" entry-point-ref="restAuthenticationEntryPoint" create-session="never">
+        <intercept-url pattern="/**" access="isAuthenticated()"/>
+        <csrf disabled="true"/>
+        <custom-filter ref="tokenAuthenticationFilter" before="FORM_LOGIN_FILTER"/>
+    </http>
+    <http use-expressions="true" pattern="/webservice.do" entry-point-ref="restAuthenticationEntryPoint" create-session="never">
         <intercept-url pattern="/**" access="isAuthenticated()"/>
         <csrf disabled="true"/>
         <custom-filter ref="tokenAuthenticationFilter" before="FORM_LOGIN_FILTER"/>

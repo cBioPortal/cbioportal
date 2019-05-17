@@ -23,6 +23,17 @@ export PORTAL_HOME=$HOME/cbioportal
 if your properties file is at `PORTAL_HOME/portal.properties`
 
 ## Run the app
+To run the app we use `webapp-runner`. It's a command line version of Tomcat
+provided by [Heroku](https://github.com/jsimone/webapp-runner). All parameters
+can be seen with:
+
+```
+java -jar portal/target/dependency/webapp-runner.jar --help
+```
+
+This runs the app in the foreground. If a port is already in use it will raise
+an error mentioning that. To change the port use the `--port` flag.
+
 There are three main ways to run the portal: without authentication, with
 optional login and with required login.
 
@@ -66,7 +77,6 @@ googleplus.consumer.secret=
 See [Google's Sign in
 Documentation](https://developers.google.com/identity/sign-in/web/sign-in#before_you_begin)
 to obtain these values.
-
 
 ### Required login
 

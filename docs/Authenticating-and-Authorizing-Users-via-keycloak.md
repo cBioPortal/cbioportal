@@ -234,19 +234,8 @@ the same as the one for assigning roles to individual users.
 
 ### Doing a Test Run
 
-You are now ready to go. Rebuild the WAR file and re-deploy:
-
-```
-mvn -DskipTests clean install
-java \
-    -Dauthorization=true \
-    -Dauthenticate=saml \
-    -Ddbconnector=dbcp \
-    -jar \
-    portal/target/dependency/webapp-runner.jar \
-    --path /cbioportal \
-    portal/target/cbioportal.war
-```
+Rebuild the WAR file and follow the [Deployment with authentication
+steps](Deploying.md#required-login) using `authenticate=saml`.
 
 Then, go to:  [http://localhost:8081/cbioportal/](http://localhost:8081/cbioportal/).
 

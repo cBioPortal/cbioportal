@@ -22,7 +22,20 @@ export PORTAL_HOME=$HOME/cbioportal
 
 if your properties file is at `PORTAL_HOME/portal.properties`
 
-## Run the app
+## Run cBioPortal Session Service
+The cBioPortal app requires [session service](Architecture-Overview.md). For
+instructions on how to run this without Docker see
+https://github.com/cBioPortal/session-service#run-without-docker. Once this is
+working, update the properties file:
+
+```bash
+# session-service url: http://[host]:[port]/[session_service_app]/api/sessions/[portal_instance]/
+# example session-service url: http://localhost:8080/session_service/api/sessions/public_portal/
+# see: https://github.com/cBioPortal/session-service
+session.service.url=
+```
+
+## Run the cbioportal backend
 To run the app we use `webapp-runner`. It's a command line version of Tomcat
 provided by [Heroku](https://github.com/jsimone/webapp-runner). All parameters
 can be seen with:
@@ -35,7 +48,8 @@ This runs the app in the foreground. If a port is already in use it will raise
 an error mentioning that. To change the port use the `--port` flag.
 
 There are three main ways to run the portal: without authentication, with
-optional login and with required login.
+optional login and with required login. All of them require the cBioPortal
+session service to be running.
 
 ### Without authentication
 In this mode users are able to use the portal, but they won't be able to save

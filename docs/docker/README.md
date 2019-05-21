@@ -59,6 +59,11 @@ Follow the logs of this step to ensure that no errors occur. If any error
 occurs, make sure to check it. A common cause is pointing the `-v` parameters
 above to folders or files that do not exist.
 
+Note that another option would be to use an external database. In that case one
+does not need to run the `cbioDB` container. In the command for the
+`load-seeddb` change the cbioDB host to the host of the external MySQL
+database.
+
 ### Step 3 - Set up a portal.properties file ###
 
 Copy the
@@ -77,6 +82,13 @@ db.password=P@ssword1
 db.host=cbioDB
 db.portal_db_name=cbioportal
 db.connection_string=jdbc:mysql://cbioDB/
+```
+
+If you are using an external database change the `cbioDB` hostname to the
+hostname of the MySQL database. If it requires an SSL connection use:
+
+```
+db.use_ssl=true
 ```
 
 ### Step 4 - Migrate database to latest version ###
@@ -128,16 +140,17 @@ docker run -d --restart=always \
     -e JAVA_OPTS='\
         -Xms2g \
         -Xmx4g \
-        -Ddbconnector=dbcp \
-        -Ddat.method=none \
-        -Dauthorization=false \
-        -Dauthenticate=false
+        -Dauthenticate=noauthsessionservice \
         -Dsession.service.url=http://cbio-session-service:5000/api/sessions/my_portal/
     ' \
     -p 8081:8080 \
     cbioportal-container:update-docker-docs \
     /bin/sh -c 'java ${JAVA_OPTS} -jar webapp-runner.jar /app.war'
 ```
+
+To read more about the various ways to use authentication and `webapp-runner`
+see the relevant [backend deployment
+documentation](../Deploying.md#run-the-cbioportal-backend).
 
 On server systems that can easily spare 4 GiB or more of memory, set the `-Xms`
 and `-Xmx` options to the same number. This should increase performance of

@@ -8,7 +8,7 @@ COPY $PWD /cbioportal
 WORKDIR /cbioportal
 RUN mvn -DskipTests clean install
 
-FROM shipilev/openjdk-shenandoah:8
+FROM openjdk:8-jre
 RUN mkdir -p /cbioportal
 COPY --from=build /cbioportal/portal/target/cbioportal*.war /app.war
 COPY --from=build /cbioportal/portal/target/dependency/webapp-runner.jar /webapp-runner.jar
@@ -21,12 +21,14 @@ COPY --from=build /cbioportal/requirements.txt /cbioportal/requirements.txt
 # ignore update failures
 RUN apt-get update; apt-get install -y --no-install-recommends \
         build-essential \
-        libmysqlclient-dev \
+        libmysql-java \
+        default-libmysqlclient-dev \
         python3 \
-        python-dev \
+        python3-setuptools \
         python3-dev \
         python3-pip \
 	&& rm -rf /var/lib/apt/lists/* \
+    && pip3 install wheel \
     && pip3 install -r /cbioportal/requirements.txt
 
 # add importer scripts to PATH for easy running in containers

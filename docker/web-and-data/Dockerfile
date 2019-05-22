@@ -36,6 +36,3 @@ RUN find /cbioportal/core/src/main/scripts/ -type f -executable \! -name '*.pl' 
 
 # put config files in this folder if you want to override config
 ENV PORTAL_HOME=/cbioportal
-
-# TODO: fix the workdir-dependent references to '../scripts/env.pl' and do this:
-# RUN find $PWD/core/src/main/scripts/ -type f -executable \! \( -name env.pl -o -name envSimple.pl \)  -print0 | xargs -0 -- ln -st /usr/local/bin

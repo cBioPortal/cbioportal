@@ -177,6 +177,10 @@ bitly.access.token=
 
 # google analytics
 google_analytics_profile_id=
+# To enable Google Analytics on the endpoints, add the appropriate Tracking ID (Format UX-XXXX-X)
+google_analytics_tracking_code_api=
+# Also, add a value here to identify the client. At the moment it can be any valid UUID style format (e.g. XXXXXXXX-XXXXX-XXXX-XXXX-XXXXXXXXXXXXX)
+google_analytics_application_client_id=
 
 # genomespace linking
 genomespace=true

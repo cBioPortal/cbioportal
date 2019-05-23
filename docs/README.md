@@ -19,8 +19,9 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 * [Hardware Requirements](Hardware-Requirements.md)
 
 #### 2.1.1 Docker
-* [Docker Prerequisites](docker/prerequisites.md)
-* [Deploy with Docker](docker/deploy.md)
+* [Deploy with Docker](docker/README.md)
+* [Example Commands](docker/example_commands.md)
+* [Authenticating and Authorizing Users using Keycloak in Docker](docker/using-keycloak.md)
 
 #### 2.1.2 Without Docker
 * [Software Requirements](Software-Requirements.md)

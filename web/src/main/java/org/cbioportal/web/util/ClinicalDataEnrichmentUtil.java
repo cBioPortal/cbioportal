@@ -65,9 +65,17 @@ public class ClinicalDataEnrichmentUtil {
                     }
                 }
             }
+            
+            Double totalCount = transposeDataCollection
+                    .values()
+                    .stream()
+                    .flatMap(collection -> collection.stream())
+                    .mapToDouble(x -> (Double) x)
+                    .sum();
 
-            // perform test only if there are more than one group
-            if (transposeDataCollection.keySet().size() > 1) {
+            // perform test only if there are more than one group and
+            // total count across all groups in greater than 0
+            if (transposeDataCollection.keySet().size() > 1 && totalCount > 0) {
                 double pValue = KruskalWallis.getPvalue(transposeDataCollection);
                 if (!Double.isNaN(pValue)) { // this happens when all the values are zero
                     ClinicalDataEnrichment clinicalEnrichment = new ClinicalDataEnrichment();

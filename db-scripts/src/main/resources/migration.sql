@@ -599,3 +599,25 @@ CREATE TABLE `data_access_tokens` (
     FOREIGN KEY (`USERNAME`) REFERENCES `users` (`EMAIL`) ON DELETE CASCADE
 );
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.9.0";
+
+-- ========================== new treatment related tables =============================================
+##version: 2.9.1
+CREATE TABLE `treatment` (
+  `ID` INT(11) NOT NULL auto_increment,
+  `STABLE_ID` VARCHAR(45) NOT NULL UNIQUE,
+  `NAME` VARCHAR(45) NOT NULL,
+  `DESCRIPTION` VARCHAR(200) NOT NULL,
+  `LINKOUT_URL` VARCHAR(400) NOT NULL,
+  `GENETIC_ENTITY_ID` INT NOT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE INDEX `TREATMENT_GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID` ASC),
+  FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+ALTER TABLE `genetic_profile` ADD COLUMN `PIVOT_THRESHOLD` FLOAT DEFAULT NULL;
+ALTER TABLE `genetic_profile` ADD COLUMN `SORT_ORDER` ENUM('ASC','DESC') DEFAULT NULL;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.9.1";
+
+-- ========================== end of treatment related tables =============================================

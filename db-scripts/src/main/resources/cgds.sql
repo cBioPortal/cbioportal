@@ -97,6 +97,7 @@ DROP TABLE IF EXISTS `type_of_cancer`;
 DROP TABLE IF EXISTS `geneset_hierarchy_leaf`;
 DROP TABLE IF EXISTS `geneset_hierarchy_node`;
 DROP TABLE IF EXISTS `geneset`;
+DROP TABLE IF EXISTS `treatment`;
 DROP TABLE IF EXISTS `genetic_entity`;
 DROP TABLE IF EXISTS `reference_genome_gene`;
 DROP TABLE IF EXISTS `reference_genome`;
@@ -266,6 +267,19 @@ CREATE TABLE `geneset_hierarchy_leaf` (
   FOREIGN KEY (`GENESET_ID`) REFERENCES `geneset` (`ID`) ON DELETE CASCADE
 );
 
+-- ------------------------------------------------------
+CREATE TABLE `treatment` (
+  `ID` INT(11) NOT NULL auto_increment,
+  `STABLE_ID` VARCHAR(45) NOT NULL UNIQUE,
+  `NAME` VARCHAR(45) NOT NULL,
+  `DESCRIPTION` VARCHAR(200) NOT NULL,
+  `LINKOUT_URL` VARCHAR(400) NOT NULL,
+  `GENETIC_ENTITY_ID` INT NOT NULL UNIQUE,
+  PRIMARY KEY (`ID`),
+  UNIQUE INDEX `TREATMENT_GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID` ASC),
+  FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
+);
+
 -- --------------------------------------------------------
 CREATE TABLE `uniprot_id_mapping` (
   `UNIPROT_ACC` varchar(255) NOT NULL,
@@ -292,14 +306,16 @@ CREATE TABLE `reference_genome` (
 
 -- --------------------------------------------------------
 CREATE TABLE `genetic_profile` (
-  `GENETIC_PROFILE_ID` int(11) NOT NULL auto_increment,
+  `GENETIC_PROFILE_ID` int(11) NOT NULL AUTO_INCREMENT,
   `STABLE_ID` varchar(255) NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `GENETIC_ALTERATION_TYPE` varchar(255) NOT NULL,
   `DATATYPE` varchar(255) NOT NULL,
   `NAME` varchar(255) NOT NULL,
   `DESCRIPTION` mediumtext,
-  `SHOW_PROFILE_IN_ANALYSIS_TAB` BOOLEAN NOT NULL,
+  `SHOW_PROFILE_IN_ANALYSIS_TAB` tinyint(1) NOT NULL,
+  `PIVOT_THRESHOLD` FLOAT DEFAULT NULL,
+  `SORT_ORDER` ENUM('ASC','DESC') DEFAULT NULL,
   PRIMARY KEY (`GENETIC_PROFILE_ID`),
   UNIQUE (`STABLE_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
@@ -819,4 +835,4 @@ CREATE TABLE `info` (
   `GENESET_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.9.0', NULL);
+INSERT INTO info VALUES ('2.9.1', NULL);

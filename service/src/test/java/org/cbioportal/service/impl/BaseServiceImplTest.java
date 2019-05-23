@@ -39,4 +39,8 @@ public class BaseServiceImplTest {
     public static final Integer SAMPLE_INTERNAL_ID = 1;
     public static final Integer SAMPLE_INTERNAL_ID2 = 2;
     public static final String SEQUENCED_LIST_SUFFIX = "_sequenced";
+    public static final String SORT_ORDER1 = "ASC";
+    public static final String SORT_ORDER2 = "DESC";
+    public static final Float PIVOT_POINT1 = 1f;
+    public static final Float PIVOT_POINT2 = 2f;
 }

@@ -2,6 +2,7 @@
 .pydevproject
 .classpath
 .DS_Store
+.github
 target
 docker
 docs

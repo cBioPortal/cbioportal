@@ -3,6 +3,14 @@
 # artifacts under the hood. It therefore currently makes more sense to have a
 # single image supporting both instead of moving the scripts out to a separate
 # container.
+#
+# Use from root directory of repo like:
+#
+# docker build -f docker/web-and-data/Dockerfile -t cbioportal-container:tag-name .
+#
+# WARNING: Be careful about publishing images generated like this publicly
+# because your .git folder is exposed in the build step. We are not sure if
+# this is a security risk: stackoverflow.com/questions/56278325
 FROM maven:3.5.4 as build
 COPY $PWD /cbioportal
 WORKDIR /cbioportal

@@ -186,6 +186,28 @@
                     <value>--noprogress</value>
                 </list>
 
+                <!-- treatments and treatment response data -->
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_treatment_ic50.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_treatment_ic50.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+                <list>
+                    <value>org.mskcc.cbio.portal.scripts.ImportProfileData</value>
+                    <value>--data</value>
+                    <value>src/test/scripts/test_data/study_es_0/data_treatment_ec50.txt</value>
+                    <value>--meta</value>
+                    <value>src/test/scripts/test_data/study_es_0/meta_treatment_ec50.txt</value>
+                    <value>--loadMode</value>
+                    <value>bulkload</value>
+                    <value>--noprogress</value>
+                </list>
+
                 <!-- case lists -->
                 <list>
                     <value>org.mskcc.cbio.portal.scripts.ImportSampleList</value>

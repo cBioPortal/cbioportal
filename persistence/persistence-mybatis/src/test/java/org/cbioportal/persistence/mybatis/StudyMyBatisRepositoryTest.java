@@ -60,7 +60,7 @@ public class StudyMyBatisRepositoryTest {
         Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
         Assert.assertEquals((Integer) 0 , cancerStudy.getStatus());
-        Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), cancerStudy.getImportDate());
+        Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17+00:00"), cancerStudy.getImportDate());
         Assert.assertEquals((Integer) 14, cancerStudy.getAllSampleCount());
         Assert.assertNull(cancerStudy.getTypeOfCancer());
     }

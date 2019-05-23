@@ -1,0 +1,3 @@
+id	name	TCGA-A1-A0SB-01
+ID1	name1	value1
+ID2	name1	value2

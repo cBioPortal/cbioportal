@@ -83,6 +83,10 @@ public class JwtUtils {
     private static final Log LOG = LogFactory.getLog(JwtUtils.class);
 
     public DataAccessToken createToken(String username) {
+        return this.createToken(username, this.jwtTtlSeconds);
+    }
+
+    public DataAccessToken createToken(String username, int jwtTtlSeconds) {
         if (username == null || username.trim().length() == 0) {
             throw new IllegalArgumentException("subject cannot be empty");
         }

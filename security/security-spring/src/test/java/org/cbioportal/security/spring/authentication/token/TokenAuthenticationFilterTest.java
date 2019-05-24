@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2018-2019 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -52,7 +52,7 @@ import org.springframework.test.context.TestPropertySource;
 
 @TestPropertySource(
     properties = { "dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
-                    "dat.ttl_seconds = 2",
+                    "dat.ttl_seconds = 60", // this will be the default expiration for tokens
                     "dat.method = jwt"
     },
     inheritLocations = false
@@ -73,7 +73,7 @@ public class TokenAuthenticationFilterTest {
     @Autowired
     private TokenAuthenticationFilter tokenAuthenticationFilter;
 
-    private static final long TEST_TOKEN_EXPIRATION_MILLISECONDS = 2000L;
+    private static final int TEST_TOKEN_EXPIRATION_SECONDS = 1;
 
     private static final Log LOG = LogFactory.getLog(TokenAuthenticationFilterTest.class);
 
@@ -109,11 +109,11 @@ public class TokenAuthenticationFilterTest {
 
     @Test(expected = BadCredentialsException.class)
     public void testAttemptAuthentication_expiredToken() throws InterruptedException {
-        String token = jwtUtils.createToken(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT).getToken();
+        String token = jwtUtils.createToken(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT, TEST_TOKEN_EXPIRATION_SECONDS).getToken();
         LOG.debug("testAttemptAuthentication_expiredToken() token = " + token);
         Mockito.reset(request);
         Mockito.when(request.getHeader(Matchers.anyString())).thenReturn("Bearer " + token);
-        Thread.sleep(TEST_TOKEN_EXPIRATION_MILLISECONDS + 10L); // NOTE: sleep time must be adequate to allow created token to expire
+        Thread.sleep((TEST_TOKEN_EXPIRATION_SECONDS * 1000L) + 10L); // NOTE: sleep time must be adequate to allow created token to expire
         // response object is autowired above
         tokenAuthenticationFilter.attemptAuthentication(request, response);
         // make sure we call Mockito.reset(request) in other methods

@@ -47,8 +47,7 @@ public class GenesetDataControllerTest {
     @Autowired
     private GenesetDataService genesetDataService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

@@ -56,8 +56,7 @@ public class ExpressionEnrichmentControllerTest {
     @Autowired
     private ExpressionEnrichmentService expressionEnrichmentService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

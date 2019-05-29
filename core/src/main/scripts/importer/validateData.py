@@ -2809,7 +2809,7 @@ class GenePanelMatrixValidator(Validator):
         # Check whether gene panel stable ids are in the database
         for gene_panel_id in data:
             if gene_panel_id not in self.portal.gene_panel_list and gene_panel_id != 'NA':
-                self.logger.error('Gene panel ID is not in database. Please import this gene panel before loading '
+                self.logger.warning('Gene panel ID is not in database. Please import this gene panel before loading '
                                   'study data.',
                                   extra={'line_number': self.line_number,
                                          'cause': gene_panel_id})

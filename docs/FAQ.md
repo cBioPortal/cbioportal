@@ -103,7 +103,7 @@ By contrast, the [Genomic Data Commons (GDC)](https://gdc.cancer.gov/) aims to b
 ### Does the cBioPortal provide a Web Service API? R interface? MATLAB interface?
 Yes, the cBioPortal provides a [Web API](https://www.cbioportal.org/web_api.jsp), and [R/MATLAB interfaces](https://www.cbioportal.org/cgds_r.jsp).
 ### Can I use cBioPortal with my own data?
-cBioPortal provides several options for analyzing your own data. Visit our [Visualize Your Data](https://www.cbioportal.org/tools.jsp) page to generate an OncoPrint or Lollipop Plot with your own data. To utilize the entire suite of analysis and visualization tools, you can also install your own instance of cBioPortal (see next question).
+cBioPortal provides several options for analyzing your own data. Visit our [Visualize Your Data](https://www.cbioportal.org/visualize) page to generate an OncoPrint or Lollipop Plot with your own data. To utilize the entire suite of analysis and visualization tools, you can also install your own instance of cBioPortal (see next question).
 ### Can I create a local instance of cBioPortal to host my own data?
 Yes, the cBioPortal is open-source, and available on [GitHub](https://github.com/cBioPortal/cbioportal). Our [documentation](https://docs.cbioportal.org) provides complete download and installation instructions.
 ### I'd like to contribute code to the cBioPortal. How do I get started?

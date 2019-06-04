@@ -17,6 +17,7 @@
     * [I'd like to contribute code to the cBioPortal. How do I get started?](#id-like-to-contribute-code-to-the-cbioportal-how-do-i-get-started)
     * [What is a Virtual Study?](#what-is-a-virtual-study)
     * [Is it necessary to log in to use virtual studies? If I do log in, what additional functionality do I gain?](#is-it-necessary-to-log-in-to-use-virtual-studies-if-i-do-log-in-what-additional-functionality-do-i-gain)
+    * [What is Group Comparison?](#what-is-group-comparison)
 * [Data Questions](#data-questions)
     * [General Data](#general-data)
         * [Does the portal contain cancer study X?](#does-the-portal-contain-cancer-study-x)
@@ -33,6 +34,7 @@
         * [What are TCGA provisional datasets and how do they compare to the publication-associated datasets and the PanCancer Atlas datasets?](#what-are-tcga-provisional-datasets-and-how-do-they-compare-to-the-publication-associated-datasets-and-the-pancancer-atlas-datasets)
         * [Where do the thresholded copy number call in TCGA provisional data come from?](#where-do-the-thresholded-copy-number-call-in-tcga-provisional-data-come-from)
         * [Which studies have MutSig and GISTIC results? How do these results compare to the data in the TCGA publications?](#which-studies-have-mutsig-and-gistic-results-how-do-these-results-compare-to-the-data-in-the-tcga-publications)
+        * [How can I download the PanCancer Atlas data?](#how-can-i-download-the-pancancer-atlas-data)
     * [DNA (Mutations, Copy Number &amp; Fusions)](#dna-mutations-copy-number--fusions)
         * [Does the cBioPortal contain synonymous mutation data?](#does-the-cbioportal-contain-synonymous-mutation-data)
         * [What processing or filtering is applied to generate the mutation data?](#what-processing-or-filtering-is-applied-to-generate-the-mutation-data)
@@ -58,6 +60,7 @@
         * [What is the meaning of OS_STATUS / OS_MONTHS, and PFS_STATUS / PFS_MONTHS?](#what-is-the-meaning-of-os_status--os_months-and-pfs_status--pfs_months)
 * [Analysis Questions](#analysis-questions)
     * [How can I query/explore a select subset of samples?](#how-can-i-queryexplore-a-select-subset-of-samples)
+    * [How can I compare two or more subsets of samples?](#how-can-i-compare-two-or-more-subsets-of-samples)
     * [Is it possible to determine if a particular mutation is heterozygous or homozygous in a sample? When a sample has 2 mutations in one gene, is it possible to determine whether the mutations are in cis or in trans with each other?](#is-it-possible-to-determine-if-a-particular-mutation-is-heterozygous-or-homozygous-in-a-sample-when-a-sample-has-2-mutations-in-one-gene-is-it-possible-to-determine-whether-the-mutations-are-in-cis-or-in-trans-with-each-other)
     * [How can I query over/under expression of a gene?](#how-can-i-query-overunder-expression-of-a-gene)
     * [How can I compare outcomes in patients with high vs low expression of a gene?](#how-can-i-compare-outcomes-in-patients-with-high-vs-low-expression-of-a-gene)
@@ -103,17 +106,20 @@ By contrast, the [Genomic Data Commons (GDC)](https://gdc.cancer.gov/) aims to b
 ### Does the cBioPortal provide a Web Service API? R interface? MATLAB interface?
 Yes, the cBioPortal provides a [Web API](https://www.cbioportal.org/web_api.jsp), and [R/MATLAB interfaces](https://www.cbioportal.org/cgds_r.jsp).
 ### Can I use cBioPortal with my own data?
-cBioPortal provides several options for analyzing your own data. Visit our [Visualize Your Data](https://www.cbioportal.org/tools.jsp) page to generate an OncoPrint or Lollipop Plot with your own data. To utilize the entire suite of analysis and visualization tools, you can also install your own instance of cBioPortal (see next question).
+cBioPortal provides several options for analyzing your own data. Visit our [Visualize Your Data](https://www.cbioportal.org/visualize) page to generate an OncoPrint or Lollipop Plot with your own data. To utilize the entire suite of analysis and visualization tools, you can also install your own instance of cBioPortal (see next question).
 ### Can I create a local instance of cBioPortal to host my own data?
 Yes, the cBioPortal is open-source, and available on [GitHub](https://github.com/cBioPortal/cbioportal). Our [documentation](https://docs.cbioportal.org) provides complete download and installation instructions.
 ### I'd like to contribute code to the cBioPortal. How do I get started?
 Great! We would love to have your contributions. To get started, head over to our GitHub repository and check out our page on [how to contribute](https://github.com/cBioPortal/cbioportal/blob/master/CONTRIBUTING.md).
 ### What is a Virtual Study?
-A virtual study is a custom study comprised of samples from one or more existing studies. The virtual study feature allows you to define a custom cohort of samples that fit your specific genomic or clinical criteria of interest. These samples can be a subset of the data available in an existing study, or result from the combination of multiple existing studies. This cohort of samples can then be queried or explored just like a traditional study, and can be returned to at a later date or shared with a collaborator.
+A virtual study is a custom study comprised of samples from one or more existing studies. The virtual study feature allows you to define a custom cohort of samples that fit your specific genomic or clinical criteria of interest. These samples can be a subset of the data available in an existing study, or result from the combination of multiple existing studies. This cohort of samples can then be queried or explored just like a traditional study, and can be returned to at a later date or shared with a collaborator. For more information and examples, see our [tutorial on virtual studies](https://www.cbioportal.org/tutorials).
 ### Is it necessary to log in to use virtual studies? If I do log in, what additional functionality do I gain?
 No. A user that has not logged in can create virtual studies and run queries in those studies (by using the query box on the study summary page). Links to virtual studies are permanent, so you can save the link on your computer and come back to it anytime, or share it with others.
 
 If you log in, you gain the ability to save your virtual study to the list of existing studies on the homepage. This makes a virtual study functionally the same as any other study: you can access your virtual studies in the query builder and you can combine an existing virtual study with any other study to create a new virtual study.
+## What is Group Comparison?
+Group Comparison is a suite of analysis features which allows a user to compare clinical or genomic features of user-defined groups of samples. These groups can be defined based on any clinical or genomic features. For an overview, see [our tutorial on group comparison](https://www.cbioportal.org/tutorials).
+
 
 # Data Questions
 ## General Data
@@ -149,6 +155,8 @@ The TCGA PanCancer Atlas datasets derive from an effort to unify TCGA data acros
 Thresholded copy number calls in the TCGA provisional datasets are generated by the GISTIC 2.0 algorithm and obtained from the Broad Firehose. 
 ### Which studies have MutSig and GISTIC results? How do these results compare to the data in the TCGA publications?
 MutSig and GISTIC results about the statistical significance of recurrence of mutations and copy-number alterations in specific genes are available for many TCGA studies. The MutSig and GISTIC results reported in cBioPortal are based on the same mutations and copy number data reported in each TCGA publication, or the Broad Firehose for the provisional data sets. However, the publication may or may not have included the complete MutSig and GISTIC output, and therefore there may be some discrepancies between the publication and the data in cBioPortal.
+### How can I download the PanCancer Atlas data?
+PanCancer Atlas data can be downloaded on a study-by-study basis from cBioPortal through the [Datasets page](https://www.cbioportal.org/datasets) or our [DataHub](https://github.com/cBioPortal/datahub/tree/master/public). To download all cancer types together, try the [Genomic Data Commons PanCancer Atlas page](https://gdc.cancer.gov/about-data/publications/pancanatlas).
  
 ## DNA (Mutations, Copy Number & Fusions)
 ### Does the cBioPortal contain synonymous mutation data?
@@ -217,12 +225,16 @@ Let’s take the positive criteria example first. Run a query for TP53 mutations
 Now for the negative criteria example. This also begins by using OQL to run a query for KRAS mutations (KRAS: MUT) in your study of interest. Click over to the “Download” tab. Look at the table at the top again, but this time find the row that starts with “Sample matrix”. Copy or download this data and open it in Excel. You will see a two column table that indicates whether a given sample is altered or not, indicated by 0 or 1. Sort by the second column and then copy all the sample IDs from the first column that have a 0 in the second column. This is your list of samples that do not have a KRAS mutation.
 
 With a sample list in hand, you can now either run a query in just the selected samples (select “User-defined Case List” in the “Select Patient/Case Set:” dropdown) or explore this set of patients in study view (click “Select cases by IDs” and then create a Virtual Study restricted to just those samples).
+
+For more information about OQL, see the [specification page](https://www.cbioportal.org/oql) or view the [tutorial slides](https://www.cbioportal.org/tutorials#oql). For more information about virtual studies, read [this FAQ](https://www.cbioportal.org/faq#what-is-a-virtual-study) or view the [tutorial slides](https://www.cbioportal.org/tutorials).
+### How can I compare two or more subsets of samples?
+cBioPortal has a suite of analysis tools to enable comparisons between user-defined groups of samples/patients. For an overview of this functionality, see our [tutorial on group comparison](https://www.cbioportal.org/tutorials).
 ### Is it possible to determine if a particular mutation is heterozygous or homozygous in a sample? When a sample has 2 mutations in one gene, is it possible to determine whether the mutations are in cis or in trans with each other?
 There is currently no way to definitively determine whether a mutation is heterozygous/homozygous or in cis/trans with another mutation. However, you can try to infer the status of mutations by noting the copy number status of the gene and the variant allele frequency of the mutation(s) of interest relative to other mutations in the same sample. The cBioPortal patient/sample view can help you accomplish this.
 
 Specifically in the case of TCGA samples with two mutations in the same gene, you can also obtain access to the aligned sequencing reads from the [GDC](https://portal.gdc.cancer.gov/) and check if the mutations are in cis or in trans (if the mutations are close enough to each other).
 ### How can I query over/under expression of a gene?
-cBioPortal supports Onco Query Language (OQL) which can be used to query over/under expression of a gene. When writing a query, select an mRNA expression profile. By default, samples with expression z-scores >2 or <-2 in any queried genes are considered altered. Alternate cut-offs can be defined using OQL, for example: "EGFR: EXP>2" will query for samples with an EGFR expression z-score >2. Review for the [OQL specification page](https://www.cbioportal.org/onco_query_lang_desc.jsp) for more specifics and examples.
+cBioPortal supports Onco Query Language (OQL) which can be used to query over/under expression of a gene. When writing a query, select an mRNA expression profile. By default, samples with expression z-scores >2 or <-2 in any queried genes are considered altered. Alternate cut-offs can be defined using OQL, for example: "EGFR: EXP>2" will query for samples with an EGFR expression z-score >2. Review for the OQL [specification page](https://www.cbioportal.org/onco_query_lang_desc.jsp) or [tutorial slides](https://www.cbioportal.org/tutorials#oql) for more specifics and examples.
 ### How can I compare outcomes in patients with high vs low expression of a gene?
 To compare outcomes in patients with high vs low expression of a gene (excluding those patients with intermediate levels of expression), we will follow a 2 step process that builds on the approach described above in [How can I query/explore a select subset of samples?](#how-can-i-queryexplore-a-select-subset-of-samples), utilizing [OQL](https://www.cbioportal.org/onco_query_lang_desc.jsp) to first identify and then stratify that cases of interest.
 
@@ -246,7 +258,7 @@ Yes, check out the OncoPrinter tool on our [Visualize Your Data page](https://ww
 Some studies include data from one or more targeted sequencing platforms which do not include all genes. For samples sequenced on these smaller panels, cBioPortal will indicate that a particular gene was not included on the sequencing panel used for that sample. Alteration frequency calculations for each gene also take this information into account. Hover over a sample in OncoPrint to see the gene panel name, and click on that gene panel name to view a list of the genes included on that panel.
 ## Other pages
 ### Does the Mutual Exclusivity tab calculate its statistics using all samples/alterations or only a specific subset?
-The calculations on the Mutual Exclusivity tab are performed using all samples included in the query. A sample is defined as altered or unaltered for each gene based on the [OQL](https://www.cbioportal.org/onco_query_lang_desc.jsp) utilized in the query - by default, this will be non-synonymous mutations, fusions, amplifications and deep deletions. 
+The calculations on the Mutual Exclusivity tab are performed using all samples included in the query. A sample is defined as altered or unaltered for each gene based on the [OQL](https://www.cbioportal.org/onco_query_lang_desc.jsp) utilized in the query - by default, this will be non-synonymous mutations, fusions, amplifications and deep deletions.
 
 # What if I have other questions or comments?
 Please contact us at [cbioportal@googlegroups.com](mailto:cbioportal@googlegroups.com). Previous discussions about cBioPortal are available on the [user discussion mailing list](http://groups.google.com/group/cbioportal).

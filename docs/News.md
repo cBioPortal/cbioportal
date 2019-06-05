@@ -1,3 +1,9 @@
+## June 7, 2019
+* **New Feature of Cohort Comparison**: comparing user-defined groups of patients/samples. [example](https://www.cbioportal.org/comparison/cna?sessionId=5ce6f37ae4b0ab41378740b9) & [tutorial](https://www.cbioportal.org/tutorials#group-comparison)
+
+![image](https://user-images.githubusercontent.com/840895/58994369-40127c00-87be-11e9-9ecb-8eee43e7c81f.png)
+
+
 ## May 8, 2019
 * **New Feature**: Show *Post Translational Modification (PTM)* information from [dbPTM](http://dbptm.mbc.nctu.edu.tw/) on the _Mutation Mapper_ - see [example](https://bit.ly/2VVrWdi):
     

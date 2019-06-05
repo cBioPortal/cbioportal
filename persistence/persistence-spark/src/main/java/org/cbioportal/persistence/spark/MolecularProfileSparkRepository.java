@@ -149,18 +149,6 @@ public class MolecularProfileSparkRepository implements MolecularProfileReposito
         return df;
     }
 
-    // Rename columns: column_name -> columnName
-    private Dataset<Row> renameCols(Dataset<Row> df, String tablename) {
-        for (String column : df.columns()) {
-            if (tablename == null) {
-                df = df.withColumnRenamed(column, LOWER_UNDERSCORE.to(LOWER_CAMEL, column));
-            } else {
-                df = df.withColumnRenamed(column, tablename + ":" + LOWER_UNDERSCORE.to(LOWER_CAMEL, column));
-            }
-        }
-        return df;
-    }
-
     private void setField(Object toSet, Field field, Row row, int i) {
         Object obj = field.getType().cast(row.get(i));
         try {
@@ -170,8 +158,19 @@ public class MolecularProfileSparkRepository implements MolecularProfileReposito
             iae.printStackTrace();
         }
     }
+
+    // Rename columns: column_name -> tablename:columnName
+    private static Dataset<Row> renameCols(Dataset<Row> df, String tablename) {
+        for (String column : df.columns()) {
+            if (tablename == null) {
+                df = df.withColumnRenamed(column, LOWER_UNDERSCORE.to(LOWER_CAMEL, column));
+            } else {
+                df = df.withColumnRenamed(column, tablename + ":" + LOWER_UNDERSCORE.to(LOWER_CAMEL, column));
+            }
+        }
+        return df;
+    }
     
-    // TODO nested objects
     private MolecularProfile mapToMolecularProfile(Row row, String[] cols, String projection) {
         MolecularProfile molecularProfile = new MolecularProfile();
         List<Field> fields = Arrays.asList(MolecularProfile.class.getDeclaredFields());
@@ -211,8 +210,8 @@ public class MolecularProfileSparkRepository implements MolecularProfileReposito
     private List<MolecularProfile> getAllMolecularProfilesInStudies(List<String> studyIds, String projection, 
         Integer limit, Integer offset, String sortBy, String direction) {
         
-        Dataset<Row> geneProfile = loadParquet.loadTable("genetic_profile");
-        Dataset<Row> cancerStudy = loadParquet.loadTable("cancer_study");
+        Dataset<Row> geneProfile = loadParquet.loadDataFile(studyIds.get(0), "genetic_profile");
+        Dataset<Row> cancerStudy = loadParquet.loadDataFile(studyIds.get(0), "cancer_study");
         
         geneProfile = renameCols(geneProfile, null);
         cancerStudy = renameCols(cancerStudy, "cancer_study");

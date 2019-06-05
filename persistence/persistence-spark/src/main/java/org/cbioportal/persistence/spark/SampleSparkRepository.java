@@ -105,7 +105,7 @@ public class SampleSparkRepository implements SampleRepository {
         return null;
     }
     
-    private Dataset<Row> selectClause(Dataset<Row> df, String prefix, String projection) {
+    private Dataset<Row> selectClause(Dataset<Row> df, String projection) {
 
         List<Column> columns = new ArrayList<Column>();
         columns.add(new Column("internalId"));
@@ -143,24 +143,12 @@ public class SampleSparkRepository implements SampleRepository {
         df = df.select(JavaConversions.asScalaBuffer(columns).toSeq());
         return df;    
     }
-    
-    // Rename columns: column_name -> tablename:columnName
-    private Dataset<Row> renameCols(Dataset<Row> df, String tablename) {
-        for (String column : df.columns()) {
-            if (tablename == null) {
-                df = df.withColumnRenamed(column, LOWER_UNDERSCORE.to(LOWER_CAMEL, column));
-            } else {
-                df = df.withColumnRenamed(column, tablename + ":" + LOWER_UNDERSCORE.to(LOWER_CAMEL, column));
-            }
-        }
-        return df;    
-    }
 
-    private Dataset<Row> fromClause() {
+    private Dataset<Row> fromClause(List<String> studyIds) {
         
-        Dataset<Row> sample = loadParquet.loadTable("sample");
-        Dataset<Row> patient = loadParquet.loadTable("patient");
-        Dataset<Row> cancerStudy = loadParquet.loadTable("cancer_study");
+        Dataset<Row> sample = loadParquet.loadDataFile(studyIds.get(0),"sample");
+        Dataset<Row> patient = loadParquet.loadDataFile(studyIds.get(0),"patient");
+        Dataset<Row> cancerStudy = loadParquet.loadDataFile(studyIds.get(0),"cancer_study");
 
         sample = renameCols(sample, null);
         patient = renameCols(patient, "patient");
@@ -193,6 +181,18 @@ public class SampleSparkRepository implements SampleRepository {
         return df;
     }
 
+    // Rename columns: column_name -> tablename:columnName
+    private static Dataset<Row> renameCols(Dataset<Row> df, String tablename) {
+        for (String column : df.columns()) {
+            if (tablename == null) {
+                df = df.withColumnRenamed(column, LOWER_UNDERSCORE.to(LOWER_CAMEL, column));
+            } else {
+                df = df.withColumnRenamed(column, tablename + ":" + LOWER_UNDERSCORE.to(LOWER_CAMEL, column));
+            }
+        }
+        return df;
+    }
+    
     private Dataset<Row> orderByLimitOffset(Dataset<Row> df, String sortBy, String direction, String projection,
                                             Integer limit, Integer offset) {
         // Default sort by primary key
@@ -276,8 +276,8 @@ public class SampleSparkRepository implements SampleRepository {
     
     private List<Sample> getSamples(List<String> studyIds, String patientId, List<String> sampleIds, String projection,
             Integer limit, Integer offset, String sortBy, String direction) {
-        Dataset<Row> from = fromClause();
-        Dataset<Row> selected = selectClause(from, "", projection);
+        Dataset<Row> from = fromClause(studyIds);
+        Dataset<Row> selected = selectClause(from, projection);
 
         String[] studyArr = null;
         String[] sampleArr = null;

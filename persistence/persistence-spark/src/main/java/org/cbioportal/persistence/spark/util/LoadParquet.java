@@ -1,6 +1,5 @@
 package org.cbioportal.persistence.spark.util;
 
-//import org.mskcc.cbio.portal.util.SparkConfiguration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,17 +20,18 @@ public class LoadParquet {
     
     private static final String PARQUET_DIR = "src/main/resources/parquet/";
     
-    public Dataset<Row> loadTable(String file) {
+    public Dataset<Row> loadDataFile(String studyId, String file) {
         spark.sqlContext().setConf("spark.sql.caseSensitive", "false");
-        Dataset<Row> df = spark.read().parquet(PARQUET_DIR + file + ".parquet");
+        Dataset<Row> df = spark.read()
+            .parquet(PARQUET_DIR + "/" + studyId + "/" + file + ".parquet");
         return df;
     }
 
     // Loads multiple tables with their schemas merged.
-    public Dataset<Row> loadTables(List<String> files) {
-        files = files.stream()
-            .map(f -> PARQUET_DIR + f + ".parquet").collect(Collectors.toList());
-        Seq<String> fileSeq = JavaConverters.asScalaBuffer(files).toSeq();
+    public Dataset<Row> loadDataFiles(List<String> studyIds, String file) {
+        studyIds = studyIds.stream()
+            .map(s -> PARQUET_DIR + "/" + s + "/" + file + ".parquet").collect(Collectors.toList());
+        Seq<String> fileSeq = JavaConverters.asScalaBuffer(studyIds).toSeq();
         
         Dataset<Row> df = spark.read().option("mergeSchema", true).parquet(fileSeq);
         return df;

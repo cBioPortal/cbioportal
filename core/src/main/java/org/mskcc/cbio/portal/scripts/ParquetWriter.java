@@ -39,6 +39,7 @@ import org.mskcc.cbio.portal.util.SparkConfiguration;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.*;
+import static org.apache.spark.sql.functions.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,18 +50,24 @@ import java.util.Properties;
  */
 public class ParquetWriter extends ConsoleRunnable {
 
-    private static final String PARQUET_DIR = "persistence-spark/src/main/resources/parquet/";
-    
+    private String parquetDir = GlobalProperties.getProperty("data.parquet.folder");
+    private String datatDir = GlobalProperties.getProperty("data.tsv.folder");
     private String jdbcConnection = GlobalProperties.getProperty("db.connection_string");
     private String user = GlobalProperties.getProperty("db.user");
     private String password = GlobalProperties.getProperty("db.password");
         
-   private void write(SparkSession spark, Properties connectionProperties, String table) throws IOException {
+   private void writeFromJdbc(SparkSession spark, Properties connectionProperties, String table) throws IOException {
        Dataset<Row> data = spark.read()
            .jdbc(jdbcConnection, "cbioportal." + table, connectionProperties);
        
-       data.write().parquet(PARQUET_DIR + table + ".parquet");
+       data.write().parquet(parquetDir + table + ".parquet");
    }
+
+    private void write(SparkSession spark, String txtFile) throws IOException {
+        Dataset<Row> df = spark.read().format("csv").option("delimiter", "\t").option("header", "true")
+            .option("comment","#").load(datatDir + txtFile);
+        df.write().parquet(parquetDir + txtFile + ".parquet");
+    }
    
    public void run () {
       try {
@@ -70,23 +77,23 @@ public class ParquetWriter extends ConsoleRunnable {
              throw new UsageException(
                      "Parquet Writer script ",
                      null,
-                     "<SQL table name>");
+                     "<data txt file>");
 	      }
-          File directory = new File(PARQUET_DIR);
+          File directory = new File(parquetDir);
           if (!directory.exists()){
               directory.mkdir();
           }
-
+          /* for writeFromJdbc()
           Properties connectionProperties = new Properties();
           connectionProperties.put("user", user);
           connectionProperties.put("password", password);
-
+          */
           SparkConfiguration sc = new SparkConfiguration();
           SparkSession spark = sc.sparkSession();
           
-          for (String table : args) {
-              ProgressMonitor.logDebug("Writing " + table + ".parquet");
-              this.write(spark, connectionProperties, table);
+          for (String txtFile : args) {
+              ProgressMonitor.logDebug("Writing " + txtFile + ".parquet");
+              this.write(spark, txtFile);
           }
 	      
       } catch (RuntimeException e) {

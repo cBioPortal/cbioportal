@@ -52,48 +52,38 @@ public class ParquetWriter extends ConsoleRunnable {
 
     private String parquetDir = GlobalProperties.getProperty("data.parquet.folder");
     private String datatDir = GlobalProperties.getProperty("data.tsv.folder");
-    private String jdbcConnection = GlobalProperties.getProperty("db.connection_string");
-    private String user = GlobalProperties.getProperty("db.user");
-    private String password = GlobalProperties.getProperty("db.password");
         
-   private void writeFromJdbc(SparkSession spark, Properties connectionProperties, String table) throws IOException {
-       Dataset<Row> data = spark.read()
-           .jdbc(jdbcConnection, "cbioportal." + table, connectionProperties);
-       
-       data.write().parquet(parquetDir + table + ".parquet");
-   }
 
-    private void write(SparkSession spark, String txtFile) throws IOException {
+    private void write(SparkSession spark, String destination, String txtFile) throws IOException {
         Dataset<Row> df = spark.read().format("csv").option("delimiter", "\t").option("header", "true")
             .option("comment","#").load(datatDir + txtFile);
-        df.write().parquet(parquetDir + txtFile + ".parquet");
+        df.write().parquet(destination + "/" + txtFile + ".parquet");
     }
    
    public void run () {
       try {
     	  // check args
-	      if (args.length < 1) {
+	      if (args.length < 2) {
 	         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
              throw new UsageException(
                      "Parquet Writer script ",
                      null,
+                     "<study id>",
                      "<data txt file>");
 	      }
-          File directory = new File(parquetDir);
+          String destinationFolder = parquetDir + "/" + args[0];
+          File directory = new File(destinationFolder);
           if (!directory.exists()){
               directory.mkdir();
           }
-          /* for writeFromJdbc()
-          Properties connectionProperties = new Properties();
-          connectionProperties.put("user", user);
-          connectionProperties.put("password", password);
-          */
+
           SparkConfiguration sc = new SparkConfiguration();
           SparkSession spark = sc.sparkSession();
           
-          for (String txtFile : args) {
+          for (int i=1; i<args.length; i++) {
+              String txtFile = args[i];
               ProgressMonitor.logDebug("Writing " + txtFile + ".parquet");
-              this.write(spark, txtFile);
+              this.write(spark, destinationFolder, txtFile);
           }
 	      
       } catch (RuntimeException e) {

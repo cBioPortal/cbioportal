@@ -6,5 +6,4 @@ public class PersistenceConstants {
     public static final String SUMMARY_PROJECTION = "SUMMARY";
     public static final String ID_PROJECTION = "ID";
     public static final String SAMPLE_CLINICAL_DATA_TYPE = "SAMPLE";
-    public static final String PATIENT_CLINICAL_DATA_TYPE = "PATIENT";
 }

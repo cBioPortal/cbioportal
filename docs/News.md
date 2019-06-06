@@ -1,5 +1,5 @@
 ## June 7, 2019
-* **New Feature of Group Comparison**: Compare clinical and genomic features of user-defined groups of samples/patients. [tutorial](https://www.cbioportal.org/tutorials#group-comparison)
+* **New Feature of Group Comparison**: Compare clinical and genomic features of user-defined groups of samples/patients. [Vew Tutorial](https://www.cbioportal.org/tutorials#group-comparison)
      * [Example](https://www.cbioportal.org/comparison/cna?sessionId=5cf92520e4b0ab4137874376): compare mutated genes in primary and metastatic prostate tumor samples.
 ![image](https://user-images.githubusercontent.com/840895/59042688-e7d48c00-8848-11e9-927c-f8adf220df9a.png)
 

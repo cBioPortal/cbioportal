@@ -129,7 +129,7 @@ public class PatientController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @RequestAttribute(required = false, value = "interceptedPatientFilter") PatientFilter interceptedPatientFilter,
+        @Valid @RequestAttribute(required = false, value = "interceptedPatientFilter") PatientFilter interceptedPatientFilter,
         @ApiParam(required = true, value = "List of patient identifiers")
         @Valid @RequestBody(required = false) PatientFilter patientFilter,
         @ApiParam("Level of detail of the response")

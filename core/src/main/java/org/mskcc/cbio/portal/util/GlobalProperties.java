@@ -270,6 +270,13 @@ public class GlobalProperties {
     @Value("${show.genomenexus:true}") // default is true
     public void setShowGenomeNexus(String property) { showGenomeNexus = Boolean.parseBoolean(property); }
 
+    private static boolean datRevokeOtherTokens;
+    @Value("${dat.uuid.revoke_other_tokens:true}") // default is true
+    public void setDatRevokeOtherTokens(String property) { datRevokeOtherTokens = Boolean.parseBoolean(property);}
+
+    private static String datMethod;
+    @Value("${dat.method:none}") // default is 'none'
+    public void setDatMethod(String property) { datMethod = property;}
 	/*
      * Trim whitespace of url and append / if it does not exist. Return empty
      * string otherwise.
@@ -293,8 +300,8 @@ public class GlobalProperties {
     
     public static final String BINARY_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL = "oncoprint.custom_driver_annotation.binary.menu_label";
     public static final String TIERS_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL = "oncoprint.custom_driver_annotation.tiers.menu_label";
-    public static final String ENABLE_DRIVER_ANNOTATIONS = "oncoprint.custom_driver_annotation.default";
-    public static final String ENABLE_TIERS = "oncoprint.custom_driver_tiers_annotation.default";
+    public static final String ENABLE_DRIVER_ANNOTATIONS = "oncoprint.custom_driver_annotation.binary.default";
+    public static final String ENABLE_TIERS = "oncoprint.custom_driver_annotation.tiers.default";
     public static final String ENABLE_ONCOKB_AND_HOTSPOTS_ANNOTATIONS = "oncoprint.oncokb_hotspots.default";
     public static final String HIDE_PASSENGER_MUTATIONS = "oncoprint.hide_vus.default";
 
@@ -1169,5 +1176,13 @@ public class GlobalProperties {
         } else {
             return null;
         }
+    }
+
+    public static Boolean getRevokeOtherTokens() {
+        return datRevokeOtherTokens;
+    }
+
+    public static String getDatMethod() {
+        return datMethod;
     }
 }

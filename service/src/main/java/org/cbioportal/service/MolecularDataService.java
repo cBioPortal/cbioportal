@@ -24,8 +24,7 @@ public interface MolecularDataService {
         throws MolecularProfileNotFoundException;
 
     List<GeneMolecularAlteration> getMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds, 
-                                                          String projection) 
-        throws MolecularProfileNotFoundException;
+        String projection) throws MolecularProfileNotFoundException;
     
     Integer getNumberOfSamplesInMolecularProfile(String molecularProfileId);
 

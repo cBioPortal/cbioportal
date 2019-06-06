@@ -12,8 +12,19 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 * [List of RFCs](RFC-List.md)
 
 ## 2. cBioPortal Deployment
+
 ### 2.1 Deployment
-* [Hardware and Software Requirements](System-Requirements.md)
+
+* [Architecture overview](Architecture-Overview.md)
+* [Hardware Requirements](Hardware-Requirements.md)
+
+#### 2.1.1 Docker
+* [Deploy with Docker](docker/README.md)
+* [Example Commands](docker/example_commands.md)
+* [Authenticating and Authorizing Users using Keycloak in Docker](docker/using-keycloak.md)
+
+#### 2.1.2 Without Docker
+* [Software Requirements](Software-Requirements.md)
 * [Pre-Build Steps](Pre-Build-Steps.md)
 * [Building from Source](Build-from-Source.md)
 * [Importing the Seed Database](Import-the-Seed-Database.md)
@@ -25,16 +36,11 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 * [Authenticating Users via SAML](Authenticating-Users-via-SAML.md)
 * [Authenticating Users via LDAP](Authenticating-Users-via-LDAP.md)
 * [Authenticating and Authorizing Users via Keycloak](Authenticating-and-Authorizing-Users-via-keycloak.md)
+* [Authenticating Users via Tokens](Authenticating-Users-via-Tokens.md)
 
 ### 2.3 Customization 
 * [Customizing your cBioPortal Instance via portal.properties](Customizing-your-instance-of-cBioPortal.md)
 * [More portal.properties Settings](portal.properties-Reference.md)
-
-### 2.4 Docker
-* [Docker Prerequisites](Docker-Prerequisites.md)
-* [Deploy using Docker](Deploy-Using-Docker.md)
-* [Uninstall Docker cBioPortal](Uninstall-Docker-cBioPortal.md)
-* [Import a Study Using Docker](Import-Study-Using-Docker.md)
 
 ## 3. cBioPortal Maintenance
 * [Updating your cBioPortal Database Scheme](Updating-your-cBioPortal-installation.md)
@@ -47,6 +53,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
    * [API and API Client](The-API-and-API-Client-[Beta].md)
 * [Providing cBioPortal Parameters](providing-cBioPortal-parameters.md)
 * [Manual test cases](manual-test-cases.md)
+* [Build cBioPortal with a different frontend version](Build-Different-Frontend.md)
 * [Release-Procedure](Release-Procedure.md)
 * [Deployment-Procedure](Deployment-Procedure.md)
 
@@ -66,4 +73,3 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 
 ### 5.2 Datasets
 * [Downloads](Downloads.md)
-

@@ -1,10 +1,7 @@
 ## June 7, 2019
 * **New Feature of Group Comparison**: Compare clinical and genomic features of user-defined groups of samples/patients. [Vew Tutorial](https://www.cbioportal.org/tutorials#group-comparison)
-     * [Example](https://www.cbioportal.org/comparison/cna?sessionId=5cf92520e4b0ab4137874376): compare mutated genes in primary and metastatic prostate tumor samples.
-![image](https://user-images.githubusercontent.com/840895/59042688-e7d48c00-8848-11e9-927c-f8adf220df9a.png)
 
-     * [Example](https://www.cbioportal.org/comparison/survival?sessionId=5cf92effe4b0ab4137874379): compare overall survial of patients with high tumor mutational burden (TMB) vs patients with low TMB.
-![image](https://user-images.githubusercontent.com/840895/59045677-831c3000-884e-11e9-968b-651d727385e8.png)
+[![group-comparison](https://user-images.githubusercontent.com/840895/59052073-40f9eb00-885c-11e9-9ddb-6d036533e5f5.png)]((https://www.cbioportal.org/comparison/mutation?sessionId=5cf92520e4b0ab4137874376))
 
 
 ## May 8, 2019

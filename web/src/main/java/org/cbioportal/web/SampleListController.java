@@ -35,7 +35,7 @@ import java.util.List;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Sample Lists", description = " ")
+@Api(tags = "E. Sample Lists", description = " ")
 public class SampleListController {
 
     @Autowired

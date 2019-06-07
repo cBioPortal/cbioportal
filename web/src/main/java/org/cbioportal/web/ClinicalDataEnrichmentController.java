@@ -3,6 +3,7 @@ package org.cbioportal.web;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -60,7 +61,7 @@ public class ClinicalDataEnrichmentController {
             @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
             @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
             @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-            @RequestAttribute(required = false, value = "interceptedGroupFilter") GroupFilter interceptedGroupFilter) {
+            @Valid @RequestAttribute(required = false, value = "interceptedGroupFilter") GroupFilter interceptedGroupFilter) {
 
         List<String> studyIds = interceptedGroupFilter.getGroups().stream()
                 .flatMap(group -> group.getSampleIdentifiers().stream().map(SampleIdentifier::getStudyId))
@@ -99,7 +100,13 @@ public class ClinicalDataEnrichmentController {
 
             List<ClinicalAttribute> clinicalAttributes = clinicalAttributeService
                     .fetchClinicalAttributes(new ArrayList<String>(studyIds), "SUMMARY");
+            
+            // remove all duplicate attributes
+            Map<String, ClinicalAttribute> clinicalAttributesByUniqId = clinicalAttributes.stream()
+                    .collect(Collectors.toMap(c -> c.getAttrId() + c.getPatientAttribute(), c -> c, (e1, e2) -> e2));
 
+            clinicalAttributes = new ArrayList<>(clinicalAttributesByUniqId.values());
+ 
             clinicalEnrichments.addAll(
                     clinicalDataEnrichmentUtil.createEnrichmentsForCategoricalData(clinicalAttributes, groupedSamples));
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2018 - 2019 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -72,9 +72,9 @@ public class CacheMapUtil {
     private static final int REPOSITORY_RESULT_OFFSET = 0; // retrieve all entries (do not skip any)
 
     // maps used to cache required relationships - in all maps stable ids are key
-    private Map<String, MolecularProfile> molecularProfileCache = new HashMap();
-    private Map<String, SampleList> sampleListCache = new HashMap();
-    private Map<String, CancerStudy> cancerStudyCache = new HashMap();
+    private Map<String, MolecularProfile> molecularProfileCache;
+    private Map<String, SampleList> sampleListCache;
+    private Map<String, CancerStudy> cancerStudyCache;
 
     public Map<String, MolecularProfile> getMolecularProfileMap() {
         return molecularProfileCache;
@@ -103,6 +103,9 @@ public class CacheMapUtil {
     }
 
     private void populateMolecularProfileMap() {
+        if (molecularProfileCache == null) {
+            molecularProfileCache = new HashMap<String, MolecularProfile>();
+        }
         for (MolecularProfile mp : molecularProfileRepository.getAllMolecularProfiles(
                 "SUMMARY",
                 REPOSITORY_RESULT_LIMIT,
@@ -115,6 +118,9 @@ public class CacheMapUtil {
     }
 
     private void populateSampleListMap() {
+        if (sampleListCache == null) {
+            sampleListCache = new HashMap<String, SampleList>();
+        }
         for (SampleList sl : sampleListRepository.getAllSampleLists(
                 "SUMMARY",
                 REPOSITORY_RESULT_LIMIT,
@@ -127,6 +133,9 @@ public class CacheMapUtil {
     }
 
     private void populateCancerStudyMap() {
+        if (cancerStudyCache == null) {
+            cancerStudyCache = new HashMap<String, CancerStudy>();
+        }
         for (CancerStudy cs : studyRepository.getAllStudies(
                 null,
                 "SUMMARY",

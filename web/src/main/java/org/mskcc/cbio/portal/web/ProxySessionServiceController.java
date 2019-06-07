@@ -250,12 +250,14 @@ public class ProxySessionServiceController {
 		if (isSessionServiceEnabled() && !(authentication == null
 				|| (authentication instanceof AnonymousAuthenticationToken))) {
 
-			Map<String, Object> map = new HashMap<>();
-			map.put("data.users", ((UserDetails) authentication.getPrincipal()).getUsername());
-			map.put("data.origin", studyIds);
+			String username =  ((UserDetails) authentication.getPrincipal()).getUsername();
 
 			ObjectMapper mapper = new ObjectMapper();
-			String query = mapper.writeValueAsString(map);
+
+			//ignore origin studies order
+            String query = "{ $and: [{ \"data.users\": \"" + username + "\" }, { \"data.origin\": { $all: "
+                    + mapper.writeValueAsString(studyIds) + " } }, { \"data.origin\": { $size: " + studyIds.size()
+                    + " } } ]}";
 
 			RestTemplate restTemplate = new RestTemplate();
 

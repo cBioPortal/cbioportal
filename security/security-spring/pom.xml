@@ -19,8 +19,14 @@
     <dependencies>
       <dependency>
         <groupId>org.mskcc.cbio</groupId>
-        <artifactId>persistence-mybatis</artifactId>
+        <artifactId>service</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>${spring.version}</version>
+        <scope>test</scope>
       </dependency>
       <!-- Spring Security -->
       <dependency>

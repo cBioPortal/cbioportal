@@ -36,11 +36,15 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
+
 
 /**
  * Code to Import Copy Number Alteration, MRNA Expression Data, Methylation, or protein RPPA data
@@ -95,7 +99,7 @@ public class ImportTabDelimData {
     }
 
     /**
-     * Import the Copy Number Alteration, mRNA Expression, protein RPPA or GSVA data
+     * Import the Copy Number Alteration, mRNA Expression, protein RPPA, GSVA or treatment data
      *
      * @throws IOException  IO Error.
      * @throws DaoException Database Error.
@@ -119,6 +123,9 @@ public class ImportTabDelimData {
         boolean gsvaProfile = geneticProfile!=null
                                 && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE
                                 && parts[0].equalsIgnoreCase("geneset_id");
+        boolean genericAssayProfile = geneticProfile!=null
+                                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY
+                                && parts[0].equalsIgnoreCase("entity_stable_id");
         
         int numRecordsToAdd = 0;
         int samplesSkipped = 0;
@@ -128,6 +135,10 @@ public class ImportTabDelimData {
             int rppaGeneRefIndex = getRppaGeneRefIndex(parts);
             int genesetIdIndex = getGenesetIdIndex(parts);
             int sampleStartIndex = getStartIndex(parts, hugoSymbolIndex, entrezGeneIdIndex, rppaGeneRefIndex, genesetIdIndex);
+            int treatmentIdIndex = getTreatmentIdIndex(parts);
+            int treatmentNameIndex = -1;
+            int treatmentDescIndex = -1;
+            int treatmentUrlIndex = -1;
             if (rppaProfile) {
                 if (rppaGeneRefIndex == -1) {
                     throw new RuntimeException("Error: the following column should be present for RPPA data: Composite.Element.Ref");
@@ -136,10 +147,16 @@ public class ImportTabDelimData {
                 if (genesetIdIndex == -1) {
                     throw new RuntimeException("Error: the following column should be present for gene set score data: geneset_id");
                 }
+            } else if (genericAssayProfile) {
+                if (treatmentIdIndex == -1) {
+                    throw new RuntimeException("Error: the following column should be present for this type of data: entity_stable_id");
+                }
+                treatmentNameIndex = getTreatmentNameIndex(parts);
+                treatmentDescIndex = getTreatmentDescIndex(parts);
+                treatmentUrlIndex = getTreatmentUrlIndex(parts);
             } else if (hugoSymbolIndex == -1 && entrezGeneIdIndex == -1) {
                 throw new RuntimeException("Error: at least one of the following columns should be present: Hugo_Symbol or Entrez_Gene_Id");
             }
-            
             
             String sampleIds[];
             sampleIds = new String[parts.length - sampleStartIndex];
@@ -209,8 +226,10 @@ public class ImportTabDelimData {
                 if (gsvaProfile) {
                     recordAdded = parseGenesetLine(line, lenParts, sampleStartIndex, genesetIdIndex, 
                             filteredSampleIndices, daoGeneticAlteration);
-                }
-                else {
+                } else if (genericAssayProfile) {
+                    recordAdded = parseTreatmentLine(line, lenParts, sampleStartIndex, treatmentIdIndex, 
+                            filteredSampleIndices, daoGeneticAlteration);
+                } else {
                     recordAdded = parseLine(line, lenParts, sampleStartIndex, 
                             hugoSymbolIndex, entrezGeneIdIndex, rppaGeneRefIndex, 
                             rppaProfile, discretizedCnaProfile,
@@ -249,7 +268,7 @@ public class ImportTabDelimData {
             buf.close();
         }                
     }
-    
+
     private boolean parseLine(String line, int nrColumns, int sampleStartIndex, 
             int hugoSymbolIndex, int entrezGeneIdIndex, int rppaGeneRefIndex,
             boolean rppaProfile, boolean discretizedCnaProfile,
@@ -484,6 +503,9 @@ public class ImportTabDelimData {
             }
             
             String values[] = (String[]) ArrayUtils.subarray(parts, sampleStartIndex, parts.length>nrColumns?nrColumns:parts.length);
+
+            // trim whitespace from values
+            values = Stream.of(values).map(String::trim).toArray(String[]::new);
             values = filterOutNormalValues(filteredSampleIndices, values);
             
             Geneset geneset = DaoGeneset.getGenesetByExternalId(parts[genesetIdIndex]);
@@ -496,6 +518,57 @@ public class ImportTabDelimData {
             }
         }
         return storedRecord;
+    }
+
+    /**
+     * Parses line for treatment profile record and stores record in 'genetic_alteration' table.
+     * @param line  row from the separated-text that contains one or more values on a single sample
+     * @param nrColumns
+     * @param sampleStartIndex  index of the first sample column
+     * @param treatmentIdIndex  index of the column that uniquely identifies a sample
+     * @param filteredSampleIndices
+     * @param daoGeneticAlteration
+     * @return
+     * @throws DaoException 
+     */
+    // TODO: TREATMENT BACKLOG this code is a duplicate of the parseGenesetLine.
+    // consider refactoring do that both functions are covered by a single
+    // base class
+    private boolean parseTreatmentLine(String line, int nrColumns, int sampleStartIndex, int treatmentIdIndex,
+             List<Integer> filteredSampleIndices, DaoGeneticAlteration daoGeneticAlteration) throws DaoException {
+
+        boolean recordIsStored = false;
+        
+        if (!line.startsWith("#") && line.trim().length() > 0) {
+            String[] parts = line.split("\t", -1);
+
+            if (parts.length > nrColumns) {
+                if (line.split("\t").length > nrColumns) {
+                    ProgressMonitor.logWarning("Ignoring line with more fields (" + parts.length
+                                        + ") than specified in the headers(" + nrColumns + "): \n"+parts[0]);
+                    return false;
+                }
+            }
+            
+            String values[] = (String[]) ArrayUtils.subarray(parts, sampleStartIndex, parts.length>nrColumns?nrColumns:parts.length);
+
+            // trim whitespace from values
+            values = Stream.of(values).map(String::trim).toArray(String[]::new);
+            values = filterOutNormalValues(filteredSampleIndices, values);
+            
+            Treatment treatment = DaoTreatment.getTreatmentByStableId(parts[treatmentIdIndex]);
+            
+            if (treatment ==  null) {
+                ProgressMonitor.logWarning("Treatment " + parts[treatmentIdIndex] + " not found in DB. Record will be skipped.");
+            } else {
+                recordIsStored = storeGeneticEntityGeneticAlterations(values, daoGeneticAlteration, treatment.getGeneticEntityId(), 
+                                    DaoGeneticEntity.EntityTypes.GENERIC_ASSAY, treatment.getStableId());
+            }
+
+            return recordIsStored;
+        }
+
+        return recordIsStored;
     }
 
     private boolean storeGeneticAlterations(String[] values, DaoGeneticAlteration daoGeneticAlteration,
@@ -636,63 +709,89 @@ public class ImportTabDelimData {
         }
         return phosphoGenes;
     }
+
     
     // returns index for geneset id column
     private int getGenesetIdIndex(String[] headers) {
-        for (int i=0; i<headers.length; i++) {
-            if (headers[i].equalsIgnoreCase("geneset_id")) {
-                return i;
-            }
-        }
-        return -1;
+        return getColIndexByName(headers, "geneset_id");
+    }
+
+    // returns index for entity_stable_id column
+    private int getTreatmentIdIndex(String[] headers) {
+        return getColIndexByName(headers, "entity_stable_id");
+    }
+
+    // returns index for treatment name column
+    private int getTreatmentNameIndex(String[] headers) {
+        return getColIndexByName(headers, ImportUtils.metaFieldTag+"name");
+    }
+
+    // returns index for treatment description column
+    private int getTreatmentDescIndex(String[] headers) {
+        return getColIndexByName(headers, ImportUtils.metaFieldTag+"description");
+    }
+
+    // returns index for treatment linkout url column
+    private int getTreatmentUrlIndex(String[] headers) {
+        return getColIndexByName(headers, ImportUtils.metaFieldTag+"url");
     }
     
     private int getHugoSymbolIndex(String[] headers) {
-        for (int i = 0; i<headers.length; i++) {
-            if (headers[i].equalsIgnoreCase("Hugo_Symbol")) {
-                return i;
-            }
-        }
-        return -1;
+        return getColIndexByName(headers, "Hugo_Symbol");
     }
     
     private int getEntrezGeneIdIndex(String[] headers) {
-        for (int i = 0; i<headers.length; i++) {
-            if (headers[i].equalsIgnoreCase("Entrez_Gene_Id")) {
+        return getColIndexByName(headers, "Entrez_Gene_Id");
+    }
+    
+    private int getRppaGeneRefIndex(String[] headers) {
+        return getColIndexByName(headers, "Composite.Element.Ref");
+    }
+    
+    // helper function for finding the index of a column by name
+    private int getColIndexByName(String[] headers, String colName) {
+        for (int i=0; i<headers.length; i++) {
+            if (headers[i].equalsIgnoreCase(colName)) {
                 return i;
             }
         }
         return -1;
     }
 
-    private int getRppaGeneRefIndex(String[] headers) {
-        for (int i = 0; i<headers.length; i++) {
-            if (headers[i].equalsIgnoreCase("Composite.Element.Ref")) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    
-    private int getStartIndex(String[] headers, int hugoSymbolIndex, int entrezGeneIdIndex, int rppaGeneRefIndex, int genesetIdIndex) {
+    private int getStartIndex(String[] headers, int ...featureColIds) {
+
+        // get the feature column index with the highest value
+        Integer lastFeatureCol = IntStream.of(featureColIds).max().orElse(-1);
+        
+        // list the names of feature columns here
+        List<String> featureColNames = new ArrayList<String>();
+        featureColNames.add("Gene Symbol");
+        featureColNames.add("Hugo_Symbol");
+        featureColNames.add("Entrez_Gene_Id");
+        featureColNames.add("Locus ID");
+        featureColNames.add("Cytoband");
+        featureColNames.add("Composite.Element.Ref");
+        featureColNames.add("geneset_id");
+        featureColNames.add("entity_stable_id");
+
+        // Find column relating to meta infomation names via
+        // the 'META:'-tag and add to the feature col names
+        List<String> metaColNames = Stream.of(headers)
+            .filter(name -> name.startsWith(ImportUtils.metaFieldTag))
+            .collect(Collectors.toList());
+        featureColNames.addAll(metaColNames);
+
         int startIndex = -1;
         
         for (int i=0; i<headers.length; i++) {
             String h = headers[i];
-            //if the column is not one of the gene symbol/gene ide columns or other pre-sample columns:
-            if (!h.equalsIgnoreCase("Gene Symbol") &&
-                    !h.equalsIgnoreCase("Hugo_Symbol") &&
-                    !h.equalsIgnoreCase("Entrez_Gene_Id") &&
-                    !h.equalsIgnoreCase("Locus ID") &&
-                    !h.equalsIgnoreCase("Cytoband") &&
-                    !h.equalsIgnoreCase("Composite.Element.Ref") &&
-                    !h.equalsIgnoreCase("geneset_id")) {
-                //and the column is found after  hugoSymbolIndex and entrezGeneIdIndex: 
-                if (i > hugoSymbolIndex && i > entrezGeneIdIndex && i > rppaGeneRefIndex && i > genesetIdIndex) {
-                    //then we consider this the start of the sample columns:
-                    startIndex = i;
-                    break;
-                }
+            //if the column is not one of the gene symbol/gene id columns or other pre-sample columns:
+            // and the column is found after all non value columns that are passed in
+            if ( featureColNames.stream().noneMatch(e -> e.equalsIgnoreCase(h))
+                && i > lastFeatureCol) {
+                //then we consider this the start of the sample columns:
+                startIndex = i;
+                break;
             }
         }
         if (startIndex == -1)

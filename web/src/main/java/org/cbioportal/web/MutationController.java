@@ -44,7 +44,7 @@ import java.util.*;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Mutations", description = " ")
+@Api(tags = "K. Mutations", description = " ")
 public class MutationController {
 
     public static final int MUTATION_MAX_PAGE_SIZE = 10000000;
@@ -156,7 +156,7 @@ public class MutationController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @RequestAttribute(required = false, value = "interceptedMutationMultipleStudyFilter") MutationMultipleStudyFilter interceptedMutationMultipleStudyFilter,
+        @Valid @RequestAttribute(required = false, value = "interceptedMutationMultipleStudyFilter") MutationMultipleStudyFilter interceptedMutationMultipleStudyFilter,
         @ApiParam(required = true, value = "List of Molecular Profile IDs or List of Molecular Profile ID / Sample ID pairs," +
             " and List of Entrez Gene IDs")
         @Valid @RequestBody(required = false) MutationMultipleStudyFilter mutationMultipleStudyFilter,

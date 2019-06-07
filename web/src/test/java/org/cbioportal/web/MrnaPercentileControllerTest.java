@@ -46,8 +46,7 @@ public class MrnaPercentileControllerTest {
     @Autowired
     private MrnaPercentileService mrnaPercentileService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

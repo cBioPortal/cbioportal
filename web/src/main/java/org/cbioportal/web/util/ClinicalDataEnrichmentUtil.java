@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
@@ -183,7 +184,11 @@ public class ClinicalDataEnrichmentUtil {
                                     sampleAttributes.stream().map(ClinicalAttribute::getAttrId)
                                             .collect(Collectors.toList()),
                                     ClinicalDataType.SAMPLE.name(), "SUMMARY")
-                            .stream().collect(Collectors.groupingBy(x -> x.getAttrId() + "SAMPLE",
+                            .stream()
+                            // filter are non numeric data to fix
+                            // https://github.com/cBioPortal/cbioportal/issues/6228
+                            .filter(x -> NumberUtils.isCreatable(x.getAttrValue()))
+                            .collect(Collectors.groupingBy(x -> x.getAttrId() + "SAMPLE",
                                     Collectors.mapping(x -> Double.valueOf(x.getAttrValue()), Collectors.toList()))));
         }
 
@@ -194,7 +199,11 @@ public class ClinicalDataEnrichmentUtil {
                                     patientAttributes.stream().map(ClinicalAttribute::getAttrId)
                                             .collect(Collectors.toList()),
                                     ClinicalDataType.PATIENT.name(), "SUMMARY")
-                            .stream().collect(Collectors.groupingBy(x -> x.getAttrId() + "PATIENT",
+                            .stream()
+                            // filter are non numeric data to fix
+                            // https://github.com/cBioPortal/cbioportal/issues/6228
+                            .filter(x -> NumberUtils.isCreatable(x.getAttrValue()))
+                            .collect(Collectors.groupingBy(x -> x.getAttrId() + "PATIENT",
                                     Collectors.mapping(x -> Double.valueOf(x.getAttrValue()), Collectors.toList()))));
         }
 

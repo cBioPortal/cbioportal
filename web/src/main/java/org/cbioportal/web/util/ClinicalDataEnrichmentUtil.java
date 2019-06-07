@@ -3,13 +3,13 @@ package org.cbioportal.web.util;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
@@ -66,9 +66,17 @@ public class ClinicalDataEnrichmentUtil {
                     }
                 }
             }
+            
+            Double totalCount = transposeDataCollection
+                    .values()
+                    .stream()
+                    .flatMap(collection -> collection.stream())
+                    .mapToDouble(x -> (Double) x)
+                    .sum();
 
-            // perform test only if there are more than one group
-            if (transposeDataCollection.keySet().size() > 1) {
+            // perform test only if there are more than one group and
+            // total count across all groups in greater than 0
+            if (transposeDataCollection.keySet().size() > 1 && totalCount > 0) {
                 double pValue = KruskalWallis.getPvalue(transposeDataCollection);
                 if (!Double.isNaN(pValue)) { // this happens when all the values are zero
                     ClinicalDataEnrichment clinicalEnrichment = new ClinicalDataEnrichment();
@@ -89,8 +97,7 @@ public class ClinicalDataEnrichmentUtil {
 
         List<ClinicalDataEnrichment> clinicalEnrichments = new ArrayList<ClinicalDataEnrichment>();
 
-        // ClinicalDataCountItem for all STRING datatype attributes and for all sample
-        // groups
+        // ClinicalDataCountItem for all STRING datatype attributes and for all sample groups
         List<Map<String, ClinicalDataCountItem>> dataCountsByGroupAndByAttribute = groupedSamples.stream()
                 .map(groupSamples -> getClinicalDataCounts(attributes, groupSamples)).collect(Collectors.toList());
 
@@ -177,7 +184,11 @@ public class ClinicalDataEnrichmentUtil {
                                     sampleAttributes.stream().map(ClinicalAttribute::getAttrId)
                                             .collect(Collectors.toList()),
                                     ClinicalDataType.SAMPLE.name(), "SUMMARY")
-                            .stream().collect(Collectors.groupingBy(x -> x.getAttrId() + "SAMPLE",
+                            .stream()
+                            // filter are non numeric data to fix
+                            // https://github.com/cBioPortal/cbioportal/issues/6228
+                            .filter(x -> NumberUtils.isCreatable(x.getAttrValue()))
+                            .collect(Collectors.groupingBy(x -> x.getAttrId() + "SAMPLE",
                                     Collectors.mapping(x -> Double.valueOf(x.getAttrValue()), Collectors.toList()))));
         }
 
@@ -188,7 +199,11 @@ public class ClinicalDataEnrichmentUtil {
                                     patientAttributes.stream().map(ClinicalAttribute::getAttrId)
                                             .collect(Collectors.toList()),
                                     ClinicalDataType.PATIENT.name(), "SUMMARY")
-                            .stream().collect(Collectors.groupingBy(x -> x.getAttrId() + "PATIENT",
+                            .stream()
+                            // filter are non numeric data to fix
+                            // https://github.com/cBioPortal/cbioportal/issues/6228
+                            .filter(x -> NumberUtils.isCreatable(x.getAttrValue()))
+                            .collect(Collectors.groupingBy(x -> x.getAttrId() + "PATIENT",
                                     Collectors.mapping(x -> Double.valueOf(x.getAttrValue()), Collectors.toList()))));
         }
 

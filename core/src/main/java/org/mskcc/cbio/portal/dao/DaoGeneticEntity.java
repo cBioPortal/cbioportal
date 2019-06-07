@@ -14,10 +14,15 @@ public class DaoGeneticEntity {
     private DaoGeneticEntity() {
     }
     
+    // TODO: consider renaming this class to something something similar to DaoEntity 
+    // to reflect the fact that there are also entities that are "not genetic", like
+    // for example the new entity of type "TREATMENT".
+    // see: https://github.com/cBioPortal/cbioportal/pull/5460#discussion_r250148672
     public static enum EntityTypes
     {
         GENE,
         GENESET,
+        GENERIC_ASSAY,
         PHOSPHOPROTEIN;
     }
     

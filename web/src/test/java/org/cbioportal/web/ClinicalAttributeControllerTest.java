@@ -62,8 +62,7 @@ public class ClinicalAttributeControllerTest {
     @Autowired
     private ClinicalAttributeService clinicalAttributeService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

@@ -49,8 +49,7 @@ public class VariantCountControllerTest {
     @Autowired
     private VariantCountService variantCountService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

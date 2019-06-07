@@ -88,6 +88,7 @@
                 </foreach>
             </if>
         </where>
+        ORDER BY hugoGeneSymbol ASC
     </select>
     
     <select id="getGenePanelDataBySampleListId" resultType="org.cbioportal.model.GenePanelData">

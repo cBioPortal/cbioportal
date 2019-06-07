@@ -43,7 +43,6 @@ You then usually commit code changes, and push your branch back to GitHub like s
 A few tips:
 
 * Make commits in logical/cohesive units.
-* Make sure your commit messages end with a Signed-off-by string (this line can be automatically added by git if you run the git-commit command with the -s option).
 * Make sure you have added the necessary tests for your changes.
 * Run _all_ tests to assure nothing else was accidentally broken in the java part (data loading and front-end parts are tested by other scripts in travis). This is done by running:  ```mvn integration-test```.
 
@@ -53,6 +52,29 @@ When you are ready to submit your pull-request:
 * Open a Pull Request on GitHub to the **rc (release candidate)** branch for a new feature or the **master** branch for a bug fix or documentation fix.
 
 For instructions on submitting a pull-request, please see:  [Using Pull Requests ](https://help.github.com/articles/using-pull-requests/) and [Sending Pull Requests](http://help.github.com/send-pull-requests/).
+
+### Getting your changes reviewed
+
+Once you've submitted your pull request, you want
+other members of the development community to review
+whether integrating your change will cause problems
+for any users or the maintainability of the software.
+
+If you have an idea who might be able to spot such issues
+in the parts of the code and functionality affected by your changes,
+notify them by requesting a review using the **Reviewers** menu
+to the right of the summary you just wrote
+and/or `@`-mentioning them in a comment.
+
+Reviewers may request you to rephrase or adjust things
+before they allow the changes to be integrated.
+If they do, commit the amendments as new, separate changes,
+to allow the reviewers to see what changed since they last read your code.
+Do not overwrite previously-reviewed commits with
+ones that include additional changes (by `--amend`ing or squashing)
+until the reviewers approve.
+Reviewers may request you to squash such amendment commits afterwards,
+or offer to push rewritten versions of your commits themselves.
 
 ## Automated tests on Travis CI
 All Pull Requests are automatically tested on [Travis
@@ -74,7 +96,7 @@ cBioPortal:
 
 ```bash
 curl 'https://clbin.com/[replace-with-clbin-image-from-log].png' > test/end-to-end/screenshots/[replace-with-image-from-repo].png
-``` 
+```
 
 Then follow the steps outlined in [this blog post](http://www.akikoskinen.info/image-diffs-with-git/) to compare the 
 images locally. Run `git diff` from your repo to see the ImageMagick diff.
@@ -87,6 +109,14 @@ Once you downloaded the images you do the following for each screenshot:
   repo, commit it and push it to your PR's branch.
 
 ## Pull Request Reviewers Guide
+If someone requests your review on a pull request,
+read the title and description and assign any other collaborators
+who would want to know about the proposed change.
+
+Decide whether you think that your input is needed,
+and that the PR should wait for your further review before being merged.
+If not, un-assign yourself as a reviewer and leave a comment.
+
 Here we describe the guidelines for the reviewer. Always follow the checks in
 general, then follow the other checks that apply:
 

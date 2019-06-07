@@ -142,7 +142,6 @@ public class GlobalProperties {
     public static final String STUDY_VIEW_MDACC_HEATMAP_URL = "mdacc.heatmap.study.url";
     public static final String STUDY_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.study.meta.url";
 
-    public static final String ONCOKB_API_URL = "oncokb.api.url";
     public static final String ONCOKB_PUBLIC_API_URL = "oncokb.public_api.url";
     public static final String SHOW_ONCOKB = "show.oncokb";
 
@@ -271,6 +270,13 @@ public class GlobalProperties {
     @Value("${show.genomenexus:true}") // default is true
     public void setShowGenomeNexus(String property) { showGenomeNexus = Boolean.parseBoolean(property); }
 
+    private static boolean datRevokeOtherTokens;
+    @Value("${dat.uuid.revoke_other_tokens:true}") // default is true
+    public void setDatRevokeOtherTokens(String property) { datRevokeOtherTokens = Boolean.parseBoolean(property);}
+
+    private static String datMethod;
+    @Value("${dat.method:none}") // default is 'none'
+    public void setDatMethod(String property) { datMethod = property;}
 	/*
      * Trim whitespace of url and append / if it does not exist. Return empty
      * string otherwise.
@@ -861,7 +867,6 @@ public class GlobalProperties {
                     showOncokb = "true";
         }
         
-        // This only applies if there is no oncokb.api.url property in the portal.properties file.
         // Empty string should be used if you want to disable the OncoKB annotation.
         if(oncokbApiUrl == null || oncokbApiUrl.isEmpty()) {
             oncokbApiUrl = "oncokb.org/api/v1";
@@ -873,37 +878,6 @@ public class GlobalProperties {
            return "";
         }
         
-    }
-    
-    public static String getOncoKBApiUrl()
-    {
-        String oncokbApiUrl = portalProperties.getProperty(ONCOKB_API_URL);
-        String showOncokb = portalProperties.getProperty(SHOW_ONCOKB);
-
-        if(showOncokb == null || showOncokb.isEmpty()) {
-            showOncokb = "true";
-        }
-        // This only applies if there is no oncokb.api.url property in the portal.properties file.
-        // Empty string should be used if you want to disable the OncoKB annotation.
-        if(oncokbApiUrl == null) {
-            oncokbApiUrl = "http://oncokb.org/legacy-api/";
-        }
-
-        //Test connection of OncoKB website.
-        if(!oncokbApiUrl.isEmpty() && showOncokb.equals("true")) {
-            try {
-                URL url = new URL(oncokbApiUrl+"access");
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                if(conn.getResponseCode() != 200) {
-                    oncokbApiUrl = "";
-                }
-                conn.disconnect();
-                return oncokbApiUrl;
-            } catch (Exception e) {
-                return "";
-            }
-        }
-        return "";
     }
 
     public static String getCivicUrl() {
@@ -1202,5 +1176,13 @@ public class GlobalProperties {
         } else {
             return null;
         }
+    }
+
+    public static Boolean getRevokeOtherTokens() {
+        return datRevokeOtherTokens;
+    }
+
+    public static String getDatMethod() {
+        return datMethod;
     }
 }

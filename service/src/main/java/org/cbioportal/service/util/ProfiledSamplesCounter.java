@@ -1,6 +1,5 @@
 package org.cbioportal.service.util;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,24 +15,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GeneFrequencyCalculator {
+public class ProfiledSamplesCounter {
 
     @Autowired
     private GenePanelService genePanelService;
 
-    public void calculate(List<String> molecularProfileIds, List<String> sampleIds, 
-        List<? extends AlterationCountByGene> alterationCounts) {
+    public void calculate(List<String> molecularProfileIds, List<String> sampleIds,
+            List<? extends AlterationCountByGene> alterationCounts) {
 
-        List<GenePanelData> genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds);
-        Map<String, List<GenePanelData>> genePanelDataMap = genePanelDataList.stream().filter(g -> 
-            g.getGenePanelId() != null).collect(Collectors.groupingBy(GenePanelData::getGenePanelId));
+        List<GenePanelData> genePanelDataList = genePanelService
+                .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds);
+        Map<String, List<GenePanelData>> genePanelDataMap = genePanelDataList.stream()
+                .filter(g -> g.getGenePanelId() != null).collect(Collectors.groupingBy(GenePanelData::getGenePanelId));
         List<GenePanel> genePanels = new ArrayList<>();
         if (!genePanelDataMap.isEmpty()) {
             genePanels = genePanelService.fetchGenePanels(new ArrayList<>(genePanelDataMap.keySet()), "DETAILED");
         }
 
         Map<Integer, List<GenePanel>> geneGenePanelMap = new HashMap<>();
-        for (GenePanel genePanel: genePanels) {
+        for (GenePanel genePanel : genePanels) {
             for (GenePanelToGene genePanelToGene : genePanel.getGenes()) {
                 Integer entrezGeneId = genePanelToGene.getEntrezGeneId();
                 if (geneGenePanelMap.containsKey(entrezGeneId)) {
@@ -48,21 +48,23 @@ public class GeneFrequencyCalculator {
 
         for (AlterationCountByGene alterationCountByGene : alterationCounts) {
 
-            int denominator = 0;
+            int numberOfSamplesProfiled = 0;
             Integer entrezGeneId = alterationCountByGene.getEntrezGeneId();
             List<GenePanelData> profiled = genePanelDataList.stream().filter(g -> g.getProfiled()).collect(Collectors.toList());
+            List<GenePanel> allPanels = new ArrayList<>();
             if (geneGenePanelMap.containsKey(entrezGeneId)) {
                 List<GenePanel> matchingGenePanels = geneGenePanelMap.get(entrezGeneId);
                 for (GenePanel genePanel : matchingGenePanels) {
-                    denominator += genePanelDataMap.get(genePanel.getStableId()).size();
+                    numberOfSamplesProfiled += genePanelDataMap.get(genePanel.getStableId()).size();
+                    allPanels.add(genePanel);
                 }
                 
-                denominator += profiled.stream().filter(g -> g.getGenePanelId() == null).count();
+                numberOfSamplesProfiled += profiled.stream().filter(g -> g.getGenePanelId() == null).count();
             } else {
-                denominator = profiled.size();
+                numberOfSamplesProfiled = profiled.size();
             }
-            alterationCountByGene.setFrequency(new BigDecimal((double) alterationCountByGene.getCountByEntity() / 
-                denominator * 100).setScale(2, BigDecimal.ROUND_HALF_UP));
+            alterationCountByGene.setMatchingGenePanels(allPanels);
+            alterationCountByGene.setNumberOfSamplesProfiled(numberOfSamplesProfiled);
         }
     }
 }

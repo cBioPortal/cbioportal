@@ -31,7 +31,7 @@ optional arguments:
                         path to directory.
   -u URL_SERVER, --url_server URL_SERVER
                         URL to cBioPortal server. You can set this if your URL
-                        is not http://localhost:8080/cbioportal
+                        is not http://localhost:8080
   -p PORTAL_INFO_DIR, --portal_info_dir PORTAL_INFO_DIR
                         Path to a directory of cBioPortal info files to be
                         used instead of contacting a server
@@ -72,15 +72,15 @@ when the validator encounters these validation checks it will report them as an 
 ### Example 1: test study_es_0
 As an example, you can try the validator with one of the test studies found in  `<cbioportal_source_folder>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option to also see the progress:
 ```bash
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080/cbioportal -v
+./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080 -v
 ```
 Results in:
 ```console
-DEBUG: -: Requesting cancertypes from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting clinicalattributes/patients from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting clinicalattributes/samples from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting genes from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting genesaliases from portal at 'http://localhost:8080/cbioportal'
+DEBUG: -: Requesting cancertypes from portal at 'http://localhost:8080'
+DEBUG: -: Requesting clinicalattributes/patients from portal at 'http://localhost:8080'
+DEBUG: -: Requesting clinicalattributes/samples from portal at 'http://localhost:8080'
+DEBUG: -: Requesting genes from portal at 'http://localhost:8080'
+DEBUG: -: Requesting genesaliases from portal at 'http://localhost:8080'
 
 DEBUG: meta_CNA.txt: Starting validation of meta file
 INFO: meta_CNA.txt: Validation of meta file complete
@@ -174,15 +174,15 @@ When using the `-html` option, a report will be generated, which looks like this
 ### Example 2: test study_es_1
 More test studies for trying the validator (`study_es_1` and `study_es_3`) are available in  `<cbioportal_source_folder>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option:
 ```bash
-./validateData.py -s ../../../test/scripts/test_data/study_es_1/ -u http://localhost:8080/cbioportal -v
+./validateData.py -s ../../../test/scripts/test_data/study_es_1/ -u http://localhost:8080 -v
 ```
 Results in:
 ```console
-DEBUG: -: Requesting cancertypes from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting clinicalattributes/patients from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting clinicalattributes/samples from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting genes from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting genesaliases from portal at 'http://localhost:8080/cbioportal'
+DEBUG: -: Requesting cancertypes from portal at 'http://localhost:8080'
+DEBUG: -: Requesting clinicalattributes/patients from portal at 'http://localhost:8080'
+DEBUG: -: Requesting clinicalattributes/samples from portal at 'http://localhost:8080'
+DEBUG: -: Requesting genes from portal at 'http://localhost:8080'
+DEBUG: -: Requesting genesaliases from portal at 'http://localhost:8080'
 
 DEBUG: meta_samples.txt: Starting validation of meta file
 WARNING: meta_samples.txt: Unrecognized field in meta file; values encountered: ['show_profile_in_analysis_tab', 'profile_name', 'profile_description']
@@ -439,7 +439,7 @@ If your `portal.properties` does not have the default (human) settings, you shou
 
 As an example, the command for the "Example 1" listed above incorporating the `-P` parameter is given:
 ```
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -P ../../../../../src/main/resources/portal.properties -u http://localhost:8080/cbioportal -v
+./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -P ../../../../../src/main/resources/portal.properties -u http://localhost:8080 -v
 ```
 
 ## Running the validator for multiple studies
@@ -467,7 +467,7 @@ optional arguments:
                         Path to folder for output HTML reports
   -u URL_SERVER, --url_server URL_SERVER
                         URL to cBioPortal server. You can set this if your URL
-                        is not http://localhost:8080/cbioportal
+                        is not http://localhost:8080
   -p PORTAL_INFO_DIR, --portal_info_dir PORTAL_INFO_DIR
                         Path to a directory of cBioPortal info files to be
                         used instead of contacting a server

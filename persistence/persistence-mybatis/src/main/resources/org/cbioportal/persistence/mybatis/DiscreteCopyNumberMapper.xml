@@ -157,7 +157,7 @@
         gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
         gene.CYTOBAND AS cytoband,
         cna_event.ALTERATION AS alteration,
-        COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS countByEntity
+        COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS numberOfAlteredCases
         FROM cna_event
         INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
@@ -186,7 +186,7 @@
         gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
         gene.CYTOBAND AS cytoband,
         cna_event.ALTERATION AS alteration,
-        COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS countByEntity
+        COUNT(DISTINCT(sample_cna_event.SAMPLE_ID)) AS numberOfAlteredCases
         FROM cna_event
         INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
@@ -233,7 +233,7 @@
         gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
         gene.CYTOBAND AS cytoband,
         cna_event.ALTERATION AS alteration,
-        COUNT(DISTINCT(patient.INTERNAL_ID)) AS countByEntity
+        COUNT(DISTINCT(patient.INTERNAL_ID)) AS numberOfAlteredCases
         FROM cna_event
         INNER JOIN sample_cna_event ON cna_event.CNA_EVENT_ID = sample_cna_event.CNA_EVENT_ID
         INNER JOIN genetic_profile ON sample_cna_event.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID

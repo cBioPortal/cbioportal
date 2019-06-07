@@ -1,3 +1,9 @@
+## June 7, 2019
+* **New Group Comparison Feature**: Compare clinical and genomic features of user-defined groups of samples/patients. [View Tutorial](https://www.cbioportal.org/tutorials#group-comparison)
+
+[![group-comparison](https://user-images.githubusercontent.com/840895/59052073-40f9eb00-885c-11e9-9ddb-6d036533e5f5.png)](https://www.cbioportal.org/comparison/mutations?sessionId=5cf92520e4b0ab4137874376)
+
+
 ## May 8, 2019
 * **New Feature**: Show *Post Translational Modification (PTM)* information from [dbPTM](http://dbptm.mbc.nctu.edu.tw/) on the _Mutation Mapper_ - see [example](https://bit.ly/2VVrWdi):
     

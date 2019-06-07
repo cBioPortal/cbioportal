@@ -125,7 +125,7 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     public List<GeneMolecularAlteration> getMolecularAlterations(String molecularProfileId, 
                                                                  List<Integer> entrezGeneIds, String projection)
         throws MolecularProfileNotFoundException {
-        
+
         validateMolecularProfile(molecularProfileId);
         return molecularDataRepository.getGeneMolecularAlterations(molecularProfileId, entrezGeneIds, projection);
     }

@@ -104,6 +104,11 @@
       <artifactId>aspectjweaver</artifactId>
       <version>1.8.12</version>
     </dependency>
+	<dependency>
+        <groupId>com.datumbox</groupId>
+        <artifactId>datumbox-framework-lib</artifactId>
+        <version>0.8.1</version>
+    </dependency>
   </dependencies>
 
 </project>

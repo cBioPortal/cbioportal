@@ -29,6 +29,12 @@
         </where>
     </sql>
 
+    <sql id="whereStudy">
+        <where>
+            cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        </where>
+    </sql>
+
     <select id="getPatientClinicalEvent" resultType="org.cbioportal.model.ClinicalEvent">
         SELECT
         <include refid="select"/>
@@ -66,5 +72,28 @@
                 </foreach>
             </if>
         </where>
+    </select>
+
+    <select id="getStudyClinicalEvent" resultType="org.cbioportal.model.ClinicalEvent">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <include refid="whereStudy"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY clinical_event.PATIENT_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    
+    <select id="getMetaClinicalEvent" resultType="org.cbioportal.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS totalCount
+        <include refid="from"/>
+        <include refid="whereStudy"/>
     </select>
 </mapper>

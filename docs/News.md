@@ -1,5 +1,5 @@
 ## June 7, 2019
-* **New Group Comparison Feature**: Compare clinical and genomic features of user-defined groups of samples/patients. [Vew Tutorial](https://www.cbioportal.org/tutorials#group-comparison)
+* **New Group Comparison Feature**: Compare clinical and genomic features of user-defined groups of samples/patients. [View Tutorial](https://www.cbioportal.org/tutorials#group-comparison)
 
 [![group-comparison](https://user-images.githubusercontent.com/840895/59052073-40f9eb00-885c-11e9-9ddb-6d036533e5f5.png)](https://www.cbioportal.org/comparison/mutations?sessionId=5cf92520e4b0ab4137874376)
 

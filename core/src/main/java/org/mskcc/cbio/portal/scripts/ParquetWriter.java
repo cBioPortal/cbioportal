@@ -36,6 +36,8 @@ import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.util.SparkConfiguration;
 
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.beans.factory.annotation.Value;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.*;
@@ -48,15 +50,22 @@ import java.util.Properties;
 /**
  * Command Line tool to Write Parquet Files.
  */
+@PropertySource("classpath:portal.properties")
 public class ParquetWriter extends ConsoleRunnable {
 
-    private String parquetDir = GlobalProperties.getProperty("data.parquet.folder");
-    private String datatDir = GlobalProperties.getProperty("data.tsv.folder");
+    @Value("${data.parquet.folder}")
+    private String parquetDir;
+    @Value("${data.tsv.folder}")
+    private String datatDir;
         
 
     private void write(SparkSession spark, String destination, String txtFile) throws IOException {
-        Dataset<Row> df = spark.read().format("csv").option("delimiter", "\t").option("header", "true")
-            .option("comment","#").load(datatDir + txtFile);
+        Dataset<Row> df = spark.read()
+            .format("csv")
+            .option("delimiter", "\t")
+            .option("header", "true")
+            .option("comment","#")
+            .load(datatDir + txtFile);
         df.write().parquet(destination + "/" + txtFile + ".parquet");
     }
    

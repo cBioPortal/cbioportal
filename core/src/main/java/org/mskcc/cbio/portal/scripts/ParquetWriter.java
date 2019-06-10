@@ -36,7 +36,8 @@ import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.util.SparkConfiguration;
 
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -45,19 +46,16 @@ import static org.apache.spark.sql.functions.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
 
 /**
  * Command Line tool to Write Parquet Files.
  */
-@PropertySource("classpath:portal.properties")
+@Component
 public class ParquetWriter extends ConsoleRunnable {
 
-    @Value("${data.parquet.folder}")
-    private String parquetDir;
-    @Value("${data.tsv.folder}")
-    private String datatDir;
-        
+    private String parquetDir = GlobalProperties.getProperty("data.parquet.folder");
+    private String datatDir = GlobalProperties.getProperty("data.tsv.folder");
+
 
     private void write(SparkSession spark, String destination, String txtFile) throws IOException {
         Dataset<Row> df = spark.read()
@@ -69,7 +67,8 @@ public class ParquetWriter extends ConsoleRunnable {
         df.write().parquet(destination + "/" + txtFile + ".parquet");
     }
    
-   public void run () {
+   public void run () { 
+      System.out.println(parquetDir);
       try {
     	  // check args
 	      if (args.length < 2) {
@@ -86,21 +85,21 @@ public class ParquetWriter extends ConsoleRunnable {
               directory.mkdir();
           }
 
-          SparkConfiguration sc = new SparkConfiguration();
-          SparkSession spark = sc.sparkSession();
-          
-          for (int i=1; i<args.length; i++) {
-              String txtFile = args[i];
-              ProgressMonitor.logDebug("Writing " + txtFile + ".parquet");
-              this.write(spark, destinationFolder, txtFile);
-          }
-	      
-      } catch (RuntimeException e) {
-          throw e;
-      } catch (IOException e) {
-          throw new RuntimeException(e);
-      }
-   }
+            SparkConfiguration sc = new SparkConfiguration();
+            SparkSession spark = sc.sparkSession();
+
+            for (int i=1; i<args.length; i++) {
+                String txtFile = args[i];
+                ProgressMonitor.logDebug("Writing " + txtFile + ".parquet");
+                this.write(spark, destinationFolder, txtFile);
+            }
+
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public ParquetWriter() { super(null);}
     /**
      * Makes an instance to run with the given command line arguments.

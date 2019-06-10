@@ -3,7 +3,6 @@ package org.mskcc.cbio.portal.util;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.beans.factory.annotation.Value;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -12,21 +11,14 @@ import org.apache.spark.sql.SparkSession;
 @Configuration
 @PropertySource("classpath:portal.properties")
 public class SparkConfiguration {
-
-    @Value("${spark.app.name}")
-    private String appName;
-    @Value("${spark.home}")
-    private String sparkHome;
-    @Value("${spark.master.uri}")
-    private String masterUri;
-    @Value("${spark.driver.bindAddress}")
-    private String bindAddress;
-    @Value("${spark.driver.host}")
-    private String driverHost;
-    @Value("${spark.driver.memory}")
-    private String driverMemory;
-    @Value("${spark.executor.memory}")
-    private String executorMemory;
+    
+    private String appName = GlobalProperties.getProperty("spark.app.name");
+    private String sparkHome = GlobalProperties.getProperty("spark.home");
+    private String masterUri = GlobalProperties.getProperty("spark.master.uri");
+    private String bindAddress = GlobalProperties.getProperty("spark.driver.bindAddress");
+    private String driverHost = GlobalProperties.getProperty("spark.driver.host");
+    private String driverMemory = GlobalProperties.getProperty("spark.driver.memory");
+    private String executorMemory = GlobalProperties.getProperty("spark.executor.memory");
     
     @Bean
     public SparkConf sparkConf() {

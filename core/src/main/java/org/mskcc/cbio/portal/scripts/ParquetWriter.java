@@ -68,7 +68,6 @@ public class ParquetWriter extends ConsoleRunnable {
     }
    
    public void run () { 
-      System.out.println(parquetDir);
       try {
     	  // check args
 	      if (args.length < 2) {

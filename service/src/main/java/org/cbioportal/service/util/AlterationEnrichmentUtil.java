@@ -85,10 +85,8 @@ public class AlterationEnrichmentUtil {
                 int alteredInNoneCount = counts.get(1).getProfiledCount() - counts.get(1).getAlteredCount();
                 int alteredOnlyInQueryGenesCount = counts.get(0).getProfiledCount() - counts.get(0).getAlteredCount();
 
-                System.out.println(alteredInNoneCount+"  "+counts.get(1).getAlteredCount()+"  "+alteredOnlyInQueryGenesCount+"  "+counts.get(0).getAlteredCount()+"  ");
                 pValue = fisherExactTestCalculator.getCumulativePValue(alteredInNoneCount,
                         counts.get(1).getAlteredCount(), alteredOnlyInQueryGenesCount, counts.get(0).getAlteredCount());
-                System.out.println(pValue+"   "+new BigDecimal(pValue));
             } else {
 
                 long[][] array = counts.stream().map(count -> {

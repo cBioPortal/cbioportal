@@ -20,8 +20,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @RunWith(MockitoJUnitRunner.class)
 public class AlterationEnrichmentUtilTest {
 
@@ -103,9 +101,6 @@ public class AlterationEnrichmentUtilTest {
 
         List<AlterationEnrichment> result = alterationEnrichmentUtil.createAlterationEnrichments(
                 mutationCountsbyEntrezGeneIdAndGroup, groupMolecularProfileCaseSets, "SAMPLE");
-
-        ObjectMapper mapper = new ObjectMapper();
-        System.out.println(mapper.writeValueAsString(result));
 
         Assert.assertEquals(2, result.size());
         AlterationEnrichment alterationEnrichment1 = result.get(0);

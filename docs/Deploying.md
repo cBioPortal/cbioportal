@@ -125,6 +125,15 @@ command line argument, it won't work when set in `portal.properties` (See issue
 Some scripts require a `${PORTAL_HOME}/portal.properties` file, so it is best
 to define the properties there.
 
+### Note for Tomcat Deployers
+Before we were using `webapp-runner`, our documentation recommended a system
+level installed Tomcat. In this case people might have been using
+`dbconnector=jndi` instead of the new default `dbconnector=dbcp`. There is a
+known issue where setting dbconnector in the properties file does not work
+([#6148](https://github.com/cBioPortal/cbioportal/issues/6148)). It needs to be
+set as a command line argument. For Tomcat this means
+`CATALINA_OPT="-Ddbconnector=jndi"`.
+
 ## Verify the Web Application
 
 Lastly, open a browser and go to:  

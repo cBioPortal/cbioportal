@@ -36,3 +36,9 @@ PROTEIN_LEVEL	CONTINUOUS	protein_quantification
 PROTEIN_LEVEL	Z-SCORE	protein_quantification_zscores
 GENESET_SCORE	GSVA-SCORE	gsva_scores
 GENESET_SCORE	P-VALUE	gsva_pvalues
+MRNA_EXPRESSION	CONTINUOUS	mrna_seq_fpkm_capture
+MRNA_EXPRESSION	CONTINUOUS	mrna_seq_fpkm_polya
+MRNA_EXPRESSION	Z-SCORE	mrna_seq_fpkm_capture_Zscores
+MRNA_EXPRESSION	Z-SCORE	mrna_seq_fpkm_polya_Zscores
+MRNA_EXPRESSION	CONTINUOUS	mrna_seq_cpm
+MRNA_EXPRESSION	Z-SCORE	mrna_seq_cpm_Zscores

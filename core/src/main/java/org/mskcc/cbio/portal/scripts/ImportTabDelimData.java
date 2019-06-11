@@ -249,7 +249,110 @@ public class ImportTabDelimData {
             buf.close();
         }                
     }
-    
+
+    /**
+    * Attempt to create a genetic_alteration record based on the current line read from a profile data file.
+    * <ol>
+    *   <li>Commented out lines and blank lines are always skipped (returns false)
+    *   <li>The line is split into columns by the tab delimiter
+    *   <li>The involved genes (list of entrez_gene_ids) are determined:
+    *     <ol>
+    *       <li>Hugo_Symbol and Entrez_Gene_Id column indices are read and validated
+    *       <li>if neither are available, the line is skipped
+    *       <li>if Hugo_Symbol contains '///' or '---', the line is skipped
+    *       <li>rppaProfile parsing has special rules for determining the involved genes
+    *       <li>if Entrez_Gene_Id is available, use that to determine the involved genes
+    *       <li>if Hugo_Symbol is available, use that to determine the involved genes (truncate symbols with '|' in them)
+    *       <li>if the involved genes list is still empty, the line is skipped (returns false)
+    *     </ol>
+    *   <li>We now choose between three branches:
+    *     <ol>
+    *       <li>if the set of involved genes is empty, we skip the line (returns false)
+    *       <li>if there is exactly 1 involved gene:
+    *         <ol>
+    *           <li>if this is a 'discretizedCnaProfile', normalize the CNA values and create a list of cnaEvents to be added
+    *           <li>attempt to store the record in genetic_alteration
+    *           <li>if the record is successfully stored (not duplicated), create (or update) records in sample_cna_event for the created list of cnaEvents (if any)
+    *         </ol>
+    *       <li>if there are several involved genes, loop ; for each one:
+    *         <ol>
+    *           <li>if the gene type is 'miRNA' (or this is an rppaProfile), attempt to store the record (using this gene) in genetic_alteration
+    *           <li>otherwise, increment a count of how many genes were not of type 'miRNA' (used for logging)
+    *         </ol>
+    *         <ul>
+    *           <li>after looping through all involved genes, check whether any records were successfully stored in genetic_alteration - if not log the failure
+    *         </ul>
+    *     </ol>
+    *   <li>If a record was (or more than one were) successfully stored in genetic_alteration, return true ; else false
+    * </ol>
+    * <p>
+    * During the import of any single profile data file, at most one record per Entrez_Gene_Id will be successfuly imported to genetic_alteration.
+    * Each attempt to import is done through a call to the function storeGeneticAlterations().
+    * That function will check an instance variable importSetOfGenes, and if the gene has been previously imported, no new attempt is made (failure).
+    * Each time a gene is successfully imported, it is added to importSetOfGenes.
+    * <p>
+    * MicroRNA are treated specially because of the possible presence of constructed combination forms (such as 'MIR-100/100*' and 'MIR-100/100').
+    * In these cases a Hugo_Symbol such as 'hsa-mir-100' may be expected to match the Entrez_Gene_Id for both of these combination forms.
+    * In that case, we want to import several copies of the genetic alteration profile line .. one for each matched gene of type 'miRNA'.
+    * This allows the visualization of both CNA event profiles for the microRNA precursor with expression profiles for the microRNA mature form.
+    * <p>
+    * The current implementation of this code does not attempt to "merge" / "unify" lines in the profile data file which have duplicated Entrez_Gene_Id.
+    * Instead, the first encountered line which maps to the Entrez_Gene_Id will be stored as a record in genetic_alteration (returns true).
+    * Later lines which attempt to store a record with that Entrez_Gene_Id will not be stored as a record in genetic_alteration (returns false).
+    * For microRNA gene aliases it is possible that complex interactions will occur, where an earlier line in the data file stores a record under several Entrez_Gene_Ids, and a later line in the file fails to store records under some of those previously 'used' Entrez_Gene_Ids, but succeeds in storing a record under one or more not previously used Entrez_Gene_Ids. So a microRNA line from the file may be imported "partially successfully" (returns true).
+    * <p>
+    * Examples Cases:<br>
+    * Gene records are P1, P2, P3, P4 (protein coding), M1, M2, M3 (microRNA).
+    * Gene_Symbol AMA is gene_alias for M1 and M2, Gene_Symbol AMB is gene_alias for M2 and M3, Gene_Symbol AAMBIG is gene_alias for P3 and P4. Gene_Symbol AMIXED is gene_alias for P1 and M3.
+    * <p>
+    * Case_1 (the last two lines will be skipped and logged like "Gene P1 (#) found to be duplicated in your file. Duplicated row will be ignored!")<br>
+    * <table>
+    * <tr><th>Hugo_Symbol<th>Sample1<th>...
+    * <tr><td>P1<td>0<td>...
+    * <tr><td>P2<td>0<td>...
+    * <tr><td>P1<td>0<td>...
+    * <tr><td>P1<td>0<td>...
+    * </table>
+    * <p>
+    * Case_2 (the last line will be skipped and logged like "Gene M1 (#) (given as alias in your file as: AMA) found to be duplicated in your file. Duplicated row will be ignored!" , "Gene M2 (#) (given as alias in your file as: AMA) found to be duplicated in your file. Duplicated row will be ignored!" , "Could not store microRNA or RPPA data" )<br>
+    * <table>
+    * <tr><th>Hugo_Symbol<th>Sample1<th>...
+    * <tr><td>AMA<td>0<td>...
+    * <tr><td>AMA<td>0<td>...
+    * </table>
+    * <p>
+    * Case_3 (the last line in the file will fail with log messages like "Gene symbol AAMBIG found to be ambiguous. Record will be skipped for this gene.")<br>
+    * <table>
+    * <tr><th>Hugo_Symbol<th>Sample1<th>...
+    * <tr><td>P1<td>0<td>...
+    * <tr><td>P2<td>0<td>...
+    * <tr><td>AAMBIG<td>0<td>...
+    * </table>
+    * <p>
+    * Case_4 (the second to last line will partially succeed, storing a record in genetic_alteration for gene M3 but failing for M2 with a log message like "Gene M2 (#) (given as alias in your file as: AMB) found to be duplicated in your file. Duplicated row will be ignored!" ; the last line in the file will fail with log messages like "Gene M3 (#) (given as alias in your file as: AMIXED) found to be duplicated in your file. Duplicated row will be ignored!" , "Gene symbol AMIXED found to be ambiguous (a mixture of microRNA and other types). Record will be skipped for this gene.")<br>
+    * <table>
+    * <tr><th>Hugo_Symbol<th>Sample1<th>...
+    * <tr><td>AMA<td>0<td>...
+    * <tr><td>AMB<td>0<td>...
+    * <tr><td>AMIXED<td>0<td>...
+    * </table>
+    *
+    * @param  line                      the line from the profile data file to be parsed
+    * @param  nrColumns                 the number of columns, defined by the header line
+    * @param  sampleStartIndex          the index of the first column with a sample name in the header field
+    * @param  hugoSymbolIndex           the index of the column Hugo_Symbol
+    * @param  entrezGeneIdIndex         the index of the column Entrez_Gene_Id
+    * @param  rppaGeneRefIndex          the index of the column Composite.Element.Ref
+    * @param  rppaProfile               true if this is an rppa profile (i.e. alteration type is PROTEIN_LEVEL and the first column is Composite.Element.Ref)
+    * @param  discretizedCnaProfile     true if this is a discretized CNA profile (i.e. alteration type COPY_NUMBER_ALTERATION and showProfileInAnalysisTab is true)
+    * @param  daoGene                   an instance of DaoGeneOptimized ... for use in resolving gene symbols
+    * @param  filteredSampleIndicesList not used (dead code)
+    * @param  orderedSampleList         a list of the internal sample ids corresponding to the sample names in the header line
+    * @param  existingCnaEvents         a collection of CnaEvents, to be added to or updated during parsing of individual lines
+    * @param  daoGeneticAlteration      in instance of DaoGeneticAlteration ... for use in storing records in the genetic_alteration table
+    * @return                           true if any record was stored in genetic_alteration, else false
+    * @throws DaoException              if any DaoException is thrown while using daoGene or daoGeneticAlteration
+    */
     private boolean parseLine(String line, int nrColumns, int sampleStartIndex, 
             int hugoSymbolIndex, int entrezGeneIdIndex, int rppaGeneRefIndex,
             boolean rppaProfile, boolean discretizedCnaProfile,
@@ -258,6 +361,8 @@ public class ImportTabDelimData {
             Map<CnaEvent.Event, CnaEvent.Event> existingCnaEvents, DaoGeneticAlteration daoGeneticAlteration
             ) throws DaoException {
         
+        //TODO: refactor this entire function - split functionality into smaller units / subroutines
+
         boolean recordStored = false; 
         
         //  Ignore lines starting with #
@@ -417,9 +522,13 @@ public class ImportTabDelimData {
                                 }
                             }                            
                         } else {
+                            boolean hasMicroRNA = false;
                             int otherCase = 0;
                             for (CanonicalGene gene : genes) {
                                 if (gene.isMicroRNA() || rppaProfile) { // for micro rna or protein data, duplicate the data
+                                    if (gene.isMicroRNA()) {
+                                        hasMicroRNA = true;
+                                    }
                                     boolean result = storeGeneticAlterations(values, daoGeneticAlteration, gene, geneSymbol);
                                     if (result == true) {
                                         recordStored = true;
@@ -436,17 +545,19 @@ public class ImportTabDelimData {
                             }
                             if (!recordStored) {
                                 if (otherCase == 0) {
-                                    // this means that miRNA or RPPA could not be stored
-                                    ProgressMonitor.logWarning("Could not store miRNA or RPPA data"); //TODO detect the type of of data and give specific warning
-                                }
-                                else if (otherCase > 1) {
-                                    // this means that genes.size() > 1 and data was not rppa or microRNA, so it is not defined how to deal with
-                                    // the ambiguous alias list. Report this:
-                                    ProgressMonitor.logWarning("Gene symbol " + geneSymbol + " found to be ambigous. Record will be skipped for this gene.");
+                                    // this means that microRNA or RPPA could not be stored
+                                    ProgressMonitor.logWarning("Could not store microRNA or RPPA data"); //TODO detect the type of of data and give specific warning
                                 }
                                 else {
-                                    //should not occur. It would mean something is wrong in preceding logic (see else if (genes.size()==1) ) or a configuration problem, e.g. where a symbol maps to both a miRNA and a normal gene:
-                                    throw new RuntimeException("Unexpected error: unable to process row with gene " + geneSymbol);
+                                    // this case :
+                                    //      - the hugo gene symbol was ambiguous (matched multiple entrez-gene-ids)
+                                    //      - at least one of the entrez-gene-ids was not a microRNA (and this is not an rppaProfile)
+                                    //      - all of the matched microRNA ids (if any) failed to be imported (presumably already imported on a prior line)
+                                    String microRNAClause = "";
+                                    if (hasMicroRNA) {
+                                        microRNAClause = " (a mixture of microRNA and other types)";
+                                    }
+                                    ProgressMonitor.logWarning("Gene symbol " + geneSymbol + " found to be ambiguous" + microRNAClause + ". Record will be skipped for this gene.");
                                 }
                             }
                         }

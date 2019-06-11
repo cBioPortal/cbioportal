@@ -44,7 +44,7 @@
     else if (authenticationMethod.equals("googleplus") ||
 	    		authenticationMethod.equals("saml") ||
 	    		authenticationMethod.equals("ad") ||
-	    		authenticationMethod.equals("social_auth")) {
+	    		authenticationMethod.contains("social_auth")) {
         principal = "principal.username";
     }
     pageContext.setAttribute("principal", principal);
@@ -196,7 +196,7 @@ function openSoicalAuthWindow() {
 	            </div>
 	        </sec:authorize>
         
-	        <% if (authenticationMethod.equals("social_auth")) { %>
+	        <% if (authenticationMethod.contains("social_auth")) { %>
 	        
 		        <sec:authorize access="hasRole('ROLE_ANONYMOUS')">
 		            <div class="identity">

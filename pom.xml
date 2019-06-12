@@ -270,7 +270,7 @@
   </profiles>
 
   <properties>
-    <frontend.version>94fcfa903cd8ddfadf991d1570e41b5dbabdc424</frontend.version>
+    <frontend.version>v3.0.1</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
     <slf4j.version>1.6.6</slf4j.version>
     <spring.version>4.3.14.RELEASE</spring.version>

@@ -8,8 +8,12 @@ db.host=localhost
 db.portal_db_name=cbioportal
 db.driver=com.mysql.jdbc.Driver
 db.connection_string=jdbc:mysql://localhost/
-# set tomcat_resource_name when using dbconnector=jndi instead of the defaault
-# dbconnector=dbcp
+# set tomcat_resource_name when using dbconnector=jndi instead of the default
+# dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
+# using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up
+# from the properties file
+# (https://github.com/cBioPortal/cbioportal/issues/6148).
+#
 # db.tomcat_resource_name=jdbc/cbioportal
 
 # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):

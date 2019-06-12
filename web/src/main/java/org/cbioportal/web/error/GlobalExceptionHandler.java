@@ -167,4 +167,10 @@ public class GlobalExceptionHandler {
             HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(GenericAssayNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGenericAssayNotFound(GenericAssayNotFoundException ex) {
+
+        return new ResponseEntity<>(new ErrorResponse("stableId not found: " + ex.getStableId()),
+            HttpStatus.NOT_FOUND);
+    }
 }

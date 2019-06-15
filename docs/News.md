@@ -1,3 +1,10 @@
+## June 12, 2019
+ *   **Added data**  of 1350 samples from 3 studies:
+     *  [Pheochromocytoma and Paraganglioma (TCGA, Cell 2017)](https://www.cbioportal.org/study?id=pcpg_tcga_pub) *178 samples*
+     *  [Metastatic Solid Cancers (UMich, Nature 2017)](https://www.cbioportal.org/study?id=metastatic_solid_tumors_mich_2017) *500 samples*
+     *   [Acute Myeloid Leukemia (OHSU, Nature 2018)](https://www.cbioportal.org/study/summary?id=aml_ohsu_2018) *672 samples*
+ *    Added survival data for TCGA PanCan Atlas Cohorts (>10,000 samples across 33 tumor types).
+ *    Added hypoxia data for [Bladder Urothelial Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=blca_tcga_pan_can_atlas_2018)
 ## June 7, 2019
 * **New Group Comparison Feature**: Compare clinical and genomic features of user-defined groups of samples/patients. [View Tutorial](https://www.cbioportal.org/tutorials#group-comparison)
 

@@ -28,6 +28,7 @@
         * [Are there any normal tissue samples available through cBioPortal?](#are-there-any-normal-tissue-samples-available-through-cbioportal)
         * [How can I find which studies have mRNA expression data (or any other specific data type)?](#how-can-i-find-which-studies-have-mrna-expression-data-or-any-other-specific-data-type)
         * [Can I download all data at once?](#can-i-download-all-data-at-once)
+        * [The data today is different than the last time I looked. What happened?](#the-data-today-is-different-than-the-last-time-I-looked-what-happened)
         * [How do I access data from AACR Project GENIE?](#how-do-i-access-data-from-aacr-project-genie)
     * [TCGA](#tcga)
         * [How does TCGA data in cBioPortal compare to TCGA data in Genome Data Commons?](#how-does-tcga-data-in-cbioportal-compare-to-tcga-data-in-genome-data-commons)
@@ -139,6 +140,10 @@ No, we currently do not store any normal tissue data in our system.
 Check out the [Data Sets Page](https://www.cbioportal.org/data_sets.jsp) where you can view the complete set of cancer studies and sort by the number of samples with data available for any data type.
 ### Can I download all data at once?
 You can download all data for individual studies on the [Data Sets Page](https://www.cbioportal.org/data_sets.jsp) or the study view page for the study of interest. You can also download all studies from our [Data Hub](https://github.com/cBioPortal/datahub).
+### The data today is different than the last time I looked. What happened?
+We do occasionally update existing datasets to provide the most up-to-date, accurate and consistent data possible. The data you see today is likely an improved version of what you have seen previously. However, if you suspect that there is an error in the current version, please let us know at [cbioportal@googlegroups.com](mailto:cbioportal@googlegroups.com).
+
+If you need to reference an old version of a dataset, you can find previous versions in our [Datahub repository](https://github.com/cBioPortal/datahub/tree/master/public).
 ### How do I access data from AACR Project GENIE?
 Data from AACR Project GENIE are provided in a [dedicated instance of cBioPortal](https://www.cbioportal.org/genie/). You can also download GENIE data from the [Synapse Platform](http://synapse.org/genie). Note that you will need to register before accessing the data. Additional information about AACR Project GENIE can be found on the [AACR website](http://www.aacr.org/Research/Research/Pages/aacr-project-genie.aspx).
 

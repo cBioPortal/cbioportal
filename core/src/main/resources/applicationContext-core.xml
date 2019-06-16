@@ -7,8 +7,22 @@
          xmlns:mvc="http://www.springframework.org/schema/mvc"
          xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+                        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
+    <b:bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <b:property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+        <b:property name="searchSystemEnvironment" value="true" />
+        <b:property name="ignoreResourceNotFound" value="true" />
+        <b:property name="ignoreUnresolvablePlaceholders" value="true" />
+        <b:property name="locations">
+            <b:list>
+                <b:value>file:///${PORTAL_HOME}/portal.properties</b:value>
+                <b:value>classpath:portal.properties</b:value>
+            </b:list>
+        </b:property>
+    </b:bean>
+    
     <context:component-scan base-package="org.mskcc.cbio.portal"/>
     <mvc:annotation-driven/>
 </b:beans>

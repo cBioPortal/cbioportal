@@ -27,7 +27,7 @@
     </context-param>
     <context-param>
         <param-name>spring.liveBeansView.mbeanDomain</param-name>
-        <param-value>${dbconnector:dbco},${authenticate}</param-value>
+        <param-value>${dbconnector:dbcp},${authenticate}</param-value>
     </context-param>
 
     <context-param>

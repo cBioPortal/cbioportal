@@ -43,7 +43,7 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.*;
 import static org.apache.spark.sql.functions.*;
-
+import joptsimple.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -53,45 +53,53 @@ import java.io.IOException;
 @Component
 public class ParquetWriter extends ConsoleRunnable {
 
-    private String parquetDir = GlobalProperties.getProperty("data.parquet.folder");
-    private String datatDir = GlobalProperties.getProperty("data.tsv.folder");
-
-
-    private void write(SparkSession spark, String destination, String txtFile) throws IOException {
+    private void write(SparkSession spark, String inputFile, String outputFile) throws IOException {
         Dataset<Row> df = spark.read()
             .format("csv")
             .option("delimiter", "\t")
             .option("header", "true")
             .option("comment","#")
-            .load(datatDir + txtFile);
-        df.write().parquet(destination + "/" + txtFile + ".parquet");
+            .load(inputFile);
+        df.write().parquet(outputFile);
     }
    
    public void run () { 
       try {
-    	  // check args
-	      if (args.length < 2) {
-	         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
-             throw new UsageException(
-                     "Parquet Writer script ",
-                     null,
-                     "<study id>",
-                     "<data txt file>");
-	      }
-          String destinationFolder = parquetDir + "/" + args[0];
-          File directory = new File(destinationFolder);
-          if (!directory.exists()){
-              directory.mkdir();
+          String progName = "ParquetWriter";
+          String description = "Write parquet files.";
+          
+          OptionParser parser = new OptionParser();
+          OptionSpec<String> inputFile = parser.accepts( "input-file",
+              "tsv file" ).withRequiredArg().describedAs( "path-to-input-file" ).ofType( String.class );
+          OptionSpec<String> outputFile = parser.accepts( "output-file",
+              "parquet file" ).withRequiredArg().describedAs( "path-to-output-file" ).ofType( String.class );
+
+          OptionSet options = null;
+          try {
+              options = parser.parse(args);
+          } catch (OptionException e) {
+              throw new UsageException(
+                  progName, description, parser,
+                  e.getMessage());
           }
+          if  (!options.has(inputFile)) {
+              throw new UsageException(
+                  progName, description, parser,
+                  "'input-file' argument required.");
+          }
+          if  (!options.has(outputFile)) {
+              throw new UsageException(
+                  progName, description, parser,
+                  "'output-file' argument required.");
+          }
+          String outputFilePath = options.valueOf(outputFile);
 
-            SparkConfiguration sc = new SparkConfiguration();
-            SparkSession spark = sc.sparkSession();
+          SparkConfiguration sc = new SparkConfiguration();
+          SparkSession spark = sc.sparkSession();
 
-            for (int i=1; i<args.length; i++) {
-                String txtFile = args[i];
-                ProgressMonitor.logDebug("Writing " + txtFile + ".parquet");
-                this.write(spark, destinationFolder, txtFile);
-            }
+          String inputFilePath = options.valueOf(inputFile);
+          ProgressMonitor.logDebug("Writing " + inputFilePath);
+          this.write(spark, inputFilePath, outputFilePath);
 
         } catch (RuntimeException e) {
             throw e;

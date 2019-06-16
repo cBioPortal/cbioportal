@@ -230,3 +230,13 @@ oncoprint.defaultview=patient
 
 # Enable/Disable quick search (currently in beta, default is false)
 # quick_search.enabled=true
+
+# Spark Configuration Settings
+# spark.app.name=cBioPortal
+# spark.home=location/to/spark/installation
+# spark.master.uri=local[*]
+# spark.driver.bindAddress=127.0.0.1
+# spark.driver.host=127.0.0.1
+# spark.driver.memory=2g
+# spark.executor.memory=1g
+# data.parquet.folder=location/to/parquetfiles

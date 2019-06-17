@@ -1856,7 +1856,15 @@ class MutationsExtendedValidator(Validator):
     
     def checkStartPosition(self, value):
         """Check that the Start_Position value is an integer."""
-        if value.isdigit() == False or (value.isdigit() and '.' in value):
+        if value == 'NA':
+            self.logger.warning(
+                'The start position of this variant is not '
+                    'defined. The chromosome plot in the patient view '
+                    'will not be displayed correctly for this variant.',
+                extra={'line_number': self.line_number,
+                       'column_number': self.cols.index('Start_Position'),
+                       'cause': value})
+        elif value.isdigit() == False  or (value.isdigit() and '.' in value):
             self.logger.error(
                 'The start position of this variant is not '
                     'an integer',
@@ -1868,7 +1876,15 @@ class MutationsExtendedValidator(Validator):
     
     def checkEndPosition(self, value):
         """Check that the End_Position value is an integer."""
-        if value.isdigit() == False or (value.isdigit() and '.' in value):
+        if value == 'NA':
+            self.logger.warning(
+                'The end position of this variant is not '
+                    'defined. The chromosome plot in the patient view '
+                    'will not be displayed correctly for this variant.',
+                extra={'line_number': self.line_number,
+                       'column_number': self.cols.index('End_Position'),
+                       'cause': value})
+        elif value.isdigit() == False or (value.isdigit() and '.' in value):
             self.logger.error(
                 'The end position of this variant is not '
                     'an integer',

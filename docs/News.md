@@ -1,7 +1,7 @@
 ## June 19, 2019
 * **New Feature**: Show *Genome Aggregation Database (gnomAD)* population frequencies in the mutations table - see [example](http://bit.ly/2ISHgiu):
     
-    ![gnomad feature news](https://user-images.githubusercontent.com/1334004/59788023-c63bc180-9298-11e9-85c3-ae0f51b0a84c.png)
+    ![gnomad feature news](https://user-images.githubusercontent.com/1334004/59794400-e07c9c00-92a6-11e9-97ea-a79bfc8f3885.gif)
 
 ## June 12, 2019
  *   **Added data**  of 1350 samples from 3 studies:

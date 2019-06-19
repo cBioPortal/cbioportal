@@ -1,3 +1,8 @@
+## June 19, 2019
+* **New Feature**: Show *Genome Aggregation Database (gnomAD)* population frequencies in the mutations table - see [example](http://bit.ly/2ISHgiu):
+    
+    ![gnomad feature news](https://user-images.githubusercontent.com/1334004/59788023-c63bc180-9298-11e9-85c3-ae0f51b0a84c.png)
+
 ## June 12, 2019
  *   **Added data**  of 1350 samples from 3 studies:
      *  [Pheochromocytoma and Paraganglioma (TCGA, Cell 2017)](https://www.cbioportal.org/study?id=pcpg_tcga_pub) *178 samples*

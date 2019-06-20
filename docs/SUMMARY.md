@@ -13,12 +13,12 @@
 * [Architecture overview](Architecture-Overview.md)
 * [Hardware Requirements](Hardware-Requirements.md)
 
-#### 2.1.1 Docker
+### 2.1.1 Deploy with Docker (Recommended)
 * [Deploy with Docker](docker/README.md)
 * [Example Commands](docker/example_commands.md)
 * [Authenticating and Authorizing Users using Keycloak in Docker](docker/using-keycloak.md)
 
-#### 2.1.2 Without Docker
+### 2.1.2 Deploy without Docker
 * [Software Requirements](Software-Requirements.md)
 * [Pre-Build Steps](Pre-Build-Steps.md)
 * [Building from Source](Build-from-Source.md)

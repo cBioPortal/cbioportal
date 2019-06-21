@@ -11,7 +11,6 @@ public class Gene implements Serializable {
     private String hugoGeneSymbol;
     private String type;
     private String cytoband;
-    private Integer length;
     private String chromosome;
 
     public Integer getEntrezGeneId() {
@@ -44,14 +43,6 @@ public class Gene implements Serializable {
 
     public void setCytoband(String cytoband) {
         this.cytoband = cytoband;
-    }
-
-    public Integer getLength() {
-        return length;
-    }
-
-    public void setLength(Integer length) {
-        this.length = length;
     }
 
     public String getChromosome() {

@@ -621,7 +621,7 @@ ALTER TABLE `genetic_profile` ADD COLUMN `SORT_ORDER` ENUM('ASC','DESC') DEFAULT
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.9.1";
 
 -- ========================== end of treatment related tables =============================================
-###version: 2.9.2
+##version: 2.9.2
 -- Previous structural_variant was never used, so recreate it
 DROP TABLE IF EXISTS structural_variant;
 CREATE TABLE `structural_variant` (
@@ -673,3 +673,9 @@ CREATE TABLE `structural_variant` (
 );
 
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.9.2";
+
+##version: 2.9.3
+-- remove gene length, this is stored in genome nexus
+ALTER TABLE `gene` DROP COLUMN `length`;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.9.3";

@@ -257,187 +257,6 @@ public class ImportGeneData extends ConsoleRunnable {
         ProgressMonitor.logWarning(sb.toString());
     }
 
-    /**
-     * This method imports the gene lengths of a General Transfer Format (gtf) file. This file contains different genetic features from genes (CDS, exons, introns...) in each line.
-         * All features of a single gene contain the same Ensembl ID. Therefore, this method uses the Ensembl IDs to differentiate between different genes. All the features with the same 
-     * Ensembl ID are in consecutive lines. This method uses the gene symbol to retrieve the Entrez ID, but different Ensembl IDs can share the same symbol. If these Ensembl IDs are
-     * located in different chromosomes, the method uses the length of the Ensembl ID according to the cytoband from the gene saved in the database. In the case multiple Ensembl IDs
-     * with the same symbol are on the same chromosome or no cytoband information is available, the length of the last Ensembl ID is taken.
-     * 
-     * @param geneFile
-     * @throws IOException
-     * @throws DaoException
-     */
-    
-    public static void importGeneLength(File geneFile) throws IOException, DaoException {
-        //Set the variables needed for the method
-        FileReader reader = new FileReader(geneFile);
-        BufferedReader buf = new BufferedReader(reader);
-        String line;
-        ProgressMonitor.setCurrentMessage("\nUpdating gene lengths... \n"); //Display a message in the console
-        boolean geneUpdated = false;
-        
-        String previousEnsembl = "";
-        String currentEnsembl = "";
-        String previousSymbol = "";
-        String currentSymbol = "";
-        String previousChrom = "";
-        String currentChrom = "";
-        Long currentStart;
-        Long currentStop;
-        
-        String parts[] = null;
-        List<long[]> loci = new ArrayList<long[]>();
-        int nrGenesUpdated = 0;
-        
-        //Iterate over the file and fill the hash map with the max and min values of each gene (start and end position)
-        while ((line=buf.readLine()) != null) {
-                if(line.charAt(0) == '#'){
-                        continue;
-                }
-                parts = line.split("\t");
-                currentChrom = parts[0];
-                currentStart = Long.parseLong(parts[3]);
-                currentStop = Long.parseLong(parts[4]) + 1; // We have to add 1 here, because the last base is also included.
-                
-                if (parts[2].contains("exon") || parts[2].contains("CDS")) {
-                        String info[] = parts[8].split(";");
-
-                        //Retrieve the ensembl ID
-                        for (String i : info) {
-                                if (i.contains("gene_id")) {
-                                        String j[] = i.split(" ");
-                                        currentEnsembl = j[1].replaceAll("\"", "");
-                                }
-                                else if (i.contains("gene_name")) {
-                                        String j[] = i.split(" ");
-                                        currentSymbol = j[2].replaceAll("\"", ""); 
-                                }
-                        }
-
-                        /// Only in case of the first line
-                if (previousEnsembl.equals("")) { 
-                        previousEnsembl = currentEnsembl;
-                        previousSymbol = currentSymbol;
-                        previousChrom = currentChrom;
-                        loci.add(new long[]{currentStart, currentStop}); //Add the new positions        
-                }                
-                /// For all other lines
-                else {
-
-                    /// If there is no switch from Ensembl ID 
-                    if (previousEnsembl.equals(currentEnsembl)) { 
-                        
-                        loci.add(new long[]{currentStart, currentStop}); //Add the new positions
-                    }   
-                    /// If there is a switch
-                    else {
-                        geneUpdated = updateLength(previousSymbol, previousChrom, loci);
-                        if (geneUpdated) {
-                                nrGenesUpdated++;
-                        }
-                        /// At the end of writing a new gene, clear the loci and save the new ensemblID.
-                        loci.clear();
-                        
-                        previousEnsembl = currentEnsembl;
-                        previousSymbol = currentSymbol;
-                        previousChrom = currentChrom;
-                        loci.add(new long[]{currentStart, currentStop}); //Add the new positions
-                    }
-                }
-            }
-        }
-      
-        /// Write the last gene
-        /// First check if the gene exists in the database
-        geneUpdated = updateLength(previousSymbol, previousChrom, loci);
-        if (geneUpdated) {
-                nrGenesUpdated++;
-        }
- 
-        ProgressMonitor.setCurrentMessage("Updated length info for " + nrGenesUpdated + " genes\n");
-        
-        buf.close();
-    }
-    
-    /**
-     * This method receives a symbol, a chromosome and a list of loci (should be from the same gene), and with that it retrieves the database gene and it calculates the length
-     * of all its exons contained in loci. If the symbol is non-ambiguous, or the chromosome reported does not match the cytoband of the database gene, then length is not updated.
-     * The method reports a boolean stating if the gene length has been updated or not.
-     * 
-     * @param symbol
-     * @param chromosome
-     * @param loci
-     * @return
-     * @throws IOException
-     * @throws DaoException
-     */
-    public static boolean updateLength(String symbol, String chromosome, List<long[]> loci) throws IOException, DaoException {
-        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        boolean lengthUpdated = false;
-        /// Check if the gene is in the database
-        CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(symbol, chromosome, false); //Identify unambiguously the gene (with the symbol and the chromosome)
-        
-        /// If it's not in the database, don't add it
-        if (!(gene==null)) {
-                /// Calc length
-            int length = calculateGeneLength(loci);
-            
-            /// Obtain cytoband
-                String cytoband = gene.getCytoband();
-                
-                /// If there is no cytoband in the database, just write it (can also be an overwrite)
-                if (cytoband == null) {
-                        gene.setLength(length);
-                        daoGeneOptimized.updateGene(gene);
-                        lengthUpdated = true;
-                }
-                
-                /// If there is a cytoband in database, check if cytoband-chr matches input-chr
-                else {
-                String cbChr = "chr"+cytoband.split("p|q")[0];
-                if (cbChr.equals(chromosome)) { //Update the length only if the chromosome matches
-                        gene.setLength(length);
-                        daoGeneOptimized.updateGene(gene);
-                        lengthUpdated = true;
-                }
-                else {
-                        ProgressMonitor.logWarning("Cytoband does not match, gene not saved (likely another version of gene in gtf has correct chr and is saved)");
-                }
-            }
-        }
-        return lengthUpdated;
-    }
-
-    /**
-     * This method uses a list of exon loci from the same gene and it adds the length of all of them to get the gene length. If some of the exons are
-     * overlapping, the overlapping part is only counted once in the calculation. For example, if an exon goes from position 3 to 10 and another one from 
-     * position 5 to 11, when calculating the length these exons would be considered as a single exon going from position 3 to 11.
-     * 
-     * @param loci
-     * @return
-     */
-    public static int calculateGeneLength(List<long[]> loci) {
-        long min = Long.MAX_VALUE, max=-1;
-        for (long[] l : loci) {
-            if (l[0]<min) {
-                min = l[0];
-            }
-            if (l[1]>max) {
-                max = l[1];
-            }
-        }
-        if (max < min) {
-                throw new IllegalArgumentException("Found error: max=" + max + ", min=" + min);
-        }
-        BitSet bitSet = new BitSet((int)(max-min));
-        for (long[] l : loci) {
-            bitSet.set((int)(l[0]-min), ((int)(l[1]-min)));
-        }
-        
-        return bitSet.cardinality();
-    }
-    
     static void importSuppGeneData(File suppGeneFile) throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOff();
         FileReader reader = new FileReader(suppGeneFile);
@@ -455,9 +274,6 @@ public class ImportGeneData extends ConsoleRunnable {
                 }
                 if (!parts[2].isEmpty()) {
                     gene.setCytoband(parts[2]);
-                }
-                if (!parts[3].isEmpty()) {
-                    gene.setLength(Integer.parseInt(parts[3]));
                 }
                 daoGene.addGene(gene);
             }
@@ -478,7 +294,6 @@ public class ImportGeneData extends ConsoleRunnable {
                         parser.accepts( "genes", "ncbi genes file" ).withRequiredArg().describedAs( "ncbi_genes.txt" ).ofType( String.class );
                         parser.accepts( "supp-genes", "alternative genes file" ).withRequiredArg().describedAs( "supp-genes.txt" ).ofType( String.class );
                         parser.accepts( "microrna", "microrna file" ).withRequiredArg().describedAs( "microrna.txt" ).ofType( String.class );
-                        parser.accepts( "gtf", "gtf file for calculating and storing gene lengths" ).withRequiredArg().describedAs( "gencode.<version>.annotation.gtf" ).ofType( String.class );
         
                         String progName = "importGenes";
                         OptionSet options = null;
@@ -525,15 +340,6 @@ public class ImportGeneData extends ConsoleRunnable {
                     System.out.println(" --> total number of lines:  " + numLines);
                     ProgressMonitor.setMaxValue(numLines);
                     ImportMicroRNAIDs.importData(miRNAFile);
-                }
-                
-                if(options.has("gtf")) {
-                    File lociFile = new File((String) options.valueOf("gtf"));
-                    System.out.println("Reading loci data from:  " + lociFile.getAbsolutePath());
-                    numLines = FileUtil.getNumLines(lociFile);
-                    System.out.println(" --> total number of lines:  " + numLines);
-                    ProgressMonitor.setMaxValue(numLines);
-                    ImportGeneData.importGeneLength(lociFile);
                 }
                 MySQLbulkLoader.flushAll();
             System.err.println("Done. Restart tomcat to make sure the cache is replaced with the new data.");

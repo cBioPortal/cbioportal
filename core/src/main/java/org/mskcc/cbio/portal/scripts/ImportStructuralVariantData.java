@@ -37,7 +37,7 @@ import org.mskcc.cbio.portal.util.*;
 
 public class ImportStructuralVariantData {
     // Column names structural variant file
-    public static final String Sample_ID = "Sample_ID";
+    public static final String SAMPLE_ID = "Sample_ID";
     public static final String SITE1_ENTREZ_GENE_ID = "Site1_Entrez_Gene_Id";
     public static final String SITE1_HUGO_SYMBOL = "Site1_Hugo_Symbol";
     public static final String SITE1_ENSEMBL_TRANSCRIPT_ID = "Site1_Ensembl_Transcript_Id";
@@ -106,7 +106,7 @@ public class ImportStructuralVariantData {
         // Read header of file
         String headerParts[] = buf.readLine().trim().split("\t");
 
-        // Find required header indices
+        // Find header indices
         for (int i=0; i<headerParts.length; i++) {
             // Put the index in the map
             this.columnIndexMap.put(headerParts[i].toLowerCase(), i);
@@ -123,7 +123,7 @@ public class ImportStructuralVariantData {
                 StructuralVariant structuralVariant = new StructuralVariant();
 
                 structuralVariant.setGeneticProfileId(geneticProfileId);
-                structuralVariant.setSampleId(TabDelimitedFileUtil.getPartString(getColumnIndex(Sample_ID), parts));
+                structuralVariant.setSampleId(TabDelimitedFileUtil.getPartString(getColumnIndex(SAMPLE_ID), parts));
                 structuralVariant.setSite1EntrezGeneId(TabDelimitedFileUtil.getPartLong(getColumnIndex(SITE1_ENTREZ_GENE_ID), parts));
                 structuralVariant.setSite1HugoSymbol(TabDelimitedFileUtil.getPartString(getColumnIndex(SITE1_HUGO_SYMBOL), parts));
                 structuralVariant.setSite1EnsemblTranscriptId(TabDelimitedFileUtil.getPartString(getColumnIndex(SITE1_ENSEMBL_TRANSCRIPT_ID), parts));
@@ -184,25 +184,9 @@ public class ImportStructuralVariantData {
                     long site1EntrezGeneId = structuralVariant.getSite1EntrezGeneId();
                     long site2EntrezGeneId = structuralVariant.getSite2EntrezGeneId();
                     
-                    CanonicalGene site1CanonicalGene = null;
-                    CanonicalGene site2CanonicalGene = null;
-    
-                    // If the Entrez Gene Id is not "NA" set the canonical gene.
-                    if (site1EntrezGeneId != TabDelimitedFileUtil.NA_LONG) {
-                        site1CanonicalGene = daoGene.getGene(site1EntrezGeneId);
-                    }
-                    if (site2EntrezGeneId != TabDelimitedFileUtil.NA_LONG) {
-                        site2CanonicalGene = daoGene.getGene(site2EntrezGeneId);
-                    }
-    
-                    // If no gene can be found based on Entrez Gene ID, try Symbol.
-                    if (site1CanonicalGene == null) {
-                        site1CanonicalGene = daoGene.getNonAmbiguousGene(site1HugoSymbol, null);
-                    }
-                    if (site2CanonicalGene == null) {
-                        site2CanonicalGene = daoGene.getNonAmbiguousGene(site2HugoSymbol, null);
-                    }
-    
+                    CanonicalGene site1CanonicalGene = setCanonicalGene(site1EntrezGeneId, site1HugoSymbol, daoGene);
+                    CanonicalGene site2CanonicalGene = setCanonicalGene(site2EntrezGeneId, site2HugoSymbol, daoGene);
+
                     // If neither of the genes is recognized, skip the line
                     if(site1CanonicalGene == null) {
                         ProgressMonitor.logWarning("Gene not found:  " + site1HugoSymbol + " ["
@@ -239,6 +223,23 @@ public class ImportStructuralVariantData {
         }
         buf.close();
         MySQLbulkLoader.flushAll();
+    }
+
+    private CanonicalGene setCanonicalGene(long siteEntrezGeneId, String siteHugoSymbol, DaoGeneOptimized daoGene) {
+        CanonicalGene siteCanonicalGene = null;
+    
+        // If the Entrez Gene Id is not "NA" set the canonical gene.
+        if (siteEntrezGeneId != TabDelimitedFileUtil.NA_LONG) {
+            siteCanonicalGene = daoGene.getGene(siteEntrezGeneId);
+        }
+
+        // If no gene can be found based on Entrez Gene ID, try Symbol.
+        if (siteCanonicalGene == null) {
+            siteCanonicalGene = daoGene.getNonAmbiguousGene(siteHugoSymbol, null);
+        }
+
+        return siteCanonicalGene;
+
     }
 
     private int getColumnIndex(String colName) {

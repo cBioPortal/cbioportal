@@ -82,7 +82,7 @@ public class DaoStructuralVariant {
                                             "DRIVER_TIERS_FILTER",
                                             "DRIVER_TIERS_FILTER_ANNOTATION",
                                             };
-        bl.setFieldNames(fieldNames );
+        bl.setFieldNames(fieldNames);
 
         // write to the temp file maintained by the MySQLbulkLoader
         bl.insertRecord(

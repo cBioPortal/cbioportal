@@ -192,7 +192,6 @@ public class TestIntegrationTest {
 
             // Add samples and molecular profile IDs
             List<String> sampleIds = new ArrayList<String>(Arrays.asList("TCGA-A2-A04P-01", "TCGA-A1-A0SB-01", "TCGA-A1-A0SB-01", "TCGA-A2-A04P-01", "TCGA-A2-A04P-01", "TCGA-A1-A0SK-01", "TCGA-A2-A0CM-01", "TCGA-AR-A1AR-01", "TCGA-B6-A0WX-01", "TCGA-BH-A1F0-01", "TCGA-B6-A0I6-01", "TCGA-BH-A18V-01", "TCGA-BH-A18Q-01", "TCGA-BH-A18K-01", "TCGA-BH-A0HL-01", "TCGA-BH-A0E0-01", "TCGA-BH-A0RX-01", "TCGA-A7-A13D-01", "TCGA-BH-A0E6-01", "TCGA-AO-A0J4-01", "TCGA-A7-A0CE-01", "TCGA-A7-A13E-01", "TCGA-A7-A0DA-01", "TCGA-D8-A142-01", "TCGA-D8-A143-01", "TCGA-AQ-A04J-01", "TCGA-BH-A0HN-01", "TCGA-A2-A0T0-01", "TCGA-A2-A0YE-01", "TCGA-A2-A0YJ-01", "TCGA-A2-A0D0-01", "TCGA-A2-A04U-01", "TCGA-AO-A0J6-01", "TCGA-A2-A0YM-01", "TCGA-A2-A0D2-01", "TCGA-BH-A0B3-01", "TCGA-A2-A04Q-01", "TCGA-A2-A0SX-01", "TCGA-AO-A0JL-01"));
-//            geneticProfileStableIds = new ArrayList<String>(Arrays.asList("study_es_0_structural_variants", "study_es_0_structural_variants"));
             geneticProfileStableIds = Collections.nCopies(sampleIds.size(), "study_es_0_structural_variants");
 
             StructuralVariantService structuralVariantService = applicationContext.getBean(StructuralVariantService.class);

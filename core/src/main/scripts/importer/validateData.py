@@ -911,12 +911,78 @@ class Validator(object):
                                          'cause': col})
         return num_errors
 
-    def parse_chromosome_num(self, value, column_number):
+    @staticmethod
+    def load_chromosome_lengths(genome_build, logger):
+
+        """Get the length of each chromosome from USCS and return a dict.
+
+        The dict will not include unplaced contigs, alternative haplotypes or
+        the mitochondrial chromosome.
+        """
+
+        class InvalidAPIResponse(ValueError):
+            def __init__(self, chrom_size_url, line):
+                super().__init__('Unexpected response from {}: {}'.format(
+                    chrom_size_url, repr(line)))
+        chrom_size_dict = {}
+        chrom_size_url = (
+            'http://hgdownload.cse.ucsc.edu'
+            '/goldenPath/{build}/bigZips/{build}.chrom.sizes').format(
+                build=genome_build)
+        logger.debug("Retrieving chromosome lengths from '%s'",
+                     chrom_size_url)
+        r = requests.get(chrom_size_url)
+        try:
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            raise ConnectionError(
+                'Error retrieving chromosome lengths from UCSC'
+            ) from e
+        for line in r.text.splitlines():
+            # skip comment lines
+            if line.startswith('#'):
+                continue
+            cols = line.split('\t', 1)
+            if not (len(cols) == 2 and
+                    cols[0].startswith('chr')):
+                raise InvalidAPIResponse(chrom_size_url, line)
+            # skip unplaced sequences
+            if cols[0].endswith('_random') or cols[0].startswith('chrUn_'):
+                continue
+            # skip entries for alternative haplotypes
+            if re.search(r'_hap[0-9]+$', cols[0]):
+                continue
+            # skip the mitochondrial chromosome
+            if cols[0] == 'chrM':
+                continue
+
+            # remove the 'chr' prefix
+            chrom_name = cols[0][3:]
+            try:
+                chrom_size = int(cols[1])
+            except ValueError as e:
+                raise InvalidAPIResponse(chrom_size_url, line) from e
+            chrom_size_dict[chrom_name] = chrom_size
+        return chrom_size_dict
+
+    def parse_chromosome_num(self, value, column_number, chromosome_lengths):
         """Parse a chromosome number, logging any errors for this column
 
         Return the parsed value if valid, None otherwise.
         """
-        # TODO: check if the chromosome exists in the UCSC cytobands file
+
+        value_is_valid = False
+
+        for chromosome in chromosome_lengths:
+            if chromosome == value:
+                value_is_valid = True
+
+        if not value_is_valid:
+            self.logger.error('Chromosome not found in the genome.',
+                                extra={'line_number': self.line_number,
+                                        'cause': value})
+            return None
+
         return value
 
     def parse_genomic_coord(self, value, column_number):
@@ -2665,60 +2731,6 @@ class SegValidator(Validator):
         # meanwhile adding up the number of (non-overlapping) bases covered on
         # that chromosome in that patient.
 
-    @staticmethod
-    def load_chromosome_lengths(genome_build, logger):
-
-        """Get the length of each chromosome from USCS and return a dict.
-
-        The dict will not include unplaced contigs, alternative haplotypes or
-        the mitochondrial chromosome.
-        """
-
-        class InvalidAPIResponse(ValueError):
-            def __init__(self, chrom_size_url, line):
-                super().__init__('Unexpected response from {}: {}'.format(
-                    chrom_size_url, repr(line)))
-        chrom_size_dict = {}
-        chrom_size_url = (
-            'http://hgdownload.cse.ucsc.edu'
-            '/goldenPath/{build}/bigZips/{build}.chrom.sizes').format(
-                build=genome_build)
-        logger.debug("Retrieving chromosome lengths from '%s'",
-                     chrom_size_url)
-        r = requests.get(chrom_size_url)
-        try:
-            r.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            raise ConnectionError(
-                'Error retrieving chromosome lengths from UCSC'
-            ) from e
-        for line in r.text.splitlines():
-            # skip comment lines
-            if line.startswith('#'):
-                continue
-            cols = line.split('\t', 1)
-            if not (len(cols) == 2 and
-                    cols[0].startswith('chr')):
-                raise InvalidAPIResponse(chrom_size_url, line)
-            # skip unplaced sequences
-            if cols[0].endswith('_random') or cols[0].startswith('chrUn_'):
-                continue
-            # skip entries for alternative haplotypes
-            if re.search(r'_hap[0-9]+$', cols[0]):
-                continue
-            # skip the mitochondrial chromosome
-            if cols[0] == 'chrM':
-                continue
-
-            # remove the 'chr' prefix
-            chrom_name = cols[0][3:]
-            try:
-                chrom_size = int(cols[1])
-            except ValueError as e:
-                raise InvalidAPIResponse(chrom_size_url, line) from e
-            chrom_size_dict[chrom_name] = chrom_size
-        return chrom_size_dict
-
 
 class FusionValidator(Validator):
 
@@ -3423,6 +3435,10 @@ class GisticGenesValidator(Validator):
                     "Genetic alteration type '{}' not supported by "
                     "GisticGenesValidator.".format(
                     self.meta_dict['genetic_alteration_type']))
+        self.chromosome_lengths = self.load_chromosome_lengths(
+            self.meta_dict['reference_genome_id'],
+            self.logger.logger
+        )
 
     def checkLine(self, data):
 
@@ -3458,7 +3474,8 @@ class GisticGenesValidator(Validator):
                 continue
             if col_name == 'chromosome':
                 parsed_chromosome = self.parse_chromosome_num(
-                        value, column_number=col_index + 1)
+                        value, column_number=col_index + 1,
+                        chromosome_lengths=self.chromosome_lengths)
             elif col_name == 'peak_start':
                 parsed_peak_start = self.parse_genomic_coord(
                         value, column_number=col_index + 1)

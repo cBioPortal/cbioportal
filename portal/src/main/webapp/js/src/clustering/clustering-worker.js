@@ -92,11 +92,11 @@ var preRankedSpearmanDist = function(item1, item2) {
 
 /**
  * Prepares the data for using spearman method in the distance function. 
- * It will pre-calculate ranks and deviation and store this in inputItems[x].preProcessedValueList.
+ * It will pre-calculate ranks and store this in inputItems[x].preProcessedValueList.
  * This pre-calculation significantly improves the performance of the clustering step itself.
  */
 var _prepareForDistanceFunction = function(inputItems) {
-	//pre-calculate ranks and configure to use last step of SPEARMAN as distance function:
+	//pre-calculate ranks:
 	for (var i = 0; i < inputItems.length; i++) {
 		var inputItem = inputItems[i];
 		//check if all NaNs:
@@ -106,7 +106,7 @@ var _prepareForDistanceFunction = function(inputItems) {
 		}
 		//rank using fractional ranking:
 		var ranks = jStat.rank(inputItem.orderedValueList);
-		//calculate deviation:
+		//store for later use:
 		inputItem.preProcessedValueList = ranks;
 	}
 }

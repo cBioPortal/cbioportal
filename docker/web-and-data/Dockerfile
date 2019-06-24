@@ -23,6 +23,7 @@ COPY --from=build /cbioportal/portal/target/dependency/webapp-runner.jar /webapp
 # copy over core jar and scripts
 COPY --from=build /cbioportal/core /cbioportal/core
 COPY --from=build /cbioportal/scripts /cbioportal/scripts
+COPY --from=build /cbioportal/db-scripts /cbioportal/db-scripts
 COPY --from=build /cbioportal/requirements.txt /cbioportal/requirements.txt
 
 # install build and runtime dependencies

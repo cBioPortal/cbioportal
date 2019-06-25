@@ -145,6 +145,22 @@ INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYP
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
 INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (@max_entity_id,8085,'KMT2D','protein-coding','12q13.12',20476);
+INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
+-- add genes for structural variant events
+SET @max_entity_id = (Select MAX(ID) from genetic_entity);
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (@max_entity_id,57670,'KIAA1549','protein-coding','7q34',12427);
+INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
+SET @max_entity_id = (Select MAX(ID) from genetic_entity);
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (@max_entity_id,27436,'EML4','protein-coding','2p21',8357);
+INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
+SET @max_entity_id = (Select MAX(ID) from genetic_entity);
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (@max_entity_id,238,'ALK','protein-coding','2p23.2-p23.1',6990);
+INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
+SET @max_entity_id = (Select MAX(ID) from genetic_entity);
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (@max_entity_id,2115,'ETV1','protein-coding','7p21.2',9616);
+INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
+SET @max_entity_id = (Select MAX(ID) from genetic_entity);
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE","CYTOBAND","LENGTH") VALUES (@max_entity_id,7273,'TTN','protein-coding','2q31.2',118976);
 
 -- cna_event
 INSERT INTO "cna_event" ("CNA_EVENT_ID","ENTREZ_GENE_ID","ALTERATION") VALUES (20093,207,-2);
@@ -237,7 +253,7 @@ INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (4,'study_tcga_pub_log2CNA',1,'COPY_NUMBER_ALTERATION','LOG2-VALUE','Log2 copy-number values','Log2 copy-number values for each gene (from Affymetrix SNP6).','0');
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (5,'study_tcga_pub_methylation_hm27',1,'METHYLATION','CONTINUOUS','Methylation (HM27)','Methylation beta-values (HM27 platform). For genes with multiple methylation probes, the probe least correlated with expression is selected.','0');
 INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (6,'study_tcga_pub_mutations',1,'MUTATION_EXTENDED','MAF','Mutations','Mutation data from whole exome sequencing.','1');
-INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (7,'study_tcga_pub_sv',1,'STRUCTURAL_VARIANT','SV','Structural Variants','Structural Variants detected by Illumina HiSeq sequencing.',1);
+INSERT INTO "genetic_profile" ("GENETIC_PROFILE_ID", "STABLE_ID", "CANCER_STUDY_ID", "GENETIC_ALTERATION_TYPE", "DATATYPE", "NAME", "DESCRIPTION", "SHOW_PROFILE_IN_ANALYSIS_TAB") VALUES (7,'study_tcga_pub_structural_variants',1,'STRUCTURAL_VARIANT','SV','Structural Variants','Structural Variants test data.', '1');
 
 -- genetic_alteration
 INSERT INTO "genetic_alteration" ("GENETIC_PROFILE_ID","GENETIC_ENTITY_ID","VALUES") VALUES (2,(Select "GENETIC_ENTITY_ID" from "gene" where "ENTREZ_GENE_ID" = 10000),'0,0,1,2,0,1,1,1,0,1,1,1,0,1,');

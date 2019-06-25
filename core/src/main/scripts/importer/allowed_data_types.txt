@@ -37,3 +37,4 @@ PROTEIN_LEVEL	Z-SCORE	protein_quantification_zscores
 GENESET_SCORE	GSVA-SCORE	gsva_scores
 GENESET_SCORE	P-VALUE	gsva_pvalues
 GENERIC_ASSAY	LIMIT-VALUE	*
+STRUCTURAL_VARIANT	SV	structural_variants

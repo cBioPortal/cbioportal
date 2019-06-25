@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -83,6 +84,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.service.StructuralVariantService;
 
 /**
  * Integration test using the same data that is used by validation system test
@@ -182,10 +185,25 @@ public class TestIntegrationTest {
                     .getGeneticProfiles(geneticProfileStableIds);
             assertEquals(geneticProfiles.size(), 0);
 
-            // ===== Check CNA data ========
+            //===== Check STRUCTURAL VARIANT data ========
+            // 45 structural variant events are imported, using 31 unique genes, using 39 samples
+            // Not all 31 genes have to be queried. BRAF is fused to many of the test genes.
+            List<Integer> entrezGeneIds = new ArrayList<Integer>(Arrays.asList(57670, 673, 8031, 5979, 27436, 238, 7113, 2078, 1956, 238, 5774, 2115, 7273));
+
+            // Add samples and molecular profile IDs
+            List<String> sampleIds = new ArrayList<String>(Arrays.asList("TCGA-A2-A04P-01", "TCGA-A1-A0SB-01", "TCGA-A1-A0SB-01", "TCGA-A2-A04P-01", "TCGA-A2-A04P-01", "TCGA-A1-A0SK-01", "TCGA-A2-A0CM-01", "TCGA-AR-A1AR-01", "TCGA-B6-A0WX-01", "TCGA-BH-A1F0-01", "TCGA-B6-A0I6-01", "TCGA-BH-A18V-01", "TCGA-BH-A18Q-01", "TCGA-BH-A18K-01", "TCGA-BH-A0HL-01", "TCGA-BH-A0E0-01", "TCGA-BH-A0RX-01", "TCGA-A7-A13D-01", "TCGA-BH-A0E6-01", "TCGA-AO-A0J4-01", "TCGA-A7-A0CE-01", "TCGA-A7-A13E-01", "TCGA-A7-A0DA-01", "TCGA-D8-A142-01", "TCGA-D8-A143-01", "TCGA-AQ-A04J-01", "TCGA-BH-A0HN-01", "TCGA-A2-A0T0-01", "TCGA-A2-A0YE-01", "TCGA-A2-A0YJ-01", "TCGA-A2-A0D0-01", "TCGA-A2-A04U-01", "TCGA-AO-A0J6-01", "TCGA-A2-A0YM-01", "TCGA-A2-A0D2-01", "TCGA-BH-A0B3-01", "TCGA-A2-A04Q-01", "TCGA-A2-A0SX-01", "TCGA-AO-A0JL-01"));
+            geneticProfileStableIds = Collections.nCopies(sampleIds.size(), "study_es_0_structural_variants");
+
+            StructuralVariantService structuralVariantService = applicationContext.getBean(StructuralVariantService.class);
+            List<StructuralVariant> structuralVariants = structuralVariantService.fetchStructuralVariants(geneticProfileStableIds, entrezGeneIds, sampleIds);
+
+            // Check if all 45 structural variants are imported
+            assertEquals(45, structuralVariants.size());
+
+            //===== Check CNA data ========
             geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_gistic");
-            List<String> hugoGeneSymbols = new ArrayList<String>(Arrays.asList("ACAP3","AGRN","ATAD3A","ATAD3B","ATAD3C","AURKAIP1","ERCC5"));
+            ArrayList<String> hugoGeneSymbols = new ArrayList<String>(Arrays.asList("ACAP3","AGRN","ATAD3A","ATAD3B","ATAD3C","AURKAIP1","ERCC5"));
             List<DBProfileData> cnaProfileData = apiService.getGeneticProfileData(geneticProfileStableIds, hugoGeneSymbols, null, null);
             //there is data for 7 genes x 788 samples:
             assertEquals(7*788, cnaProfileData.size());

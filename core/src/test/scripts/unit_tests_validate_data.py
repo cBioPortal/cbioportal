@@ -2128,7 +2128,7 @@ class GisticGenesValidationTestCase(PostClinicalDataFileTestCase):
                     'genetic_alteration_type': 'GISTIC_GENES_AMP',
                     'reference_genome_id': 'hg19'})
         # expecting only status messages about the file being validated
-        self.assertEqual(len(record_list), 3)
+        self.assertEqual(len(record_list), 4)
         for record in record_list:
             self.assertLessEqual(record.levelno, logging.INFO)
 
@@ -2142,7 +2142,7 @@ class GisticGenesValidationTestCase(PostClinicalDataFileTestCase):
                     'genetic_alteration_type': 'GISTIC_GENES_DEL',
                     'reference_genome_id': 'hg19'})
         # expecting only status messages about the file being validated
-        self.assertEqual(len(record_list), 3)
+        self.assertEqual(len(record_list), 4)
         for record in record_list:
             self.assertLessEqual(record.levelno, logging.INFO)
 

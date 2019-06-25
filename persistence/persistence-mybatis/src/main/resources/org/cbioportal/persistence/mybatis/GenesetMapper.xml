@@ -59,7 +59,7 @@
 
     <select id="getGenesByGenesetId" resultType="org.cbioportal.model.Gene">
         SELECT
-        <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
+        <include refid="select">
             <property name="prefix" value=""/>
         </include>
         FROM gene

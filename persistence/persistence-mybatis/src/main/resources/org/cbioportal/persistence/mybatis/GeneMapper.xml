@@ -10,8 +10,7 @@
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
             gene.TYPE AS "${prefix}type",
-            gene.CYTOBAND AS "${prefix}cytoband",
-            gene.LENGTH AS "${prefix}length"
+            gene.CYTOBAND AS "${prefix}cytoband"
         </if>
     </sql>
 

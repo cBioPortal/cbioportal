@@ -363,15 +363,6 @@
     </servlet-mapping>
 
 	<servlet>
-		<servlet-name>pfam_sequence_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.PfamSequenceServlet</servlet-class>
-	</servlet>
-    <servlet-mapping>
-        <servlet-name>pfam_sequence_json</servlet-name>
-        <url-pattern>/getPfamSequence.json</url-pattern>
-    </servlet-mapping>
-
-	<servlet>
 		<servlet-name>mutation_aligner_json</servlet-name>
 		<servlet-class>org.mskcc.cbio.portal.servlet.MutationAlignerServlet</servlet-class>
 	</servlet>

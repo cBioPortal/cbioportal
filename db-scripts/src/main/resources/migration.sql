@@ -674,8 +674,8 @@ CREATE TABLE `structural_variant` (
 
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.9.2";
 
-##version: 2.9.3
+##version: 2.10.0
 -- remove gene length, this is stored in genome nexus
 ALTER TABLE `gene` DROP COLUMN `length`;
 
-UPDATE `info` SET `DB_SCHEMA_VERSION`="2.9.3";
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.10.0";

@@ -76,7 +76,6 @@
 <script type="text/javascript" src="js/lib/jmol/JmolApi.js"></script>--%>
 
 <script type="text/javascript" src="js/lib/3Dmol-nojquery-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/mutationMapper.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
     // This is for the moustache-like templates

@@ -42,7 +42,7 @@ ALTER TABLE `geneset` AUTO_INCREMENT = 1;
 5- To import gene data type the following commands when in the folder `<cbioportal_source_folder>/core/src/main/scripts`:
 ```
 export PORTAL_HOME=<cbioportal_configuration_folder>
-./importGenes.pl --genes <ncbi_species.gene_info> --gtf <gencode.v25.annotation.gtf>
+./importGenes.pl --genes <ncbi_species.gene_info>
 ```
 
 6- :warning: Check the `gene` and `gene_alias` tables to verify that they are filled correctly.

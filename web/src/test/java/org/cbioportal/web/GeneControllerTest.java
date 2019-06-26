@@ -37,13 +37,11 @@ public class GeneControllerTest {
     public static final String HUGO_GENE_SYMBOL_1 = "hugo_gene_symbol_1";
     public static final String TYPE_1 = "type_1";
     public static final String CYTOBAND_1 = "cytoband_1";
-    public static final int LENGTH_1 = 100;
     public static final String CHROMOSOME_1 = "chromosome_1";
     public static final int ENTREZ_GENE_ID_2 = 2;
     public static final String HUGO_GENE_SYMBOL_2 = "hugo_gene_symbol_2";
     public static final String TYPE_2 = "type_2";
     public static final String CYTOBAND_2 = "cytoband_2";
-    public static final int LENGTH_2 = 200;
     public static final String CHROMOSOME_2 = "chromosome_2";
     public static final String ALIAS_1 = "alias_1";
     public static final String ALIAS_2 = "alias_2";

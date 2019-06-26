@@ -71,7 +71,6 @@ public class MutationControllerTest {
     private static final String TEST_HUGO_GENE_SYMBOL_1 = "test_hugo_gene_symbol_1";
     private static final String TEST_TYPE_1 = "test_type_1";
     private static final String TEST_CYTOBAND_1 = "test_cytoband_1";
-    private static final int TEST_LENGTH_1 = 100;
     private static final String TEST_CHROMOSOME_1 = "test_chromosome_1";
     private static final int TEST_MOLECULAR_PROFILE_ID_2 = 2;
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_2 = "test_molecular_profile_stable_id_2";
@@ -106,7 +105,6 @@ public class MutationControllerTest {
     private static final String TEST_HUGO_GENE_SYMBOL_2 = "test_hugo_gene_symbol_2";
     private static final String TEST_TYPE_2 = "test_type_2";
     private static final String TEST_CYTOBAND_2 = "test_cytoband_2";
-    private static final int TEST_LENGTH_2 = 200;
     private static final String TEST_CHROMOSOME_2 = "test_chromosome_2";
     private static final int TEST_MUTATION_COUNT_1 = 100;
     private static final int TEST_MUTATION_COUNT_2 = 200;

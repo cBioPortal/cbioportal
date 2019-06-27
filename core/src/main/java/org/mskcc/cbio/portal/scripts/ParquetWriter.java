@@ -32,9 +32,8 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.util.SparkConfiguration;
+import org.cbioportal.persistence.spark.util.SparkConfiguration;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.*;
 import static org.apache.spark.sql.functions.*;
 import joptsimple.*;
-import java.io.File;
+
 import java.io.IOException;
 
 /**

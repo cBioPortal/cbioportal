@@ -24,7 +24,11 @@
       <artifactId>security-spring</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+      <dependency>
+          <groupId>org.mskcc.cbio</groupId>
+          <artifactId>persistence-spark</artifactId>
+          <version>${project.version}</version>
+      </dependency>
     <dependency>
         <groupId>org.mskcc.cbio</groupId>
         <artifactId>db-scripts</artifactId>

@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.util;
+package org.cbioportal.persistence.spark.util;
 
 import org.apache.spark.sql.SparkSession;
 import org.springframework.beans.factory.annotation.Value;

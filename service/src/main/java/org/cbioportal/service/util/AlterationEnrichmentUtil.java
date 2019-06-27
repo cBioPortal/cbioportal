@@ -58,11 +58,9 @@ public class AlterationEnrichmentUtil {
                 "SUMMARY");
 
         return genes.stream().map(gene -> {
-
             AlterationEnrichment alterationEnrichment = new AlterationEnrichment();
             alterationEnrichment.setEntrezGeneId(gene.getEntrezGeneId());
             alterationEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
-            //alterationEnrichment.setCytoband(gene.getCytoband());
 
             List<CountSummary> counts = groups
                     .stream()

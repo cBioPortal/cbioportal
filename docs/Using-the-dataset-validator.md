@@ -43,7 +43,7 @@ optional arguments:
   -ucsc UCSC_BUILD_NAME, --ucsc_build_name UCSC_BUILD_NAME
                         UCSC reference genome assembly name (default: assumed hg19)
   -ncbi NCBI_BUILD_NUMBER, --ncbi_build_number NCBI_BUILD_NUMBER
-                        NCBI reference genome build number (default: assumed 37 for UCSC reference genome build hg19)
+                        NCBI reference genome build number (default: assumed GRCh37 for UCSC reference genome build hg19)
   -html HTML_TABLE, --html_table HTML_TABLE
                         path to html report output file
   -e ERROR_FILE, --error_file ERROR_FILE
@@ -432,14 +432,14 @@ When importing a study, the validator assumes by default that the following thre
 `--species` , `--ucsc_build_name` , `--ncbi_build_number` are set to the following:
 ```
 --species=human
---ncbi_build_number=37
+--ncbi_build_number=GRCh37
 --ucsc_build_name=hg19
 ```
 
 cBioPortal is gradually introducing support for mouse. If you want to load mouse studies and you have [set up your database for mouse](Import-the-Seed-Database.md#download-the-cbioportal-database), you should set the previous parameters to:
 ```
 --species=mouse
---ncbi_build_number=38
+--ncbi_build_number=GRCh38
 --ucsc_build_name=mm10
 ```
 
@@ -486,7 +486,7 @@ optional arguments:
   -ucsc UCSC_BUILD_NAME, --ucsc_build_name UCSC_BUILD_NAME
                         UCSC reference genome assembly name (default: assumed hg19)
   -ncbi NCBI_BUILD_NUMBER, --ncbi_build_number NCBI_BUILD_NUMBER
-                        NCBI reference genome build number (default: assumed 37 for UCSC genome build hg19)
+                        NCBI reference genome build number (default: assumed GRCh37 for UCSC genome build hg19)
   -m, --strict_maf_checks
                         Option to enable strict mode for validator when
                         validating mutation data

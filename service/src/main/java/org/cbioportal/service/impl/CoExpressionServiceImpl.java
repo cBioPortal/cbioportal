@@ -221,7 +221,6 @@ public class CoExpressionServiceImpl implements CoExpressionService {
                 toReturn.add(ce);
             }
         }
-
         return toReturn;
     }
 
@@ -262,7 +261,7 @@ public class CoExpressionServiceImpl implements CoExpressionService {
 
     private List<CoExpression> computeCoExpressionsFromMolecularData(List<? extends MolecularData> molecularDataListB,
             Boolean isMolecularProfileBOfGenesetType, List<? extends MolecularData> molecularDataListA,
-            String queryGeneticEntityId, Double threshold) throws GenesetNotFoundException, GeneNotFoundException {
+            String queryGeneticEntityId, Double threshold, String molecularProfileId) throws GenesetNotFoundException, GeneNotFoundException {
 
         Map<String , List<MolecularData>> molecularDataMapA = molecularDataListA.stream()
             .collect(Collectors.groupingBy(MolecularData::getStableId));
@@ -329,7 +328,7 @@ public class CoExpressionServiceImpl implements CoExpressionService {
                     gene.getEntrezGeneId(),
                     molecularProfile.getCancerStudy().getReferenceGenome());
                 coExpression.setCytoband(refGene.getCytoband()); //value will be set by the frontend
-            } catch (NullPointerException e) {
+            } catch (NullPointerException | MolecularProfileNotFoundException e) {
                 coExpression.setCytoband("-");
             }
             coExpression.setGeneticEntityName(gene.getHugoGeneSymbol());

@@ -238,7 +238,7 @@
                 #{alteration}
             </foreach>
         </if>
-        GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION
+        GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION, reference_genome_gene.CYTOBAND
     </select>
 
     <select id="getPatientCountByGeneAndAlterationAndPatientIds" resultType="org.cbioportal.model.CopyNumberCountByGene">

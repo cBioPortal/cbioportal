@@ -700,15 +700,15 @@ INSERT INTO reference_genome_gene (ENTREZ_GENE_ID, CYTOBAND, EXONIC_LENGTH, CHR,
 SELECT
     ENTREZ_GENE_ID,
     CYTOBAND,
-    LENGTH,
+    0,
     SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(gene.CYTOBAND,IF(LOCATE('p', gene.CYTOBAND), 'p', 'q'), 1),'q',1),'cen',1),
     1
 FROM `gene`
 WHERE NOT EXISTS (SELECT * FROM reference_genome_gene);
-ALTER TABLE `gene` DROP COLUMN `CYTOBAND`, DROP COLUMN `LENGTH`;
+ALTER TABLE `gene` DROP COLUMN `CYTOBAND`;
 ALTER TABLE `cancer_study` ADD COLUMN `REFERENCE_GENOME_ID` INT(4) DEFAULT 1,
                            ADD CONSTRAINT `FK_REFERENCE_GENOME` FOREIGN KEY (`REFERENCE_GENOME_ID`)
-                               REFERENCES `reference_genome`(`REFERENCE_GENOME_ID`) ON DELETE CASCADE;
+                               REFERENCES `reference_genome`(`REFERENCE_GENOME_ID`) ON DELETE RESTRICT;
 UPDATE `cancer_study`
     INNER JOIN `genetic_profile` ON `cancer_study`.CANCER_STUDY_ID = `genetic_profile`.CANCER_STUDY_ID
     INNER JOIN `mutation` ON `mutation`.GENETIC_PROFILE_ID = `genetic_profile`.GENETIC_PROFILE_ID

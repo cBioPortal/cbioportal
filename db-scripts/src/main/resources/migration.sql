@@ -422,7 +422,13 @@ INSERT INTO reference_genome_gene (ENTREZ_GENE_ID, CYTOBAND, EXONIC_LENGTH, CHR,
 	ENTREZ_GENE_ID,
 	CYTOBAND,
 	LENGTH,
-    SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(gene.CYTOBAND,IF(LOCATE('p', gene.CYTOBAND), 'p', 'q'), 1),'q',1),'cen',1),
+  SUBSTRING_INDEX(
+    SUBSTRING_INDEX(
+      SUBSTRING_INDEX(
+        SUBSTRING_INDEX(gene.CYTOBAND, 'p', 1),
+      'q', 1),
+    'cen', 1),
+  ' ', 1),
 	1
 FROM `gene`);
 

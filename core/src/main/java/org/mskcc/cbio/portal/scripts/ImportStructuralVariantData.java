@@ -115,6 +115,7 @@ public class ImportStructuralVariantData {
         // Genetic profile is read in first
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
         String line = new String();
+        ArrayList <Integer> orderedSampleList = new ArrayList<Integer>();
         while ((line = buf.readLine()) != null) {
             ProgressMonitor.incrementCurValue();
             ConsoleUtil.showProgress();
@@ -217,10 +218,13 @@ public class ImportStructuralVariantData {
                             }
                         }
                         sampleSet.add(sample.getStableId());
+                        orderedSampleList.add(sample.getInternalId());
                     }
                 }
             }
         }
+        DaoGeneticProfileSamples.addGeneticProfileSamples(geneticProfileId, orderedSampleList);
+
         buf.close();
         MySQLbulkLoader.flushAll();
     }

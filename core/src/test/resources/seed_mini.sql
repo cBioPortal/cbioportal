@@ -150,8 +150,22 @@ INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
 INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,8085,'KMT2D','protein-coding');
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
+-- add genes for structural variant events
 SET @max_entity_id = (Select MAX(ID) from genetic_entity);
-INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,31259,'TMEM216','protein-coding');
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,57670,'KIAA1549','protein-coding');
+INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
+SET @max_entity_id = (Select MAX(ID) from genetic_entity);
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,27436,'EML4','protein-coding');
+INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
+SET @max_entity_id = (Select MAX(ID) from genetic_entity);
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,238,'ALK','protein-coding');
+INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
+SET @max_entity_id = (Select MAX(ID) from genetic_entity);
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,2115,'ETV1','protein-coding');
+INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
+SET @max_entity_id = (Select MAX(ID) from genetic_entity);
+INSERT INTO "gene" ("GENETIC_ENTITY_ID","ENTREZ_GENE_ID","HUGO_GENE_SYMBOL","TYPE") VALUES (@max_entity_id,7273,'TTN','protein-coding');
+
 -- cna_event
 INSERT INTO "cna_event" ("CNA_EVENT_ID","ENTREZ_GENE_ID","ALTERATION") VALUES (20093,207,-2);
 INSERT INTO "cna_event" ("CNA_EVENT_ID","ENTREZ_GENE_ID","ALTERATION") VALUES (20092,207,2);

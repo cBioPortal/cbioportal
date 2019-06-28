@@ -12,7 +12,7 @@ public class AlterationCountByGene implements Serializable {
 	private Integer totalCount;
 	private Integer numberOfSamplesProfiled;
     private BigDecimal qValue;
-    private List<GenePanel> matchingGenePanels;
+    private List<String> matchingGenePanelIds;
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -60,13 +60,13 @@ public class AlterationCountByGene implements Serializable {
 
 	public void setqValue(BigDecimal qValue) {
 		this.qValue = qValue;
-    }	
-    
-    public List<GenePanel> getMatchingGenePanels() {
-        return matchingGenePanels;
     }
 
-    public void setMatchingGenePanels(List<GenePanel> matchingGenePanels) {
-        this.matchingGenePanels = matchingGenePanels;
+    public List<String> getMatchingGenePanelIds() {
+        return matchingGenePanelIds;
+    }
+
+    public void setMatchingGenePanelIds(List<String> matchingGenePanelIds) {
+        this.matchingGenePanelIds = matchingGenePanelIds;
     }
 }

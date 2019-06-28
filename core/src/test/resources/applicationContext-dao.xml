@@ -17,6 +17,8 @@
 		     <list>
 			     <value>file:///#{systemEnvironment['PORTAL_HOME']}/src/main/resources/portal.properties</value>
                  <value>file:///#{systemEnvironment['PORTAL_HOME']}/src/main/resources/maven.properties</value>
+                 <value>file:///#{systemEnvironment['PORTAL_HOME']}/portal.properties</value>
+                 <value>classpath:portal.properties</value>
 		     </list>
 	    </property>
      </bean>
@@ -101,7 +103,7 @@
     <bean id="structuralVariantRepository" class="org.mskcc.cbio.portal.repository.StructuralVariantMyBatisRepository">
         <property name="structuralVariantMapper" ref="structuralVariantMapper" />
     </bean>
-
+    
     <!-- enable component scanning (beware that this does not enable mapper scanning!) -->
     <context:component-scan base-package="org.mskcc.cbio.portal.service" />
     <context:component-scan base-package="org.cbioportal.persistence" />

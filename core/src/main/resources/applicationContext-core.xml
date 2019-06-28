@@ -24,5 +24,6 @@
     </b:bean>
     
     <context:component-scan base-package="org.mskcc.cbio.portal"/>
+    <context:annotation-config />
     <mvc:annotation-driven/>
 </b:beans>

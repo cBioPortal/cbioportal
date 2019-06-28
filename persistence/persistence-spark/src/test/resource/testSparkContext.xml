@@ -12,6 +12,5 @@
      http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <context:component-scan base-package="org.cbioportal.persistence.spark"/>
-    <context:component-scan base-package="org.mskcc.cbio.portal.util" />
     <context:annotation-config />
 </beans>

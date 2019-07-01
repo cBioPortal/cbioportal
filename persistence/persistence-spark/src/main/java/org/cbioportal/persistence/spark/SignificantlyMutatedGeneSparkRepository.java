@@ -8,6 +8,7 @@ import org.apache.spark.sql.SparkSession;
 import org.cbioportal.model.MutSig;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SignificantlyMutatedGeneRepository;
+import org.cbioportal.persistence.spark.util.ParquetConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,14 +33,13 @@ public class SignificantlyMutatedGeneSparkRepository implements SignificantlyMut
 
     @Override
     public List<MutSig> getSignificantlyMutatedGenes(String studyId, String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction) {
-        System.out.println(PARQUET_DIR);
         Dataset<Row> mutationDf = spark.read()
-            .parquet(PARQUET_DIR + "/" + studyId + "/data_mutations_extended.txt.parquet");
+            .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.DATA_MUTATIONS);
 
         // for MSK
         if (studyId.contains("msk")) {
             Dataset<Row> mutationsMskcc = spark.read()
-                .parquet(PARQUET_DIR + "/" + studyId + "/data_mutations_mskcc.txt.parquet");
+                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.DATA_MUTATIONS_MSKCC);
             mutationsMskcc = mutationsMskcc.drop("cDNA_change");
             mutationDf = mutationDf.unionByName(mutationsMskcc);
         }

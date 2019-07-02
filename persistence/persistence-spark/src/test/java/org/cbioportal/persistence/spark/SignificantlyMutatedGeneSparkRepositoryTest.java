@@ -15,8 +15,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-import javax.xml.crypto.Data;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,7 +30,7 @@ public class SignificantlyMutatedGeneSparkRepositoryTest {
     @InjectMocks
     private SignificantlyMutatedGeneSparkRepository significantlyMutatedGeneSparkRepository;
 
-    Dataset<Row> ds;
+    private Dataset<Row> ds;
     
     @Before
     public void setup() {

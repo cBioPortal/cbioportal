@@ -240,4 +240,4 @@ spark.driver.memory=2g
 spark.executor.memory=1g
 spark.shuffle.partitions=2
 spark.default.parallelism=2
-data.parquet.folder=parquet/
+data.parquet.folder=persistence/persistence-spark/src/main/resources/parquet/

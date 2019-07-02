@@ -198,7 +198,7 @@ ncbi.build=37
 ucsc.build=hg19
 
 # default view in oncoprint (sample, patient (default))
-oncoprint.defaultview=patientd
+oncoprint.defaultview=patient
 
 # OncoPrint driver mutation annotations
 # oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation

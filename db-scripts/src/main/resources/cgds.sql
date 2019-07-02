@@ -1,5 +1,5 @@
 --
--- Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+-- Copyright (c) 2016 - 2019 Memorial Sloan-Kettering Cancer Center.
 --
 -- This library is distributed in the hope that it will be useful, but WITHOUT
 -- ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -89,13 +89,16 @@ DROP TABLE IF EXISTS `sample_list`;
 DROP TABLE IF EXISTS `sample`;
 DROP TABLE IF EXISTS `patient`;
 DROP TABLE IF EXISTS `authorities`;
+DROP TABLE IF EXISTS `data_access_tokens`;
 DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `cancer_study_tags`;
 DROP TABLE IF EXISTS `cancer_study`;
 DROP TABLE IF EXISTS `type_of_cancer`;
 DROP TABLE IF EXISTS `geneset_hierarchy_leaf`;
 DROP TABLE IF EXISTS `geneset_hierarchy_node`;
 DROP TABLE IF EXISTS `geneset`;
 DROP TABLE IF EXISTS `genetic_entity`;
+DROP TABLE IF EXISTS `reference_genome_gene`;
 DROP TABLE IF EXISTS `reference_genome`;
 
 -- --------------------------------------------------------
@@ -118,7 +121,7 @@ CREATE TABLE `cancer_study` (
   `SHORT_NAME` varchar(64) NOT NULL,
   `DESCRIPTION` varchar(1024) NOT NULL,
   `PUBLIC` BOOLEAN NOT NULL,
-  `PMID` varchar(20) DEFAULT NULL,
+  `PMID` varchar(1024) DEFAULT NULL,
   `CITATION` varchar(200) DEFAULT NULL,
   `GROUPS` varchar(200) DEFAULT NULL,
   `STATUS` int(1) DEFAULT NULL,
@@ -126,6 +129,14 @@ CREATE TABLE `cancer_study` (
   PRIMARY KEY (`CANCER_STUDY_ID`),
   UNIQUE (`CANCER_STUDY_IDENTIFIER`),
   FOREIGN KEY (`TYPE_OF_CANCER_ID`) REFERENCES `type_of_cancer` (`TYPE_OF_CANCER_ID`)
+);
+
+-- --------------------------------------------------------
+CREATE TABLE `cancer_study_tags` (
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `TAGS` text NOT NULL,
+  PRIMARY KEY (`CANCER_STUDY_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------
@@ -200,7 +211,7 @@ CREATE TABLE `gene` (
   `CYTOBAND` varchar(64),
   `LENGTH` int(11),
   PRIMARY KEY (`ENTREZ_GENE_ID`),
-  UNIQUE KEY `GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID`),  
+  UNIQUE KEY `GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID`),
   KEY `HUGO_GENE_SYMBOL` (`HUGO_GENE_SYMBOL`),
   FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
 );
@@ -396,8 +407,8 @@ CREATE TABLE `mutation_event` (
   `CHR` varchar(5),
   `START_POSITION` bigint(20),
   `END_POSITION` bigint(20),
-  `REFERENCE_ALLELE` varchar(400),
-  `TUMOR_SEQ_ALLELE` varchar(400),
+  `REFERENCE_ALLELE` text,
+  `TUMOR_SEQ_ALLELE` text,
   `PROTEIN_CHANGE` varchar(255),
   `MUTATION_TYPE` varchar(255) COMMENT 'e.g. Missense, Nonsence, etc.',
   `FUNCTIONAL_IMPACT_SCORE` varchar(50) COMMENT 'Result from OMA/XVAR.',
@@ -421,7 +432,7 @@ CREATE TABLE `mutation_event` (
   `KEYWORD` varchar(255) DEFAULT NULL COMMENT 'e.g. truncating, V200 Missense, E338del, ',
   KEY (`KEYWORD`),
   PRIMARY KEY (`MUTATION_EVENT_ID`),
-  UNIQUE (`CHR`, `START_POSITION`, `END_POSITION`, `TUMOR_SEQ_ALLELE`, `ENTREZ_GENE_ID`, `PROTEIN_CHANGE`, `MUTATION_TYPE`),
+  KEY `KEY_MUTATION_EVENT_DETAILS` (`CHR`, `START_POSITION`, `END_POSITION`, `TUMOR_SEQ_ALLELE`(240), `ENTREZ_GENE_ID`, `PROTEIN_CHANGE`, `MUTATION_TYPE`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
 ) COMMENT='Mutation Data';
 
@@ -435,15 +446,15 @@ CREATE TABLE `mutation` (
   `SEQUENCER` varchar(255),
   `MUTATION_STATUS` varchar(25) COMMENT 'Germline, Somatic or LOH.',
   `VALIDATION_STATUS` varchar(25),
-  `TUMOR_SEQ_ALLELE1` varchar(255),
-  `TUMOR_SEQ_ALLELE2` varchar(255),
+  `TUMOR_SEQ_ALLELE1` TEXT,
+  `TUMOR_SEQ_ALLELE2` TEXT,
   `MATCHED_NORM_SAMPLE_BARCODE` varchar(255),
-  `MATCH_NORM_SEQ_ALLELE1` varchar(255),
-  `MATCH_NORM_SEQ_ALLELE2` varchar(255),
-  `TUMOR_VALIDATION_ALLELE1` varchar(255),
-  `TUMOR_VALIDATION_ALLELE2` varchar(255),
-  `MATCH_NORM_VALIDATION_ALLELE1` varchar(255),
-  `MATCH_NORM_VALIDATION_ALLELE2` varchar(255),
+  `MATCH_NORM_SEQ_ALLELE1` TEXT,
+  `MATCH_NORM_SEQ_ALLELE2` TEXT,
+  `TUMOR_VALIDATION_ALLELE1` TEXT,
+  `TUMOR_VALIDATION_ALLELE2` TEXT,
+  `MATCH_NORM_VALIDATION_ALLELE1` TEXT,
+  `MATCH_NORM_VALIDATION_ALLELE2` TEXT,
   `VERIFICATION_STATUS` varchar(10),
   `SEQUENCING_PHASE` varchar(100),
   `SEQUENCE_SOURCE` varchar(255) NOT NULL,
@@ -475,7 +486,7 @@ CREATE TABLE `mutation` (
 -- --------------------------------------------------------
 CREATE TABLE `mutation_count_by_keyword` (
     `GENETIC_PROFILE_ID` int(11) NOT NULL,
-    `KEYWORD` varchar(50) DEFAULT NULL,
+    `KEYWORD` varchar(255) DEFAULT NULL,
     `ENTREZ_GENE_ID` int(11) NOT NULL,
     `KEYWORD_COUNT` int NOT NULL,
     `GENE_COUNT` int NOT NULL,
@@ -793,9 +804,19 @@ CREATE TABLE `reference_genome_gene` (
 );
 
 -- --------------------------------------------------------
+CREATE TABLE `data_access_tokens` (
+    `TOKEN` varchar(50) NOT NULL,
+    `USERNAME` varchar(128) NOT NULL,
+    `EXPIRATION` datetime NOT NULL,
+    `CREATION` datetime NOT NULL,
+    PRIMARY KEY (`TOKEN`),
+    FOREIGN KEY (`USERNAME`) REFERENCES `users` (`EMAIL`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
 CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24),
   `GENESET_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.7.1', NULL);
+INSERT INTO info VALUES ('2.9.0', NULL);

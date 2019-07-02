@@ -1,8 +1,11 @@
 INSERT INTO type_of_cancer (TYPE_OF_CANCER_ID,NAME,CLINICAL_TRIAL_KEYWORDS,DEDICATED_COLOR,SHORT_NAME,PARENT) VALUES('brca','Breast Invasive Carcinoma','breast,breast invasive','HotPink','Breast','tissue');
 INSERT INTO type_of_cancer (TYPE_OF_CANCER_ID,NAME,CLINICAL_TRIAL_KEYWORDS,DEDICATED_COLOR,SHORT_NAME,PARENT) VALUES('acc','Adrenocortical Carcinoma','adrenocortical carcinoma','Purple','ACC','adrenal_gland');
 
-INSERT INTO cancer_study (CANCER_STUDY_ID,CANCER_STUDY_IDENTIFIER,TYPE_OF_CANCER_ID,NAME,SHORT_NAME,DESCRIPTION,PUBLIC,PMID,CITATION,GROUPS,STATUS,IMPORT_DATE) VALUES(1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC',0,'2011-12-18 13:17:17+00:00');
+INSERT INTO cancer_study (CANCER_STUDY_ID,CANCER_STUDY_IDENTIFIER,TYPE_OF_CANCER_ID,NAME,SHORT_NAME,DESCRIPTION,PUBLIC,PMID,CITATION,GROUPS,STATUS,IMPORT_DATE) VALUES(1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897,26451490','TCGA, Nature 2012, ...','SU2C-PI3K;PUBLIC;GDAC',0,'2011-12-18 13:17:17+00:00');
 INSERT INTO cancer_study (CANCER_STUDY_ID,CANCER_STUDY_IDENTIFIER,TYPE_OF_CANCER_ID,NAME,SHORT_NAME,DESCRIPTION,PUBLIC,PMID,CITATION,GROUPS,STATUS,IMPORT_DATE) VALUES(2,'acc_tcga','acc','Adrenocortical Carcinoma (TCGA, Provisional)','ACC (TCGA)','TCGA Adrenocortical Carcinoma; raw data at the <A HREF="https://tcga-data.nci.nih.gov/">NCI</A>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC',0,'2013-10-12 11:11:15+00:00');
+
+INSERT INTO cancer_study_tags (CANCER_STUDY_ID,TAGS) VALUES(1,'{"Analyst": {"Name": "Jack", "Email": "jack@something.com"}, "Load id": 35}');
+INSERT INTO cancer_study_tags (CANCER_STUDY_ID,TAGS) VALUES(2,'{"Load id": 36}');
 
 INSERT INTO genetic_entity (ID,ENTITY_TYPE) VALUES(1,'GENE');
 INSERT INTO genetic_entity (ID,ENTITY_TYPE) VALUES(2,'GENE');
@@ -62,6 +65,7 @@ INSERT INTO reference_genome_gene (ENTREZ_GENE_ID,CYTOBAND,EXONIC_LENGTH,START,E
 
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(2,'study_tcga_pub_gistic',1,'COPY_NUMBER_ALTERATION','DISCRETE','Putative copy-number alterations from GISTIC','Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.',1);
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(3,'study_tcga_pub_mrna',1,'MRNA_EXPRESSION','Z-SCORE','mRNA expression (microarray)','Expression levels (Agilent microarray).',0);
+INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(10,'study_tcga_pub_m_na',1,'MRNA_EXPRESSION','Z-SCORE','mRNA expression (microarray)','Expression levels (Agilent microarray).',0);
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(4,'study_tcga_pub_log2CNA',1,'COPY_NUMBER_ALTERATION','LOG2-VALUE','Log2 copy-number values','Log2 copy-number VALUESfor each gene (from Affymetrix SNP6).',0);
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(5,'study_tcga_pub_methylation_hm27',1,'METHYLATION','CONTINUOUS','Methylation (HM27)','Methylation beta-VALUES(HM27 platform). For genes with multiple methylation probes, the probe least correlated with expression is selected.',0);
 INSERT INTO genetic_profile (GENETIC_PROFILE_ID,STABLE_ID,CANCER_STUDY_ID,GENETIC_ALTERATION_TYPE,DATATYPE,NAME,DESCRIPTION,SHOW_PROFILE_IN_ANALYSIS_TAB) VALUES(6,'study_tcga_pub_mutations',1,'MUTATION_EXTENDED','MAF','Mutations','Mutation data from whole exome sequencing.',1);
@@ -73,6 +77,7 @@ INSERT INTO genetic_profile_samples (GENETIC_PROFILE_ID,ORDERED_SAMPLE_LIST) VAL
 INSERT INTO genetic_profile_samples (GENETIC_PROFILE_ID,ORDERED_SAMPLE_LIST) VALUES(3,'2,3,6,8,9,10,12,13,');
 INSERT INTO genetic_profile_samples (GENETIC_PROFILE_ID,ORDERED_SAMPLE_LIST) VALUES(4,'1,2,3,4,5,6,7,8,9,10,11,12,13,14,');
 INSERT INTO genetic_profile_samples (GENETIC_PROFILE_ID,ORDERED_SAMPLE_LIST) VALUES(5,'2,');
+INSERT INTO genetic_profile_samples (GENETIC_PROFILE_ID,ORDERED_SAMPLE_LIST) VALUES(10,'1,2,3,4,5,6,7,8,9,10,11,');
 
 INSERT INTO patient (INTERNAL_ID,STABLE_ID,CANCER_STUDY_ID) VALUES(1,'TCGA-A1-A0SB',1);
 INSERT INTO patient (INTERNAL_ID,STABLE_ID,CANCER_STUDY_ID) VALUES(2,'TCGA-A1-A0SD',1);
@@ -422,3 +427,18 @@ INSERT INTO mutation_count_by_keyword (GENETIC_PROFILE_ID,KEYWORD,ENTREZ_GENE_ID
 INSERT INTO mutation_count_by_keyword (GENETIC_PROFILE_ID,KEYWORD,ENTREZ_GENE_ID,KEYWORD_COUNT,GENE_COUNT) VALUES (6, 'ARAF G1513 missense', 369, 1, 2);
 INSERT INTO mutation_count_by_keyword (GENETIC_PROFILE_ID,KEYWORD,ENTREZ_GENE_ID,KEYWORD_COUNT,GENE_COUNT) VALUES (6, 'ARAF G1514 missense', 369, 4, 7);
 INSERT INTO mutation_count_by_keyword (GENETIC_PROFILE_ID,KEYWORD,ENTREZ_GENE_ID,KEYWORD_COUNT,GENE_COUNT) VALUES (8, 'NOC2L truncating', 26155, 1, 3);
+
+INSERT INTO users (EMAIL, NAME, ENABLED) VALUES ('mockemail@email.com', 'MOCK USER', 1);
+INSERT INTO users (EMAIL, NAME, ENABLED) VALUES ('mockemail2@email.com', 'MOCK USER 2', 1);
+INSERT INTO users (EMAIL, NAME, ENABLED) VALUES ('mockemail3@email.com', 'MOCK USER 3', 1);
+INSERT INTO users (EMAIL, NAME, ENABLED) VALUES ('mockemail4@email.com', 'MOCK USER 4', 1);
+
+INSERT INTO data_access_tokens (TOKEN, USERNAME, EXPIRATION, CREATION) VALUES ('6c9a641e-9719-4b09-974c-f17e089b37e8', 'mockemail@email.com', '2018-11-12 11:11:15+00:00', '2018-10-12 11:11:15+00:00');
+INSERT INTO data_access_tokens (TOKEN, USERNAME, EXPIRATION, CREATION) VALUES ('6c9a641e-9719-fake-data-f17e089b37e8', 'mockemail2@email.com', '2018-5-14 11:11:15+00:00', '2018-4-14 11:11:15+00:00');
+INSERT INTO data_access_tokens (TOKEN, USERNAME, EXPIRATION, CREATION) VALUES ('12345678-119e-4bC9-9a4c-f123kl9b37e8', 'mockemail3@email.com', '2017-1-12 11:11:15+00:00', '2016-12-12 11:11:15+00:00');
+INSERT INTO data_access_tokens (TOKEN, USERNAME, EXPIRATION, CREATION) VALUES ('6c9a641e-9719-4b09-974c-4rb1tr4ry5tr', 'mockemail3@email.com', '2017-10-9 11:11:15+00:00', '2017-9-9 11:11:15+00:00');
+INSERT INTO data_access_tokens (TOKEN, USERNAME, EXPIRATION, CREATION) VALUES ('1337rand-ki1n-4bna-974c-s4sk3n4rut0l', 'mockemail3@email.com', '2018-8-25 11:11:15+00:00', '2018-7-25 11:11:15+00:00');
+INSERT INTO data_access_tokens (TOKEN, USERNAME, EXPIRATION, CREATION) VALUES ('12445678-119e-4bC9-9a4c-f124kl9b47e8', 'mockemail4@email.com', '2017-1-12 11:11:15+00:00', '2016-12-12 11:11:15+00:00');
+INSERT INTO data_access_tokens (TOKEN, USERNAME, EXPIRATION, CREATION) VALUES ('6cokl41e-9719-4b09-974c-4rb1tr4ry5tr', 'mockemail4@email.com', '2017-10-9 11:11:15+00:00', '2017-9-9 11:11:15+00:00');
+INSERT INTO data_access_tokens (TOKEN, USERNAME, EXPIRATION, CREATION) VALUES ('1447rand-ki1n-4bna-974c-s4sk4n4rut0l', 'mockemail4@email.com', '2018-8-25 11:11:15+00:00', '2018-7-25 11:11:15+00:00');
+

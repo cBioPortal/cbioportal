@@ -1,83 +1,87 @@
 # cBioPortal FAQs
 
 * [General Questions](#general-questions)
-	* [What is the cBioPortal for Cancer Genomics?](#what-is-the-cbioportal-for-cancer-genomics)
-	* [How do I get started?](#how-do-i-get-started)
-	* [What data types are in the portal?](#what-data-types-are-in-the-portal)
-	* [What is the process of data curation?](#what-is-the-process-of-data-curation)
-	* [How do I get updates on new portal developments and new data sets?](#how-do-i-get-updates-on-new-portal-developments-and-new-data-sets)
-	* [Does the portal work on all browsers and operating systems?](#does-the-portal-work-on-all-browsers-and-operating-systems)
-	* [How do I cite the cBioPortal?](#how-do-i-cite-the-cbioportal)
-	* [Can I use figures from the cBioPortal in my publications or presentations?](#can-i-use-figures-from-the-cbioportal-in-my-publications-or-presentations)
-	* [Can I save or bookmark my results in cBioPortal?](#can-i-save-or-bookmark-my-results-in-cbioportal)
-	* [How is the cBioPortal for Cancer Genomics different from the Genomic Data Commons (GDC)?](#how-is-the-cbioportal-for-cancer-genomics-different-from-the-genomic-data-commons-gdc)
-	* [Does the cBioPortal provide a Web Service API? R interface? MATLAB interface?](#does-the-cbioportal-provide-a-web-service-api-r-interface-matlab-interface)
-	* [Can I use cBioPortal with my own data?](#can-i-use-cbioportal-with-my-own-data)
-	* [Can I create a local instance of cBioPortal to host my own data?](#can-i-create-a-local-instance-of-cbioportal-to-host-my-own-data)
-	* [I'd like to contribute code to the cBioPortal. How do I get started?](#id-like-to-contribute-code-to-the-cbioportal-how-do-i-get-started)
-	* [What is a Virtual Study?](#what-is-a-virtual-study)
-	* [Is it necessary to log in to use virtual studies? If I do log in, what additional functionality do I gain?](#is-it-necessary-to-log-in-to-use-virtual-studies-if-i-do-log-in-what-additional-functionality-do-i-gain)
+    * [What is the cBioPortal for Cancer Genomics?](#what-is-the-cbioportal-for-cancer-genomics)
+    * [How do I get started?](#how-do-i-get-started)
+    * [What data types are in the portal?](#what-data-types-are-in-the-portal)
+    * [What is the process of data curation?](#what-is-the-process-of-data-curation)
+    * [How do I get updates on new portal developments and new data sets?](#how-do-i-get-updates-on-new-portal-developments-and-new-data-sets)
+    * [Does the portal work on all browsers and operating systems?](#does-the-portal-work-on-all-browsers-and-operating-systems)
+    * [How do I cite the cBioPortal?](#how-do-i-cite-the-cbioportal)
+    * [Can I use figures from the cBioPortal in my publications or presentations?](#can-i-use-figures-from-the-cbioportal-in-my-publications-or-presentations)
+    * [Can I save or bookmark my results in cBioPortal?](#can-i-save-or-bookmark-my-results-in-cbioportal)
+    * [How is the cBioPortal for Cancer Genomics different from the Genomic Data Commons (GDC)?](#how-is-the-cbioportal-for-cancer-genomics-different-from-the-genomic-data-commons-gdc)
+    * [Does the cBioPortal provide a Web Service API? R interface? MATLAB interface?](#does-the-cbioportal-provide-a-web-service-api-r-interface-matlab-interface)
+    * [Can I use cBioPortal with my own data?](#can-i-use-cbioportal-with-my-own-data)
+    * [Can I create a local instance of cBioPortal to host my own data?](#can-i-create-a-local-instance-of-cbioportal-to-host-my-own-data)
+    * [I'd like to contribute code to the cBioPortal. How do I get started?](#id-like-to-contribute-code-to-the-cbioportal-how-do-i-get-started)
+    * [What is a Virtual Study?](#what-is-a-virtual-study)
+    * [Is it necessary to log in to use virtual studies? If I do log in, what additional functionality do I gain?](#is-it-necessary-to-log-in-to-use-virtual-studies-if-i-do-log-in-what-additional-functionality-do-i-gain)
+    * [What is Group Comparison?](#what-is-group-comparison)
 * [Data Questions](#data-questions)
-	* [General Data](#general-data)
-		* [Does the portal contain cancer study X?](#does-the-portal-contain-cancer-study-x)
-		* [Which resources are integrated for variant annotation?](#which-resources-are-integrated-for-variant-annotation)
+    * [General Data](#general-data)
+        * [Does the portal contain cancer study X?](#does-the-portal-contain-cancer-study-x)
+        * [Which resources are integrated for variant annotation?](#which-resources-are-integrated-for-variant-annotation)
         * [What version of the human reference genome is being used in cBioPortal?](#what-version-of-the-human-reference-genome-is-being-used-in-cbioportal)
-		* [What are the sources of biological network data?](#what-are-the-sources-of-biological-network-data)
-		* [How does cBioPortal handle duplicate samples or sample IDs across different studies?](#how-does-cbioportal-handle-duplicate-samples-or-sample-ids-across-different-studies)
-		* [Are there any normal tissue samples available through cBioPortal?](#are-there-any-normal-tissue-samples-available-through-cbioportal)
-		* [How can I find which studies have mRNA expression data (or any other specific data type)?](#how-can-i-find-which-studies-have-mrna-expression-data-or-any-other-specific-data-type)
-		* [Can I download all data at once?](#can-i-download-all-data-at-once)
-		* [How do I access data from AACR Project GENIE?](#how-do-i-access-data-from-aacr-project-genie)
-	* [TCGA](#tcga)
-		* [How does TCGA data in cBioPortal compare to TCGA data in Genome Data Commons?](#how-does-tcga-data-in-cbioportal-compare-to-tcga-data-in-genome-data-commons)
-		* [What are TCGA provisional datasets and how do they compare to the publication-associated datasets and the PanCancer Atlas datasets?](#what-are-tcga-provisional-datasets-and-how-do-they-compare-to-the-publication-associated-datasets-and-the-pancancer-atlas-datasets)
-		* [Where do the thresholded copy number call in TCGA provisional data come from?](#where-do-the-thresholded-copy-number-call-in-tcga-provisional-data-come-from)
-		* [Which studies have MutSig and GISTIC results? How do these results compare to the data in the TCGA publications?](#which-studies-have-mutsig-and-gistic-results-how-do-these-results-compare-to-the-data-in-the-tcga-publications)
-	* [DNA (Mutations, Copy Number &amp; Fusions)](#dna-mutations-copy-number--fusions)
-		* [Does the cBioPortal contain synonymous mutation data?](#does-the-cbioportal-contain-synonymous-mutation-data)
-		* [What processing or filtering is applied to generate the mutation data?](#what-processing-or-filtering-is-applied-to-generate-the-mutation-data)
-		* [What transcripts are used for annotating mutations?](#what-transcripts-are-used-for-annotating-mutations)
-		* [How are protein domains in the mutational lollipop diagrams specified?](#how-are-protein-domains-in-the-mutational-lollipop-diagrams-specified)
-		* [What is the difference between a “splice site” mutation and a “splice region” mutation?](#what-is-the-difference-between-a-splice-site-mutation-and-a-splice-region-mutation)
-		* [What do “Amplification”, “Gain”, “Deep Deletion”, “Shallow Deletion” and "-2", "-1", "0", "1", and "2" mean in the copy-number data?](#what-do-amplification-gain-deep-deletion-shallow-deletion-and--2--1-0-1-and-2-mean-in-the-copy-number-data)
-		* [What is GISTIC? What is RAE?](#what-is-gistic-what-is-rae)
-	* [RNA](#rna)
-		* [Does the portal store raw or probe-level data?](#does-the-portal-store-raw-or-probe-level-data)
-		* [What are mRNA and microRNA Z-Scores?](#what-are-mrna-and-microrna-z-scores)
-		* [Is there any normal RNA-seq data in cBioPortal?](#is-there-any-normal-rna-seq-data-in-cbioportal)
-		* [How is TCGA RNASeqV2 processed? What units are used?](#how-is-tcga-rnaseqv2-processed-what-units-are-used)
-		* [Is there microRNA data?](#is-there-microrna-data)
-		* [How can I query microRNAs in the portal?](#how-can-i-query-micrornas-in-the-portal)
-	* [Protein](#protein)
-		* [How can I query phosphoprotein levels in the portal?](#how-can-i-query-phosphoprotein-levels-in-the-portal)
-		* [Why isn’t there protein data for my gene of interest?](#why-isnt-there-protein-data-for-my-gene-of-interest)
-	* [DNA Methylation](#dna-methylation)
-		* [Which methylation probe is used for genes with multiple probes?](#which-methylation-probe-is-used-for-genes-with-multiple-probes)
-	* [Clinical Data](#clinical-data)
-		* [What kind of clinical data is stored in the portal?](#what-kind-of-clinical-data-is-stored-in-the-portal)
-		* [What is the meaning of OS_STATUS / OS_MONTHS, and PFS_STATUS / PFS_MONTHS?](#what-is-the-meaning-of-os_status--os_months-and-pfs_status--pfs_months)
+        * [What are the sources of biological network data?](#what-are-the-sources-of-biological-network-data)
+        * [How does cBioPortal handle duplicate samples or sample IDs across different studies?](#how-does-cbioportal-handle-duplicate-samples-or-sample-ids-across-different-studies)
+        * [Are there any normal tissue samples available through cBioPortal?](#are-there-any-normal-tissue-samples-available-through-cbioportal)
+        * [How can I find which studies have mRNA expression data (or any other specific data type)?](#how-can-i-find-which-studies-have-mrna-expression-data-or-any-other-specific-data-type)
+        * [Can I download all data at once?](#can-i-download-all-data-at-once)
+        * [The data today is different than the last time I looked. What happened?](#the-data-today-is-different-than-the-last-time-I-looked-what-happened)
+        * [How do I access data from AACR Project GENIE?](#how-do-i-access-data-from-aacr-project-genie)
+    * [TCGA](#tcga)
+        * [How does TCGA data in cBioPortal compare to TCGA data in Genome Data Commons?](#how-does-tcga-data-in-cbioportal-compare-to-tcga-data-in-genome-data-commons)
+        * [What are TCGA provisional datasets and how do they compare to the publication-associated datasets and the PanCancer Atlas datasets?](#what-are-tcga-provisional-datasets-and-how-do-they-compare-to-the-publication-associated-datasets-and-the-pancancer-atlas-datasets)
+        * [Where do the thresholded copy number call in TCGA provisional data come from?](#where-do-the-thresholded-copy-number-call-in-tcga-provisional-data-come-from)
+        * [Which studies have MutSig and GISTIC results? How do these results compare to the data in the TCGA publications?](#which-studies-have-mutsig-and-gistic-results-how-do-these-results-compare-to-the-data-in-the-tcga-publications)
+        * [How can I download the PanCancer Atlas data?](#how-can-i-download-the-pancancer-atlas-data)
+    * [DNA (Mutations, Copy Number &amp; Fusions)](#dna-mutations-copy-number--fusions)
+        * [Does the cBioPortal contain synonymous mutation data?](#does-the-cbioportal-contain-synonymous-mutation-data)
+        * [What processing or filtering is applied to generate the mutation data?](#what-processing-or-filtering-is-applied-to-generate-the-mutation-data)
+        * [What transcripts are used for annotating mutations?](#what-transcripts-are-used-for-annotating-mutations)
+        * [How are protein domains in the mutational lollipop diagrams specified?](#how-are-protein-domains-in-the-mutational-lollipop-diagrams-specified)
+        * [What is the difference between a “splice site” mutation and a “splice region” mutation?](#what-is-the-difference-between-a-splice-site-mutation-and-a-splice-region-mutation)
+        * [What do “Amplification”, “Gain”, “Deep Deletion”, “Shallow Deletion” and "-2", "-1", "0", "1", and "2" mean in the copy-number data?](#what-do-amplification-gain-deep-deletion-shallow-deletion-and--2--1-0-1-and-2-mean-in-the-copy-number-data)
+        * [What is GISTIC? What is RAE?](#what-is-gistic-what-is-rae)
+    * [RNA](#rna)
+        * [Does the portal store raw or probe-level data?](#does-the-portal-store-raw-or-probe-level-data)
+        * [What are mRNA and microRNA Z-Scores?](#what-are-mrna-and-microrna-z-scores)
+        * [Is there any normal RNA-seq data in cBioPortal?](#is-there-any-normal-rna-seq-data-in-cbioportal)
+        * [How is TCGA RNASeqV2 processed? What units are used?](#how-is-tcga-rnaseqv2-processed-what-units-are-used)
+        * [Is there microRNA data?](#is-there-microrna-data)
+        * [How can I query microRNAs in the portal?](#how-can-i-query-micrornas-in-the-portal)
+    * [Protein](#protein)
+        * [How can I query phosphoprotein levels in the portal?](#how-can-i-query-phosphoprotein-levels-in-the-portal)
+        * [Why isn’t there protein data for my gene of interest?](#why-isnt-there-protein-data-for-my-gene-of-interest)
+    * [DNA Methylation](#dna-methylation)
+        * [Which methylation probe is used for genes with multiple probes?](#which-methylation-probe-is-used-for-genes-with-multiple-probes)
+    * [Clinical Data](#clinical-data)
+        * [What kind of clinical data is stored in the portal?](#what-kind-of-clinical-data-is-stored-in-the-portal)
+        * [What is the meaning of OS_STATUS / OS_MONTHS, and PFS_STATUS / PFS_MONTHS?](#what-is-the-meaning-of-os_status--os_months-and-pfs_status--pfs_months)
 * [Analysis Questions](#analysis-questions)
-	* [How can I query/explore a select subset of samples?](#how-can-i-queryexplore-a-select-subset-of-samples)
-	* [Is it possible to determine if a particular mutation is heterozygous or homozygous in a sample? When a sample has 2 mutations in one gene, is it possible to determine whether the mutations are in cis or in trans with each other?](#is-it-possible-to-determine-if-a-particular-mutation-is-heterozygous-or-homozygous-in-a-sample-when-a-sample-has-2-mutations-in-one-gene-is-it-possible-to-determine-whether-the-mutations-are-in-cis-or-in-trans-with-each-other)
-	* [How can I query over/under expression of a gene?](#how-can-i-query-overunder-expression-of-a-gene)
-	* [How can I compare outcomes in patients with high vs low expression of a gene?](#how-can-i-compare-outcomes-in-patients-with-high-vs-low-expression-of-a-gene)
+    * [How can I query/explore a select subset of samples?](#how-can-i-queryexplore-a-select-subset-of-samples)
+    * [How can I compare two or more subsets of samples?](#how-can-i-compare-two-or-more-subsets-of-samples)
+    * [Is it possible to determine if a particular mutation is heterozygous or homozygous in a sample? When a sample has 2 mutations in one gene, is it possible to determine whether the mutations are in cis or in trans with each other?](#is-it-possible-to-determine-if-a-particular-mutation-is-heterozygous-or-homozygous-in-a-sample-when-a-sample-has-2-mutations-in-one-gene-is-it-possible-to-determine-whether-the-mutations-are-in-cis-or-in-trans-with-each-other)
+    * [How can I query over/under expression of a gene?](#how-can-i-query-overunder-expression-of-a-gene)
+    * [How can I compare outcomes in patients with high vs low expression of a gene?](#how-can-i-compare-outcomes-in-patients-with-high-vs-low-expression-of-a-gene)
 * [Results View](#results-view)
-	* [OncoPrint](#oncoprint)
-		* [What are OncoPrints?](#what-are-oncoprints)
-		* [Can I change the order of genes in the OncoPrint?](#can-i-change-the-order-of-genes-in-the-oncoprint)
-		* [Can I visualize my own data within an OncoPrint?](#can-i-visualize-my-own-data-within-an-oncoprint)
-		* [Why are some samples “Not profiled” for certain genes?](#why-are-some-samples-not-profiled-for-certain-genes)
-	* [Other pages](#other-pages)
-		* [Does the Mutual Exclusivity tab calculate its statistics using all samples/alterations or only a specific subset?](#does-the-mutual-exclusivity-tab-calculate-its-statistics-using-all-samplesalterations-or-only-a-specific-subset)
+    * [OncoPrint](#oncoprint)
+        * [What are OncoPrints?](#what-are-oncoprints)
+        * [Can I change the order of genes in the OncoPrint?](#can-i-change-the-order-of-genes-in-the-oncoprint)
+        * [Can I visualize my own data within an OncoPrint?](#can-i-visualize-my-own-data-within-an-oncoprint)
+        * [Why are some samples “Not profiled” for certain genes?](#why-are-some-samples-not-profiled-for-certain-genes)
+    * [Other pages](#other-pages)
+        * [Does the Mutual Exclusivity tab calculate its statistics using all samples/alterations or only a specific subset?](#does-the-mutual-exclusivity-tab-calculate-its-statistics-using-all-samplesalterations-or-only-a-specific-subset)
 * [What if I have other questions or comments?](#what-if-i-have-other-questions-or-comments)
 
 # General Questions
 ### What is the cBioPortal for Cancer Genomics?
 The cBioPortal for Cancer Genomics is an open-access, open-source resource for interactive exploration of multidimensional cancer genomics data sets. The goal of cBioPortal is to significantly lower the barriers between complex genomic data and cancer researchers by providing rapid, intuitive, and high-quality access to molecular profiles and clinical attributes from large-scale cancer genomics projects, and therefore to empower researchers to translate these rich data sets into biologic insights and clinical applications.
 ### How do I get started?
-Check out our [tutorial slides](http://www.cbioportal.org/tutorial.jsp) to get started or go through our [tutorial paper](http://www.ncbi.nlm.nih.gov/pubmed/23550210).
+Check out our [tutorial slides](https://www.cbioportal.org/tutorials) to get started or go through our [tutorial paper](http://www.ncbi.nlm.nih.gov/pubmed/23550210).
 ### What data types are in the portal?
-The portal supports and stores non-synonymous mutations, DNA copy-number data (putative, discrete values per gene, e.g. "deeply deleted" or "amplified", as well as log2 or linear copy number data), mRNA and microRNA expression data, protein-level and phosphoprotein level data (RPPA or mass spectrometry based), DNA methylation data, and de-identified clinical data. For a complete breakdown of available data types per cancer study go to the [Data Sets Page](http://www.cbioportal.org/data_sets.jsp). Note that for many studies, only somatic mutation data and limited clinical data are available. For TCGA studies, the other data types are also available. Germline mutations are supported by cBioPortal, but are, with a few exceptions, not available in the public instance.
+The portal supports and stores non-synonymous mutations, DNA copy-number data (putative, discrete values per gene, e.g. "deeply deleted" or "amplified", as well as log2 or linear copy number data), mRNA and microRNA expression data, protein-level and phosphoprotein level data (RPPA or mass spectrometry based), DNA methylation data, and de-identified clinical data. For a complete breakdown of available data types per cancer study go to the [Data Sets Page](https://www.cbioportal.org/data_sets.jsp). Note that for many studies, only somatic mutation data and limited clinical data are available. For TCGA studies, the other data types are also available. Germline mutations are supported by cBioPortal, but are, with a few exceptions, not available in the public instance.
 ### What is the process of data curation?
 The TCGA provisional datasets are imported directly from the original TCGA Data Coordinating Center via the [Broad Firehose](http://gdac.broadinstitute.org/).
 
@@ -101,28 +105,31 @@ The cBioPortal is an exploratory analysis tool for exploring large-scale cancer 
 
 By contrast, the [Genomic Data Commons (GDC)](https://gdc.cancer.gov/) aims to be the definitive place for full-download and access to all data generated by TCGA and TARGET. If you want to download raw mRNA expression files or full segmented copy number files, the GDC is probably where you want to start.
 ### Does the cBioPortal provide a Web Service API? R interface? MATLAB interface?
-Yes, the cBioPortal provides a [Web API](http://www.cbioportal.org/web_api.jsp), and [R/MATLAB interfaces](http://www.cbioportal.org/cgds_r.jsp).
+Yes, the cBioPortal provides a [Web API](https://www.cbioportal.org/web_api.jsp), and [R/MATLAB interfaces](https://www.cbioportal.org/cgds_r.jsp).
 ### Can I use cBioPortal with my own data?
-cBioPortal provides several options for analyzing your own data. Visit our [Visualize Your Data](http://www.cbioportal.org/tools.jsp) page to generate an OncoPrint or Lollipop Plot with your own data. To utilize the entire suite of analysis and visualization tools, you can also install your own instance of cBioPortal (see next question).
+cBioPortal provides several options for analyzing your own data. Visit our [Visualize Your Data](https://www.cbioportal.org/visualize) page to generate an OncoPrint or Lollipop Plot with your own data. To utilize the entire suite of analysis and visualization tools, you can also install your own instance of cBioPortal (see next question).
 ### Can I create a local instance of cBioPortal to host my own data?
-Yes, the cBioPortal is open-source, and available on [GitHub](https://github.com/cBioPortal/cbioportal). Our [Wiki pages](https://cbioportal.readthedocs.io/en/latest/) provide complete download and installation instructions.
+Yes, the cBioPortal is open-source, and available on [GitHub](https://github.com/cBioPortal/cbioportal). Our [documentation](https://docs.cbioportal.org) provides complete download and installation instructions.
 ### I'd like to contribute code to the cBioPortal. How do I get started?
 Great! We would love to have your contributions. To get started, head over to our GitHub repository and check out our page on [how to contribute](https://github.com/cBioPortal/cbioportal/blob/master/CONTRIBUTING.md).
 ### What is a Virtual Study?
-A virtual study is a custom study comprised of samples from one or more existing studies. The virtual study feature allows you to define a custom cohort of samples that fit your specific genomic or clinical criteria of interest. These samples can be a subset of the data available in an existing study, or result from the combination of multiple existing studies. This cohort of samples can then be queried or explored just like a traditional study, and can be returned to at a later date or shared with a collaborator.
+A virtual study is a custom study comprised of samples from one or more existing studies. The virtual study feature allows you to define a custom cohort of samples that fit your specific genomic or clinical criteria of interest. These samples can be a subset of the data available in an existing study, or result from the combination of multiple existing studies. This cohort of samples can then be queried or explored just like a traditional study, and can be returned to at a later date or shared with a collaborator. For more information and examples, see our [tutorial on virtual studies](https://www.cbioportal.org/tutorials).
 ### Is it necessary to log in to use virtual studies? If I do log in, what additional functionality do I gain?
 No. A user that has not logged in can create virtual studies and run queries in those studies (by using the query box on the study summary page). Links to virtual studies are permanent, so you can save the link on your computer and come back to it anytime, or share it with others.
 
 If you log in, you gain the ability to save your virtual study to the list of existing studies on the homepage. This makes a virtual study functionally the same as any other study: you can access your virtual studies in the query builder and you can combine an existing virtual study with any other study to create a new virtual study.
+## What is Group Comparison?
+Group Comparison is a suite of analysis features which allows a user to compare clinical or genomic features of user-defined groups of samples. These groups can be defined based on any clinical or genomic features. For an overview, see [our tutorial on group comparison](https://www.cbioportal.org/tutorials).
+
 
 # Data Questions
 ## General Data
 ### Does the portal contain cancer study X?
-Check out the [Data Sets Page](http://www.cbioportal.org/data_sets.jsp) for the complete set of cancer studies currently stored in the portal. If you do not see your specific cancer study of interest, please [contact us](mailto:cbioportal@googlegroups.com), and we will let you know if it's in the queue.
+Check out the [Data Sets Page](https://www.cbioportal.org/data_sets.jsp) for the complete set of cancer studies currently stored in the portal. If you do not see your specific cancer study of interest, please [contact us](mailto:cbioportal@googlegroups.com), and we will let you know if it's in the queue.
 ### Which resources are integrated for variant annotation?
 cBioPortal supports the annotation of variants from several different databases. These databases provide information about the recurrence of, or prior knowledge about, specific amino acid changes. For each variant, the number of occurrences of mutations at the same amino acid position present in the COSMIC database are reported. Furthermore, variants are annotated as “hotspots” if the amino acid positions were found to be recurrent linear hotspots, as defined by the Cancer Hotspots method ([cancerhotspots.org](http://www.cancerhotspots.org/)), or three-dimensional hotspots, as defined by 3D Hotspots ([3dhotspots.org](https://www.3dhotspots.org/)). Prior knowledge about variants, including clinical actionability information, is provided from three different sources: OncoKB ([oncokb.org](http://oncokb.org/)), CIViC ([civicdb.org](https://civicdb.org/)), as well as My Cancer Genome ([mycancergenome.org](https://www.mycancergenome.org/)). For OncoKB, exact levels of clinical actionability are displayed in cBioPortal, as defined by [the OncoKB paper](http://ascopubs.org/doi/full/10.1200/PO.17.00011).
 ### What version of the human reference genome is being used in cBioPortal?
-The [public cBioPortal](http://cbioportal.org) is currently using hg19/GRCh37.
+The [public cBioPortal](https://www.cbioportal.org) is currently using hg19/GRCh37.
 ### What are the sources of biological network data?
 The biological network data were retrieved from [Pathway Commons](http://www.pathwaycommons.org/).
 ### How does cBioPortal handle duplicate samples or sample IDs across different studies?
@@ -130,11 +137,15 @@ The cBioPortal generally assumes that samples or patients that have the same ID 
 ### Are there any normal tissue samples available through cBioPortal?
 No, we currently do not store any normal tissue data in our system.
 ### How can I find which studies have mRNA expression data (or any other specific data type)?
-Check out the [Data Sets Page](http://www.cbioportal.org/data_sets.jsp) where you can view the complete set of cancer studies and sort by the number of samples with data available for any data type.
+Check out the [Data Sets Page](https://www.cbioportal.org/data_sets.jsp) where you can view the complete set of cancer studies and sort by the number of samples with data available for any data type.
 ### Can I download all data at once?
-You can download all data for individual studies on the [Data Sets Page](http://www.cbioportal.org/data_sets.jsp) or the study view page for the study of interest. You can also download all studies from our [Data Hub](https://github.com/cBioPortal/datahub).
+You can download all data for individual studies on the [Data Sets Page](https://www.cbioportal.org/data_sets.jsp) or the study view page for the study of interest. You can also download all studies from our [Data Hub](https://github.com/cBioPortal/datahub).
+### The data today is different than the last time I looked. What happened?
+We do occasionally update existing datasets to provide the most up-to-date, accurate and consistent data possible. The data you see today is likely an improved version of what you have seen previously. However, if you suspect that there is an error in the current version, please let us know at [cbioportal@googlegroups.com](mailto:cbioportal@googlegroups.com).
+
+If you need to reference an old version of a dataset, you can find previous versions in our [Datahub repository](https://github.com/cBioPortal/datahub/tree/master/public).
 ### How do I access data from AACR Project GENIE?
-Data from AACR Project GENIE are provided in a [dedicated instance of cBioPortal](http://www.cbioportal.org/genie/). You can also download GENIE data from the [Synapse Platform](http://synapse.org/genie). Note that you will need to register before accessing the data. Additional information about AACR Project GENIE can be found on the [AACR website](http://www.aacr.org/Research/Research/Pages/aacr-project-genie.aspx).
+Data from AACR Project GENIE are provided in a [dedicated instance of cBioPortal](https://www.cbioportal.org/genie/). You can also download GENIE data from the [Synapse Platform](http://synapse.org/genie). Note that you will need to register before accessing the data. Additional information about AACR Project GENIE can be found on the [AACR website](http://www.aacr.org/Research/Research/Pages/aacr-project-genie.aspx).
 
 ## TCGA
 ### How does TCGA data in cBioPortal compare to TCGA data in Genome Data Commons?
@@ -149,6 +160,8 @@ The TCGA PanCancer Atlas datasets derive from an effort to unify TCGA data acros
 Thresholded copy number calls in the TCGA provisional datasets are generated by the GISTIC 2.0 algorithm and obtained from the Broad Firehose. 
 ### Which studies have MutSig and GISTIC results? How do these results compare to the data in the TCGA publications?
 MutSig and GISTIC results about the statistical significance of recurrence of mutations and copy-number alterations in specific genes are available for many TCGA studies. The MutSig and GISTIC results reported in cBioPortal are based on the same mutations and copy number data reported in each TCGA publication, or the Broad Firehose for the provisional data sets. However, the publication may or may not have included the complete MutSig and GISTIC output, and therefore there may be some discrepancies between the publication and the data in cBioPortal.
+### How can I download the PanCancer Atlas data?
+PanCancer Atlas data can be downloaded on a study-by-study basis from cBioPortal through the [Datasets page](https://www.cbioportal.org/datasets) or our [DataHub](https://github.com/cBioPortal/datahub/tree/master/public). To download all cancer types together, try the [Genomic Data Commons PanCancer Atlas page](https://gdc.cancer.gov/about-data/publications/pancanatlas).
  
 ## DNA (Mutations, Copy Number & Fusions)
 ### Does the cBioPortal contain synonymous mutation data?
@@ -217,14 +230,18 @@ Let’s take the positive criteria example first. Run a query for TP53 mutations
 Now for the negative criteria example. This also begins by using OQL to run a query for KRAS mutations (KRAS: MUT) in your study of interest. Click over to the “Download” tab. Look at the table at the top again, but this time find the row that starts with “Sample matrix”. Copy or download this data and open it in Excel. You will see a two column table that indicates whether a given sample is altered or not, indicated by 0 or 1. Sort by the second column and then copy all the sample IDs from the first column that have a 0 in the second column. This is your list of samples that do not have a KRAS mutation.
 
 With a sample list in hand, you can now either run a query in just the selected samples (select “User-defined Case List” in the “Select Patient/Case Set:” dropdown) or explore this set of patients in study view (click “Select cases by IDs” and then create a Virtual Study restricted to just those samples).
+
+For more information about OQL, see the [specification page](https://www.cbioportal.org/oql) or view the [tutorial slides](https://www.cbioportal.org/tutorials#oql). For more information about virtual studies, read [this FAQ](https://www.cbioportal.org/faq#what-is-a-virtual-study) or view the [tutorial slides](https://www.cbioportal.org/tutorials).
+### How can I compare two or more subsets of samples?
+cBioPortal has a suite of analysis tools to enable comparisons between user-defined groups of samples/patients. For an overview of this functionality, see our [tutorial on group comparison](https://www.cbioportal.org/tutorials).
 ### Is it possible to determine if a particular mutation is heterozygous or homozygous in a sample? When a sample has 2 mutations in one gene, is it possible to determine whether the mutations are in cis or in trans with each other?
 There is currently no way to definitively determine whether a mutation is heterozygous/homozygous or in cis/trans with another mutation. However, you can try to infer the status of mutations by noting the copy number status of the gene and the variant allele frequency of the mutation(s) of interest relative to other mutations in the same sample. The cBioPortal patient/sample view can help you accomplish this.
 
 Specifically in the case of TCGA samples with two mutations in the same gene, you can also obtain access to the aligned sequencing reads from the [GDC](https://portal.gdc.cancer.gov/) and check if the mutations are in cis or in trans (if the mutations are close enough to each other).
 ### How can I query over/under expression of a gene?
-cBioPortal supports Onco Query Language (OQL) which can be used to query over/under expression of a gene. When writing a query, select an mRNA expression profile. By default, samples with expression z-scores >2 or <-2 in any queried genes are considered altered. Alternate cut-offs can be defined using OQL, for example: "EGFR: EXP>2" will query for samples with an EGFR expression z-score >2. Review for the [OQL specification page](http://www.cbioportal.org/onco_query_lang_desc.jsp) for more specifics and examples.
+cBioPortal supports Onco Query Language (OQL) which can be used to query over/under expression of a gene. When writing a query, select an mRNA expression profile. By default, samples with expression z-scores >2 or <-2 in any queried genes are considered altered. Alternate cut-offs can be defined using OQL, for example: "EGFR: EXP>2" will query for samples with an EGFR expression z-score >2. Review for the OQL [specification page](https://www.cbioportal.org/onco_query_lang_desc.jsp) or [tutorial slides](https://www.cbioportal.org/tutorials#oql) for more specifics and examples.
 ### How can I compare outcomes in patients with high vs low expression of a gene?
-To compare outcomes in patients with high vs low expression of a gene (excluding those patients with intermediate levels of expression), we will follow a 2 step process that builds on the approach described above in [How can I query/explore a select subset of samples?](#how-can-i-queryexplore-a-select-subset-of-samples), utilizing [OQL](http://www.cbioportal.org/onco_query_lang_desc.jsp) to first identify and then stratify that cases of interest.
+To compare outcomes in patients with high vs low expression of a gene (excluding those patients with intermediate levels of expression), we will follow a 2 step process that builds on the approach described above in [How can I query/explore a select subset of samples?](#how-can-i-queryexplore-a-select-subset-of-samples), utilizing [OQL](https://www.cbioportal.org/onco_query_lang_desc.jsp) to first identify and then stratify that cases of interest.
 
 First, identify the sample set using OQL. For example, to stratify patients based on expression of EGFR, add an mRNA profile to the query, and write "EGFR: EXP>2 EXP<-2" in the gene set box. After running the query, go to the Download tab and copy/download the “Samples affected” list.
 
@@ -241,12 +258,12 @@ OncoPrints are compact means of visualizing distinct genomic alterations, includ
 ### Can I change the order of genes in the OncoPrint?
 By default, the order of genes in the OncoPrint will be the same as in your query. You can change the order by (a) clicking on the gene name and dragging it up/down or (b) clicking on the three vertical dots next to the gene name to move the gene up/down.
 ### Can I visualize my own data within an OncoPrint?
-Yes, check out the OncoPrinter tool on our [Visualize Your Data page](http://www.cbioportal.org/tools.jsp).
+Yes, check out the OncoPrinter tool on our [Visualize Your Data page](https://www.cbioportal.org/tools.jsp).
 ### Why are some samples “Not profiled” for certain genes?
 Some studies include data from one or more targeted sequencing platforms which do not include all genes. For samples sequenced on these smaller panels, cBioPortal will indicate that a particular gene was not included on the sequencing panel used for that sample. Alteration frequency calculations for each gene also take this information into account. Hover over a sample in OncoPrint to see the gene panel name, and click on that gene panel name to view a list of the genes included on that panel.
 ## Other pages
 ### Does the Mutual Exclusivity tab calculate its statistics using all samples/alterations or only a specific subset?
-The calculations on the Mutual Exclusivity tab are performed using all samples included in the query. A sample is defined as altered or unaltered for each gene based on the [OQL](http://www.cbioportal.org/onco_query_lang_desc.jsp) utilized in the query - by default, this will be non-synonymous mutations, fusions, amplifications and deep deletions. 
+The calculations on the Mutual Exclusivity tab are performed using all samples included in the query. A sample is defined as altered or unaltered for each gene based on the [OQL](https://www.cbioportal.org/onco_query_lang_desc.jsp) utilized in the query - by default, this will be non-synonymous mutations, fusions, amplifications and deep deletions.
 
 # What if I have other questions or comments?
 Please contact us at [cbioportal@googlegroups.com](mailto:cbioportal@googlegroups.com). Previous discussions about cBioPortal are available on the [user discussion mailing list](http://groups.google.com/group/cbioportal).

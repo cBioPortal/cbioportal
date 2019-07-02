@@ -1,5 +1,5 @@
 --
--- Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+-- Copyright (c) 2016 - 2019 Memorial Sloan-Kettering Cancer Center.
 --
 -- This library is distributed in the hope that it will be useful, but WITHOUT
 -- ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -95,18 +95,18 @@ CREATE TABLE `clinical_attribute_meta` (
   PRIMARY KEY (`ATTR_ID`, `CANCER_STUDY_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
-INSERT INTO clinical_attribute_meta 
-  SELECT DISTINCT clinical_sample.attr_id, clinical_attribute.display_name, clinical_attribute.description, clinical_attribute.datatype, clinical_attribute.patient_attribute, clinical_attribute.priority, cancer_study.cancer_study_id 
-  FROM clinical_attribute 
-  INNER JOIN clinical_sample ON clinical_attribute.ATTR_ID = clinical_sample.ATTR_ID 
-  INNER JOIN sample ON clinical_sample.internal_id = sample.internal_id 
-  INNER JOIN patient ON sample.patient_id = patient.internal_id 
+INSERT INTO clinical_attribute_meta
+  SELECT DISTINCT clinical_sample.attr_id, clinical_attribute.display_name, clinical_attribute.description, clinical_attribute.datatype, clinical_attribute.patient_attribute, clinical_attribute.priority, cancer_study.cancer_study_id
+  FROM clinical_attribute
+  INNER JOIN clinical_sample ON clinical_attribute.ATTR_ID = clinical_sample.ATTR_ID
+  INNER JOIN sample ON clinical_sample.internal_id = sample.internal_id
+  INNER JOIN patient ON sample.patient_id = patient.internal_id
   INNER  JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id;
-INSERT INTO clinical_attribute_meta 
-  SELECT DISTINCT clinical_patient.attr_id, clinical_attribute.display_name, clinical_attribute.description, clinical_attribute.datatype, clinical_attribute.patient_attribute, clinical_attribute.priority, cancer_study.cancer_study_id 
-  FROM clinical_attribute 
-  INNER JOIN clinical_patient ON clinical_attribute.ATTR_ID = clinical_patient.ATTR_ID 
-  INNER JOIN patient ON clinical_patient.internal_id = patient.internal_id 
+INSERT INTO clinical_attribute_meta
+  SELECT DISTINCT clinical_patient.attr_id, clinical_attribute.display_name, clinical_attribute.description, clinical_attribute.datatype, clinical_attribute.patient_attribute, clinical_attribute.priority, cancer_study.cancer_study_id
+  FROM clinical_attribute
+  INNER JOIN clinical_patient ON clinical_attribute.ATTR_ID = clinical_patient.ATTR_ID
+  INNER JOIN patient ON clinical_patient.internal_id = patient.internal_id
   INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id;
 DROP TABLE IF EXISTS clinical_attribute;
 CREATE TABLE `structural_variant` (
@@ -203,7 +203,7 @@ UPDATE info SET DB_SCHEMA_VERSION="1.4.0";
 
 ##version: 2.0.0
 -- ========================== start of genetic_entity related migration =============================================
--- add genetic_entity table 
+-- add genetic_entity table
 CREATE TABLE `genetic_entity` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `ENTITY_TYPE` varchar(45) NOT NULL,
@@ -214,7 +214,7 @@ CREATE TABLE `genetic_entity` (
 ALTER TABLE `gene` ADD COLUMN `GENETIC_ENTITY_ID` INT NULL AFTER `HUGO_GENE_SYMBOL`;
 
 -- add temporary column to support migration:
-ALTER TABLE `genetic_entity` 
+ALTER TABLE `genetic_entity`
 ADD COLUMN `TMP_GENE_ID` INT NOT NULL AFTER `ENTITY_TYPE`,
 ADD UNIQUE INDEX `TMP_GENE_ID_UNIQUE` (`TMP_GENE_ID` ASC);
 
@@ -226,15 +226,15 @@ INSERT INTO genetic_entity (entity_type, tmp_gene_id)
 UPDATE gene INNER JOIN genetic_entity ON gene.ENTREZ_GENE_ID = genetic_entity.TMP_GENE_ID SET GENETIC_ENTITY_ID = genetic_entity.ID;
 
 -- add UQ and FK constraint for GENETIC_ENTITY_ID in gene table:
-ALTER TABLE `gene` 
+ALTER TABLE `gene`
 CHANGE COLUMN `GENETIC_ENTITY_ID` `GENETIC_ENTITY_ID` INT NOT NULL,
 ADD UNIQUE INDEX `GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID` ASC);
 
-ALTER TABLE `gene` 
+ALTER TABLE `gene`
 ADD FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE;
 
--- migrate genetic_alteration table in a similar way, pointing to GENETIC_ENTITY_ID 
--- instead of ENTREZ_GENE_ID (note: the INSERT part can take some time [~20 min], 
+-- migrate genetic_alteration table in a similar way, pointing to GENETIC_ENTITY_ID
+-- instead of ENTREZ_GENE_ID (note: the INSERT part can take some time [~20 min],
 -- depending on how many studies you have in your DB):
 CREATE TABLE `genetic_alteration_new` (
   `GENETIC_PROFILE_ID` int(11) NOT NULL,
@@ -282,7 +282,7 @@ CREATE TABLE `mutation_count_by_keyword` (
 
 INSERT INTO mutation_count_by_keyword
     SELECT g2.`GENETIC_PROFILE_ID`, mutation_event.`KEYWORD`, m2.`ENTREZ_GENE_ID`,
-        IF(mutation_event.`KEYWORD` IS NULL, 0, COUNT(*)) AS KEYWORD_COUNT, 
+        IF(mutation_event.`KEYWORD` IS NULL, 0, COUNT(*)) AS KEYWORD_COUNT,
         (SELECT COUNT(*) FROM `mutation` AS m1 , `genetic_profile` AS g1
         WHERE m1.`GENETIC_PROFILE_ID` = g1.`GENETIC_PROFILE_ID`
         AND g1.`GENETIC_PROFILE_ID`= g2.`GENETIC_PROFILE_ID` AND m1.`ENTREZ_GENE_ID` = m2.`ENTREZ_GENE_ID`
@@ -396,11 +396,11 @@ CREATE TABLE `reference_genome` (
     UNIQUE INDEX `BUILD_NAME_UNIQUE` (`BUILD_NAME` ASC)
 );
 
-INSERT INTO `reference_genome` 
+INSERT INTO `reference_genome`
 VALUES (1, 'human', 'hg19', 'GRCh37', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01');
-INSERT INTO `reference_genome` 
+INSERT INTO `reference_genome`
 VALUES (2, 'human', 'hg38', 'GRCh38', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips', '2013-12-01');
-INSERT INTO `reference_genome` 
+INSERT INTO `reference_genome`
 VALUES (3, 'mouse', 'mm10', 'GRCm38', NULL, 'http://hgdownload.cse.ucsc.edu//goldenPath/mm10/bigZips', '2012-01-01');
 
 CREATE TABLE `reference_genome_gene` (
@@ -418,12 +418,18 @@ CREATE TABLE `reference_genome_gene` (
 );
 
 INSERT INTO reference_genome_gene (ENTREZ_GENE_ID, CYTOBAND, EXONIC_LENGTH, CHR, REFERENCE_GENOME_ID)
-(SELECT 
-	ENTREZ_GENE_ID, 
-	CYTOBAND, 
+(SELECT
+	ENTREZ_GENE_ID,
+	CYTOBAND,
 	LENGTH,
-    SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(gene.CYTOBAND,IF(LOCATE('p', gene.CYTOBAND), 'p', 'q'), 1),'q',1),'cen',1),
-	1 
+  SUBSTRING_INDEX(
+    SUBSTRING_INDEX(
+      SUBSTRING_INDEX(
+        SUBSTRING_INDEX(gene.CYTOBAND, 'p', 1),
+      'q', 1),
+    'cen', 1),
+  ' ', 1),
+	1
 FROM `gene`);
 
 UPDATE info SET DB_SCHEMA_VERSION="2.4.1";
@@ -440,10 +446,10 @@ CREATE TABLE `fraction_genome_altered` (
   FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
 );
 
-INSERT INTO `fraction_genome_altered` SELECT cancer_study.`CANCER_STUDY_ID`, `SAMPLE_ID`, IF((SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2 
-WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) IS NULL, 0, 
-(SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2 WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` AND 
-ABS(c2.`SEGMENT_MEAN`) >= 0.2) / SUM(`END`-`START`)) AS `VALUE` FROM `copy_number_seg` AS c1, cancer_study WHERE 
+INSERT INTO `fraction_genome_altered` SELECT cancer_study.`CANCER_STUDY_ID`, `SAMPLE_ID`, IF((SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2
+WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) IS NULL, 0,
+(SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2 WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` AND
+ABS(c2.`SEGMENT_MEAN`) >= 0.2) / SUM(`END`-`START`)) AS `VALUE` FROM `copy_number_seg` AS c1, cancer_study WHERE
 c1.`CANCER_STUDY_ID` = cancer_study.`CANCER_STUDY_ID` GROUP BY cancer_study.`CANCER_STUDY_ID`, `SAMPLE_ID` HAVING SUM(`END`-`START`) > 0;
 
 UPDATE info SET DB_SCHEMA_VERSION="2.5.0";
@@ -461,8 +467,8 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.6.1";
 
 ##version: 2.7.0
 DELETE FROM `clinical_attribute_meta` WHERE clinical_attribute_meta.`ATTR_ID` = 'MUTATION_COUNT';
-INSERT INTO `clinical_attribute_meta` SELECT 'MUTATION_COUNT', 'Mutation Count', 'Mutation Count', 'NUMBER', 0, '30', 
-genetic_profile.`CANCER_STUDY_ID` FROM mutation_count INNER JOIN genetic_profile ON 
+INSERT INTO `clinical_attribute_meta` SELECT 'MUTATION_COUNT', 'Mutation Count', 'Mutation Count', 'NUMBER', 0, '30',
+genetic_profile.`CANCER_STUDY_ID` FROM mutation_count INNER JOIN genetic_profile ON
 mutation_count.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID` GROUP BY genetic_profile.`CANCER_STUDY_ID`;
 
 -- MSK internal change to update all uncalled profiles to have the same
@@ -473,27 +479,27 @@ update genetic_profile set GENETIC_ALTERATION_TYPE = 'MUTATION_UNCALLED' where s
 -- recalculate mutation counts
 -- exclude germline and fusions (msk internal)
 DELETE FROM `clinical_sample` WHERE clinical_sample.`ATTR_ID` = 'MUTATION_COUNT';
-INSERT INTO `clinical_sample` SELECT `SAMPLE_ID`, 'MUTATION_COUNT', COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`, 
-mutation_event.`END_POSITION`, mutation_event.`REFERENCE_ALLELE`, mutation_event.`TUMOR_SEQ_ALLELE`) AS MUTATION_COUNT 
+INSERT INTO `clinical_sample` SELECT `SAMPLE_ID`, 'MUTATION_COUNT', COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`,
+mutation_event.`END_POSITION`, mutation_event.`REFERENCE_ALLELE`, mutation_event.`TUMOR_SEQ_ALLELE`) AS MUTATION_COUNT
 FROM `mutation` , `genetic_profile`, `mutation_event` WHERE genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED'
 AND mutation.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID`
-AND mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` AND mutation.`MUTATION_STATUS` <> 'GERMLINE' 
+AND mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` AND mutation.`MUTATION_STATUS` <> 'GERMLINE'
 AND mutation_event.`MUTATION_TYPE` <> 'Fusion'
 GROUP BY genetic_profile.`GENETIC_PROFILE_ID` , `SAMPLE_ID`;
 
 -- recalculate fraction genome altered
 DELETE FROM `clinical_attribute_meta` WHERE clinical_attribute_meta.`ATTR_ID` = 'FRACTION_GENOME_ALTERED';
-INSERT INTO `clinical_attribute_meta` SELECT 'FRACTION_GENOME_ALTERED', 'Fraction Genome Altered', 
-'Fraction Genome Altered', 'NUMBER', 0, '20', fraction_genome_altered.`CANCER_STUDY_ID` FROM fraction_genome_altered 
+INSERT INTO `clinical_attribute_meta` SELECT 'FRACTION_GENOME_ALTERED', 'Fraction Genome Altered',
+'Fraction Genome Altered', 'NUMBER', 0, '20', fraction_genome_altered.`CANCER_STUDY_ID` FROM fraction_genome_altered
 GROUP BY fraction_genome_altered.`CANCER_STUDY_ID`;
 
 DELETE FROM `clinical_sample` WHERE clinical_sample.`ATTR_ID` = 'FRACTION_GENOME_ALTERED';
-INSERT INTO `clinical_sample` SELECT `SAMPLE_ID`, 'FRACTION_GENOME_ALTERED', IF((SELECT SUM(`END`-`START`) 
-FROM copy_number_seg AS c2 WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` 
-AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) IS NULL, 0, (SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2 
-WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID` 
-AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) / SUM(`END`-`START`)) AS `VALUE` FROM `copy_number_seg` AS c1 , `cancer_study` 
-WHERE c1.`CANCER_STUDY_ID` = cancer_study.`CANCER_STUDY_ID` GROUP BY cancer_study.`CANCER_STUDY_ID` , `SAMPLE_ID` 
+INSERT INTO `clinical_sample` SELECT `SAMPLE_ID`, 'FRACTION_GENOME_ALTERED', IF((SELECT SUM(`END`-`START`)
+FROM copy_number_seg AS c2 WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID`
+AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) IS NULL, 0, (SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2
+WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID`
+AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) / SUM(`END`-`START`)) AS `VALUE` FROM `copy_number_seg` AS c1 , `cancer_study`
+WHERE c1.`CANCER_STUDY_ID` = cancer_study.`CANCER_STUDY_ID` GROUP BY cancer_study.`CANCER_STUDY_ID` , `SAMPLE_ID`
 HAVING SUM(`END`-`START`) > 0;
 
 DROP TABLE IF EXISTS mutation_count;
@@ -503,9 +509,9 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.0";
 
 ##version: 2.7.1
 DELETE FROM `clinical_sample` WHERE clinical_sample.`ATTR_ID` = 'MUTATION_COUNT';
-INSERT INTO `clinical_sample` SELECT sample_profile.`SAMPLE_ID`, 'MUTATION_COUNT', COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`, 
-mutation_event.`END_POSITION`, mutation_event.`REFERENCE_ALLELE`, mutation_event.`TUMOR_SEQ_ALLELE`) AS MUTATION_COUNT 
-FROM `sample_profile` 
+INSERT INTO `clinical_sample` SELECT sample_profile.`SAMPLE_ID`, 'MUTATION_COUNT', COUNT(DISTINCT mutation_event.`CHR`, mutation_event.`START_POSITION`,
+mutation_event.`END_POSITION`, mutation_event.`REFERENCE_ALLELE`, mutation_event.`TUMOR_SEQ_ALLELE`) AS MUTATION_COUNT
+FROM `sample_profile`
 LEFT JOIN mutation ON mutation.`SAMPLE_ID` = sample_profile.`SAMPLE_ID`
 LEFT JOIN mutation_event ON mutation.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID`
 INNER JOIN genetic_profile ON genetic_profile.`GENETIC_PROFILE_ID` = sample_profile.`GENETIC_PROFILE_ID`
@@ -530,7 +536,7 @@ WHERE genetic_profile.`GENETIC_ALTERATION_TYPE` = 'MUTATION_EXTENDED'
 GROUP BY sample_profile.`GENETIC_PROFILE_ID` , sample_profile.`SAMPLE_ID`;
 
 DELETE FROM `clinical_sample` WHERE clinical_sample.`ATTR_ID` = 'FRACTION_GENOME_ALTERED';
-INSERT INTO `clinical_sample` SELECT `SAMPLE_ID`, 'FRACTION_GENOME_ALTERED', IF((SELECT SUM(`END`-`START`) 
+INSERT INTO `clinical_sample` SELECT `SAMPLE_ID`, 'FRACTION_GENOME_ALTERED', IF((SELECT SUM(`END`-`START`)
 FROM copy_number_seg AS c2 WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID`
 AND ABS(c2.`SEGMENT_MEAN`) >= 0.2) IS NULL, 0, (SELECT SUM(`END`-`START`) FROM copy_number_seg AS c2
 WHERE c2.`CANCER_STUDY_ID` = c1.`CANCER_STUDY_ID` AND c2.`SAMPLE_ID` = c1.`SAMPLE_ID`
@@ -539,3 +545,63 @@ WHERE c1.`CANCER_STUDY_ID` = cancer_study.`CANCER_STUDY_ID` GROUP BY cancer_stud
 HAVING SUM(`END`-`START`) > 0;
 
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.2";
+
+##version: 2.7.3
+DELETE FROM `clinical_attribute_meta` WHERE clinical_attribute_meta.`ATTR_ID` = 'SAMPLE_COUNT';
+INSERT INTO `clinical_attribute_meta` SELECT 'SAMPLE_COUNT', 'Number of Samples Per Patient',
+'Number of Samples Per Patient', 'STRING', 1, '1', patient.`CANCER_STUDY_ID` FROM patient
+GROUP BY patient.`CANCER_STUDY_ID`;
+
+DELETE FROM `clinical_patient` WHERE clinical_patient.`ATTR_ID` = 'SAMPLE_COUNT';
+INSERT INTO `clinical_patient` SELECT patient.`INTERNAL_ID`, 'SAMPLE_COUNT', COUNT(*) FROM sample
+INNER JOIN patient ON sample.`PATIENT_ID` = patient.`INTERNAL_ID` GROUP BY patient.`INTERNAL_ID`;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.3";
+
+##version: 2.7.4
+CREATE TABLE `cancer_study_tags` (
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `TAGS` text NOT NULL,
+  PRIMARY KEY (`CANCER_STUDY_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+);
+
+-- Corresponding change in cgds.sql was missed, hence this duplicate migration statement from version 2.6.1 to ensure dbs installed after v 2.6.1 are in sync.
+ALTER TABLE `mutation_count_by_keyword` MODIFY COLUMN `KEYWORD` VARCHAR(255);
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.7.4";
+
+##version: 2.8.0
+ALTER TABLE `cancer_study` MODIFY COLUMN `PMID` varchar(1024) DEFAULT NULL;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.8.0";
+
+##version: 2.8.1
+ALTER TABLE `mutation` MODIFY COLUMN `TUMOR_SEQ_ALLELE1` TEXT;
+ALTER TABLE `mutation` MODIFY COLUMN `TUMOR_SEQ_ALLELE2` TEXT;
+ALTER TABLE `mutation` MODIFY COLUMN `MATCH_NORM_SEQ_ALLELE1` TEXT;
+ALTER TABLE `mutation` MODIFY COLUMN `MATCH_NORM_SEQ_ALLELE2` TEXT;
+ALTER TABLE `mutation` MODIFY COLUMN `TUMOR_VALIDATION_ALLELE1` TEXT;
+ALTER TABLE `mutation` MODIFY COLUMN `TUMOR_VALIDATION_ALLELE2` TEXT;
+ALTER TABLE `mutation` MODIFY COLUMN `MATCH_NORM_VALIDATION_ALLELE1` TEXT;
+ALTER TABLE `mutation` MODIFY COLUMN `MATCH_NORM_VALIDATION_ALLELE2` TEXT;
+
+ALTER TABLE `mutation_event` DROP INDEX `CHR`;
+ALTER TABLE `mutation_event` MODIFY COLUMN `TUMOR_SEQ_ALLELE` TEXT;
+ALTER TABLE `mutation_event` MODIFY COLUMN `REFERENCE_ALLELE` TEXT;
+ALTER TABLE `mutation_event` ADD KEY `KEY_MUTATION_EVENT_DETAILS` (`CHR`, `START_POSITION`, `END_POSITION`, `TUMOR_SEQ_ALLELE`(255), `ENTREZ_GENE_ID`, `PROTEIN_CHANGE`, `MUTATION_TYPE`);
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.8.1";
+
+##version: 2.8.2
+ALTER TABLE `mutation_event` DROP KEY `KEY_MUTATION_EVENT_DETAILS`;
+ALTER TABLE `mutation_event` ADD KEY `KEY_MUTATION_EVENT_DETAILS` (`CHR`, `START_POSITION`, `END_POSITION`, `TUMOR_SEQ_ALLELE`(240), `ENTREZ_GENE_ID`, `PROTEIN_CHANGE`, `MUTATION_TYPE`);
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.8.2";
+
+##version: 2.9.0
+CREATE TABLE `data_access_tokens` (
+    `TOKEN` varchar(50) NOT NULL,
+    `USERNAME` varchar(128) NOT NULL,
+    `EXPIRATION` datetime NOT NULL,
+    `CREATION` datetime,
+    PRIMARY KEY (`TOKEN`),
+    FOREIGN KEY (`USERNAME`) REFERENCES `users` (`EMAIL`) ON DELETE CASCADE
+);
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.9.0";

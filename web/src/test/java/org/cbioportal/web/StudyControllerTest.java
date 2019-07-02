@@ -1,6 +1,7 @@
 package org.cbioportal.web;
 
 import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.StudyService;
@@ -33,7 +34,7 @@ import java.util.TimeZone;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class StudyControllerTest {
 
@@ -49,6 +50,7 @@ public class StudyControllerTest {
     private static final String TEST_GROUPS_1 = "test_groups_1";
     private static final int TEST_STATUS_1 = 0;
     private static final String TEST_DATE_1 = "2011-12-18 13:17:17";
+    private static final String TEST_TAGS_1 = "{\"Analyst\":{\"Name\":\"Jack\",\"Email\":\"jack@something.com\"},\"Load id\":35}";
     private static final int TEST_CANCER_STUDY_ID_2 = 2;
     private static final String TEST_CANCER_STUDY_IDENTIFIER_2 = "test_study_2";
     private static final String TEST_TYPE_OF_CANCER_ID_2 = "test_type_of_cancer_id_2";
@@ -61,20 +63,23 @@ public class StudyControllerTest {
     private static final String TEST_GROUPS_2 = "test_groups_2";
     private static final int TEST_STATUS_2 = 0;
     private static final String TEST_DATE_2 = "2013-10-12 11:11:15";
+    private static final String TEST_TAGS_2 = "{}";
     private static final String TEST_TYPE_OF_CANCER_NAME = "test_type_of_cancer_name";
     private static final String TEST_CLINICAL_TRIAL_KEYWORDS = "test_clinical_trial_keywords";
     private static final String TEST_DEDICATED_COLOR = "test_dedicated_color";
     private static final String TEST_TYPE_OF_CANCER_SHORT_NAME = "test_type_of_cancer_short_name";
     private static final String TEST_PARENT = "test_parent";
+    private static final String TEST_TAGS_3 = "{\"Analyst\":{\"Name\":\"Frank\",\"Email\":\"frank@something.com\"},\"Load id\":43}";
 
     @Autowired
     private WebApplicationContext wac;
 
     @Autowired
     private StudyService studyService;
-    private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    private MockMvc mockMvc;
 
     @Bean
     public StudyService studyService() {
@@ -93,7 +98,7 @@ public class StudyControllerTest {
         
         List<CancerStudy> cancerStudyList = createExampleStudies();
 
-        Mockito.when(studyService.getAllStudies(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
+        Mockito.when(studyService.getAllStudies(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
                 Mockito.anyString(), Mockito.anyString())).thenReturn(cancerStudyList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies")
@@ -136,7 +141,7 @@ public class StudyControllerTest {
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(studyService.getMetaStudies()).thenReturn(baseMeta);
+        Mockito.when(studyService.getMetaStudies(Mockito.anyString())).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies")
                 .param("projection", "META"))
@@ -256,6 +261,65 @@ public class StudyControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerTypeId").value(TEST_TYPE_OF_CANCER_ID_2));
     }
 
+    @Test
+    public void getTags() throws Exception {
+
+        CancerStudyTags cancerStudyTags = new CancerStudyTags();
+        cancerStudyTags.setTags(TEST_TAGS_1);
+
+        Mockito.when(studyService.getTags(Mockito.anyString())).thenReturn(cancerStudyTags);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/tags")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().string(TEST_TAGS_1));
+    }
+    
+    @Test
+    public void getEmptyTags() throws Exception {
+
+    	Mockito.when(studyService.getTags(Mockito.anyString())).thenReturn(null);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/tags")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.content().string(TEST_TAGS_2));
+    }
+
+    @Test
+    public void getAllTags() throws Exception {
+
+        List<CancerStudyTags> cancerStudyTagsList = new ArrayList<>();
+        CancerStudyTags cancerStudyTags1 = new CancerStudyTags();
+        cancerStudyTags1.setCancerStudyId(TEST_CANCER_STUDY_ID_1);
+        cancerStudyTags1.setTags(TEST_TAGS_1);
+        cancerStudyTagsList.add(cancerStudyTags1);
+
+        CancerStudyTags cancerStudyTags2 = new CancerStudyTags();
+        cancerStudyTags2.setCancerStudyId(TEST_CANCER_STUDY_ID_2);
+        cancerStudyTags2.setTags(TEST_TAGS_3);
+        cancerStudyTagsList.add(cancerStudyTags2);
+
+        Mockito.when(studyService.getTagsForMultipleStudies(Mockito.anyListOf(String.class))).thenReturn(cancerStudyTagsList);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/studies/tags/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1, 
+                TEST_CANCER_STUDY_IDENTIFIER_2))))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId")
+                    .value(TEST_CANCER_STUDY_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].tags").value(TEST_TAGS_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId")
+                    .value(TEST_CANCER_STUDY_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].tags").value(TEST_TAGS_3));
+    }
+
     private List<CancerStudy> createExampleStudies() throws ParseException {
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -292,4 +356,5 @@ public class StudyControllerTest {
         cancerStudyList.add(cancerStudy2);
         return cancerStudyList;
     }
+    
 }

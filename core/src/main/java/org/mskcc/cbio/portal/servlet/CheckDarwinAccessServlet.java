@@ -64,10 +64,12 @@ import javax.servlet.ServletException;
 @JsonPropertyOrder({
 "darwinAuthResponse",
 "p_userName",
-"p_dmp_pid"
+"p_dmp_pid",
+"deidentification_id"
 })
 public class CheckDarwinAccessServlet extends HttpServlet {
     private static Logger logger = Logger.getLogger(CheckDarwinAccessServlet.class);
+    private static final String DDP_INFO_ENDPOINT = "/info";
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -78,7 +80,7 @@ public class CheckDarwinAccessServlet extends HttpServlet {
     
     public static class CheckDarwinAccess {
         private static String darwinAuthUrl = GlobalProperties.getDarwinAuthCheckUrl();
-        private static String darwinResponseUrl = GlobalProperties.getDarwinResponseUrl();
+        private static String ddpResponseUrl = GlobalProperties.getDdpResponseUrl();
         private static String cisUser = GlobalProperties.getCisUser();
         public static Pattern sampleIdRegex = Pattern.compile(GlobalProperties.getDarwinRegex());
 
@@ -104,7 +106,15 @@ public class CheckDarwinAccessServlet extends HttpServlet {
             HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = getRequestEntity(userName, patientId);
             ResponseEntity<DarwinAccess> responseEntity = restTemplate.exchange(darwinAuthUrl, HttpMethod.POST, requestEntity, DarwinAccess.class);
             String darwinResponse = responseEntity.getBody().getDarwinAuthResponse();
-            return darwinResponse.equals("valid")?darwinResponseUrl+patientId:"";
+            String deidentificationId = responseEntity.getBody().getDeidentification_Id();
+            if (!darwinResponse.equals("valid")) {
+                return "";
+            }
+            if (deidentificationId.isEmpty()) {
+                return "";
+            }
+            // construct URL 
+            return ddpResponseUrl + deidentificationId + DDP_INFO_ENDPOINT;
         }
 
         private static HttpEntity<LinkedMultiValueMap<String, Object>> getRequestEntity(String userName, String patientId) {
@@ -117,7 +127,7 @@ public class CheckDarwinAccessServlet extends HttpServlet {
         }
         
         public static boolean existsDarwinProperties() {
-            return (!darwinAuthUrl.isEmpty() && !darwinResponseUrl.isEmpty() && !cisUser.isEmpty() && !GlobalProperties.getDarwinRegex().isEmpty());
+            return (!darwinAuthUrl.isEmpty() && !ddpResponseUrl.isEmpty() && !cisUser.isEmpty() && !GlobalProperties.getDarwinRegex().isEmpty());
         }
     }   
 
@@ -137,6 +147,11 @@ public class CheckDarwinAccessServlet extends HttpServlet {
         **/
         @JsonProperty("p_dmp_pid")
         private String p_dmp_pid;
+        /**
+        * (Required)
+        **/
+        @JsonProperty("deidentification_id")
+        private String deidentification_id;
 
         @JsonIgnore
         private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -150,11 +165,13 @@ public class CheckDarwinAccessServlet extends HttpServlet {
         * @param darwinAuthResponse
         * @param p_userName
         * @param p_dmp_pid
+        * @param deidentification_id
         **/
-        public DarwinAccess(String darwinAuthResponse, String p_userName, String p_dmp_pid) {
-        this.darwinAuthResponse = darwinAuthResponse;
-        this.p_userName = p_userName;
-        this.p_dmp_pid = p_dmp_pid;
+        public DarwinAccess(String darwinAuthResponse, String p_userName, String p_dmp_pid, String deidentification_id) {
+            this.darwinAuthResponse = darwinAuthResponse;
+            this.p_userName = p_userName;
+            this.p_dmp_pid = p_dmp_pid;
+            this.deidentification_id = deidentification_id;
         }
 
         /**
@@ -164,7 +181,7 @@ public class CheckDarwinAccessServlet extends HttpServlet {
         **/
         @JsonProperty("darwinAuthResponse")
         public String getDarwinAuthResponse() {
-        return darwinAuthResponse;
+            return darwinAuthResponse;
         }
 
         /**
@@ -174,12 +191,12 @@ public class CheckDarwinAccessServlet extends HttpServlet {
         **/
         @JsonProperty("darwinAuthResponse")
         public void setDarwinAuthResponse(String darwinAuthResponse) {
-        this.darwinAuthResponse = darwinAuthResponse;
+            this.darwinAuthResponse = darwinAuthResponse;
         }
 
         public DarwinAccess withDarwinAuthResponse(String darwinAuthResponse) {
-        this.darwinAuthResponse = darwinAuthResponse;
-        return this;
+            this.darwinAuthResponse = darwinAuthResponse;
+            return this;
         }
 
         /**
@@ -189,7 +206,7 @@ public class CheckDarwinAccessServlet extends HttpServlet {
         **/
         @JsonProperty("p_userName")
         public String getP_UserName() {
-        return p_userName;
+            return p_userName;
         }
 
         /**
@@ -199,12 +216,12 @@ public class CheckDarwinAccessServlet extends HttpServlet {
         **/
         @JsonProperty("p_userName")
         public void setP_UserName(String p_userName) {
-        this.p_userName = p_userName;
+            this.p_userName = p_userName;
         }
 
         public DarwinAccess withP_UserName(String p_userName) {
-        this.p_userName = p_userName;
-        return this;
+            this.p_userName = p_userName;
+            return this;
         }
 
         /**
@@ -214,7 +231,7 @@ public class CheckDarwinAccessServlet extends HttpServlet {
         **/
         @JsonProperty("p_dmp_pid")
         public String getP_Dmp_Pid() {
-        return p_dmp_pid;
+            return p_dmp_pid;
         }
 
         /**
@@ -224,32 +241,52 @@ public class CheckDarwinAccessServlet extends HttpServlet {
         **/
         @JsonProperty("p_dmp_pid")
         public void setP_Dmp_Pid(String p_dmp_pid) {
-        this.p_dmp_pid = p_dmp_pid;
+            this.p_dmp_pid = p_dmp_pid;
+        }
+
+        /**
+        * (Required)
+        * @return
+        * The deidentification_id
+        **/
+        @JsonProperty("deidentification_id")
+        public String getDeidentification_Id() {
+            return deidentification_id;
+        }
+
+        /**
+        * (Required)
+        * @param deidentification_id
+        * The deidentification_id
+        **/
+        @JsonProperty("deidentification_id")
+        public void setDeidentification_Id(String deidentification_id) {
+            this.deidentification_id = deidentification_id;
         }
 
         public DarwinAccess withP_Dmp_Pid(String p_dmp_pid) {
-        this.p_dmp_pid = p_dmp_pid;
-        return this;
+            this.p_dmp_pid = p_dmp_pid;
+            return this;
         }
 
         @Override
         public String toString() {
-        return ToStringBuilder.reflectionToString(this);
+            return ToStringBuilder.reflectionToString(this);
         }
 
         @JsonAnyGetter
         public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
+            return this.additionalProperties;
         }
 
         @JsonAnySetter
         public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
+            this.additionalProperties.put(name, value);
         }
 
         public DarwinAccess withAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-        return this;
+            this.additionalProperties.put(name, value);
+            return this;
         }
     }    
     

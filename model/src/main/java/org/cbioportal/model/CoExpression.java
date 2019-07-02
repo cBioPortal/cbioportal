@@ -6,33 +6,47 @@ import javax.validation.constraints.NotNull;
 
 public class CoExpression implements Serializable {
 
+    public enum GeneticEntityType {
+
+        GENE,
+        GENESET
+    }
+
     @NotNull
-    private Integer entrezGeneId;
+    private String geneticEntityId;
     @NotNull
-    private String hugoGeneSymbol;
+    private String geneticEntityName;
+    @NotNull
+    private GeneticEntityType geneticEntityType;
     @NotNull
     private String cytoband;
     @NotNull
     private BigDecimal spearmansCorrelation;
     @NotNull
     private BigDecimal pValue;
-    @NotNull
-    private BigDecimal qValue;
 
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
+    public String getGeneticEntityId() {
+        return geneticEntityId;
     }
 
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
+    public void setGeneticEntityId(String geneticEntityId) {
+        this.geneticEntityId = geneticEntityId;
     }
 
-    public String getHugoGeneSymbol() {
-        return hugoGeneSymbol;
+    public String getGeneticEntityName() {
+        return geneticEntityName;
     }
 
-    public void setHugoGeneSymbol(String hugoGeneSymbol) {
-        this.hugoGeneSymbol = hugoGeneSymbol;
+    public void setGeneticEntityName(String geneticEntityName) {
+        this.geneticEntityName = geneticEntityName;
+    }
+    
+    public GeneticEntityType getGeneticEntityType() {
+        return geneticEntityType;
+    }
+
+    public void setGeneticEntityType(GeneticEntityType geneticEntityType) {
+        this.geneticEntityType = geneticEntityType;
     }
 
     public String getCytoband() {
@@ -57,13 +71,5 @@ public class CoExpression implements Serializable {
 
     public void setpValue(BigDecimal pValue) {
         this.pValue = pValue;
-    }
-
-    public BigDecimal getqValue() {
-        return qValue;
-    }
-
-    public void setqValue(BigDecimal qValue) {
-        this.qValue = qValue;
     }
 }

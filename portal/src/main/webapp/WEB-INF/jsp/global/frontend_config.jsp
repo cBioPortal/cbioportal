@@ -23,6 +23,7 @@ window.legacySupportFrontendConfig = {
     skinRightNavShowDatasets : <%=GlobalProperties.showRightNavDataSets()%>,
     skinRightNavShowExamples : <%=GlobalProperties.showRightNavExamples()%>,
     skinRightNavShowTestimonials : <%=GlobalProperties.showRightNavTestimonials()%>,
+    skinRightNavShowWhatsNew : <%=GlobalProperties.showRightNavWhatsNew()%>,
     skinRightNavExamplesHTML : '<%=GlobalProperties.getExamplesRightColumnHtml()%>',
     skinRightNavExamplesHTML : '<%=GlobalProperties.getExamplesRightColumnHtml()%>',
     skinRightNavWhatsNewBlurb : '<%=GlobalProperties.getRightNavWhatsNewBlurb()%>',
@@ -72,7 +73,7 @@ function assignQuickDirty(obj1, obj2){
 }
 
 // override legacySupportFrontendConfig with new frontendConfig
-window.frontendConfig = JSON.parse('<%=GlobalProperties.getFrontendConfig()%>');
+window.frontendConfig = JSON.parse('<%=GlobalProperties.getFrontendConfig()%>' || "{}");
 //window.frontendConfig = Object.assign(window.legacySupportFrontendConfig, window.frontendConfig);
 window.frontendConfig = assignQuickDirty(window.legacySupportFrontendConfig, window.frontendConfig);
 
@@ -97,6 +98,9 @@ if (window.localdist || window.localdev) {
 } else if (localStorage.heroku) {
 	var herokuInstance = '//' + localStorage.getItem('heroku') + '.herokuapp.com/';
 	window.frontendConfig.frontendUrl = herokuInstance;
+} else if (localStorage.netlify) {
+	var netlifyInstance = '//' + localStorage.getItem('netlify') + '.netlify.com/';
+	window.frontendConfig.frontendUrl = netlifyInstance;
 }
 // clean userEmailAddress config
 if (!window.frontendConfig.userEmailAddress || window.frontendConfig.userEmailAddress === 'anonymousUser') {

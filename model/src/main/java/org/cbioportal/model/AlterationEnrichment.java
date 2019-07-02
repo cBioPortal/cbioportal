@@ -2,6 +2,8 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 public class AlterationEnrichment implements Serializable {
@@ -12,15 +14,9 @@ public class AlterationEnrichment implements Serializable {
     private String hugoGeneSymbol;
     private String cytoband;
     @NotNull
-    private Integer alteredCount;
-    @NotNull
-    private Integer unalteredCount;
-    @NotNull
-    private String logRatio;
-    @NotNull
     private BigDecimal pValue;
     @NotNull
-    private BigDecimal qValue;
+    private List<CountSummary> counts;
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -46,30 +42,6 @@ public class AlterationEnrichment implements Serializable {
         this.cytoband = cytoband;
     }
 
-    public Integer getAlteredCount() {
-        return alteredCount;
-    }
-
-    public void setAlteredCount(Integer alteredCount) {
-        this.alteredCount = alteredCount;
-    }
-
-    public Integer getUnalteredCount() {
-        return unalteredCount;
-    }
-
-    public void setUnalteredCount(Integer unalteredCount) {
-        this.unalteredCount = unalteredCount;
-    }
-
-    public String getLogRatio() {
-        return logRatio;
-    }
-
-    public void setLogRatio(String logRatio) {
-        this.logRatio = logRatio;
-    }
-
     public BigDecimal getpValue() {
         return pValue;
     }
@@ -78,11 +50,12 @@ public class AlterationEnrichment implements Serializable {
         this.pValue = pValue;
     }
 
-    public BigDecimal getqValue() {
-        return qValue;
+    public List<CountSummary> getCounts() {
+        return counts;
     }
 
-    public void setqValue(BigDecimal qValue) {
-        this.qValue = qValue;
+    public void setCounts(List<CountSummary> counts) {
+        this.counts = counts;
     }
+
 }

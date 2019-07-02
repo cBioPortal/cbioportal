@@ -40,6 +40,7 @@ import csv
 import itertools
 import requests
 import json
+import yaml
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from base64 import urlsafe_b64encode
@@ -66,10 +67,16 @@ DEFINED_SAMPLE_IDS = None
 DEFINED_SAMPLE_ATTRIBUTES = None
 PATIENTS_WITH_SAMPLES = None
 DEFINED_CANCER_TYPES = None
+mutation_sample_ids = None
+mutation_file_sample_ids = set()
+fusion_file_sample_ids = set()
 
 # globals required for gene set scoring validation
 prior_validated_sample_ids = None
 prior_validated_geneset_ids = None
+
+# Global variable to compare stable IDs from meta file with gene panel matrix file
+study_meta_dictionary = {}
 
 # ----------------------------------------------------------------------------
 
@@ -262,19 +269,21 @@ class PortalInstance(object):
     if the checks are to be skipped.
     """
 
-    def __init__(self, cancer_type_dict, hugo_entrez_map, alias_entrez_map, geneset_id_list):
+    def __init__(self, cancer_type_dict, hugo_entrez_map, alias_entrez_map, gene_set_list, gene_panel_list):
         """Represent a portal instance with the given dictionaries."""
         self.cancer_type_dict = cancer_type_dict
         self.hugo_entrez_map = hugo_entrez_map
         self.alias_entrez_map = alias_entrez_map
-        self.geneset_id_list = geneset_id_list
+        self.gene_set_list = gene_set_list
+        self.gene_panel_list = gene_panel_list
         self.entrez_set = set()
         for entrez_map in (hugo_entrez_map, alias_entrez_map):
             if entrez_map is not None:
                 for entrez_list in list(entrez_map.values()):
                     for entrez_id in entrez_list:
                         self.entrez_set.add(entrez_id)
-        #Set defaults for genome version and species
+
+        # Set defaults for genome version and species
         self.species = 'human'
         self.ncbi_build = '37'
         self.genome_build = 'hg19'
@@ -363,12 +372,25 @@ class Validator(object):
 
         self.logger.debug('Starting validation of file')
 
+        # Validate whether the file can be opened
         try:
             opened_file = open(self.filename, 'r', newline=None)
+            opened_file.close()
         except OSError:
             self.logger.error('File could not be opened')
             return
-        with opened_file as data_file:
+
+        # Validate whether the file is correct UTF-8
+        try:
+            with open(self.filename, 'r', newline=None) as opened_file:
+                for line in opened_file:
+                    pass
+        except UnicodeDecodeError:
+            self.logger.error("File contains invalid UTF-8 bytes. Please check values in file")
+            return
+
+        # Reopen file from the start
+        with open(self.filename, 'r', newline=None) as data_file:
 
             # parse any block of start-of-file comment lines and the tsv header
             top_comments = []
@@ -664,23 +686,24 @@ class Validator(object):
         # set to upper, as both maps contain symbols in upper
         if gene_symbol is not None:
             gene_symbol = gene_symbol.upper()
-            # Check in case gene symbol is not null if it starts with an integer
-            if gene_symbol is not '':
-                # Check if the gene_symbol starts with a number
-                if gene_symbol[0] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
-                    # In case portal properties are defined check if the gene symbol that starts
-                    # with an integer is in the alias table, if not report an error
-                    if self.portal.hugo_entrez_map is not None and self.portal.alias_entrez_map is not None:
-                        if gene_symbol not in self.portal.hugo_entrez_map and \
-                                gene_symbol not in self.portal.alias_entrez_map:
-                            self.logger.error('Hugo Symbol is not in gene or alias table and starts with a '
-                                              'number. This can be caused by unintentional gene conversion in Excel.',
-                                              extra={'line_number': self.line_number, 'cause': gene_symbol})
-                    # If alias table cannot be checked report warning that hugo symbols normally do not start
-                    # with a number
-                    else:
-                        self.logger.warning('Hugo Symbol should not start with a number.',
-                                            extra={'line_number': self.line_number, 'cause': gene_symbol})
+            if self.portal.species == "human":
+                # Check in case gene symbol is not null if it starts with an integer
+                if gene_symbol is not '':
+                    # Check if the gene_symbol starts with a number
+                    if gene_symbol[0] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
+                        # In case portal properties are defined check if the gene symbol that starts
+                        # with an integer is in the alias table, if not report an error
+                        if self.portal.hugo_entrez_map is not None and self.portal.alias_entrez_map is not None:
+                            if gene_symbol not in self.portal.hugo_entrez_map and \
+                                    gene_symbol not in self.portal.alias_entrez_map:
+                                self.logger.error('Hugo Symbol is not in gene or alias table and starts with a '
+                                'number. This can be caused by unintentional gene conversion in Excel.',
+                                                    extra={'line_number': self.line_number, 'cause': gene_symbol})
+                        # If alias table cannot be checked report warning that hugo symbols normally do not start
+                        # with a number
+                        else:
+                            self.logger.warning('Hugo Symbol should not start with a number.',
+                                                extra={'line_number': self.line_number, 'cause': gene_symbol})
 
         if entrez_id is not None:
             try:
@@ -1242,10 +1265,13 @@ class MutationsExtendedValidator(Validator):
                                         'message but reported no error') %
                                        checking_function.__name__)
 
-        # validate Tumor_Sample_Barcode value to make sure it exists in study sample list:
+        # validate Tumor_Sample_Barcode value to make sure it exists in clinical sample list:
         sample_id_column_index = self.cols.index('Tumor_Sample_Barcode')
-        value = data[sample_id_column_index]
-        self.checkSampleId(value, column_number=sample_id_column_index + 1)
+        sample_id = data[sample_id_column_index]
+        self.checkSampleId(sample_id, column_number=sample_id_column_index + 1)
+
+        # Keep track of all sample IDs in the fusion data file
+        mutation_file_sample_ids.add(sample_id)
 
         # parse hugo and entrez to validate them together
         hugo_symbol = None
@@ -1913,7 +1939,8 @@ class ClinicalValidator(Validator):
                       'datatype',
                       'priority')
 
-    # Only a core set of attributes must be either specific in the patient or sample clinical data.
+    # A core set of attributes must be either specific in the patient or sample clinical data.
+    # See GET /api/ at http://oncotree.mskcc.org/cdd/swagger-ui.html#/
     PREDEFINED_ATTRIBUTES = {
         'AGE': {
             'is_patient_attribute': '1',
@@ -2685,30 +2712,77 @@ class FusionValidator(Validator):
         else:
             self.fusion_entries[fusion_entry] = self.line_number
 
+        # Keep a list of samples which are in the fusion genetic profile
+        fusion_file_sample_ids.add(data[self.cols.index('Tumor_Sample_Barcode')])
+
+
 class MutationSignificanceValidator(Validator):
 
     # TODO add checks for mutsig files
     ALLOW_BLANKS = True
     pass
 
+
 class GenePanelMatrixValidator(Validator):
+    """Validation for gene panel matrix file.
+    """
 
     REQUIRED_HEADERS = ['SAMPLE_ID']
-    # TODO check that other column headers are valid profile stable ids
-    # TODO check that sample ids are references in clincal data file
-    # TODO check that referenced gene panel stable id is valid
 
     def __init__(self, *args, **kwargs):
         """Initialize a GenePanelMatrixValidator with the given parameters."""
         super(GenePanelMatrixValidator, self).__init__(*args, **kwargs)
+        self.mutation_profile_column = None
         self.gene_panel_sample_ids = {}
+        self.mutation_stable_id_index = None
+
+    def checkHeader(self, data):
+        num_errors = super(GenePanelMatrixValidator, self).checkHeader(data)
+
+        stable_ids = study_meta_dictionary.keys()
+        property_in_meta_file_list = []
+        mutation_stable_id = ''
+
+        for genetic_profile in study_meta_dictionary:
+            # Extract the mutation stable ID from the study meta dictionary
+            if study_meta_dictionary[genetic_profile]['genetic_alteration_type'] == 'MUTATION_EXTENDED' and \
+                    study_meta_dictionary[genetic_profile]['datatype'] == 'MAF' and \
+                    study_meta_dictionary[genetic_profile]['stable_id'] in data:
+                mutation_stable_id = study_meta_dictionary[genetic_profile]['stable_id']
+                self.mutation_stable_id_index = data.index(mutation_stable_id)
+
+            # Extract the stable IDs for genetic profiles that use the gene_panel property
+            if 'gene_panel' in study_meta_dictionary[genetic_profile]:
+                property_in_meta_file_list.append(study_meta_dictionary[genetic_profile]['stable_id'])
+
+        # Check whether the stable IDs match the stable IDs from the meta files
+        for stable_id in data:
+            if stable_id != 'SAMPLE_ID':
+                if stable_id not in stable_ids:
+                    self.logger.error('Stable ID not found in study meta files',
+                                      extra={'cause': stable_id})
+                    num_errors += 1
+
+                if stable_id != mutation_stable_id:
+                    if stable_id in property_in_meta_file_list:
+                        self.logger.error("The meta file for this genetic profile contains a property for gene panel. "
+                                          "This functionality is mutually exclusive with including a column for this "
+                                          "genetic profile in the gene panel matrix. Please remove either the property "
+                                          "in the meta file or the column in gene the panel matrix file",
+                                          extra={'line_number': self.line_number,
+                                                 'cause': stable_id})
+                    else:
+                        self.logger.info("This column can be replaced by a 'gene_panel' property in the respective "
+                                         "meta file",
+                                         extra={'line_number': self.line_number,
+                                                'cause': stable_id})
+        return num_errors
 
     def checkLine(self, data):
         super(GenePanelMatrixValidator, self).checkLine(data)
 
-        # Checking sample ID occurs twice in gene panel matrix
-        # Importer will crash so return an error
-        sample_id = data[self.cols.index('SAMPLE_ID')]
+        # Check whether sample ID is duplicated
+        sample_id = data.pop(self.cols.index('SAMPLE_ID'))
         if sample_id in self.gene_panel_sample_ids:
             self.logger.error(
                 'Duplicated Sample ID.',
@@ -2716,7 +2790,31 @@ class GenePanelMatrixValidator(Validator):
                        'cause': '%s (already defined on line %d)'
                                 % (sample_id, self.gene_panel_sample_ids[sample_id])})
         else:
+            # Add sample ID to check for duplicates
             self.gene_panel_sample_ids[sample_id] = self.line_number
+
+            # Check whether sample ID is in clinical sample IDs
+            self.checkSampleId(sample_id, self.cols.index('SAMPLE_ID'))
+
+            # If stable id is mutation and value not NA, check whether sample ID is in sequenced case list
+            if self.mutation_stable_id_index is not None:
+
+                # Sample ID has been removed from list, so subtract 1 position.
+                if data[self.mutation_stable_id_index - 1] != 'NA':
+                    if sample_id not in mutation_sample_ids:
+                        self.logger.error('Sample ID has mutation gene panel, but is not in the sequenced case list',
+                                          extra={'line_number': self.line_number,
+                                                 'cause': sample_id})
+
+        # Check whether gene panel stable ids are in the database
+        if self.portal.gene_panel_list is not None:
+            for gene_panel_id in data:
+                if gene_panel_id not in self.portal.gene_panel_list and gene_panel_id != 'NA':
+                    self.logger.warning('Gene panel ID is not in database. Please import this gene panel before loading '
+                                    'study data.',
+                                    extra={'line_number': self.line_number,
+                                            'cause': gene_panel_id})
+
 
 class ProteinLevelValidator(FeaturewiseFileValidator):
 
@@ -2940,7 +3038,7 @@ class CancerTypeValidator(Validator):
                                    'column_number': col_index + 1,
                                    'cause': value})
             elif self.portal.cancer_type_dict is not None:
-                self.logger.warning(
+                self.logger.info(
                     'New disease type will be added to the portal',
                     extra={'line_number': self.line_number,
                            'cause': line_cancer_type})
@@ -3260,7 +3358,7 @@ class GsvaWiseFileValidator(FeaturewiseFileValidator):
                               extra={'line_number': self.line_number,
                                      'cause': geneset_id})
         # Check if gene set is in database
-        elif self.portal.geneset_id_list is not None and geneset_id not in self.portal.geneset_id_list:
+        elif self.portal.gene_set_list is not None and geneset_id not in self.portal.gene_set_list:
             self.logger.error("Gene set not found in database, please make sure "
                               "to import gene sets prior to study loading",
                               extra={'line_number': self.line_number, 'cause': geneset_id})
@@ -3353,7 +3451,7 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
 
     # get filenames for all meta files in the directory
     filenames = [os.path.join(directory, f) for
-                 f in os.listdir(directory) if
+                 f in sorted(os.listdir(directory)) if
                  re.search(r'(\b|_)meta(\b|[_0-9])', f,
                            flags=re.IGNORECASE) and
                  not f.startswith('.') and
@@ -3370,11 +3468,14 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
     validators_by_type = {}
     case_list_suffix_fns = {}
     stable_ids = []
+    global meta_dictionary
+    tags_file_path = None
+
 
     for filename in filenames:
 
         meta_dictionary = cbioportal_common.parse_metadata_file(
-            filename, logger, study_id, portal_instance.genome_build)
+            filename, logger, study_id, portal_instance.genome_build, gene_panel_list=portal_instance.gene_panel_list)
         meta_file_type = meta_dictionary['meta_file_type']
         if meta_file_type is None:
             continue
@@ -3389,7 +3490,11 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
                            'cause': stable_id})
             else:
                 stable_ids.append(stable_id)
-        # Validate datatypes
+
+            # Save meta values in a study wide dictionary
+            study_meta_dictionary[stable_id] = meta_dictionary
+
+        # Validate data types
         if 'datatype' in meta_dictionary:
             if meta_dictionary['datatype'].lower() in study_data_types:
                 # For Seg file only one can be loaded
@@ -3410,10 +3515,28 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
                 if ('add_global_case_list' in meta_dictionary and
                         meta_dictionary['add_global_case_list'].lower() == 'true'):
                     case_list_suffix_fns['all'] = filename
-            # raise a warning if pmid is existing, but no citation is available.
-            if 'pmid' in meta_dictionary and not 'citation' in meta_dictionary:
-                logger.warning(
-                'Citation is required when giving a pubmed id (pmid).')
+
+            # Validate PMID field in meta_study
+            if 'pmid' in meta_dictionary:
+                if 'citation' not in meta_dictionary:
+                    logger.warning('Citation is required when providing a PubMed ID (pmid)')
+                stripped_pmid_value_len = len(meta_dictionary['pmid'].strip())
+                no_whitespace_pmid_value_len = len(''.join(meta_dictionary['pmid'].split()))
+                if (no_whitespace_pmid_value_len != stripped_pmid_value_len):
+                    logger.error('The PMID field in meta_study should not contain any embedded whitespace',
+                                 extra={'cause': meta_dictionary['pmid'].strip()})
+                for pmid_entry in [x.strip() for x in meta_dictionary['pmid'].split(',')]:
+                    try:
+                        value = int(pmid_entry)
+                    except ValueError:
+                        logger.error('The PMID field in meta_study should be a comma separated list of integers',
+                                     extra={'cause': pmid_entry})
+
+            # Validate Study Tags file field in meta_study
+            if 'tags_file' in meta_dictionary:
+                logger.debug(
+                    'Study Tag file found. It will be validated.')
+                tags_file_path = os.path.join(directory, meta_dictionary['tags_file'])
 
         # create a list for the file type in the dict
         if meta_file_type not in validators_by_type:
@@ -3441,7 +3564,7 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
                 case_list_suffix_fns[suffix]
 
     return (validators_by_type, defined_case_list_fns,
-            study_cancer_type, study_id)
+            study_cancer_type, study_id, stable_ids, tags_file_path)
 
 
 def processCaseListDirectory(caseListDir, cancerStudyId, logger,
@@ -3464,6 +3587,8 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
     logger.debug('Validating case lists')
 
     stableid_files = {}
+    global mutation_sample_ids
+
     # include the previously defined stable IDs
     if prev_stableid_files is not None:
         stableid_files.update(prev_stableid_files)
@@ -3544,18 +3669,19 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
                 seen_sample_ids[sample_id] = True
             else:
                 dupl_sample_ids[sample_id] = True
+
         # Duplicate samples IDs are removed by the importer, therefore this is
         # only a warning.
         if len(dupl_sample_ids) > 0:
             logger.warning('Duplicate Sample ID in case list',
                            extra={'filename_': case,
-                           'cause': ', '.join(dupl_sample_ids.keys())})
+                                  'cause': ', '.join(dupl_sample_ids.keys())})
 
         for value in seen_sample_ids:
             # Compare case list sample ids with clinical file
             if value not in DEFINED_SAMPLE_IDS:
                 logger.error(
-                    'Sample id not defined in clinical file',
+                    'Sample ID not defined in clinical file',
                     extra={'filename_': case,
                            'cause': value})
             # Check if there are white spaces in the sample id
@@ -3564,6 +3690,30 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger,
                     'White space in sample id is not supported',
                     extra={'filename_': case,
                            'cause': value})
+
+        if stable_id.split('_')[-1] == 'sequenced':
+            mutation_sample_ids = set(sample_ids)
+
+            # Check all samples in the mutation data are included in the `_sequenced` case list
+            if len(mutation_file_sample_ids) > 0:
+                if not mutation_file_sample_ids.issubset(mutation_sample_ids):
+                    mutation_sample_ids_not_in_case_list = ", ".join(mutation_file_sample_ids - mutation_sample_ids)
+                    logger.error(
+                        "Sample IDs from mutation data are missing from the '_sequenced' case list.",
+                        extra={'filename_': case,
+                               'cause': mutation_sample_ids_not_in_case_list})
+
+            # When the fusion events are moved to the structural variant data model, this validation should check the
+            # samples in the fusion data with the samples in the '_structural_variant' case list.
+            if len(fusion_file_sample_ids) > 0:
+                if not fusion_file_sample_ids.issubset(mutation_sample_ids):
+                    fusion_sample_ids_not_in_case_list = ", ".join(fusion_file_sample_ids - mutation_sample_ids)
+                    logger.warning(
+                        "Sample IDs from fusion data are missing from the '_sequenced' case list. This might lead to "
+                        "incorrect calculation of mutated samples. In the future fusion variants will be moved to the "
+                        "'structural variant' data model and its respective case list.",
+                        extra={'filename_': case,
+                               'cause': fusion_sample_ids_not_in_case_list})
 
     logger.info('Validation of case list folder complete')
 
@@ -3585,7 +3735,7 @@ def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logge
     if cancer_study_id + '_all' not in case_list_ids:
         logger.error(
                 "No case list found with stable_id '%s', consider adding "
-                    "'add_global_case_list: true' to the study metadata file",
+                    "'add_global_case_list: true' to the meta_study.txt file",
                 cancer_study_id + '_all')
 
     if 'meta_mutations_extended' in file_types:
@@ -3612,7 +3762,20 @@ def validate_defined_caselists(cancer_study_id, case_list_ids, file_types, logge
                 "case list will be selected by default when both mutation and CNA data are available.",
                 cancer_study_id + '_cnaseq')
 
-def validate_dependencies(validators_by_meta_type, logger):
+def validateStudyTags(tags_file_path, logger):
+        """Validate the study tags file."""
+        logger.debug('Starting validation of study tags file',
+        	extra={'filename_': tags_file_path})
+        with open(tags_file_path, 'r') as stream:
+            try:
+                parsedYaml = yaml.load(stream)
+                logger.info('Validation of study tags file complete.',
+                extra={'filename_': tags_file_path})
+            except yaml.YAMLError as exc:
+                logger.error('The file provided is not in YAML or JSON format',
+                extra={'filename_': tags_file_path})
+
+def validate_data_relations(validators_by_meta_type, logger):
 
     """Validation after all meta files are individually validated.
 
@@ -3698,8 +3861,8 @@ def validate_dependencies(validators_by_meta_type, logger):
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""
 
-    if api_name == 'genesets':
-        service_url = server_url + '/api/' + api_name + "?pageSize=999999999"
+    if api_name in ['genesets', 'gene-panels']:
+        service_url = server_url + '/api/' + api_name + "?pageSize=9999999"
 
     # TODO: change API for genes, gene aliases and cancer types to non-legacy
     else:
@@ -3793,14 +3956,16 @@ def transform_symbol_entrez_map(json_data,
     return result_dict
 
 
-def index_geneset_id_list(json_data,
-                         id_field = "genesetId"):
-    result_list = []
+def extract_ids(json_data, id_key):
+    """Creates a list of all IDs retrieved from API
+    :param json_data:
+    :param id_key:
+    :return:
+    """
+    result_set = set()
     for data_item in json_data:
-        geneset_id = data_item[id_field]
-        if geneset_id not in result_list:
-            result_list.append(geneset_id)
-    return result_list
+        result_set.add(data_item[id_key])
+    return list(result_set)
 
 
 def load_portal_info(path, logger, offline=False):
@@ -3821,7 +3986,9 @@ def load_portal_info(path, logger, offline=False):
                 lambda json_data: transform_symbol_entrez_map(
                                         json_data, 'gene_alias')),
             ('genesets',
-                lambda json_data: index_geneset_id_list(json_data, 'genesetId'))):
+                lambda json_data: extract_ids(json_data, 'genesetId')),
+            ('gene-panels',
+                lambda json_data: extract_ids(json_data, 'genePanelId'))):
         if offline:
             parsed_json = read_portal_json_file(path, api_name, logger)
         else:
@@ -3831,10 +3998,11 @@ def load_portal_info(path, logger, offline=False):
         portal_dict[api_name] = parsed_json
     if all(d is None for d in list(portal_dict.values())):
         raise LookupError('No portal information found at {}'.format(path))
-    return PortalInstance(cancer_type_dict = portal_dict['cancertypes'],
-                          hugo_entrez_map = portal_dict['genes'],
-                          alias_entrez_map = portal_dict['genesaliases'],
-                          geneset_id_list = portal_dict['genesets'])
+    return PortalInstance(cancer_type_dict=portal_dict['cancertypes'],
+                          hugo_entrez_map=portal_dict['genes'],
+                          alias_entrez_map=portal_dict['genesaliases'],
+                          gene_set_list=portal_dict['genesets'],
+                          gene_panel_list=portal_dict['gene-panels'])
 
 
 # ------------------------------------------------------------------------------
@@ -3845,10 +4013,10 @@ def interface(args=None):
     portal_mode_group = parser.add_mutually_exclusive_group()
     portal_mode_group.add_argument('-u', '--url_server',
                                    type=str,
-                                   default='http://localhost:8080/cbioportal',
+                                   default='http://localhost:8080',
                                    help='URL to cBioPortal server. You can '
                                         'set this if your URL is not '
-                                        'http://localhost:8080/cbioportal')
+                                        'http://localhost:8080')
     portal_mode_group.add_argument('-p', '--portal_info_dir',
                                    type=str,
                                    help='Path to a directory of cBioPortal '
@@ -3911,14 +4079,18 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
             portal_instance.alias_entrez_map is None):
         logger.warning('Skipping validations relating to gene identifiers and '
                        'aliases defined in the portal')
-    if portal_instance.geneset_id_list is None:
+    if portal_instance.gene_set_list is None:
         logger.warning('Skipping validations relating to gene set identifiers')
+    if portal_instance.gene_panel_list is None:
+        logger.warning('Skipping validations relating to gene panel identifiers')
 
     # walk over the meta files in the dir and get properties of the study
     (validators_by_meta_type,
      defined_case_list_fns,
      study_cancer_type,
-     study_id) = process_metadata_files(study_dir, portal_instance, logger, relaxed_mode, strict_maf_checks)
+     study_id,
+     stable_ids,
+     tags_file_path) = process_metadata_files(study_dir, portal_instance, logger, relaxed_mode, strict_maf_checks)
 
     # first parse and validate cancer type files
     studydefined_cancer_types = []
@@ -3963,6 +4135,7 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
                 validator.filenameShort for validator in
                 validators_by_meta_type[
                     cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES])})
+
     # parse the data file(s) that define sample IDs valid for this study
     defined_sample_ids = None
     for sample_validator in validators_by_meta_type[
@@ -3993,11 +4166,15 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
                 validators_by_meta_type[
                     cbioportal_common.MetaFileTypes.PATIENT_ATTRIBUTES])})
 
-    # next validate all other data files, from meta_aaa to meta_zzz
+    # then validate the study tags YAML file if it exists
+    if tags_file_path is not None:
+        validateStudyTags(tags_file_path, logger=logger)
+    # next validate all other data files
     for meta_file_type in sorted(validators_by_meta_type):
         # skip cancer type and clinical files, they have already been validated
         if meta_file_type in (cbioportal_common.MetaFileTypes.CANCER_TYPE,
-                              cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES):
+                              cbioportal_common.MetaFileTypes.SAMPLE_ATTRIBUTES,
+                              cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX):
             continue
         for validator in sorted(
                 validators_by_meta_type[meta_file_type],
@@ -4007,10 +4184,10 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
                 continue
             validator.validate()
 
-    # additional validation after all meta files are validated
-    validate_dependencies(validators_by_meta_type, logger)
+    # additional validation between meta files, after all meta files are processed
+    validate_data_relations(validators_by_meta_type, logger)
 
-    # finally validate the case list directory if present
+    # validate the case list directory if present
     case_list_dirname = os.path.join(study_dir, 'case_lists')
     if not os.path.isdir(case_list_dirname):
         logger.info("No directory named 'case_lists' found, so assuming no custom case lists.")
@@ -4024,6 +4201,14 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
         study_id, list(defined_case_list_fns.keys()),
         file_types=list(validators_by_meta_type.keys()),
         logger=logger)
+
+    # Validate the gene panel matrix file. This file is depending on clinical and case list data.
+    if cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX in validators_by_meta_type:
+        if len(validators_by_meta_type[cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX]) > 1:
+            logger.error('Multiple gene panel matrix files detected')
+        else:
+            # pass stable_ids to data file
+            validators_by_meta_type[cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX][0].validate()
 
     logger.info('Validation complete')
 
@@ -4137,7 +4322,8 @@ def main_validate(args):
         portal_instance = PortalInstance(cancer_type_dict=None,
                                          hugo_entrez_map=None,
                                          alias_entrez_map=None,
-                                         geneset_id_list=None)
+                                         gene_set_list=None,
+                                         gene_panel_list=None)
     elif args.portal_info_dir:
         portal_instance = load_portal_info(args.portal_info_dir, logger,
                                            offline=True)

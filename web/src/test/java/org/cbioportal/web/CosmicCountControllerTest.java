@@ -26,7 +26,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class CosmicCountControllerTest {
 
@@ -43,9 +43,10 @@ public class CosmicCountControllerTest {
 
     @Autowired
     private CosmicCountService cosmicCountService;
-    private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    private MockMvc mockMvc;
 
     @Bean
     public CosmicCountService cosmicCountService() {

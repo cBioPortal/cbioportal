@@ -3,6 +3,7 @@ package org.cbioportal.service.impl;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.StudyRepository;
+import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,6 +17,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -26,6 +28,8 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
 
     @Mock
     private StudyRepository studyRepository;
+    @Mock
+    private CancerTypeService cancerTypeService;
 
     @Before
     public void setup() {
@@ -39,10 +43,11 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
         CancerStudy cancerStudy = new CancerStudy();
         expectedCancerStudyList.add(cancerStudy);
 
-        Mockito.when(studyRepository.getAllStudies(PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
-                .thenReturn(expectedCancerStudyList);
+        Mockito.when(studyRepository.getAllStudies(KEYWORD, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+            .thenReturn(expectedCancerStudyList);
+        Mockito.when(cancerTypeService.getPrimarySiteMap()).thenReturn(new HashMap<>());
 
-        List<CancerStudy> result = studyService.getAllStudies(PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+        List<CancerStudy> result = studyService.getAllStudies(KEYWORD, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
 
         Assert.assertEquals(expectedCancerStudyList, result);
     }
@@ -51,10 +56,9 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
     public void getMetaStudies() throws Exception {
 
         BaseMeta expectedBaseMeta = new BaseMeta();
+        Mockito.when(studyRepository.getMetaStudies(null)).thenReturn(expectedBaseMeta);
 
-        Mockito.when(studyRepository.getMetaStudies()).thenReturn(expectedBaseMeta);
-
-        BaseMeta result = studyService.getMetaStudies();
+        BaseMeta result = studyService.getMetaStudies(null);
 
         Assert.assertEquals(expectedBaseMeta, result);
     }

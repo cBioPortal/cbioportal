@@ -2,7 +2,14 @@
 
 cBioPortal contains a number of properties that allow you to customize your cBioPortal instance. 
 
-This page focuses on the skin properties, which allow you to customize the web page cosmetics, such as custom images, texts, which tabs are visible, etc. Nearly all the skins properties have defaults, which can be overwritten by changing the `portal.properties` file, located in `{PORTAL_HOME}/src/main/resources/portal.properties`. If your cBioPortal instance does not yet contain a `portal.properties` file, you can copy the `portal.properties.EXAMPLE` and edit it. 
+This page focuses on the skin properties, which allow you to
+customize the web page cosmetics, such as custom images,
+texts, which tabs are visible, etc.
+Nearly all the skins properties have defaults, which can be overwritten by
+changing the `portal.properties` file located in `$PORTAL_HOME`--see
+[the deployment manual](Deploying.md). If your cBioPortal instance
+does not yet contain a `portal.properties` file, you can copy
+`src/main/resources/portal.properties.EXAMPLE` and edit it.
 
 Below you can find the complete list of all the available skin properties.
 
@@ -217,7 +224,7 @@ Below you can find the complete list of all the available skin properties.
 
 Creating you own local news/about or FAQ page involves three steps. For example, to create your own news page:
 
-1. Copy `{PORTAL_HOME}/portal/src/main/webapp/content/news.html` to `news_XXXX.html`
+1. Copy `<cbioportal_source_folder>/portal/src/main/webapp/content/news.html` to `news_XXXX.html`
 2. Modify `news_XXXX.html` as needed.
 3. Edit the `portal.properties` file and change the `skin.documentation.news` property, giving it the name of your news HTML component.
 
@@ -253,6 +260,6 @@ If your documentation contains a relative link, cBioPortal will assume it uses t
 Please be aware that the links may be case-sensitive! E.g. https://github.com/cBioPortal/cbioportal/wiki/News.md is not the same as https://github.com/cBioPortal/cbioportal/wiki/news.md
 
 # Custom styling of the patient view's clinical data
-The [Patient View](http://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P04) shows several [clinical attributes](File-Formats.md#clinical-data) at the top of the page, e.g. `AGE`, `SEX`:
+The [Patient View](https://www.cbioportal.org/patient?studyId=lgg_ucsf_2014&caseId=P04) shows several [clinical attributes](File-Formats.md#clinical-data) at the top of the page, e.g. `AGE`, `SEX`:
 ![test](../test/end-to-end/screenshots/firefox/patient_view_lgg_ucsf_2014_case_id_P04.png)
 The order, styling and visibility of those [attributes](File-Formats.md#clinical-data) at the top can be changed by editing the [patient view's clinical attributes CSS file](../portal/src/main/webapp/css/patient-view/clinical-attributes.css).

@@ -143,9 +143,9 @@ public class TestIntegrationTest {
             List<String> geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_mutations");
             List<Mutation> mutations = mutationMapperLegacy.getMutationsDetailed(geneticProfileStableIds,null,null,null);
-            //there are 31 records in the mutation file, of which 3 are filtered, and there are 3 extra records added from fusion
+            //there are 38 records in the mutation file, of which 3 are filtered, and there are 3 extra records added from fusion
             //so we expect 31 records in DB:
-            assertEquals(31, mutations.size());
+            assertEquals(38, mutations.size());
 
             //===== Check FUSION data ========
             // Are there 3 fusion entries in mutation profile? true
@@ -155,9 +155,9 @@ public class TestIntegrationTest {
                     countFusions++;
                 }
             }
-            assertEquals(countFusions, 3);
+            assertEquals(countFusions, 5);
 
-            // Is there a seperate fusion profile? -> false
+            // Is there a separate fusion profile? -> false
             GeneticProfileMapperLegacy geneticProfileMapperLegacy = applicationContext.getBean(GeneticProfileMapperLegacy.class);
             geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_fusion");
@@ -169,8 +169,8 @@ public class TestIntegrationTest {
             geneticProfileStableIds.add("study_es_0_gistic");
             List<String> hugoGeneSymbols = new ArrayList<String>(Arrays.asList("ACAP3","AGRN","ATAD3A","ATAD3B","ATAD3C","AURKAIP1","ERCC5"));
             List<DBProfileData> cnaProfileData = apiService.getGeneticProfileData(geneticProfileStableIds, hugoGeneSymbols, null, null);
-            //there is data for 7 genes x 778 samples:
-            assertEquals(7*778, cnaProfileData.size());
+            //there is data for 7 genes x 788 samples:
+            assertEquals(7*788, cnaProfileData.size());
             //there are 63 CNA entries that have value == 2 or value == -2;
             int countAMP_DEL = 0;
             for (Serializable profileEntry: cnaProfileData) {
@@ -205,7 +205,7 @@ public class TestIntegrationTest {
             List<DBClinicalField> clinicalAttributes = apiService.getSampleClinicalAttributes();
             assertEquals(3, clinicalAttributes.size());
             clinicalAttributes = apiService.getPatientClinicalAttributes();
-            assertEquals(4, clinicalAttributes.size());
+            assertEquals(5, clinicalAttributes.size());
             List<DBClinicalSampleData> clinicalComputedSampleData = apiService.getSampleClinicalData("study_es_0", Arrays.asList("MUTATION_COUNT","FRACTION_GENOME_ALTERED"), Arrays.asList("TCGA-A2-A04P-01"));
             Boolean mutationCountExists = false;
             Boolean fractionGenomeAlteredExists = false;
@@ -386,7 +386,9 @@ public class TestIntegrationTest {
      */
     private void loadGenePanel() throws Exception {
         ImportGenePanel gp = new ImportGenePanel(null);
-        gp.setFile(new File("src/test/scripts/test_data/study_es_0/gene_panel_example.txt"));
+        gp.setFile(new File("src/test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt"));
+        gp.importData();
+        gp.setFile(new File("src/test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt"));
         gp.importData();
     }
     

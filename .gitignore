@@ -7,6 +7,7 @@ portal/Portal.iml
 portal/portal.log
 portal/nbproject
 portal/build
+portal/images
 portal/.idea
 portal/.DS_Store
 portal/Portal.ipr
@@ -97,3 +98,7 @@ portal/reactapp/*
 package.json
 .vscode/
 *.tramp_history
+pom.version.*
+pom.xml.*
+db-scripts/src/main/resources/cgds-test.sql
+pom.xml.*

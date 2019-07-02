@@ -31,4 +31,9 @@ public class GeneMolecularAlteration extends MolecularAlteration implements Seri
     public void setGene(Gene gene) {
         this.gene = gene;
     }
+
+    @Override
+    public String getStableId() {
+        return entrezGeneId.toString();
+    }
 }

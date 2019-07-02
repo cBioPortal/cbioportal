@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2019 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -36,6 +36,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.dao.*;
@@ -63,7 +64,7 @@ public class ImportTabDelimData {
     private int entriesSkipped = 0;
     private int nrExtraRecords = 0;
     private Set<String> arrayIdSet = new HashSet<String>();
-    private String genePanelID;
+    private String genePanel;
 
     /**
      * Constructor.
@@ -75,11 +76,11 @@ public class ImportTabDelimData {
      * 
      * @deprecated : TODO shall we deprecate this feature (i.e. the targetLine)? 
      */
-    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId, String genePanelID) {
+    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId, String genePanel) {
         this.dataFile = dataFile;
         this.targetLine = targetLine;
         this.geneticProfileId = geneticProfileId;
-        this.genePanelID = genePanelID;
+        this.genePanel = genePanel;
     }
 
     /**
@@ -88,10 +89,10 @@ public class ImportTabDelimData {
      * @param dataFile         Data File containing Copy Number Alteration, MRNA Expression Data, or protein RPPA data
      * @param geneticProfileId GeneticProfile ID.
      */
-    public ImportTabDelimData(File dataFile, int geneticProfileId, String genePanelID) {
+    public ImportTabDelimData(File dataFile, int geneticProfileId, String genePanel) {
         this.dataFile = dataFile;
         this.geneticProfileId = geneticProfileId;
-        this.genePanelID = genePanelID;
+        this.genePanel = genePanel;
     }
 
     /**
@@ -152,22 +153,9 @@ public class ImportTabDelimData {
             ArrayList <Integer> orderedSampleList = new ArrayList<Integer>();
             ArrayList <Integer> filteredSampleIndices = new ArrayList<Integer>();
             for (int i = 0; i < sampleIds.length; i++) {
-                // backwards compatible part (i.e. in the new process, the sample should already be there. TODO - replace this workaround later with an exception:
                 Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
                                                                            StableIdUtil.getSampleId(sampleIds[i]));
-                if (sample == null ) {
-                    //TODO - as stated above, this part should be removed. Agreed with JJ to remove this as soon as MSK moves to new validation 
-                    //procedure. In this new procedure, Patients and Samples should only be added 
-                    //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
-                    //sample per patient, which is not always the case.
-                    ImportDataUtil.addPatients(new String[] { sampleIds[i] }, geneticProfileId);
-                    // add the sample (except if it is a 'normal' sample):
-                    nrUnknownSamplesAdded += ImportDataUtil.addSamples(new String[] { sampleIds[i] }, geneticProfileId);
-                }
-                // check again (repeated because of workaround above):
-                sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
-                                                                           StableIdUtil.getSampleId(sampleIds[i]));
-                // can be null in case of 'normal' sample:
+                // can be null in case of 'normal' sample, throw exception if not 'normal' and sample not found in db
                 if (sample == null) {
                     if (StableIdUtil.isNormal(sampleIds[i])) {
                         filteredSampleIndices.add(i);
@@ -178,7 +166,10 @@ public class ImportTabDelimData {
                         throw new RuntimeException("Unknown sample id '" + StableIdUtil.getSampleId(sampleIds[i]) + "' found in tab-delimited file: " + this.dataFile.getCanonicalPath());
                     }
                 }
-                ImportDataUtil.addSampleProfile(sample, geneticProfileId, genePanelID);
+                if (!DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
+                    Integer genePanelID = (genePanel == null) ? null : GeneticProfileUtil.getGenePanelId(genePanel);
+                    DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, genePanelID);
+                }
                 orderedSampleList.add(sample.getInternalId());
             }
             if (nrUnknownSamplesAdded > 0) {
@@ -259,7 +250,115 @@ public class ImportTabDelimData {
             buf.close();
         }                
     }
-    
+
+    /**
+    * Attempt to create a genetic_alteration record based on the current line read from a profile data file.
+    * <ol>
+    *   <li>Commented out lines and blank lines are always skipped (returns false)
+    *   <li>The line is split into columns by the tab delimiter
+    *   <li>The involved genes (list of entrez_gene_ids) are determined:
+    *     <ol>
+    *       <li>Hugo_Symbol and Entrez_Gene_Id column indices are read and validated
+    *       <li>if neither are available, the line is skipped
+    *       <li>if Hugo_Symbol contains '///' or '---', the line is skipped
+    *       <li>rppaProfile parsing has special rules for determining the involved genes
+    *       <li>if Entrez_Gene_Id is available, use that to determine the involved genes
+    *       <li>if Hugo_Symbol is available, use that to determine the involved genes (truncate symbols with '|' in them)
+    *       <li>if the involved genes list is still empty, the line is skipped (returns false)
+    *     </ol>
+    *   <li>Both gene_alias and gene records are examined to see how many genes of type 'miRNA' are matched
+    *   <li>If any matched record is of type 'miRNA':
+    *     <ul>
+    *       <li>Loop through each gene or gene_alias of type 'miRNA' and attempt to store the record under that gene in genetic_alteration
+    *       <li>If no records were successfully stored in genetic_alteration, log the failure
+    *     </ul>
+    *   <li>If no matched record is of type 'miRNA':
+    *       <li>if there is exactly 1 involved gene (using only the gene table if sufficient, or gene_alias if neccessary):
+    *         <ol>
+    *           <li>if this is a 'discretizedCnaProfile', normalize the CNA values and create a list of cnaEvents to be added
+    *           <li>attempt to store the record in genetic_alteration
+    *           <li>if the record is successfully stored (not duplicated), create (or update) records in sample_cna_event for the created list of cnaEvents (if any)
+    *         </ol>
+    *       <li>if there are several involved genes and the profile is an rppaProfile, loop through the genes; for each one:
+    *         <ol>
+    *           <li>attempt to store the record under that gene in genetic_alteration
+    *           <li>count the number of successfully imported records (for logging)
+    *         </ol>
+    *         <ul>
+    *           <li>after looping through all involved genes, check whether any records were successfully stored in genetic_alteration - if not log the failure
+    *         </ul>
+    *       <li>if there are several involved genes and the profile is not an rppaProfile, log a failure to import the current line due to ambiguous gene symbol
+    *     </ol>
+    *   <li>If a record was (or more than one were) successfully stored in genetic_alteration, return true ; else false
+    * </ol>
+    * <p>
+    * During the import of any single profile data file, at most one record per Entrez_Gene_Id will be successfuly imported to genetic_alteration.
+    * Each attempt to import is done through a call to the function storeGeneticAlterations().
+    * That function will check an instance variable importSetOfGenes, and if the gene has been previously imported, no new attempt is made (failure).
+    * Each time a gene is successfully imported, it is added to importSetOfGenes.
+    * <p>
+    * MicroRNA are treated specially because of the possible presence of constructed combination forms (such as 'MIR-100/100*' and 'MIR-100/100').
+    * In these cases a Hugo_Symbol such as 'hsa-mir-100' may be expected to match the (fake) Entrez_Gene_Id for both of these combination forms.
+    * In that case, we want to import several copies of the genetic alteration profile line .. one for each matched gene of type 'miRNA'.
+    * This allows the visualization of both CNA event profiles for the microRNA precursor with expression profiles for the microRNA mature form.
+    * <p>
+    * The current implementation of this code does not attempt to "merge" / "unify" lines in the profile data file which have duplicated Entrez_Gene_Id.
+    * Instead, the first encountered line which maps to the Entrez_Gene_Id will be stored as a record in genetic_alteration (returns true).
+    * Later lines which attempt to store a record with that Entrez_Gene_Id will not be stored as a record in genetic_alteration (returns false).
+    * For microRNA gene aliases it is possible that complex interactions will occur, where an earlier line in the data file stores a record under several Entrez_Gene_Ids, and a later line in the file fails to store records under some of those previously 'used' Entrez_Gene_Ids, but succeeds in storing a record under one or more not previously used Entrez_Gene_Ids. So a microRNA line from the file may be imported "partially successfully" (returns true).
+    * <p>
+    * Examples Cases:<br>
+    * Gene records are P1, P2, P3, P4 (protein coding), M1, M2, M3 (microRNA).
+    * Gene_Symbol AMA is gene_alias for M1 and M2, Gene_Symbol AMB is gene_alias for M2 and M3, Gene_Symbol AAMBIG is gene_alias for P3 and P4. Gene_Symbol AMIXED is gene_alias for P1 and M3.
+    * <p>
+    * Case_1 (the last two lines will be skipped and logged like "Gene P1 (#) found to be duplicated in your file. Duplicated row will be ignored!")<br>
+    * <table>
+    * <tr><th>Hugo_Symbol<th>Sample1<th>...
+    * <tr><td>P1<td>0<td>...
+    * <tr><td>P2<td>0<td>...
+    * <tr><td>P1<td>0<td>...
+    * <tr><td>P1<td>0<td>...
+    * </table>
+    * <p>
+    * Case_2 (the last line will be skipped and logged like "Gene M1 (#) (given as alias in your file as: AMA) found to be duplicated in your file. Duplicated row will be ignored!" , "Gene M2 (#) (given as alias in your file as: AMA) found to be duplicated in your file. Duplicated row will be ignored!" , "Could not store microRNA or RPPA data" )<br>
+    * <table>
+    * <tr><th>Hugo_Symbol<th>Sample1<th>...
+    * <tr><td>AMA<td>0<td>...
+    * <tr><td>AMA<td>0<td>...
+    * </table>
+    * <p>
+    * Case_3 (the last line in the file will fail with log messages like "Gene symbol AAMBIG found to be ambiguous. Record will be skipped for this gene.")<br>
+    * <table>
+    * <tr><th>Hugo_Symbol<th>Sample1<th>...
+    * <tr><td>P1<td>0<td>...
+    * <tr><td>P2<td>0<td>...
+    * <tr><td>AAMBIG<td>0<td>...
+    * </table>
+    * <p>
+    * Case_4 (the second to last line will partially succeed, storing a record in genetic_alteration for gene M3 but failing for M2 with a log message like "Gene M2 (#) (given as alias in your file as: AMB) found to be duplicated in your file. Duplicated row will be ignored!" ; the last line in the file will fail with log messages like "Gene M3 (#) (given as alias in your file as: AMIXED) found to be duplicated in your file. Duplicated row will be ignored!" , "Gene symbol AMIXED found to be ambiguous (a mixture of microRNA and other types). Record will be skipped for this gene.")<br>
+    * <table>
+    * <tr><th>Hugo_Symbol<th>Sample1<th>...
+    * <tr><td>AMA<td>0<td>...
+    * <tr><td>AMB<td>0<td>...
+    * <tr><td>AMIXED<td>0<td>...
+    * </table>
+    *
+    * @param  line                      the line from the profile data file to be parsed
+    * @param  nrColumns                 the number of columns, defined by the header line
+    * @param  sampleStartIndex          the index of the first column with a sample name in the header field
+    * @param  hugoSymbolIndex           the index of the column Hugo_Symbol
+    * @param  entrezGeneIdIndex         the index of the column Entrez_Gene_Id
+    * @param  rppaGeneRefIndex          the index of the column Composite.Element.Ref
+    * @param  rppaProfile               true if this is an rppa profile (i.e. alteration type is PROTEIN_LEVEL and the first column is Composite.Element.Ref)
+    * @param  discretizedCnaProfile     true if this is a discretized CNA profile (i.e. alteration type COPY_NUMBER_ALTERATION and showProfileInAnalysisTab is true)
+    * @param  daoGene                   an instance of DaoGeneOptimized ... for use in resolving gene symbols
+    * @param  filteredSampleIndicesList not used (dead code)
+    * @param  orderedSampleList         a list of the internal sample ids corresponding to the sample names in the header line
+    * @param  existingCnaEvents         a collection of CnaEvents, to be added to or updated during parsing of individual lines
+    * @param  daoGeneticAlteration      in instance of DaoGeneticAlteration ... for use in storing records in the genetic_alteration table
+    * @return                           true if any record was stored in genetic_alteration, else false
+    * @throws DaoException              if any DaoException is thrown while using daoGene or daoGeneticAlteration
+    */
     private boolean parseLine(String line, int nrColumns, int sampleStartIndex, 
             int hugoSymbolIndex, int entrezGeneIdIndex, int rppaGeneRefIndex,
             boolean rppaProfile, boolean discretizedCnaProfile,
@@ -268,6 +367,8 @@ public class ImportTabDelimData {
             Map<CnaEvent.Event, CnaEvent.Event> existingCnaEvents, DaoGeneticAlteration daoGeneticAlteration
             ) throws DaoException {
         
+        //TODO: refactor this entire function - split functionality into smaller units / subroutines
+
         boolean recordStored = false; 
         
         //  Ignore lines starting with #
@@ -319,8 +420,7 @@ public class ImportTabDelimData {
             if (geneSymbol == null && entrez == null) {
                 ProgressMonitor.logWarning("Ignoring line with no Hugo_Symbol or Entrez_Id value");
                 return false;
-            }
-            else {
+            } else {
                 if (geneSymbol != null && (geneSymbol.contains("///") || geneSymbol.contains("---"))) {
                     //  Ignore gene IDs separated by ///.  This indicates that
                     //  the line contains information regarding multiple genes, and
@@ -340,8 +440,14 @@ public class ImportTabDelimData {
                             //can return here and avoid duplicated messages:
                             return false;
                         }    
-                    }
-                    else {
+                        if (genes.isEmpty()) {
+                            String gene = (geneSymbol != null) ? geneSymbol : entrez;
+                            ProgressMonitor.logWarning("Gene not found for:  [" + gene
+                                + "]. Ignoring it "
+                                + "and all tab-delimited data associated with it!");
+                            return false;
+                        }
+                    } else {
                         //try entrez:
                         if (entrez != null) {
                             CanonicalGene gene = daoGene.getGene(Long.parseLong(entrez));
@@ -365,46 +471,64 @@ public class ImportTabDelimData {
                         }
                     }
 
-                    if (genes == null || genes.isEmpty()) {
-                        genes = Collections.emptyList();
+                    //  If targetLine is specified and does not match the current line, skip the current line.
+                    if (targetLine != null && !(parts[0].equals(targetLine))) {
+                        return false;
                     }
 
-                    //  If no target line is specified or we match the target, process.
-                    if (targetLine == null || parts[0].equals(targetLine)) {
-                        if (genes.isEmpty()) {
-                            //  if gene is null, we might be dealing with a micro RNA ID
-                            if (geneSymbol != null && geneSymbol.toLowerCase().contains("-mir-")) {
-//                                if (microRnaIdSet.contains(geneId)) {
-//                                    storeMicroRnaAlterations(values, daoMicroRnaAlteration, geneId);
-//                                    numRecordsStored++;
-//                                } else {
-                                    ProgressMonitor.logWarning("microRNA is not known to me:  [" + geneSymbol
-                                        + "]. Ignoring it "
-                                        + "and all tab-delimited data associated with it!");
-                                    return false;
-//                                }
-                            } else {
-                                String gene = (geneSymbol != null) ? geneSymbol : entrez;
-                                ProgressMonitor.logWarning("Gene not found for:  [" + gene
-                                    + "]. Ignoring it "
-                                    + "and all tab-delimited data associated with it!");
-                                return false;
+                    List<CanonicalGene> genesMatchingAnAlias = Collections.emptyList();
+                    if (geneSymbol != null) {
+                        genesMatchingAnAlias = daoGene.getGenesForAlias(geneSymbol);
+                    }
+
+                    Set<CanonicalGene> microRNAGenes = new HashSet<>();
+                    Set<CanonicalGene> nonMicroRNAGenes = new HashSet<>();
+                    Iterator<CanonicalGene> geneIterator = Stream.concat(genes.stream(), genesMatchingAnAlias.stream()).iterator();
+                    while (geneIterator.hasNext()) {
+                        CanonicalGene g = geneIterator.next();
+                        if ("miRNA".equals(g.getType())) {
+                            microRNAGenes.add(g);
+                        } else {
+                            nonMicroRNAGenes.add(g);
+                        }
+                    }
+                    if (!microRNAGenes.isEmpty()) {
+                        // for micro rna, duplicate the data
+                        for (CanonicalGene gene : microRNAGenes) {
+                            boolean result = storeGeneticAlterations(values, daoGeneticAlteration, gene, geneSymbol);
+                            if (result == true) {
+                                recordStored = true;
                             }
-                        } else if (genes.size()==1) {
+                        }
+                        if (!recordStored) {
+                            if (nonMicroRNAGenes.isEmpty()) {
+                                // this means that no microRNA records could not be stored
+                                ProgressMonitor.logWarning("Could not store microRNA data");
+                            } else {
+                                // this case :
+                                //      - at least one of the entrez-gene-ids was not a microRNA
+                                //      - all of the matched microRNA ids (if any) failed to be imported (presumably already imported on a prior line)
+                                ProgressMonitor.logWarning("Gene symbol " + geneSymbol + " found to be ambiguous (a mixture of microRNA and other types). Record will be skipped for this gene.");
+                            }
+                            return false;
+                        }
+                    } else {
+                        // none of the matched genes are type "miRNA"
+                        if (genes.size() == 1) {
                             List<CnaEvent> cnaEventsToAdd = new ArrayList<CnaEvent>();
-                            
+                        
                             if (discretizedCnaProfile) {
                                 long entrezGeneId = genes.get(0).getEntrezGeneId();
                                 for (int i = 0; i < values.length; i++) {
-                                    
+                                 
                                     // temporary solution -- change partial deletion back to full deletion.
                                     if (values[i].equals(CNA_VALUE_PARTIAL_DELETION)) {
                                         values[i] = CNA_VALUE_HOMOZYGOUS_DELETION;
                                     }
                                     if (values[i].equals(CNA_VALUE_AMPLIFICATION) 
-                                           // || values[i].equals(CNA_VALUE_GAIN)  >> skipping GAIN, ZERO, HEMIZYGOUS_DELETION to minimize size of dataset in DB
-                                           // || values[i].equals(CNA_VALUE_ZERO)
-                                           // || values[i].equals(CNA_VALUE_HEMIZYGOUS_DELETION)
+                                        // || values[i].equals(CNA_VALUE_GAIN)  >> skipping GAIN, ZERO, HEMIZYGOUS_DELETION to minimize size of dataset in DB
+                                        // || values[i].equals(CNA_VALUE_ZERO)
+                                        // || values[i].equals(CNA_VALUE_HEMIZYGOUS_DELETION)
                                             || values[i].equals(CNA_VALUE_HOMOZYGOUS_DELETION)) {
                                         CnaEvent cnaEvent = new CnaEvent(orderedSampleList.get(i), geneticProfileId, entrezGeneId, Short.parseShort(values[i]));
                                         //delayed add:
@@ -427,36 +551,26 @@ public class ImportTabDelimData {
                                 }
                             }                            
                         } else {
-                            int otherCase = 0;
-                            for (CanonicalGene gene : genes) {
-                                if (gene.isMicroRNA() || rppaProfile) { // for micro rna or protein data, duplicate the data
+                            if (rppaProfile) { // for protein data, duplicate the data
+                                for (CanonicalGene gene : genes) {
                                     boolean result = storeGeneticAlterations(values, daoGeneticAlteration, gene, geneSymbol);
                                     if (result == true) {
                                         recordStored = true;
                                         nrExtraRecords++;
                                     }
                                 }
-                                else {
-                                    otherCase++;
+                                if (recordStored) {
+                                    //skip one, to avoid double counting:
+                                    nrExtraRecords--;
+                                } else {
+                                    // this means that RPPA could not be stored
+                                    ProgressMonitor.logWarning("Could not store RPPA data");
                                 }
-                            }
-                            if (recordStored) {
-                                //skip one, to avoid double counting:
-                                nrExtraRecords--;
-                            }
-                            if (!recordStored) {
-                                if (otherCase == 0) {
-                                    // this means that miRNA or RPPA could not be stored
-                                    ProgressMonitor.logWarning("Could not store miRNA or RPPA data"); //TODO detect the type of of data and give specific warning
-                                }
-                                else if (otherCase > 1) {
-                                    // this means that genes.size() > 1 and data was not rppa or microRNA, so it is not defined how to deal with
-                                    // the ambiguous alias list. Report this:
-                                    ProgressMonitor.logWarning("Gene symbol " + geneSymbol + " found to be ambigous. Record will be skipped for this gene.");
-                                }
-                                else {
-                                    //should not occur. It would mean something is wrong in preceding logic (see else if (genes.size()==1) ) or a configuration problem, e.g. where a symbol maps to both a miRNA and a normal gene:
-                                    throw new RuntimeException("Unexpected error: unable to process row with gene " + geneSymbol);
+                            } else {
+                                if (!recordStored) {
+                                    // this case :
+                                    //      - the hugo gene symbol was ambiguous (matched multiple entrez-gene-ids)
+                                    ProgressMonitor.logWarning("Gene symbol " + geneSymbol + " found to be ambiguous. Record will be skipped for this gene.");
                                 }
                             }
                         }
@@ -523,7 +637,7 @@ public class ImportTabDelimData {
                 //TODO - review this part - maybe it should be an Exception instead of just a warning.
                 String geneSymbolMessage = "";
                 if (geneSymbol != null && !geneSymbol.equalsIgnoreCase(gene.getHugoGeneSymbolAllCaps()))
-                    geneSymbolMessage = "(given as alias in your file as: " + geneSymbol + ") ";
+                    geneSymbolMessage = " (given as alias in your file as: " + geneSymbol + ")";
                 ProgressMonitor.logWarning("Gene " + gene.getHugoGeneSymbolAllCaps() + " (" + gene.getEntrezGeneId() + ")" + geneSymbolMessage + " found to be duplicated in your file. Duplicated row will be ignored!");
                 return false;
             }

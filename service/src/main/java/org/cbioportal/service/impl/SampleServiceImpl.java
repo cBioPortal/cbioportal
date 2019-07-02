@@ -161,17 +161,18 @@ public class SampleServiceImpl implements SampleService {
     private void processSamples(List<Sample> samples, String projection) {
 
         if (projection.equals("DETAILED")) {
-            Map<String, List<String>> sequencedSampleIdsMap = new HashMap<>();
+            Map<String, Set<String>> sequencedSampleIdsMap = new HashMap<>();
             List<String> distinctStudyIds = samples.stream().map(Sample::getCancerStudyIdentifier).distinct()
                 .collect(Collectors.toList());
             for (String studyId : distinctStudyIds) {
-                sequencedSampleIdsMap.put(studyId, sampleListRepository
-                    .getAllSampleIdsInSampleList(studyId + SEQUENCED));
+                sequencedSampleIdsMap.put(studyId,
+                                          new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
             }
 
             List<Integer> samplesWithCopyNumberSeg = copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
                 samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()), 
-                samples.stream().map(Sample::getStableId).collect(Collectors.toList())
+                samples.stream().map(Sample::getStableId).collect(Collectors.toList()),
+                null
             );
             
             Set<Integer> samplesWithCopyNumberSegMap = new HashSet<>();

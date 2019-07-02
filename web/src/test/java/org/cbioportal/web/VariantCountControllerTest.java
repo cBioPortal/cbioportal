@@ -27,7 +27,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class VariantCountControllerTest {
 
@@ -48,9 +48,10 @@ public class VariantCountControllerTest {
 
     @Autowired
     private VariantCountService variantCountService;
-    private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    private MockMvc mockMvc;
 
     @Bean
     public VariantCountService variantCountService() {

@@ -23,7 +23,13 @@
 
 package org.mskcc.cbio.portal.scripts;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,7 +38,12 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoPatient;
+import org.mskcc.cbio.portal.dao.DaoSample;
+import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.Patient;
+import org.mskcc.cbio.portal.model.Sample;
 import org.mskcc.cbio.portal.util.SpringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -77,8 +88,7 @@ public class TestImportCopyNumberSegmentData {
 		//new dummy study to simulate importing clinical data in empty study:
 		CancerStudy cancerStudy = new CancerStudy("testnewseg","testnewseg","testnewseg","brca",true);
         DaoCancerStudy.addCancerStudy(cancerStudy);
-        
-        //CancerStudy study = DaoCancerStudy.getCancerStudyByStableId("testnew");
+        addTestPatientAndSampleRecords(new File("src/test/resources/segment/data_cna_hg19.seg"), cancerStudy);
 
         String[] args = {
         		"--data","src/test/resources/segment/data_cna_hg19.seg",
@@ -90,4 +100,27 @@ public class TestImportCopyNumberSegmentData {
         //TODO : fix test to actually store data and add some checks 
        
 	}
+
+    private void addTestPatientAndSampleRecords(File file, CancerStudy cancerStudy) throws FileNotFoundException, IOException, DaoException {
+        // extract sample ids from first column
+        FileReader reader = new FileReader(file);
+        BufferedReader buf = new BufferedReader(reader);
+        String line = buf.readLine(); // want to skip first line / header line
+        List<String> sampleIds = new ArrayList<>();
+        while ((line=buf.readLine()) != null) {
+            String[] parts = line.split("\t");
+            if (!sampleIds.contains(parts[0])) {
+                sampleIds.add(parts[0]);
+            }
+        }
+        reader.close();
+        // add sample + patient records to db
+        for (String sampleId : sampleIds) {
+            // fetch patient from db or add new one if does not exist
+            Patient p = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), sampleId);
+            Integer pId = (p == null) ? DaoPatient.addPatient(new Patient(cancerStudy, sampleId)) : p.getInternalId();
+            DaoSample.addSample(new Sample(sampleId, pId, cancerStudy.getTypeOfCancerId()));
+        }
+        MySQLbulkLoader.flushAll();
+    }
 }

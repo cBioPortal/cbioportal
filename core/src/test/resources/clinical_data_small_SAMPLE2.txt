@@ -1,0 +1,11 @@
+#Patient Identifier	Sample Identifier	Subtype	Overall Survival Status	Overall Survival (Months)	Disease Free Status	Disease Free (Months)
+#Patient Identifier	Sample identifier	Subtype description	Overall survival status	Overall survival in months since diagnosis	Disease free status	Disease free in months since treatment
+#STRING	STRING	STRING	STRING	NUMBER	STRING	NUMBER
+#1	1	1	1	1	1	1
+SAMPLE_ID	PATIENT_ID	SUBTYPE	OS_STATUS	OS_MONTHS	DFS_STATUS	DFS_MONTHS
+TEST-A2-A04P-02	TEST-A2-A04P	basal-like	DECEASED	17.97	Recurred/Progressed	NA
+TEST-A1-A0SK-02	TEST-A1-A0SK	basal-like	DECEASED	31.77	NA	NA
+TEST-A2-A0CM-02	TEST-A2-A0CM	basal-like	DECEASED	24.77	Recurred/Progressed	NA
+TEST-AR-A1AR-02	TEST-AR-A1AR	basal-like	DECEASED	17.18	NA	NA
+TEST-B6-A0WX-02	TEST-B6-A0WX	basal-like	DECEASED	21.45	Recurred/Progressed	NA
+TEST-BH-A1F0-02	TEST-BH-A1F0	basal-like	DECEASED	25.79	Recurred/Progressed	NA

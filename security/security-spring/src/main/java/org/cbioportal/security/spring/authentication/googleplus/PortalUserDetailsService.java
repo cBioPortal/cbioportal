@@ -40,8 +40,7 @@ import org.cbioportal.security.spring.authentication.PortalUserDetails;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.common.base.Strings;
-import com.google.inject.internal.Preconditions;
+import com.google.common.base.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 

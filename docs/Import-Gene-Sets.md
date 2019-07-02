@@ -23,7 +23,7 @@ This example shows how the process of importing gene set data using test data.
 1. Navigate to scripts folder:
 
 ```
-cd $PORTAL_HOME/core/src/main/scripts
+cd <cbioportal_source_folder>/core/src/main/scripts
 ```
 
 2. Import gene sets and supplementary data:
@@ -90,7 +90,7 @@ E2F1_UP.V1_DN<TAB>E2F1 upregulated v1 down genes<TAB>Identification of E2F1-regu
 The importer for gene sets can be run with a perl wrapper, which is located at the following location and requires the following arguments:
 
 ```
-cd $PORTAL_HOME/core/src/main/scripts
+cd <cbioportal_source_folder>/core/src/main/scripts
 perl importGenesetData.pl
 
 required:     --data <data_file.gmt>
@@ -133,7 +133,7 @@ To make your own hierarchy, make sure every branchname ends with `:`. Every bran
 
 ### Running the gene set hierarchy importer
 ```
-cd $PORTAL_HOME/core/src/main/scripts
+cd <cbioportal_source_folder>/core/src/main/scripts
 perl importGenesetHierarchy.pl
 
 required:     --data <data_file.yaml>

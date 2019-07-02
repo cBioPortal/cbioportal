@@ -1,19 +1,11 @@
 package org.cbioportal.web.parameter;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class CopyNumberGeneFilter {
+public class CopyNumberGeneFilter implements Serializable {
 
-    private String molecularProfileId;
     private List<CopyNumberGeneFilterElement> alterations;
-
-	public String getMolecularProfileId() {
-		return molecularProfileId;
-	}
-
-	public void setMolecularProfileId(String molecularProfileId) {
-		this.molecularProfileId = molecularProfileId;
-	}
 
 	public List<CopyNumberGeneFilterElement> getAlterations() {
 		return alterations;

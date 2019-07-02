@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneAlias;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GeneRepository;
 import org.cbioportal.service.GeneService;
@@ -10,7 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,25 +28,52 @@ public class GeneServiceImpl implements GeneService {
     @Autowired
     private ChromosomeCalculator chromosomeCalculator;
 
+    private Map<Integer, List<String>> geneAliasMap = new HashMap<>();
+
     @PostConstruct
     public void init() {
-        getAllGenes(null, "SUMMARY", null, null, null, null);
+        // query all genes so they would be cached
+        getAllGenes(null, null, "SUMMARY", null, null, null, null);
+
+        geneAliasMap = geneRepository.getAllAliases().stream().collect(Collectors.groupingBy(
+            GeneAlias::getEntrezGeneId, Collectors.mapping(GeneAlias::getGeneAlias, Collectors.toList())));
     }
 
-    @Override
-    public List<Gene> getAllGenes(String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy,
+	@Override
+    public List<Gene> getAllGenes(String keyword, String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                   String direction) {
 
-        List<Gene> geneList = geneRepository.getAllGenes(alias, projection, pageSize, pageNumber, sortBy, direction);
+        List<Gene> geneList = geneRepository.getAllGenes(keyword, alias, projection, pageSize, pageNumber, sortBy, direction);
+
+        if (keyword != null && (pageSize == null || geneList.size() < pageSize)) {
+            List<Gene> aliasMatchingGenes = findAliasMatchingGenes(keyword);
+            if (pageSize != null) {
+                int toIndex = aliasMatchingGenes.size() > pageSize - geneList.size() ? 
+                    pageSize - geneList.size() : aliasMatchingGenes.size();
+                aliasMatchingGenes = aliasMatchingGenes.subList(0, toIndex);
+            }
+            for (Gene gene : aliasMatchingGenes) {
+                if (!geneList.stream().anyMatch(c -> c.getEntrezGeneId().equals(gene.getEntrezGeneId()))) {
+                    geneList.add(gene);
+                }
+            }
+        }
 
         geneList.forEach(gene -> chromosomeCalculator.setChromosome(gene));
         return geneList;
     }
 
     @Override
-    public BaseMeta getMetaGenes(String alias) {
+    public BaseMeta getMetaGenes(String keyword, String alias) {
 
-        return geneRepository.getMetaGenes(alias);
+        if (keyword == null) {
+            return geneRepository.getMetaGenes(keyword, alias);
+        }
+        else {
+            BaseMeta baseMeta = new BaseMeta();
+            baseMeta.setTotalCount(getAllGenes(keyword, null, "SUMMARY", null, null, null, null).size());
+            return baseMeta;
+        }
     }
 
     @Override
@@ -108,5 +140,21 @@ public class GeneServiceImpl implements GeneService {
 
     private boolean isInteger(String geneId) {
         return geneId.matches("^-?\\d+$");
+    }
+
+    private List<Gene> findAliasMatchingGenes(String keyword) {
+
+        List<Gene> matchingGenes = new ArrayList<>();
+
+        List<String> matchingEntrezGeneIds = new ArrayList<>();
+        for (Map.Entry<Integer, List<String>> entry : geneAliasMap.entrySet()) {
+            if (entry.getValue().contains(keyword.toLowerCase())) {
+                matchingEntrezGeneIds.add(String.valueOf(entry.getKey()));
+            }
+        }
+        if (!matchingEntrezGeneIds.isEmpty()) {
+            matchingGenes = fetchGenes(matchingEntrezGeneIds, ENTREZ_GENE_ID_GENE_ID_TYPE, "SUMMARY");
+        }
+        return matchingGenes;
     }
 }

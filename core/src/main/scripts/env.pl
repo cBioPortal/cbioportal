@@ -1,5 +1,8 @@
 #  Set up Environment for Running cBio Portal Java Tools
 
+use File::Spec;
+use Cwd 'abs_path';
+
 # check for JAVA_HOME
 $JAVA_HOME = $ENV{JAVA_HOME};
 if ($JAVA_HOME eq "") {
@@ -36,9 +39,18 @@ if ($portalDataHome eq "") {
 }
 
 # Set up Classpath to use the scripts jar
-@jar_files = glob("$portalHome/scripts/target/scripts-*.jar");
+sub locate_src_root {
+    # isolate the directory this code file is in
+    my ($volume, $script_dir, undef) = File::Spec->splitpath(__FILE__);
+    # go up from cbioportal/core/src/main/scripts/ to cbioportal/
+    my $src_root_dir = File::Spec->catdir($script_dir, (File::Spec->updir()) x 4);
+    # reassamble the path and resolve updirs (/../)
+    return abs_path(File::Spec->catpath($volume, $src_root_dir));
+}
+$src_root = locate_src_root();
+@jar_files = glob("$src_root/scripts/target/scripts-*.jar");
 if (scalar @jar_files != 1) {
-	die "Expected to find 1 scripts-*.jar, but found: " . scalar @jar_files;
+    die "Expected to find 1 scripts-*.jar, but found: " . scalar @jar_files;
 }
 $cp = pop @jar_files;
 

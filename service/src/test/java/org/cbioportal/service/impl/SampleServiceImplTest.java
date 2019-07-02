@@ -51,7 +51,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class), 
-            Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(new ArrayList<>());
+            Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
 
         List<Sample> result = sampleService.getAllSamplesInStudy(STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
                 DIRECTION);
@@ -105,7 +105,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(new ArrayList<>());
+            Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
         
         Sample result = sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID1);
 
@@ -124,7 +124,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(new ArrayList<>());
+            Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
 
         List<Sample> result = sampleService.getAllSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE,
                 PAGE_NUMBER, SORT, DIRECTION);
@@ -171,7 +171,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(new ArrayList<>());
+            Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
 
         List<Sample> result = sampleService.getAllSamplesOfPatientsInStudy(STUDY_ID, Arrays.asList(PATIENT_ID_1), PROJECTION);
 
@@ -190,11 +190,43 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(new ArrayList<>());
+            Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
 
         List<Sample> result = sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), PROJECTION);
 
         Assert.assertEquals(expectedSampleList, result);
+    }
+    
+    @Test
+    public void fetchSamplesDetailed() throws Exception {
+        List<Sample> expectedSampleList = new ArrayList<>();
+        Sample sample1 = new Sample();
+        Sample sample2 = new Sample();
+        expectedSampleList.add(sample1);
+        expectedSampleList.add(sample2);
+        
+        sample1.setCancerStudyIdentifier(STUDY_ID);
+        sample1.setStableId(SAMPLE_ID1);
+        sample1.setInternalId(SAMPLE_INTERNAL_ID);
+        sample2.setCancerStudyIdentifier(STUDY_ID);
+        sample2.setStableId(SAMPLE_ID2);
+        sample2.setInternalId(SAMPLE_INTERNAL_ID2);
+        
+        List<Integer> expectedInternalIdList = new ArrayList<>();
+        expectedInternalIdList.add(SAMPLE_INTERNAL_ID);
+       
+        
+        Mockito.when(sampleRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED"))
+                .thenReturn(expectedSampleList);
+        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
+            .thenReturn(new ArrayList<>());
+        Mockito.when(copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(Mockito.anyListOf(String.class),
+            Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(expectedInternalIdList);
+        
+        List<Sample> result = sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED");
+        Assert.assertEquals(2, result.size());
+        Assert.assertTrue(result.get(0).getCopyNumberSegmentPresent());
+        Assert.assertFalse(result.get(1).getCopyNumberSegmentPresent());
     }
 
     @Test

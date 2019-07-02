@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -35,14 +36,15 @@ public class MolecularDataMyBatisRepositoryTest {
     public void getCommaSeparatedSampleIdsOfMolecularProfiles() throws Exception {
 
         List<String> result = molecularDataMyBatisRepository
-            .getCommaSeparatedSampleIdsOfMolecularProfiles(Arrays.asList("study_tcga_pub_gistic", "study_tcga_pub_mrna"));
+            .getCommaSeparatedSampleIdsOfMolecularProfiles(Arrays.asList("study_tcga_pub_mrna", "study_tcga_pub_m_na"));
 
         Assert.assertEquals(2, result.size());
-        Assert.assertEquals("1,2,3,4,5,6,7,8,9,10,11,12,13,14,", result.get(0));
+        Assert.assertEquals("1,2,3,4,5,6,7,8,9,10,11,", result.get(0));
         Assert.assertEquals("2,3,6,8,9,10,12,13,", result.get(1));
     }
 
     @Test
+    @Transactional(readOnly=true)
     public void getGeneMolecularAlterations() throws Exception {
 
         List<Integer> entrezGeneIds = new ArrayList<>();

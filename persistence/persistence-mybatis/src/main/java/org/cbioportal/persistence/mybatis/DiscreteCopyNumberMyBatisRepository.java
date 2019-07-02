@@ -49,6 +49,17 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
     }
 
     @Override
+    public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfiles(List<String> molecularProfileIds,
+                                                                                           List<String> sampleIds,
+                                                                                           List<Integer> entrezGeneIds,
+                                                                                           List<Integer> alterationTypes,
+                                                                                           String projection) {
+
+        return discreteCopyNumberMapper.getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileIds, 
+            sampleIds, entrezGeneIds, alterationTypes, projection);
+    }
+
+    @Override
     public BaseMeta fetchMetaDiscreteCopyNumbersInMolecularProfile(String molecularProfileId, List<String> sampleIds,
                                                                    List<Integer> entrezGeneIds,
                                                                    List<Integer> alterationTypes) {
@@ -66,6 +77,14 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
         return discreteCopyNumberMapper.getSampleCountByGeneAndAlterationAndSampleIds(molecularProfileId, sampleIds, 
             entrezGeneIds, alterations);
     }
+
+    @Override
+	public List<CopyNumberCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
+			List<String> sampleIds, List<Integer> entrezGeneIds, List<Integer> alterations) {
+        
+        return discreteCopyNumberMapper.getSampleCountInMultipleMolecularProfiles(molecularProfileIds, sampleIds, 
+            entrezGeneIds, alterations);
+	}
 
     @Override
     public List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId, 

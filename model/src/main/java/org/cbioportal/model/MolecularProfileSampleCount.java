@@ -4,22 +4,49 @@ import java.io.Serializable;
 
 public class MolecularProfileSampleCount implements Serializable {
 
-    private Integer numberOfProfiledSamples;
-    private Integer numberOfUnprofiledSamples;
+    private Integer numberOfMutationProfiledSamples;
+	private Integer numberOfMutationUnprofiledSamples;
+	private Integer numberOfCNAProfiledSamples;
+    private Integer numberOfCNAUnprofiledSamples;
+    private Integer numberOfCNSegmentSamples; // TODO this is not actually molecular profile data, we should probably change the name of the model
 
-	public Integer getNumberOfProfiledSamples() {
-		return numberOfProfiledSamples;
+	public Integer getNumberOfMutationProfiledSamples() {
+		return numberOfMutationProfiledSamples;
 	}
 
-	public void setNumberOfProfiledSamples(Integer numberOfProfiledSamples) {
-		this.numberOfProfiledSamples = numberOfProfiledSamples;
+	public void setNumberOfMutationProfiledSamples(Integer numberOfMutationProfiledSamples) {
+		this.numberOfMutationProfiledSamples = numberOfMutationProfiledSamples;
 	}
 
-	public Integer getNumberOfUnprofiledSamples() {
-		return numberOfUnprofiledSamples;
+	public Integer getNumberOfMutationUnprofiledSamples() {
+		return numberOfMutationUnprofiledSamples;
 	}
 
-	public void setNumberOfUnprofiledSamples(Integer numberOfUnprofiledSamples) {
-		this.numberOfUnprofiledSamples = numberOfUnprofiledSamples;
+	public void setNumberOfMutationUnprofiledSamples(Integer numberOfMutationUnprofiledSamples) {
+		this.numberOfMutationUnprofiledSamples = numberOfMutationUnprofiledSamples;
 	}
+
+	public Integer getNumberOfCNAProfiledSamples() {
+		return numberOfCNAProfiledSamples;
+	}
+
+	public void setNumberOfCNAProfiledSamples(Integer numberOfCNAProfiledSamples) {
+		this.numberOfCNAProfiledSamples = numberOfCNAProfiledSamples;
+	}
+
+	public Integer getNumberOfCNAUnprofiledSamples() {
+		return numberOfCNAUnprofiledSamples;
+	}
+
+	public void setNumberOfCNAUnprofiledSamples(Integer numberOfCNAUnprofiledSamples) {
+		this.numberOfCNAUnprofiledSamples = numberOfCNAUnprofiledSamples;
+	}
+
+    public Integer getNumberOfCNSegmentSamples() {
+        return numberOfCNSegmentSamples;
+    }
+
+    public void setNumberOfCNSegmentSamples(Integer numberOfCNSegmentSamples) {
+        this.numberOfCNSegmentSamples = numberOfCNSegmentSamples;
+    }
 }

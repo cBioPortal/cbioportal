@@ -6,31 +6,47 @@ import javax.validation.constraints.NotNull;
 
 public class CoExpression implements Serializable {
 
+    public enum GeneticEntityType {
+
+        GENE,
+        GENESET
+    }
+
     @NotNull
-    private Integer entrezGeneId;
+    private String geneticEntityId;
     @NotNull
-    private String hugoGeneSymbol;
+    private String geneticEntityName;
+    @NotNull
+    private GeneticEntityType geneticEntityType;
     @NotNull
     private String cytoband;
     @NotNull
-    private BigDecimal pearsonsCorrelation;
-    @NotNull
     private BigDecimal spearmansCorrelation;
+    @NotNull
+    private BigDecimal pValue;
 
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
+    public String getGeneticEntityId() {
+        return geneticEntityId;
     }
 
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
+    public void setGeneticEntityId(String geneticEntityId) {
+        this.geneticEntityId = geneticEntityId;
     }
 
-    public String getHugoGeneSymbol() {
-        return hugoGeneSymbol;
+    public String getGeneticEntityName() {
+        return geneticEntityName;
     }
 
-    public void setHugoGeneSymbol(String hugoGeneSymbol) {
-        this.hugoGeneSymbol = hugoGeneSymbol;
+    public void setGeneticEntityName(String geneticEntityName) {
+        this.geneticEntityName = geneticEntityName;
+    }
+    
+    public GeneticEntityType getGeneticEntityType() {
+        return geneticEntityType;
+    }
+
+    public void setGeneticEntityType(GeneticEntityType geneticEntityType) {
+        this.geneticEntityType = geneticEntityType;
     }
 
     public String getCytoband() {
@@ -41,19 +57,19 @@ public class CoExpression implements Serializable {
         this.cytoband = cytoband;
     }
 
-    public BigDecimal getPearsonsCorrelation() {
-        return pearsonsCorrelation;
-    }
-
-    public void setPearsonsCorrelation(BigDecimal pearsonsCorrelation) {
-        this.pearsonsCorrelation = pearsonsCorrelation;
-    }
-
     public BigDecimal getSpearmansCorrelation() {
         return spearmansCorrelation;
     }
 
     public void setSpearmansCorrelation(BigDecimal spearmansCorrelation) {
         this.spearmansCorrelation = spearmansCorrelation;
+    }
+
+    public BigDecimal getpValue() {
+        return pValue;
+    }
+
+    public void setpValue(BigDecimal pValue) {
+        this.pValue = pValue;
     }
 }

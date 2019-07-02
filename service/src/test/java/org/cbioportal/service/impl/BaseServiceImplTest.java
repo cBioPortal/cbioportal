@@ -9,6 +9,8 @@ public class BaseServiceImplTest {
     public static final String DIRECTION = "direction";
     public static final String STUDY_ID = "study_id";
     public static final String MOLECULAR_PROFILE_ID = "molecular_profile_id";
+    public static final String MOLECULAR_PROFILE_ID_A = "molecular_profile_id_a";
+    public static final String MOLECULAR_PROFILE_ID_B = "molecular_profile_id_b";
     public static final String SAMPLE_ID1 = "sample_id1";
     public static final String SAMPLE_ID2 = "sample_id2";
     public static final String SAMPLE_ID3 = "sample_id3";
@@ -35,5 +37,6 @@ public class BaseServiceImplTest {
     public static final Integer PROTEIN_POS_END = 2;
     public static final String GENE_PANEL_ID = "gene_panel_id";
     public static final Integer SAMPLE_INTERNAL_ID = 1;
+    public static final Integer SAMPLE_INTERNAL_ID2 = 2;
     public static final String SEQUENCED_LIST_SUFFIX = "_sequenced";
 }

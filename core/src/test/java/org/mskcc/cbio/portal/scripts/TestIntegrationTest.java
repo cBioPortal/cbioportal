@@ -24,6 +24,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -121,7 +122,7 @@ public class TestIntegrationTest {
             TransactionalScripts scripts = applicationContext.getBean(TransactionalScripts.class);
             scripts.run();
 
-            //count the relevant warnings:
+            //count warnings, but disregard warnings caused by gene_symbol_disambiguation.txt
             ArrayList<String> warnings = ProgressMonitor.getWarnings();
             int countWarnings = 0;
             for (String warning: warnings) {
@@ -129,9 +130,9 @@ public class TestIntegrationTest {
                     countWarnings++;
                 }
             }
-            //check that there are only warnings for empty positions in fake data:
-            assertEquals(1, countWarnings);
-            
+            //check that there are no warnings:
+            assertEquals(0, countWarnings);
+
             //check that ALL data really got into DB correctly. In the spirit of integration tests,
             //we want to query via the same service layer as the one used by the web API here.
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId("study_es_0");
@@ -142,21 +143,21 @@ public class TestIntegrationTest {
             List<String> geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_mutations");
             List<Mutation> mutations = mutationMapperLegacy.getMutationsDetailed(geneticProfileStableIds,null,null,null);
-            //there are 31 records in the mutation file, of which 3 are filtered, and there are 3 extra records added from fusion
+            //there are 38 records in the mutation file, of which 3 are filtered, and there are 3 extra records added from fusion
             //so we expect 31 records in DB:
-            assertEquals(31, mutations.size());
+            assertEquals(38, mutations.size());
 
             //===== Check FUSION data ========
-            // Are there 4 fusion entries in mutation profile, but one is off panel, so only 3 should be imported
+            // Are there 3 fusion entries in mutation profile? true
             int countFusions = 0;
             for (Mutation mutation : mutations) {
                 if (mutation.getMutationEvent().getMutationType().equals("Fusion")) {
                     countFusions++;
                 }
             }
-            assertEquals(countFusions, 3);
+            assertEquals(countFusions, 5);
 
-            // Is there a seperate fusion profile? -> false
+            // Is there a separate fusion profile? -> false
             GeneticProfileMapperLegacy geneticProfileMapperLegacy = applicationContext.getBean(GeneticProfileMapperLegacy.class);
             geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_fusion");
@@ -168,8 +169,8 @@ public class TestIntegrationTest {
             geneticProfileStableIds.add("study_es_0_gistic");
             List<String> hugoGeneSymbols = new ArrayList<String>(Arrays.asList("ACAP3","AGRN","ATAD3A","ATAD3B","ATAD3C","AURKAIP1","ERCC5"));
             List<DBProfileData> cnaProfileData = apiService.getGeneticProfileData(geneticProfileStableIds, hugoGeneSymbols, null, null);
-            //there is data for 7 genes x 778 samples:
-            assertEquals(7*778, cnaProfileData.size());
+            //there is data for 7 genes x 788 samples:
+            assertEquals(7*788, cnaProfileData.size());
             //there are 63 CNA entries that have value == 2 or value == -2;
             int countAMP_DEL = 0;
             for (Serializable profileEntry: cnaProfileData) {
@@ -198,12 +199,27 @@ public class TestIntegrationTest {
             assertEquals(273, count0506);
             
             //===== Check CLINICAL data ========
-            //in total 5 clinical attributes should be added (4 "patient type" 
-            //and 1 "sample type" attributes) - see also "assumptions" section at start of this test case
+            //in total 7 clinical attributes should be added (4 "patient type" 
+            //and 3 "sample type" attributes including MUTATION_COUNT and FRACTION_GENOME_ALTERED) 
+            //see also "assumptions" section at start of this test case
             List<DBClinicalField> clinicalAttributes = apiService.getSampleClinicalAttributes();
-            assertEquals(1, clinicalAttributes.size());
+            assertEquals(3, clinicalAttributes.size());
             clinicalAttributes = apiService.getPatientClinicalAttributes();
-            assertEquals(4, clinicalAttributes.size());
+            assertEquals(5, clinicalAttributes.size());
+            List<DBClinicalSampleData> clinicalComputedSampleData = apiService.getSampleClinicalData("study_es_0", Arrays.asList("MUTATION_COUNT","FRACTION_GENOME_ALTERED"), Arrays.asList("TCGA-A2-A04P-01"));
+            Boolean mutationCountExists = false;
+            Boolean fractionGenomeAlteredExists = false;
+            for (DBClinicalSampleData dbClinicalSampleData: clinicalComputedSampleData) {
+                if (dbClinicalSampleData.attr_id.equals("MUTATION_COUNT")) {
+                    mutationCountExists = true;
+                    assertEquals("TCGA-A2-A04P-01 should have one mutation in MUTATION_COUNT", "1", dbClinicalSampleData.attr_val);
+                } else if (dbClinicalSampleData.attr_id.equals("FRACTION_GENOME_ALTERED")) {
+                    fractionGenomeAlteredExists = true;
+                    assertEquals("TCGA-A2-A04P-01 should have 0.0 FRACTION_GENOME_ALTERED (the imported segment file spans a very small part of the genome)", 0.0, Float.parseFloat(dbClinicalSampleData.attr_val), 0.01);
+                }
+            }
+            assertTrue("MUTATION_COUNT sample clinical attribute should have been added for TCGA-A2-A04P-01", mutationCountExists);
+            assertTrue("FRACTION_GENOME_ALTERED sample clinical attribute should have been added for TCGA-A2-A04P-01", fractionGenomeAlteredExists);
             
             //===== Check EXPRESSION data ========
             geneticProfileStableIds = new ArrayList<String>();
@@ -370,7 +386,9 @@ public class TestIntegrationTest {
      */
     private void loadGenePanel() throws Exception {
         ImportGenePanel gp = new ImportGenePanel(null);
-        gp.setFile(new File("src/test/scripts/test_data/study_es_0/gene_panel_example.txt"));
+        gp.setFile(new File("src/test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt"));
+        gp.importData();
+        gp.setFile(new File("src/test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt"));
         gp.importData();
     }
     

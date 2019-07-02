@@ -34,6 +34,13 @@ public class SampleMyBatisRepository implements SampleRepository {
     }
 
     @Override
+	public List<Sample> getAllSamplesInStudies(List<String> studyIds, String projection, Integer pageSize,
+			Integer pageNumber, String sortBy, String direction) {
+        return sampleMapper.getSamples(studyIds, null, null, projection, pageSize, 
+            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+    }
+    
+    @Override
     public Sample getSampleInStudy(String studyId, String sampleId) {
 
         return sampleMapper.getSample(studyId, sampleId, PersistenceConstants.DETAILED_PROJECTION);
@@ -59,6 +66,13 @@ public class SampleMyBatisRepository implements SampleRepository {
 
         return sampleMapper.getSamplesOfPatients(studyId, patientIds, projection);
     }
+
+    @Override
+	public List<Sample> getSamplesOfPatientsInMultipleStudies(List<String> studyIds, List<String> patientIds,
+			String projection) {
+                
+		return sampleMapper.getSamplesOfPatientsInMultipleStudies(studyIds, patientIds, projection);
+	}
 
     @Override
     public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {

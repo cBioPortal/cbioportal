@@ -4,11 +4,9 @@ import org.cbioportal.model.Alteration;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalEvent;
 import org.cbioportal.model.CopyNumberSeg;
-import org.cbioportal.model.FractionGenomeAltered;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.MolecularData;
 import org.cbioportal.model.MrnaPercentile;
-import org.cbioportal.model.MutationCount;
 import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.model.NumericGeneMolecularData;
 import org.cbioportal.model.Patient;
@@ -31,105 +29,62 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
     public static final String DELIMITER = ":";
 
     @Override
-    protected void beforeBodyWriteInternal(MappingJacksonValue mappingJacksonValue, MediaType mediaType, 
-                                           MethodParameter methodParameter, ServerHttpRequest serverHttpRequest, 
+    protected void beforeBodyWriteInternal(MappingJacksonValue mappingJacksonValue, MediaType mediaType,
+                                           MethodParameter methodParameter, ServerHttpRequest serverHttpRequest,
                                            ServerHttpResponse serverHttpResponse) {
-        
         Object value = mappingJacksonValue.getValue();
         if (value instanceof List) {
             List list = (List) value;
             for (Object object : list) {
                 if (object instanceof Alteration) {
-                    
                     Alteration alteration = (Alteration) object;
                     alteration.setUniqueSampleKey(calculateBase64(alteration.getSampleId(), alteration.getStudyId()));
                     alteration.setUniquePatientKey(calculateBase64(alteration.getPatientId(), alteration.getStudyId()));
                 } else if (object instanceof ClinicalData) {
-                    
                     ClinicalData clinicalData = (ClinicalData) object;
                     if (clinicalData.getSampleId() != null) {
-                        clinicalData.setUniqueSampleKey(calculateBase64(clinicalData.getSampleId(), 
-                            clinicalData.getStudyId()));
+                        clinicalData.setUniqueSampleKey(calculateBase64(clinicalData.getSampleId(), clinicalData.getStudyId()));
                     }
-                    clinicalData.setUniquePatientKey(calculateBase64(clinicalData.getPatientId(), 
-                        clinicalData.getStudyId()));
+                    clinicalData.setUniquePatientKey(calculateBase64(clinicalData.getPatientId(), clinicalData.getStudyId()));
                 } else if (object instanceof ClinicalEvent) {
-                    
                     ClinicalEvent clinicalEvent = (ClinicalEvent) object;
-                    clinicalEvent.setUniquePatientKey(calculateBase64(clinicalEvent.getPatientId(), 
-                        clinicalEvent.getStudyId()));
+                    clinicalEvent.setUniquePatientKey(calculateBase64(clinicalEvent.getPatientId(), clinicalEvent.getStudyId()));
                 } else if (object instanceof CopyNumberSeg) {
-                    
                     CopyNumberSeg copyNumberSeg = (CopyNumberSeg) object;
-                    copyNumberSeg.setUniqueSampleKey(calculateBase64(copyNumberSeg.getSampleStableId(), 
-                        copyNumberSeg.getCancerStudyIdentifier()));
-                    copyNumberSeg.setUniquePatientKey(calculateBase64(copyNumberSeg.getPatientId(), 
-                        copyNumberSeg.getCancerStudyIdentifier()));
-                } else if (object instanceof FractionGenomeAltered) {
-                    
-                    FractionGenomeAltered fractionGenomeAltered = (FractionGenomeAltered) object;
-                    fractionGenomeAltered.setUniqueSampleKey(calculateBase64(fractionGenomeAltered.getSampleId(), 
-                        fractionGenomeAltered.getStudyId()));
-                    fractionGenomeAltered.setUniquePatientKey(calculateBase64(fractionGenomeAltered.getPatientId(), 
-                        fractionGenomeAltered.getStudyId()));
+                    copyNumberSeg.setUniqueSampleKey(calculateBase64(copyNumberSeg.getSampleStableId(), copyNumberSeg.getCancerStudyIdentifier()));
+                    copyNumberSeg.setUniquePatientKey(calculateBase64(copyNumberSeg.getPatientId(), copyNumberSeg.getCancerStudyIdentifier()));
                 } else if (object instanceof GenePanelData) {
-                    
                     GenePanelData genePanelData = (GenePanelData) object;
-                    genePanelData.setUniqueSampleKey(calculateBase64(genePanelData.getSampleId(), 
-                        genePanelData.getStudyId()));
-                    genePanelData.setUniquePatientKey(calculateBase64(genePanelData.getPatientId(), 
-                        genePanelData.getStudyId()));
+                    genePanelData.setUniqueSampleKey(calculateBase64(genePanelData.getSampleId(), genePanelData.getStudyId()));
+                    genePanelData.setUniquePatientKey(calculateBase64(genePanelData.getPatientId(), genePanelData.getStudyId()));
                 } else if (object instanceof MolecularData) {
-                    
                     MolecularData molecularData = (MolecularData) object;
-                    molecularData.setUniqueSampleKey(calculateBase64(molecularData.getSampleId(), 
-                        molecularData.getStudyId()));
-                    molecularData.setUniquePatientKey(calculateBase64(molecularData.getPatientId(), 
-                        molecularData.getStudyId()));
+                    molecularData.setUniqueSampleKey(calculateBase64(molecularData.getSampleId(), molecularData.getStudyId()));
+                    molecularData.setUniquePatientKey(calculateBase64(molecularData.getPatientId(), molecularData.getStudyId()));
                 } else if (object instanceof MrnaPercentile) {
-                    
                     MrnaPercentile mrnaPercentile = (MrnaPercentile) object;
-                    mrnaPercentile.setUniqueSampleKey(calculateBase64(mrnaPercentile.getSampleId(), 
-                        mrnaPercentile.getStudyId()));
-                    mrnaPercentile.setUniquePatientKey(calculateBase64(mrnaPercentile.getPatientId(), 
-                        mrnaPercentile.getStudyId()));
-                } else if (object instanceof MutationCount) {
-                    
-                    MutationCount mutationCount = (MutationCount) object;
-                    mutationCount.setUniqueSampleKey(calculateBase64(mutationCount.getSampleId(), 
-                        mutationCount.getStudyId()));
-                    mutationCount.setUniquePatientKey(calculateBase64(mutationCount.getPatientId(), 
-                        mutationCount.getStudyId()));
+                    mrnaPercentile.setUniqueSampleKey(calculateBase64(mrnaPercentile.getSampleId(), mrnaPercentile.getStudyId()));
+                    mrnaPercentile.setUniquePatientKey(calculateBase64(mrnaPercentile.getPatientId(), mrnaPercentile.getStudyId()));
                 } else if (object instanceof MutationSpectrum) {
-                    
                     MutationSpectrum mutationSpectrum = (MutationSpectrum) object;
-                    mutationSpectrum.setUniqueSampleKey(calculateBase64(mutationSpectrum.getSampleId(), 
-                        mutationSpectrum.getStudyId()));
-                    mutationSpectrum.setUniquePatientKey(calculateBase64(mutationSpectrum.getPatientId(), 
-                        mutationSpectrum.getStudyId()));
+                    mutationSpectrum.setUniqueSampleKey(calculateBase64(mutationSpectrum.getSampleId(), mutationSpectrum.getStudyId()));
+                    mutationSpectrum.setUniquePatientKey(calculateBase64(mutationSpectrum.getPatientId(), mutationSpectrum.getStudyId()));
                 } else if (object instanceof NumericGeneMolecularData) {
-                    
                     NumericGeneMolecularData numericGeneMolecularData = (NumericGeneMolecularData) object;
-                    numericGeneMolecularData.setUniqueSampleKey(calculateBase64(numericGeneMolecularData.getSampleId(), 
-                        numericGeneMolecularData.getStudyId()));
-                    numericGeneMolecularData.setUniquePatientKey(calculateBase64(numericGeneMolecularData.getPatientId(), 
-                        numericGeneMolecularData.getStudyId()));
-                }else if (object instanceof Patient) {
-                    
+                    numericGeneMolecularData.setUniqueSampleKey(calculateBase64(numericGeneMolecularData.getSampleId(), numericGeneMolecularData.getStudyId()));
+                    numericGeneMolecularData.setUniquePatientKey(calculateBase64(numericGeneMolecularData.getPatientId(), numericGeneMolecularData.getStudyId()));
+                } else if (object instanceof Patient) {
                     Patient patient = (Patient) object;
-                    patient.setUniquePatientKey(calculateBase64(patient.getStableId(), 
-                        patient.getCancerStudyIdentifier()));
+                    patient.setUniquePatientKey(calculateBase64(patient.getStableId(), patient.getCancerStudyIdentifier()));
                 } else if (object instanceof Sample) {
-                    
                     Sample sample = (Sample) object;
                     sample.setUniqueSampleKey(calculateBase64(sample.getStableId(), sample.getCancerStudyIdentifier()));
-                    sample.setUniquePatientKey(calculateBase64(sample.getPatientStableId(), 
-                        sample.getCancerStudyIdentifier()));
+                    sample.setUniquePatientKey(calculateBase64(sample.getPatientStableId(), sample.getCancerStudyIdentifier()));
                 }
             }
         }
     }
-    
+
     private String calculateBase64(String firstInput, String secondInput) {
         return BASE64_ENCODER.encodeToString((firstInput + DELIMITER + secondInput).getBytes());
     }

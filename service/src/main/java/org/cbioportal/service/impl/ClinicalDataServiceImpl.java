@@ -1,7 +1,10 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.ClinicalData;
+import org.cbioportal.model.Patient;
+import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.ClinicalDataCountItem;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
 import org.cbioportal.service.ClinicalDataService;
@@ -15,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -128,32 +132,37 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
 	@Override
-	public Map<String, List<ClinicalDataCount>> fetchClinicalDataCounts(String studyId, List<String> sampleIds,
-			List<String> attributeIds, String clinicalDataType) {
+	public List<ClinicalDataCountItem> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds,
+			List<String> attributeIds, ClinicalDataType clinicalDataType) {
 
-        List<ClinicalDataCount> clinicalDataCounts = clinicalDataRepository.fetchClinicalDataCounts(studyId, sampleIds,
-            attributeIds, clinicalDataType).stream().filter(c -> !c.getValue().toUpperCase().equals("NA") && 
+        if (attributeIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<ClinicalDataCount> clinicalDataCounts = clinicalDataRepository.fetchClinicalDataCounts(studyIds, sampleIds,
+            attributeIds, clinicalDataType.name()).stream().filter(c -> !c.getValue().toUpperCase().equals("NA") && 
             !c.getValue().toUpperCase().equals("NAN") && !c.getValue().toUpperCase().equals("N/A")).collect(Collectors.toList());
 
-        Map<String, List<ClinicalDataCount>> result = clinicalDataCounts.stream().collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId));
+        Map<String, List<ClinicalDataCount>> clinicalDataCountMap = clinicalDataCounts.stream().collect(
+            Collectors.groupingBy(ClinicalDataCount::getAttributeId));
 
+        List<ClinicalDataCountItem> result = new ArrayList<>();
         attributeIds.forEach(a -> {
 
             int naCount = 0;
             int totalCount = 0; 
-            List<ClinicalDataCount> counts = result.get(a);
+            List<ClinicalDataCount> counts = clinicalDataCountMap.get(a);
             if (counts != null) {
                 totalCount = counts.stream().mapToInt(ClinicalDataCount::getCount).sum();
             } else {
                 counts = new ArrayList<>();
-                result.put(a, counts);
+                clinicalDataCountMap.put(a, counts);
             }
 
-            if (clinicalDataType.equals("SAMPLE")) {
+            if (clinicalDataType == ClinicalDataType.SAMPLE) {
                 naCount = sampleIds.size() - totalCount;
             } else {
-                List<String> patientIds = patientService.getPatientIdsOfSamples(sampleIds);
-                naCount = patientIds.size() - totalCount;
+                List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);
+                naCount = patients.size() - totalCount;
             }
             
             if (naCount > 0) {
@@ -163,6 +172,12 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
                 clinicalDataCount.setCount(naCount);
                 counts.add(clinicalDataCount);
             }
+
+            ClinicalDataCountItem clinicalDataCountItem = new ClinicalDataCountItem();
+            clinicalDataCountItem.setAttributeId(a);
+            clinicalDataCountItem.setClinicalDataType(clinicalDataType);
+            clinicalDataCountItem.setCounts(clinicalDataCountMap.get(a));
+            result.add(clinicalDataCountItem);
         });
         
         return result;

@@ -7,6 +7,11 @@ import java.util.List;
 
 public interface PatientRepository {
 
+    List<Patient> getAllPatients(String keyword, String projection, Integer pageSize, Integer pageNumber, String sortBy,
+        String direction);
+
+    BaseMeta getMetaPatients(String keyword);
+
     List<Patient> getAllPatientsInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber, 
                                         String sortBy, String direction);
 
@@ -18,5 +23,5 @@ public interface PatientRepository {
 
     BaseMeta fetchMetaPatients(List<String> studyIds, List<String> patientIds);
 
-    List<String> getPatientIdsOfSamples(List<String> sampleIds);
+    List<Patient> getPatientsOfSamples(List<String> studyIds, List<String> sampleIds);
 }

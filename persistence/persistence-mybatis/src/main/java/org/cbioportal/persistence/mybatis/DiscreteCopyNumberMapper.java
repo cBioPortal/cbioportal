@@ -19,6 +19,12 @@ public interface DiscreteCopyNumberMapper {
                                                                    List<Integer> entrezGeneIds,
                                                                    List<Integer> alterationTypes, String projection);
 
+    List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfiles(List<String> molecularProfileIds, 
+                                                                                   List<String> sampleIds,
+                                                                                   List<Integer> entrezGeneIds,
+                                                                                   List<Integer> alterationTypes, 
+                                                                                   String projection);
+
     BaseMeta getMetaDiscreteCopyNumbersBySampleIds(String molecularProfileId, List<String> sampleIds,
                                                    List<Integer> entrezGeneIds, List<Integer> alterationTypes);
 
@@ -26,6 +32,11 @@ public interface DiscreteCopyNumberMapper {
                                                                               List<String> sampleIds,
                                                                               List<Integer> entrezGeneIds,
                                                                               List<Integer> alterations);
+
+    List<CopyNumberCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
+                                                                          List<String> sampleIds, 
+                                                                          List<Integer> entrezGeneIds, 
+                                                                          List<Integer> alterations);
 
     List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId,
                                                                                 List<String> patientIds,

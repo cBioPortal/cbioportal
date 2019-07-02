@@ -1,3 +1,0 @@
-stable_id: example_gene_panel_stable_id
-description: Example gene panel meta file for testing purposes.
-gene_list: OR11H1	TMEM247	ABLIM1	ADAMTS20	CADM2	DTNB	KAT2A	MSH3	MYB	NPIPB15	OTOR	P2RY10	PIEZO1	ERBB2	FGFR3

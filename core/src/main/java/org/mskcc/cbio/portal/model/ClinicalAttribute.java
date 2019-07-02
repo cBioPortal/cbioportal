@@ -51,7 +51,8 @@ public class ClinicalAttribute  {
 	public static final String AGE_AT_DIAGNOSIS = "AGE";
     // two additional variables for multi-cancer
 	public static final String CANCER_TYPE = "CANCER_TYPE"; // may have to change this to MAIN_CANCER_TYPE
-	public static final String CANCER_TYPE_DETAILED = "CANCER_TYPE_DETAILED"; // may have to change this to CANCER_TYPE
+    public static final String CANCER_TYPE_DETAILED = "CANCER_TYPE_DETAILED"; // may have to change this to CANCER_TYPE
+    public static final String SAMPLE_COUNT = "SAMPLE_COUNT";
 	
 	public static final List<String> survivalAttributes = initializeSurvivalAttributeList();
 	private static List<String> initializeSurvivalAttributeList() {

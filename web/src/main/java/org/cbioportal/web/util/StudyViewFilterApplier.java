@@ -1,179 +1,289 @@
 package org.cbioportal.web.util;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.DiscreteCopyNumberData;
+import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.DiscreteCopyNumberService;
+import org.cbioportal.service.GenePanelService;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
-import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleService;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.service.exception.StudyNotFoundException;
-import org.cbioportal.web.parameter.ClinicalDataEqualityFilter;
-import org.cbioportal.web.parameter.ClinicalDataType;
-import org.cbioportal.web.parameter.CopyNumberGeneFilter;
-import org.cbioportal.web.parameter.CopyNumberGeneFilterElement;
-import org.cbioportal.web.parameter.MutationGeneFilter;
-import org.cbioportal.web.parameter.Projection;
-import org.cbioportal.web.parameter.StudyViewFilter;
+import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class StudyViewFilterApplier {
+    
+    private static final String MUTATION_COUNT = "MUTATION_COUNT";
 
-    @Autowired
+    private static final String FRACTION_GENOME_ALTERED = "FRACTION_GENOME_ALTERED";
+
     private SampleService sampleService;
-    @Autowired
-    private PatientService patientService;
-    @Autowired
-    private ClinicalDataService clinicalDataService;
-    @Autowired
+    
     private MutationService mutationService;
-    @Autowired
+    
     private DiscreteCopyNumberService discreteCopyNumberService;
+    
+    private MolecularProfileService molecularProfileService;
 
-    public List<String> apply(String studyId, StudyViewFilter studyViewFilter) throws StudyNotFoundException, MolecularProfileNotFoundException {
+    private GenePanelService genePanelService;
 
-        List<String> sampleIds = new ArrayList<>();
-        if (studyViewFilter != null && studyViewFilter.getSampleIds() != null && !studyViewFilter.getSampleIds().isEmpty()) {
-            sampleIds = studyViewFilter.getSampleIds();
-            List<String> studyIds = new ArrayList<>();
-            sampleIds.forEach(s -> studyIds.add(studyId));
-            sampleIds = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name()).stream()
-                .map(Sample::getStableId).collect(Collectors.toList());;
-        } else {
-            sampleIds = sampleService.getAllSamplesInStudy(studyId, Projection.ID.name(), null, null, null, null).stream()
-                .map(Sample::getStableId).collect(Collectors.toList());
+    private ClinicalDataService clinicalDataService;
+    
+    private ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier;
+    
+    private ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier;
+    
+    private StudyViewFilterUtil studyViewFilterUtil;
+
+    @Autowired
+    public StudyViewFilterApplier(SampleService sampleService, 
+                                  MutationService mutationService, 
+                                  DiscreteCopyNumberService discreteCopyNumberService, 
+                                  MolecularProfileService molecularProfileService, 
+                                  GenePanelService genePanelService,
+                                  ClinicalDataService clinicalDataService,
+                                  ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier, 
+                                  ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier, 
+                                  StudyViewFilterUtil studyViewFilterUtil) 
+    {
+        this.sampleService = sampleService;
+        this.mutationService = mutationService;
+        this.discreteCopyNumberService = discreteCopyNumberService;
+        this.molecularProfileService = molecularProfileService;
+        this.genePanelService = genePanelService;
+        this.clinicalDataService = clinicalDataService;
+        this.clinicalDataEqualityFilterApplier = clinicalDataEqualityFilterApplier;
+        this.clinicalDataIntervalFilterApplier = clinicalDataIntervalFilterApplier;
+        this.studyViewFilterUtil = studyViewFilterUtil;
+    }
+
+    Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
+        
+        public SampleIdentifier apply(Sample sample) {
+            SampleIdentifier sampleIdentifier = new SampleIdentifier();
+            sampleIdentifier.setSampleId(sample.getStableId());
+            sampleIdentifier.setStudyId(sample.getCancerStudyIdentifier());
+            return sampleIdentifier;
+        }
+    };
+
+    public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter) {
+        return this.apply(studyViewFilter, false);
+    }
+    
+    public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter, Boolean negateFilters) {
+
+        List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
+        if (studyViewFilter == null) {
+            return sampleIdentifiers;
         }
 
-        if (studyViewFilter == null) {
-            return sampleIds;
+        if (studyViewFilter != null && studyViewFilter.getSampleIdentifiers() != null && !studyViewFilter.getSampleIdentifiers().isEmpty()) {
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilter.getSampleIdentifiers(), studyIds, sampleIds);
+            sampleIdentifiers = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name()).stream()
+                .map(sampleToSampleIdentifier).collect(Collectors.toList());
+        } else {
+            sampleIdentifiers = sampleService.getAllSamplesInStudies(studyViewFilter.getStudyIds(), Projection.ID.name(), 
+                null, null, null, null).stream().map(sampleToSampleIdentifier).collect(Collectors.toList());
         }
         
         List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters = studyViewFilter.getClinicalDataEqualityFilters();
         if (clinicalDataEqualityFilters != null) {
-            sampleIds = filterClinicalData(studyId, clinicalDataEqualityFilters, ClinicalDataType.SAMPLE, 
-                sampleIds);
-            sampleIds = filterClinicalData(studyId, clinicalDataEqualityFilters, ClinicalDataType.PATIENT, 
-                sampleIds);
+            sampleIdentifiers = equalityFilterClinicalData(sampleIdentifiers, clinicalDataEqualityFilters, ClinicalDataType.PATIENT, negateFilters);
+            sampleIdentifiers = equalityFilterClinicalData(sampleIdentifiers, clinicalDataEqualityFilters, ClinicalDataType.SAMPLE, negateFilters);
+        }
+
+        List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters = studyViewFilter.getClinicalDataIntervalFilters();
+        if (clinicalDataIntervalFilters != null) {
+            sampleIdentifiers = intervalFilterClinicalData(sampleIdentifiers, clinicalDataIntervalFilters, ClinicalDataType.PATIENT, negateFilters);
+            sampleIdentifiers = intervalFilterClinicalData(sampleIdentifiers, clinicalDataIntervalFilters, ClinicalDataType.SAMPLE, negateFilters);
         }
 
         List<MutationGeneFilter> mutatedGenes = studyViewFilter.getMutatedGenes();
-        if (mutatedGenes != null && !sampleIds.isEmpty()) {
-            for (MutationGeneFilter molecularProfileGeneFilter : mutatedGenes) {
-                List<Mutation> mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileGeneFilter.getMolecularProfileId(), 
-                    sampleIds, molecularProfileGeneFilter.getEntrezGeneIds(), null, Projection.ID.name(), null, 
-                    null, null, null);
-                
-                sampleIds = mutations.stream().map(Mutation::getSampleId).distinct().collect(Collectors.toList());
-            }
+        if (mutatedGenes != null && !sampleIdentifiers.isEmpty()) {
+            sampleIdentifiers = filterMutatedGenes(mutatedGenes, sampleIdentifiers);
         }
 
         List<CopyNumberGeneFilter> cnaGenes = studyViewFilter.getCnaGenes();
-        if (cnaGenes != null && !sampleIds.isEmpty()) {
-            for (CopyNumberGeneFilter copyNumberGeneFilter : cnaGenes) {
-
-                List<Integer> ampEntrezGeneIds = copyNumberGeneFilter.getAlterations().stream().filter(a -> 
-                    a.getAlteration() == 2).map(CopyNumberGeneFilterElement::getEntrezGeneId).collect(Collectors.toList());
-                List<DiscreteCopyNumberData> ampCNAList = new ArrayList<>();
-                if (!ampEntrezGeneIds.isEmpty()) {
-                    ampCNAList = discreteCopyNumberService
-                        .fetchDiscreteCopyNumbersInMolecularProfile(copyNumberGeneFilter.getMolecularProfileId(), 
-                        sampleIds, ampEntrezGeneIds, Arrays.asList(2), Projection.ID.name());
-                }
-
-                List<Integer> delEntrezGeneIds = copyNumberGeneFilter.getAlterations().stream().filter(a -> 
-                    a.getAlteration() == -2).map(CopyNumberGeneFilterElement::getEntrezGeneId).collect(Collectors.toList());
-                List<DiscreteCopyNumberData> delCNAList = new ArrayList<>();
-                if (!delEntrezGeneIds.isEmpty()) {
-                    delCNAList = discreteCopyNumberService
-                        .fetchDiscreteCopyNumbersInMolecularProfile(copyNumberGeneFilter.getMolecularProfileId(), 
-                        sampleIds, delEntrezGeneIds, Arrays.asList(-2), Projection.ID.name());
-                }
-
-                List<DiscreteCopyNumberData> resultList = new ArrayList<>();
-                resultList.addAll(ampCNAList);
-                resultList.addAll(delCNAList);
-                sampleIds = resultList.stream().map(DiscreteCopyNumberData::getSampleId).distinct().collect(Collectors.toList());
-            }
+        if (cnaGenes != null && !sampleIdentifiers.isEmpty()) {
+            sampleIdentifiers = filterCNAGenes(cnaGenes, sampleIdentifiers);
         }
 
-        return sampleIds;
+        Boolean withMutationData = studyViewFilter.getWithMutationData();
+        if (withMutationData != null && !sampleIdentifiers.isEmpty()) {
+            sampleIdentifiers = filterByProfiled(sampleIdentifiers, withMutationData, molecularProfileService::getFirstMutationProfileIds);
+        }
+
+        Boolean withCNAData = studyViewFilter.getWithCNAData();
+        if (withCNAData != null && !sampleIdentifiers.isEmpty()) {
+            sampleIdentifiers = filterByProfiled(sampleIdentifiers, withCNAData, molecularProfileService::getFirstDiscreteCNAProfileIds);
+        }
+
+        RectangleBounds mutationCountVsCNASelection = studyViewFilter.getMutationCountVsCNASelection();
+        if (mutationCountVsCNASelection != null && !sampleIdentifiers.isEmpty()) {
+            sampleIdentifiers = filterMutationCountVsCNASelection(mutationCountVsCNASelection, sampleIdentifiers);
+        }
+
+        return sampleIdentifiers;
+    }
+    
+    private List<SampleIdentifier> intervalFilterClinicalData(List<SampleIdentifier> sampleIdentifiers,
+                                                              List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters, 
+                                                              ClinicalDataType filterClinicalDataType,
+                                                              Boolean negateFilters)
+    {
+        List<ClinicalDataIntervalFilter> attributes = clinicalDataIntervalFilters.stream()
+            .filter(c-> c.getClinicalDataType().equals(filterClinicalDataType)).collect(Collectors.toList());
+        
+        return clinicalDataIntervalFilterApplier.apply(sampleIdentifiers, attributes, filterClinicalDataType, negateFilters);
     }
 
-    private List<String> filterClinicalData(String studyId, List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters, 
-        ClinicalDataType filterClinicalDataType, List<String> sampleIds) throws StudyNotFoundException {
-        
+    private List<SampleIdentifier> equalityFilterClinicalData(List<SampleIdentifier> sampleIdentifiers, 
+                                                              List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters, 
+                                                              ClinicalDataType filterClinicalDataType,
+                                                              Boolean negateFilters) 
+    {
         List<ClinicalDataEqualityFilter> attributes = clinicalDataEqualityFilters.stream()
             .filter(c-> c.getClinicalDataType().equals(filterClinicalDataType)).collect(Collectors.toList());
-        List<ClinicalData> clinicalDataList = new ArrayList<>();
-        if (!attributes.isEmpty() && !sampleIds.isEmpty()) {
-            List<String> patientIds = patientService.getPatientIdsOfSamples(sampleIds);
-            clinicalDataList = clinicalDataService.fetchAllClinicalDataInStudy(studyId, 
-                filterClinicalDataType.equals(ClinicalDataType.PATIENT) ? patientIds : sampleIds, attributes.stream()
-                .map(ClinicalDataEqualityFilter::getAttributeId).collect(Collectors.toList()), 
-                filterClinicalDataType.name(), Projection.SUMMARY.name());
 
-            clinicalDataList.forEach(c -> {
-                if (c.getAttrValue().toUpperCase().equals("NAN") || c.getAttrValue().toUpperCase().equals("N/A")) {
-                    c.setAttrValue("NA");
-                }
-            });
+        return clinicalDataEqualityFilterApplier.apply(sampleIdentifiers, attributes, filterClinicalDataType, negateFilters);
+    }
 
-            List<String> ids = new ArrayList<>();
-            Map<String, List<ClinicalData>> clinicalDataMap = new HashMap<>();
-            
-            if (filterClinicalDataType.equals(ClinicalDataType.PATIENT)) {
-                clinicalDataMap = clinicalDataList.stream().collect(Collectors.groupingBy(ClinicalData::getPatientId));
-            } else {
-                clinicalDataMap = clinicalDataList.stream().collect(Collectors.groupingBy(ClinicalData::getSampleId));
-            }
-            
-            for (String entityId : filterClinicalDataType.equals(ClinicalDataType.PATIENT) ? patientIds : sampleIds) {
-                int count = 0;
-                for (ClinicalDataEqualityFilter s : attributes) {
-                    List<ClinicalData> entityClinicalData = clinicalDataMap.get(entityId);
-                    if (entityClinicalData != null) {
-                        Optional<ClinicalData> clinicalData = entityClinicalData.stream().filter(c -> c.getAttrId()
-                            .equals(s.getAttributeId())).findFirst();
-                        if (clinicalData.isPresent() && s.getValues().contains(clinicalData.get().getAttrValue())) {
-                            count++;
-                        } else if (!clinicalData.isPresent() && s.getValues().contains("NA")) {
-                            count++;
-                        }
-                    } else if (s.getValues().contains("NA")) {
-                        count++;
-                    }
-                }
-                if (count == attributes.size()) {
-                    ids.add(entityId);
-                }
-            }
+    private List<SampleIdentifier> filterByProfiled(List<SampleIdentifier> sampleIdentifiers, Boolean criteria,
+        BiFunction<List<String>, List<String>, List<String>> molecularProfileGetter) {
 
-            if (filterClinicalDataType.equals(ClinicalDataType.PATIENT)) {
-                if (!ids.isEmpty()) {
-                    ids = sampleService.getAllSamplesOfPatientsInStudy(studyId, ids, 
-                        Projection.ID.name()).stream().map(Sample::getStableId).collect(Collectors.toList());
-                }
-            }
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+        List<String> firstMutationProfileIds = molecularProfileGetter.apply(studyIds, sampleIds);
+        List<GenePanelData> genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(firstMutationProfileIds, 
+            sampleIds).stream().filter(g -> g.getProfiled() == criteria).collect(Collectors.toList());
+        return genePanelDataList.stream().map(d -> {
+            SampleIdentifier sampleIdentifier = new SampleIdentifier();
+            sampleIdentifier.setSampleId(d.getSampleId());
+            sampleIdentifier.setStudyId(d.getStudyId());
+            return sampleIdentifier;
+        }).collect(Collectors.toList());
+    }
+
+    private List<SampleIdentifier> filterMutatedGenes(List<MutationGeneFilter> mutatedGenes, List<SampleIdentifier> sampleIdentifiers) {
+        for (MutationGeneFilter molecularProfileGeneFilter : mutatedGenes) {
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+            List<Mutation> mutations = mutationService.getMutationsInMultipleMolecularProfiles(molecularProfileService
+                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, molecularProfileGeneFilter.getEntrezGeneIds(), 
+                Projection.ID.name(), null, null, null, null);
             
-            Set<String> idsSet = new HashSet<>(ids);
-            idsSet.retainAll(new HashSet<>(sampleIds));
-            return new ArrayList<>(idsSet);
+            sampleIdentifiers = mutations.stream().map(m -> {
+                SampleIdentifier sampleIdentifier = new SampleIdentifier();
+                sampleIdentifier.setSampleId(m.getSampleId());
+                sampleIdentifier.setStudyId(m.getStudyId());
+                return sampleIdentifier;
+            }).distinct().collect(Collectors.toList());
         }
 
-        return sampleIds;
+        return sampleIdentifiers;
+    }
+
+    private List<SampleIdentifier> filterCNAGenes(List<CopyNumberGeneFilter> cnaGenes, List<SampleIdentifier> sampleIdentifiers) {
+        for (CopyNumberGeneFilter copyNumberGeneFilter : cnaGenes) {
+                
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+            List<Integer> ampEntrezGeneIds = copyNumberGeneFilter.getAlterations().stream().filter(a -> 
+                a.getAlteration() == 2).map(CopyNumberGeneFilterElement::getEntrezGeneId).collect(Collectors.toList());
+            List<DiscreteCopyNumberData> ampCNAList = new ArrayList<>();
+            if (!ampEntrezGeneIds.isEmpty()) {
+                ampCNAList = discreteCopyNumberService
+                    .getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileService.getFirstDiscreteCNAProfileIds(
+                        studyIds, sampleIds), sampleIds, ampEntrezGeneIds, Arrays.asList(2), Projection.ID.name());
+            }
+
+            List<Integer> delEntrezGeneIds = copyNumberGeneFilter.getAlterations().stream().filter(a -> 
+                a.getAlteration() == -2).map(CopyNumberGeneFilterElement::getEntrezGeneId).collect(Collectors.toList());
+            List<DiscreteCopyNumberData> delCNAList = new ArrayList<>();
+            if (!delEntrezGeneIds.isEmpty()) {
+                delCNAList = discreteCopyNumberService
+                    .getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileService.getFirstDiscreteCNAProfileIds(
+                        studyIds, sampleIds), sampleIds, delEntrezGeneIds, Arrays.asList(-2), Projection.ID.name());
+            }
+
+            List<DiscreteCopyNumberData> resultList = new ArrayList<>();
+            resultList.addAll(ampCNAList);
+            resultList.addAll(delCNAList);
+            sampleIdentifiers = resultList.stream().map(d -> {
+                SampleIdentifier sampleIdentifier = new SampleIdentifier();
+                sampleIdentifier.setSampleId(d.getSampleId());
+                sampleIdentifier.setStudyId(d.getStudyId());
+                return sampleIdentifier;
+            }).distinct().collect(Collectors.toList());
+        }
+
+        return sampleIdentifiers;
+    }
+
+    private List<SampleIdentifier> filterMutationCountVsCNASelection(RectangleBounds mutationCountVsCNASelection, List<SampleIdentifier> sampleIdentifiers) {
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+        List<ClinicalData> clinicalDataList = clinicalDataService.fetchClinicalData(studyIds, sampleIds, 
+            Arrays.asList(MUTATION_COUNT, FRACTION_GENOME_ALTERED), ClinicalDataType.SAMPLE.name(), Projection.SUMMARY.name());
+        MultiKeyMap clinicalDataMap = new MultiKeyMap();
+        for (ClinicalData clinicalData : clinicalDataList) {
+            if (clinicalDataMap.containsKey(clinicalData.getSampleId(), clinicalData.getStudyId())) {
+                ((List<ClinicalData>)clinicalDataMap.get(clinicalData.getSampleId(), clinicalData.getStudyId())).add(clinicalData);
+            } else {
+                List<ClinicalData> clinicalDatas = new ArrayList<>();
+                clinicalDatas.add(clinicalData);
+                clinicalDataMap.put(clinicalData.getSampleId(), clinicalData.getStudyId(), clinicalDatas);
+            }
+        }
+        List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
+        sampleIdentifiers.forEach(sampleIdentifier -> {
+            List<ClinicalData> entityClinicalData = (List<ClinicalData>) clinicalDataMap
+                    .get(sampleIdentifier.getSampleId(), sampleIdentifier.getStudyId());
+            if (entityClinicalData != null) {
+                Optional<ClinicalData> fractionGenomeAlteredData = entityClinicalData.stream()
+                        .filter(c -> c.getAttrId().equals(FRACTION_GENOME_ALTERED)).findFirst();
+                Optional<ClinicalData> mutationCountData = entityClinicalData.stream()
+                        .filter(c -> c.getAttrId().equals(MUTATION_COUNT)).findFirst();
+
+                if (fractionGenomeAlteredData.isPresent() && mutationCountData.isPresent()) {
+                    BigDecimal fractionGenomeAlteredValue = new BigDecimal(
+                            fractionGenomeAlteredData.get().getAttrValue());
+                    BigDecimal mutationCountValue = new BigDecimal(mutationCountData.get().getAttrValue());
+                    if (fractionGenomeAlteredValue.compareTo(mutationCountVsCNASelection.getxStart()) >= 0
+                            && fractionGenomeAlteredValue.compareTo(mutationCountVsCNASelection.getxEnd()) < 0
+                            && mutationCountValue.compareTo(mutationCountVsCNASelection.getyStart()) >= 0
+                            && mutationCountValue.compareTo(mutationCountVsCNASelection.getyEnd()) < 0) {
+
+                        filteredSampleIdentifiers.add(sampleIdentifier);
+                    }
+                }
+            }
+
+        });
+        return filteredSampleIdentifiers;
     }
 }

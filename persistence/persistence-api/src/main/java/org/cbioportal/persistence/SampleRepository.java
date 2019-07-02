@@ -12,6 +12,9 @@ public interface SampleRepository {
 
     BaseMeta getMetaSamplesInStudy(String studyId);
 
+    List<Sample> getAllSamplesInStudies(List<String> studyIds, String projection, Integer pageSize, Integer pageNumber,
+                                      String sortBy, String direction);
+
     Sample getSampleInStudy(String studyId, String sampleId);
 
     List<Sample> getAllSamplesOfPatientInStudy(String studyId, String patientId, String projection, Integer pageSize,
@@ -20,6 +23,8 @@ public interface SampleRepository {
     BaseMeta getMetaSamplesOfPatientInStudy(String studyId, String patientId);
 
     List<Sample> getAllSamplesOfPatientsInStudy(String studyId, List<String> patientIds, String projection);
+
+    List<Sample> getSamplesOfPatientsInMultipleStudies(List<String> studyIds, List<String> patientIds, String projection);
     
     List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection);
 

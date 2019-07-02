@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 - 2018 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,12 +32,9 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.servlet.QueryBuilder;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -75,12 +72,15 @@ public class GlobalProperties {
     private static String authenticate;
     @Value("${authenticate:false}") // default is false
     public void setAuthenticate(String property) { authenticate = property; }
-    private static String authorization;
-    @Value("${authorization:false}") // default is false
-    public void setAuthorization(String property) { authorization = property; }
     public static final String FILTER_GROUPS_BY_APPNAME = "filter_groups_by_appname";
     public static final String INCLUDE_NETWORKS = "include_networks";
     public static final String GOOGLE_ANALYTICS_PROFILE_ID = "google_analytics_profile_id";
+    
+    
+    private static String frontendSentryEndpoint;
+    @Value("${sentryjs.frontend_project_endpoint:null}")
+    public void setfrontendSentryEndpoint(String property) { frontendSentryEndpoint = property; }
+    
     public static final String GENOMESPACE = "genomespace";
 
     public static final String APP_NAME = "app.name";
@@ -108,6 +108,7 @@ public class GlobalProperties {
     public static final String SKIN_RIGHT_NAV_SHOW_DATA_SETS = "skin.right_nav.show_data_sets";
     public static final String SKIN_RIGHT_NAV_SHOW_EXAMPLES = "skin.right_nav.show_examples";
     public static final String SKIN_RIGHT_NAV_SHOW_TESTIMONIALS = "skin.right_nav.show_testimonials";
+    public static final String SKIN_RIGHT_NAV_SHOW_WHATS_NEW = "skin.right_nav.show_whats_new";
     private static String skinAuthorizationMessage;
     @Value("${skin.authorization_message:Access to this portal is only available to authorized users.}")
     public void setSkinAuthorizationMessage(String property) { skinAuthorizationMessage = property; }
@@ -141,13 +142,20 @@ public class GlobalProperties {
     public static final String STUDY_VIEW_MDACC_HEATMAP_URL = "mdacc.heatmap.study.url";
     public static final String STUDY_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.study.meta.url";
 
-    public static final String ONCOKB_API_URL = "oncokb.api.url";
     public static final String ONCOKB_PUBLIC_API_URL = "oncokb.public_api.url";
     public static final String SHOW_ONCOKB = "show.oncokb";
 
     private static String sessionServiceURL;
     @Value("${session.service.url:}") // default is empty string
     public void setSessionServiceURL(String property) { sessionServiceURL = property; }
+
+    private static String sessionServiceUser;
+    @Value("${session.service.user:}") // default is empty string
+    public void setSessionServiceUser(String property) { sessionServiceUser = property; }
+
+    private static String sessionServicePassword;
+    @Value("${session.service.password:}") // default is empty string
+    public void setSessionServicePassword(String property) { sessionServicePassword = property; }
 
     private static String frontendConfig;
     @Value("${frontend.config:}") // default is empty string
@@ -170,8 +178,7 @@ public class GlobalProperties {
 
     // footer
     public static final String SKIN_FOOTER = "skin.footer";
-    public static final String DEFAULT_SKIN_FOOTER = " | <a href=\"http://www.mskcc.org/mskcc/html/44.cfm\">MSKCC</a>" +
-            " | <a href=\"http://cancergenome.nih.gov/\">TCGA</a>";
+    public static final String DEFAULT_SKIN_FOOTER = ""; // default is in cbioportal-frontend repo
 
     // login contact
     public static final String SKIN_LOGIN_CONTACT_HTML = "skin.login.contact_html";
@@ -231,7 +238,7 @@ public class GlobalProperties {
     public void setSuppressSchemaVersionMismatchErrors(String property) { suppressSchemaVersionMismatchErrors = Boolean.parseBoolean(property); }
     
     public static final String DARWIN_AUTH_URL = "darwin.auth_url";
-    public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
+    public static final String DDP_RESPONSE_URL = "ddp.response_url";
     public static final String CIS_USER = "cis.user";
     public static final String DISABLED_TABS = "disabled_tabs";
     public static final String BITLY_USER = "bitly.user";
@@ -249,14 +256,27 @@ public class GlobalProperties {
     
     public static final String SETSOFGENES_LOCATION = "querypage.setsofgenes.location";
 
+    public static final String MSK_WHOLE_SLIDE_VIEWER_SECRET_KEY = "msk.whole.slide.viewer.secret.key";
+
     private static boolean showCivic;
     @Value("${show.civic:false}") // default is false
     public void setShowCivic(String property) { showCivic = Boolean.parseBoolean(property); }
+
+    private static boolean sitemaps;
+    @Value("${sitemaps:false}") // default is false
+    public void setSitemaps(String property) { sitemaps = Boolean.parseBoolean(property); }
 
     private static boolean showGenomeNexus;
     @Value("${show.genomenexus:true}") // default is true
     public void setShowGenomeNexus(String property) { showGenomeNexus = Boolean.parseBoolean(property); }
 
+    private static boolean datRevokeOtherTokens;
+    @Value("${dat.uuid.revoke_other_tokens:true}") // default is true
+    public void setDatRevokeOtherTokens(String property) { datRevokeOtherTokens = Boolean.parseBoolean(property);}
+
+    private static String datMethod;
+    @Value("${dat.method:none}") // default is 'none'
+    public void setDatMethod(String property) { datMethod = property;}
 	/*
      * Trim whitespace of url and append / if it does not exist. Return empty
      * string otherwise.
@@ -280,8 +300,8 @@ public class GlobalProperties {
     
     public static final String BINARY_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL = "oncoprint.custom_driver_annotation.binary.menu_label";
     public static final String TIERS_CUSTOM_DRIVER_ANNOTATION_MENU_LABEL = "oncoprint.custom_driver_annotation.tiers.menu_label";
-    public static final String ENABLE_DRIVER_ANNOTATIONS = "oncoprint.custom_driver_annotation.default";
-    public static final String ENABLE_TIERS = "oncoprint.custom_driver_tiers_annotation.default";
+    public static final String ENABLE_DRIVER_ANNOTATIONS = "oncoprint.custom_driver_annotation.binary.default";
+    public static final String ENABLE_TIERS = "oncoprint.custom_driver_annotation.tiers.default";
     public static final String ENABLE_ONCOKB_AND_HOTSPOTS_ANNOTATIONS = "oncoprint.oncokb_hotspots.default";
     public static final String HIDE_PASSENGER_MUTATIONS = "oncoprint.hide_vus.default";
 
@@ -304,8 +324,48 @@ public class GlobalProperties {
     public void setFrontendUrlRuntime(String property) { frontendUrlRuntime = property; }
 
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
-    private static Properties portalProperties = initializeProperties(PORTAL_PROPERTIES_FILE_NAME);
+    private static ConfigPropertyResolver portalProperties = new ConfigPropertyResolver();
     private static Properties mavenProperties = initializeProperties(MAVEN_PROPERTIES_FILE_NAME);
+
+    /**
+     * Minimal portal property resolver that takes system property overrides.
+     *
+     * Provides properties from runtime or the baked-in
+     * portal.properties config file, but takes overrides from <code>-D</code>
+     * system properties.
+     */
+    private static class ConfigPropertyResolver {
+        private Properties configFileProperties;
+        /**
+         * Finds the config file for properties not overridden by system props.
+         *
+         * Either the runtime or buildtime portal.properties file.
+         */
+        public ConfigPropertyResolver() {
+            configFileProperties = initializeProperties(PORTAL_PROPERTIES_FILE_NAME);
+        }
+        /**
+         * Finds the property with the specified key, or returns the default.
+         */
+        public String getProperty(String key, String defaultValue) {
+            String propertyValue = configFileProperties.getProperty(key, defaultValue);
+            return System.getProperty(key, propertyValue);
+        }
+        /**
+         * Finds the property with the specified key, or returns null.
+         */
+        public String getProperty(String key) {
+            return getProperty(key, null);
+        }
+        /**
+        * Tests if a property has been specified for this key.
+        *
+        * @return true iff the property was specified, even if blank.
+        */
+        public boolean containsKey(String key) {
+            return getProperty(key) != null;
+        }
+    }
 
     private static Properties initializeProperties(String propertiesFileName)
     {
@@ -402,9 +462,11 @@ public class GlobalProperties {
 		return (studies.length > 0) ? Arrays.asList(studies) : Collections.<String>emptyList();
 	}
 
+    // CHANGES TO THIS LIST MUST BE PROPAGATED TO 'CacheMapUtil'
     public static boolean usersMustAuthenticate()
     {
-        return (!authenticate.isEmpty() && !authenticate.equals("false"));
+        // authentication for social_auth is optional
+        return (!authenticate.isEmpty() && !authenticate.equals("false") && !authenticate.equals("social_auth"));
     }
 
     public static String authenticationMethod()
@@ -426,9 +488,6 @@ public class GlobalProperties {
             return "anonymousUser";
         }
     }
-	public static boolean usersMustBeAuthorized() {
-        return Boolean.parseBoolean(authorization);
-	}
 
     public static String getAppName()
     {
@@ -558,8 +617,13 @@ public class GlobalProperties {
     public static String getEmailContact()
     {
         String emailAddress = portalProperties.getProperty(SKIN_EMAIL_CONTACT);
-        return (emailAddress == null) ? DEFAULT_EMAIL_CONTACT :
-            ("<span class=\"mailme\" title=\"Contact us\">" + emailAddress + "</span>");
+        if (emailAddress == null)
+            emailAddress = DEFAULT_EMAIL_CONTACT;
+        return (
+                "<span class=\"mailme\" title=\"Contact us\">" +
+                emailAddress +
+                "</span>"
+        );
     }
 
     public static boolean includeNetworks()
@@ -570,6 +634,11 @@ public class GlobalProperties {
     public static String getGoogleAnalyticsProfileId()
     {
         return portalProperties.getProperty(GOOGLE_ANALYTICS_PROFILE_ID);
+    }
+    
+    public static String getFrontendSentryEndpoint()
+    {
+        return (frontendSentryEndpoint == null) ? null : frontendSentryEndpoint.trim();
     }
 
     public static boolean genomespaceEnabled()
@@ -652,6 +721,12 @@ public class GlobalProperties {
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
+    public static boolean showRightNavWhatsNew()
+    {
+        String showFlag = portalProperties.getProperty(SKIN_RIGHT_NAV_SHOW_WHATS_NEW);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+
     public static String getAuthorizationMessage()
     {
         return skinAuthorizationMessage;
@@ -694,20 +769,19 @@ public class GlobalProperties {
 
     public static String getLinkToPatientView(String caseId, String cancerStudyId)
     {
-        return "case.do#/patient?caseId=" + caseId
+        return "patient?caseId=" + caseId
                  + "&studyId=" + cancerStudyId;
     }
 
     public static String getLinkToSampleView(String caseId, String cancerStudyId)
     {
-        return "case.do#/patient?sampleId=" + caseId
+        return "patient?sampleId=" + caseId
                  + "&studyId=" + cancerStudyId;
     }
 
     public static String getLinkToCancerStudyView(String cancerStudyId)
     {
-        return "study?" + org.mskcc.cbio.portal.servlet.CancerStudyView.ID
-                + "=" + cancerStudyId;
+        return "study?id=" + cancerStudyId;
     }
 
     public static String getLinkToIGVForBAM(String cancerStudyId, String caseId, String locus)
@@ -774,6 +848,16 @@ public class GlobalProperties {
         return sessionServiceURL;
     }
 
+    public static String getSessionServiceUser()
+    {
+        return sessionServiceUser;
+    }
+
+    public static String getSessionServicePassword()
+    {
+        return sessionServicePassword;
+    }
+
     public static String getOncoKBPublicApiUrl()
     {
         String oncokbApiUrl = portalProperties.getProperty(ONCOKB_PUBLIC_API_URL);
@@ -783,7 +867,6 @@ public class GlobalProperties {
                     showOncokb = "true";
         }
         
-        // This only applies if there is no oncokb.api.url property in the portal.properties file.
         // Empty string should be used if you want to disable the OncoKB annotation.
         if(oncokbApiUrl == null || oncokbApiUrl.isEmpty()) {
             oncokbApiUrl = "oncokb.org/api/v1";
@@ -795,37 +878,6 @@ public class GlobalProperties {
            return "";
         }
         
-    }
- 
-    public static String getOncoKBApiUrl()
-    {
-        String oncokbApiUrl = portalProperties.getProperty(ONCOKB_API_URL);
-        String showOncokb = portalProperties.getProperty(SHOW_ONCOKB);
-
-        if(showOncokb == null || showOncokb.isEmpty()) {
-            showOncokb = "true";
-        }
-        // This only applies if there is no oncokb.api.url property in the portal.properties file.
-        // Empty string should be used if you want to disable the OncoKB annotation.
-        if(oncokbApiUrl == null) {
-            oncokbApiUrl = "http://oncokb.org/legacy-api/";
-        }
-
-        //Test connection of OncoKB website.
-        if(!oncokbApiUrl.isEmpty() && showOncokb.equals("true")) {
-            try {
-                URL url = new URL(oncokbApiUrl+"access");
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                if(conn.getResponseCode() != 200) {
-                    oncokbApiUrl = "";
-                }
-                conn.disconnect();
-                return oncokbApiUrl;
-            } catch (Exception e) {
-                return "";
-            }
-        }
-        return "";
     }
 
     public static String getCivicUrl() {
@@ -856,6 +908,10 @@ public class GlobalProperties {
         }else{
             return true;
         }
+    }
+
+    public static boolean showSitemaps() {
+       return sitemaps;
     }
 
     public static boolean showCivic() {
@@ -936,15 +992,15 @@ public class GlobalProperties {
         return darwinAuthUrl;
     }
     
-    public static String getDarwinResponseUrl() {
-        String darwinResponseUrl = "";
-        if (portalProperties.containsKey(DARWIN_RESPONSE_URL)) {
+    public static String getDdpResponseUrl() {
+        String ddpResponseUrl = "";
+        if (portalProperties.containsKey(DDP_RESPONSE_URL)) {
             try{
-                darwinResponseUrl = portalProperties.getProperty(DARWIN_RESPONSE_URL);
+                ddpResponseUrl = portalProperties.getProperty(DDP_RESPONSE_URL);
             }
             catch (NullPointerException e) {}
         }
-        return darwinResponseUrl;
+        return ddpResponseUrl;
     }
     
     public static List<String[]> getPriorityStudies() {
@@ -1104,5 +1160,29 @@ public class GlobalProperties {
     public static String getQuerySetsOfGenes() {
         String fileName = portalProperties.getProperty(SETSOFGENES_LOCATION, null);
         return readFile(fileName);
+    }
+
+    public static String getMskWholeSlideViewerToken()
+    {
+        // this token is for the msk portal 
+        // the token is generated based on users' timestamp to let the slide viewer know whether the token is expired and then decide whether to allow the user to login the viewer
+        // every time when we refresh the page or goto the new page, a new token should be generated
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String secretKey = portalProperties.getProperty(MSK_WHOLE_SLIDE_VIEWER_SECRET_KEY);
+        String timeStamp = String.valueOf(System.currentTimeMillis());
+        
+        if(authentication != null && authentication.isAuthenticated() && secretKey != null && !secretKey.isEmpty()) {           
+            return "{ \"token\":\"" + MskWholeSlideViewerTokenGenerator.generateTokenByHmacSHA256(authentication.getName(), secretKey, timeStamp) + "\", \"time\":\"" + timeStamp + "\"}";
+        } else {
+            return null;
+        }
+    }
+
+    public static Boolean getRevokeOtherTokens() {
+        return datRevokeOtherTokens;
+    }
+
+    public static String getDatMethod() {
+        return datMethod;
     }
 }

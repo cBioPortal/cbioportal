@@ -59,7 +59,6 @@ DELETE FROM protein_array_info;
 DELETE FROM mut_sig;
 DELETE FROM interaction;
 DELETE FROM clinical_attribute_meta;
-DELETE FROM mutation_count;
 DELETE FROM mutation;
 DELETE FROM mutation_event;
 DELETE FROM sample_profile;
@@ -98,7 +97,7 @@ INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORD
 
 -- cancer_study
 INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS") 
-VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC');
+VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897,26451490','TCGA, Nature 2012, ...','SU2C-PI3K;PUBLIC;GDAC');
 
 -- gene as genetic_entity
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
@@ -340,15 +339,6 @@ INSERT INTO "mutation" ("MUTATION_EVENT_ID","GENETIC_PROFILE_ID","SAMPLE_ID","EN
 INSERT INTO "mutation" ("MUTATION_EVENT_ID","GENETIC_PROFILE_ID","SAMPLE_ID","ENTREZ_GENE_ID","CENTER","SEQUENCER","MUTATION_STATUS","VALIDATION_STATUS","TUMOR_SEQ_ALLELE1","TUMOR_SEQ_ALLELE2","MATCHED_NORM_SAMPLE_BARCODE","MATCH_NORM_SEQ_ALLELE1","MATCH_NORM_SEQ_ALLELE2","TUMOR_VALIDATION_ALLELE1","TUMOR_VALIDATION_ALLELE2","MATCH_NORM_VALIDATION_ALLELE1","MATCH_NORM_VALIDATION_ALLELE2","VERIFICATION_STATUS","SEQUENCING_PHASE","SEQUENCE_SOURCE","VALIDATION_METHOD","SCORE","BAM_FILE","TUMOR_ALT_COUNT","TUMOR_REF_COUNT","NORMAL_ALT_COUNT","NORMAL_REF_COUNT") VALUES (22604,6,6,672,'genome.wustl.edu','IlluminaGAIIx','Germline','Unknown','A','C','TCGA-A1-A0SH-10A-03D-A099-09','A','C','NA','NA','NA','NA','Unknown','Phase_IV','Capture','NA','1','dbGAP',-1,-1,-1,-1);
 INSERT INTO "mutation" ("MUTATION_EVENT_ID","GENETIC_PROFILE_ID","SAMPLE_ID","ENTREZ_GENE_ID","CENTER","SEQUENCER","MUTATION_STATUS","VALIDATION_STATUS","TUMOR_SEQ_ALLELE1","TUMOR_SEQ_ALLELE2","MATCHED_NORM_SAMPLE_BARCODE","MATCH_NORM_SEQ_ALLELE1","MATCH_NORM_SEQ_ALLELE2","TUMOR_VALIDATION_ALLELE1","TUMOR_VALIDATION_ALLELE2","MATCH_NORM_VALIDATION_ALLELE1","MATCH_NORM_VALIDATION_ALLELE2","VERIFICATION_STATUS","SEQUENCING_PHASE","SEQUENCE_SOURCE","VALIDATION_METHOD","SCORE","BAM_FILE","TUMOR_ALT_COUNT","TUMOR_REF_COUNT","NORMAL_ALT_COUNT","NORMAL_REF_COUNT") VALUES (2039,6,12,672,'genome.wustl.edu','IlluminaGAIIx','Germline','Unknown','T','T','TCGA-A1-A0SO-10A-03D-A099-09','T','T','NA','NA','NA','NA','Unknown','Phase_IV','Capture','NA','1','dbGAP',-1,-1,-1,-1);
 
--- mutation_count
-INSERT INTO "mutation_count" ("GENETIC_PROFILE_ID","SAMPLE_ID","MUTATION_COUNT") VALUES (6,2,32);
-INSERT INTO "mutation_count" ("GENETIC_PROFILE_ID","SAMPLE_ID","MUTATION_COUNT") VALUES (6,3,14);
-INSERT INTO "mutation_count" ("GENETIC_PROFILE_ID","SAMPLE_ID","MUTATION_COUNT") VALUES (6,6,78);
-INSERT INTO "mutation_count" ("GENETIC_PROFILE_ID","SAMPLE_ID","MUTATION_COUNT") VALUES (6,8,29);
-INSERT INTO "mutation_count" ("GENETIC_PROFILE_ID","SAMPLE_ID","MUTATION_COUNT") VALUES (6,9,50);
-INSERT INTO "mutation_count" ("GENETIC_PROFILE_ID","SAMPLE_ID","MUTATION_COUNT") VALUES (6,10,24);
-INSERT INTO "mutation_count" ("GENETIC_PROFILE_ID","SAMPLE_ID","MUTATION_COUNT") VALUES (6,12,165);
-
 -- sample_list
 INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (1,'study_tcga_pub_all','other',1,'All Tumors','All tumor samples (14 samples)');
 INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (2,'study_tcga_pub_acgh','other',1,'Tumors aCGH','All tumors with aCGH data (778 samples)');
@@ -522,14 +512,3 @@ INSERT INTO authorities (EMAIL, AUTHORITY) values ('jami@gmail.com', 'ROLE_USER'
 INSERT INTO authorities (EMAIL, AUTHORITY) values ('Lonnie@openid.org', 'ROLE_USER');
 INSERT INTO authorities (EMAIL, AUTHORITY) values ('Dhorak@yahoo.com', 'ROLE_USER');
 INSERT INTO authorities (EMAIL, AUTHORITY) values ('Dhorak@yahoo.com', 'ROLE_MANAGER');
-
-INSERT INTO "gene_panel" ("INTERNAL_ID", "STABLE_ID", "DESCRIPTION") VALUES(1, 'TESTPANEL1', 'A test panel consisting of a few genes');
-INSERT INTO "gene_panel" ("INTERNAL_ID", "STABLE_ID", "DESCRIPTION") VALUES(2, 'TESTPANEL2', 'Another test panel consisting of a few genes');
-
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 207);
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 369);
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 672);
-
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 207);
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 208);
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 4893);

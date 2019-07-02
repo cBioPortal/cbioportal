@@ -331,8 +331,8 @@ public class ClinicalDataMyBatisRepositoryTest {
 
         Assert.assertEquals(6, result.size());
         ClinicalData data = result.get(0);
-        Assert.assertEquals("OTHER_SAMPLE_ID", data.getAttrId());
-        Assert.assertEquals("5C631CE8-F96A-4C35-A459-556FC4AB21E1", data.getAttrValue());
+        Assert.assertEquals("DAYS_TO_COLLECTION", data.getAttrId());
+        Assert.assertEquals("276", data.getAttrValue());
         Assert.assertEquals((Integer) 1, data.getInternalId());
         Assert.assertNull(data.getClinicalAttribute());
     }
@@ -355,7 +355,7 @@ public class ClinicalDataMyBatisRepositoryTest {
     @Test
     public void fetchClinicalDataCounts() throws Exception {
 
-        List<ClinicalDataCount> result = clinicalDataMyBatisRepository.fetchClinicalDataCounts("acc_tcga", 
+        List<ClinicalDataCount> result = clinicalDataMyBatisRepository.fetchClinicalDataCounts(Arrays.asList("acc_tcga", "acc_tcga"), 
             Arrays.asList("TCGA-A1-B0SO-01", "TCGA-A1-A0SB-01"), Arrays.asList("OTHER_SAMPLE_ID", 
             "DAYS_TO_COLLECTION"), "SAMPLE");
         

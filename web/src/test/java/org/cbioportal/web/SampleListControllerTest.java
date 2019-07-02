@@ -30,7 +30,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class SampleListControllerTest {
 
@@ -62,9 +62,10 @@ public class SampleListControllerTest {
 
     @Autowired
     private SampleListService sampleListService;
-    private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    private MockMvc mockMvc;
 
     @Bean
     public SampleListService sampleListService() {

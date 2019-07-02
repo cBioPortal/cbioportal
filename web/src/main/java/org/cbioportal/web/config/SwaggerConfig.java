@@ -59,8 +59,8 @@ public class SwaggerConfig {
             "A web service for supplying JSON formatted data to cBioPortal clients. " +
                 "Please note that this API is currently in beta and subject to change.",
             "1.0 (beta)",
-            "http://www.cbioportal.org",
-            new Contact("cBioPortal", "www.cbioportal.org", "cbioportal@googlegroups.com"),
+            null,
+            new Contact("cBioPortal", "https://www.cbioportal.org", "cbioportal@googlegroups.com"),
             "License",
             "https://github.com/cBioPortal/cbioportal/blob/master/LICENSE", Collections.emptyList());
         return apiInfo;

@@ -11,7 +11,7 @@ To facilitate the loading of new studies into its database, cBioPortal [provides
 ## Running the validator
 
 To run the validator first go to the importer folder
-`<your_cbioportal_dir>/core/src/main/scripts/importer` 
+`<cbioportal_source_folder>/core/src/main/scripts/importer`
 and then run the following command:
 ```bash
 ./validateData.py --help
@@ -20,8 +20,8 @@ This will tell you the parameters you can use:
 ```console
 usage: validateData.py [-h] -s STUDY_DIRECTORY
                        [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
-                       [-html HTML_TABLE] [-e ERROR_FILE] [-v]
-                       [-r] [-m]
+                       [-P PORTAL_PROPERTIES] [-html HTML_TABLE]
+                       [-e ERROR_FILE] [-v] [-r] [-m] [-a MAX_REPORTED_VALUES]
 
 cBioPortal study validator
 
@@ -31,7 +31,7 @@ optional arguments:
                         path to directory.
   -u URL_SERVER, --url_server URL_SERVER
                         URL to cBioPortal server. You can set this if your URL
-                        is not http://localhost:8080/cbioportal
+                        is not http://localhost:8080
   -p PORTAL_INFO_DIR, --portal_info_dir PORTAL_INFO_DIR
                         Path to a directory of cBioPortal info files to be
                         used instead of contacting a server
@@ -53,6 +53,12 @@ optional arguments:
   -m, --strict_maf_checks
                         Option to enable strict mode for validator when validating
                         mutation data
+  -a MAX_REPORTED_VALUES, --max_reported_values MAX_REPORTED_VALUES
+                        Cutoff in HTML report for the maximum number of line
+                        numbers and values encountered to report for each
+                        message. For example, set this to a high number to
+                        report all genes that could not be loaded, instead of
+                        reporting "GeneA, GeneB, GeneC, 213 more"
 ```
 
 For more information on the `--portal_info_dir` option, see [Offline validation](#offline-validation) below. If your cBioPortal is not using `hg19`, you must use the `--portal_properties` option. For more information, see [Validation of non-human data](#validation-of-non-human-data).
@@ -60,21 +66,21 @@ For more information on the `--portal_info_dir` option, see [Offline validation]
 When running the validator with parameter `-r` the validator will run the validation of the clinical data it will ignore all failing checks
 about values in the headers of the clinical data file.
 
-When running the validator with parameter `-m` the validator will run the validation of the specific [MAF file checks](https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+(MAF)+Specification) for the mutation file in strict maf check mode. This means that
+When running the validator with parameter `-m` the validator will run the validation of the specific [MAF file checks](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/) for the mutation file in strict maf check mode. This means that
 when the validator encounters these validation checks it will report them as an error instead of a warning.
 
 ### Example 1: test study_es_0
-As an example, you can try the validator with one of the test studies found in  `<your_cbioportal_dir>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option to also see the progress:
+As an example, you can try the validator with one of the test studies found in  `<cbioportal_source_folder>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option to also see the progress:
 ```bash
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080/cbioportal -v
+./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080 -v
 ```
 Results in:
 ```console
-DEBUG: -: Requesting cancertypes from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting clinicalattributes/patients from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting clinicalattributes/samples from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting genes from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting genesaliases from portal at 'http://localhost:8080/cbioportal'
+DEBUG: -: Requesting cancertypes from portal at 'http://localhost:8080'
+DEBUG: -: Requesting clinicalattributes/patients from portal at 'http://localhost:8080'
+DEBUG: -: Requesting clinicalattributes/samples from portal at 'http://localhost:8080'
+DEBUG: -: Requesting genes from portal at 'http://localhost:8080'
+DEBUG: -: Requesting genesaliases from portal at 'http://localhost:8080'
 
 DEBUG: meta_CNA.txt: Starting validation of meta file
 INFO: meta_CNA.txt: Validation of meta file complete
@@ -166,17 +172,17 @@ When using the `-html` option, a report will be generated, which looks like this
 ![Screenshot of a successful validation report](images/scripts/report.png)
 
 ### Example 2: test study_es_1
-More test studies for trying the validator (`study_es_1` and `study_es_3`) are available in  `<your_cbioportal_dir>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option:
+More test studies for trying the validator (`study_es_1` and `study_es_3`) are available in  `<cbioportal_source_folder>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option:
 ```bash
-./validateData.py -s ../../../test/scripts/test_data/study_es_1/ -u http://localhost:8080/cbioportal -v
+./validateData.py -s ../../../test/scripts/test_data/study_es_1/ -u http://localhost:8080 -v
 ```
 Results in:
 ```console
-DEBUG: -: Requesting cancertypes from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting clinicalattributes/patients from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting clinicalattributes/samples from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting genes from portal at 'http://localhost:8080/cbioportal'
-DEBUG: -: Requesting genesaliases from portal at 'http://localhost:8080/cbioportal'
+DEBUG: -: Requesting cancertypes from portal at 'http://localhost:8080'
+DEBUG: -: Requesting clinicalattributes/patients from portal at 'http://localhost:8080'
+DEBUG: -: Requesting clinicalattributes/samples from portal at 'http://localhost:8080'
+DEBUG: -: Requesting genes from portal at 'http://localhost:8080'
+DEBUG: -: Requesting genesaliases from portal at 'http://localhost:8080'
 
 DEBUG: meta_samples.txt: Starting validation of meta file
 WARNING: meta_samples.txt: Unrecognized field in meta file; values encountered: ['show_profile_in_analysis_tab', 'profile_name', 'profile_description']
@@ -310,10 +316,10 @@ Validation of study succeeded.
 ```
 
 ### Example 4: generating the portal info folder ###
-The portal information files can be generated on the server, using the dumpPortalInfo script. Go to `<your cbioportal dir>/core/src/main/scripts`, make sure the environment variables `$JAVA_HOME` and `$PORTAL_HOME` are set, and run dumpPortalInfo.pl with the name of the directory you want to create:
+The portal information files can be generated on the server, using the dumpPortalInfo script. Go to `<cbioportal_source_folder>/core/src/main/scripts`, make sure the environment variables `$JAVA_HOME` and `$PORTAL_HOME` are set, and run dumpPortalInfo.pl with the name of the directory you want to create:
 ```bash
-export JAVA_HOME='/usr/lib/jvm/java-7-openjdk-amd64'
-export PORTAL_HOME='../../../..'
+export JAVA_HOME='/usr/lib/jvm/default-java'
+export PORTAL_HOME=<cbioportal_configuration_folder>
 ./dumpPortalInfo.pl /home/johndoe/my_portal_info_folder/
 ```
 
@@ -433,11 +439,11 @@ If your `portal.properties` does not have the default (human) settings, you shou
 
 As an example, the command for the "Example 1" listed above incorporating the `-P` parameter is given:
 ```
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -P ../../../../../src/main/resources/portal.properties -u http://localhost:8080/cbioportal -v
+./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -P ../../../../../src/main/resources/portal.properties -u http://localhost:8080 -v
 ```
 
 ## Running the validator for multiple studies
-The importer folder `<your_cbioportal_dir>/core/src/main/scripts/importer` also contains a script for running the validator for multiple studies:
+The importer folder `<cbioportal_source_folder>/core/src/main/scripts/importer` also contains a script for running the validator for multiple studies:
 ```bash
 ./validateStudies.py --help
 ```
@@ -446,33 +452,39 @@ The following parameters can be used:
 usage: validateStudies.py [-h] [-d ROOT_DIRECTORY] [-l LIST_OF_STUDIES]
                           [-html HTML_FOLDER]
                           [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
-                          [-P PORTAL_PROPERTIES]
+                          [-P PORTAL_PROPERTIES] [-m] [-a MAX_REPORTED_VALUES]
 
 Wrapper where cBioPortal study validator is run for multiple studies
 
 optional arguments:
--h, --help            show this help message and exit
--d ROOT_DIRECTORY, --root-directory ROOT_DIRECTORY
-                      Path to directory with all studies that should be
-                      validated
--l LIST_OF_STUDIES, --list-of-studies LIST_OF_STUDIES
-                      List with paths of studies which should be validated
--html HTML_FOLDER, --html-folder HTML_FOLDER
-                      Path to folder for output HTML reports
--u URL_SERVER, --url_server URL_SERVER
-                      URL to cBioPortal server. You can set this if your URL
-                      is not http://localhost:8080/cbioportal
--p PORTAL_INFO_DIR, --portal_info_dir PORTAL_INFO_DIR
-                      Path to a directory of cBioPortal info files to be
-                      used instead of contacting a server
--n, --no_portal_checks
-                      Skip tests requiring information from the cBioPortal
-                      installation
--P PORTAL_PROPERTIES, --portal_properties PORTAL_PROPERTIES
-                      portal.properties file path (default: assumed hg19)
--m, --strict_maf_checks
-                      Option to enable strict mode for validator when validating
-                      mutation data
+  -h, --help            show this help message and exit
+  -d ROOT_DIRECTORY, --root-directory ROOT_DIRECTORY
+                        Path to directory with all studies that should be
+                        validated
+  -l LIST_OF_STUDIES, --list-of-studies LIST_OF_STUDIES
+                        List with paths of studies which should be validated
+  -html HTML_FOLDER, --html-folder HTML_FOLDER
+                        Path to folder for output HTML reports
+  -u URL_SERVER, --url_server URL_SERVER
+                        URL to cBioPortal server. You can set this if your URL
+                        is not http://localhost:8080
+  -p PORTAL_INFO_DIR, --portal_info_dir PORTAL_INFO_DIR
+                        Path to a directory of cBioPortal info files to be
+                        used instead of contacting a server
+  -n, --no_portal_checks
+                        Skip tests requiring information from the cBioPortal
+                        installation
+  -P PORTAL_PROPERTIES, --portal_properties PORTAL_PROPERTIES
+                        portal.properties file path (default: assumed hg19)
+  -m, --strict_maf_checks
+                        Option to enable strict mode for validator when
+                        validating mutation data
+  -a MAX_REPORTED_VALUES, --max_reported_values MAX_REPORTED_VALUES
+                        Cutoff in HTML report for the maximum number of line
+                        numbers and values encountered to report for each
+                        message. For example, set this to a high number to
+                        report all genes that could not be loaded, instead of
+                        reporting "GeneA, GeneB, GeneC, 213 more"
 ```
 
 Parameters `--url_server`, `--portal_info_dir`, `--no_portal_checks` and `--portal_properties` are equal to the parameters with the same name in `validateData.py`. The script will save a log file with validation output (`log-validate-studies.txt`) and output the validation status from the input studies:

@@ -8,10 +8,17 @@ db.host=localhost
 db.portal_db_name=cbioportal
 db.driver=com.mysql.jdbc.Driver
 db.connection_string=jdbc:mysql://localhost/
-db.tomcat_resource_name=jdbc/cbioportal
+# set tomcat_resource_name when using dbconnector=jndi instead of the default
+# dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
+# using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up
+# from the properties file
+# (https://github.com/cBioPortal/cbioportal/issues/6148).
+#
+# db.tomcat_resource_name=jdbc/cbioportal
+
 # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
 db.suppress_schema_version_mismatch_errors=false
-
+db.use_ssl=false
 # web page cosmetics
 skin.title=cBioPortal for Cancer Genomics
 skin.email_contact=cbioportal at googlegroups dot com
@@ -19,14 +26,14 @@ skin.authorization_message=Access to this portal is only available to authorized
 skin.example_study_queries=tcga\ntcga -provisional\ntcga -moratorium\ntcga OR icgc\n-"cell line"\nprostate mskcc\nesophageal OR stomach\nserous\nbreast
 skin.data_sets_header=The portal currently contains data from the following cancer genomics studies.  The table below lists the number of available samples per data type and tumor.
 skin.data_sets_footer=Data sets of TCGA studies were downloaded from Broad Firehose (http://gdac.broadinstitute.org) and updated monthly. In some studies, data sets were from the TCGA working groups directly.
-#skin.examples_right_column_html=<ul><li><a href="case.do#/patient?studyId=ucec_tcga_pub&caseId=TCGA-BK-A0CC">Patient view of an endometrial cancer case</a></li></ul>
+#skin.examples_right_column_html=<ul><li><a href="patient?studyId=ucec_tcga_pub&caseId=TCGA-BK-A0CC">Patient view of an endometrial cancer case</a></li></ul>
 
 # documentation pages
 skin.documentation.baseurl=https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/
 skin.documentation.markdown=true
 skin.documentation.faq=FAQ.md
 skin.documentation.about=About-Us.md
-skin.documentation.skin.news=News.md
+skin.documentation.news=News.md
 skin.documentation.oql=Onco-Query-Language.md
 
 # setting controlling the logos
@@ -62,17 +69,17 @@ skin.login.saml.registration_html=Sign in with MSK
 skin.right_nav.show_data_sets=true
 skin.right_nav.show_examples=true
 skin.right_nav.show_testimonials=true
+skin.right_nav.show_whats_new=true
 
 # settings controlling what to show in the right navigation bar
 skin.study_view.link_text=To build your own case set, try out our enhanced Study View.
 
-# authentication
-## is authorization enabled at all? (true, false)
-authorization=false
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=
-## which method of authentication to use (false, googleplus, saml, openid, ad, ldap, noauthsessionservice)
-authenticate=false
+
+## change the `-Dauthenticate=` JVM argument to configure
+## which method of authentication to use (false, googleplus, social_auth, saml, openid, ad, ldap, noauthsessionservice)
+
 ## Should the permissions for groups and users be filtered by this instance's app.name?
 ## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)
 filter_groups_by_appname=true
@@ -90,7 +97,7 @@ saml.keystore.password=
 saml.keystore.private-key.key=
 saml.keystore.private-key.password=
 saml.keystore.default-key=
-# How to send SAML request messages to the IDP. 
+# How to send SAML request messages to the IDP.
 # Set to "specificBinding" to configure specific binding:
 saml.idp.comm.binding.settings=defaultBinding
 # Configure the specific binding if above is specificBinding. Leave empty if defaultBinding.
@@ -115,6 +122,14 @@ ldap.attributes.username=sAMAccountName
 ldap.attributes.last_name=sn
 ldap.attributes.given_name=givenName
 ldap.attributes.email=mail
+
+# data access token settings
+dat.unauth_users=
+dat.method=none
+dat.ttl_seconds=2592000
+dat.uuid.max_number_per_user=1
+dat.uuid.revoke_other_tokens=true
+dat.jwt.secret_key=
 
 # study view settings
 # always show studies with this group
@@ -161,9 +176,7 @@ broad.bam.checking.url=
 include_networks=true
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 
-# bitly, please use your bitly user and apiKey
-bitly.url=http://api.bit.ly/shorten?login=[bitly.user]&apiKey=[bitly.apiKey]&
-# the new API uses the v3 of bitly API, and a java library to make the API call, so you only need to provide the access token  
+# the new API uses the v3 of bitly API, and a java library to make the API call, so you only need to provide the access token
 bitly.access.token=
 
 # google analytics
@@ -175,16 +188,16 @@ genomespace=true
 # set this to true if you update cancer studies in your production database without shutting the web server
 recache_study_after_update=false
 
-# session-service url: http://[host]:[port]/[session_service_app]/api/sessions/[portal_instance]/ 
+# session-service url: http://[host]:[port]/[session_service_app]/api/sessions/[portal_instance]/
 # example session-service url: http://localhost:8080/session_service/api/sessions/public_portal/
 # see: https://github.com/cBioPortal/session-service
 # excluding this value or setting it to an empty string will revert to the previous bookmarking method
-# WARNING: do not use session service with authenticate=false
-#  either use authentication or change to authenticate=noauthsessionservice
+# WARNING: do not use session service with -Dauthenticate=false
+#  either use authentication or change to -Dauthenticate=noauthsessionservice
 session.service.url=
-# Only allow requests from here:
-#  e.g. session.service.origin=http://dashi-dev.cbio.mskcc.org:8080
-session.service.origin=*
+# if basic authentication is enabled on session service one should set:
+# session.service.user=user
+# session.service.password=pass
 
 # disabled tabs, | delimited
 # possible values: cancer_types_summary, mutual_exclusivity, plots, mutations, co_expression, enrichments, survival, network, download, bookmark, IGV
@@ -203,12 +216,13 @@ ucsc.build=hg19
 oncoprint.defaultview=patient
 
 # OncoPrint driver mutation annotations
-# oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation
-# oncoprint.custom_driver_annotation.tiers.menu_label=Custom driver tiers
-# oncoprint.custom_driver_annotation.default=true
-# oncoprint.custom_driver_tiers_annotation.default=true
-# oncoprint.oncokb_hotspots.default=custom
-# oncoprint.hide_vus.default=false
+#   oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation
+#   oncoprint.custom_driver_annotation.tiers.menu_label=Custom driver tiers
+#   oncoprint.custom_driver_annotation.binary.default=true
+#   oncoprint.custom_driver_annotation.tiers.default=true
+  oncoprint.oncokb.default=true
+  oncoprint.hotspots.default=true
+#  oncoprint.hide_vus.default=true
 
 # Custom gene sets
 # querypage.setsofgenes.location=file:/<path>
@@ -216,3 +230,19 @@ oncoprint.defaultview=patient
 # Disable cache (for non authorized portals this can sometimes avoid running
 # out of memory with relatively little performance loss)
 # mybatis.cache.enabled=false
+
+# Default cross cancer study query
+# query this session id when not specifying a study for
+# linkout links e.g. /ln?q=TP53:MUT or when querying a single gene in quick
+# search
+#
+# default_cross_cancer_study_session_id=
+#
+# if session service is not enabled, specify a comma separated list of studies
+# here instead e.g.:
+#
+# default_cross_cancer_study_list=mixed_pipseq_2017,cellline_nci60
+# default_cross_cancer_study_list_name=My list of studies
+
+# Enable/Disable quick search (currently in beta, default is false)
+# quick_search.enabled=true

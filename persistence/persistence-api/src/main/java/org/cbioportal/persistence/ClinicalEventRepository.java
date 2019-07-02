@@ -15,4 +15,9 @@ public interface ClinicalEventRepository {
     BaseMeta getMetaPatientClinicalEvents(String studyId, String patientId);
     
     List<ClinicalEventData> getDataOfClinicalEvents(List<Integer> clinicalEventIds);
+
+    List<ClinicalEvent> getAllClinicalEventsInStudy(String studyId, String projection, Integer pageSize,
+                                                    Integer pageNumber, String sortBy, String direction);
+    
+    BaseMeta getMetaClinicalEvents(String studyId);
 }

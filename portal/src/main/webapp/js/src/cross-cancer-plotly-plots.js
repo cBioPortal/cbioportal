@@ -528,10 +528,12 @@ var ccPlots = (function (Plotly, _, $) {
 
     return {
         init: function() {
-            var tmp = setInterval(function () {timer();}, 1000);
+            //var tmp = setInterval(function () {timer();}, 1000);
             function timer() {
                 if (window.QuerySession.cancer_study_ids.length > 0) {
 
+                    return;
+                    
                     clearInterval(tmp);
 
                     $.when(ccPlots.util.getGeneticProfiles_(window.QuerySession.cancer_study_ids)).then(function(_profiles) {

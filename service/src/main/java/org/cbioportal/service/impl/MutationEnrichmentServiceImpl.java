@@ -1,22 +1,21 @@
 package org.cbioportal.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.cbioportal.model.AlterationCountByGene;
 import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.model.Mutation;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.MutationCountByGene;
-import org.cbioportal.model.Sample;
-import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationEnrichmentService;
 import org.cbioportal.service.MutationService;
-import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class MutationEnrichmentServiceImpl implements MutationEnrichmentService {
@@ -24,43 +23,61 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
     @Autowired
     private MutationService mutationService;
     @Autowired
-    private SampleService sampleService;
-    @Autowired
-    private MolecularProfileService molecularProfileService;
-    @Autowired
     private AlterationEnrichmentUtil alterationEnrichmentUtil;
 
     @Override
-    public List<AlterationEnrichment> getMutationEnrichments(String molecularProfileId, List<String> alteredIds,
-                                                             List<String> unalteredIds, List<Integer> queryGenes, 
-                                                             String enrichmentType)
-        throws MolecularProfileNotFoundException {
+    public List<AlterationEnrichment> getMutationEnrichments(
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets,
+            String enrichmentType)
+            throws MolecularProfileNotFoundException {
 
-        List<String> allIds = new ArrayList<>(alteredIds);
-        allIds.addAll(unalteredIds);
-        List<MutationCountByGene> mutationCountByGeneListFromRepo;
-        List<Mutation> mutations;
-        
+        Map<String, List<? extends AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = new HashMap<>();
+
         if (enrichmentType.equals("SAMPLE")) {
-            mutationCountByGeneListFromRepo = mutationService.getSampleCountByEntrezGeneIdsAndSampleIds(molecularProfileId, 
-                allIds, null, false);
-            mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileId, alteredIds, null, null, 
-                "ID", null, null, null, null);
+            mutationCountsbyEntrezGeneIdAndGroup = molecularProfileCaseSets.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> entry.getKey(),
+                            entry -> { //set value of each group to list of MutationCountByGene
+                                List<String> molecularProfileIds = new ArrayList<>();
+                                List<String> sampleIds = new ArrayList<>();
+        
+                                entry.getValue().forEach(molecularProfileCase -> {
+                                    molecularProfileIds.add(molecularProfileCase.getMolecularProfileId());
+                                    sampleIds.add(molecularProfileCase.getCaseId());
+                                });
+                                List<MutationCountByGene> mutationCounts = mutationService
+                                        .getSampleCountInMultipleMolecularProfiles(molecularProfileIds, sampleIds, null, false);
+        
+                                return mutationCounts;
+                            }));
         } else {
-            mutationCountByGeneListFromRepo = mutationService.getPatientCountByEntrezGeneIdsAndSampleIds(molecularProfileId,
-                allIds, null);
-            MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
-            List<Sample> sampleList = sampleService.getAllSamplesOfPatientsInStudy(
-                molecularProfile.getCancerStudyIdentifier(), alteredIds, "ID");
-            mutations = mutationService.fetchMutationsInMolecularProfile(molecularProfileId,
-                sampleList.stream().map(Sample::getStableId).collect(Collectors.toList()), null, null, "ID", null, null,
-                null, null);
+            mutationCountsbyEntrezGeneIdAndGroup = molecularProfileCaseSets.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> entry.getKey(),
+                            entry -> { //set value of each group to list of MutationCountByGene
+                                Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseIdentifiersMap = entry
+                                        .getValue().stream()
+                                        .collect(Collectors.groupingBy(MolecularProfileCaseIdentifier::getMolecularProfileId));
+        
+                                List<MutationCountByGene> mutationCounts = molecularProfileCaseIdentifiersMap.entrySet()
+                                        .stream().flatMap(molecularProfileCaseIdentifiers -> {
+                                            String molecularProfileId = molecularProfileCaseIdentifiers.getKey();
+                                            List<String> caseIds = molecularProfileCaseIdentifiers.getValue().stream()
+                                                    .map(MolecularProfileCaseIdentifier::getCaseId)
+                                                    .collect(Collectors.toList());
+                                            try {
+                                                return mutationService.getPatientCountByEntrezGeneIdsAndSampleIds(
+                                                        molecularProfileId, caseIds, null).stream();
+                                            } catch (MolecularProfileNotFoundException e) {
+                                                throw new RuntimeException(e);
+                                            }
+                                        }).collect(Collectors.toList());
+        
+                                return mutationCounts;
+                            }));
         }
 
-        List<MutationCountByGene> mutationCountByGeneList =
-            new ArrayList<MutationCountByGene>(mutationCountByGeneListFromRepo);
-        mutationCountByGeneList.removeIf(m -> queryGenes.contains(m.getEntrezGeneId()));
-        return alterationEnrichmentUtil.createAlterationEnrichments(alteredIds.size(), unalteredIds.size(),
-            mutationCountByGeneList, mutations, enrichmentType);
+        return alterationEnrichmentUtil.createAlterationEnrichments(mutationCountsbyEntrezGeneIdAndGroup,
+                molecularProfileCaseSets, enrichmentType);
     }
 }

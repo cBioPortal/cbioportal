@@ -82,7 +82,7 @@ fieldset#clinical-timeline-fieldset, fieldset#patient-view-summary-fieldset {
 }
 
 fieldset#login-fieldset > legend {
-    width: 96px;
+    width: 120px;
     border-bottom: none;
     color: #666666;
     font-family: verdana, arial, sans-serif;

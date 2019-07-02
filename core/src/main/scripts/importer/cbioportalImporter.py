@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 # ------------------------------------------------------------------------------
 # Script which imports portal data.
@@ -7,24 +7,37 @@
 
 import os
 import sys
+import importlib
 import argparse
 import logging
 import re
+from pathlib import Path
 
-import cbioportal_common
-from cbioportal_common import OUTPUT_FILE
-from cbioportal_common import ERROR_FILE
-from cbioportal_common import MetaFileTypes
-from cbioportal_common import IMPORTER_CLASSNAME_BY_META_TYPE
-from cbioportal_common import IMPORTER_REQUIRES_METADATA
-from cbioportal_common import IMPORT_CANCER_TYPE_CLASS
-from cbioportal_common import IMPORT_STUDY_CLASS
-from cbioportal_common import UPDATE_STUDY_STATUS_CLASS
-from cbioportal_common import REMOVE_STUDY_CLASS
-from cbioportal_common import IMPORT_CASE_LIST_CLASS
-from cbioportal_common import ADD_CASE_LIST_CLASS
-from cbioportal_common import VERSION_UTIL_CLASS
-from cbioportal_common import run_java
+# configure relative imports if running as a script; see PEP 366
+if __name__ == "__main__" and __package__ is None:
+    # replace the script's location in the Python search path by the main
+    # scripts/ folder, above it, so that the importer package folder is in
+    # scope and *not* directly in sys.path; see PEP 395
+    sys.path[0] = str(Path(sys.path[0]).resolve().parent)
+    __package__ = 'importer'
+    # explicitly load the package, which is needed on CPython 3.4 because it
+    # doesn't include https://github.com/python/cpython/pull/2639
+    importlib.import_module(__package__)
+
+from . import cbioportal_common
+from .cbioportal_common import OUTPUT_FILE
+from .cbioportal_common import ERROR_FILE
+from .cbioportal_common import MetaFileTypes
+from .cbioportal_common import IMPORTER_CLASSNAME_BY_META_TYPE
+from .cbioportal_common import IMPORTER_REQUIRES_METADATA
+from .cbioportal_common import IMPORT_CANCER_TYPE_CLASS
+from .cbioportal_common import IMPORT_STUDY_CLASS
+from .cbioportal_common import UPDATE_STUDY_STATUS_CLASS
+from .cbioportal_common import REMOVE_STUDY_CLASS
+from .cbioportal_common import IMPORT_CASE_LIST_CLASS
+from .cbioportal_common import ADD_CASE_LIST_CLASS
+from .cbioportal_common import VERSION_UTIL_CLASS
+from .cbioportal_common import run_java
 
 
 # ------------------------------------------------------------------------------
@@ -40,7 +53,6 @@ IMPORT_STUDY_DATA = "import-study-data"
 IMPORT_CASE_LIST = "import-case-list"
 
 COMMANDS = [IMPORT_CANCER_TYPE, IMPORT_STUDY, REMOVE_STUDY, IMPORT_STUDY_DATA, IMPORT_CASE_LIST]
-PORTAL_HOME = "PORTAL_HOME"
 
 # ------------------------------------------------------------------------------
 # sub-routines
@@ -75,7 +87,7 @@ def remove_study(jvm_args, meta_filename):
         meta_filename, logger=LOGGER)
     if meta_dictionary['meta_file_type'] != MetaFileTypes.STUDY:
         # invalid file, skip
-        print >> ERROR_FILE, 'Not a study meta file: ' + meta_filename
+        print('Not a study meta file: ' + meta_filename, file=ERROR_FILE)
         return
     args.append(meta_dictionary['cancer_study_identifier'])
     args.append("--noprogress") # don't report memory usage and % progress
@@ -96,13 +108,13 @@ def import_study_data(jvm_args, meta_filename, data_filename, meta_file_dictiona
 
     # invalid file, skip
     if meta_file_type is None:
-        print >> ERROR_FILE, ("Unrecognized meta file type '%s', skipping file"
-                              % (meta_file_type))
+        print(("Unrecognized meta file type '%s', skipping file"
+                              % (meta_file_type)), file=ERROR_FILE)
         return
 
     if not data_filename.endswith(meta_file_dictionary['data_filename']):
-        print >> ERROR_FILE, ("'data_filename' in meta file contradicts "
-                              "data filename in command, skipping file")
+        print(("'data_filename' in meta file contradicts "
+                              "data filename in command, skipping file"), file=ERROR_FILE)
         return
 
     importer = IMPORTER_CLASSNAME_BY_META_TYPE[meta_file_type]
@@ -151,7 +163,13 @@ def check_version(jvm_args):
     try:
         run_java(*args)
     except:
-        print >> OUTPUT_FILE, 'Error, probably due to this version of the portal being out of sync with the database. Run the database migration script located at PORTAL_HOME/core/src/main/scripts/migrate_db.py before continuing.'
+        print(
+            'Error, probably due to this version of the portal '
+            'being out of sync with the database. '
+            'Run the database migration script located at '
+            'CBIOPORTAL_SRC/core/src/main/scripts/migrate_db.py '
+            'before continuing.',
+            file=OUTPUT_FILE)
         raise
 
 def process_case_lists(jvm_args, case_list_dir):
@@ -334,11 +352,11 @@ def process_directory(jvm_args, study_directory):
 
 def usage():
     # TODO : replace this by usage string from interface()
-    print >> OUTPUT_FILE, ('cbioportalImporter.py --jar-path (path to scripts jar file) ' +
+    print(('cbioportalImporter.py --jar-path (path to scripts jar file) ' +
                            '--command [%s] --study_directory <path to directory> '
                            '--meta_filename <path to metafile>'
                            '--data_filename <path to datafile>'
-                           '--properties-filename <path to properties file> ' % (COMMANDS))
+                           '--properties-filename <path to properties file> ' % (COMMANDS)), file=OUTPUT_FILE)
 
 def check_args(command):
     if command not in COMMANDS:
@@ -348,16 +366,16 @@ def check_args(command):
 
 def check_files(meta_filename, data_filename):
     if meta_filename and not os.path.exists(meta_filename):
-        print >> ERROR_FILE, 'meta-file cannot be found: ' + meta_filename
+        print('meta-file cannot be found: ' + meta_filename, file=ERROR_FILE)
         sys.exit(2)
     if data_filename  and not os.path.exists(data_filename):
-        print >> ERROR_FILE, 'data-file cannot be found:' + data_filename
+        print('data-file cannot be found:' + data_filename, file=ERROR_FILE)
         sys.exit(2)
 
 def check_dir(study_directory):
     # check existence of directory
     if not os.path.exists(study_directory) and study_directory != '':
-        print >> ERROR_FILE, 'Study cannot be found: ' + study_directory
+        print('Study cannot be found: ' + study_directory, file=ERROR_FILE)
         sys.exit(2)
 
 def interface():
@@ -366,11 +384,11 @@ def interface():
                         help='Command for import. Allowed commands: import-cancer-type, '
                              'import-study, import-study-data, import-case-list or '
                              'remove-study')
-    parser.add_argument('-s', '--study_directory',type=str, required=False,
+    parser.add_argument('-s', '--study_directory', type=str, required=False,
                         help='Path to Study Directory')
-    parser.add_argument('-jar', '--jar_path',type=str, required=False,
+    parser.add_argument('-jar', '--jar_path', type=str, required=False,
                         help='Path to scripts JAR file')
-    parser.add_argument('-meta', '--meta_filename',type=str, required=False,
+    parser.add_argument('-meta', '--meta_filename', type=str, required=False,
                         help='Path to meta file')
     parser.add_argument('-data', '--data_filename', type=str, required=False,
                         help='Path to Data file')
@@ -381,8 +399,25 @@ def interface():
     return parser
 
 
-def main(args):
+def locate_jar():
+    """Locate the scripts jar file relative to this script.
 
+    Throws a FileNotFoundError with a message if the jar file couldn't be
+    identified.
+    """
+    # get the directory name of the currently running script,
+    # resolving any symlinks
+    script_dir = Path(__file__).resolve().parent
+    # go up from cbioportal/core/src/main/scripts/importer/ to cbioportal/
+    src_root = script_dir.parent.parent.parent.parent.parent
+    jars = list((src_root / 'scripts' / 'target').glob('scripts-*.jar'))
+    if len(jars) != 1:
+        raise FileNotFoundError(
+            'Expected to find 1 scripts-*.jar, but found ' + str(len(jars)))
+    return str(jars[0])
+
+
+def main(args):
     global LOGGER
 
     # get the logger with a handler to print logged error messages to stderr
@@ -394,22 +429,15 @@ def main(args):
     module_logger.addHandler(error_handler)
     LOGGER = module_logger
 
-    # jar_path is optional. If not set, try to make it up based on PORTAL_HOME
+    # jar_path is optional. If not set, try to find it relative to this script
     if args.jar_path is None:
-        portal_home = os.environ.get('PORTAL_HOME', None)
-        if portal_home is None:
-            # PORTAL_HOME also not set...quit trying with error:
-            print 'Error: either --jar_path needs to be given or environment variable PORTAL_HOME needs to be set'
+        try:
+            args.jar_path = locate_jar()
+        except FileNotFoundError as e:
+            print(e)
             sys.exit(2)
-        else:
-            #find jar files in lib folder and add them to classpath:
-            import glob
-            jars = glob.glob(portal_home + "/scripts/target/scripts-*.jar")
-            if len(jars) != 1:
-                print 'Expected to find 1 scripts-*.jar, but found: ' + str(len(jars))
-                sys.exit(2)
-            args.jar_path = jars[0]
-            print 'Data loading step using: {}\n'.format(args.jar_path)
+        print('Data loading step using', args.jar_path)
+        print()
 
     # process the options
     jvm_args = "-Dspring.profiles.active=dbcp -cp " + args.jar_path

@@ -1,19 +1,11 @@
 package org.cbioportal.web.parameter;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class MutationGeneFilter {
+public class MutationGeneFilter implements Serializable {
 
-    private String molecularProfileId;
     private List<Integer> entrezGeneIds;
-
-	public String getMolecularProfileId() {
-		return molecularProfileId;
-	}
-
-	public void setMolecularProfileId(String molecularProfileId) {
-		this.molecularProfileId = molecularProfileId;
-	}
 
 	public List<Integer> getEntrezGeneIds() {
 		return entrezGeneIds;

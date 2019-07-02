@@ -39,6 +39,6 @@ public interface ClinicalDataRepository {
     BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                    String clinicalDataType);
 
-    List<ClinicalDataCount> fetchClinicalDataCounts(String studyId, List<String> sampleIds, List<String> attributeIds, 
+    List<ClinicalDataCount> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds, List<String> attributeIds, 
         String clinicalDataType);
 }

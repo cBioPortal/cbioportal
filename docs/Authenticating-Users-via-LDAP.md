@@ -11,9 +11,7 @@ In this setup LDAP will be used as a simple Identity Provider (IDP) for the auth
 
 * **service provider**:  any web site or web application that provides a service, but should only be available to authenticated and authorized users.  In the documentation below, the cBioPortal is the service provider.
 
-* **authentication**:  a means of verifying that a user is who they purport to be.  Authentication is performed by the identify provider, by extracting the user name and password provided in a login request, and matching this with information stored in its repository.
-
-* **authorization**:  defines resources a user can access.  When authorization is turned *on* with cBioPortal, users can only access cancer studies they are specifically authorized to view.  This enables one to store multiple cancer studies within a single instance of cBioPortal, but provide fine-grained control over which users can access which studies.  Authorization is implemented within the core cBioPortal code, and *not* the identify provider.
+* **authentication**:  a means of verifying that a user is who they purport to be.  Authentication is performed by the identify provider, by extracting the user name and password provided in a login request, and matching this with information stored in its repository. When authentication is enabled, multiple cancer studies can be stored within a single instance of cBioPortal while providing fine-grained control over which users can access which studies.  Authorization is implemented within the core cBioPortal code, and *not* the identify provider.
 
 ## Why is LDAP Relevant to cBioPortal?
 
@@ -23,13 +21,11 @@ The cBioPortal code has no means of storing user name and passwords and no means
 # Configuring LDAP within cBioPortal
 
 
-## Modifying portal.properties
+## Modifying configuration
 
-Within portal.properties, modify the section labeled `authentication`.  For example:
+In portal.properties, modify the section labeled `authentication`.  For
+example:
 
-    # authentication
-    authenticate=ldap
-    
     ## configuration for the LDAP access
     ldap.user_search_base=DC=example,DC=com
     ldap.url=ldap://ldap.example.com:389
@@ -46,11 +42,7 @@ Please note that you will have to modify all the above to match your own setting
 
 ## Authorizing Users
 
-Within portal.properties, modify
-
-    authorization=true
-
-Next, please read the Wiki page on [User Authorization](User-Authorization.md), and add user rights for a single user.
+Please read the Wiki page on [User Authorization](User-Authorization.md), and add user rights for a single user.
 
 
 ## Configuring the Login.jsp Page
@@ -73,14 +65,10 @@ skin.login.contact_html=If you think you have received this message in error, pl
 
 You are now ready to go.
 
-Rebuild the WAR file and re-deploy:
+Rebuild the WAR file and follow the [Deployment with authentication
+steps](Deploying.md#required-login) using `authenticate=ldap`.
 
-```
-mvn -DskipTests clean install
-cp portal/target/cbioportal.war $CATALINA_HOME/webapps/
-```
-
-Then, go to:  [http://localhost:8080/cbioportal/](http://localhost:8080/cbioportal/).
+Then, go to:  [http://localhost:8080/](http://localhost:8080/).
 
 If all goes well, the following should happen:
 
@@ -107,4 +95,3 @@ If you get stuck or get an obscure error message, you can try to turn on all DEB
     log4j.category.org.mskcc=DEBUG
 
 Then, rebuild the WAR, redeploy, and try to authenticate again.  
-

@@ -4,7 +4,9 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.17.2-SNAPSHOT</version>
+    <!-- project version is generated through git or can be passed as
+         PROJECT_VERSION env variable (see version.sh) -->
+    <version>0-unknown-version-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>web</artifactId>
@@ -101,6 +103,11 @@
       <groupId>org.aspectj</groupId>
       <artifactId>aspectjweaver</artifactId>
       <version>1.8.12</version>
+    </dependency>
+	<dependency>
+        <groupId>com.datumbox</groupId>
+        <artifactId>datumbox-framework-lib</artifactId>
+        <version>0.8.1</version>
     </dependency>
   </dependencies>
 

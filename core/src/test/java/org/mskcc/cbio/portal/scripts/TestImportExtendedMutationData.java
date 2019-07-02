@@ -51,36 +51,53 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.mskcc.cbio.portal.persistence.MutationMapperLegacy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 /**
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@ContextConfiguration(locations = { "classpath:/integrationTestScript.xml", "classpath:/applicationContext-dao.xml" })
 @TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
 @Transactional
 public class TestImportExtendedMutationData {
 
-	int studyId;
-	int geneticProfileId;
-	@Before
-	public void setUp() throws DaoException {
-		studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
-		
-		DaoGeneticProfile.reCache();
-		DaoSample.reCache();
-		DaoPatient.reCache();
-		GeneticProfile geneticProfile = new GeneticProfile();
-		geneticProfile.setCancerStudyId(studyId);
-		geneticProfile.setProfileName("test profile");
-		geneticProfile.setStableId("test");
-		geneticProfile.setGeneticAlterationType(GeneticAlterationType.MUTATION_EXTENDED);
-		geneticProfile.setDatatype("test");
-		DaoGeneticProfile.addGeneticProfile(geneticProfile);
-		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("test").getGeneticProfileId();
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    int studyId;
+    int geneticProfileId;
+    int geneticProfileIdDupEvents;
+    @Before
+    public void setUp() throws DaoException {
+        studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
+
+        DaoGeneticProfile.reCache();
+        DaoSample.reCache();
+        DaoPatient.reCache();
+        // create test genetic profile
+        GeneticProfile geneticProfile = new GeneticProfile();
+        geneticProfile.setCancerStudyId(studyId);
+        geneticProfile.setProfileName("test profile");
+        geneticProfile.setStableId("test");
+        geneticProfile.setGeneticAlterationType(GeneticAlterationType.MUTATION_EXTENDED);
+        geneticProfile.setDatatype("test");
+        DaoGeneticProfile.addGeneticProfile(geneticProfile);
+        geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("test").getGeneticProfileId();
+
+        // create test genetic profile for shared mutation events test
+        GeneticProfile geneticProfile2 = new GeneticProfile();
+        geneticProfile2.setCancerStudyId(studyId);
+        geneticProfile2.setProfileName("test duplicate mutation events profile");
+        geneticProfile2.setStableId("test_dup_mut_events");
+        geneticProfile2.setGeneticAlterationType(GeneticAlterationType.MUTATION_EXTENDED);
+        geneticProfile2.setDatatype("test");
+        DaoGeneticProfile.addGeneticProfile(geneticProfile2);
+        geneticProfileIdDupEvents = DaoGeneticProfile.getGeneticProfileByStableId("test_dup_mut_events").getGeneticProfileId();
 
         ProgressMonitor.setConsoleMode(false);
-
         loadGenes();
     }
 
@@ -245,7 +262,7 @@ public class TestImportExtendedMutationData {
                    acceptAllMutationTypes();
                }
 
-    private void checkBasicFilteringRules() throws DaoException {
+   private void checkBasicFilteringRules() throws DaoException {
         rejectSilentLOHIntronWildtype();
         acceptValidSomaticMutations();
     }
@@ -419,5 +436,35 @@ public class TestImportExtendedMutationData {
         
         // valid Silent
         validateMutationAminoAcid (geneticProfileId, sampleId, 114548, "G982G");
+    }
+
+    /**
+     * Test to confirm that 2 identical mutation events from 2 samples still point to the same
+     * mutation event despite unique constraint on `mutation_event`.
+     * @throws IOException
+     * @throws DaoException
+     */
+    @Test
+    public void testImportExtendedMutationDataExtendedWithSharedMutationEvent() throws IOException, DaoException {
+        // import maf
+        MySQLbulkLoader.bulkLoadOn();
+        File file = new File("src/test/resources/data_mutations_extended_duplicate_events.txt");
+        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileIdDupEvents, null);
+        parser.importData();
+        MySQLbulkLoader.flushAll();
+        ConsoleUtil.showMessages();
+        // fetch mutations for test genetic profile
+        MutationMapperLegacy mutationMapperLegacy = applicationContext.getBean(MutationMapperLegacy.class);
+        List<String> geneticProfileStableIds = new ArrayList<String>();
+        geneticProfileStableIds.add("test_dup_mut_events");
+        List<Mutation> mutations = mutationMapperLegacy.getMutationsDetailed(geneticProfileStableIds, null, null, null);
+        // there are 2 identical mutation records from 2 different samples in test MAF
+        // verify that only one mutation event is associated with these samples
+        assertEquals(2, mutations.size());
+        Set<Integer> events = new HashSet<>();
+        for (Mutation mut : mutations) {
+            events.add(mut.getMutationEvent().getMutationEventId());
+        }
+        assertEquals(1, events.size());
     }
 }

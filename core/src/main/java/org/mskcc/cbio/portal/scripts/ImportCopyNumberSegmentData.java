@@ -65,22 +65,8 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
                 if (strs.length<6) {
                     System.err.println("wrong format: "+line);
                 }
-    
+
                 CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
-                //TODO - lines below should be removed. Agreed with JJ to remove this as soon as MSK moves to new validation 
-                //procedure. In this new procedure, Patients and Samples should only be added 
-                //via the corresponding ImportClinicalData process. Furthermore, the code below is wrong as it assumes one 
-                //sample per patient, which is not always the case.
-                String barCode = strs[0];
-                Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId,
-                        StableIdUtil.getSampleId(barCode));
-                if (sample == null ) {
-                    ImportDataUtil.addPatients(new String[] { barCode }, cancerStudy);
-                    ImportDataUtil.addSamples(new String[] { barCode }, cancerStudy);
-                    ProgressMonitor.logWarning("WARNING: Sample added on the fly because it was missing in clinical data");
-                }
-    
-                String sampleId = StableIdUtil.getSampleId(barCode);
                 String chrom = strs[1].trim(); 
                 //validate in same way as GistitReader:
                 ValidationUtils.validateChromosome(chrom);
@@ -95,7 +81,8 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
                 }            
                 int numProbes = new BigDecimal((strs[4])).intValue();
                 double segMean = Double.parseDouble(strs[5]);
-                
+
+                String sampleId = StableIdUtil.getSampleId(strs[0]);
                 Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
                 if (s == null) {
                     if (StableIdUtil.isNormal(sampleId)) {

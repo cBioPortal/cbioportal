@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
@@ -24,18 +25,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Studies", description = " ")
+@Api(tags = "B. Studies", description = " ")
 public class StudyController {
 
     @Autowired
@@ -44,6 +53,8 @@ public class StudyController {
     @RequestMapping(value = "/studies", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all studies")
     public ResponseEntity<List<CancerStudy>> getAllStudies(
+        @ApiParam("Search keyword that applies to name and cancer type of the studies")
+        @RequestParam(required = false) String keyword,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection,
         @ApiParam("Page size of the result list")
@@ -60,17 +71,17 @@ public class StudyController {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, studyService.getMetaStudies().getTotalCount()
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, studyService.getMetaStudies(keyword).getTotalCount()
                 .toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                studyService.getAllStudies(projection.name(), pageSize, pageNumber,
+                studyService.getAllStudies(keyword, projection.name(), pageSize, pageNumber,
                     sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
         }
     }
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudy', 'read')")
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
     @RequestMapping(value = "/studies/{studyId}", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get a study")
@@ -81,7 +92,7 @@ public class StudyController {
         return new ResponseEntity<>(studyService.getStudy(studyId), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#studyIds, 'List<CancerStudyId>', 'read')")
+    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/studies/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
     produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch studies by IDs")
@@ -102,5 +113,37 @@ public class StudyController {
                 studyService.fetchStudies(studyIds, projection.name()), HttpStatus.OK);
         }
     
+    }
+
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
+    @RequestMapping(value = "/studies/{studyId}/tags", method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get the tags of a study")
+    public ResponseEntity<Object> getTags(
+        @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
+        @PathVariable String studyId) throws JsonParseException, JsonMappingException,
+        IOException {
+        
+    	Map<String,Object> map = new HashMap<String,Object>();
+        ObjectMapper mapper = new ObjectMapper();
+        CancerStudyTags cancerStudyTags = studyService.getTags(studyId);
+        if (cancerStudyTags != null) { //If tags is null an empty map is returned
+    		map = mapper.readValue(cancerStudyTags.getTags(), Map.class);
+        }
+        
+        return new ResponseEntity<>(map, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')")
+    @RequestMapping(value = "/studies/tags/fetch", method = RequestMethod.POST,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get the study tags by IDs")
+    public ResponseEntity<List<CancerStudyTags>> getTagsForMultipleStudies(
+        @ApiParam(required = true, value = "List of Study IDs")
+        @RequestBody List<String> studyIds) {
+        
+        List<CancerStudyTags> cancerStudyTags = studyService.getTagsForMultipleStudies(studyIds);
+        
+        return new ResponseEntity<>(cancerStudyTags, HttpStatus.OK);
     }
 }

@@ -50,7 +50,6 @@ public class SampleMyBatisRepositoryTest {
         Assert.assertEquals(Sample.SampleType.PRIMARY_SOLID_TUMOR, sample.getSampleType());
         Assert.assertEquals((Integer) 1, sample.getPatientId());
         Assert.assertEquals("TCGA-A1-A0SB", sample.getPatientStableId());
-        Assert.assertEquals("brca", sample.getTypeOfCancerId());
         Assert.assertNull(sample.getPatient());
     }
 
@@ -67,7 +66,6 @@ public class SampleMyBatisRepositoryTest {
         Assert.assertEquals(Sample.SampleType.PRIMARY_SOLID_TUMOR, sample.getSampleType());
         Assert.assertEquals((Integer) 1, sample.getPatientId());
         Assert.assertEquals("TCGA-A1-A0SB", sample.getPatientStableId());
-        Assert.assertEquals("brca", sample.getTypeOfCancerId());
         Patient patient = sample.getPatient();
         Assert.assertEquals((Integer) 1, patient.getInternalId());
         Assert.assertEquals("TCGA-A1-A0SB", patient.getStableId());
@@ -83,8 +81,8 @@ public class SampleMyBatisRepositoryTest {
                 " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
                 "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
-        Assert.assertEquals("23000897", cancerStudy.getPmid());
-        Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
+        Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
+        Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
         Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
     }
@@ -139,7 +137,6 @@ public class SampleMyBatisRepositoryTest {
         Assert.assertEquals(Sample.SampleType.PRIMARY_SOLID_TUMOR, sample.getSampleType());
         Assert.assertEquals((Integer) 7, sample.getPatientId());
         Assert.assertEquals("TCGA-A1-A0SI", sample.getPatientStableId());
-        Assert.assertEquals("brca", sample.getTypeOfCancerId());
         Patient patient = sample.getPatient();
         Assert.assertEquals((Integer) 7, patient.getInternalId());
         Assert.assertEquals("TCGA-A1-A0SI", patient.getStableId());
@@ -155,8 +152,8 @@ public class SampleMyBatisRepositoryTest {
                 " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
                 "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
-        Assert.assertEquals("23000897", cancerStudy.getPmid());
-        Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
+        Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
+        Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
         Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
     }
@@ -187,7 +184,6 @@ public class SampleMyBatisRepositoryTest {
         Assert.assertEquals(Sample.SampleType.PRIMARY_SOLID_TUMOR, sample.getSampleType());
         Assert.assertEquals((Integer) 1, sample.getPatientId());
         Assert.assertEquals("TCGA-A1-A0SB", sample.getPatientStableId());
-        Assert.assertEquals("brca", sample.getTypeOfCancerId());
         Assert.assertNull(sample.getPatient());
     }
 
@@ -204,7 +200,6 @@ public class SampleMyBatisRepositoryTest {
         Assert.assertEquals(Sample.SampleType.PRIMARY_SOLID_TUMOR, sample.getSampleType());
         Assert.assertEquals((Integer) 1, sample.getPatientId());
         Assert.assertEquals("TCGA-A1-A0SB", sample.getPatientStableId());
-        Assert.assertEquals("brca", sample.getTypeOfCancerId());
         Patient patient = sample.getPatient();
         Assert.assertEquals((Integer) 1, patient.getInternalId());
         Assert.assertEquals("TCGA-A1-A0SB", patient.getStableId());
@@ -220,8 +215,8 @@ public class SampleMyBatisRepositoryTest {
                 " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci." +
                 "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.", cancerStudy.getDescription());
         Assert.assertEquals(true, cancerStudy.getPublicStudy());
-        Assert.assertEquals("23000897", cancerStudy.getPmid());
-        Assert.assertEquals("TCGA, Nature 2012", cancerStudy.getCitation());
+        Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
+        Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
         Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
         Assert.assertEquals((Integer)0 , cancerStudy.getStatus());
     }
@@ -267,7 +262,6 @@ public class SampleMyBatisRepositoryTest {
         Assert.assertEquals(Sample.SampleType.PRIMARY_SOLID_TUMOR, sample.getSampleType());
         Assert.assertEquals((Integer) 1, sample.getPatientId());
         Assert.assertEquals("TCGA-A1-A0SB", sample.getPatientStableId());
-        Assert.assertEquals("brca", sample.getTypeOfCancerId());
         Assert.assertNull(sample.getPatient());
     }
 

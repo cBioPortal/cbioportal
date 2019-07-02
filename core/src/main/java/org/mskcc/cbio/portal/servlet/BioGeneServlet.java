@@ -50,7 +50,7 @@ import java.net.URLConnection;
  */
 public class BioGeneServlet extends HttpServlet
 {
-	public final static String BIO_GENE_SERVICE = "http://cbio.mskcc.org/biogene/retrieve.do";
+	public final static String BIO_GENE_SERVICE = "https://biogene.herokuapp.com/retrieve.do";
 	public final static String NA = "NA";
 
 	private static String makeRequest(String query,

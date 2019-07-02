@@ -4,10 +4,10 @@ python_selenium_container: endtoend_python-selenium_1
 screenshot:
   names:
     # - patient_view_lgg_ucsf_2014_case_id_P04
-    - study_view_lgg_ucsf_2014
+    # - study_view_lgg_ucsf_2014
   urls:
     # - patient?studyId=lgg_ucsf_2014&caseId=P04
-    - study.do?cancer_study_id=lgg_ucsf_2014
+    # - study.do?cancer_study_id=lgg_ucsf_2014
   # timeout in seconds
   timeout:
     # - 30

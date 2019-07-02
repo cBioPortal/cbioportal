@@ -6,7 +6,7 @@ Two tables need to be populated in order to support user authorization.
 
 ## Table:  users
 
-This table contains all the users that have authorized access to the instance of the portal.  The table requires a user email address, name, and integer flag indicating if the account is enabled.
+This table contains all the users that have authorized access to the instance of the portal.  The table requires a user's email address, name, and integer flag indicating if the account is enabled.
 
 ```
 mysql> describe users;
@@ -135,7 +135,7 @@ After **next login**, the user 'john.smith@gmail.com' will have access to these 
 
 ## Configuring PUBLIC studies
 
-To enable a set of Public studies that should be visible to all users, without the need to configure this for each user in the `authorities` and `users` tables, you can set the property `always_show_study_group` in **portal.properties** file. For example, you can set:
+To enable a set of public studies that should be visible to all users, without the need to configure this for each user in the `authorities` and `users` tables, you can set the property `always_show_study_group` in **portal.properties** file. For example, you can set:
 
 ```
 always_show_study_group=PUBLIC
@@ -156,4 +156,4 @@ To reuse the example table above, let's assume the property `always_show_study_g
 +-----------------+-------------------------+--------------------+
 ```
 
-In this case, the study `brca_tcga` will be visible to *any authenticated user* while the study `acc_tcga` only to users configured to be part of `GROUPB` or `TEST_GROUP1`
+In this case, the study `brca_tcga` will be visible to *any authenticated user* while the study `acc_tcga` will be visible only to users configured to be part of `GROUPB` or `TEST_GROUP1`

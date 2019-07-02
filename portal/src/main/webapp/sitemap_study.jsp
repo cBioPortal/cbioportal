@@ -10,6 +10,11 @@
 
 <%
 
+if (GlobalProperties.showSitemaps() == false) {
+    response.setStatus(404);
+} else {
+    response.setHeader("X-Robots-Tag", "noindex");
+
 String protocol = (request.isSecure()) ? "https" : "http";
 String studyId = request.getParameter("studyId");
 pageContext.setAttribute("studyId", request.getParameter("studyId"));
@@ -45,3 +50,5 @@ if (GlobalProperties.showSitemaps()) {
     </c:forEach>
 </urlset>
 </c:if>
+
+<% } %>

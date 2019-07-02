@@ -97,7 +97,7 @@ INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","CLINICAL_TRIAL_KEYWORD
 
 -- cancer_study
 INSERT INTO "cancer_study" ("CANCER_STUDY_ID", "CANCER_STUDY_IDENTIFIER", "TYPE_OF_CANCER_ID", "NAME", "SHORT_NAME", "DESCRIPTION", "PUBLIC", "PMID", "CITATION", "GROUPS") 
-VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC');
+VALUES (1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','BRCA (TCGA)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897,26451490','TCGA, Nature 2012, ...','SU2C-PI3K;PUBLIC;GDAC');
 
 -- gene as genetic_entity
 INSERT INTO "genetic_entity" ("ENTITY_TYPE") VALUES ('GENE');
@@ -512,14 +512,3 @@ INSERT INTO authorities (EMAIL, AUTHORITY) values ('jami@gmail.com', 'ROLE_USER'
 INSERT INTO authorities (EMAIL, AUTHORITY) values ('Lonnie@openid.org', 'ROLE_USER');
 INSERT INTO authorities (EMAIL, AUTHORITY) values ('Dhorak@yahoo.com', 'ROLE_USER');
 INSERT INTO authorities (EMAIL, AUTHORITY) values ('Dhorak@yahoo.com', 'ROLE_MANAGER');
-
-INSERT INTO "gene_panel" ("INTERNAL_ID", "STABLE_ID", "DESCRIPTION") VALUES(1, 'TESTPANEL1', 'A test panel consisting of a few genes');
-INSERT INTO "gene_panel" ("INTERNAL_ID", "STABLE_ID", "DESCRIPTION") VALUES(2, 'TESTPANEL2', 'Another test panel consisting of a few genes');
-
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 207);
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 369);
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(1, 672);
-
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 207);
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 208);
-INSERT INTO "gene_panel_list" ("INTERNAL_ID", "GENE_ID") VALUES(2, 4893);

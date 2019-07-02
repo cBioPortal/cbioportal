@@ -11,6 +11,12 @@
 <%
 String protocol = (request.isSecure()) ? "https" : "http";
 pageContext.setAttribute("serverRoot", protocol + "://" + request.getServerName());
+
+if (GlobalProperties.showSitemaps() == false) {
+    response.setStatus(404);
+} else {
+    response.setHeader("X-Robots-Tag", "noindex");
+
 %>
 
 <c:if test = "${GlobalProperties.showSitemaps()}">
@@ -39,3 +45,6 @@ if (GlobalProperties.showSitemaps()) {
    </sitemapindex>
 
 </c:if>
+
+<% } %>
+

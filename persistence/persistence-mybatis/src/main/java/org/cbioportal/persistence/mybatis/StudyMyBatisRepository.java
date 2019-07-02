@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.CancerStudy;
+import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
@@ -18,16 +19,16 @@ public class StudyMyBatisRepository implements StudyRepository {
     private OffsetCalculator offsetCalculator;
 
     @Override
-    public List<CancerStudy> getAllStudies(String projection, Integer pageSize, Integer pageNumber,
+    public List<CancerStudy> getAllStudies(String keyword, String projection, Integer pageSize, Integer pageNumber,
                                            String sortBy, String direction) {
 
-        return studyMapper.getStudies(null, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy,
-                direction);
+        return studyMapper.getStudies(null, keyword, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), 
+            sortBy, direction);
     }
 
     @Override
-    public BaseMeta getMetaStudies() {
-        return studyMapper.getMetaStudies(null);
+    public BaseMeta getMetaStudies(String keyword) {
+        return studyMapper.getMetaStudies(null, keyword);
     }
 
     @Override
@@ -38,12 +39,23 @@ public class StudyMyBatisRepository implements StudyRepository {
 	@Override
 	public List<CancerStudy> fetchStudies(List<String> studyIds, String projection) {
         
-        return studyMapper.getStudies(studyIds, projection, 0, 0, null, null);
+        return studyMapper.getStudies(studyIds, null, projection, 0, 0, null, null);
 	}
 
 	@Override
 	public BaseMeta fetchMetaStudies(List<String> studyIds) {
         
-        return studyMapper.getMetaStudies(studyIds);
+        return studyMapper.getMetaStudies(studyIds, null);
 	}
+	
+	@Override
+    public CancerStudyTags getTags(String studyId) {
+        return studyMapper.getTags(studyId);
+    }
+
+    @Override
+    public List<CancerStudyTags> getTagsForMultipleStudies(List<String> studyIds) {
+
+        return studyMapper.getTagsForMultipleStudies(studyIds);
+    }
 }

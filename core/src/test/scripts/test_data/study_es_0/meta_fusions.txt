@@ -6,4 +6,3 @@ profile_description: Fusions.
 show_profile_in_analysis_tab: true
 profile_name: Fusions
 data_filename: data_fusions.txt
-gene_panel: example_gene_panel_stable_id

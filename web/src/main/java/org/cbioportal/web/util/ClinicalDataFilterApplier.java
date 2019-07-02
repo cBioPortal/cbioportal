@@ -4,6 +4,7 @@ import org.apache.commons.collections.map.MultiKeyMap;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleService;

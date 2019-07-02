@@ -25,6 +25,7 @@ PATIENTS_WITH_SAMPLES = None
 PORTAL_INSTANCE = None
 prior_validated_sample_ids = None
 prior_validated_geneset_ids = None
+mutation_sample_ids = None
 
 def setUpModule():
     """Initialise mock data used throughout the module."""
@@ -32,12 +33,14 @@ def setUpModule():
     global DEFINED_SAMPLE_ATTRIBUTES
     global PATIENTS_WITH_SAMPLES
     global PORTAL_INSTANCE
+    global mutation_sample_ids
     # mock information parsed from the sample attribute file
     DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01", "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
     DEFINED_SAMPLE_ATTRIBUTES = {'PATIENT_ID', 'SAMPLE_ID', 'SUBTYPE', 'CANCER_TYPE', 'CANCER_TYPE_DETAILED'}
     PATIENTS_WITH_SAMPLES = set("TEST-PAT{}".format(num) for
                                 num in list(range(1, 10)) if
                                 num != 8)
+    mutation_sample_ids = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01"]
     logger = logging.getLogger(__name__)
     # parse mock API results from a local directory
     PORTAL_INSTANCE = validateData.load_portal_info('test_data/api_json_unit_tests/',
@@ -140,11 +143,16 @@ class PostClinicalDataFileTestCase(DataFileTestCase):
         self.orig_patients_with_samples = validateData.PATIENTS_WITH_SAMPLES
         validateData.PATIENTS_WITH_SAMPLES = PATIENTS_WITH_SAMPLES
 
-        # reset all gene set global variables when starting a test
+        # Prepare global variables related to gene sets
         self.orig_prior_validated_sample_ids = validateData.prior_validated_sample_ids
         validateData.prior_validated_sample_ids = prior_validated_sample_ids
         self.orig_prior_validated_geneset_ids = validateData.prior_validated_geneset_ids
         validateData.prior_validated_geneset_ids = prior_validated_geneset_ids
+
+        # Prepare global variables related to sample profiled for mutations and gene panels
+        self.mutation_sample_ids = validateData.mutation_sample_ids
+        validateData.mutation_sample_ids = mutation_sample_ids
+
 
     def tearDown(self):
         """Restore the environment to before setUp() was called."""
@@ -153,6 +161,7 @@ class PostClinicalDataFileTestCase(DataFileTestCase):
         validateData.PATIENTS_WITH_SAMPLES = self.orig_patients_with_samples
         validateData.prior_validated_sample_ids = self.orig_prior_validated_sample_ids
         validateData.prior_validated_geneset_ids = self.orig_prior_validated_geneset_ids
+        validateData.mutation_sample_ids = self.mutation_sample_ids
         super(PostClinicalDataFileTestCase, self).tearDown()
 
 
@@ -254,7 +263,7 @@ class ClinicalColumnDefsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.column_number, 2)
         self.assertIn(record.cause, 'STRING')
 
-        # Expect warning for sample attribute in patient clinical data
+        # Expect error for sample attribute in patient clinical data
         record = next(record_iterator)
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 5)
@@ -442,13 +451,15 @@ class CancerTypeFileValidationTestCase(DataFileTestCase):
     def test_new_cancer_type(self):
         """Test when a study defines a new cancer type."""
         # {"id":"luad","name":"Lung Adenocarcinoma","color":"Gainsboro"}
-        self.logger.setLevel(logging.WARNING)
+        self.logger.setLevel(logging.INFO)
         record_list = self.validate('data_cancertype_lung.txt',
                                     validateData.CancerTypeValidator)
-        # expecting a warning about a new cancer type being added
-        self.assertEqual(len(record_list), 1)
+        # expecting an info message being about a new cancer type being added
+        self.assertEqual(len(record_list), 3)
         record = record_list.pop()
-        self.assertEqual(record.levelno, logging.WARNING)
+        record = record_list.pop()
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.INFO)
         self.assertEqual(record.cause, 'luad')
         self.assertIn('will be added', record.getMessage().lower())
 
@@ -1641,6 +1652,20 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.cause, 'Wildtype')
         self.assertEqual(record.getMessage(), "Mutation will not be loaded due to value in Mutation_Status")
 
+    def test_mutation_invalid_utf8(self):
+        """Test that the validator raises an error when a data file contains invalid UTF-8 bytes".
+        """
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('mutations/data_mutations_invalid_utf8.maf',
+                                    validateData.MutationsExtendedValidator)
+        # we expect 1 ERROR:
+        self.assertEqual(len(record_list), 1)
+
+        # The ERROR should be: "UTF-8 codec can't decode byte"
+        self.assertIn("File contains invalid UTF-8 bytes. Please check values in file", record_list[0].getMessage())
+        self.assertEqual(record_list[0].levelno, logging.ERROR)
+
 
 class FusionValidationTestCase(PostClinicalDataFileTestCase):
 
@@ -1675,16 +1700,6 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
                         '3': 198022430, '4': 191154276, '5': 180915260,
                         '6': 171115067, '7': 159138663, '8': 146364022,
                         '9': 141213431, 'X': 155270560, 'Y': 59373566}
-            #Todo: Remove hg18 when all public data is liftOvered to hg18. See validator.
-            elif genome_build == 'hg18':
-                return {'1': 247249719, '10': 135374737, '11': 134452384,
-                        '12': 132349534, '13': 114142980, '14': 106368585,
-                        '15': 100338915, '16': 88827254, '17': 78774742,
-                        '18': 76117153, '19': 63811651, '2': 242951149,
-                        '20': 62435964, '21': 46944323, '22': 49691432,
-                        '3': 199501827, '4': 191273063, '5': 180857866,
-                        '6': 170899992, '7': 158821424, '8': 146274826,
-                        '9': 140273252, 'X': 154913754, 'Y': 57772954}
             else:
                 raise ValueError(
                     "load_chromosome_lengths() called with genome build '{}'".format(
@@ -1709,16 +1724,21 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
         for record in record_list:
             self.assertLessEqual(record.levelno, logging.INFO)
 
-    def test_valid_ref_genome_hg18(self):
-        """Validate a segment file which uses hg18 as reference genome"""
-        record_list = self.validate('data_seg_valid_hg18.seg',
+    def test_invalid_ref_genome_hg18(self):
+        """Test validation of a segment file which has hg18 data but is submitted as hg19"""
+        self.logger.setLevel(logging.ERROR)
+
+        # The input file contains a genomic position from hg18 (chr19, 63811651)
+        record_list = self.validate('data_seg_invalid_hg18.seg',
                                     validateData.SegValidator,
                                     extra_meta_fields={'reference_genome_id':
-                                                           'hg18'})
-        # expecting only status messages about the file being validated
-        self.assertEqual(len(record_list), 3)
-        for record in record_list:
-            self.assertLessEqual(record.levelno, logging.INFO)
+                                                       'hg19'})
+        # Expect 1 error
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertLessEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.cause, '63811651')
+        self.assertEqual(record.message, 'Genomic position beyond end of chromosome (chr19:0-59128983)')
 
     def test_unparsable_seg_columns(self):
         """Validate .seg files with non-numeric values and an unsupported chromosome."""
@@ -1957,7 +1977,134 @@ class StudyCompositionTestCase(LogBufferTestCase):
                          {'cancer_type_luad.txt', 'cancer_type_lung.txt'})
         # assert that the second error complains about the cancer type
         self.assertEqual(record_list[1].cause, 'luad')
-
+        
+    def test_invalid_tags_file(self):
+        """Test if an error is reported when giving a study tags file with wrong format."""
+        with temp_inputfolder({
+            'meta_study.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                type_of_cancer: brca
+                name: Spam (spam)
+                description: Baked beans
+                short_name: Spam
+                add_global_case_list: true
+                tags_file: study_tags.yml
+                '''),
+            'meta_samples.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                genetic_alteration_type: CLINICAL
+                datatype: SAMPLE_ATTRIBUTES
+                data_filename: data_samples.txt
+                '''),
+            'data_samples.txt': textwrap.dedent('''\
+                #Patient Identifier\tSample Identifier
+                #PatID\tSampId
+                #STRING\tSTRING
+                #1\t1
+                PATIENT_ID\tSAMPLE_ID
+                Patient1\tPatient1-Sample1
+                '''),
+            'study_tags.yml': textwrap.dedent('''\
+                Invalid:
+                {
+                ''')
+        }) as study_dir:
+            self.logger.setLevel(logging.WARNING)
+            validateData.validate_study(
+                study_dir,
+                PORTAL_INSTANCE,
+                self.logger,
+                relaxed_mode=False,
+                strict_maf_checks=False)
+            record_list = self.get_log_records()
+            self.assertEqual(len(record_list), 1)
+            for record in record_list:
+                self.assertEqual(record.levelno, logging.ERROR)
+                self.assertIn('yaml', record.getMessage().lower())
+                
+    def test_valid_JSON_tags_file(self):
+        """Test if no errors are reported when giving a study tags file in JSON format."""
+        with temp_inputfolder({
+            'meta_study.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                type_of_cancer: brca
+                name: Spam (spam)
+                description: Baked beans
+                short_name: Spam
+                add_global_case_list: true
+                tags_file: study_tags.yml
+                '''),
+            'meta_samples.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                genetic_alteration_type: CLINICAL
+                datatype: SAMPLE_ATTRIBUTES
+                data_filename: data_samples.txt
+                '''),
+            'data_samples.txt': textwrap.dedent('''\
+                #Patient Identifier\tSample Identifier
+                #PatID\tSampId
+                #STRING\tSTRING
+                #1\t1
+                PATIENT_ID\tSAMPLE_ID
+                Patient1\tPatient1-Sample1
+                '''),
+            'study_tags.yml': textwrap.dedent('''\
+                { name: study_name }
+                ''')
+        }) as study_dir:
+            self.logger.setLevel(logging.WARNING)
+            validateData.validate_study(
+                study_dir,
+                PORTAL_INSTANCE,
+                self.logger,
+                relaxed_mode=False,
+                strict_maf_checks=False)
+            record_list = self.get_log_records()
+            self.assertEqual(len(record_list), 0)
+            for record in record_list:
+                self.assertEqual(record.levelno, logging.ERROR)
+    
+    def test_valid_YAML_tags_file(self):
+        """Test if no errors are reported when giving a study tags file in YAML format."""
+        with temp_inputfolder({
+            'meta_study.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                type_of_cancer: brca
+                name: Spam (spam)
+                description: Baked beans
+                short_name: Spam
+                add_global_case_list: true
+                tags_file: study_tags.yml
+                '''),
+            'meta_samples.txt': textwrap.dedent('''\
+                cancer_study_identifier: spam
+                genetic_alteration_type: CLINICAL
+                datatype: SAMPLE_ATTRIBUTES
+                data_filename: data_samples.txt
+                '''),
+            'data_samples.txt': textwrap.dedent('''\
+                #Patient Identifier\tSample Identifier
+                #PatID\tSampId
+                #STRING\tSTRING
+                #1\t1
+                PATIENT_ID\tSAMPLE_ID
+                Patient1\tPatient1-Sample1
+                '''),
+            'study_tags.yml': textwrap.dedent('''\
+                name: study_name
+                ''')
+        }) as study_dir:
+            self.logger.setLevel(logging.WARNING)
+            validateData.validate_study(
+                study_dir,
+                PORTAL_INSTANCE,
+                self.logger,
+                relaxed_mode=False,
+                strict_maf_checks=False)
+            record_list = self.get_log_records()
+            self.assertEqual(len(record_list), 0)
+            for record in record_list:
+                self.assertEqual(record.levelno, logging.ERROR)
 
 class CaseListDirTestCase(PostClinicalDataFileTestCase):
 
@@ -2124,10 +2271,10 @@ class MetaFilesTestCase(LogBufferTestCase):
         self.assertEqual(warning.cause, 'stable_id')
 
     def test_exceed_maximum_length_meta_attribute_value(self):
-        """Test to check the length the attribute in meta files."""
+        """Test to check whether the validator throws a warning for invalid length of attributes in meta files."""
         self.logger.setLevel(logging.WARNING)
         validateData.process_metadata_files(
-            'test_data/meta_files',
+            'test_data/meta_study/exceed_maximum_length_meta_attribute_value',
             PORTAL_INSTANCE,
             self.logger, False, False)
         record_list = self.get_log_records()
@@ -2137,6 +2284,27 @@ class MetaFilesTestCase(LogBufferTestCase):
         # expecting one error about the maximum length of 'short_name' meta_study
         record = record_list.pop()
         self.assertEqual("The maximum length of the 'short_name' value is 64", record.getMessage())
+
+    def test_invalid_pmid_values(self):
+        """Test to check whether the validator throws an error for invalid PMID values in meta_study.txt."""
+        self.logger.setLevel(logging.ERROR)
+        validateData.process_metadata_files(
+            'test_data/meta_study/invalid_pmid_values',
+            PORTAL_INSTANCE,
+            self.logger, False, False)
+
+        # expecting three errors about invalid PMID
+        record_list = self.get_log_records()
+        self.assertEqual(len(record_list), 3)
+        record = record_list.pop()
+        self.assertEqual('The PMID field in meta_study should be a comma separated list of integers', record.getMessage())
+        self.assertEqual('29617662 29625055', record.cause)
+        record = record_list.pop()
+        self.assertEqual('The PMID field in meta_study should be a comma separated list of integers', record.getMessage())
+        self.assertEqual('29622463A', record.cause)
+        record = record_list.pop()
+        self.assertEqual('The PMID field in meta_study should not contain any embedded whitespace', record.getMessage())
+        self.assertEqual('29625048, 29596782, 29622463A, 29617662 29625055, 29625050', record.cause)
 
 class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
 

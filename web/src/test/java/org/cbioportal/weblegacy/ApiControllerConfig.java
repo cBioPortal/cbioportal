@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Memorial Sloan Kettering Cancer Center.
+ * Copyright (c) 2016 - 2018 Memorial Sloan Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -31,16 +31,16 @@
 */
 package org.cbioportal.weblegacy;
 
-import org.mskcc.cbio.portal.persistence.CosmicCountMapperLegacy;
-import org.mskcc.cbio.portal.persistence.MutationMapperLegacy;
 import org.cbioportal.service.CosmicCountService;
 import org.mockito.Mockito;
 import org.mskcc.cbio.portal.persistence.CancerTypeMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ClinicalDataMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
+import org.mskcc.cbio.portal.persistence.CosmicCountMapperLegacy;
 import org.mskcc.cbio.portal.persistence.GeneAliasMapper;
 import org.mskcc.cbio.portal.persistence.GeneMapperLegacy;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapperLegacy;
+import org.mskcc.cbio.portal.persistence.MutationMapperLegacy;
 import org.mskcc.cbio.portal.persistence.PatientMapperLegacy;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
 import org.mskcc.cbio.portal.persistence.SampleListMapperLegacy;

@@ -1,13 +1,13 @@
 package org.cbioportal.service;
 
 import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.ClinicalDataCount;
+import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import java.util.List;
-import java.util.Map;
 
 public interface ClinicalDataService {
 
@@ -48,6 +48,6 @@ public interface ClinicalDataService {
     BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                    String clinicalDataType);
 
-    Map<String, List<ClinicalDataCount>> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds, List<String> attributeIds, 
-        String clinicalDataType);
+    List<ClinicalDataCountItem> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds, List<String> attributeIds, 
+        ClinicalDataType clinicalDataType);
 }

@@ -34,7 +34,7 @@ public class ExpressionEnrichmentController {
     @Autowired
     private ExpressionEnrichmentService expressionEnrichmentService;
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/expression-enrichments/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -48,7 +48,6 @@ public class ExpressionEnrichmentController {
         @Valid @RequestBody EnrichmentFilter enrichmentFilter) throws MolecularProfileNotFoundException {
 
         return new ResponseEntity<>(expressionEnrichmentService.getExpressionEnrichments(molecularProfileId,
-            enrichmentFilter.getAlteredIds(), enrichmentFilter.getUnalteredIds(), enrichmentFilter.getQueryGenes(), 
-            enrichmentType.name()), HttpStatus.OK);
+            enrichmentFilter.getAlteredIds(), enrichmentFilter.getUnalteredIds(), enrichmentType.name()), HttpStatus.OK);
     }
 }

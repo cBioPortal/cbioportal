@@ -1,28 +1,10 @@
 package org.cbioportal.web.parameter;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ClinicalDataEqualityFilter {
-
-	private String attributeId;
-	private ClinicalDataType clinicalDataType;
+public class ClinicalDataEqualityFilter extends ClinicalDataFilter  implements Serializable {
     private List<String> values;
-
-	public String getAttributeId() {
-		return attributeId;
-	}
-
-	public void setAttributeId(String attributeId) {
-		this.attributeId = attributeId;
-	}
-
-	public ClinicalDataType getClinicalDataType() {
-		return clinicalDataType;
-	}
-
-	public void setClinicalDataType(ClinicalDataType clinicalDataType) {
-		this.clinicalDataType = clinicalDataType;
-	}
 
 	public List<String> getValues() {
 		return values;

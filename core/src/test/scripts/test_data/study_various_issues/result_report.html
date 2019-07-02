@@ -52,37 +52,6 @@
       </div>
     </div>
 
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h4 class="panel-title">Legend</h4>
-      </div>
-      <div class="panel-body">
-        <p>
-	  Click on a filename below to see a table of messages about the data
-	  in the file. The colors in the tables have the following meanings:
-        </p>
-        <table class="table">
-          <tbody>
-            <tr class="danger">
-              <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
-              <td><strong>Error:</strong> cBioPortal will not know how to load this, please revise or remove</td>
-            </tr>
-            <tr class="warning">
-              <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
-              <td><strong>Warning:</strong> possible cause of confusion, please check whether this is intended</td>
-            </tr>
-            <tr class="success">
-              <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
-              <td><strong>Info:</strong> this looks good, no action required</td>
-            </tr>
-            <tr class="info">
-              <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-              <td><strong>Verbose output:</strong> details on the progress of the validation script</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
 
     <div class="panel panel-default">
     <div class="panel-body">
@@ -101,7 +70,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_R2VuZXJhbA",
              aria-controls="collapse_R2VuZXJhbA">
-            <span class="badge">8</span>
+            <span class="badge">9</span>
             <h4 class="panel-title">General</h4>
           </a>
         </div>
@@ -152,6 +121,13 @@
                 <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
+                <td>Reading portal information from test_data/api_json_system_tests/gene-panels.json</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
                 <td>Validating case lists</td>
                 <td>&ndash;</td>
               </tr>
@@ -166,7 +142,7 @@
                 <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
-                <td>No case list found for stable_id &#39;brca_tcga_pub_all&#39;, consider adding &#39;add_global_case_list: true&#39; to the study metadata file</td>
+                <td>No case list found with stable_id &#39;brca_tcga_pub_all&#39;, consider adding &#39;add_global_case_list: true&#39; to the meta_study.txt file</td>
                 <td>&ndash;</td>
               </tr>
               <tr class="success">
@@ -278,6 +254,52 @@
         <div class="panel-collapse collapse" role="tabpanel"
              id="collapse_Y2FzZV9saXN0cy9jYXNlc19jdXN0b20udHh0"
              aria-labelledby="heading_Y2FzZV9saXN0cy9jYXNlc19jdXN0b20udHh0">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Starting validation of meta file</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of meta file complete</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+             id="heading_Y2FzZV9saXN0cy9jYXNlc19zZXF1ZW5jZWQudHh0">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+             href="#collapse_Y2FzZV9saXN0cy9jYXNlc19zZXF1ZW5jZWQudHh0",
+             aria-controls="collapse_Y2FzZV9saXN0cy9jYXNlc19zZXF1ZW5jZWQudHh0">
+            <span class="badge">2</span>
+            <h4 class="panel-title">case_lists/cases_sequenced.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+             id="collapse_Y2FzZV9saXN0cy9jYXNlc19zZXF1ZW5jZWQudHh0"
+             aria-labelledby="heading_Y2FzZV9saXN0cy9jYXNlc19zZXF1ZW5jZWQudHh0">
           <div class="panel-body">
             <table class="table">
             <thead>
@@ -631,6 +653,37 @@
 
     </div>
     </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">Legend</h4>
+      </div>
+      <div class="panel-body">
+        <p>
+	  Click on a filename below to see a table of messages about the data
+	  in the file. The colors in the tables have the following meanings:
+        </p>
+        <table class="table">
+          <tbody>
+            <tr class="danger">
+              <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></span><span class="sr-only">Error</span></td>
+              <td><strong>Error:</strong> cBioPortal will not know how to load this, please revise or remove</td>
+            </tr>
+            <tr class="warning">
+              <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
+              <td><strong>Warning:</strong> possible cause of confusion, please check whether this is intended</td>
+            </tr>
+            <tr class="success">
+              <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+              <td><strong>Info:</strong> this looks good, no action required</td>
+            </tr>
+            <tr class="info">
+              <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+              <td><strong>Verbose output:</strong> details on the progress of the validation script</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </body>

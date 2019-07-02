@@ -3,6 +3,7 @@ function clearDevState(e){
     localStorage.removeItem('localdev');
     localStorage.removeItem('localdist');
     localStorage.removeItem('heroku');
+    localStorage.removeItem('netlify');
     window.location.reload();
 }
 
@@ -14,7 +15,7 @@ function showFrontendPopup(url) {
         newDiv.innerHTML = '<div style="">' +
             '<div class="alert alert-warning">' +
             '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
-            'cbioportal-frontend dev mode, using ' + url +
+            'cbioportal-frontend dev mode, using ' + url + '&nbsp;<a onclick="javascript:clearDevState();window.location.reload()">clear</a>' +
             '</div>' +
             '</div>';
         newDiv.onclick=function(){
@@ -35,7 +36,7 @@ window.loadReactApp = function(config) {
             console.log('ERROR: No frontend URL defined, should at least be empty string');
         }
     }
-    if (window.localdev || window.localdist || localStorage.heroku) {
+    if (window.localdev || window.localdist || localStorage.heroku || localStorage.netlify) {
         showFrontendPopup(window.frontendConfig.frontendUrl);
     }
     document.write('<link rel="stylesheet" type="text/css" href="' + window.frontendConfig.frontendUrl + 'reactapp/prefixed-bootstrap.min.css?'+ window.frontendConfig.appVersion +'" />');

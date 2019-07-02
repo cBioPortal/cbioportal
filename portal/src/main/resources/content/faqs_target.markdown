@@ -8,7 +8,7 @@ The portal stores genomic data from large scale, integrated cancer genomic data 
 
 # How do I get started?
 
-We have recently posted [two mini-tutorials](tutorial.jsp) to get you up and running.
+We have recently posted [two mini-tutorials](tutorials) to get you up and running.
 
 # What data types are in the portal?
 

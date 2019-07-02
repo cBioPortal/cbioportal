@@ -68,25 +68,19 @@ public class ImportGenesetHierarchy extends ConsoleRunnable {
 						"'data' argument required");
 			}
 
-
 			File genesetFile = new File(options.valueOf(data));
-
 			ProgressMonitor.setCurrentMessage("Input file:\n" + genesetFile.getPath() + "\n");
 
-			// Check if geneset_hierarchy_node already filled
-			boolean emptyDatabase = !DaoGenesetHierarchyNode.checkGenesetHierarchy();
-			if (emptyDatabase) {
-				ProgressMonitor.setCurrentMessage("Table `geneset_hierarchy_node` is empty.\n");
-			} else {
-				ProgressMonitor.setCurrentMessage("Table `geneset_hierarchy_node` is not empty.\n");
-			}
-
-			// First we want to validate that the gene sets we're adding, are in database.
+			// First validate if gene sets in the hierarchy file, are in database. Therefore start an import process
+			// with validation set to 'true'. This will mock the import process and checks the gene sets.
 			boolean validate = true;
 			importData(genesetFile, validate);
 
-			// Make the database empty
-			if (!emptyDatabase) {
+			// Check if gene set hierarchy tables are already filled
+			boolean filledGeneSetHierarchyTables = DaoGenesetHierarchyNode.checkGenesetHierarchy();
+
+			// If gene set hierarchy tables are already filled, ask if this data can be discarded
+			if (filledGeneSetHierarchyTables) {
 
 				// Asks if used wants to continue
 				ProgressMonitor.setCurrentMessage("Previous gene set hierarchy found. Do you want to remove previous hierarchy and continue importing new hierarchy?");
@@ -105,7 +99,7 @@ public class ImportGenesetHierarchy extends ConsoleRunnable {
 				DaoGenesetHierarchyNode.deleteAllGenesetHierarchyRecords();
 			}	
 
-			// If this is succesful, we want to import
+			// Start the gene set hierarchy import process
 			validate = false;
 			importData(genesetFile, validate);
 		} catch (RuntimeException e) {

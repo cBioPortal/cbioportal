@@ -8,30 +8,31 @@
 
     <session-config>
       <session-timeout>${tomcat.session.timeout}</session-timeout>
+      <tracking-mode>COOKIE</tracking-mode>
     </session-config>
     <mime-mapping>
         <extension>wsdl</extension>
         <mime-type>text/xml</mime-type>
     </mime-mapping>
     <welcome-file-list>
-        <welcome-file>index.do</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
     <display-name>Cancer Genomics Portal</display-name>
 
     <!-- context configuration -->
-    <!-- jndi profile is defined here to prevent exceptions during war deployment -->
+    <!-- dbcp profile is defined here to prevent exceptions during war deployment -->
     <context-param>
         <param-name>spring.profiles.active</param-name>
-        <param-value>${dbconnector:jndi},${authenticate}</param-value>
+        <param-value>${dbconnector:dbcp},${authenticate}</param-value>
     </context-param>
-    <context-param>  
-        <param-name>spring.liveBeansView.mbeanDomain</param-name>  
-        <param-value>${dbconnector:jndi},${authenticate}</param-value>
-    </context-param> 
+    <context-param>
+        <param-name>spring.liveBeansView.mbeanDomain</param-name>
+        <param-value>${dbconnector:dbcp},${authenticate}</param-value>
+    </context-param>
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:applicationContext-security.xml classpath:applicationContext-business.xml classpath:applicationContext-core.xml classpath:applicationContext-logging.xml</param-value>
+        <param-value>classpath:applicationContext-business.xml classpath:applicationContext-security.xml classpath:applicationContext-core.xml classpath:applicationContext-logging.xml</param-value>
     </context-param>
 
     <context-param>
@@ -42,7 +43,7 @@
     <context-param>
       <param-name>log4jConfigLocation</param-name>
       <param-value>classpath:log4j.properties</param-value>
-    </context-param> 
+    </context-param>
 
     <!-- listeners -->
     <listener>
@@ -61,28 +62,42 @@
 
     <!-- filters -->
     <filter>
-      <filter-name>CorsFilter</filter-name>
-      <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+        <filter-name>CorsFilter</filter-name>
+        <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+        <init-param>
+            <param-name>cors.allowed.origins</param-name>
+            <param-value>*</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cors.allowed.methods</param-name>
+            <param-value>GET,POST,HEAD,OPTIONS</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cors.allowed.headers</param-name>
+            <param-value>Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers</param-value>
+        </init-param>
+        <!-- expose cors headers defined in HeaderKeyConstants.java -->
+        <init-param>
+            <param-name>cors.exposed.headers</param-name>
+            <param-value>total-count,sample-count</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cors.support.credentials</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cors.preflight.maxage</param-name>
+            <param-value>1800</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cors.request.decorate</param-name>
+            <param-value>true</param-value>
+        </init-param>
     </filter>
 
     <filter-mapping>
       <filter-name>CorsFilter</filter-name>
       <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter>
-      <filter-name>APICorsFilter</filter-name>
-      <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
-      <init-param>
-        <param-name>cors.allowed.origins</param-name>
-        <!-- limit to portal server -->
-        <param-value>${session.service.origin}</param-value>
-      </init-param>
-    </filter>
-
-    <filter-mapping>
-      <filter-name>APICorsFilter</filter-name>
-      <url-pattern>/api-legacy/proxy/session/*</url-pattern>
     </filter-mapping>
 
     <filter>
@@ -95,12 +110,28 @@
       <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <!-- for mounting network tab through iframe -->
+    <filter>
+        <filter-name>httpHeaderSecurity</filter-name>
+        <filter-class>org.apache.catalina.filters.HttpHeaderSecurityFilter</filter-class>
+        <async-supported>true</async-supported>
+        <init-param>
+          <param-name>antiClickJackingOption</param-name>
+          <param-value>SAMEORIGIN</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+      <filter-name>httpHeaderSecurity</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
     <filter>
         <filter-name>FileUpload</filter-name>
         <display-name>File Upload</display-name>
         <description>
             Applied to file upload requests.
-            Wraps the request, allowing it to be used as a regular request, 
+            Wraps the request, allowing it to be used as a regular request,
             'as if' it were parsed by the Servlet API.
         </description>
         <filter-class>org.mskcc.cbio.portal.util.FileUploadFilter</filter-class>
@@ -133,8 +164,20 @@
 
     <filter-mapping>
         <filter-name>SessionServiceFilter</filter-name>
-        <url-pattern>/index.do</url-pattern>
+        <url-pattern>/data_download</url-pattern>
         <url-pattern>/cross_cancer.do</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>ResettableHttpServletRequestFilter</filter-name>
+        <display-name>Reusable Http Servlet RequestFilter</display-name>
+        <description>This allows body of a request to be read multiple times.</description>
+        <filter-class>org.cbioportal.web.util.ResettableHttpServletRequestFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>ResettableHttpServletRequestFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+        <url-pattern>/api-legacy/*</url-pattern>
     </filter-mapping>
 
     <!-- make sure XssFilter runs last, so that any new parameters added
@@ -157,7 +200,7 @@
 
 
     <!-- servlet definitions & mappings -->
-    
+
     <servlet>
         <servlet-name>api-legacy</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -225,7 +268,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>query_builder</servlet-name>
-        <url-pattern>/index.do</url-pattern>
+        <url-pattern>/data_download</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -235,15 +278,6 @@
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>cross_cancer_query</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerStudyServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>cross_cancer_query</servlet-name>
-        <url-pattern>/cross_cancer.do</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -264,6 +298,7 @@
 		<url-pattern>/portalMetadata.json</url-pattern>
 	</servlet-mapping>
 
+    <!-- need to keep this for legacy network page -->
     <servlet>
         <servlet-name>network</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.NetworkServlet</servlet-class>
@@ -308,7 +343,7 @@
         <servlet-name>CheckGeneSymbolJSON</servlet-name>
         <url-pattern>/CheckGeneSymbol.json</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
     	<servlet-name>ClinicalFreeFormJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalFreeFormJSON</servlet-class>
@@ -434,19 +469,12 @@
         <servlet-name>ClinicalTimelineData</servlet-name>
         <url-pattern>/clinical_timeline_data.json</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>patient_view</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.PatientView</servlet-class>
     </servlet>
-    <servlet-mapping>
-        <servlet-name>patient_view</servlet-name>
-        <url-pattern>/case.do</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>patient_view</servlet-name>
-        <url-pattern>/patient</url-pattern>
-    </servlet-mapping>
+
     <servlet>
         <servlet-name>CrossCancerJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerJSON</servlet-class>
@@ -491,7 +519,7 @@
         <servlet-name>CnaJSON</servlet-name>
         <url-pattern>/cna.json</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>SVGtoPDFConverter</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.SvgConverter</servlet-class>
@@ -509,34 +537,7 @@
         <servlet-name>SimilarPatientsJSON</servlet-name>
         <url-pattern>/similar_patients.json</url-pattern>
     </servlet-mapping>
-    
-    <servlet>
-        <servlet-name>cancer_study_view</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.CancerStudyView</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>cancer_study_view</servlet-name>
-        <url-pattern>/study.do</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>cancer_study_view</servlet-name>
-        <url-pattern>/study</url-pattern>
-    </servlet-mapping>
-    
-    
-    <servlet>
-        <servlet-name>cancer_study_view_v2</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.CancerStudyViewV2</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>cancer_study_view_v2</servlet-name>
-        <url-pattern>/newstudy.do</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>cancer_study_view_v2</servlet-name>
-        <url-pattern>/newstudy</url-pattern>
-    </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>DrugsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.DrugsJSON</servlet-class>
@@ -635,7 +636,7 @@
         <servlet-name>calcFisherExactTest</servlet-name>
         <url-pattern>/calcFisherExact.do</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>overRepresentationAnalysisJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.EnrichmentsJSON</servlet-class>
@@ -646,18 +647,22 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>link_out</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.LinkOut</servlet-class>
+        <servlet-name>SinglePageApplication</servlet-name>
+        <jsp-file>/index.jsp</jsp-file>
     </servlet>
+    <!--mapping-->
     <servlet-mapping>
-        <servlet-name>link_out</servlet-name>
-        <url-pattern>/link.do</url-pattern>
+        <servlet-name>SinglePageApplication</servlet-name>
+        <url-pattern>/results/*</url-pattern>
+        <url-pattern>/patient/*</url-pattern>
+        <url-pattern>/study/*</url-pattern>
+        <url-pattern>/mutation_mapper/*</url-pattern>
+        <url-pattern>/index.do/*</url-pattern>
+        <url-pattern>/case.do/*</url-pattern>
+        <url-pattern>/study.do/*</url-pattern>
+        <url-pattern>/loading/*</url-pattern>
+        <url-pattern>/comparison/*</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>link_out</servlet-name>
-        <url-pattern>/ln</url-pattern>
-    </servlet-mapping>
-
 
     <servlet>
         <servlet-name>SiteMapIndex</servlet-name>
@@ -668,7 +673,7 @@
         <servlet-name>SiteMapIndex</servlet-name>
         <url-pattern>/sitemap_index.xml</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>SiteMapStudy</servlet-name>
         <jsp-file>/sitemap_study.jsp</jsp-file>
@@ -686,5 +691,19 @@
         <servlet-name>RobotsIndex</servlet-name>
         <url-pattern>/robots.txt</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SiteConfiguration</servlet-name>
+        <jsp-file>/config_service.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SiteConfiguration</servlet-name>
+        <url-pattern>/config_service.json</url-pattern>
+    </servlet-mapping>
+
+    <error-page>
+        <error-code>404</error-code>
+        <location>/index.jsp</location>
+    </error-page>
 
 </web-app>

@@ -32,16 +32,17 @@
 package org.cbioportal.persistence;
 
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.GeneAlias;
 import org.cbioportal.model.meta.BaseMeta;
 
 import java.util.List;
 
 public interface GeneRepository {
 
-    List<Gene> getAllGenes(String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy, 
+    List<Gene> getAllGenes(String keyword, String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy, 
                            String direction);
 
-    BaseMeta getMetaGenes(String alias);
+    BaseMeta getMetaGenes(String keyword, String alias);
 
     Gene getGeneByEntrezGeneId(Integer entrezGeneId);
 
@@ -50,6 +51,8 @@ public interface GeneRepository {
     List<String> getAliasesOfGeneByEntrezGeneId(Integer entrezGeneId);
 
     List<String> getAliasesOfGeneByHugoGeneSymbol(String hugoGeneSymbol);
+
+    List<GeneAlias> getAllAliases();
 
     List<Gene> fetchGenesByEntrezGeneIds(List<Integer> entrezGeneIds, String projection);
 

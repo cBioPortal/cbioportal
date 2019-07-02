@@ -1,0 +1,4 @@
+#sequenced_samples: TCGA-AA-3664-01	TCGA-AA-3665-01
+Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Verification_Status	Validation_Status	Mutation_Status	Sequencer	Chromosome	Start_position	End_position	Variant_Classification	HGVSp_Short	MA:FImpact	MA:link.MSA	MA:link.PDB
+SP1	6667	broad.mit.edu	TCGA-AA-3665-01	Unknown	valid	Somatic	Illumina GAIIx	chr12	52063536	52063536	Missense_Mutation	A513V	low	mutationassessor.org/?cm=msa&ty=f&p=SP1_HUMAN&rb=401&re=600&var=A513V	
+OR10AG1	282770	broad.mit.edu	TCGA-AA-3664-01	Unknown	valid	Somatic	Illumina GAIIx	chr11	55492179	55492179	Missense_Mutation	R113C	high	mutationassessor.org/?cm=msa&ty=f&p=O10AG_HUMAN&rb=32&re=281&var=R113C	mutationassessor.org/pdb.php?prot=O10AG_HUMAN&from=32&to=281&var=R113C

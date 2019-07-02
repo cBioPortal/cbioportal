@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.CoExpression;
 import org.cbioportal.service.CoExpressionService;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.CoExpressionFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,28 +31,42 @@ public class CoExpressionController {
     @Autowired
     private CoExpressionService coExpressionService;
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/co-expressions/fetch",
+    // requires permission to access both molecularProfileIdA and molecularProfileIdB because service layer does not enforce requirement that both profiles are in the same study
+    @PreAuthorize("hasPermission(#molecularProfileIdA, 'MolecularProfileId', 'read') and hasPermission(#molecularProfileIdB, 'MolecularProfileId', 'read')")
+    @RequestMapping(value = "/molecular-profiles/co-expressions/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch co-expressions in a molecular profile")
+    @ApiOperation("Calculates correlations between a genetic entity from a specific profile and another profile from the same study")
     public ResponseEntity<List<CoExpression>> fetchCoExpressions(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. acc_tcga_rna_seq_v2_mrna")
-        @PathVariable String molecularProfileId,
-        @ApiParam(required = true, value = "List of Sample IDs/Sample List ID")
+        @ApiParam(required = true, value = "Molecular Profile ID from the Genetic Entity referenced in the co-expression filter e.g. acc_tcga_rna_seq_v2_mrna")
+        @RequestParam String molecularProfileIdA,
+        @ApiParam(required = true, value = "Molecular Profile ID (can be the same as molecularProfileIdA) e.g. acc_tcga_rna_seq_v2_mrna")
+        @RequestParam String molecularProfileIdB,
+        @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene ID/Gene set ID")
         @Valid @RequestBody CoExpressionFilter coExpressionFilter,
-        @ApiParam(required = true, value = "Entrez Gene ID")
-        @RequestParam Integer entrezGeneId,
         @ApiParam("Threshold")
-        @RequestParam(defaultValue = "0.3") Double threshold) throws MolecularProfileNotFoundException {
+        @RequestParam(defaultValue = "0.3") Double threshold) throws Exception {
 
         List<CoExpression> coExpressionList;
-        if (coExpressionFilter.getSampleListId() != null) {
-            coExpressionList = coExpressionService.getCoExpressions(molecularProfileId,
-                coExpressionFilter.getSampleListId(), entrezGeneId, threshold);
+        String geneticEntityId = null;
+        CoExpression.GeneticEntityType geneticEntityType = null;
+
+        if (coExpressionFilter.getEntrezGeneId() != null) {
+            geneticEntityId = coExpressionFilter.getEntrezGeneId().toString();
+            geneticEntityType = CoExpression.GeneticEntityType.GENE;
         } else {
-            coExpressionList = coExpressionService.fetchCoExpressions(molecularProfileId,
-                coExpressionFilter.getSampleIds(), entrezGeneId, threshold);
+            geneticEntityId = coExpressionFilter.getGenesetId();
+            geneticEntityType = CoExpression.GeneticEntityType.GENESET;
+        }
+
+        if (coExpressionFilter.getSampleListId() != null) {
+            coExpressionList = coExpressionService.getCoExpressions(geneticEntityId,
+                    geneticEntityType, coExpressionFilter.getSampleListId(), molecularProfileIdA, molecularProfileIdB,
+                    threshold);
+        } else {
+            coExpressionList = coExpressionService.fetchCoExpressions(geneticEntityId,
+                    geneticEntityType, coExpressionFilter.getSampleIds(), molecularProfileIdA, molecularProfileIdB,
+                    threshold);
         }
 
         return new ResponseEntity<>(coExpressionList, HttpStatus.OK);

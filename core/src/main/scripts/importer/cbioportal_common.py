@@ -43,7 +43,7 @@ class MetaFileTypes(object):
     CANCER_TYPE = 'meta_cancer_type'
     SAMPLE_ATTRIBUTES = 'meta_clinical_sample'
     PATIENT_ATTRIBUTES = 'meta_clinical_patient'
-    CNA = 'meta_CNA'
+    CNA_DISCRETE = 'meta_CNA'
     CNA_LOG2 = 'meta_log2CNA'
     CNA_CONTINUOUS = 'meta_contCNA'
     SEG = 'meta_segment'
@@ -76,7 +76,8 @@ META_FIELD_MAP = {
         'citation': False,
         'pmid': False,
         'groups': False,
-        'add_global_case_list': False
+        'add_global_case_list': False,
+        'tags_file': False
     },
     MetaFileTypes.SAMPLE_ATTRIBUTES: {
         'cancer_study_identifier': True,
@@ -90,7 +91,7 @@ META_FIELD_MAP = {
         'datatype': True,
         'data_filename': True
     },
-    MetaFileTypes.CNA: {
+    MetaFileTypes.CNA_DISCRETE: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -253,7 +254,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.CANCER_TYPE: IMPORT_CANCER_TYPE_CLASS,
     MetaFileTypes.SAMPLE_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
     MetaFileTypes.PATIENT_ATTRIBUTES: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
-    MetaFileTypes.CNA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.CNA_DISCRETE: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.CNA_LOG2: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.CNA_CONTINUOUS: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.SEG: "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
@@ -509,7 +510,7 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("PROTEIN_LEVEL", "Z-SCORE"): MetaFileTypes.PROTEIN,
         ("PROTEIN_LEVEL", "CONTINUOUS"): MetaFileTypes.PROTEIN,
         # cna
-        ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA,
+        ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA_DISCRETE,
         ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS,
         ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.CNA_LOG2,
         ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,
@@ -608,7 +609,8 @@ def parse_metadata_file(filename,
                         logger,
                         study_id=None,
                         genome_name=None,
-                        case_list=False):
+                        case_list=False,
+                        gene_panel_list=None):
 
     """Validate a metafile and return a dictionary of values read from it and
     the meta_file_type according to get_meta_file_type.
@@ -624,6 +626,8 @@ def parse_metadata_file(filename,
     :param genome_name: (optional - set if you want this to be validated)
                     supported reference genome name, for validation
     :param case_list: whether this meta file is a case list (special case)
+    :param gene_panel_list: (optional - set if you want this to be validated)
+                           list of gene panels in the database
     """
 
     logger.debug('Starting validation of meta file', extra={'filename_': filename})
@@ -723,7 +727,7 @@ def parse_metadata_file(filename,
                                       'name': 255,
                                       'description': 1024,
                                       'citation': 200,
-                                      'pmid': 20,
+                                      'pmid': 1024,
                                       'groups': 200,
                                       'short_name': 64
                                       }
@@ -739,10 +743,7 @@ def parse_metadata_file(filename,
                                  )
 
     if meta_file_type in (MetaFileTypes.SEG, MetaFileTypes.GISTIC_GENES):
-        # Todo: Restore validation for reference genome in segment files
-        # Validation can be restored to normal when hg18 data on public portal and data hub has been
-        # liftovered to hg19. It was decided in the data hub call of August 14 2018 to remove validation until then.
-        valid_segment_reference_genomes = ['hg18', 'hg19']
+        valid_segment_reference_genomes = ['hg19']
         if meta_dictionary['reference_genome_id'] not in valid_segment_reference_genomes:
             logger.error(
                 'Reference_genome_id is not %s',
@@ -750,12 +751,6 @@ def parse_metadata_file(filename,
                 extra={'filename_': filename,
                        'cause': meta_dictionary['reference_genome_id']})
             meta_dictionary['meta_file_type'] = None
-        elif meta_dictionary['reference_genome_id'] == 'hg18':
-            logger.warning(
-                'Reference_genome_id is hg18. This is temporary approved to be loaded in cBioPortal, until the data '
-                'curation team has converted hg18 coordinates to hg19 in public datasets with liftOver. When this is '
-                'done, validation will be restored to only allow reference genome hg19.',
-                extra={'filename_': filename})
 
     if meta_file_type == MetaFileTypes.MUTATION:
         if ('swissprot_identifier' in meta_dictionary and
@@ -768,8 +763,26 @@ def parse_metadata_file(filename,
                        'cause': meta_dictionary['swissprot_identifier']})
             meta_dictionary['meta_file_type'] = None
 
+        # Check whether the gene panel property is included in the mutation meta file. This should be an error.
+        if 'gene_panel' in meta_dictionary:
+            logger.warning("Including the stable ID for gene panels in meta file might lead to incorrect "
+                           "results for samples that are profiled but nu mutations are called. Consider adding a column"
+                           " for mutation profile to gene panel matrix file",
+                           extra={'filename_': filename,
+                                  'cause': 'gene_panel: %s' % meta_dictionary['gene_panel']})
+
+    # When validating
+    if gene_panel_list:
+        # Check whether the gene panel in the gene panel property field corresponds with a gene panel in the database
+        if 'gene_panel' in meta_dictionary:
+            if meta_dictionary['gene_panel'] not in gene_panel_list and meta_dictionary['gene_panel'] != 'NA':
+                logger.error('Gene panel ID is not in database. Please import this gene panel before loading '
+                             'study data.',
+                             extra={'filename_': filename,
+                                    'cause': meta_dictionary['gene_panel']})
+
     # Save information regarding `source_stable_id`, so that after all meta files are validated,
-    # we can validate fields between meta files in validate_dependencies() in validateData.py
+    # we can validate fields between meta files in validate_data_relations() in validateData.py
     global gsva_scores_stable_id
     global gsva_scores_source_stable_id
     global gsva_pvalues_source_stable_id

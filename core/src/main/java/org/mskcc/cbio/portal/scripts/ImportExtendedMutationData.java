@@ -154,11 +154,15 @@ public class ImportExtendedMutationData{
                 // can be null in case of 'normal' sample:
                 // (if data files are run through validator, this condition should be minimal)
                 if (sample == null) {
-                    assert StableIdUtil.isNormal(barCode);
-                    //if new sample:
-                    if (sampleSet.add(barCode))
-                        samplesSkipped++;
-                    continue;
+                    if (StableIdUtil.isNormal(barCode)) {
+                        //if new sample:
+                        if (sampleSet.add(barCode))
+                            samplesSkipped++;
+                        continue;
+                    }
+                    else {
+                        throw new RuntimeException("Unknown sample id '" + StableIdUtil.getSampleId(barCode) + "' found in MAF file: " + this.mutationFile.getCanonicalPath());
+                    }
                 }
 
                 String validationStatus = record.getValidationStatus();
@@ -431,41 +435,58 @@ public class ImportExtendedMutationData{
             }
         }
 
-                for (MutationEvent event : newEvents) {
-                    try {
-                        DaoMutation.addMutationEvent(event);
-                    } catch (DaoException ex) {
-                        throw ex;
-                    }
-                }
+        for (MutationEvent event : newEvents) {
+            try {
+                DaoMutation.addMutationEvent(event);
+            } catch (DaoException ex) {
+                throw ex;
+            }
+        }
 
-                for (ExtendedMutation mutation : mutations.values()) {
-                    try {
-                        DaoMutation.addMutation(mutation,false);
-                    } catch (DaoException ex) {
-                        throw ex;
-                    }
-                }
+        for (ExtendedMutation mutation : mutations.values()) {
+            try {
+                DaoMutation.addMutation(mutation,false);
+            } catch (DaoException ex) {
+                throw ex;
+            }
+        }
+
+        if( MySQLbulkLoader.isBulkLoad()) {
+            MySQLbulkLoader.flushAll();
+        }
+        // run sanity check on `mutation_event` to determine whether duplicate
+        // events were introduced during current import
+        if (DaoMutation.hasDuplicateMutationEvents()) {
+            throw new DaoException("Duplicate mutation events were detected during this import. Aborting...");
+        }
+
+        /*
+         * At MSKCC there are some MUTATION_UNCALLED and FUSION
+         * profiles that shouldn't be included when determining the number of
+         * mutations for a sample
+         */
+        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+            DaoMutation.createMutationCountClinicalData(geneticProfile);
+        }
+        // the mutation count by keyword is on a per genetic profile basis so
+        // fine to calculate for any genetic profile
+        DaoMutation.calculateMutationCountByKeyword(geneticProfileId);
 
         if( MySQLbulkLoader.isBulkLoad()) {
             MySQLbulkLoader.flushAll();
         }
 
-                // calculate mutation count for every sample
-                DaoMutation.calculateMutationCount(geneticProfileId);
-                DaoMutation.calculateMutationCountByKeyword(geneticProfileId);
+        if (entriesSkipped > 0) {
+            ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped (see table below):  " + entriesSkipped);
+        }
+        ProgressMonitor.setCurrentMessage(" --> total number of samples: " + sampleSet.size());
+        if (samplesSkipped > 0) {
+            ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + samplesSkipped);
+        }
+        ProgressMonitor.setCurrentMessage(" --> total number of genes for which one or more mutation events were stored:  " + geneSet.size());
 
-                if (entriesSkipped > 0) {
-                    ProgressMonitor.setCurrentMessage(" --> total number of data entries skipped (see table below):  " + entriesSkipped);
-                }
-                ProgressMonitor.setCurrentMessage(" --> total number of samples: " + sampleSet.size());
-                if (samplesSkipped > 0) {
-                    ProgressMonitor.setCurrentMessage(" --> total number of samples skipped (normal samples): " + samplesSkipped);
-                }
-                ProgressMonitor.setCurrentMessage(" --> total number of genes for which one or more mutation events were stored:  " + geneSet.size());
-
-                ProgressMonitor.setCurrentMessage("Filtering table:\n-----------------");
-                ProgressMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
+        ProgressMonitor.setCurrentMessage("Filtering table:\n-----------------");
+        ProgressMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
     }
 
     /**

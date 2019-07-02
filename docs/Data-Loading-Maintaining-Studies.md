@@ -8,12 +8,13 @@ This script can also be used to delete studies.
 - [Deleting a study](#deleting-a-study)
 
 ## Requirements
-This script requires `$PORTAL_HOME` to point to your cBioPortal repository. This can be done with:
+This script requires `$PORTAL_HOME` to point to the folder containing your
+cBioPortal configuration. This can be done with:
 ```
-export PORTAL_HOME=<your_cbioportal_dir>
+export PORTAL_HOME=<cbioportal_configuration_folder>
 ```
 
-The script itself can be found in `$PORTAL_HOME/core/src/main/scripts/importer`.
+The script itself can be found in `<cbioportal_source_folder>/core/src/main/scripts/importer`.
 
 ## Importing a study without validation 
 To import a study without validation, run: 

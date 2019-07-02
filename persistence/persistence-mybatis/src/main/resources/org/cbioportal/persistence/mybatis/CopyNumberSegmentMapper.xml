@@ -42,7 +42,12 @@
         INNER JOIN patient ON sample.PATIENT_ID=patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
         <include refid="where"/>
-        AND EXISTS (SELECT * from copy_number_seg where sample.INTERNAL_ID=copy_number_seg.SAMPLE_ID)
+        AND EXISTS (
+            SELECT * from copy_number_seg where sample.INTERNAL_ID=copy_number_seg.SAMPLE_ID
+            <if test="chromosome != null and !chromosome.isEmpty()">
+                AND copy_number_seg.CHR=#{chromosome}
+            </if>
+        )
     </select>
     
     
@@ -51,6 +56,9 @@
         <include refid="select"/>
         <include refid="from"/>
         <include refid="where"/>
+        <if test="chromosome != null and !chromosome.isEmpty()">
+            AND copy_number_seg.CHR=#{chromosome}
+        </if>
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
@@ -67,6 +75,9 @@
         COUNT(*) AS totalCount
         <include refid="from"/>
         <include refid="where"/>
+        <if test="chromosome != null and !chromosome.isEmpty()">
+            AND copy_number_seg.CHR=#{chromosome}
+        </if>
     </select>
     
     <select id="getCopyNumberSegmentsBySampleListId" resultType="org.cbioportal.model.CopyNumberSeg">
@@ -74,11 +85,15 @@
         <include refid="select"/>
         <include refid="from"/>
         WHERE cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        <if test="chromosome != null and !chromosome.isEmpty()">
+            AND copy_number_seg.CHR=#{chromosome}
+        </if>
         AND copy_number_seg.SAMPLE_ID IN
         (
             SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
             INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
             WHERE sample_list.STABLE_ID = #{sampleListId}
+            AND sample_list_list.SAMPLE_ID = copy_number_seg.SAMPLE_ID
         )
     </select>
 </mapper>

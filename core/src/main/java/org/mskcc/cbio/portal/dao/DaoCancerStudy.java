@@ -334,6 +334,25 @@ public final class DaoCancerStudy {
         reCacheAll();
     }
 
+    public static void addCancerStudyTags(CancerStudyTags cancerStudyTags) throws DaoException {
+    
+            Connection con = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            try {
+                con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
+                pstmt = con.prepareStatement("INSERT INTO cancer_study_tags " +
+                        "( `CANCER_STUDY_ID`,`TAGS` ) VALUES (?,?)");
+                pstmt.setInt(1, cancerStudyTags.getCancerStudyId());
+                pstmt.setString(2, cancerStudyTags.getTags());
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new DaoException(e);
+            } finally {
+                JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
+            }
+        } 
+
     /**
      * Return the cancerStudy identified by the internal cancer study ID, if it exists.
      *
@@ -518,14 +537,12 @@ public final class DaoCancerStudy {
                 "DELETE FROM genetic_profile_samples WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM sample_profile WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM mutation WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM mutation_count WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM mutation_count_by_keyword WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM clinical_attribute_meta WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM clinical_event_data WHERE CLINICAL_EVENT_ID IN (SELECT CLINICAL_EVENT_ID FROM clinical_event WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?))",
                 "DELETE FROM clinical_event WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM sample_list_list WHERE LIST_ID IN (SELECT LIST_ID FROM sample_list WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM clinical_sample WHERE INTERNAL_ID IN (SELECT INTERNAL_ID FROM sample WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?))",
-                "DELETE FROM fraction_genome_altered WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM copy_number_seg WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM copy_number_seg_file WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM protein_array_data WHERE CANCER_STUDY_ID=?",

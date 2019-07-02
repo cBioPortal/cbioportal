@@ -1,4 +1,4 @@
-The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan Kettering Cancer Center](http://www.mskcc.org/) (MSK). The [public cBioPortal site](http://cbioportal.org) is hosted by the [Center for Molecular Oncology](http://www.mskcc.org/research/molecular-oncology) at MSK. The cBioPortal software is now available under an open source license via [GitHub](https://github.com/cBioPortal/cbioportal/). The software is now developed and maintained by a multi-institutional team, consisting of MSK, the Dana Farber Cancer Institute, Princess Margaret Cancer Centre in Toronto, Children's Hospital of Philadelphia, [The Hyve](http://thehyve.nl) in the Netherlands, and Bilkent University in Ankara, Turkey.
+The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan Kettering Cancer Center](http://www.mskcc.org/) (MSK). The [public cBioPortal site](https://www.cbioportal.org) is hosted by the [Center for Molecular Oncology](http://www.mskcc.org/research/molecular-oncology) at MSK. The cBioPortal software is now available under an open source license via [GitHub](https://github.com/cBioPortal/cbioportal/). The software is now developed and maintained by a multi-institutional team, consisting of MSK, the Dana Farber Cancer Institute, Princess Margaret Cancer Centre in Toronto, Children's Hospital of Philadelphia, [The Hyve](http://thehyve.nl) in the Netherlands, and Bilkent University in Ankara, Turkey.
 
 ## Memorial Sloan Kettering Cancer Center
 * Jianjiong Gao
@@ -13,8 +13,11 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Angelica Ochoa
 * Aaron Lisman
 * Manda Wilson
-* Jiaojiao Wang
 * Avery Wang
+* Jing Su
+* Ramyasree Madupuri
+* Gaofei Zhao
+* Xiang Li
 * Nikolaus Schultz
 
 ## Dana-Farber Cancer Institute
@@ -24,7 +27,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Augustin Luna
 * James Lindsay
 * Priti Kumari
-* Catherine Del Vecchio
 * Chris Sander
 
 ## Princess Margaret Cancer Centre, Toronto
@@ -42,16 +44,15 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Fedde Schaeffer
 * Sander Tan
 * Oleguer Plantalech
-* Irina Pulyakhina
+* Pim van Nierop
 * Riza Nugraha
-* Dionne Zaal
 * Sjoerd van Hagen
 * Kees van Bochove
 
 ## Bilkent University
 * Ugur Dogrusoz
 * Istemi Bahceci
-* Leonard Dervishi
+* Kaan Sancak
 
 ## Weill Cornell Medicine
 * Alexandros Sigaras
@@ -62,8 +63,10 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Caitlin Byrne
 * Hsiao-Wei Chen
 * Fred Criscuolo
+* Leonard Dervishi
 * Gideon Dresdner
 * Andy Dufilie
+* Catherine Del Vecchio Fitz
 * Arthur Goldberg
 * Zachary Heins
 * Michael Heuer
@@ -72,9 +75,12 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Dong Li
 * Tamba Monrose
 * Peter Kok
+* Irina Pulyakhina
 * M. Furkan Sahin
+* Jiaojiao Wang
 * Stuart Watt
 * James Xu
+* Dionne Zaal
 
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided by:
 

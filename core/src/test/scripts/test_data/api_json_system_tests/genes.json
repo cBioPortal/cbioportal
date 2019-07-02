@@ -17,6 +17,7 @@
 {"entrez_gene_id":"7157", "hugo_gene_symbol":"TP53"},
 {"entrez_gene_id":"672", "hugo_gene_symbol":"BRCA1"},
 {"entrez_gene_id":"472", "hugo_gene_symbol":"ATM"},
+{"entrez_gene_id":"55", "hugo_gene_symbol":"ACPP"},
 
 {"_comment": "additional genes for CNA data",
  "entrez_gene_id":"2073", "hugo_gene_symbol":"ERCC5"},

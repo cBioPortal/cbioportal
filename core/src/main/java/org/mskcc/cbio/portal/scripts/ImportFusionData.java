@@ -102,9 +102,13 @@ public class ImportFusionData {
                         StableIdUtil.getSampleId(barCode));
                 // can be null in case of 'normal' sample:
                 if (sample == null) {
-                    assert StableIdUtil.isNormal(barCode);
-                    line = buf.readLine();
-                    continue;
+                    if (StableIdUtil.isNormal(barCode)) {
+                        line = buf.readLine();
+                        continue;
+                    }
+                    else {
+                        throw new RuntimeException("Unknown sample id '" + barCode + "' found in tab-delimited file: " + this.fusionFile.getCanonicalPath());
+                    }
                 }
                 //  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
                 String geneSymbol = record.getHugoGeneSymbol();
@@ -161,8 +165,9 @@ public class ImportFusionData {
                         DaoMutation.addMutation(mutation, addEvent);
                         mutations.put(mutation, mutation);
                     }
-                    if (!sampleSet.contains(sample.getStableId())) {
-                        ImportDataUtil.addSampleProfile(sample, geneticProfileId, genePanelID);
+                    if (!sampleSet.contains(sample.getStableId()) && !DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
+                        Integer panelId = (genePanel == null) ? null : genePanel.getInternalId();
+                        DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId, panelId);
                     }                    
                     sampleSet.add(sample.getStableId());
                 }

@@ -21,8 +21,6 @@ public class ExpressionEnrichment implements Serializable {
     private BigDecimal standardDeviationInUnalteredGroup;
     @NotNull
     private BigDecimal pValue;
-    @NotNull
-    private BigDecimal qValue;
     
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -86,13 +84,5 @@ public class ExpressionEnrichment implements Serializable {
 
     public void setpValue(BigDecimal pValue) {
         this.pValue = pValue;
-    }
-
-    public BigDecimal getqValue() {
-        return qValue;
-    }
-
-    public void setqValue(BigDecimal qValue) {
-        this.qValue = qValue;
     }
 }

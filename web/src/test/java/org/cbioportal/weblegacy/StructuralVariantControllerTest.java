@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 - 2018 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -32,6 +32,7 @@
 
 package org.cbioportal.weblegacy;
 
+import org.cbioportal.web.config.CacheMapUtilConfig;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +63,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = {StructuralVariantControllerTestConfig.class, CustomObjectMapper.class})
+@ContextConfiguration(classes = {StructuralVariantControllerTestConfig.class, CustomObjectMapper.class, CacheMapUtilConfig.class})
 public class StructuralVariantControllerTest {
     @Autowired
     private StructuralVariantService structuralVariantServiceMock;
@@ -263,21 +264,18 @@ public class StructuralVariantControllerTest {
         sample1.setSampleType(Sample.SampleType.PRIMARY_SOLID_TUMOR);
         sample1.setPatientId(1);
         sample1.setPatient(patient1);
-        sample1.setTypeOfCancerId("brca");
         Sample sample2 = new Sample();
         sample2.setInternalId(2);
         sample2.setStableId("TCGA-A1-A0SD-01");
         sample2.setSampleType(Sample.SampleType.PRIMARY_SOLID_TUMOR);
         sample2.setPatientId(2);
         sample2.setPatient(patient2);
-        sample2.setTypeOfCancerId("brca");
         Sample sample3 = new Sample();
         sample3.setInternalId(3);
         sample3.setStableId("TCGA-A1-A0SE-01");
         sample3.setSampleType(Sample.SampleType.PRIMARY_SOLID_TUMOR);
         sample3.setPatientId(3);
         sample3.setPatient(patient3);
-        sample3.setTypeOfCancerId("brca");
         MolecularProfile geneticProfile1 = new MolecularProfile();
         geneticProfile1.setMolecularProfileId(7);
         geneticProfile1.setStableId("study_tcga_pub_sv");
@@ -423,15 +421,12 @@ public class StructuralVariantControllerTest {
         sample1.setInternalId(null);
         sample1.setSampleType(null);
         sample1.setPatientId(null);
-        sample1.setTypeOfCancerId(null);
         sample2.setInternalId(null);
         sample2.setSampleType(null);
         sample2.setPatientId(null);
-        sample2.setTypeOfCancerId(null);
         sample3.setInternalId(null);
         sample3.setSampleType(null);
         sample3.setPatientId(null);
-        sample3.setTypeOfCancerId(null);
         geneticProfile1.setMolecularProfileId(null);
         geneticProfile1.setStableId(null);
         geneticProfile1.setMolecularAlterationType(null);

@@ -1,1 +1,1 @@
-See [../docs/docker/README.md](https://github.com/cBioPortal/cbioportal/pull/5337)
+See [../docs/docker/README.md](../docs/docker/README.md)

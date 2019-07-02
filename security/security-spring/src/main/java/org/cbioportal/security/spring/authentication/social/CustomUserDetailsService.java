@@ -1,4 +1,4 @@
-package org.cbioportal.security.spring.authentication.googleplus;
+package org.cbioportal.security.spring.authentication.social;
 
 import java.util.ArrayList;
 

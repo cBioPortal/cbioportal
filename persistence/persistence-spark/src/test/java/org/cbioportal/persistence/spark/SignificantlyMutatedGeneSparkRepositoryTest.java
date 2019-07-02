@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
+import javax.xml.crypto.Data;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -29,23 +32,36 @@ public class SignificantlyMutatedGeneSparkRepositoryTest {
     @InjectMocks
     private SignificantlyMutatedGeneSparkRepository significantlyMutatedGeneSparkRepository;
 
-    private static final String STUDY_ID = "brca_tcga";
-
+    Dataset<Row> ds;
+    
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
+        ds = mock(Dataset.class);
+        DataFrameReader dfr = mock(DataFrameReader.class);
+        when(spark.read()).thenReturn(dfr);
+        when(dfr.parquet(anyString())).thenReturn(ds);
+        when(spark.sql(anyString())).thenReturn(ds);
+        List<Row> result = Arrays.asList(RowFactory.create("hugoGeneSymbol", "1", 1L, 1L));
+        when(ds.collectAsList()).thenReturn(result);
     }
 
     @Test
     public void testGetSignificantlyMutatedGenes() {
-        DataFrameReader dfr = mock(DataFrameReader.class);
-        when(spark.read()).thenReturn(dfr);
-        when(dfr.parquet(anyString())).thenReturn(mock(Dataset.class));
-        when(spark.sql(anyString())).thenReturn(mock(Dataset.class));
 
         List<MutSig> res = significantlyMutatedGeneSparkRepository
-            .getSignificantlyMutatedGenes(STUDY_ID, "SUMMARY", null, null, null, null);
+            .getSignificantlyMutatedGenes("brca_tcga", "SUMMARY", null, null, null, null);
+        Assert.assertNotNull(res);
+    }
+
+    @Test
+    public void testGetSignificantlyMutatedGenesPagination() {
+        when(ds.unionByName(any(Dataset.class))).thenReturn(ds);
+        when(ds.drop(anyString())).thenReturn(ds);
+        
+        List<MutSig> res = significantlyMutatedGeneSparkRepository
+            .getSignificantlyMutatedGenes("msk_impact_2017", "SUMMARY", 10, 2, null, null);
         Assert.assertNotNull(res);
     }
 }

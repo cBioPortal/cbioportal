@@ -30,7 +30,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.security.spring.authentication.googleplus;
+package org.cbioportal.security.spring.authentication.social;
 
 import org.cbioportal.model.User;
 import org.cbioportal.model.UserAuthorities;

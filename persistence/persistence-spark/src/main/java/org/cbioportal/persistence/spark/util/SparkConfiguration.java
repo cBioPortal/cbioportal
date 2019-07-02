@@ -4,8 +4,12 @@ import org.apache.spark.sql.SparkSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+
 
 @Configuration
+@PropertySource("classpath:portal.properties")
 public class SparkConfiguration {
     
     @Value("${spark.app.name}")
@@ -31,8 +35,7 @@ public class SparkConfiguration {
 
     @Value("${spark.default.parallelism}")
     private String sparkParallelism;
-
-
+    
     @Bean
     public SparkSession sparkSession() {
         return SparkSession
@@ -46,5 +49,10 @@ public class SparkConfiguration {
             .config("spark.default.parallelism", sparkParallelism)
             .appName(appName)
             .getOrCreate();
+    }
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+        return new PropertySourcesPlaceholderConfigurer();
     }
 }

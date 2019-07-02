@@ -198,7 +198,7 @@ ncbi.build=37
 ucsc.build=hg19
 
 # default view in oncoprint (sample, patient (default))
-oncoprint.defaultview=patient
+oncoprint.defaultview=patientd
 
 # OncoPrint driver mutation annotations
 # oncoprint.custom_driver_annotation.binary.menu_label=Custom driver annotation
@@ -240,4 +240,4 @@ spark.driver.memory=2g
 spark.executor.memory=1g
 spark.shuffle.partitions=2
 spark.default.parallelism=2
-data.parquet.folder=file://src/main/resources
+data.parquet.folder=parquet/

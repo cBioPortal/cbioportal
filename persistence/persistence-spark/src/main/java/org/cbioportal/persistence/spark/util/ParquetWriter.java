@@ -32,7 +32,6 @@
 
 package org.cbioportal.persistence.spark.util;
 
-import org.springframework.stereotype.Component;
 import org.apache.spark.sql.*;
 import joptsimple.*;
 
@@ -40,10 +39,14 @@ import joptsimple.*;
 /**
  * Command Line tool to Write Parquet Files.
  */
-@Component
 public class ParquetWriter {
 
-    private static void write(SparkSession spark, String inputFile, String outputFile) {
+    private static void write(String inputFile, String outputFile) {
+        SparkSession spark = SparkSession.builder()
+            .appName("cBioPortal")
+            .master("local[*]")
+            .getOrCreate();
+        
         Dataset<Row> df = spark.read()
             .format("csv")
             .option("delimiter", "\t")
@@ -52,7 +55,7 @@ public class ParquetWriter {
             .load(inputFile);
         df.write().parquet(outputFile);
     }
- 
+    
     public static void main(String[] args) {
         try {
             String progName = "ParquetWriter";
@@ -71,12 +74,8 @@ public class ParquetWriter {
             }
 
             String outputFilePath = options.valueOf(outputFile);
-
-            SparkConfiguration sc = new SparkConfiguration();
-            SparkSession spark = sc.sparkSession();
-
             String inputFilePath = options.valueOf(inputFile);
-            write(spark, inputFilePath, outputFilePath);
+            write(inputFilePath, outputFilePath);
 
         } catch (RuntimeException e) {
             throw e;

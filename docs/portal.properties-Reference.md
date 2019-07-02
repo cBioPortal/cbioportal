@@ -297,6 +297,5 @@ spark.driver.memory=[driver memory e.g. 2g]
 spark.executor.memory=[executor memory e.g. 1g]
 spark.shuffle.partitions=[default number of logical cores]
 spark.default.parallelism=[default 200]
-data.tsv.folder=[location of downloaded study data files]
 data.parquet.folder=[location to save parquet files e.g. cbioportal/persistence/persistence-spark/src/main/resources/parquet/]
 ```

@@ -96,6 +96,7 @@ public class MutationController {
                     pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name(), oncogenicity), HttpStatus.OK);
         }
     }
+    /*
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mutations/fetch", method = RequestMethod.POST,
@@ -248,4 +249,5 @@ public class MutationController {
             sampleIds.add(sampleMolecularIdentifier.getSampleId());
         }
     }
+    */
 }

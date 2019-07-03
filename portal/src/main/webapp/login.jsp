@@ -37,6 +37,7 @@
 <title><%= GlobalProperties.getTitle() %>::cBioPortal Login</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <%@ page import="java.lang.Exception" %>
+<%@ page import="java.util.Arrays" %>
 <%@ page import="org.springframework.security.web.WebAttributes" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
@@ -46,6 +47,16 @@
 <jsp:include page="WEB-INF/jsp/global/js_include.jsp" flush="true" />
 <%
     String authenticationMethod = GlobalProperties.authenticationMethod();
+    String[] authenticationMethods = authenticationMethod.split(",");
+    Boolean showGoogleLogin = false;
+    Boolean showMicrosoftLogin = false;
+    for(String authMethod : authenticationMethod.split(",")) {
+        if(authMethod.equals("googleplus") || authMethod.equals("social_auth") || authMethod.equals("social_auth_google")) {
+            showGoogleLogin = true;
+        } else if(authMethod.equals("social_auth_microsoft")) {
+            showMicrosoftLogin = true;
+        }
+    }
     if (authenticationMethod.equals("openid")) {
 %>
     <link type="text/css" rel="stylesheet" href="css/openid.css" />
@@ -159,7 +170,7 @@
                   </p>
                 </div>
 
-                <% } else if (authenticationMethod.equals("googleplus") || authenticationMethod.equals("social_auth")) { %>
+                <% } else if (showGoogleLogin) { %>
                   <p>
                     <button onclick="window.location = 'auth/google'" style="padding: 0; border:none; background: none" >
                         <!-- we need alt != "Google+" because otherwise it gets hidden by Ad Block Plus chrome plugin -->
@@ -177,6 +188,17 @@
                 </div>
                 </form>
                 <% } %>
+                
+               <% if (showMicrosoftLogin) { %>
+                  <p>
+                   	<button onclick="window.location = 'auth/live'" style="padding: 0; border:none; background: none" >
+                      <IMG alt="cBioPortal Microsoft Log-in" src="images/login/microsoft_signin.png"  />
+                    </button>
+                  </p>
+                </div>
+
+                <% } %>
+                                
 
               </td>
             </tr>

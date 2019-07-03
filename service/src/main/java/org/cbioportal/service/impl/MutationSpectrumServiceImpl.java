@@ -1,4 +1,3 @@
-/*
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.Mutation;
@@ -78,4 +77,3 @@ public class MutationSpectrumServiceImpl implements MutationSpectrumService {
             mutation.getTumorSeqAllele().equals(tumorSeqAllele);
     }
 }
-*/

@@ -1,4 +1,3 @@
-/*
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.Mutation;
@@ -115,4 +114,3 @@ public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
         return mutationList;
     }
 }
-*/

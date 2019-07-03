@@ -1,4 +1,3 @@
-/*
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.*;
@@ -266,4 +265,3 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(expectedMutationCountByPosition, result.get(0));
     }
 }
-*/

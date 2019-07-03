@@ -34,13 +34,13 @@ public class MutationServiceImpl implements MutationService {
                                                                        List<Integer> entrezGeneIds, Boolean snpOnly,
                                                                        String projection, Integer pageSize,
                                                                        Integer pageNumber, String sortBy,
-                                                                       String direction, String oncogenicity)
+                                                                       String direction)
         throws MolecularProfileNotFoundException {
 
         validateMolecularProfile(molecularProfileId);
 
         List<Mutation> mutationList = mutationRepository.getMutationsInMolecularProfileBySampleListId(molecularProfileId,
-            sampleListId, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction, oncogenicity);
+            sampleListId, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction);
 
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
         return mutationList;

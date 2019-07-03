@@ -1,4 +1,3 @@
-/*
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.*;
@@ -322,4 +321,3 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 3, result.getCount());
     }
 }
-*/

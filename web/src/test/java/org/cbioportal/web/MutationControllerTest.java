@@ -1,4 +1,3 @@
-/*
 package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -819,4 +818,3 @@ public class MutationControllerTest {
         return mutationList;
     }
 }
-*/

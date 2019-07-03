@@ -215,7 +215,6 @@ class ColumnOrderTestCase(DataFileTestCase):
         # again, we expect no errors or warnings
         self.assertEqual(0, len(record_list))
 
-
 class UniqueColumnTestCase(PostClinicalDataFileTestCase):
 
     # create dummy class from  FeaturewiseFileValidator
@@ -474,6 +473,25 @@ class PatientAttrFileTestCase(PostClinicalDataFileTestCase):
         self.assertIn('Date found when no date was expected', record.getMessage())
 
 
+class TimelineValuesDataValidationTest(DataFileTestCase):
+    
+    """Test values specific to timeline files are appropriately validated."""
+    
+    def test_start_date_validation_TimelineValidator(self):
+        """timeline validator requires START_DATE in timeline values to
+           have a non-'NA' value.
+        """
+        
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_timeline_invalid_start_date.txt',
+                                     validateData.TimelineValidator)
+        self.assertEqual(len(record_list), 2)
+        for error in record_list:
+            self.assertEqual("ERROR", error.levelname)
+            self.assertIn("Invalid START_DATE", error.getMessage())
+
+        
 # TODO: make tests in this testcase check the number of properly defined types
 class CancerTypeFileValidationTestCase(DataFileTestCase):
 

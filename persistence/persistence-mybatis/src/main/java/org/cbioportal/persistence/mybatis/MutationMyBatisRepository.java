@@ -24,10 +24,10 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                        List<Integer> entrezGeneIds, Boolean snpOnly,
                                                                        String projection, Integer pageSize,
                                                                        Integer pageNumber, String sortBy,
-                                                                       String direction) {
+                                                                       String direction, String oncogenicity ) {
 
         return mutationMapper.getMutationsBySampleListId(molecularProfileId, sampleListId, entrezGeneIds, snpOnly,
-            projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction, oncogenicity);
     }
 
     @Override

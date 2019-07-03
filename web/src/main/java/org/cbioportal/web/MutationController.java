@@ -78,7 +78,9 @@ public class MutationController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) MutationSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) throws MolecularProfileNotFoundException {
+        @RequestParam(defaultValue = "ASC") Direction direction,
+        @ApiParam("Oncogenicity")
+        @RequestParam(required = false) String oncogenicity) throws MolecularProfileNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -91,7 +93,7 @@ public class MutationController {
             return new ResponseEntity<>(
                 mutationService.getMutationsInMolecularProfileBySampleListId(molecularProfileId, sampleListId,
                     entrezGeneId == null ? null : Arrays.asList(entrezGeneId), null, projection.name(), pageSize,
-                    pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
+                    pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name(), oncogenicity), HttpStatus.OK);
         }
     }
 

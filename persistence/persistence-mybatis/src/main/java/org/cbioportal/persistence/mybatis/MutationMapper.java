@@ -11,7 +11,7 @@ public interface MutationMapper {
 
     List<Mutation> getMutationsBySampleListId(String molecularProfileId, String sampleListId, List<Integer> entrezGeneIds,
                                               Boolean snpOnly, String projection, Integer limit, Integer offset,
-                                              String sortBy, String direction);
+                                              String sortBy, String direction, String oncogenicity);
 
     MutationMeta getMetaMutationsBySampleListId(String molecularProfileId, String sampleListId,
                                                 List<Integer> entrezGeneIds, Boolean snpOnly);

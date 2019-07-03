@@ -59,7 +59,7 @@ Maintained by Erik Larsson at the Computational Biology Center, MSKCC.
 A tutorial `('showdemo cgdstutorial')` makes it easy to get started.
 
 ### Download
-[CGDS Toolbox @ MATLAB Central](http://www.mathworks.com/matlabcentral/fileexchange/31297-mskcc-cgds-cancer-genomics-toolbox)
+[CGDS Toolbox @ MATLAB Central](https://www.mathworks.com/matlabcentral/fileexchange/71969-mskcc-cgds-cancer-genomics-toolbox-v1-07)
 
 ### Documentation
 [Complete CGDS Tutorial](http://www.mathworks.com/matlabcentral/fileexchange/31297-mskcc-cgds-cancer-genomics-toolbox/content/html/cgdstutorial.html)
@@ -71,8 +71,8 @@ A tutorial `('showdemo cgdstutorial')` makes it easy to get started.
 addpath('/MATLAB/cgds');
 cgdsURL = 'https://www.cbioportal.org/';
 
-% Show toolbox help ('helpwin cgds' will open in the Help window)
-help cgds;
+% Show toolbox help ('helpwin cgdstutorial' will open in the Help window)
+help cgdstutorial;
 
 % Get list of cancer studies at server
 cancerStudies = getcancerstudies(cgdsURL);
@@ -95,6 +95,10 @@ title('TP53'); xlabel('Copy-number status'); ylabel('mRNA level');
 % Get clinical data for all patients in a given case list
 clinicalData = getclinicaldata(cgdsURL, caseLists.caseListId{2});
 
-% Run a function in non-verbose mode
-cancerStudies = getcancerstudies(cgdsURL, 'silent');
+% Run a function in verbose mode (default is non-verbose)
+cancerStudies = getcancerstudies(cgdsURL, 'verbose', 'true');
+
+% Run a function with a data authentication token on a protected instance of the cBioPortal
+cancerStudies = getcancerstudies(cgdsURL, 'token', '<some-token-string>');
+
 ```

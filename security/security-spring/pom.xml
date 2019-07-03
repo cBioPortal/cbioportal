@@ -109,5 +109,17 @@
         <version>3.0.1</version>
         <scope>provided</scope>
       </dependency>
+            <!-- Spring Social Live -->
+      <dependency>
+	  	<groupId>com.sachinhandiekar</groupId>
+	  	<artifactId>spring-social-live</artifactId>
+	  	<version>1.0.4</version>
+	  	<exclusions>
+        <exclusion>
+           <groupId>javax.servlet</groupId>
+           <artifactId>servlet-api</artifactId>
+        </exclusion>
+      </exclusions> 
+	  </dependency>
     </dependencies>
 </project>

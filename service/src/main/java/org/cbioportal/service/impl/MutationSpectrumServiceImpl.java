@@ -1,3 +1,4 @@
+/*
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.Mutation;
@@ -24,7 +25,7 @@ public class MutationSpectrumServiceImpl implements MutationSpectrumService {
         throws MolecularProfileNotFoundException {
 
         List<Mutation> mutations = mutationService.getMutationsInMolecularProfileBySampleListId(molecularProfileId,
-            sampleListId, null, true, "SUMMARY", null, null, null, null, null);
+            sampleListId, null, true, "SUMMARY", null, null, null, null);
 
         return createMutationSpectrums(molecularProfileId, mutations);
     }
@@ -77,3 +78,4 @@ public class MutationSpectrumServiceImpl implements MutationSpectrumService {
             mutation.getTumorSeqAllele().equals(tumorSeqAllele);
     }
 }
+*/

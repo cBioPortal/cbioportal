@@ -1,3 +1,4 @@
+/*
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.Mutation;
@@ -17,22 +18,22 @@ import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
-    
+
     @InjectMocks
     private MutationSpectrumServiceImpl mutationSpectrumService;
-    
+
     @Mock
     private MutationService mutationService;
-    
+
     @Test
     public void getMutationSpectrums() throws Exception {
 
         List<Mutation> mutationList = createMutationList();
 
-        Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID, 
+        Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(MOLECULAR_PROFILE_ID, SAMPLE_LIST_ID,
             null, true, "SUMMARY", null, null, null, null)).thenReturn(mutationList);
-        
-        List<MutationSpectrum> result = mutationSpectrumService.getMutationSpectrums(MOLECULAR_PROFILE_ID, 
+
+        List<MutationSpectrum> result = mutationSpectrumService.getMutationSpectrums(MOLECULAR_PROFILE_ID,
             SAMPLE_LIST_ID);
 
         Assert.assertEquals(2, result.size());
@@ -61,7 +62,7 @@ public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
 
         List<Mutation> mutationList = createMutationList();
 
-        Mockito.when(mutationService.fetchMutationsInMolecularProfile(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, 
+        Mockito.when(mutationService.fetchMutationsInMolecularProfile(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1,
             SAMPLE_ID2), null, true, "SUMMARY", null, null, null, null)).thenReturn(mutationList);
 
         List<MutationSpectrum> result = mutationSpectrumService.fetchMutationSpectrums(MOLECULAR_PROFILE_ID,
@@ -87,9 +88,9 @@ public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals((Integer) 0, mutationSpectrum2.getTtoC());
         Assert.assertEquals((Integer) 0, mutationSpectrum2.getTtoG());
     }
-    
+
     private List<Mutation> createMutationList() {
-        
+
         List<Mutation> mutationList = new ArrayList<>();
         Mutation mutation1 = new Mutation();
         mutation1.setSampleId(SAMPLE_ID1);
@@ -114,3 +115,4 @@ public class MutationSpectrumServiceImplTest extends BaseServiceImplTest {
         return mutationList;
     }
 }
+*/

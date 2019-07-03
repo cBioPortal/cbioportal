@@ -286,7 +286,7 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
 
     private boolean extractAttributesFromGenePanelSampleMolecularIdentifiers(HttpServletRequest request) {
         try {
-            List<SampleMolecularIdentifier> sampleMolecularIdentifiers = objectMapper.readValue(request.getReader(), List.class);
+            List<SampleMolecularIdentifier> sampleMolecularIdentifiers = Arrays.asList(objectMapper.readValue(request.getReader(), SampleMolecularIdentifier[].class));
             LOG.debug("extracted sampleMolecularIdentifiers: " + sampleMolecularIdentifiers.toString());
             LOG.debug("setting interceptedGenePanelSampleMolecularIdentifers to " + sampleMolecularIdentifiers);
             request.setAttribute("interceptedGenePanelSampleMolecularIdentifiers", sampleMolecularIdentifiers);

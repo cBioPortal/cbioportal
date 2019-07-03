@@ -12,7 +12,7 @@ public interface MutationRepository {
     List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
                                                                 List<Integer> entrezGeneIds, Boolean snpOnly,
                                                                 String projection, Integer pageSize, Integer pageNumber,
-                                                                String sortBy, String direction, String oncogenicity);
+                                                                String sortBy, String direction);
 
 
     MutationMeta getMetaMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,

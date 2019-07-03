@@ -2,7 +2,7 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Set;
 
 public class AlterationCountByGene implements Serializable {
 
@@ -12,7 +12,7 @@ public class AlterationCountByGene implements Serializable {
 	private Integer totalCount;
 	private Integer numberOfSamplesProfiled;
     private BigDecimal qValue;
-    private List<GenePanel> matchingGenePanels;
+    private Set<String> matchingGenePanelIds;
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -60,13 +60,13 @@ public class AlterationCountByGene implements Serializable {
 
 	public void setqValue(BigDecimal qValue) {
 		this.qValue = qValue;
-    }	
-    
-    public List<GenePanel> getMatchingGenePanels() {
-        return matchingGenePanels;
     }
 
-    public void setMatchingGenePanels(List<GenePanel> matchingGenePanels) {
-        this.matchingGenePanels = matchingGenePanels;
+    public Set<String> getMatchingGenePanelIds() {
+        return matchingGenePanelIds;
+    }
+
+    public void setMatchingGenePanelIds(Set<String> matchingGenePanelIds) {
+        this.matchingGenePanelIds = matchingGenePanelIds;
     }
 }

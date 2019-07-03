@@ -63,7 +63,7 @@ public class ProfiledSamplesCounter {
             } else {
                 numberOfSamplesProfiled = profiled.size();
             }
-            alterationCountByGene.setMatchingGenePanels(allPanels);
+            alterationCountByGene.setMatchingGenePanelIds(allPanels.stream().map(panel -> panel.getStableId()).collect(Collectors.toSet()));
             alterationCountByGene.setNumberOfSamplesProfiled(numberOfSamplesProfiled);
         }
     }

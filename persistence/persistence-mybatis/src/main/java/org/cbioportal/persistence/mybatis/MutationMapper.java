@@ -10,10 +10,10 @@ import java.util.List;
 public interface MutationMapper {
 
     List<Mutation> getMutationsBySampleListId(String molecularProfileId, String sampleListId, List<Integer> entrezGeneIds,
-                                              Boolean snpOnly, String projection, Integer limit, Integer offset, 
-                                              String sortBy, String direction);
+                                              Boolean snpOnly, String projection, Integer limit, Integer offset,
+                                              String sortBy, String direction, String oncogenicity);
 
-    MutationMeta getMetaMutationsBySampleListId(String molecularProfileId, String sampleListId, 
+    MutationMeta getMetaMutationsBySampleListId(String molecularProfileId, String sampleListId,
                                                 List<Integer> entrezGeneIds, Boolean snpOnly);
 
     List<Mutation> getMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
@@ -24,13 +24,13 @@ public interface MutationMapper {
     MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
                                                              List<Integer> entrezGeneIds, Boolean snpOnly);
 
-    List<Mutation> getMutationsBySampleIds(String molecularProfileId, List<String> sampleIds, 
-                                           List<Integer> entrezGeneIds, Boolean snpOnly, String projection, 
+    List<Mutation> getMutationsBySampleIds(String molecularProfileId, List<String> sampleIds,
+                                           List<Integer> entrezGeneIds, Boolean snpOnly, String projection,
                                            Integer limit, Integer offset, String sortBy, String direction);
 
-    MutationMeta getMetaMutationsBySampleIds(String molecularProfileId, List<String> sampleIds, 
+    MutationMeta getMetaMutationsBySampleIds(String molecularProfileId, List<String> sampleIds,
                                              List<Integer> entrezGeneIds, Boolean snpOnly);
-    
+
     List<MutationCountByGene> getSampleCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
                                                                         List<String> sampleIds,
                                                                         List<Integer> entrezGeneIds,
@@ -46,6 +46,6 @@ public interface MutationMapper {
                                                                          List<Integer> entrezGeneIds,
                                                                          Boolean snpOnly);
 
-    MutationCountByPosition getMutationCountByPosition(Integer entrezGeneId, Integer proteinPosStart, 
+    MutationCountByPosition getMutationCountByPosition(Integer entrezGeneId, Integer proteinPosStart,
                                                        Integer proteinPosEnd);
 }

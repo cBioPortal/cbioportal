@@ -34,13 +34,13 @@ public class MutationServiceImpl implements MutationService {
                                                                        List<Integer> entrezGeneIds, Boolean snpOnly,
                                                                        String projection, Integer pageSize,
                                                                        Integer pageNumber, String sortBy,
-                                                                       String direction)
+                                                                       String direction, String oncogenicity)
         throws MolecularProfileNotFoundException {
 
         validateMolecularProfile(molecularProfileId);
 
         List<Mutation> mutationList = mutationRepository.getMutationsInMolecularProfileBySampleListId(molecularProfileId,
-            sampleListId, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction);
+            sampleListId, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction, oncogenicity);
 
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
         return mutationList;
@@ -58,9 +58,9 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    public List<Mutation> getMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
-                                                                  List<String> sampleIds, List<Integer> entrezGeneIds, 
-                                                                  String projection, Integer pageSize, 
+    public List<Mutation> getMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds,
+                                                                  List<String> sampleIds, List<Integer> entrezGeneIds,
+                                                                  String projection, Integer pageSize,
                                                                   Integer pageNumber, String sortBy, String direction) {
 
         List<Mutation> mutationList = mutationRepository.getMutationsInMultipleMolecularProfiles(molecularProfileIds,
@@ -71,8 +71,8 @@ public class MutationServiceImpl implements MutationService {
     }
 
     @Override
-    public MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
-                                                                    List<String> sampleIds, 
+    public MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds,
+                                                                    List<String> sampleIds,
                                                                     List<Integer> entrezGeneIds) {
 
         return mutationRepository.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds,
@@ -122,7 +122,7 @@ public class MutationServiceImpl implements MutationService {
     @Override
 	public List<MutationCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
 			List<String> sampleIds, List<Integer> entrezGeneIds, boolean includeFrequency) {
-        
+
         List<MutationCountByGene> result;
         if (molecularProfileIds.isEmpty()) {
             result = Collections.emptyList();
@@ -145,7 +145,7 @@ public class MutationServiceImpl implements MutationService {
 
         validateMolecularProfile(molecularProfileId);
 
-        return mutationRepository.getPatientCountByEntrezGeneIdsAndSampleIds(molecularProfileId, patientIds, 
+        return mutationRepository.getPatientCountByEntrezGeneIdsAndSampleIds(molecularProfileId, patientIds,
             entrezGeneIds);
     }
 

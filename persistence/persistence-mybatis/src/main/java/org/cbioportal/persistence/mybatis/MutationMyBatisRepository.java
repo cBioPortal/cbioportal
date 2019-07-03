@@ -24,10 +24,10 @@ public class MutationMyBatisRepository implements MutationRepository {
                                                                        List<Integer> entrezGeneIds, Boolean snpOnly,
                                                                        String projection, Integer pageSize,
                                                                        Integer pageNumber, String sortBy,
-                                                                       String direction) {
+                                                                       String direction, String oncogenicity) {
 
         return mutationMapper.getMutationsBySampleListId(molecularProfileId, sampleListId, entrezGeneIds, snpOnly,
-            projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+            projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction, oncogenicity);
     }
 
     @Override
@@ -38,18 +38,18 @@ public class MutationMyBatisRepository implements MutationRepository {
     }
 
     @Override
-    public List<Mutation> getMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
-                                                                  List<String> sampleIds, List<Integer> entrezGeneIds, 
-                                                                  String projection, Integer pageSize, 
+    public List<Mutation> getMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds,
+                                                                  List<String> sampleIds, List<Integer> entrezGeneIds,
+                                                                  String projection, Integer pageSize,
                                                                   Integer pageNumber, String sortBy, String direction) {
 
-        return mutationMapper.getMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds, 
+        return mutationMapper.getMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds,
             null, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 
     @Override
     public MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds,
-                                                                    List<String> sampleIds, 
+                                                                    List<String> sampleIds,
                                                                     List<Integer> entrezGeneIds) {
 
         return mutationMapper.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds,
@@ -85,7 +85,7 @@ public class MutationMyBatisRepository implements MutationRepository {
 	@Override
 	public List<MutationCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
 			List<String> sampleIds, List<Integer> entrezGeneIds) {
-        
+
         return mutationMapper.getSampleCountInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds, null);
 	}
 

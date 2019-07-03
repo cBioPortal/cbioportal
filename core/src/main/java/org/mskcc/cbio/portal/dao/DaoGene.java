@@ -91,12 +91,11 @@ final class DaoGene {
             int rows = 0;
             con = JdbcUtil.getDbConnection(DaoGene.class);
             pstmt = con.prepareStatement
-                    ("UPDATE gene SET `HUGO_GENE_SYMBOL`=?, `TYPE`=?,`CYTOBAND`=?,`LENGTH`=? WHERE `ENTREZ_GENE_ID`=?");
+                    ("UPDATE gene SET `HUGO_GENE_SYMBOL`=?, `TYPE`=?,`CYTOBAND`=? WHERE `ENTREZ_GENE_ID`=?");
             pstmt.setString(1, gene.getHugoGeneSymbolAllCaps());
             pstmt.setString(2, gene.getType());
             pstmt.setString(3, gene.getCytoband());
-            pstmt.setInt(4, gene.getLength());
-            pstmt.setLong(5, gene.getEntrezGeneId());
+            pstmt.setLong(4, gene.getEntrezGeneId());
             rows += pstmt.executeUpdate();
             if (rows != 1) {
                 ProgressMonitor.logWarning("No change for " + gene.getEntrezGeneId() + " " + gene.getHugoGeneSymbolAllCaps() + "? Code " + rows);
@@ -144,14 +143,13 @@ final class DaoGene {
             	//add gene, referring to this genetic entity
             	con = JdbcUtil.getDbConnection(DaoGene.class);
             	pstmt = con.prepareStatement
-                        ("INSERT INTO gene (`GENETIC_ENTITY_ID`, `ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`,`TYPE`,`CYTOBAND`,`LENGTH`) "
-                                + "VALUES (?,?,?,?,?,?)");
+                        ("INSERT INTO gene (`GENETIC_ENTITY_ID`, `ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`,`TYPE`,`CYTOBAND`) "
+                                + "VALUES (?,?,?,?,?)");
             	pstmt.setInt(1, geneticEntityId);
                 pstmt.setLong(2, gene.getEntrezGeneId());
                 pstmt.setString(3, gene.getHugoGeneSymbolAllCaps());
                 pstmt.setString(4, gene.getType());
                 pstmt.setString(5, gene.getCytoband());
-                pstmt.setInt(6, gene.getLength());
                 rows += pstmt.executeUpdate();
 
             } else {
@@ -329,7 +327,6 @@ final class DaoGene {
                 CanonicalGene gene = new CanonicalGene(geneticEntityId, entrezGeneId,
                         rs.getString("HUGO_GENE_SYMBOL"), aliases);
                 gene.setCytoband(rs.getString("CYTOBAND"));
-                gene.setLength(rs.getInt("LENGTH"));
                 gene.setType(rs.getString("TYPE"));
                 geneList.add(gene);
             }
@@ -378,7 +375,6 @@ final class DaoGene {
             CanonicalGene gene = new CanonicalGene(geneticEntityId, entrezGeneId,
                     rs.getString("HUGO_GENE_SYMBOL"), aliases);
             gene.setCytoband(rs.getString("CYTOBAND"));
-            gene.setLength(rs.getInt("LENGTH"));
             gene.setType(rs.getString("TYPE"));
             
             return gene;

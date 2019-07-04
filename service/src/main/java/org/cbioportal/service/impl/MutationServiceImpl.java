@@ -60,7 +60,7 @@ public class MutationServiceImpl implements MutationService {
             sampleListId, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction, oncogenicity);
 
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
-        mutationList.forEach(mutation -> mutation.setOncogenicity("Mutation"));
+        mutationList.forEach(mutation -> mutation.setOncogenicity("page"));
         return mutationList;
     }
 

@@ -59,7 +59,7 @@ public class MutationServiceImpl implements MutationService {
         List<Mutation> mutationList = mutationRepository.getMutationsInMolecularProfileByOncogenicity(molecularProfileId,
             sampleListId, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction, oncogenicity);
 
-        mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
+        mutationList.forEach(mutation -> chromosomeCalculator.setOncogenicity("oncogenicity"));
         return mutationList;
     }
 

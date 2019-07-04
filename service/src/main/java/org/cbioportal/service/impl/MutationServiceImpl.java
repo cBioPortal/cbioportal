@@ -43,6 +43,7 @@ public class MutationServiceImpl implements MutationService {
             sampleListId, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction);
 
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
+        System.out.println(mutationList.get(0));
         return mutationList;
     }
 

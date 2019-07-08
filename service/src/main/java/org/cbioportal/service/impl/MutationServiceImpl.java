@@ -46,23 +46,6 @@ public class MutationServiceImpl implements MutationService {
         return mutationList;
     }
 
-    @Override
-    public List<Mutation> getMutationsInMolecularProfileByOncogenicity(String molecularProfileId, String sampleListId,
-                                                                       List<Integer> entrezGeneIds, Boolean snpOnly,
-                                                                       String projection, Integer pageSize,
-                                                                       Integer pageNumber, String sortBy,
-                                                                       String direction, String oncogenicity)
-        throws MolecularProfileNotFoundException {
-
-        validateMolecularProfile(molecularProfileId);
-
-        List<Mutation> mutationList = mutationRepository.getMutationsInMolecularProfileByOncogenicity(molecularProfileId,
-            sampleListId, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction, oncogenicity);
-
-        mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
-        mutationList.forEach(mutation -> mutation.setOncogenicity("page"));
-        return mutationList;
-    }
 
     @Override
     public MutationMeta getMetaMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,

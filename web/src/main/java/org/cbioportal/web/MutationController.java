@@ -78,7 +78,9 @@ public class MutationController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) MutationSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) throws MolecularProfileNotFoundException {
+        @RequestParam(defaultValue = "ASC") Direction direction,
+        @ApiParam("Annotation")
+        @RequestParam(required = false) String annotation) throws MolecularProfileNotFoundException {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();

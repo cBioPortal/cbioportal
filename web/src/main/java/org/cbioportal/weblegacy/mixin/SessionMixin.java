@@ -8,5 +8,7 @@ public class SessionMixin {
 	private String source;
 	@JsonIgnore
 	private String type;
+	@JsonIgnore
+    private String checksum;
 	
 }

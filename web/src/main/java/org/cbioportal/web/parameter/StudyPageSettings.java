@@ -21,26 +21,11 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
 public class StudyPageSettings extends PageSettingsData implements Serializable {
-    
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-    
+
     @JsonInclude(Include.NON_NULL)
     static class ChartSetting implements Serializable {
 
-        /**
-         * 
-         */
-        private static final long serialVersionUID = 1L;
-
         static class Layout implements Serializable {
-
-            /**
-             * 
-             */
-            private static final long serialVersionUID = 1L;
 
             private Integer x;
             private Integer y;
@@ -82,10 +67,7 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
 
         @JsonInclude(Include.NON_NULL)
         static class PatientSampleIdentifier extends SampleIdentifier implements Serializable {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = 1L;
+
             private String patientId;
 
             public String getPatientId() {
@@ -116,12 +98,7 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
         }
 
         @JsonInclude(Include.NON_NULL)
-        static class Group implements Serializable {
-
-            /**
-             * 
-             */
-            private static final long serialVersionUID = 1L;
+        static class CustomChartGroup implements Serializable {
 
             @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
             private List<PatientSampleIdentifier> sampleIdentifiers;
@@ -149,10 +126,10 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
         private String id;
         private String name;
         private ChartType chartType;
-        private List<Group> groups;
+        private List<CustomChartGroup> groups;
         private Layout layout;
         private Boolean patientAttribute;
-        
+
         public String getId() {
             return id;
         }
@@ -177,11 +154,11 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
             this.chartType = chartType;
         }
 
-        public List<Group> getGroups() {
+        public List<CustomChartGroup> getGroups() {
             return groups;
         }
 
-        public void setGroups(List<Group> groups) {
+        public void setGroups(List<CustomChartGroup> groups) {
             this.groups = groups;
         }
 
@@ -202,17 +179,17 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
         }
 
     }
-    
+
     private List<ChartSetting> chartSettings = new ArrayList<ChartSetting>();
-    
+
     private String owner = "anonymous";
 
     private Set<String> origin = new HashSet<>();
 
     private Long created = System.currentTimeMillis();
-    
+
     private Long lastUpdated = System.currentTimeMillis();
-    
+
     public String getOwner() {
         return owner;
     }
@@ -252,5 +229,5 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
     public void setChartSettings(List<ChartSetting> chartSettings) {
         this.chartSettings = chartSettings;
     }
-    
+
 }

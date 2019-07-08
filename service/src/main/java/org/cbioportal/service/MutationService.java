@@ -15,6 +15,11 @@ public interface MutationService {
                                                                 String projection, Integer pageSize, Integer pageNumber,
                                                                 String sortBy, String direction)
         throws MolecularProfileNotFoundException;
+    List<Mutation> getMutationsInMolecularProfileByAnnotation(String molecularProfileId, String sampleListId,
+                                                                List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                                String projection, Integer pageSize, Integer pageNumber,
+                                                                String sortBy, String direction, String annotation)
+        throws MolecularProfileNotFoundException;
 
     MutationMeta getMetaMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
                                                                   List<Integer> entrezGeneIds)

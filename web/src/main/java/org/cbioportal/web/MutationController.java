@@ -91,9 +91,9 @@ public class MutationController {
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                mutationService.getMutationsInMolecularProfileBySampleListId(molecularProfileId, sampleListId,
+                mutationService.getMutationsInMolecularProfileByAnnotation(molecularProfileId, sampleListId,
                     entrezGeneId == null ? null : Arrays.asList(entrezGeneId), null, projection.name(), pageSize,
-                    pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
+                    pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name(), annotation), HttpStatus.OK);
         }
     }
 

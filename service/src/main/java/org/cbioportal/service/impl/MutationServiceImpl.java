@@ -56,7 +56,7 @@ public class MutationServiceImpl implements MutationService {
 
         validateMolecularProfile(molecularProfileId);
 
-        List<Mutation> mutationList = mutationRepository.getMutationsInMolecularProfileByOncogenicity(molecularProfileId,
+        List<Mutation> mutationList = mutationRepository.getMutationsInMolecularProfileByAnnotation(molecularProfileId,
             sampleListId, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction, annotation);
 
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));

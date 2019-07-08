@@ -14,10 +14,6 @@ public interface MutationRepository {
                                                                 String projection, Integer pageSize, Integer pageNumber,
                                                                 String sortBy, String direction);
                                                                 
-    List<Mutation> getMutationsInMolecularProfileByOncogenicity(String molecularProfileId, String sampleListId,
-                                                                List<Integer> entrezGeneIds, Boolean snpOnly,
-                                                                String projection, Integer pageSize, Integer pageNumber,
-                                                                String sortBy, String direction, String oncogenicity);
 
     MutationMeta getMetaMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
                                                                   List<Integer> entrezGeneIds);

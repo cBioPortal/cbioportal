@@ -35,7 +35,7 @@ public class Mutation extends Alteration implements Serializable {
     private String driverFilterAnnotation;
     private String driverTiersFilter;
     private String driverTiersFilterAnnotation;
-    private String oncogenicity;
+    private String annotation;
 
     public String getCenter() {
         return center;
@@ -273,7 +273,7 @@ public class Mutation extends Alteration implements Serializable {
         return oncogenicity;
     }
 
-    public void setOncogenicity(String oncogenicity) {
-        this.oncogenicity = oncogenicity;
+    public void setAnnotation(String annotation) {
+        this.annotation = annotation;
     }
 }

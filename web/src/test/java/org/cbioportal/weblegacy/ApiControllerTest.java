@@ -550,13 +550,11 @@ public class ApiControllerTest {
         gene_AKT1.setEntrezGeneId(207);
         gene_AKT1.setType("protein-coding");
         gene_AKT1.setCytoband("14q32.32");
-        gene_AKT1.setLength(10838);
         Gene gene_TGFBR1 = new Gene();
         gene_TGFBR1.setHugoGeneSymbol("TGFBR1");
         gene_TGFBR1.setEntrezGeneId(7046);
         gene_TGFBR1.setType("protein-coding");
         gene_TGFBR1.setCytoband("9q22");
-        gene_TGFBR1.setLength(6844);
         TypeOfCancer typeOfCancer_brca = new TypeOfCancer();
         typeOfCancer_brca.setTypeOfCancerId("brca");
         typeOfCancer_brca.setName("Invasive Breast Carcinoma");
@@ -1082,7 +1080,6 @@ public class ApiControllerTest {
         mutation.setSample(null); //class object
         mutation.getGene().setType(null);
         mutation.getGene().setCytoband(null);
-        mutation.getGene().setLength(null);
     }
 
     private List<Mutation> getGeneticprofiledataQuery1ServiceMock() {

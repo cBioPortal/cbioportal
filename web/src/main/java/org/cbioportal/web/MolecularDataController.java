@@ -37,7 +37,7 @@ import java.util.*;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Molecular Data", description = " ")
+@Api(tags = "I. Molecular Data", description = " ")
 public class MolecularDataController {
 
     @Autowired
@@ -108,7 +108,7 @@ public class MolecularDataController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @RequestAttribute(required = false, value = "interceptedMolecularDataMultipleStudyFilter") MolecularDataMultipleStudyFilter interceptedMolecularDataMultipleStudyFilter,
+        @Valid @RequestAttribute(required = false, value = "interceptedMolecularDataMultipleStudyFilter") MolecularDataMultipleStudyFilter interceptedMolecularDataMultipleStudyFilter,
         @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs or List of Molecular" +
             "Profile IDs and Entrez Gene IDs")
         @Valid @RequestBody(required = false) MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter,

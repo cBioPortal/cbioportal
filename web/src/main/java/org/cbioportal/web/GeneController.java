@@ -34,7 +34,7 @@ import java.util.List;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Genes", description = " ")
+@Api(tags = "N. Genes", description = " ")
 public class GeneController {
 
     private static final int GENE_MAX_PAGE_SIZE = 100000;

@@ -94,13 +94,11 @@ public class GenePanelControllerLegacyTest {
         braf.setHugoGeneSymbol("BRAF");
         braf.setType("protein-coding");
         braf.setCytoband("7q34");
-        braf.setLength(4564);
         egfr = new Gene();
         egfr.setEntrezGeneId(1956);
         egfr.setHugoGeneSymbol("EGFR");
         egfr.setType("protein-coding");
         egfr.setCytoband("7p12");
-        egfr.setLength(12961);
         genes.add(braf);
         genes.add(egfr);
 

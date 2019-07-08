@@ -69,7 +69,7 @@ and then run (this simple command only works if your cBioPortal is running at ht
 #### Advanced Example
 This example imports the study to the localhost, creates an html report and shows status messages.
 ```
-./metaImport.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080/cbioportal -html myReport.html -v
+./metaImport.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080 -html myReport.html -v
 ```
 
 By adding `-o`, warnings will be overridden and import will start after validation.

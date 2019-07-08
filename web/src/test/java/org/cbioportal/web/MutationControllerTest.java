@@ -71,7 +71,6 @@ public class MutationControllerTest {
     private static final String TEST_HUGO_GENE_SYMBOL_1 = "test_hugo_gene_symbol_1";
     private static final String TEST_TYPE_1 = "test_type_1";
     private static final String TEST_CYTOBAND_1 = "test_cytoband_1";
-    private static final int TEST_LENGTH_1 = 100;
     private static final String TEST_CHROMOSOME_1 = "test_chromosome_1";
     private static final int TEST_MOLECULAR_PROFILE_ID_2 = 2;
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_2 = "test_molecular_profile_stable_id_2";
@@ -106,7 +105,6 @@ public class MutationControllerTest {
     private static final String TEST_HUGO_GENE_SYMBOL_2 = "test_hugo_gene_symbol_2";
     private static final String TEST_TYPE_2 = "test_type_2";
     private static final String TEST_CYTOBAND_2 = "test_cytoband_2";
-    private static final int TEST_LENGTH_2 = 200;
     private static final String TEST_CHROMOSOME_2 = "test_chromosome_2";
     private static final int TEST_MUTATION_COUNT_1 = 100;
     private static final int TEST_MUTATION_COUNT_2 = 200;
@@ -126,8 +124,7 @@ public class MutationControllerTest {
     @Autowired
     private MutationService mutationService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 
@@ -284,7 +281,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.type").value(TEST_TYPE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.cytoband").value(TEST_CYTOBAND_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.length").value(TEST_LENGTH_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.chromosome").value(TEST_CHROMOSOME_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
@@ -323,7 +319,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.cytoband").value(TEST_CYTOBAND_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.length").value(TEST_LENGTH_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.chromosome").value(TEST_CHROMOSOME_2));
     }
 
@@ -602,7 +597,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.type").value(TEST_TYPE_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.cytoband").value(TEST_CYTOBAND_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.length").value(TEST_LENGTH_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.chromosome").value(TEST_CHROMOSOME_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
@@ -642,7 +636,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.cytoband").value(TEST_CYTOBAND_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.length").value(TEST_LENGTH_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.chromosome").value(TEST_CHROMOSOME_2));
     }
 
@@ -804,7 +797,6 @@ public class MutationControllerTest {
         gene1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
         gene1.setType(TEST_TYPE_1);
         gene1.setCytoband(TEST_CYTOBAND_1);
-        gene1.setLength(TEST_LENGTH_1);
         gene1.setChromosome(TEST_CHROMOSOME_1);
         mutationList.get(0).setGene(gene1);
         Gene gene2 = new Gene();
@@ -812,7 +804,6 @@ public class MutationControllerTest {
         gene2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
         gene2.setType(TEST_TYPE_2);
         gene2.setCytoband(TEST_CYTOBAND_2);
-        gene2.setLength(TEST_LENGTH_2);
         gene2.setChromosome(TEST_CHROMOSOME_2);
         mutationList.get(1).setGene(gene2);
         

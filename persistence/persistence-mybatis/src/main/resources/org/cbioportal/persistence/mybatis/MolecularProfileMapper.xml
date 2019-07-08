@@ -15,7 +15,9 @@
             genetic_profile.DATATYPE AS "${prefix}datatype",
             genetic_profile.NAME AS "${prefix}name",
             genetic_profile.DESCRIPTION AS "${prefix}description",
-            genetic_profile.SHOW_PROFILE_IN_ANALYSIS_TAB AS "${prefix}showProfileInAnalysisTab"
+            genetic_profile.SHOW_PROFILE_IN_ANALYSIS_TAB AS "${prefix}showProfileInAnalysisTab",
+            genetic_profile.PIVOT_THRESHOLD AS "${prefix}pivotThreshold",
+            genetic_profile.SORT_ORDER AS "${prefix}sortOrder"
         </if>
         <if test="projection == 'DETAILED'">
             ,

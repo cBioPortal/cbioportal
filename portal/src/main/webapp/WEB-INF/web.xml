@@ -20,19 +20,19 @@
     <display-name>Cancer Genomics Portal</display-name>
 
     <!-- context configuration -->
-    <!-- jndi profile is defined here to prevent exceptions during war deployment -->
+    <!-- dbcp profile is defined here to prevent exceptions during war deployment -->
     <context-param>
         <param-name>spring.profiles.active</param-name>
-        <param-value>${dbconnector:jndi},${authenticate}</param-value>
+        <param-value>${dbconnector:dbcp},${authenticate}</param-value>
     </context-param>
     <context-param>
         <param-name>spring.liveBeansView.mbeanDomain</param-name>
-        <param-value>${dbconnector:jndi},${authenticate}</param-value>
+        <param-value>${dbconnector:dbcp},${authenticate}</param-value>
     </context-param>
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:applicationContext-security.xml classpath:applicationContext-business.xml classpath:applicationContext-core.xml classpath:applicationContext-logging.xml</param-value>
+        <param-value>classpath:applicationContext-business.xml classpath:applicationContext-security.xml classpath:applicationContext-core.xml classpath:applicationContext-logging.xml</param-value>
     </context-param>
 
     <context-param>
@@ -280,15 +280,6 @@
         <url-pattern>/webservice.do</url-pattern>
     </servlet-mapping>
 
-    <!--<servlet>-->
-        <!--<servlet-name>cross_cancer_query</servlet-name>-->
-        <!--<servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerStudyServlet</servlet-class>-->
-    <!--</servlet>-->
-    <!--<servlet-mapping>-->
-        <!--<servlet-name>cross_cancer_query</servlet-name>-->
-        <!--<url-pattern>/cross_cancer.do</url-pattern>-->
-    <!--</servlet-mapping>-->
-
     <servlet>
         <servlet-name>portal_meta_data_json</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.PortalMetaDataJSON</servlet-class>
@@ -372,15 +363,6 @@
     </servlet-mapping>
 
 	<servlet>
-		<servlet-name>pfam_sequence_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.PfamSequenceServlet</servlet-class>
-	</servlet>
-    <servlet-mapping>
-        <servlet-name>pfam_sequence_json</servlet-name>
-        <url-pattern>/getPfamSequence.json</url-pattern>
-    </servlet-mapping>
-
-	<servlet>
 		<servlet-name>mutation_aligner_json</servlet-name>
 		<servlet-class>org.mskcc.cbio.portal.servlet.MutationAlignerServlet</servlet-class>
 	</servlet>
@@ -388,15 +370,6 @@
 		<servlet-name>mutation_aligner_json</servlet-name>
 		<url-pattern>/getMutationAligner.json</url-pattern>
 	</servlet-mapping>
-
-	<servlet>
-		<servlet-name>mutation_3d_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.PdbDataServlet</servlet-class>
-	</servlet>
-    <servlet-mapping>
-        <servlet-name>mutation_3d_json</servlet-name>
-        <url-pattern>/get3dPdb.json</url-pattern>
-    </servlet-mapping>
 
 	<servlet>
 		<servlet-name>mutation_data_json</servlet-name>
@@ -656,19 +629,6 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>link_out</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.LinkOut</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>link_out</servlet-name>
-        <url-pattern>/link.do</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>link_out</servlet-name>
-        <url-pattern>/ln</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>SinglePageApplication</servlet-name>
         <jsp-file>/index.jsp</jsp-file>
     </servlet>
@@ -683,6 +643,7 @@
         <url-pattern>/case.do/*</url-pattern>
         <url-pattern>/study.do/*</url-pattern>
         <url-pattern>/loading/*</url-pattern>
+        <url-pattern>/comparison/*</url-pattern>
     </servlet-mapping>
 
     <servlet>

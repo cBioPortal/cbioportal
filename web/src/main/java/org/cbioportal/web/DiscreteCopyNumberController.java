@@ -36,7 +36,7 @@ import java.util.List;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Discrete Copy Number Alterations", description = " ")
+@Api(tags = "L. Discrete Copy Number Alterations", description = " ")
 public class DiscreteCopyNumberController {
 
     private static final int COPY_NUMBER_COUNT_MAX_PAGE_SIZE = 50000;

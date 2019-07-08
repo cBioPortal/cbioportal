@@ -22,4 +22,9 @@ public class GenesetMolecularAlteration extends MolecularAlteration implements S
     public void setGeneset(Geneset geneset) {
         this.geneset = geneset;
     }
+
+    @Override
+    public String getStableId() {
+        return genesetId;
+    }
 }

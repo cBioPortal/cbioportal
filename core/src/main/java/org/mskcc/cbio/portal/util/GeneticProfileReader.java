@@ -116,7 +116,13 @@ public class GeneticProfileReader {
         // the same as the version of the gene sets in the database (genesets_info table).
     	if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE) {
             validateGenesetProfile(geneticProfile, file);
-    	}
+        }
+        
+        if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY) {
+            validateGenericAssay(geneticProfile, file);
+            geneticProfile.setPivotThreshold( Float.parseFloat( geneticProfile.getOtherMetaDataField("pivot_threshold_value") ) );
+            geneticProfile.setSortOrder( geneticProfile.getOtherMetaDataField("value_sort_order") );
+        }
 
         // add new genetic profile
         DaoGeneticProfile.addGeneticProfile(geneticProfile);
@@ -134,9 +140,9 @@ public class GeneticProfileReader {
         geneticProfile.setGeneticProfileId(gp.getGeneticProfileId());
         return geneticProfile;
     }
-
+    
     private static GeneticProfileLink createGeneticProfileLink(GeneticProfile geneticProfile) {
-    	GeneticProfileLink geneticProfileLink = new GeneticProfileLink();
+        GeneticProfileLink geneticProfileLink = new GeneticProfileLink();
         
         // Set `REFERRED_GENETIC_PROFILE_ID`
         String referredGeneticProfileStableId = parseStableId(geneticProfile.getAllOtherMetadataFields(), "source_stable_id");
@@ -152,9 +158,9 @@ public class GeneticProfileReader {
         if (Arrays.asList("P-VALUE", "Z-SCORE").contains(geneticProfile.getDatatype())) {
         	referenceType = "STATISTIC";
         } else if (geneticProfile.getDatatype().equals("GSVA-SCORE")) {
-        	referenceType = "AGGREGATION";
+            referenceType = "AGGREGATION";
         } else {
-        	// not expected but might be useful for future genetic profile links
+            // not expected but might be useful for future genetic profile links
         	throw new RuntimeException("Unknown datatype '" + geneticProfile.getDatatype() + "' in meta file for " + geneticProfile.getStableId());
         }
         // Set `REFERENCE_TYPE`
@@ -162,35 +168,46 @@ public class GeneticProfileReader {
         
         return geneticProfileLink;
 	}
-
+    
 	private static void validateGenesetProfile(GeneticProfile geneticProfile, File file) throws DaoException {
-    	String genesetVersion = DaoInfo.getGenesetVersion();
+        String genesetVersion = DaoInfo.getGenesetVersion();
     	
     	// TODO Auto-generated method stub
     	
     	// Check if version is present in database
-      if (genesetVersion == null) {
-         throw new RuntimeException("Attempted to import GENESET_SCORE data, but all gene set tables are empty.\n"
+        if (genesetVersion == null) {
+            throw new RuntimeException("Attempted to import GENESET_SCORE data, but all gene set tables are empty.\n"
             + "Please load gene sets with ImportGenesetData.pl first. See:\n"
             + "https://github.com/cBioPortal/cbioportal/blob/master/docs/Import-Gene-Sets.md\n");
-
+            
     		// Check if version is present in meta file
     	} else if (geneticProfile.getOtherMetaDataField("geneset_def_version") == null) {
-    		throw new RuntimeException("Missing geneset_def_version property in '" + file.getPath() + "'. This version must be "
-    				+ "the same as the gene set version loaded with ImportGenesetData.pl .");
-
+            throw new RuntimeException("Missing geneset_def_version property in '" + file.getPath() + "'. This version must be "
+            + "the same as the gene set version loaded with ImportGenesetData.pl .");
+            
     		// Check if version is same as database version
     	} else if (!geneticProfile.getOtherMetaDataField("geneset_def_version").equals(genesetVersion)) {
-    		throw new RuntimeException("'geneset_def_version' property (" + geneticProfile.getOtherMetaDataField("geneset_def_version") +
-    				") in '" + file.getPath() + "' differs from database version (" + genesetVersion + ").");
+            throw new RuntimeException("'geneset_def_version' property (" + geneticProfile.getOtherMetaDataField("geneset_def_version") +
+            ") in '" + file.getPath() + "' differs from database version (" + genesetVersion + ").");
     	}
-
+        
     	// Prevent p-value profile to show up as selectable genomic profile
     	if (geneticProfile.getDatatype().equals("P-VALUE")) {
     		geneticProfile.setShowProfileInAnalysisTab(false);
     	}
     }
+    
+    /**
+     * Check whether required columns for assay response data were defined in the meta file
+     */
+    private static void validateGenericAssay(GeneticProfile geneticProfile, File file) {
+        if (geneticProfile.getOtherMetaDataField("pivot_threshold_value") == null)
+            throw new RuntimeException("Missing `pivot_threshold_value` property in '" + file.getPath() + "' meta data file.");
 
+        if (geneticProfile.getOtherMetaDataField("value_sort_order") == null)
+            throw new RuntimeException("Missing `value_sort_order` property in '" + file.getPath() + "' meta data file.");
+    }
+    
 	/**
      * Load a GeneticProfile from a description file.
      *

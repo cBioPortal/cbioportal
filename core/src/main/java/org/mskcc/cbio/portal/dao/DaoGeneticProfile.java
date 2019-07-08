@@ -100,9 +100,10 @@ public final class DaoGeneticProfile {
             con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
 
             pstmt = con.prepareStatement
-                    ("INSERT INTO genetic_profile (`STABLE_ID`, `CANCER_STUDY_ID`, `GENETIC_ALTERATION_TYPE`," +
-                            "`DATATYPE`, `NAME`, `DESCRIPTION`, `SHOW_PROFILE_IN_ANALYSIS_TAB`) " +
-                            "VALUES (?,?,?,?,?,?,?)");
+                    ("INSERT INTO genetic_profile (`STABLE_ID`, `CANCER_STUDY_ID`, "+
+                            "`GENETIC_ALTERATION_TYPE`, `DATATYPE`, `NAME`, `DESCRIPTION`, "+
+                            "`SHOW_PROFILE_IN_ANALYSIS_TAB`, `PIVOT_THRESHOLD`, `SORT_ORDER`) " +
+                            "VALUES (?,?,?,?,?,?,?,?,?)");
             pstmt.setString(1, profile.getStableId());
             pstmt.setInt(2, profile.getCancerStudyId());
             pstmt.setString(3, profile.getGeneticAlterationType().name());
@@ -110,7 +111,19 @@ public final class DaoGeneticProfile {
             pstmt.setString(5, profile.getProfileName());
             pstmt.setString(6, profile.getProfileDescription());
             pstmt.setBoolean(7, profile.showProfileInAnalysisTab());
+
+            // `pivot_threshold_value` and `value_sort_order` fields are treatment data 
+            // specific. These fields are set to null when not present in profile object.
+            if (profile.getPivotThreshold() == null) {
+                pstmt.setNull(8, java.sql.Types.FLOAT);
+                pstmt.setNull(9, java.sql.Types.INTEGER);
+            } else {
+                pstmt.setFloat(8, profile.getPivotThreshold());
+                pstmt.setString(9, profile.getSortOrder());
+            }
+            
             rows = pstmt.executeUpdate();
+
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -217,6 +230,12 @@ public final class DaoGeneticProfile {
         profileType.setGeneticAlterationType(GeneticAlterationType.valueOf(rs.getString("GENETIC_ALTERATION_TYPE")));
         profileType.setDatatype(rs.getString("DATATYPE"));
         profileType.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
+        if (rs.getFloat("PIVOT_THRESHOLD") != 0) {
+            profileType.setPivotThreshold(rs.getFloat("PIVOT_THRESHOLD"));
+        }
+        if (rs.getString("SORT_ORDER") != null && ! rs.getString("SORT_ORDER").equals("") ) {
+            profileType.setSortOrder(rs.getString("SORT_ORDER"));
+        }
         return profileType;
     }
 

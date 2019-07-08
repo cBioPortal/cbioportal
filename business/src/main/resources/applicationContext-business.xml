@@ -9,7 +9,7 @@
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
 
-    <beans profile="jndi,dbcp">
+    <beans profile="dbcp,jndi">
         <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
             <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
             <property name="searchSystemEnvironment" value="true" />
@@ -53,16 +53,10 @@
             <property name="mutationalSignatureMapper" ref="mutationalSignatureMapper" />
         </bean>
 
-        <bean id="structuralVariantMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.StructuralVariantMapper" />
-            <property name="sqlSessionFactory" ref="sqlSessionFactory" />
-        </bean>
-        <bean id="structuralVariantRepository" class="org.mskcc.cbio.portal.repository.StructuralVariantMyBatisRepository">
-            <property name="structuralVariantMapper" ref="structuralVariantMapper" />
-        </bean>
-
         <!-- enable component scanning (beware that this does not enable mapper scanning!) -->
         <context:component-scan base-package="org.mskcc.cbio.portal.service" />
+        <context:component-scan base-package="org.cbioportal.persistence" />
+        <context:component-scan base-package="org.cbioportal.service" />
 
         <!-- enable autowire -->
         <context:annotation-config />

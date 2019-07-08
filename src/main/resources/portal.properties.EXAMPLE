@@ -8,7 +8,14 @@ db.host=localhost
 db.portal_db_name=cbioportal
 db.driver=com.mysql.jdbc.Driver
 db.connection_string=jdbc:mysql://localhost/
-db.tomcat_resource_name=jdbc/cbioportal
+# set tomcat_resource_name when using dbconnector=jndi instead of the default
+# dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
+# using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up
+# from the properties file
+# (https://github.com/cBioPortal/cbioportal/issues/6148).
+#
+# db.tomcat_resource_name=jdbc/cbioportal
+
 # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
 db.suppress_schema_version_mismatch_errors=false
 db.use_ssl=false
@@ -90,7 +97,7 @@ saml.keystore.password=
 saml.keystore.private-key.key=
 saml.keystore.private-key.password=
 saml.keystore.default-key=
-# How to send SAML request messages to the IDP. 
+# How to send SAML request messages to the IDP.
 # Set to "specificBinding" to configure specific binding:
 saml.idp.comm.binding.settings=defaultBinding
 # Configure the specific binding if above is specificBinding. Leave empty if defaultBinding.
@@ -115,6 +122,14 @@ ldap.attributes.username=sAMAccountName
 ldap.attributes.last_name=sn
 ldap.attributes.given_name=givenName
 ldap.attributes.email=mail
+
+# data access token settings
+dat.unauth_users=
+dat.method=none
+dat.ttl_seconds=2592000
+dat.uuid.max_number_per_user=1
+dat.uuid.revoke_other_tokens=true
+dat.jwt.secret_key=
 
 # study view settings
 # always show studies with this group
@@ -161,7 +176,7 @@ broad.bam.checking.url=
 include_networks=true
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 
-# the new API uses the v3 of bitly API, and a java library to make the API call, so you only need to provide the access token  
+# the new API uses the v3 of bitly API, and a java library to make the API call, so you only need to provide the access token
 bitly.access.token=
 
 # google analytics
@@ -173,7 +188,7 @@ genomespace=true
 # set this to true if you update cancer studies in your production database without shutting the web server
 recache_study_after_update=false
 
-# session-service url: http://[host]:[port]/[session_service_app]/api/sessions/[portal_instance]/ 
+# session-service url: http://[host]:[port]/[session_service_app]/api/sessions/[portal_instance]/
 # example session-service url: http://localhost:8080/session_service/api/sessions/public_portal/
 # see: https://github.com/cBioPortal/session-service
 # excluding this value or setting it to an empty string will revert to the previous bookmarking method
@@ -215,3 +230,19 @@ oncoprint.defaultview=patient
 # Disable cache (for non authorized portals this can sometimes avoid running
 # out of memory with relatively little performance loss)
 # mybatis.cache.enabled=false
+
+# Default cross cancer study query
+# query this session id when not specifying a study for
+# linkout links e.g. /ln?q=TP53:MUT or when querying a single gene in quick
+# search
+#
+# default_cross_cancer_study_session_id=
+#
+# if session service is not enabled, specify a comma separated list of studies
+# here instead e.g.:
+#
+# default_cross_cancer_study_list=mixed_pipseq_2017,cellline_nci60
+# default_cross_cancer_study_list_name=My list of studies
+
+# Enable/Disable quick search (currently in beta, default is false)
+# quick_search.enabled=true

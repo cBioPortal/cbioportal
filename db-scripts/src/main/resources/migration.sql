@@ -1,5 +1,5 @@
 --
--- Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
+-- Copyright (c) 2016 - 2019 Memorial Sloan-Kettering Cancer Center.
 --
 -- This library is distributed in the hope that it will be useful, but WITHOUT
 -- ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -422,7 +422,13 @@ INSERT INTO reference_genome_gene (ENTREZ_GENE_ID, CYTOBAND, EXONIC_LENGTH, CHR,
 	ENTREZ_GENE_ID,
 	CYTOBAND,
 	LENGTH,
-    SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(gene.CYTOBAND,IF(LOCATE('p', gene.CYTOBAND), 'p', 'q'), 1),'q',1),'cen',1),
+  SUBSTRING_INDEX(
+    SUBSTRING_INDEX(
+      SUBSTRING_INDEX(
+        SUBSTRING_INDEX(gene.CYTOBAND, 'p', 1),
+      'q', 1),
+    'cen', 1),
+  ' ', 1),
 	1
 FROM `gene`);
 
@@ -588,3 +594,94 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.8.1";
 ALTER TABLE `mutation_event` DROP KEY `KEY_MUTATION_EVENT_DETAILS`;
 ALTER TABLE `mutation_event` ADD KEY `KEY_MUTATION_EVENT_DETAILS` (`CHR`, `START_POSITION`, `END_POSITION`, `TUMOR_SEQ_ALLELE`(240), `ENTREZ_GENE_ID`, `PROTEIN_CHANGE`, `MUTATION_TYPE`);
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.8.2";
+
+##version: 2.9.0
+CREATE TABLE `data_access_tokens` (
+    `TOKEN` varchar(50) NOT NULL,
+    `USERNAME` varchar(128) NOT NULL,
+    `EXPIRATION` datetime NOT NULL,
+    `CREATION` datetime,
+    PRIMARY KEY (`TOKEN`),
+    FOREIGN KEY (`USERNAME`) REFERENCES `users` (`EMAIL`) ON DELETE CASCADE
+);
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.9.0";
+
+-- ========================== new treatment related tables =============================================
+##version: 2.9.1
+CREATE TABLE `treatment` (
+  `ID` INT(11) NOT NULL auto_increment,
+  `STABLE_ID` VARCHAR(45) NOT NULL UNIQUE,
+  `NAME` VARCHAR(45) NOT NULL,
+  `DESCRIPTION` VARCHAR(200) NOT NULL,
+  `LINKOUT_URL` VARCHAR(400) NOT NULL,
+  `GENETIC_ENTITY_ID` INT NOT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE INDEX `TREATMENT_GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID` ASC),
+  FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
+);
+
+-- --------------------------------------------------------
+ALTER TABLE `genetic_profile` ADD COLUMN `PIVOT_THRESHOLD` FLOAT DEFAULT NULL;
+ALTER TABLE `genetic_profile` ADD COLUMN `SORT_ORDER` ENUM('ASC','DESC') DEFAULT NULL;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.9.1";
+
+-- ========================== end of treatment related tables =============================================
+##version: 2.9.2
+-- Previous structural_variant was never used, so recreate it
+DROP TABLE IF EXISTS structural_variant;
+CREATE TABLE `structural_variant` (
+  `INTERNAL_ID` int(11) NOT NULL auto_increment,
+  `GENETIC_PROFILE_ID` int(11) NOT NULL,
+  `SAMPLE_ID` int(11) NOT NULL,
+  `SITE1_ENTREZ_GENE_ID` int(11) NOT NULL,
+  `SITE1_ENSEMBL_TRANSCRIPT_ID` varchar(25),
+  `SITE1_EXON` int(4),
+  `SITE1_CHROMOSOME` varchar(5),
+  `SITE1_POSITION` int(11),
+  `SITE1_DESCRIPTION` varchar(255),
+  `SITE2_ENTREZ_GENE_ID` int(11),
+  `SITE2_ENSEMBL_TRANSCRIPT_ID` varchar(25),
+  `SITE2_EXON` int(4),
+  `SITE2_CHROMOSOME` varchar(5),
+  `SITE2_POSITION` int(11),
+  `SITE2_DESCRIPTION` varchar(255),
+  `SITE2_EFFECT_ON_FRAME` varchar(25),
+  `NCBI_BUILD` varchar(10),
+  `DNA_SUPPORT` varchar(3),
+  `RNA_SUPPORT` varchar(3),
+  `NORMAL_READ_COUNT` int(11),
+  `TUMOR_READ_COUNT` int(11),
+  `NORMAL_VARIANT_COUNT` int(11),
+  `TUMOR_VARIANT_COUNT` int(11),
+  `NORMAL_PAIRED_END_READ_COUNT` int(11),
+  `TUMOR_PAIRED_END_READ_COUNT` int(11),
+  `NORMAL_SPLIT_READ_COUNT` int(11),
+  `TUMOR_SPLIT_READ_COUNT` int(11),
+  `ANNOTATION` varchar(255),
+  `BREAKPOINT_TYPE` varchar(25),
+  `CENTER` varchar(25),
+  `CONNECTION_TYPE` varchar(25),
+  `EVENT_INFO` varchar(255),
+  `CLASS` varchar(25),
+  `LENGTH` int(11),
+  `COMMENTS` varchar(255),
+  `EXTERNAL_ANNOTATION` varchar(80),
+  `DRIVER_FILTER` VARCHAR(20),
+  `DRIVER_FILTER_ANNOTATION` VARCHAR(80),
+  `DRIVER_TIERS_FILTER` VARCHAR(50),
+  `DRIVER_TIERS_FILTER_ANNOTATION` VARCHAR(80),
+  PRIMARY KEY (`INTERNAL_ID`),
+  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`SITE1_ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`SITE2_ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
+);
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.9.2";
+
+##version: 2.10.0
+-- remove gene length, this is stored in genome nexus
+ALTER TABLE `gene` DROP COLUMN `length`;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.10.0";

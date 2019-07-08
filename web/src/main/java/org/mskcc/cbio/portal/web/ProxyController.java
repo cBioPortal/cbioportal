@@ -71,17 +71,6 @@ public class ProxyController
   private String sessionServiceURL;
   @Value("${session.service.url:''}") // default is empty string
   public void setSessionServiceURL(String property) { this.sessionServiceURL = property; }
-
-  private String oncokbApiURL;
-  @Value("${oncokb.api.url:http://oncokb.org/legacy-api/}")
-  public void setOncoKBURL(String property) {
-      // The annotation above can only prevent oncokb.api.url is not present in the property file.
-      // If user set the  oncokb.api.url to empty, we should also use the default OncoKB URL.
-      if (property.isEmpty()) {
-          property = "http://oncokb.org/legacy-api/";
-      }
-      this.oncokbApiURL = property;
-  }
     
     private Boolean enableOncokb;
 
@@ -106,8 +95,6 @@ public class ProxyController
       pathToUrl.put("bitly", bitlyURL);
       pathToUrl.put("cancerHotSpots", hotspotsURL + "hotspots/single/");
       pathToUrl.put("3dHotspots", "https://www.3dhotspots.org/api/hotspots/3d/");
-      pathToUrl.put("oncokbAccess", oncokbApiURL + "access");
-      pathToUrl.put("oncokbSummary", oncokbApiURL + "summary.json");
 
       String URL = pathToUrl.get(path) == null ? "" : pathToUrl.get(path);
         
@@ -121,36 +108,6 @@ public class ProxyController
           URL += "?" + request.getQueryString();
         }
         return respProxy(URL, method, body, response);
-  }
-
-    @RequestMapping(value="/oncokbSummary", method = RequestMethod.POST)
-    public @ResponseBody String getOncoKBSummary(@RequestBody String body, HttpMethod method,
-                                                  HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
-        if(!enableOncokb) {
-            response.sendError(403, "OncoKB service is disabled.");
-            return "";
-        }
-        return respProxy(oncokbApiURL + "summary.json", method, body, response);
-    }
-
-    @RequestMapping(value="/oncokbEvidence", method = RequestMethod.POST)
-    public @ResponseBody String getOncoKBEvidence(@RequestBody JSONObject body, HttpMethod method,
-                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
-        if(!enableOncokb) {
-            response.sendError(403, "OncoKB service is disabled.");
-            return "";
-        }
-        return respProxy(oncokbApiURL + "evidence.json", method, body, response);
-    }
-
-  @RequestMapping(value="/oncokb", method = RequestMethod.POST)
-  public @ResponseBody String getOncoKB(@RequestBody JSONObject body, HttpMethod method,
-                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
-      if(!enableOncokb) {
-          response.sendError(403, "OncoKB service is disabled.");
-          return "";
-      }
-      return respProxy(oncokbApiURL + "indicator.json", method, body, response);
   }
   
      private String respProxy(String url, HttpMethod method, Object body, HttpServletResponse response) throws IOException {

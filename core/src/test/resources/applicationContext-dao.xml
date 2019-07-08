@@ -48,8 +48,8 @@
 	<bean id="dbcpDataSource" destroy-method="close" class="org.apache.commons.dbcp2.BasicDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
 		<property name="url" value="jdbc:mysql://localhost:3306/cgds_test" />
-		<property name="username" value="${db.user}" />
-		<property name="password" value="${db.password}" />
+		<property name="username" value="${db.test.username}" />
+		<property name="password" value="${db.test.password}" />
 		<property name="minIdle" value="0" />
 		<property name="maxIdle" value="10" />
 		<property name="maxTotal" value="100" />
@@ -92,14 +92,6 @@
     </bean>
     <bean id="mutationalSignatureRepository" class="org.mskcc.cbio.portal.repository.MutationalSignatureMyBatisRepository">
         <property name="mutationalSignatureMapper" ref="mutationalSignatureMapper" />
-    </bean>
-
-    <bean id="structuralVariantMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.StructuralVariantMapper" />
-        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
-    </bean>
-    <bean id="structuralVariantRepository" class="org.mskcc.cbio.portal.repository.StructuralVariantMyBatisRepository">
-        <property name="structuralVariantMapper" ref="structuralVariantMapper" />
     </bean>
 
     <!-- enable component scanning (beware that this does not enable mapper scanning!) -->

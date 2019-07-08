@@ -31,7 +31,7 @@ OQL-specified alterations will be reflected on most tabs, including OncoPrint, b
 
 Note that OQL assumes any word that it doesn't recognize is a mutation code.
 
-Additional explanation and examples using OQL are available in the [OQL tutorial](http://www.cbioportal.org/tutorials#oql).
+Additional explanation and examples using OQL are available in the [OQL tutorial](https://www.cbioportal.org/tutorials#oql).
 
 <a name="oql-keywords"></a>
 ## OQL Keywords
@@ -273,7 +273,7 @@ The resulting merged gene track will be visible in OncoPrint and can be expanded
 
 ![Image of merged genes in OncoPrint](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/images/OQL/merged_genes_oncoprint.png)
 
-<http://www.cbioportal.org/results/oncoprint?session_id=5c1966e2e4b05228701f958e>
+<https://www.cbioportal.org/results/oncoprint?session_id=5c1966e2e4b05228701f958e>
 
 It is possible to include OQL for specific alterations in merged gene tracks, as well as querying a combination of single and merged gene tracks.
 
@@ -284,7 +284,7 @@ Note that merged gene tracks only appear in OncoPrint. All other pages show the 
 <a name="example-rb-pathway-alterations"></a>
 ## Example: RB Pathway Alterations
 
-Provided below is one example of the power of using OQL. Additional examples are available in the [OQL tutorial](http://www.cbioportal.org/tutorials#oql).
+Provided below is one example of the power of using OQL. Additional examples are available in the [OQL tutorial](https://www.cbioportal.org/tutorials#oql).
 
 <a name="using-the-defaults"></a>
 ### Using the Defaults
@@ -304,7 +304,7 @@ Submit this query and note how many samples have alterations in multiple of thes
 
 ![image of rb oncoprint](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/images/OQL/rb_query_oncoprint.png)
 
-<http://www.cbioportal.org/results/oncoprint?session_id=5c1966cee4b05228701f958d>
+<https://www.cbioportal.org/results/oncoprint?session_id=5c1966cee4b05228701f958d>
 
 
 <a name="greater-insight-with-oql"></a>
@@ -320,7 +320,7 @@ Examine the updated OncoPrint:
 
 ![image of modified rb oncoprint](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/images/OQL/rb_query_oncoprint_modified.png)
 
-<http://www.cbioportal.org/results/oncoprint?session_id=5c1966aee4b05228701f958c>
+<https://www.cbioportal.org/results/oncoprint?session_id=5c1966aee4b05228701f958c>
 
 This shows that alterations in these genes are almost entirely mutually-exclusive -- no cases are altered in all three genes and only six are altered in two genes. This supports the theory that the tumor has selected for these events.
 
@@ -330,4 +330,4 @@ This shows that alterations in these genes are almost entirely mutually-exclusiv
 ## Questions? Feedback?
 Please share any questions or feedback on OQL with us: <http://groups.google.com/group/cbioportal>
 
-Also note that additional explanation and examples using OQL are available in the [OQL tutorial](http://www.cbioportal.org/tutorials#oql).
+Also note that additional explanation and examples using OQL are available in the [OQL tutorial](https://www.cbioportal.org/tutorials#oql).

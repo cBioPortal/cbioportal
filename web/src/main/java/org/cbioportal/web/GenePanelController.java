@@ -41,7 +41,7 @@ import java.util.*;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "Gene Panels", description = " ")
+@Api(tags = "O. Gene Panels", description = " ")
 public class GenePanelController {
 
     @Autowired
@@ -131,7 +131,7 @@ public class GenePanelController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @RequestAttribute(required = false, value = "interceptedGenePanelSampleMolecularIdentifiers") List<SampleMolecularIdentifier> interceptedGenePanelSampleMolecularIdentifiers,
+        @Valid @RequestAttribute(required = false, value = "interceptedGenePanelSampleMolecularIdentifiers") List<SampleMolecularIdentifier> interceptedGenePanelSampleMolecularIdentifiers,
         @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody(required = false) List<SampleMolecularIdentifier> sampleMolecularIdentifiers) {

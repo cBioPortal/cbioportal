@@ -81,4 +81,5 @@ public class ClinicalAttribute implements Serializable {
     public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
         this.cancerStudyIdentifier = cancerStudyIdentifier;
     }
+    
 }

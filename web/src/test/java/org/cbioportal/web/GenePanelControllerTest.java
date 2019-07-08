@@ -68,8 +68,7 @@ public class GenePanelControllerTest {
     @Autowired
     private GenePanelService genePanelService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

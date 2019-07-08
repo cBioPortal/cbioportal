@@ -269,8 +269,8 @@ public class Mutation extends Alteration implements Serializable {
         this.driverTiersFilterAnnotation = driverTiersFilterAnnotation;
     }
 
-    public String getOncogenicity() {
-        return oncogenicity;
+    public String getAnnotation() {
+        return annotation;
     }
 
     public void setAnnotation(String annotation) {

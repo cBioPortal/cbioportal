@@ -60,7 +60,6 @@ public class MutationServiceImpl implements MutationService {
             sampleListId, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction, annotation);
 
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
-        System.out.println(annotation);
         mutationList.forEach(mutation -> mutation.setAnnotation(annotation));
         return mutationList;
     }

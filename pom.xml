@@ -270,6 +270,8 @@
   </profiles>
 
   <properties>
+    <frontend.version>v3.0.2</frontend.version>
+    <frontend.groupId>com.github.cbioportal</frontend.groupId>
     <slf4j.version>1.6.6</slf4j.version>
     <spring.version>4.3.14.RELEASE</spring.version>
     <spring.context.support.version>4.3.14.RELEASE</spring.context.support.version>
@@ -290,9 +292,9 @@
 
     <final.war.name>cbioportal</final.war.name>
 
-  <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
+    <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
     <!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->
-  <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB</db.test.url>
+    <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB</db.test.url>
     <db.test.username>cbio_user</db.test.username>
     <db.test.password>somepassword</db.test.password>
 
@@ -301,7 +303,7 @@
     <tomcat.session.timeout>720</tomcat.session.timeout>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.8.2</db.version>
+    <db.version>2.9.0</db.version>
   </properties>
 
   <modules>
@@ -322,6 +324,16 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
+      <version>${spring.security.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-web</artifactId>
+      <version>${spring.security.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
       <version>${spring.security.version}</version>
     </dependency>
     <!-- apache commons logging -->

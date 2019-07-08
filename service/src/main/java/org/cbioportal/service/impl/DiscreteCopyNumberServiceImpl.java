@@ -11,7 +11,7 @@ import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.service.util.GeneFrequencyCalculator;
+import org.cbioportal.service.util.ProfiledSamplesCounter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +33,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     @Autowired
     private MolecularProfileService molecularProfileService;
     @Autowired
-    private GeneFrequencyCalculator geneFrequencyCalculator;
+    private ProfiledSamplesCounter profiledSamplesCounter;
 
     @Override
     public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMolecularProfileBySampleListId(
@@ -156,7 +156,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
                 sampleIds, entrezGeneIds, alterations);
             
             if (includeFrequency) {
-                geneFrequencyCalculator.calculate(molecularProfileIds, sampleIds, result);
+                profiledSamplesCounter.calculate(molecularProfileIds, sampleIds, result);
             }
         }
 
@@ -200,7 +200,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
                 .filter(p -> p.getEntrezGeneId().equals(entrezGeneId) && p.getAlteration().equals(alteration))
                 .findFirst();
             copyNumberSampleCountByGene.ifPresent(m -> copyNumberCount.setNumberOfSamplesWithAlterationInGene(m
-                .getCountByEntity()));
+                .getNumberOfAlteredCases()));
 
             copyNumberCounts.add(copyNumberCount);
         }

@@ -182,19 +182,6 @@ public class MutationsJSON extends HttpServlet {
                 smgs = mutationModelConverter.convertSignificantlyMutatedGeneToMap(
                         mutationRepositoryLegacy.getSignificantlyMutatedGenes(profileId, null, selectedCaseList, 2, DEFAULT_THRESHOLD_NUM_SMGS));
 
-                // get all cbio cancer genes
-                Set<Long> cbioCancerGeneIds = daoGeneOptimized.getEntrezGeneIds(
-                        daoGeneOptimized.getCbioCancerGenes());
-                cbioCancerGeneIds.removeAll(smgs.keySet());
-                if (!cbioCancerGeneIds.isEmpty()) {
-                    List<Integer> intEntrezGeneIds = new ArrayList<>(cbioCancerGeneIds.size());
-                    for (Long entrezGeneId : cbioCancerGeneIds) {
-                        intEntrezGeneIds.add(entrezGeneId.intValue());
-                    }
-                    smgs.putAll(mutationModelConverter.convertSignificantlyMutatedGeneToMap(
-                            mutationRepositoryLegacy.getSignificantlyMutatedGenes(profileId, intEntrezGeneIds, selectedCaseList, -1, -1)));
-                }
-
                 // added mutsig results
                 mutsig = getMutSig(mutationProfile.getCancerStudyId());
                 if (!mutsig.isEmpty()) {
@@ -716,15 +703,13 @@ public class MutationsJSON extends HttpServlet {
         
         // sanger & cbio cancer gene
         boolean isSangerGene = false;
-        boolean isCbioCancerGene = false;
         try {
             isSangerGene = DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(symbol);
-            isCbioCancerGene = daoGeneOptimized.isCbioCancerGene(mutation.getGene());
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         data.get("sanger").add(isSangerGene);
-        data.get("cancer-gene").add(isCbioCancerGene);
+        data.get("cancer-gene").add(false);
         
         // drug
         data.get("drug").add(drugs);

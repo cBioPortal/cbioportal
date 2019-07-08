@@ -1,9 +1,16 @@
 package org.cbioportal.service.util;
 
-import org.cbioportal.model.Alteration;
-import org.cbioportal.model.AlterationEnrichment;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.cbioportal.model.AlterationCountByGene;
+import org.cbioportal.model.AlterationEnrichment;
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.service.GeneService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,36 +20,61 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 @RunWith(MockitoJUnitRunner.class)
 public class AlterationEnrichmentUtilTest {
 
     @InjectMocks
     private AlterationEnrichmentUtil alterationEnrichmentUtil;
-    
+
     @Mock
     private FisherExactTestCalculator fisherExactTestCalculator;
-    @Mock
-    private LogRatioCalculator logRatioCalculator;
     @Mock
     private GeneService geneService;
 
     @Test
     public void createAlterationEnrichments() throws Exception {
-        
-        List<AlterationCountByGene> alterationSampleCountByGenes = new ArrayList<>();
+
+        // create molecularProfileCaseSet1, molecularProfileCaseSet2 list of entities
+        MolecularProfileCaseIdentifier molecularProfileCase1 = new MolecularProfileCaseIdentifier();
+        molecularProfileCase1.setCaseId("sample_id_1");
+        molecularProfileCase1.setMolecularProfileId("test1_cna");
+        MolecularProfileCaseIdentifier molecularProfileCase2 = new MolecularProfileCaseIdentifier();
+        molecularProfileCase2.setCaseId("sample_id_2");
+        molecularProfileCase2.setMolecularProfileId("test2_cna");
+        List<MolecularProfileCaseIdentifier> molecularProfileCaseSet1 = new ArrayList<>();
+        molecularProfileCaseSet1.add(molecularProfileCase1);
+        molecularProfileCaseSet1.add(molecularProfileCase2);
+
+        MolecularProfileCaseIdentifier molecularProfileCase3 = new MolecularProfileCaseIdentifier();
+        molecularProfileCase3.setCaseId("sample_id_3");
+        molecularProfileCase3.setMolecularProfileId("test3_cna");
+        MolecularProfileCaseIdentifier molecularProfileCase4 = new MolecularProfileCaseIdentifier();
+        molecularProfileCase4.setCaseId("sample_id_4");
+        molecularProfileCase4.setMolecularProfileId("test4_cna");
+        List<MolecularProfileCaseIdentifier> molecularProfileCaseSet2 = new ArrayList<>();
+        molecularProfileCaseSet2.add(molecularProfileCase3);
+        molecularProfileCaseSet2.add(molecularProfileCase4);
+
+        MolecularProfileCaseIdentifier molecularProfileCase5 = new MolecularProfileCaseIdentifier();
+        molecularProfileCase3.setCaseId("sample_id_5");
+        molecularProfileCase3.setMolecularProfileId("test5_cna");
+        MolecularProfileCaseIdentifier molecularProfileCase6 = new MolecularProfileCaseIdentifier();
+        molecularProfileCase4.setCaseId("sample_id_6");
+        molecularProfileCase4.setMolecularProfileId("test6_cna");
+        List<MolecularProfileCaseIdentifier> molecularProfileCaseSet3 = new ArrayList<>();
+        molecularProfileCaseSet3.add(molecularProfileCase5);
+        molecularProfileCaseSet3.add(molecularProfileCase6);
+
+        Map<String, List<MolecularProfileCaseIdentifier>> groupMolecularProfileCaseSets = new HashMap<String, List<MolecularProfileCaseIdentifier>>();
+        groupMolecularProfileCaseSets.put("group1", molecularProfileCaseSet1);
+        groupMolecularProfileCaseSets.put("group2", molecularProfileCaseSet2);
+
         AlterationCountByGene alterationSampleCountByGene1 = new AlterationCountByGene();
         alterationSampleCountByGene1.setEntrezGeneId(2);
-        alterationSampleCountByGene1.setCountByEntity(3);
-        alterationSampleCountByGenes.add(alterationSampleCountByGene1);
+        alterationSampleCountByGene1.setNumberOfAlteredCases(1);
         AlterationCountByGene alterationSampleCountByGene2 = new AlterationCountByGene();
         alterationSampleCountByGene2.setEntrezGeneId(3);
-        alterationSampleCountByGene2.setCountByEntity(2);
-        alterationSampleCountByGenes.add(alterationSampleCountByGene2);
+        alterationSampleCountByGene2.setNumberOfAlteredCases(2);
 
         List<Gene> genes = new ArrayList<>();
         Gene gene1 = new Gene();
@@ -58,48 +90,93 @@ public class AlterationEnrichmentUtilTest {
 
         Mockito.when(geneService.fetchGenes(Arrays.asList("2", "3"), "ENTREZ_GENE_ID", "SUMMARY")).thenReturn(genes);
 
-        List<Alteration> alterations = new ArrayList<>();
-        Alteration alteration1 = new Alteration();
-        alteration1.setEntrezGeneId(2);
-        alteration1.setSampleId("1");
-        alterations.add(alteration1);
-        Alteration alteration2 = new Alteration();
-        alteration2.setEntrezGeneId(2);
-        alteration2.setSampleId("1");
-        alterations.add(alteration2);
-        Alteration alteration3 = new Alteration();
-        alteration3.setEntrezGeneId(3);
-        alteration3.setSampleId("1");
-        alterations.add(alteration3);
-        Alteration alteration4 = new Alteration();
-        alteration4.setEntrezGeneId(3);
-        alteration4.setSampleId("2");
-        alterations.add(alteration4);
+        Map<String, List<? extends AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = new HashMap<>();
+        mutationCountsbyEntrezGeneIdAndGroup.put("group1", Arrays.asList(alterationSampleCountByGene1));
+        mutationCountsbyEntrezGeneIdAndGroup.put("group2", Arrays.asList(alterationSampleCountByGene2));
 
-        Mockito.when(logRatioCalculator.getLogRatio(0.5, 1.0)).thenReturn(-1.0);
-        Mockito.when(logRatioCalculator.getLogRatio(1.0, 0.0)).thenReturn(Double.POSITIVE_INFINITY);
-        Mockito.when(fisherExactTestCalculator.getCumulativePValue(0, 2, 1, 1)).thenReturn(1.0);
+        // START: for 2 groups
+
+        Mockito.when(fisherExactTestCalculator.getCumulativePValue(1, 1, 2, 0)).thenReturn(1.0);
         Mockito.when(fisherExactTestCalculator.getCumulativePValue(2, 0, 0, 2)).thenReturn(0.3);
 
-        List<AlterationEnrichment> result = alterationEnrichmentUtil.createAlterationEnrichments(2, 2, 
-            alterationSampleCountByGenes, alterations, "SAMPLE");
+        List<AlterationEnrichment> result = alterationEnrichmentUtil.createAlterationEnrichments(
+                mutationCountsbyEntrezGeneIdAndGroup, groupMolecularProfileCaseSets, "SAMPLE");
 
         Assert.assertEquals(2, result.size());
         AlterationEnrichment alterationEnrichment1 = result.get(0);
         Assert.assertEquals((Integer) 2, alterationEnrichment1.getEntrezGeneId());
         Assert.assertEquals("HUGO2", alterationEnrichment1.getHugoGeneSymbol());
         Assert.assertEquals("CYTOBAND2", alterationEnrichment1.getCytoband());
-        Assert.assertEquals((Integer) 1, alterationEnrichment1.getAlteredCount());
-        Assert.assertEquals((Integer) 2, alterationEnrichment1.getUnalteredCount());
-        Assert.assertEquals("-1.0", alterationEnrichment1.getLogRatio());
+        Assert.assertEquals(2, alterationEnrichment1.getCounts().size());
         Assert.assertEquals(new BigDecimal("1.0"), alterationEnrichment1.getpValue());
+        alterationEnrichment1.getCounts().forEach(countSummary -> {
+            if (countSummary.getName().equals("group2")) {
+                Assert.assertEquals((Integer) 0, countSummary.getAlteredCount());
+            } else if (countSummary.getName().equals("group1")) {
+                Assert.assertEquals((Integer) 1, countSummary.getAlteredCount());
+            }
+        });
+
         AlterationEnrichment alterationEnrichment2 = result.get(1);
         Assert.assertEquals((Integer) 3, alterationEnrichment2.getEntrezGeneId());
         Assert.assertEquals("HUGO3", alterationEnrichment2.getHugoGeneSymbol());
         Assert.assertEquals("CYTOBAND3", alterationEnrichment2.getCytoband());
-        Assert.assertEquals((Integer) 2, alterationEnrichment2.getAlteredCount());
-        Assert.assertEquals((Integer) 0, alterationEnrichment2.getUnalteredCount());
-        Assert.assertEquals("Infinity", alterationEnrichment2.getLogRatio());
+        Assert.assertEquals(2, alterationEnrichment2.getCounts().size());
         Assert.assertEquals(new BigDecimal("0.3"), alterationEnrichment2.getpValue());
+        alterationEnrichment2.getCounts().forEach(countSummary -> {
+            if (countSummary.getName().equals("group2")) {
+                Assert.assertEquals((Integer) 2, countSummary.getAlteredCount());
+            } else if (countSummary.getName().equals("group1")) {
+                Assert.assertEquals((Integer) 0, countSummary.getAlteredCount());
+            }
+        });
+
+        // END: for 2 groups
+
+        // START: for 3 groups
+
+        groupMolecularProfileCaseSets.put("group3", molecularProfileCaseSet3);
+        mutationCountsbyEntrezGeneIdAndGroup.put("group3",
+                Arrays.asList(alterationSampleCountByGene1, alterationSampleCountByGene2));
+
+        result = alterationEnrichmentUtil.createAlterationEnrichments(mutationCountsbyEntrezGeneIdAndGroup,
+                groupMolecularProfileCaseSets, "SAMPLE");
+
+        Assert.assertEquals(2, result.size());
+        alterationEnrichment1 = result.get(0);
+        Assert.assertEquals((Integer) 2, alterationEnrichment1.getEntrezGeneId());
+        Assert.assertEquals("HUGO2", alterationEnrichment1.getHugoGeneSymbol());
+        Assert.assertEquals("CYTOBAND2", alterationEnrichment1.getCytoband());
+        Assert.assertEquals(3, alterationEnrichment1.getCounts().size());
+
+        Assert.assertEquals(new BigDecimal("0.4723665527410149"), alterationEnrichment1.getpValue());
+        alterationEnrichment1.getCounts().forEach(countSummary -> {
+            if (countSummary.getName().equals("group3")) {
+                Assert.assertEquals((Integer) 1, countSummary.getAlteredCount());
+            } else if (countSummary.getName().equals("group2")) {
+                Assert.assertEquals((Integer) 0, countSummary.getAlteredCount());
+            } else if (countSummary.getName().equals("group1")) {
+                Assert.assertEquals((Integer) 1, countSummary.getAlteredCount());
+            }
+        });
+
+        alterationEnrichment2 = result.get(1);
+        Assert.assertEquals((Integer) 3, alterationEnrichment2.getEntrezGeneId());
+        Assert.assertEquals("HUGO3", alterationEnrichment2.getHugoGeneSymbol());
+        Assert.assertEquals("CYTOBAND3", alterationEnrichment2.getCytoband());
+        Assert.assertEquals(3, alterationEnrichment2.getCounts().size());
+
+        Assert.assertEquals(new BigDecimal("0.04978706836786395"), alterationEnrichment2.getpValue());
+        alterationEnrichment2.getCounts().forEach(countSummary -> {
+            if (countSummary.getName().equals("group3")) {
+                Assert.assertEquals((Integer) 2, countSummary.getAlteredCount());
+            } else if (countSummary.getName().equals("group2")) {
+                Assert.assertEquals((Integer) 2, countSummary.getAlteredCount());
+            } else if (countSummary.getName().equals("group1")) {
+                Assert.assertEquals((Integer) 0, countSummary.getAlteredCount());
+            }
+        });
+
+        // END: for 3 groups
     }
 }

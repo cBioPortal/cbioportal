@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2018 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -30,32 +30,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.security.spring.authentication.googleplus;
+package org.cbioportal.web.config;
 
-import org.springframework.social.connect.Connection;
-import org.springframework.social.connect.ConnectionSignUp;
+import java.io.IOException;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-/**
- * provide an implementation of a ConnectionSignup that facilitates finding a user id in
- * the user connection repository
- * @author criscuof
- *
- */
-public final class GoogleplusConnectionSignUp implements ConnectionSignUp {
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
 
-	/* (non-Javadoc)
-	 * @see org.springframework.social.connect.ConnectionSignUp#execute(org.springframework.social.connect.Connection)
-	 */
-	@Override
-	public String execute(Connection<?> connection) {
-		Preconditions.checkArgument(null!=connection, "A Connection property is required");
-		Preconditions.checkArgument(null != connection.getKey(), "The Connection must have a key");
-		Preconditions.checkArgument(!Strings.isNullOrEmpty(connection.getKey().getProviderUserId()), "The Connection key must have a provider user id");
-		return connection.getKey().getProviderUserId();
-		
-	}
-
+@Component
+public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint{
+ 
+   @Override
+   public void commence( HttpServletRequest request, HttpServletResponse response, 
+    AuthenticationException authException ) throws IOException{
+      response.sendError( HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized" );
+   }
 }

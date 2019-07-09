@@ -39,6 +39,7 @@ public class SignificantlyMutatedGeneSparkRepositoryTest {
         ds = mock(Dataset.class);
         DataFrameReader dfr = mock(DataFrameReader.class);
         when(spark.read()).thenReturn(dfr);
+        when(dfr.option(anyString(), anyBoolean())).thenReturn(dfr);
         when(dfr.parquet(anyString())).thenReturn(ds);
         when(spark.sql(anyString())).thenReturn(ds);
         List<Row> result = Arrays.asList(RowFactory.create("hugoGeneSymbol", "1", 1L, 1L));

@@ -30,7 +30,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.cbioportal.security.spring.authentication.googleplus;
+package org.cbioportal.security.spring.authentication.social;
 
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionSignUp;
@@ -44,7 +44,7 @@ import com.google.common.base.Strings;
  * @author criscuof
  *
  */
-public final class GoogleplusConnectionSignUp implements ConnectionSignUp {
+public final class SocialConnectionSignUp implements ConnectionSignUp {
 
 	/* (non-Javadoc)
 	 * @see org.springframework.social.connect.ConnectionSignUp#execute(org.springframework.social.connect.Connection)

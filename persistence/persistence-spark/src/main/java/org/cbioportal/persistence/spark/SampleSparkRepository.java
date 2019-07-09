@@ -1,6 +1,5 @@
 package org.cbioportal.persistence.spark;
 
-import com.google.common.collect.Sets;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,7 +78,7 @@ public class SampleSparkRepository implements SampleRepository {
     @Override
     public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {
         List<Dataset<Row>> res = new ArrayList<>();
-        for (String studyId : Sets.newHashSet(studyIds)) {
+        for (String studyId : new HashSet<>(studyIds)) {
             Dataset<Row> samples = spark.read()
                 .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.DATA_CLINICAL_SAMPLE);
             

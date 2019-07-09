@@ -254,3 +254,9 @@ oncoprint.defaultview=patient
 # MatchMiner AWS url
 matchminer.url=
 matchminer.token=
+
+# enable/disable hrrs logging
+# filter which logs incoming web requests to specified logging directory
+# logs must be decrypted for more in-depth information
+hrrs.logging.filepath=
+hrrs.enable.logging=

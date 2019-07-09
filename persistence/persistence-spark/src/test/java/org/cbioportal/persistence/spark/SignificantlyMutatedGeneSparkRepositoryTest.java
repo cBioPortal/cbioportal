@@ -50,7 +50,7 @@ public class SignificantlyMutatedGeneSparkRepositoryTest {
     public void testGetSignificantlyMutatedGenes() {
 
         List<MutSig> res = significantlyMutatedGeneSparkRepository
-            .getSignificantlyMutatedGenes("brca_tcga", "SUMMARY", null, null, null, null);
+            .getSignificantlyMutatedGenes("brca_tcga", "SUMMARY", null, null, "Entrez_Gene_Id", "ASC");
         Assert.assertNotNull(res);
     }
 

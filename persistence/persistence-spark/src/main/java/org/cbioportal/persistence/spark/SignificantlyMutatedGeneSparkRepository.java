@@ -47,6 +47,9 @@ public class SignificantlyMutatedGeneSparkRepository implements SignificantlyMut
         if (sortBy != null && direction != null) {
             sb.append("sort by " + sortBy + " " + direction);
         }
+        if (pageNumber != null && pageSize != null) {
+            sb.append("LIMIT " + pageSize + " OFFSET " + (pageSize * pageNumber));
+        }
 
         Dataset<Row> result = spark.sql(sb.toString());
         List<Row> resultls = result.collectAsList();

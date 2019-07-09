@@ -4,10 +4,10 @@ app.name=cbioportal
 # database
 db.user=cbio_user
 db.password=somepassword
-db.host=localhost
+db.host=localhost:3306
 db.portal_db_name=cbioportal
 db.driver=com.mysql.jdbc.Driver
-db.connection_string=jdbc:mysql://localhost/
+db.connection_string=jdbc:mysql://localhost:3306/
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
 # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
 # using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up
@@ -78,14 +78,18 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # always_show_study_group=
 
 ## change the `-Dauthenticate=` JVM argument to configure
-## which method of authentication to use (false, googleplus, social_auth, saml, openid, ad, ldap, noauthsessionservice)
+## which method of authentication to use (false, googleplus, social_auth_google, social_auth_microsoft, saml, openid, ad, ldap, noauthsessionservice)
 
 ## Should the permissions for groups and users be filtered by this instance's app.name?
 ## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)
 filter_groups_by_appname=true
-## settings to connect to googleplus auth infrastructure
+## settings to connect to googleplus/social_auth_google auth infrastructure
 googleplus.consumer.key=
 googleplus.consumer.secret=
+
+## settings to connect to social_auth_microsoft auth infrastructure
+microsoftlive.consumer.key=
+microsoftlive.consumer.secret=
 
 ## SAML settings
 saml.sp.metadata.entityid=
@@ -246,3 +250,7 @@ oncoprint.defaultview=patient
 
 # Enable/Disable quick search (currently in beta, default is false)
 # quick_search.enabled=true
+
+# MatchMiner AWS url
+matchminer.url=
+matchminer.token=

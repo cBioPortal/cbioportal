@@ -13,6 +13,7 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -29,7 +30,11 @@ public class SampleServiceImpl implements SampleService {
     private static final String SEQUENCED = "_sequenced";
 
     @Autowired
+    @Qualifier("sampleMyBatisRepository")
     private SampleRepository sampleRepository;
+    @Autowired
+    @Qualifier("sampleSparkRepository")
+    private SampleRepository sampleSparkRepository;
     @Autowired
     private StudyService studyService;
     @Autowired
@@ -126,7 +131,7 @@ public class SampleServiceImpl implements SampleService {
     @Override
     public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {
 
-        List<Sample> samples = sampleRepository.fetchSamples(studyIds, sampleIds, projection);
+        List<Sample> samples = sampleSparkRepository.fetchSamples(studyIds, sampleIds, projection);
         processSamples(samples, projection);
         return samples;
     }

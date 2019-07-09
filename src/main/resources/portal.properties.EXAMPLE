@@ -246,3 +246,9 @@ oncoprint.defaultview=patient
 
 # Enable/Disable quick search (currently in beta, default is false)
 # quick_search.enabled=true
+
+# enable/disable hrrs logging
+# filter which logs incoming web requests to specified logging directory
+# logs must be decrypted for more in-depth information
+hrrs.logging.filepath=
+hrrs.enable.logging=

@@ -36,7 +36,6 @@
         <artifactId>service</artifactId>
         <version>${project.version}</version>
     </dependency>
-
     <!-- antisamy -->
     <dependency>
       <groupId>org.owasp</groupId>

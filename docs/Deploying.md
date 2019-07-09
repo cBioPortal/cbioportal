@@ -75,21 +75,37 @@ these features.
 ```bash
 java \
     -jar \
-    -Dauthenticate=social_auth
+    -Dauthenticate=social_auth_google,social_auth_microsoft \
     portal/target/dependency/webapp-runner.jar \
     portal/target/cbioportal.war
 ```
 
-Only google is supported as optional login currently. One needs to set the
-Google related configuration in the `portal.properties` file:
+Google and Microsoft live are supported as optional login currently. Possible values for authenticate are
+
+```bash
+-Dauthenticate=social_auth_google,social_auth_microsoft
+-Dauthenticate=social_auth_google
+-Dauthenticate=social_auth_microsoft
+```
+
+One needs to set the Google/Microsoft related configurations in the `portal.properties` file:
 
 ```
+#For Google
 googleplus.consumer.key=
 googleplus.consumer.secret=
+
+#For Microsoft
+microsoftlive.consumer.key=
+microsoftlive.consumer.secret=
 ```
 
 See [Google's Sign in
 Documentation](https://developers.google.com/identity/sign-in/web/sign-in#before_you_begin)
+to obtain these values.
+
+See [Microsoft Sign in
+Documentation](https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-web-app-sign-user-app-registration)
 to obtain these values.
 
 ### Required login
@@ -102,8 +118,7 @@ java \
     portal/target/cbioportal.war
 ```
 
-Change `CHOOSE_DESIRED_AUTHENTICATION_METHOD` to one of `googleplus`,
-`social_auth`, `saml`, `openid`, `ad`, `ldap`. The various methods of
+Change `CHOOSE_DESIRED_AUTHENTICATION_METHOD` to one of `googleplus`, `saml`, `openid`, `ad`, `ldap`. The various methods of
 authentication are described in the [Authorization and
 Authentication](https://docs.cbioportal.org/#2-2-authorization-and-authentication)
 section.

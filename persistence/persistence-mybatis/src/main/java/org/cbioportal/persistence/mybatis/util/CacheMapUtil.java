@@ -93,7 +93,7 @@ public class CacheMapUtil {
         // CHANGES TO THIS LIST MUST BE PROPAGATED TO 'GlobalProperties'
         this.cacheEnabled = (!authenticate.isEmpty() 
                 && !authenticate.equals("false") 
-                && !authenticate.equals("social_auth"));
+                && !authenticate.contains("social_auth"));
         if (cacheEnabled) {
             LOG.debug("creating cache maps for authorization");
             populateMolecularProfileMap();

@@ -465,8 +465,8 @@ public class GlobalProperties {
     // CHANGES TO THIS LIST MUST BE PROPAGATED TO 'CacheMapUtil'
     public static boolean usersMustAuthenticate()
     {
-        // authentication for social_auth is optional
-        return (!authenticate.isEmpty() && !authenticate.equals("false") && !authenticate.equals("social_auth"));
+        // authentication for social_auth/social_auth_google/social_auth_microsoft is optional
+        return (!authenticate.isEmpty() && !authenticate.equals("false") && !authenticate.contains("social_auth"));
     }
 
     public static String authenticationMethod()

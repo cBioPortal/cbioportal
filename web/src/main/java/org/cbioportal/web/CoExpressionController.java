@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.CoExpression;
+import org.cbioportal.model.EntityType;
 import org.cbioportal.service.CoExpressionService;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.CoExpressionFilter;
@@ -49,14 +50,14 @@ public class CoExpressionController {
 
         List<CoExpression> coExpressionList;
         String geneticEntityId = null;
-        CoExpression.GeneticEntityType geneticEntityType = null;
+        EntityType geneticEntityType = null;
 
         if (coExpressionFilter.getEntrezGeneId() != null) {
             geneticEntityId = coExpressionFilter.getEntrezGeneId().toString();
-            geneticEntityType = CoExpression.GeneticEntityType.GENE;
+            geneticEntityType = EntityType.GENE;
         } else {
             geneticEntityId = coExpressionFilter.getGenesetId();
-            geneticEntityType = CoExpression.GeneticEntityType.GENESET;
+            geneticEntityType = EntityType.GENESET;
         }
 
         if (coExpressionFilter.getSampleListId() != null) {

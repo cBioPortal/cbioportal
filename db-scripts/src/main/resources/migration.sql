@@ -605,8 +605,3 @@ CREATE TABLE `data_access_tokens` (
     FOREIGN KEY (`USERNAME`) REFERENCES `users` (`EMAIL`) ON DELETE CASCADE
 );
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.9.0";
-
-##version: 2.9.1
-ALTER TABLE `copy_number_seg` MODIFY COLUMN `SEG_ID` BIGINT(20);
-
-UPDATE `info` SET `DB_SCHEMA_VERSION`="2.9.1";

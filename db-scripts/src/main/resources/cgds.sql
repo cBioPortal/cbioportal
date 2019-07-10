@@ -694,7 +694,7 @@ CREATE TABLE `sample_cna_event` (
 
 -- --------------------------------------------------------
 CREATE TABLE `copy_number_seg` (
-  `SEG_ID` bigint(20) NOT NULL auto_increment,
+  `SEG_ID` int(255) NOT NULL auto_increment,
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `SAMPLE_ID` int(11) NOT NULL,
   `CHR` varchar(5) NOT NULL,
@@ -819,4 +819,4 @@ CREATE TABLE `info` (
   `GENESET_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.9.1', NULL);
+INSERT INTO info VALUES ('2.9.0', NULL);

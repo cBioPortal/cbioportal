@@ -5,6 +5,7 @@ import org.cbioportal.model.DataBin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,23 +21,23 @@ public class ScientificSmallDataBinner
     }
 
     public List<DataBin> calculateDataBins(String attributeId,
-                                           List<Double> sortedNumericalValues,
-                                           List<Double> valuesWithoutOutliers,
-                                           Double lowerOutlier,
-                                           Double upperOutlier)
+                                           List<BigDecimal> sortedNumericalValues,
+                                           List<BigDecimal> valuesWithoutOutliers,
+                                           BigDecimal lowerOutlier,
+                                           BigDecimal upperOutlier)
     {
-        List<Double> exponents = sortedNumericalValues
+        List<BigDecimal> exponents = sortedNumericalValues
             .stream()
-            .map(d -> dataBinHelper.calcExponent(d).doubleValue())
-            .filter(d -> d != 0)
+            .map(d -> BigDecimal.valueOf(dataBinHelper.calcExponent(d)))
+            .filter(d -> d.compareTo(new BigDecimal("0")) != 0)
             .collect(Collectors.toList());
 
-        Range<Double> exponentBoxRange = dataBinHelper.calcBoxRange(exponents);
+        Range<BigDecimal> exponentBoxRange = dataBinHelper.calcBoxRange(exponents);
         
-        List<Double> intervals = new ArrayList<>();
+        List<BigDecimal> intervals = new ArrayList<>();
 
-        Double exponentRange = exponentBoxRange == null ? 
-            null : exponentBoxRange.upperEndpoint() - exponentBoxRange.lowerEndpoint();
+        BigDecimal exponentRange = exponentBoxRange == null ? 
+            null : exponentBoxRange.upperEndpoint().subtract(exponentBoxRange.lowerEndpoint());
         
         if (exponentRange == null) {
             // data set is not compatible with the scientific small data binner,
@@ -44,36 +45,37 @@ public class ScientificSmallDataBinner
             intervals.add(sortedNumericalValues.get(0));
             intervals.add(sortedNumericalValues.get(sortedNumericalValues.size() - 1));
         }
-        else if (exponentRange > 1)
+        else if (exponentRange.compareTo(new BigDecimal("1")) == 1)
         {
             Integer interval = Math.round(exponentRange.floatValue() / 4);
 
             for (int i = exponentBoxRange.lowerEndpoint().intValue() - interval;
-                 i <= exponentBoxRange.upperEndpoint();
+                 i <= exponentBoxRange.upperEndpoint().intValue();
                  i += interval)
             {
-                intervals.add(Math.pow(10, i));
+                intervals.add(BigDecimal.valueOf(Math.pow(10, i)));
             }
         }
-        else if (exponentRange == 1)
+        else if (exponentRange.compareTo(new BigDecimal("1")) == 0)
         {
-            intervals.add(Math.pow(10, exponentBoxRange.lowerEndpoint()) / 3);
+            intervals.add(BigDecimal.valueOf(Math.pow(10, exponentBoxRange.lowerEndpoint().doubleValue()) / 3));
 
             for (int i = exponentBoxRange.lowerEndpoint().intValue();
                  i <= exponentBoxRange.upperEndpoint().intValue() + 1;
                  i++)
             {
-                intervals.add(Math.pow(10, i));
-                intervals.add(3 * Math.pow(10, i));
+                BigDecimal powerTen = BigDecimal.valueOf(Math.pow(10, i));
+                intervals.add(powerTen);
+                intervals.add(powerTen.multiply(new BigDecimal("3")));
             }
         }
         else // exponentRange == 0 
         {
-            Double interval = 2 * Math.pow(10, exponentBoxRange.lowerEndpoint());
+            BigDecimal interval = BigDecimal.valueOf(2 * Math.pow(10, exponentBoxRange.lowerEndpoint().doubleValue()));
 
-            for (double d = Math.pow(10, exponentBoxRange.lowerEndpoint());
-                 d <= Math.pow(10, exponentBoxRange.upperEndpoint() + 1);
-                 d += interval)
+            for (BigDecimal d =  BigDecimal.valueOf(Math.pow(10, exponentBoxRange.lowerEndpoint().intValue()));
+                 d.doubleValue() <= Math.pow(10, exponentBoxRange.upperEndpoint().doubleValue() + 1);
+                 d=d.add(interval))
             {
                 intervals.add(d);
             }

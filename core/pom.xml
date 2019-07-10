@@ -36,7 +36,6 @@
         <artifactId>service</artifactId>
         <version>${project.version}</version>
     </dependency>
-
     <!-- antisamy -->
     <dependency>
       <groupId>org.owasp</groupId>
@@ -425,6 +424,7 @@
         <directory>src/main/resources</directory>
         <excludes>
           <exclude>sample_data/**</exclude>
+          <exclude>micrornas.tsv</exclude>
         </excludes>
       </resource>
       <resource>

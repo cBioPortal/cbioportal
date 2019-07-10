@@ -16,6 +16,7 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.apache.commons.collections.map.MultiKeyMap;
 
@@ -38,6 +39,7 @@ public class GenePanelServiceImpl implements GenePanelService {
     @Autowired
     private MolecularProfileService molecularProfileService;
     @Autowired
+    @Qualifier("sampleListMyBatisRepository")
     private SampleListRepository sampleListRepository;
     @Autowired
     private SampleListService sampleListService;

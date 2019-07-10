@@ -60,8 +60,9 @@ public class CacheMapUtil {
     private MolecularProfileRepository molecularProfileRepository;
 
     @Autowired
+    @Qualifier("sampleListMyBatisRepository")
     private SampleListRepository sampleListRepository;
-
+    
     @Value("${authenticate:false}")
     private String authenticate;
 

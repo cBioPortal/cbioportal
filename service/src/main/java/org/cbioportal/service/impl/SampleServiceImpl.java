@@ -40,7 +40,11 @@ public class SampleServiceImpl implements SampleService {
     @Autowired
     private PatientService patientService;
     @Autowired
+    @Qualifier("sampleListMyBatisRepository")
     private SampleListRepository sampleListRepository;
+    @Autowired
+    @Qualifier("sampleListSparkRepository")
+    private SampleListRepository sampleListSparkRepository;
     @Autowired
     private CopyNumberSegmentRepository copyNumberSegmentRepository;
 
@@ -171,7 +175,7 @@ public class SampleServiceImpl implements SampleService {
                 .collect(Collectors.toList());
             for (String studyId : distinctStudyIds) {
                 sequencedSampleIdsMap.put(studyId,
-                                          new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
+                                          new HashSet<String>(sampleListSparkRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
             }
 
             List<Integer> samplesWithCopyNumberSeg = copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(

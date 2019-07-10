@@ -35,25 +35,47 @@ package org.cbioportal.persistence.spark.util;
 import org.apache.spark.sql.*;
 import joptsimple.*;
 
+import java.util.Iterator;
+
+import static org.apache.spark.sql.functions.array;
+import static org.apache.spark.sql.functions.lit;
+
 
 /**
  * Command Line tool to Write Parquet Files.
  */
 public class ParquetWriter {
 
-    private static void write(String inputFile, String outputFile) {
+    private static void write(String inputFile, String outputFile, Boolean isCaseList) {
         SparkSession spark = SparkSession.builder()
             .appName("cBioPortal")
             .master("local[*]")
             .getOrCreate();
         
-        Dataset<Row> df = spark.read()
-            .format("csv")
-            .option("delimiter", "\t")
-            .option("header", "true")
-            .option("comment","#")
-            .load(inputFile);
-        df.write().parquet(outputFile);
+        if (isCaseList) {
+            Dataset<Row> df = spark.read()
+                .format("csv")
+                .option("delimiter", ":")
+                .load(inputFile);
+            
+            Iterator it = df.toLocalIterator();
+            while (it.hasNext()) {
+                Row row = (Row) it.next();
+                df = df.withColumn(row.getString(0), lit(row.getString(1).trim()));
+            }
+            df = df.drop("_c0", "_c1");
+            df.limit(1).write().parquet(outputFile);
+            
+        } else {
+            Dataset<Row> df = spark.read()
+                .format("csv")
+                .option("delimiter", "\t")
+                .option("header", "true")
+                .option("comment","#")
+                .load(inputFile);
+            
+            df.write().parquet(outputFile);
+        }
     }
     
     public static void main(String[] args) {
@@ -65,6 +87,8 @@ public class ParquetWriter {
                 "tsv file" ).withRequiredArg().describedAs( "path-to-input-file" ).ofType( String.class );
             OptionSpec<String> outputFile = parser.accepts( "output-file",
                 "parquet file" ).withRequiredArg().describedAs( "path-to-output-file" ).ofType( String.class );
+            OptionSpec<String> isCaseList = parser.accepts( "is-case-list",
+                "case list" ).withOptionalArg().describedAs("t for case list txt files, f otherwise.").ofType( String.class );
 
             OptionSet options = null;
             try {
@@ -75,7 +99,11 @@ public class ParquetWriter {
 
             String outputFilePath = options.valueOf(outputFile);
             String inputFilePath = options.valueOf(inputFile);
-            write(inputFilePath, outputFilePath);
+            Boolean caseList = false;
+            if (isCaseList != null) {
+                caseList = "T".equalsIgnoreCase(options.valueOf(isCaseList)) ? true : false;
+            }
+            write(inputFilePath, outputFilePath, caseList);
 
         } catch (RuntimeException e) {
             throw e;

@@ -23,6 +23,14 @@ WORKDIR /cbioportal
 RUN mvn -DskipTests clean install
 
 FROM shipilev/openjdk-shenandoah:8
+
+ENV PORTAL_WEB_HOME=/cbioportal-webapp
+
 COPY --from=build /cbioportal/portal/target/cbioportal*.war /app.war
 COPY --from=build /cbioportal/portal/target/dependency/webapp-runner.jar /webapp-runner.jar
-CMD /usr/bin/java ${JAVA_OPTS} -jar /webapp-runner.jar ${WEBAPP_OPTS} /app.war
+
+RUN apt-get update && apt-get install unzip
+RUN mkdir -p $PORTAL_WEB_HOME
+RUN unzip /app.war -d $PORTAL_WEB_HOME
+
+CMD ["/bin/sh", "-c", "/usr/bin/java ${JAVA_OPTS} -jar /webapp-runner.jar ${WEB_OPTS} ${PORTAL_WEB_HOME}"]

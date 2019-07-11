@@ -38,7 +38,7 @@ public class CopyNumberSegmentControllerTest {
     private static final String TEST_SAMPLE_STABLE_ID_1 = "test_sample_stable_id_1";
     private static final int TEST_CANCER_STUDY_ID_1 = 1;
     private static final String TEST_CANCER_STUDY_IDENTIFIER_1 = "test_study_1";
-    private static final Long TEST_SEG_ID_1 = 1L;
+    private static final Integer TEST_SEG_ID_1 = 1;
     private static final String TEST_CHR_1 = "test_chr_1";
     private static final Integer TEST_START_1 = 15;
     private static final Integer TEST_END_1 = 20;
@@ -48,7 +48,7 @@ public class CopyNumberSegmentControllerTest {
     private static final String TEST_SAMPLE_STABLE_ID_2 = "test_sample_stable_id_2";
     private static final int TEST_CANCER_STUDY_ID_2 = 2;
     private static final String TEST_CANCER_STUDY_IDENTIFIER_2 = "test_study_2";
-    private static final Long TEST_SEG_ID_2 = 2L;
+    private static final Integer TEST_SEG_ID_2 = 2;
     private static final String TEST_CHR_2 = "test_chr_2";
     private static final Integer TEST_START_2 = 25;
     private static final Integer TEST_END_2 = 34;

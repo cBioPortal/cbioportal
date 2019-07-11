@@ -218,10 +218,22 @@
             AND sample.INTERNAL_ID = sample_cna_event.SAMPLE_ID 
             AND genetic_profile.GENETIC_PROFILE_ID = sample_cna_event.GENETIC_PROFILE_ID)
         </if>
-        <if test="entrezGeneIds != null">
+        <if test="entrezGeneIds != null and alterations != null">
             AND (cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION) IN
             <foreach index="i" collection="entrezGeneIds" open="(" separator="," close=")">
                 (#{entrezGeneIds[${i}]}, #{alterations[${i}]})
+            </foreach>
+        </if>
+        <if test="entrezGeneIds != null and alterations == null">
+            AND cna_event.ENTREZ_GENE_ID IN
+            <foreach item="entrezGeneId" collection="entrezGeneIds" open="(" separator="," close=")">
+                #{entrezGeneId}
+            </foreach>
+        </if>
+        <if test="entrezGeneIds == null and alterations != null">
+            AND cna_event.ALTERATION IN
+            <foreach item="alteration" collection="alterations" open="(" separator="," close=")">
+                #{alteration}
             </foreach>
         </if>
         GROUP BY cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION
@@ -241,11 +253,22 @@
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN gene ON cna_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         WHERE genetic_profile.STABLE_ID = #{molecularProfileId}
-        <if test="entrezGeneIds != null">
-            AND
-            (cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION) IN
+        <if test="entrezGeneIds != null and alterations != null">
+            AND (cna_event.ENTREZ_GENE_ID, cna_event.ALTERATION) IN
             <foreach index="i" collection="entrezGeneIds" open="(" separator="," close=")">
                 (#{entrezGeneIds[${i}]}, #{alterations[${i}]})
+            </foreach>
+        </if>
+        <if test="entrezGeneIds != null and alterations == null">
+            AND cna_event.ENTREZ_GENE_ID IN
+            <foreach item="entrezGeneId" collection="entrezGeneIds" open="(" separator="," close=")">
+                #{entrezGeneId}
+            </foreach>
+        </if>
+        <if test="entrezGeneIds == null and alterations != null">
+            AND cna_event.ALTERATION IN
+            <foreach item="alteration" collection="alterations" open="(" separator="," close=")">
+                #{alteration}
             </foreach>
         </if>
         <if test="patientIds != null and !patientIds.isEmpty()">

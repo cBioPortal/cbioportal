@@ -32,4 +32,4 @@ COPY --from=build /cbioportal/portal/target/dependency/webapp-runner.jar /webapp
 RUN mkdir -p $PORTAL_WEB_HOME
 RUN cd $PORTAL_WEB_HOME && /root/jdk/bin/jar -xvf /app.war
 
-CMD ["/bin/sh", "-c", "/usr/bin/java ${JAVA_OPTS} -jar /webapp-runner.jar ${WEB_OPTS} ${PORTAL_WEB_HOME}"]
+CMD ["/bin/sh", "-c", "/usr/bin/java ${JAVA_OPTS} -jar /webapp-runner.jar ${WEBAPP_OPTS} ${PORTAL_WEB_HOME}"]

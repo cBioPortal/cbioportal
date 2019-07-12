@@ -145,7 +145,7 @@ docker run -d --restart=always \
     ' \
     -p 8081:8080 \
     cbioportal/cbioportal:3.0.1 \
-    /bin/sh -c 'java ${JAVA_OPTS} -jar webapp-runner.jar /app.war'
+    /bin/sh -c 'java ${JAVA_OPTS} -jar webapp-runner.jar /cbioportal-webapp'
 ```
 
 To read more about the various ways to use authentication and `webapp-runner`

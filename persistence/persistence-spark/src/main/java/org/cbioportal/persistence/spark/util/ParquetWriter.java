@@ -51,51 +51,56 @@ public class ParquetWriter {
             .master("local[*]")
             .getOrCreate();
         
-        if ("case".equalsIgnoreCase(typeOfData)) {
-            Dataset<Row> df = spark.read()
-                .format("csv")
-                .option("delimiter", ":")
-                .load(inputFile);
-            
-            Iterator it = df.toLocalIterator();
-            while (it.hasNext()) {
-                Row row = (Row) it.next();
-                String colName = row.getString(0);
-                if ("case_list_ids".equalsIgnoreCase(colName)) {
-                    df = df.withColumn(colName, explode(lit(row.getString(1).trim().split("\\s+"))));
-                } else {
+        Dataset<Row> df = null;
+        Iterator it = null;
+        switch (typeOfData) {
+            case "case": case "panel":
+                df = spark.read()
+                    .format("csv")
+                    .option("delimiter", ":")
+                    .load(inputFile);
+
+                it = df.toLocalIterator();
+                while (it.hasNext()) {
+                    Row row = (Row) it.next();
+                    String colName = row.getString(0);
+                    String listColumn = "case".equalsIgnoreCase(typeOfData) ? "case_list_ids" : "gene_list";
+                    if (listColumn.equalsIgnoreCase(colName)) {
+                        df = df.withColumn(colName, explode(lit(row.getString(1).trim().split("\\s+"))));
+                    } else {
+                        df = df.withColumn(colName, lit(row.getString(1).trim()));
+                    }
+                }
+                df = df.drop("_c0", "_c1").distinct();
+                df.write().partitionBy("stable_id").mode("append").parquet(outputFile);
+                break;
+                
+            case "meta":
+                df = spark.read()
+                    .format("csv")
+                    .option("delimiter", ":")
+                    .load(inputFile);
+
+                it = df.toLocalIterator();
+                while (it.hasNext()) {
+                    Row row = (Row) it.next();
+                    String colName = row.getString(0);
                     df = df.withColumn(colName, lit(row.getString(1).trim()));
                 }
-            }
-            df = df.drop("_c0", "_c1").distinct();
-            df.write().parquet(outputFile);
-            
-        }
-        else if ("meta".equalsIgnoreCase(typeOfData)) {
-            Dataset<Row> df = spark.read()
-                .format("csv")
-                .option("delimiter", ":")
-                .load(inputFile);
-            
-            Iterator it = df.toLocalIterator();
-            while (it.hasNext()) {
-                Row row = (Row) it.next();
-                String colName = row.getString(0);
-                df = df.withColumn(colName, lit(row.getString(1).trim()));
-            }
-            df = df.drop("_c0", "_c1").distinct();
-            
-            df.write().mode("append").parquet(outputFile);
-        } 
-        else {
-            Dataset<Row> df = spark.read()
-                .format("csv")
-                .option("delimiter", "\t")
-                .option("header", "true")
-                .option("comment","#")
-                .load(inputFile);
-            
-            df.write().parquet(outputFile);
+                df = df.drop("_c0", "_c1").distinct();
+                df.write().mode("append").parquet(outputFile);
+                break;
+                
+            default:
+                df = spark.read()
+                    .format("csv")
+                    .option("delimiter", "\t")
+                    .option("header", "true")
+                    .option("comment","#")
+                    .load(inputFile);
+
+                df.write().parquet(outputFile);
+                break;
         }
     }
     

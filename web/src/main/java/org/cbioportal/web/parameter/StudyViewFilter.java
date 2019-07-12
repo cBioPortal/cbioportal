@@ -19,6 +19,7 @@ public class StudyViewFilter implements Serializable {
 	private List<String> studyIds;
     private List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters;
     private List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters;
+		private List<OncoKBDataFilter> oncokbFilters;
 	private List<MutationGeneFilter> mutatedGenes;
 	private List<CopyNumberGeneFilter> cnaGenes;
 	private Boolean withMutationData;
@@ -44,7 +45,7 @@ public class StudyViewFilter implements Serializable {
 
         return invalidCount == 0;
     }
-	
+
 	public List<SampleIdentifier> getSampleIdentifiers() {
 		return sampleIdentifiers;
 	}
@@ -115,5 +116,13 @@ public class StudyViewFilter implements Serializable {
 
 	public void setMutationCountVsCNASelection(RectangleBounds mutationCountVsCNASelection) {
 		this.mutationCountVsCNASelection = mutationCountVsCNASelection;
+	}
+
+	public List<OncoKBDataFilter> getOncoKBDataFilters() {
+		return oncokbFilters;
+	}
+
+	public void setOncoKBDataFilters(List<OncoKBDataFilter> oncokbFilters) {
+		this.oncokbFilters = oncokbFilters;
 	}
 }

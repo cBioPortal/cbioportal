@@ -37,8 +37,7 @@ import joptsimple.*;
 
 import java.util.Iterator;
 
-import static org.apache.spark.sql.functions.array;
-import static org.apache.spark.sql.functions.lit;
+import static org.apache.spark.sql.functions.*;
 
 
 /**
@@ -46,13 +45,13 @@ import static org.apache.spark.sql.functions.lit;
  */
 public class ParquetWriter {
 
-    private static void write(String inputFile, String outputFile, Boolean isCaseList) {
+    private static void write(String inputFile, String outputFile, String typeOfData) {
         SparkSession spark = SparkSession.builder()
             .appName("cBioPortal")
             .master("local[*]")
             .getOrCreate();
         
-        if (isCaseList) {
+        if ("case".equalsIgnoreCase(typeOfData)) {
             Dataset<Row> df = spark.read()
                 .format("csv")
                 .option("delimiter", ":")
@@ -61,12 +60,34 @@ public class ParquetWriter {
             Iterator it = df.toLocalIterator();
             while (it.hasNext()) {
                 Row row = (Row) it.next();
-                df = df.withColumn(row.getString(0), lit(row.getString(1).trim()));
+                String colName = row.getString(0);
+                if ("case_list_ids".equalsIgnoreCase(colName)) {
+                    df = df.withColumn(colName, explode(lit(row.getString(1).trim().split("\\s+"))));
+                } else {
+                    df = df.withColumn(colName, lit(row.getString(1).trim()));
+                }
             }
-            df = df.drop("_c0", "_c1");
-            df.limit(1).write().parquet(outputFile);
+            df = df.drop("_c0", "_c1").distinct();
+            df.write().parquet(outputFile);
             
-        } else {
+        }
+        else if ("meta".equalsIgnoreCase(typeOfData)) {
+            Dataset<Row> df = spark.read()
+                .format("csv")
+                .option("delimiter", ":")
+                .load(inputFile);
+            
+            Iterator it = df.toLocalIterator();
+            while (it.hasNext()) {
+                Row row = (Row) it.next();
+                String colName = row.getString(0);
+                df = df.withColumn(colName, lit(row.getString(1).trim()));
+            }
+            df = df.drop("_c0", "_c1").distinct();
+            
+            df.write().mode("append").parquet(outputFile);
+        } 
+        else {
             Dataset<Row> df = spark.read()
                 .format("csv")
                 .option("delimiter", "\t")
@@ -87,8 +108,8 @@ public class ParquetWriter {
                 "tsv file" ).withRequiredArg().describedAs( "path-to-input-file" ).ofType( String.class );
             OptionSpec<String> outputFile = parser.accepts( "output-file",
                 "parquet file" ).withRequiredArg().describedAs( "path-to-output-file" ).ofType( String.class );
-            OptionSpec<String> isCaseList = parser.accepts( "is-case-list",
-                "case list" ).withOptionalArg().describedAs("t for case list txt files, f otherwise.").ofType( String.class );
+            OptionSpec<String> type = parser.accepts( "type",
+                "type of data" ).withOptionalArg().describedAs("case for case_lists, meta for meta, otherwise data.").ofType( String.class );
 
             OptionSet options = null;
             try {
@@ -99,11 +120,11 @@ public class ParquetWriter {
 
             String outputFilePath = options.valueOf(outputFile);
             String inputFilePath = options.valueOf(inputFile);
-            Boolean caseList = false;
-            if (isCaseList != null) {
-                caseList = "T".equalsIgnoreCase(options.valueOf(isCaseList)) ? true : false;
+            String typeOfData = "data";
+            if (type != null) {
+                typeOfData = options.valueOf(type);
             }
-            write(inputFilePath, outputFilePath, caseList);
+            write(inputFilePath, outputFilePath, typeOfData);
 
         } catch (RuntimeException e) {
             throw e;

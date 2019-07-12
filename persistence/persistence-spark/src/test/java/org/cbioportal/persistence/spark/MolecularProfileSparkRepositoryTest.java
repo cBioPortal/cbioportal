@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.spark;
 
 import org.apache.spark.sql.*;
+import org.cbioportal.model.MolecularProfile;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +17,7 @@ import org.springframework.test.context.TestPropertySource;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,13 +25,13 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration("/testSparkContext.xml")
 @TestPropertySource("/testPortal.properties")
 @Configurable
-public class SampleListSparkRepositoryTest {
+public class MolecularProfileSparkRepositoryTest {
 
     @Mock
     private SparkSession spark;
 
     @InjectMocks
-    private SampleListSparkRepository sampleListSparkRepository;
+    private MolecularProfileSparkRepository molecularProfileSparkRepository;
 
     private Dataset<Row> ds;
 
@@ -38,18 +39,26 @@ public class SampleListSparkRepositoryTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
+        ds = mock(Dataset.class);
         DataFrameReader dfr = mock(DataFrameReader.class);
         when(spark.read()).thenReturn(dfr);
-        ds = mock(Dataset.class);
+        when(dfr.option(anyString(), anyBoolean())).thenReturn(dfr);
         when(dfr.parquet(anyString())).thenReturn(ds);
+        when(ds.select(anyString(),anyString(),anyString(),anyString(),anyString(),anyString(),anyString())).thenReturn(ds);
+        DataFrameNaFunctions dfna = mock(DataFrameNaFunctions.class);
+        when(ds.na()).thenReturn(dfna);
+        when(dfna.drop()).thenReturn(ds);
     }
-    
+
     @Test
-    public void testGetAllSampleIdsInSampleList() {
+    public void testGetMolecularProfilesInStudies() {
+        ;
+        when(ds.collectAsList()).thenReturn(Arrays.asList(RowFactory.create("cancer_study_identifier",
+            "MUTATION_EXTENDED", "datatype", "stable_id", "show_profile_in_analysis_tab", 
+            "profile_name", "profile_description")));
         
-        when(ds.select(anyString())).thenReturn(ds);
-        when(ds.collectAsList()).thenReturn(Arrays.asList(RowFactory.create("P1-sample")));
-        List<String> result = sampleListSparkRepository.getAllSampleIdsInSampleList("msk_impact_2017_sequenced");
+        List<MolecularProfile> result = molecularProfileSparkRepository
+            .getMolecularProfilesInStudies(Arrays.asList("msk_impact_2017"), "SUMMARY");
 
         Assert.assertEquals(1, result.size());
     }

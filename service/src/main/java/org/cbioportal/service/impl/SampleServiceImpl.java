@@ -135,7 +135,7 @@ public class SampleServiceImpl implements SampleService {
     @Override
     public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {
 
-        List<Sample> samples = sampleSparkRepository.fetchSamples(studyIds, sampleIds, projection);
+        List<Sample> samples = sampleRepository.fetchSamples(studyIds, sampleIds, projection);
         processSamples(samples, projection);
         return samples;
     }

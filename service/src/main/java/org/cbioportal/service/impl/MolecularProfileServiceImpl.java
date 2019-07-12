@@ -8,6 +8,7 @@ import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,11 @@ import java.util.ArrayList;
 public class MolecularProfileServiceImpl implements MolecularProfileService {
 
     @Autowired
+    @Qualifier("molecularProfileMyBatisRepository")
     private MolecularProfileRepository molecularProfileRepository;
+    @Autowired
+    @Qualifier("molecularProfileSparkRepository")
+    private MolecularProfileRepository molecularSparkProfileRepository;
     @Autowired
     private StudyService studyService;
     @Value("${authenticate:false}")
@@ -88,7 +93,7 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     @Override
 	public List<MolecularProfile> getMolecularProfilesInStudies(List<String> studyIds, String projection) {
         
-        return molecularProfileRepository.getMolecularProfilesInStudies(studyIds, projection);
+        return molecularSparkProfileRepository.getMolecularProfilesInStudies(studyIds, projection);
 	}
 
     @Override
@@ -135,7 +140,7 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
         return molecularProfileIds;
 	}
 
-	@Override
+    @Override
 	public List<String> getFirstDiscreteCNAProfileIds(List<String> studyIds, List<String> sampleIds) {
 
         List<String> molecularProfileIds = new ArrayList<>();

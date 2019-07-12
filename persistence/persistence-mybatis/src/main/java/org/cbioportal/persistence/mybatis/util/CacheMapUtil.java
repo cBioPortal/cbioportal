@@ -57,6 +57,7 @@ public class CacheMapUtil {
     private StudyRepository studyRepository;
 
     @Autowired
+    @Qualifier("molecularProfileMyBatisRepository")
     private MolecularProfileRepository molecularProfileRepository;
 
     @Autowired

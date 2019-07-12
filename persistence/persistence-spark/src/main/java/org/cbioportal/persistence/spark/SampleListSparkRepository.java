@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.spark;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -8,6 +9,8 @@ import org.cbioportal.model.SampleListToSampleId;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.spark.util.ParquetConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +29,7 @@ public class SampleListSparkRepository implements SampleListRepository {
 
     @Value("${data.parquet.folder}")
     private String PARQUET_DIR;
-
+    
     @Override
     public List<SampleList> getAllSampleLists(String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction) {
         throw new UnsupportedOperationException();    }
@@ -55,14 +58,12 @@ public class SampleListSparkRepository implements SampleListRepository {
     public List<String> getAllSampleIdsInSampleList(String sampleListId) {
 
         Dataset<Row> sampleList = spark.read()
-            .parquet(PARQUET_DIR + ParquetConstants.CASE_LIST_DIR + sampleListId);
-        
+            .parquet(PARQUET_DIR + ParquetConstants.CASE_LIST_DIR + sampleListId + ".txt.parquet");
         sampleList = sampleList.select("case_list_ids");
         List<Row> sampleListRows = sampleList.collectAsList();
         List<String> sampleListStrings = sampleListRows.stream()
             .map(r -> r.getString(0)).collect(Collectors.toList());
-        
-        return Arrays.asList(sampleListStrings.get(0).split("\t"));
+        return sampleListStrings;
     }
 
     @Override

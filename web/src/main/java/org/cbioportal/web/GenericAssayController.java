@@ -18,7 +18,7 @@ import org.cbioportal.service.GenericAssayService;
 import org.cbioportal.service.exception.GenericAssayNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
-import org.cbioportal.web.parameter.GenericAssayDateFilter;
+import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.GenericAssayDataMultipleStudyFilter;
@@ -77,7 +77,7 @@ public class GenericAssayController {
         @ApiParam(required = true, value = "Sample List ID e.g. study_tcga_pub_all")
         @RequestParam String sampleListId,
         @ApiParam(required = true, value = "Generic Assay Stable ID e.g. 1")
-        @RequestParam Integer genericAssayStableId,
+        @RequestParam String genericAssayStableId,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
 
@@ -102,7 +102,7 @@ public class GenericAssayController {
         @ApiParam(required = true, value = "Molecular Profile ID e.g. study_tcga_pub_gistic")
         @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
-        @Valid @RequestBody GenericAssayDateFilter genericAssayDataFilter, 
+        @Valid @RequestBody GenericAssayDataFilter genericAssayDataFilter, 
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
 

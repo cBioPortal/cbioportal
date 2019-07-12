@@ -24,6 +24,6 @@ public interface MolecularDataMapper {
     List<TreatmentMolecularAlteration> getTreatmentMolecularAlterations(String molecularProfileId, List<String> treatmentIds,
                                                                         String projection);
 
-    List<GenericAssayMolecularAlteration> getGenericAssayMolecularAlterations(String molecularProfileId, List<Integer> stableIds,
+    List<GenericAssayMolecularAlteration> getGenericAssayMolecularAlterations(String molecularProfileId, List<String> stableIds,
                                                                     String projection);
 }

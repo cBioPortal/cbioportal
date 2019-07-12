@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class GenericAssayMeta implements Serializable {
     
-    private Integer stableId;
+    private String stableId;
     private String name;
     private String description;
     private String addtionalFields;
@@ -12,14 +12,14 @@ public class GenericAssayMeta implements Serializable {
     /**
      * @return the stableId
      */
-    public Integer getStableId() {
+    public String getStableId() {
         return stableId;
     }
 
     /**
      * @param stableId the stableId to set
      */
-    public void setStableId(Integer stableId) {
+    public void setStableId(String stableId) {
         this.stableId = stableId;
     }
 

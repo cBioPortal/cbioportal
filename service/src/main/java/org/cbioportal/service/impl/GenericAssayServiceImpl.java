@@ -68,7 +68,7 @@ public class GenericAssayServiceImpl implements GenericAssayService {
 
     @Override
     public List<GenericAssayData> getGenericAssayData(String molecularProfileId, String sampleListId,
-                                                    List<Integer> genericAssayStableIds, String projection)
+                                                    List<String> genericAssayStableIds, String projection)
         throws MolecularProfileNotFoundException {
         
         validateMolecularProfile(molecularProfileId);
@@ -81,7 +81,7 @@ public class GenericAssayServiceImpl implements GenericAssayService {
 
     @Override
     public List<GenericAssayData> fetchGenericAssayData(String molecularProfileId, List<String> sampleIds,
-            List<Integer> genericAssayStableIds, String projection) throws MolecularProfileNotFoundException {
+            List<String> genericAssayStableIds, String projection) throws MolecularProfileNotFoundException {
 
             validateMolecularProfile(molecularProfileId);
             List<GenericAssayData> molecularDataList = new ArrayList<>();
@@ -133,7 +133,7 @@ public class GenericAssayServiceImpl implements GenericAssayService {
 
     @Override
     public List<GenericAssayData> getGenericAssayDataInMultipleMolecularProfiles(List<String> molecularProfileIds, 
-    List<String> sampleIds, List<Integer> genericAssayStableIds, String projection) throws MolecularProfileNotFoundException {
+    List<String> sampleIds, List<String> genericAssayStableIds, String projection) throws MolecularProfileNotFoundException {
         List<GenericAssayData> result = new ArrayList<>();
 
         List<String> distinctMolecularProfileIds = molecularProfileIds.stream().distinct().sorted().collect(Collectors.toList());

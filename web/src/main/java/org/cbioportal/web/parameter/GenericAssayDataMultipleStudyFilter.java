@@ -12,7 +12,7 @@ public class GenericAssayDataMultipleStudyFilter implements Serializable {
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> molecularProfileIds;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<Integer> genericAssayStableIds;
+    private List<String> genericAssayStableIds;
 
     @AssertTrue
     private boolean isEitherMolecularProfileIdsOrSampleMolecularIdentifiersPresent() {
@@ -35,11 +35,11 @@ public class GenericAssayDataMultipleStudyFilter implements Serializable {
         this.molecularProfileIds = molecularProfileIds;
     }
 
-    public List<Integer> getGenericAssayStableIds() {
+    public List<String> getGenericAssayStableIds() {
         return genericAssayStableIds;
     }
 
-    public void setGenericAssayStableIds(List<Integer> genericAssayStableIds) {
+    public void setGenericAssayStableIds(List<String> genericAssayStableIds) {
         this.genericAssayStableIds = genericAssayStableIds;
     }
 }

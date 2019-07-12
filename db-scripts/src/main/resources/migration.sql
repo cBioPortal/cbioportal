@@ -744,3 +744,11 @@ CREATE TABLE `allele_specific_copy_number` (
 
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.0";
 -- ========================== end of ascn table =============================================
+##version: 2.12.1
+-- update genetic_entity table
+ALTER TABLE `genetic_entity` ADD COLUMN `STABLE_ID` varchar(45) DEFAULT NULL;
+ALTER TABLE `genetic_entity` ADD COLUMN `NAME` varchar(45) DEFAULT NULL;
+ALTER TABLE `genetic_entity` ADD COLUMN `DESCRIPTION` varchar(45) DEFAULT NULL;
+ALTER TABLE `genetic_entity` ADD COLUMN `ADDITIONAL_FIELDS` json DEFAULT NULL;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.1";

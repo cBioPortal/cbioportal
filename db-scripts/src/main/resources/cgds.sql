@@ -212,9 +212,14 @@ CREATE TABLE `sample_list_list` (
 );
 
 -- --------------------------------------------------------
+
 CREATE TABLE `genetic_entity` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `ENTITY_TYPE` varchar(45) NOT NULL,
+  `STABLE_ID` varchar(45) DEFAULT NULL,
+  `NAME` varchar(45) DEFAULT NULL,
+  `DESCRIPTION` varchar(45) DEFAULT NULL,
+  `ADDITIONAL_FIELDS` json DEFAULT NULL,
   PRIMARY KEY (`ID`)
 );
 
@@ -865,4 +870,4 @@ CREATE TABLE `info` (
   `GENESET_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.12.0', NULL);
+INSERT INTO info VALUES ('2.12.1', NULL);

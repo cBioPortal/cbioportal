@@ -4,13 +4,13 @@ import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-public class GenericAssayDateFilter {
+public class GenericAssayDataFilter {
 
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> sampleIds;
     private String sampleListId;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-    private List<Integer> genericAssayStableId;
+    private List<String> genericAssayStableId;
 
     @AssertTrue
     private boolean isEitherSampleListIdOrSampleIdsPresent() {
@@ -33,11 +33,11 @@ public class GenericAssayDateFilter {
         this.sampleListId = sampleListId;
     }
 
-    public List<Integer> getGenericAssayStableIds() {
+    public List<String> getGenericAssayStableIds() {
         return genericAssayStableId;
     }
 
-    public void setGenericAssayStableIds(List<Integer> genericAssayStableId) {
+    public void setGenericAssayStableIds(List<String> genericAssayStableId) {
         this.genericAssayStableId = genericAssayStableId;
     }
 }

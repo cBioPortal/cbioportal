@@ -16,14 +16,14 @@ public interface GenericAssayService {
         throws GenericAssayNotFoundException;
 
     List<GenericAssayData> getGenericAssayData(String molecularProfileId, String sampleListId, 
-                                            List<Integer> genericAssayStableIds, String projection) 
+                                            List<String> genericAssayStableIds, String projection) 
         throws MolecularProfileNotFoundException;
 
     List<GenericAssayData> fetchGenericAssayData(String molecularProfileId, List<String> sampleIds, 
-                                            List<Integer> genericAssayStableIds, String projection) 
+                                            List<String> genericAssayStableIds, String projection) 
         throws MolecularProfileNotFoundException;    
 
     List<GenericAssayData> getGenericAssayDataInMultipleMolecularProfiles(List<String> molecularProfileIds, 
-                                                                        List<String> sampleIds, List<Integer> genericAssayStableIds, String projection)
+                                                                        List<String> sampleIds, List<String> genericAssayStableIds, String projection)
         throws MolecularProfileNotFoundException;
 }

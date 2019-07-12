@@ -82,6 +82,9 @@
                     <property name="cacheEnabled" value="${mybatis.cache.enabled:true}" />
                 </bean>
             </property>
+            <!-- mapper locations is set here to support interdependency between mappers without -->
+            <!-- having to autowire repositories into java classes that do not make direct use of them -->
+            <property name="mapperLocations" value="classpath*:org/cbioportal/persistence/mybatis/**/*.xml" />
         </bean>
     </beans>
   

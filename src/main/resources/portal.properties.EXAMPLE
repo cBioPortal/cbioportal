@@ -256,7 +256,9 @@ matchminer.url=
 matchminer.token=
 
 # enable/disable hrrs logging
-# filter which logs incoming web requests to specified logging directory
+# hrrs can be used for debugging - when enabled incoming web requests
+# will be logged into the specified directory
 # logs must be decrypted for more in-depth information
-hrrs.logging.filepath=
-hrrs.enable.logging=
+# see: https://github.com/vy/hrrs/blob/master/README.md
+#hrrs.logging.filepath=
+#hrrs.enable.logging=false

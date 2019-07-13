@@ -17,6 +17,9 @@ WORKDIR /cbioportal
 RUN mvn -DskipTests clean install
 
 FROM openjdk:8-jre
+
+ENV PORTAL_WEB_HOME=/cbioportal-webapp
+
 RUN mkdir -p /cbioportal
 COPY --from=build /cbioportal/portal/target/cbioportal*.war /app.war
 COPY --from=build /cbioportal/portal/target/dependency/webapp-runner.jar /webapp-runner.jar
@@ -45,3 +48,6 @@ RUN find /cbioportal/core/src/main/scripts/ -type f -executable \! -name '*.pl' 
 
 # put config files in this folder if you want to override config
 ENV PORTAL_HOME=/cbioportal
+
+RUN mkdir -p $PORTAL_WEB_HOME
+RUN unzip /app.war -d  $PORTAL_WEB_HOME

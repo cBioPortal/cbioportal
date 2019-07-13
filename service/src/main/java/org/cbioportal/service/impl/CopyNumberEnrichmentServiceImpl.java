@@ -47,21 +47,13 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                                     molecularProfileIds.add(molecularProfileCase.getMolecularProfileId());
                                     sampleIds.add(molecularProfileCase.getCaseId());
                                 });
-                                List<CopyNumberCountByGene> copyNumberCountByGeneListFromRepo = discreteCopyNumberService
+                                return discreteCopyNumberService
                                         .getSampleCountInMultipleMolecularProfiles(
                                                 molecularProfileIds,
                                                 sampleIds,
                                                 null,
-                                                null,
+                                                alterationTypes,
                                                 false);
-        
-                                List<CopyNumberCountByGene> copyNumberCountByGeneList = new ArrayList<CopyNumberCountByGene>(
-                                        copyNumberCountByGeneListFromRepo);
-        
-                                // remove alteration not present in given alterationTypes
-                                copyNumberCountByGeneList.removeIf(m -> !alterationTypes.contains(m.getAlteration()));
-        
-                                return copyNumberCountByGeneList;
                             }));
         } else {
             copyNumberCountByGeneAndGroup = molecularProfileCaseSets.entrySet().stream()

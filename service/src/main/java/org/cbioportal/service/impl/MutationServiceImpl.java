@@ -7,7 +7,7 @@ import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.ChromosomeCalculator;
-import org.cbioportal.service.util.GeneFrequencyCalculator;
+import org.cbioportal.service.util.ProfiledSamplesCounter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +27,7 @@ public class MutationServiceImpl implements MutationService {
     @Autowired
     private ChromosomeCalculator chromosomeCalculator;
     @Autowired
-    private GeneFrequencyCalculator geneFrequencyCalculator;
+    private ProfiledSamplesCounter profiledSamplesCounter;
 
     @Override
     public List<Mutation> getMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
@@ -130,7 +130,7 @@ public class MutationServiceImpl implements MutationService {
             result = mutationRepository.getSampleCountInMultipleMolecularProfiles(
                 molecularProfileIds, sampleIds, entrezGeneIds);
             if (includeFrequency) {
-                geneFrequencyCalculator.calculate(molecularProfileIds, sampleIds, result);
+                profiledSamplesCounter.calculate(molecularProfileIds, sampleIds, result);
             }
         }
 

@@ -139,7 +139,7 @@ public class SampleController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @RequestAttribute(required = false, value = "interceptedSampleFilter") SampleFilter interceptedSampleFilter,
+        @Valid @RequestAttribute(required = false, value = "interceptedSampleFilter") SampleFilter interceptedSampleFilter,
         @ApiParam(required = true, value = "List of sample identifiers")
         @Valid @RequestBody(required = false) SampleFilter sampleFilter,
         @ApiParam("Level of detail of the response")

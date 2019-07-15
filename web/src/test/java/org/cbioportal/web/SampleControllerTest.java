@@ -55,11 +55,6 @@ public class SampleControllerTest {
 
     private MockMvc mockMvc;
 
-    @Bean
-    public SampleService sampleService() {
-        return Mockito.mock(SampleService.class);
-    }
-
     @Before
     public void setUp() throws Exception {
 

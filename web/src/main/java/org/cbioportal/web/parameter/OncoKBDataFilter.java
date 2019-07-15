@@ -3,7 +3,7 @@ package org.cbioportal.web.parameter;
 import java.io.Serializable;
 import java.util.List;
 
-class OncoKBDataFilter implements Serializable {
+public class OncoKBDataFilter implements Serializable {
 	private String attributeId;
 	private List<String> values;
 

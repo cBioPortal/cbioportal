@@ -127,7 +127,7 @@ public class MolecularProfileController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @RequestAttribute(required = false, value = "interceptedMolecularProfileFilter") MolecularProfileFilter interceptedMolecularProfileFilter,
+        @Valid @RequestAttribute(required = false, value = "interceptedMolecularProfileFilter") MolecularProfileFilter interceptedMolecularProfileFilter,
         @ApiParam(required = true, value = "List of Molecular Profile IDs or List of Study IDs")
         @Valid @RequestBody(required = false) MolecularProfileFilter molecularProfileFilter,
         @ApiParam("Level of detail of the response")

@@ -31,6 +31,8 @@ public abstract class MolecularData extends UniqueKeyBase {
         this.sampleId = sampleId;
     }
 
+    public abstract String getStableId();
+
     public String getPatientId() {
         return patientId;
     }

@@ -126,8 +126,7 @@ public class MutationControllerTest {
     @Autowired
     private MutationService mutationService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

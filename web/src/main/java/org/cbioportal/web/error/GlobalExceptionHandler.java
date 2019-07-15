@@ -153,4 +153,28 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorResponse("Access to the specified resource has been forbidden"),
             HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler(DataAccessTokenNoUserIdentityException.class)
+    public ResponseEntity<ErrorResponse> handleDataAccessTokenNoUserIdentityException() {
+        ErrorResponse response = new ErrorResponse("No authenticated identity found while processing request");
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(MaxNumberTokensExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxNumberTokensExceededException() {
+        ErrorResponse response = new ErrorResponse("User has reached maximum number of tokens. Tokens must be expire or be revoked before requesting a new one");
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(DataAccessTokenProhibitedUserException.class)
+    public ResponseEntity<ErrorResponse> handleDataAccessTokenProhibitedUserException() {
+        ErrorResponse response = new ErrorResponse("You are prohibited from using Data Access Tokens");
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(TokenNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleTokenNotFoundException() {
+        ErrorResponse response = new ErrorResponse("Specified token cannot be found");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
 }

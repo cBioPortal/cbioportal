@@ -115,4 +115,74 @@ public class ClinicalEventMyBatisRepositoryTest {
         Assert.assertEquals("SURGERY", gisticToGene3.getKey());
         Assert.assertEquals("OA II Initial", gisticToGene3.getValue());
     }
+
+    @Test
+    public void getAllClinicalEventsInStudyIdProjection() throws Exception {
+        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getAllClinicalEventsInStudy(
+            "study_tcga_pub", "ID", null, null, null, null);
+
+        Assert.assertEquals(3, result.size());
+        ClinicalEvent clinicalEvent = result.get(0);
+        Assert.assertEquals((Integer) 2, clinicalEvent.getClinicalEventId());
+        Assert.assertEquals("study_tcga_pub", clinicalEvent.getStudyId());
+        Assert.assertEquals("SPECIMEN", clinicalEvent.getEventType());
+    }
+
+    @Test
+    public void getAllClinicalEventsInStudySummaryProjection() throws Exception {
+
+        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getAllClinicalEventsInStudy(
+            "study_tcga_pub", "SUMMARY", null, null, null, null);
+
+        Assert.assertEquals(3, result.size());
+        ClinicalEvent clinicalEvent = result.get(0);
+        Assert.assertEquals((Integer) 2, clinicalEvent.getClinicalEventId());
+        Assert.assertEquals("study_tcga_pub", clinicalEvent.getStudyId());
+        Assert.assertEquals("SPECIMEN", clinicalEvent.getEventType());
+        Assert.assertEquals((Integer) 233, clinicalEvent.getStartDate());
+        Assert.assertEquals((Integer) 345, clinicalEvent.getStopDate());
+    }
+
+    @Test
+    public void getAllClinicalEventsInStudyDetailedProjection() throws Exception {
+
+        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getAllClinicalEventsInStudy(
+            "study_tcga_pub", "DETAILED", null, null, null, null);
+
+        Assert.assertEquals(3, result.size());
+        ClinicalEvent clinicalEvent = result.get(0);
+        Assert.assertEquals((Integer) 2, clinicalEvent.getClinicalEventId());
+        Assert.assertEquals("study_tcga_pub", clinicalEvent.getStudyId());
+        Assert.assertEquals("SPECIMEN", clinicalEvent.getEventType());
+        Assert.assertEquals((Integer) 233, clinicalEvent.getStartDate());
+        Assert.assertEquals((Integer) 345, clinicalEvent.getStopDate());
+    }
+
+    @Test
+    public void getAllClinicalEventsInStudySummaryProjection1PageSize() throws Exception {
+
+        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getAllClinicalEventsInStudy(
+            "study_tcga_pub", "SUMMARY", 1, 0, null, null);
+
+        Assert.assertEquals(1, result.size());
+    }
+
+    @Test
+    public void getAllClinicalEventsInStudySummaryProjectionEventTypeSort() throws Exception {
+
+        List<ClinicalEvent> result = clinicalEventMyBatisRepository.getAllClinicalEventsInStudy(
+            "study_tcga_pub", "SUMMARY", null, null, "eventType", "ASC");
+
+        Assert.assertEquals(3, result.size());
+        Assert.assertEquals("SPECIMEN", result.get(0).getEventType());
+        Assert.assertEquals("STATUS", result.get(1).getEventType());
+    }
+
+    @Test
+    public void getMetaClinicalEvents() throws Exception {
+
+        BaseMeta result = clinicalEventMyBatisRepository.getMetaClinicalEvents("study_tcga_pub");
+
+        Assert.assertEquals((Integer) 3, result.getTotalCount());
+    }
 }

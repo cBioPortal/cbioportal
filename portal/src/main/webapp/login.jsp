@@ -37,6 +37,7 @@
 <title><%= GlobalProperties.getTitle() %>::cBioPortal Login</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <%@ page import="java.lang.Exception" %>
+<%@ page import="java.util.Arrays" %>
 <%@ page import="org.springframework.security.web.WebAttributes" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
@@ -46,6 +47,16 @@
 <jsp:include page="WEB-INF/jsp/global/js_include.jsp" flush="true" />
 <%
     String authenticationMethod = GlobalProperties.authenticationMethod();
+    String[] authenticationMethods = authenticationMethod.split(",");
+    Boolean showGoogleLogin = false;
+    Boolean showMicrosoftLogin = false;
+    for(String authMethod : authenticationMethod.split(",")) {
+        if(authMethod.equals("googleplus") || authMethod.equals("social_auth") || authMethod.equals("social_auth_google")) {
+            showGoogleLogin = true;
+        } else if(authMethod.equals("social_auth_microsoft")) {
+            showMicrosoftLogin = true;
+        }
+    }
     if (authenticationMethod.equals("openid")) {
 %>
     <link type="text/css" rel="stylesheet" href="css/openid.css" />
@@ -70,12 +81,12 @@
 <body>
   <center>
   <div id="page_wrapper">
-  <table width="860px" cellpadding="0px" cellspacing="5px" border="0px">
+  <table width="90%" cellpadding="0px" cellspacing="5px" border="0px" style="margin-left:5%;padding:20px;text-align:center">
     <tr valign="top">
       <td colspan="3">
         <div id="login_header_wrapper">
-          <div id="login_header_top">
-            <jsp:include page="WEB-INF/jsp/global/header_bar.jsp" flush="true" />
+          <div id="login_header_top" style="height: 50px">
+            <a id="cbioportal-logo" href="./"><img src="<c:url value="/images/cbioportal_logo.png"/>" alt="cBioPortal Logo" /></a> 
           </div>
         </div>
       </td>
@@ -86,15 +97,15 @@
         <div>
 
           <% if (logout_success != null) { %>
-          <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:50px">
-            <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+          <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em">
+            <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em"></span>
             <strong>You are now signed out.   It is recommended that you close your browser to complete the termination of this session.</strong></p>
           </div>
           <% } %>
 
           <% if (login_error != null) { %>
-          <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:50px">
-            <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+          <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em">
+            <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em"></span>
             <strong>You are not authorized to access this resource.&nbsp;
 
               <% if (authenticationMethod.equals("googleplus")) { 
@@ -128,12 +139,9 @@
                   <form name='loginForm' action="<c:url value='j_spring_security_check' />" method='POST'>
                 <% } %>
 
-                <fieldset id="login-fieldset">
-                  <legend>
-                      Login to cBioPortal:
-                  </legend>
+                <div id="login-fieldset">
                   <p>
-                    <span style="color:#666666;font-family:verdana,arial,sans-serif;font-size:145%">
+                    <span style="color:#333333;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px">
                       <%= GlobalProperties.getAuthorizationMessage() %>
                     </span>
                   </p>
@@ -151,7 +159,7 @@
                     <p>OpenID is a service that allows you to log-on to many different websites using a single identity.
                     Find out <a href="http://openid.net/what/">more about OpenID</a> and <a href="http://openid.net/get/">how to get an OpenID enabled account</a>.</p>
                   </noscript>
-                </fieldset>
+                </div>
                 </form>
 
                 <% } else if (authenticationMethod.equals("saml")) { %>
@@ -160,16 +168,16 @@
                     <button id="saml_login_button" type="button" class="btn btn-danger btn-lg" onclick="window.location = 'saml/login?idp=<%= GlobalProperties.getSamlIdpMetadataEntityid() %>'" >
                     <%= GlobalProperties.getLoginSamlRegistrationHtml() %></button>
                   </p>
-                </fieldset>
+                </div>
 
-                <% } else if (authenticationMethod.equals("googleplus") || authenticationMethod.equals("social_auth")) { %>
+                <% } else if (showGoogleLogin) { %>
                   <p>
                     <button onclick="window.location = 'auth/google'" style="padding: 0; border:none; background: none" >
                         <!-- we need alt != "Google+" because otherwise it gets hidden by Ad Block Plus chrome plugin -->
                       <IMG alt="cBioPortal Google+ Log-in" src="images/login/googleplus_signin.png"  />
                     </button>
                   </p>
-                </fieldset>
+                </div>
 
                 <% } else if (authenticationMethod.equals("ad") || authenticationMethod.equals("ldap")){ %>
                   <div>
@@ -177,9 +185,20 @@
                     <label for=password>Password: </label> <input type='password' name='password' /> <br/>
                     <input name="submit" type="submit" value="submit" />
                   </div>
-                </fieldset>
+                </div>
                 </form>
                 <% } %>
+                
+               <% if (showMicrosoftLogin) { %>
+                  <p>
+                   	<button onclick="window.location = 'auth/live'" style="padding: 0; border:none; background: none" >
+                      <IMG alt="cBioPortal Microsoft Log-in" src="images/login/microsoft_signin.png"  />
+                    </button>
+                  </p>
+                </div>
+
+                <% } %>
+                                
 
               </td>
             </tr>

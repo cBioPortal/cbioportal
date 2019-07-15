@@ -54,8 +54,7 @@ public class GeneControllerTest {
     @Autowired
     private GeneService geneService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

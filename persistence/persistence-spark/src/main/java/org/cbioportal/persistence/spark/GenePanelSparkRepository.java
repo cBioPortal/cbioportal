@@ -9,6 +9,7 @@ import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.GenePanelToGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
+import org.cbioportal.persistence.spark.util.ParquetConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,12 +70,25 @@ public class GenePanelSparkRepository implements GenePanelRepository {
             if (prefix.endsWith("_")) {
                 prefix = prefix.substring(0, prefix.length()-1);
             }
+            studyIds.add(prefix);
         } else {
             // multiple study ids
         }
-        for (String molecularProfileId : new HashSet<>(molecularProfileIds)) {
+        
+        for (String studyId : studyIds) {
+            Dataset<Row> geneMatrix = spark.read()
+                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.GENE_MATRIX); //sample,cna,mutations
+            if (sampleIds != null && !sampleIds.isEmpty()) {
+                geneMatrix = geneMatrix.where(geneMatrix.col("SAMPLE_ID").isin(sampleIds.toArray()));
+            }
             
+            Dataset<Row> genePanel = spark.read()
+                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.GENE_PANEL); //studyId,stable_id,gene_list
+            // cnaCol = molecularProfileSet.replace(studyId+"_", "");
+            // join where genePanel.stable_id == geneMatrix.cna or geneMatrix.mutations
             
+
+
         }
         return null;
     }

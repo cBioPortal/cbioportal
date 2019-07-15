@@ -54,7 +54,7 @@ public class ParquetWriter {
         Dataset<Row> df = null;
         Iterator it = null;
         switch (typeOfData) {
-            case "case":
+            case "case": case "panel":
                 df = spark.read()
                     .format("csv")
                     .option("delimiter", ":")
@@ -64,7 +64,8 @@ public class ParquetWriter {
                 while (it.hasNext()) {
                     Row row = (Row) it.next();
                     String colName = row.getString(0);
-                    if ("case_list_ids".equalsIgnoreCase(colName)) {
+                    String listCol = "case".equalsIgnoreCase(typeOfData) ? "case_list_ids" : "gene_list";
+                    if (listCol.equalsIgnoreCase(colName)) {
                         df = df.withColumn(colName, explode(lit(row.getString(1).trim().split("\\s+"))));
                     } else {
                         df = df.withColumn(colName, lit(row.getString(1).trim()));
@@ -74,29 +75,7 @@ public class ParquetWriter {
                 df.write()
                     .mode("append").parquet(outputFile);
                 break;
-                
-            case "panel":
-                df = spark.read()
-                    .format("csv")
-                    .option("delimiter", ":")
-                    .load(inputFile);
 
-                it = df.toLocalIterator();
-                while (it.hasNext()) {
-                    Row row = (Row) it.next();
-                    String colName = row.getString(0);
-                    if ("gene_list".equalsIgnoreCase(colName)) {
-                        df = df.withColumn(colName, explode(lit(row.getString(1).trim().split("\\s+"))));
-                    } else {
-                        df = df.withColumn(colName, lit(row.getString(1).trim()));
-                    }
-                }
-                df = df.drop("_c0", "_c1").distinct();
-                df.write()
-                    .partitionBy("cancer_study_identifier")
-                    .mode("append").parquet(outputFile);
-                break;
-                
             case "meta":
                 df = spark.read()
                     .format("csv")
@@ -138,7 +117,8 @@ public class ParquetWriter {
             OptionSpec<String> outputFile = parser.accepts( "output-file",
                 "parquet file" ).withRequiredArg().describedAs( "path-to-output-file" ).ofType( String.class );
             OptionSpec<String> type = parser.accepts( "type",
-                "type of data" ).withOptionalArg().describedAs("case for case_lists, meta for meta, otherwise data.").ofType( String.class );
+                "type of data" ).withOptionalArg()
+                .describedAs("case for case_lists, meta for meta, panel for gene_panel, otherwise data.").ofType( String.class );
 
             OptionSet options = null;
             try {

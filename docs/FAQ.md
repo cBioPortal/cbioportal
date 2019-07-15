@@ -177,7 +177,7 @@ A “splice site” mutation occurs in an intron, in a splice acceptor or donor 
 ### What do “Amplification”, “Gain”, “Deep Deletion”, “Shallow Deletion” and "-2", "-1", "0", "1", and "2" mean in the copy-number data?
 These levels are derived from copy-number analysis algorithms like GISTIC or RAE, and indicate the copy-number level per gene:
 * -2 or Deep Deletion indicates a deep loss, possibly a homozygous deletion
-* -1 or Shallow Deletion indicates a shallow loss, possible a heterozygous deletion
+* -1 or Shallow Deletion indicates a shallow loss, possibley a heterozygous deletion
 * 0 is diploid
 * 1 or Gain indicates a low-level gain (a few additional copies, often broad)
 * 2 or Amplification indicate a high-level amplification (more copies, often focal)

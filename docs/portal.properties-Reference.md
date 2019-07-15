@@ -280,3 +280,17 @@ This gene set will add the following in the query box:
 ```
 "BRCA genes" BRCA1: MUT=E1258D; BRCA2: HOMDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;
 ```
+
+# Spark Configuration Settings
+
+```
+spark.app.name=cBioPortal
+spark.master.uri=[cluster local[*]]
+spark.driver.bindAddress=[driver address for local e.g. 127.0.0.1]
+spark.driver.host=[driver host for local e.g. 127.0.0.1]
+spark.driver.memory=[driver memory e.g. 2g]
+spark.executor.memory=[executor memory e.g. 1g]
+spark.shuffle.partitions=[default number of logical cores]
+spark.default.parallelism=[default 200]
+data.parquet.folder=[location to save parquet files e.g. cbioportal/persistence/persistence-spark/src/main/resources/parquet/]
+```

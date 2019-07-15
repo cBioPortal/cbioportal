@@ -254,3 +254,14 @@ oncoprint.defaultview=patient
 # MatchMiner AWS url
 matchminer.url=
 matchminer.token=
+
+# Spark Configuration Settings
+spark.app.name=cBioPortal
+spark.master.uri=local[*]
+spark.driver.bindAddress=127.0.0.1
+spark.driver.host=127.0.0.1
+spark.driver.memory=2g
+spark.executor.memory=1g
+spark.shuffle.partitions=2
+spark.default.parallelism=2
+data.parquet.folder=persistence/persistence-spark/src/main/resources/parquet/

@@ -19,6 +19,11 @@
       <artifactId>core</artifactId>
       <version>${project.version}</version>
     </dependency>
+      <dependency>
+          <groupId>org.mskcc.cbio</groupId>
+          <artifactId>persistence-spark</artifactId>
+          <version>${project.version}</version>
+      </dependency>
   </dependencies>
 
   <build>

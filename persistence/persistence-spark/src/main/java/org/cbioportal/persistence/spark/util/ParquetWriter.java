@@ -90,7 +90,6 @@ public class ParquetWriter {
                 }
                 df = df.drop("_c0", "_c1").distinct();
                 df.write()
-                    .partitionBy("cancer_study_identifier")
                     .mode("append").parquet(outputFile);
                 break;
                 
@@ -102,7 +101,8 @@ public class ParquetWriter {
                     .option("comment","#")
                     .load(inputFile);
 
-                df.write().parquet(outputFile);
+                df.write()
+                    .mode("append").parquet(outputFile);
                 break;
         }
     }

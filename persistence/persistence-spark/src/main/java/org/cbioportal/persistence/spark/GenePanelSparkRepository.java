@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.spark;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -60,7 +61,7 @@ public class GenePanelSparkRepository implements GenePanelRepository {
     @Override
     public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds) {
         List<Dataset<Row>> res = new ArrayList<>();
-        // get studyIds..
+        /* get studyIds.. 1) Either derive StudyID from mpid or 2) name parquet files so they are retrievable by mpid
         Set<String> molecularProfileSet = new TreeSet<>(molecularProfileIds);
         String[] molecularProfiles = (String[]) molecularProfileSet.toArray();
         List<String> studyIds = new ArrayList<>();
@@ -73,23 +74,36 @@ public class GenePanelSparkRepository implements GenePanelRepository {
             studyIds.add(prefix);
         } else {
             // multiple study ids
-        }
+        }*/
         
-        for (String studyId : studyIds) {
-            Dataset<Row> geneMatrix = spark.read()
-                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.GENE_MATRIX); //sample,cna,mutations
-            if (sampleIds != null && !sampleIds.isEmpty()) {
-                geneMatrix = geneMatrix.where(geneMatrix.col("SAMPLE_ID").isin(sampleIds.toArray()));
-            }
-            
-            Dataset<Row> genePanel = spark.read()
-                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.GENE_PANEL); //studyId,stable_id,gene_list
-            // cnaCol = molecularProfileSet.replace(studyId+"_", "");
-            // join where genePanel.stable_id == geneMatrix.cna or geneMatrix.mutations
-            
-
-
+        Dataset<Row> geneMatrix = spark.read()
+            .option("mergeSchema", true)
+            .parquet(PARQUET_DIR + "/" + ParquetConstants.GENE_MATRIX); //sample,cna,mutations
+        // if molecularProfileId ends in columnName?
+        if (sampleIds != null && !sampleIds.isEmpty()) {
+            geneMatrix = geneMatrix
+                .where(geneMatrix.col("SAMPLE_ID").isin(sampleIds.toArray()))
+                .na().drop();
         }
+        // need patientId -- join with data_clinical_sample.txt // studyId --
+        
+        // Get distinct gene_panels.
+        List<String> matColumns = Arrays.asList(geneMatrix.columns());
+        matColumns.remove("SAMPLE_ID");
+        
+        geneMatrix = geneMatrix.select((Column[]) matColumns.toArray())
+            .distinct();
+        
+
+        Dataset<Row> genePanel = spark.read()
+            .option("mergeSchema", true)
+            .parquet(PARQUET_DIR + ParquetConstants.GENE_PANEL_DIR); //partition by IMPACT341
+        // cnaCol = molecularProfileSet.replace(studyId+"_", "");
+        // join where genePanel.stable_id == geneMatrix.cna or geneMatrix.mutations
+        
+
+
+        
         return null;
     }
 

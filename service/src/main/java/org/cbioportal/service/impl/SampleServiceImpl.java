@@ -6,6 +6,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.SampleRepository;
+import org.cbioportal.persistence.spark.GeneralSparkRepository;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.StudyService;
@@ -35,6 +36,8 @@ public class SampleServiceImpl implements SampleService {
     @Autowired
     @Qualifier("sampleSparkRepository")
     private SampleRepository sampleSparkRepository;
+    @Autowired
+    private GeneralSparkRepository generalSparkRepository;
     @Autowired
     private StudyService studyService;
     @Autowired
@@ -135,8 +138,9 @@ public class SampleServiceImpl implements SampleService {
     @Override
     public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {
 
-        List<Sample> samples = sampleRepository.fetchSamples(studyIds, sampleIds, projection);
-        processSamples(samples, projection);
+        List<Sample> samples = sampleSparkRepository.fetchSamples(studyIds, sampleIds, projection);
+        
+        processSamplesSpark(samples, projection);
         return samples;
     }
 
@@ -177,7 +181,6 @@ public class SampleServiceImpl implements SampleService {
                 sequencedSampleIdsMap.put(studyId,
                                           new HashSet<String>(sampleListSparkRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
             }
-
             List<Integer> samplesWithCopyNumberSeg = copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
                 samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()), 
                 samples.stream().map(Sample::getStableId).collect(Collectors.toList()),
@@ -191,6 +194,32 @@ public class SampleServiceImpl implements SampleService {
                 sample.setSequenced(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier())
                     .contains(sample.getStableId()));
                 sample.setCopyNumberSegmentPresent(samplesWithCopyNumberSegMap.contains(sample.getInternalId()));
+            });
+        }
+    }
+
+    private void processSamplesSpark(List<Sample> samples, String projection) {
+
+        if (projection.equals("DETAILED")) {
+            Map<String, Set<String>> sequencedSampleIdsMap = new HashMap<>();
+            List<String> distinctStudyIds = samples.stream().map(Sample::getCancerStudyIdentifier).distinct()
+                .collect(Collectors.toList());
+            for (String studyId : distinctStudyIds) {
+                sequencedSampleIdsMap.put(studyId,
+                    new HashSet<String>(sampleListSparkRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
+            }
+            List<String> samplesWithCopyNumberSeg = generalSparkRepository.fetchSamplesWithCopyNumberSegments(
+                samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()),
+                samples.stream().map(Sample::getStableId).collect(Collectors.toList())
+            );
+
+            Set<String> samplesWithCopyNumberSegMap = new HashSet<>();
+            samplesWithCopyNumberSegMap.addAll(samplesWithCopyNumberSeg);
+
+            samples.forEach(sample -> {
+                sample.setSequenced(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier())
+                    .contains(sample.getStableId()));
+                sample.setCopyNumberSegmentPresent(samplesWithCopyNumberSegMap.contains(sample.getStableId()));
             });
         }
     }

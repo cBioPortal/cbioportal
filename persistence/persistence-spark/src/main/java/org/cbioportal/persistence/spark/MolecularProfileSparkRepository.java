@@ -70,7 +70,7 @@ public class MolecularProfileSparkRepository implements MolecularProfileReposito
         for (String studyId : new HashSet<>(studyIds)) {
             Dataset<Row> meta = spark.read()
                 .option("mergeSchema", true)
-                .parquet(PARQUET_DIR + ParquetConstants.META + "/" + "cancer_study_identifier=" + studyId);
+                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.META);
             
             meta = meta.select("cancer_study_identifier", "genetic_alteration_type", "datatype",
                 "stable_id", "show_profile_in_analysis_tab", "profile_name", "profile_description");

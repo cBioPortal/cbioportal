@@ -35,6 +35,7 @@ public class GenePanelServiceImpl implements GenePanelService {
     private static final String SEQUENCED_LIST_SUFFIX = "_sequenced";
     
     @Autowired
+    @Qualifier("genePanelMyBatisRepository")
     private GenePanelRepository genePanelRepository;
     @Autowired
     private MolecularProfileService molecularProfileService;

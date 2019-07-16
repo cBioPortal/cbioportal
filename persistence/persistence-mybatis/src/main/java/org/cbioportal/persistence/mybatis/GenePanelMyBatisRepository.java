@@ -8,11 +8,13 @@ import org.cbioportal.persistence.GenePanelRepository;
 import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
+@Qualifier("genePanelMyBatisRepository")
 public class GenePanelMyBatisRepository implements GenePanelRepository {
     
     @Autowired

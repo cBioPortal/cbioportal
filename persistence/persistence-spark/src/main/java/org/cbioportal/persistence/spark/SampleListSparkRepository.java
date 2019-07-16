@@ -58,7 +58,7 @@ public class SampleListSparkRepository implements SampleListRepository {
     public List<String> getAllSampleIdsInSampleList(String sampleListId) {
 
         Dataset<Row> sampleList = spark.read()
-            .parquet(PARQUET_DIR + ParquetConstants.CASE_LIST_DIR + sampleListId + ".txt.parquet");
+            .parquet(PARQUET_DIR + ParquetConstants.CASE_LIST_DIR + sampleListId);
         sampleList = sampleList.select("case_list_ids");
         List<Row> sampleListRows = sampleList.collectAsList();
         List<String> sampleListStrings = sampleListRows.stream()

@@ -145,7 +145,7 @@ public class StudyViewFilterApplier {
         
         List<OncoKBDataFilter> oncoKBDataFilters = studyViewFilter.getOncoKBDataFilters();
         if (oncoKBDataFilters != null) {
-            sampleIdentifiers = equalityFilterClinicalData(sampleIdentifiers, clinicalDataEqualityFilters, ClinicalDataType.SAMPLE, negateFilters);
+            sampleIdentifiers = equalityFilterOncoKBData(sampleIdentifiers, clinicalDataEqualityFilters, negateFilters);
         }
 
         return sampleIdentifiers;
@@ -175,11 +175,9 @@ public class StudyViewFilterApplier {
     
     private List<SampleIdentifier> equalityFilterOncoKBData(List<SampleIdentifier> sampleIdentifiers,
                                                               List<OncoKBDataFilter> oncoKBDataFilters,
-                                                              OncoKBDataType filterOncoKBDataType,
                                                               Boolean negateFilters)
     {
-        List<OncoKBDataFilter> attributes = oncoKBDataFilters.stream()
-            .filter(c-> c.getOncoKBDataType().equals(filterOncoKBDataType)).collect(Collectors.toList());
+        List<OncoKBDataFilter> attributes = oncoKBDataFilters.stream().collect(Collectors.toList());
 
         return clinicalDataEqualityFilterApplier.apply(sampleIdentifiers, attributes, filterClinicalDataType, negateFilters);
     }

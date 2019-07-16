@@ -5,11 +5,6 @@ import java.util.List;
 
 public class OncoKBDataCountItem implements Serializable {
 
-    public enum OncoKBDataType {
-        SAMPLE,
-        PATIENT
-    }
-
     private String attributeId;
     private OncoKBDataType oncoKBDataType;
     private List<OncoKBDataCount> counts;
@@ -20,14 +15,6 @@ public class OncoKBDataCountItem implements Serializable {
 
 	public void setAttributeId(String attributeId) {
 		this.attributeId = attributeId;
-	}
-
-	public OncoKBDataType getOncoKBDataType() {
-		return clinicalDataType;
-	}
-
-	public void setOncoKBDataType(OncoKBDataType oncoKBDataType) {
-		this.oncoKBDataType = oncoKBDataType;
 	}
 
 	public List<OncoKBDataCount> getCounts() {

@@ -30,7 +30,7 @@ import org.cbioportal.service.CoExpressionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
-dimport org.springframework.stereotype.Service;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -52,15 +52,13 @@ public class CoExpressionServiceImpl implements CoExpressionService {
     @Autowired
     private GeneService geneService;
     @Autowired
-    @Qualifier("sampleListMyBatisRepository")
-    private SampleListRepository sampleListRepository;
-    @Autowired
     private GenesetService genesetService;
     @Autowired
     private GenesetDataService genesetDataService;
     @Autowired
     private MolecularProfileService molecularProfileService;
     @Autowired
+    @Qualifier("sampleListMyBatisRepository")
     private SampleListRepository sampleListRepository;
     @Autowired
     private MolecularDataRepository molecularDataRepository;

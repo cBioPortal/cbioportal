@@ -31,7 +31,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class SampleControllerTest {
 
@@ -50,14 +50,10 @@ public class SampleControllerTest {
 
     @Autowired
     private SampleService sampleService;
-    private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Bean
-    public SampleService sampleService() {
-        return Mockito.mock(SampleService.class);
-    }
+    private MockMvc mockMvc;
 
     @Before
     public void setUp() throws Exception {

@@ -241,6 +241,7 @@ def main():
     """ main function to run mysql migration """
     
     parser = argparse.ArgumentParser(description='cBioPortal DB migration script')
+    parser.add_argument('-y', '--suppress_confirmation', default=False, action='store_true')
     parser.add_argument('-p', '--properties-file', type=str, required=True,
                         help='Path to portal.properties file')
     parser.add_argument('-s', '--sql', type=str, required=True,
@@ -262,7 +263,8 @@ def main():
         usage()
         sys.exit(2)
 
-    warn_user()
+    if not parser.suppress_confirmation:
+        warn_user()
     
     # set up - get properties and db cursor
     portal_properties = get_portal_properties(properties_filename)

@@ -16,9 +16,7 @@ In its simplest terms, SAML boils down to four terms:
 
 * **service provider**:  any web site or web application that provides a service, but should only be available to authenticated and authorized users.  In the documentation below, the cBioPortal is the service provider.
 
-* **authentication**:  a means of verifying that a user is who they purport to be.  Authentication is performed by the identify provider, by extracting the user name and password provided in a login form, and matching this with information stored in a database.
-
-* **authorization**:  defines resources a user can access.  When authorization is turned on with cBioPortal, users can only access cancer studies they are specifically authorized to view (or PUBLIC studies, [if the server has been configured to contain these](User-Authorization.md#configuring-public-studies)).  This enables one to store multiple cancer studies within a single instance of cBioPortal, but provide fine-grained control over which users can access which studies.  Authorization is implemented within the core cBioPortal code, and not the identify provider.
+* **authentication**:  a means of verifying that a user is who they purport to be.  Authentication is performed by the identify provider, by extracting the user name and password provided in a login form, and matching this with information stored in a database. When authentication is enabled, multiple cancer studies can be stored within a single instance of cBioPortal while providing fine-grained control over which users can access which studies.  Authorization is implemented within the core cBioPortal code, and *not* the identify provider.
 
 ## Why is SAML Relevant to cBioPortal?
 
@@ -46,9 +44,9 @@ To get started:
 * Under the Configuration Tab for OneLogin SAML Test (IdP w/attr), paste the following fields (this is assuming you are testing everything via localhost).
 
     * Audience: cbioportal
-    * Recipient: http://localhost:8080/cbioportal/saml/SSO
+    * Recipient: http://localhost:8080/saml/SSO
     * ACS (Consumer) URL Validator*:  ^http:\/\/localhost\:8080\/cbioportal\/saml\/SSO$
-    * ACS (Consumer) URL*:  http://localhost:8080/cbioportal/saml/SSO
+    * ACS (Consumer) URL*:  http://localhost:8080/saml/SSO
 
 ![](images/previews/onelogin-config.png)
 
@@ -123,19 +121,12 @@ both keystore and secure-key. This seems to be an extra restriction by Tomcat.
 
 ## Modifying configuration
 
-Make Tomcat pass the authentication method as a JVM argument
-by adding this line to `$CATALINA_HOME/bin/setenv.sh`:
-
-    CATALINA_OPTS='-Dauthenticate=saml'
-
 Within portal.properties, make sure that:
 
     app.name=cbioportal
 
 Then, modify the section labeled `authentication`. See SAML parameters shown in example below:
 
-    # authentication
-    authorization=true
     saml.sp.metadata.entityid=cbioportal
     saml.idp.metadata.location=classpath:/onelogin_metadata_620035.xml
     saml.idp.metadata.entityid=https://app.onelogin.com/saml/metadata/620035
@@ -216,14 +207,10 @@ skin.login.contact_html=If you think you have received this message in error, pl
 
 You are now ready to go.
 
-Rebuild the WAR file and re-deploy:
+Rebuild the WAR file and follow the [Deployment with authentication
+steps](Deploying.md#required-login) using `authenticate=saml`.
 
-```
-mvn -DskipTests clean install
-cp portal/target/cbioportal.war $CATALINA_HOME/webapps/
-```
-
-Then, go to:  [http://localhost:8080/cbioportal/](http://localhost:8080/cbioportal/).
+Then, go to:  [http://localhost:8080/](http://localhost:8080/).
 
 If all goes well, the following should happen:
 
@@ -259,5 +246,5 @@ By default, the portal will automatically generate a Service Provider (SP) Meta 
 
 You can access the Service Provider Meta Data File via a URL such as:
 
-[http://localhost:8080/cbioportal/saml/metadata](http://localhost:8080/cbioportal/saml/metadata)
+[http://localhost:8080/saml/metadata](http://localhost:8080/saml/metadata)
 

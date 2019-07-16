@@ -29,16 +29,16 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("/applicationContext-web.xml")
+@ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class CoExpressionControllerTest {
 
-    private static final int TEST_ENTREZ_GENE_ID_1 = 1;
+    private static final String TEST_ENTREZ_GENE_ID_1 = "1";
     private static final String TEST_HUGO_GENE_SYMBOL_1 = "test_hugo_gene_symbol_1";
     private static final String TEST_CYTOBAND_1 = "test_cytoband_1";
     private static final BigDecimal TEST_SPEARMANS_CORRELATION_1 = new BigDecimal(2.1);
     private static final BigDecimal TEST_P_VALUE_1 = new BigDecimal(0.33);
-    private static final int TEST_ENTREZ_GENE_ID_2 = 2;
+    private static final String TEST_ENTREZ_GENE_ID_2 = "2";
     private static final String TEST_HUGO_GENE_SYMBOL_2 = "test_hugo_gene_symbol_2";
     private static final String TEST_CYTOBAND_2 = "test_cytoband_2";
     private static final BigDecimal TEST_SPEARMANS_CORRELATION_2 = new BigDecimal(4.1);
@@ -49,9 +49,10 @@ public class CoExpressionControllerTest {
 
     @Autowired
     private CoExpressionService coExpressionService;
-    private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    private MockMvc mockMvc;
 
     @Bean
     public CoExpressionService coExpressionService() {
@@ -66,47 +67,51 @@ public class CoExpressionControllerTest {
     }
     
     @Test
-    public void fetchCoExpressions() throws Exception {
+    public void fetchMolecularProfileCoExpressions() throws Exception {
 
         List<CoExpression> coExpressionList = new ArrayList<>();
         CoExpression coExpression1 = new CoExpression();
-        coExpression1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
-        coExpression1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
+        coExpression1.setGeneticEntityId(TEST_ENTREZ_GENE_ID_1);
+        coExpression1.setGeneticEntityName(TEST_HUGO_GENE_SYMBOL_1);
         coExpression1.setCytoband(TEST_CYTOBAND_1);
         coExpression1.setSpearmansCorrelation(TEST_SPEARMANS_CORRELATION_1);
         coExpression1.setpValue(TEST_P_VALUE_1);
         coExpressionList.add(coExpression1);
         CoExpression coExpression2 = new CoExpression();
-        coExpression2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
-        coExpression2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
+        coExpression2.setGeneticEntityId(TEST_ENTREZ_GENE_ID_2);
+        coExpression2.setGeneticEntityName(TEST_HUGO_GENE_SYMBOL_2);
         coExpression2.setCytoband(TEST_CYTOBAND_2);
         coExpression2.setSpearmansCorrelation(TEST_SPEARMANS_CORRELATION_2);
         coExpression2.setpValue(TEST_P_VALUE_2);
         coExpressionList.add(coExpression2);
 
+
         Mockito.when(coExpressionService.fetchCoExpressions(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyInt(), Mockito.anyDouble()))
+        Mockito.any(CoExpression.GeneticEntityType.class), Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString(), 
+        Mockito.anyDouble()))
             .thenReturn(coExpressionList);
 
         CoExpressionFilter coExpressionFilter = new CoExpressionFilter();
         coExpressionFilter.setSampleIds(Arrays.asList("test_sample_id"));
+        coExpressionFilter.setEntrezGeneId(1);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
-            "/molecular-profiles/test_molecular_profile_id/co-expressions/fetch")
-            .param("entrezGeneId", "1")
+            "/molecular-profiles/co-expressions/fetch")
+            .param("molecularProfileIdA", "test_molecular_profile_id")
+            .param("molecularProfileIdB", "test_molecular_profile_id")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(coExpressionFilter)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticEntityId").value(TEST_ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].geneticEntityName").value(TEST_HUGO_GENE_SYMBOL_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(TEST_CYTOBAND_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].spearmansCorrelation").value(TEST_SPEARMANS_CORRELATION_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].geneticEntityId").value(TEST_ENTREZ_GENE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].geneticEntityName").value(TEST_HUGO_GENE_SYMBOL_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value(TEST_CYTOBAND_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].spearmansCorrelation").value(TEST_SPEARMANS_CORRELATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2));

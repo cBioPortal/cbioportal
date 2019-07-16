@@ -5,9 +5,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
-import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.service.GenePanelService;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.GenePanelDataFilter;
@@ -22,22 +22,22 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.access.prepost.PreAuthorize;
+import springfox.documentation.annotations.ApiIgnore;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
-
-import java.util.ArrayList;
-import java.util.List;
+import javax.validation.Valid;
+import java.util.*;
 
 @PublicApi
 @RestController
@@ -101,7 +101,7 @@ public class GenePanelController {
         return new ResponseEntity<>(genePanelService.fetchGenePanels(genePanelIds, projection.name()), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfile', 'read')")
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
     @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/gene-panel-data/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get gene panel data")
@@ -123,19 +123,24 @@ public class GenePanelController {
         return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasPermission(#genePanelMultipleStudyFilter, 'GenePanelMultipleStudyFilter', 'read')")
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/gene-panel-data/fetch", method = RequestMethod.POST, 
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch gene panel data")
     public ResponseEntity<List<GenePanelData>> fetchGenePanelDataInMultipleMolecularProfiles(
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @Valid @RequestAttribute(required = false, value = "interceptedGenePanelMultipleStudyFilter") GenePanelMultipleStudyFilter interceptedGenePanelMultipleStudyFilter,
         @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs")
-        @Valid @RequestBody GenePanelMultipleStudyFilter genePanelMultipleStudyFilter) {
+        @Valid @RequestBody(required = false) GenePanelMultipleStudyFilter genePanelMultipleStudyFilter) {
         
         List<String> molecularProfileIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
 
         for (SampleMolecularIdentifier sampleMolecularIdentifier :
-            genePanelMultipleStudyFilter.getSampleMolecularIdentifiers()) {
+            interceptedGenePanelMultipleStudyFilter.getSampleMolecularIdentifiers()) {
 
             molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
             sampleIds.add(sampleMolecularIdentifier.getSampleId());

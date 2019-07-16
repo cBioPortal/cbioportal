@@ -59,9 +59,7 @@
 
     </script>
      
-    <script type="text/javascript" src="//<%=baseUrl%>/js/src/load-frontend.js?<%=GlobalProperties.getAppVersion()%>"></script> 
-    
-    
+    <script type="text/javascript" src="//<%=baseUrl%>/js/src/load-frontend.js?<%=GlobalProperties.getAppVersion()%>"></script>
           
     <script>
         window.frontendConfig.customTabs && window.frontendConfig.customTabs.forEach(function(tab){
@@ -72,13 +70,14 @@
             }
         });
     </script>
-
-
+    
     <script>
             loadReactApp(window.frontendConfig);
     </script>
     
     <%@include file="./tracking_include.jsp" %>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
 
 </head>
 

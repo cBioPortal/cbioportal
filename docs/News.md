@@ -1,3 +1,40 @@
+## July 2, 2019
+*   **Added data** consistng of 785 samples from 4 studies:
+    *  [Non-Small Cell Lung Cancer (TRACERx, NEJM 2017)](https://www.cbioportal.org/study/summary?id=nsclc_tracerx_2017) *327 samples* 
+    *  [Acute myeloid leukemia or myelodysplastic syndromes (WashU, 2016)](https://www.cbioportal.org/study/summary?id=mnm_washu_2016) *136 samples* 
+    *  [Basal Cell Carcinoma (UNIGE, Nat Genet 2016)](https://www.cbioportal.org/study/summary?id=bcc_unige_2016) *293 samples* 
+    *  [Colon Adenocarcinoma (CaseCCC, PNAS 2015)](https://www.cbioportal.org/study/summary?id=coad_caseccc_2015) *29 samples* 
+
+## June 19, 2019
+* **New Feature**: Show *Genome Aggregation Database (gnomAD)* population frequencies in the mutations table - see [example](http://bit.ly/2ISHgiu):
+    
+    ![gnomad feature news](https://user-images.githubusercontent.com/1334004/59794400-e07c9c00-92a6-11e9-97ea-a79bfc8f3885.gif)
+
+## June 12, 2019
+ *   **Added data**  of 1350 samples from 3 studies:
+     *  [Pheochromocytoma and Paraganglioma (TCGA, Cell 2017)](https://www.cbioportal.org/study?id=pcpg_tcga_pub) *178 samples*
+     *  [Metastatic Solid Cancers (UMich, Nature 2017)](https://www.cbioportal.org/study?id=metastatic_solid_tumors_mich_2017) *500 samples*
+     *   [Acute Myeloid Leukemia (OHSU, Nature 2018)](https://www.cbioportal.org/study/summary?id=aml_ohsu_2018) *672 samples*
+ *    Added survival data for TCGA PanCan Atlas Cohorts (>10,000 samples across 33 tumor types).
+ *    Added hypoxia data for [Bladder Urothelial Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=blca_tcga_pan_can_atlas_2018)
+## June 7, 2019
+* **New Group Comparison Feature**: Compare clinical and genomic features of user-defined groups of samples/patients. [View Tutorial](https://www.cbioportal.org/tutorials#group-comparison)
+
+[![group-comparison](https://user-images.githubusercontent.com/840895/59052073-40f9eb00-885c-11e9-9ddb-6d036533e5f5.png)](https://www.cbioportal.org/comparison/mutations?sessionId=5cf92520e4b0ab4137874376)
+
+
+## May 8, 2019
+* **New Feature**: Show *Post Translational Modification (PTM)* information from [dbPTM](http://dbptm.mbc.nctu.edu.tw/) on the _Mutation Mapper_ - see [example](https://bit.ly/2VVrWdi):
+    
+    ![ptm feature_news](https://user-images.githubusercontent.com/1334004/57391288-34667200-718c-11e9-9fcc-b849542c74b3.gif)
+
+## April 26, 2019
+ *   **Added data**  of 568 samples from 4 studies:
+     *  [Adenoid Cystic Carcinoma (JHU, Cancer Prev Res 2016)](https://www.cbioportal.org/study?id=acyc_jhu_2016) *25 samples*
+     *  [Histiocytosis Cobimetinib (MSK, Nature 2019)](https://www.cbioportal.org/study?id=histiocytosis_cobi_msk_2019) *52 samples*
+     *  [Upper Tract Urothelial Carcinoma (Cornell/Baylor/MDACC, Nat Comm 2019)](https://www.cbioportal.org/study?id=utuc_cornell_baylor_mdacc_2019) *47 samples*
+     *  [Metastatic Prostate Adenocarcinoma (SU2C/PCF Dream Team, PNAS 2019)](https://www.cbioportal.org/study?id=prad_su2c_2019) *444 samples*
+
 ## March 29, 2019
 * **New Feature**: Use the new quick search tab on the homepage to more easily navigate to a study, gene or patient:
 

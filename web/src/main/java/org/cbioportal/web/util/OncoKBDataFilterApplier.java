@@ -29,7 +29,6 @@ public abstract class OncoKBDataFilterApplier
 
     public List<SampleIdentifier> apply(List<SampleIdentifier> sampleIdentifiers,
                                         List<T> attributes,
-                                        ClinicalDataType filterClinicalDataType,
                                         Boolean negateFilters) {
         List<ClinicalData> clinicalDataList = new ArrayList<>();
         if (!attributes.isEmpty() && !sampleIdentifiers.isEmpty()) {

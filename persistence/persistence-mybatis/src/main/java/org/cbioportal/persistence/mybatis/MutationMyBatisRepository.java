@@ -31,17 +31,6 @@ public class MutationMyBatisRepository implements MutationRepository {
     }
 
     @Override
-    public List<Mutation> getMutationsInMolecularProfileByAnnotation(String molecularProfileId, String sampleListId,
-                                                                       List<Integer> entrezGeneIds, Boolean snpOnly,
-                                                                       String projection, Integer pageSize,
-                                                                       Integer pageNumber, String sortBy,
-                                                                       String direction, String annotation) {
-
-        return mutationMapper.getMutationsBySampleListId(molecularProfileId, sampleListId, entrezGeneIds, snpOnly,
-            projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
-    }
-
-    @Override
     public MutationMeta getMetaMutationsInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
                                                                          List<Integer> entrezGeneIds) {
 

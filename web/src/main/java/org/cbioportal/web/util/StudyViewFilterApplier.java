@@ -142,8 +142,11 @@ public class StudyViewFilterApplier {
         if (mutationCountVsCNASelection != null && !sampleIdentifiers.isEmpty()) {
             sampleIdentifiers = filterMutationCountVsCNASelection(mutationCountVsCNASelection, sampleIdentifiers);
         }
-
-        //Add studyViewFilter for OncoKBDataFilter to filter sampleIdentifiers
+        
+        List<OncoKBDataFilter> oncoKBDataFilters = studyViewFilter.getOncoKBDataFilters();
+        if (oncoKBDataFilters != null) {
+            sampleIdentifiers = equalityFilterClinicalData(sampleIdentifiers, clinicalDataEqualityFilters, ClinicalDataType.SAMPLE, negateFilters);
+        }
 
         return sampleIdentifiers;
     }
@@ -166,6 +169,17 @@ public class StudyViewFilterApplier {
     {
         List<ClinicalDataEqualityFilter> attributes = clinicalDataEqualityFilters.stream()
             .filter(c-> c.getClinicalDataType().equals(filterClinicalDataType)).collect(Collectors.toList());
+
+        return clinicalDataEqualityFilterApplier.apply(sampleIdentifiers, attributes, filterClinicalDataType, negateFilters);
+    }
+    
+    private List<SampleIdentifier> equalityFilterOncoKBData(List<SampleIdentifier> sampleIdentifiers,
+                                                              List<OncoKBDataFilter> oncoKBDataFilters,
+                                                              OncoKBDataType filterOncoKBDataType,
+                                                              Boolean negateFilters)
+    {
+        List<OncoKBDataFilter> attributes = oncoKBDataFilters.stream()
+            .filter(c-> c.getOncoKBDataType().equals(filterOncoKBDataType)).collect(Collectors.toList());
 
         return clinicalDataEqualityFilterApplier.apply(sampleIdentifiers, attributes, filterClinicalDataType, negateFilters);
     }

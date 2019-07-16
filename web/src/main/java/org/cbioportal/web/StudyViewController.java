@@ -14,6 +14,7 @@ import javax.validation.Valid;
 
 import org.cbioportal.model.*;
 import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
+import org.cbioportal.model.OncoKBDataCountItem.OncoKBDataType;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
@@ -110,20 +111,20 @@ public class StudyViewController {
     @ApiOperation("Fetch annotation data by study view filter")
     public ResponseEntity<List<ClinicalDataCountItem>> fetchAnnotationData(
         @ApiParam(required = true, value = "Annotation data filter")
-        @Valid @RequestBody(required = false)  ClinicalDataCountFilter clinicalDataCountFilter,
+        @Valid @RequestBody(required = false)  OncoKBDataCountFilter oncoKBDataCountFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedClinicalDataCountFilter") ClinicalDataCountFilter interceptedClinicalDataCountFilter) {
+        @Valid @RequestAttribute(required = false, value = "interceptedOncoKBDataCountFilter") OncoKBDataCountFilter interceptedOncoKBDataCountFilter) {
 
-        List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
-        StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
+        List<OncoKBDataFilter> attributes = interceptedOncoKBDataCountFilter.getAttributes();
+        StudyViewFilter studyViewFilter = interceptedOncoKBDataCountFilter.getStudyViewFilter();
         if (attributes.size() == 1) {
             studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
         }
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
 
-        List<ClinicalDataCountItem> combinedResult = new ArrayList<>();
+        List<OncoKBDataCountItem> combinedResult = new ArrayList<>();
         if (filteredSampleIdentifiers.isEmpty()) {
             return new ResponseEntity<>(combinedResult, HttpStatus.OK);
         }
@@ -133,11 +134,7 @@ public class StudyViewController {
         List<ClinicalDataCountItem> resultForSampleAttributes = clinicalDataService.fetchClinicalDataCounts(
             studyIds, sampleIds, attributes.stream().filter(a -> a.getClinicalDataType().equals(ClinicalDataType.SAMPLE))
             .map(a -> a.getAttributeId()).collect(Collectors.toList()), ClinicalDataType.SAMPLE);
-        List<ClinicalDataCountItem> resultForPatientAttributes = clinicalDataService.fetchClinicalDataCounts(studyIds, sampleIds,
-        attributes.stream().filter(a -> a.getClinicalDataType().equals(ClinicalDataType.PATIENT))
-            .map(a -> a.getAttributeId()).collect(Collectors.toList()), ClinicalDataType.PATIENT);
         combinedResult.addAll(resultForSampleAttributes);
-        combinedResult.addAll(resultForPatientAttributes);
         return new ResponseEntity<>(combinedResult, HttpStatus.OK);
     }
 

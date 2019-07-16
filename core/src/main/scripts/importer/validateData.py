@@ -2807,12 +2807,13 @@ class GenePanelMatrixValidator(Validator):
                                                  'cause': sample_id})
 
         # Check whether gene panel stable ids are in the database
-        for gene_panel_id in data:
-            if gene_panel_id not in self.portal.gene_panel_list and gene_panel_id != 'NA':
-                self.logger.error('Gene panel ID is not in database. Please import this gene panel before loading '
-                                  'study data.',
-                                  extra={'line_number': self.line_number,
-                                         'cause': gene_panel_id})
+        if self.portal.gene_panel_list is not None:
+            for gene_panel_id in data:
+                if gene_panel_id not in self.portal.gene_panel_list and gene_panel_id != 'NA':
+                    self.logger.warning('Gene panel ID is not in database. Please import this gene panel before loading '
+                                    'study data.',
+                                    extra={'line_number': self.line_number,
+                                            'cause': gene_panel_id})
 
 
 class ProteinLevelValidator(FeaturewiseFileValidator):
@@ -4012,10 +4013,10 @@ def interface(args=None):
     portal_mode_group = parser.add_mutually_exclusive_group()
     portal_mode_group.add_argument('-u', '--url_server',
                                    type=str,
-                                   default='http://localhost:8080/cbioportal',
+                                   default='http://localhost:8080',
                                    help='URL to cBioPortal server. You can '
                                         'set this if your URL is not '
-                                        'http://localhost:8080/cbioportal')
+                                        'http://localhost:8080')
     portal_mode_group.add_argument('-p', '--portal_info_dir',
                                    type=str,
                                    help='Path to a directory of cBioPortal '

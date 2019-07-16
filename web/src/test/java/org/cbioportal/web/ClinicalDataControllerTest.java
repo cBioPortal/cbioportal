@@ -48,8 +48,7 @@ public class ClinicalDataControllerTest {
     @Autowired
     private ClinicalDataService clinicalDataService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 

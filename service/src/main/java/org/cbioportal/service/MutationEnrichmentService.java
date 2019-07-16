@@ -1,13 +1,15 @@
 package org.cbioportal.service;
 
-import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.service.exception.MolecularProfileNotFoundException;
-
 import java.util.List;
+import java.util.Map;
+
+import org.cbioportal.model.AlterationEnrichment;
+import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 
 public interface MutationEnrichmentService {
 
-    List<AlterationEnrichment> getMutationEnrichments(String molecularProfileId, List<String> alteredSampleIds,
-                                                      List<String> unalteredSampleIds, String enrichmentType)
-        throws MolecularProfileNotFoundException;
+    List<AlterationEnrichment> getMutationEnrichments(
+            Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets, String enrichmentType)
+            throws MolecularProfileNotFoundException;
 }

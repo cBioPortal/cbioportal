@@ -37,4 +37,17 @@ public class ClinicalEventMyBatisRepository implements ClinicalEventRepository {
         
         return clinicalEventMapper.getDataOfClinicalEvents(clinicalEventIds);
     }
+
+    @Override
+    public List<ClinicalEvent> getAllClinicalEventsInStudy(String studyId, String projection, Integer pageSize,
+                                                           Integer pageNumber, String sortBy, String direction) {
+        return clinicalEventMapper.getStudyClinicalEvent(studyId, projection, pageSize, 
+            offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+    }
+
+    @Override
+    public BaseMeta getMetaClinicalEvents(String studyId) {
+        
+        return clinicalEventMapper.getMetaClinicalEvent(studyId);
+    }
 }

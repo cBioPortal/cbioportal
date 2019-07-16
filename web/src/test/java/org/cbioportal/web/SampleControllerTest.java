@@ -51,15 +51,9 @@ public class SampleControllerTest {
     @Autowired
     private SampleService sampleService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
-
-    @Bean
-    public SampleService sampleService() {
-        return Mockito.mock(SampleService.class);
-    }
 
     @Before
     public void setUp() throws Exception {

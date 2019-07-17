@@ -14,7 +14,6 @@ import javax.validation.Valid;
 
 import org.cbioportal.model.*;
 import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
-import org.cbioportal.model.OncoKBDataCountItem.OncoKBDataType;
 import org.cbioportal.service.*;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;

@@ -239,7 +239,7 @@ public class ImportStructuralVariantData {
 
         // If no gene can be found based on Entrez Gene ID, try Symbol.
         if (siteCanonicalGene == null) {
-            siteCanonicalGene = daoGene.getNonAmbiguousGene(siteHugoSymbol, null);
+            siteCanonicalGene = daoGene.getNonAmbiguousGene(siteHugoSymbol, true);
         }
 
         return siteCanonicalGene;

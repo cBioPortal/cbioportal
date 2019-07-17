@@ -114,6 +114,19 @@ CREATE TABLE `type_of_cancer` (
 );
 
 -- --------------------------------------------------------
+CREATE TABLE `reference_genome` (
+    `REFERENCE_GENOME_ID` int(4) NOT NULL AUTO_INCREMENT,
+    `SPECIES` varchar(64) NOT NULL,
+    `NAME` varchar(64) NOT NULL,
+    `BUILD_NAME` varchar(64) NOT NULL,
+    `GENOME_SIZE` bigint(20) NULL,
+    `URL` varchar(256) NOT NULL,
+    `RELEASE_DATE` datetime DEFAULT NULL,
+    PRIMARY KEY (`REFERENCE_GENOME_ID`),
+    UNIQUE INDEX `BUILD_NAME_UNIQUE` (`BUILD_NAME` ASC)
+);
+
+-- --------------------------------------------------------
 CREATE TABLE `cancer_study` (
   `CANCER_STUDY_ID` int(11) NOT NULL auto_increment,
   `CANCER_STUDY_IDENTIFIER` varchar(255),
@@ -127,9 +140,11 @@ CREATE TABLE `cancer_study` (
   `GROUPS` varchar(200) DEFAULT NULL,
   `STATUS` int(1) DEFAULT NULL,
   `IMPORT_DATE` datetime DEFAULT NULL,
+  `REFERENCE_GENOME_ID` int(4) DEFAULT 1,
   PRIMARY KEY (`CANCER_STUDY_ID`),
   UNIQUE (`CANCER_STUDY_IDENTIFIER`),
-  FOREIGN KEY (`TYPE_OF_CANCER_ID`) REFERENCES `type_of_cancer` (`TYPE_OF_CANCER_ID`)
+  FOREIGN KEY (`TYPE_OF_CANCER_ID`) REFERENCES `type_of_cancer` (`TYPE_OF_CANCER_ID`),
+  FOREIGN KEY (`REFERENCE_GENOME_ID`) REFERENCES `reference_genome` (`REFERENCE_GENOME_ID`) ON DELETE RESTRICT 
 );
 
 -- --------------------------------------------------------
@@ -209,7 +224,6 @@ CREATE TABLE `gene` (
   `HUGO_GENE_SYMBOL` varchar(255) NOT NULL,
   `GENETIC_ENTITY_ID` int(11) NOT NULL,
   `TYPE` varchar(50),
-  `CYTOBAND` varchar(64),
   PRIMARY KEY (`ENTREZ_GENE_ID`),
   UNIQUE KEY `GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID`),
   KEY `HUGO_GENE_SYMBOL` (`HUGO_GENE_SYMBOL`),
@@ -288,19 +302,6 @@ CREATE TABLE `uniprot_id_mapping` (
   KEY (`UNIPROT_ID`),
   Key (`UNIPROT_ACC`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
-);
-
--- --------------------------------------------------------
-CREATE TABLE `reference_genome` (
-    `REFERENCE_GENOME_ID` int(4) NOT NULL AUTO_INCREMENT,
-    `SPECIES` varchar(64) NOT NULL,
-    `NAME` varchar(64) NOT NULL,
-    `BUILD_NAME` varchar(64) NOT NULL,
-    `GENOME_SIZE` bigint(20) NULL,
-    `URL` varchar(256) NOT NULL,
-    `RELEASE_DATE` datetime DEFAULT NULL,
-    PRIMARY KEY (`REFERENCE_GENOME_ID`),
-    UNIQUE INDEX `BUILD_NAME_UNIQUE` (`BUILD_NAME` ASC)
 );
 
 -- --------------------------------------------------------
@@ -820,7 +821,7 @@ CREATE TABLE `clinical_event_data` (
 CREATE TABLE `reference_genome_gene` (
     `ENTREZ_GENE_ID` int(11) NOT NULL,
     `REFERENCE_GENOME_ID` int(4) NOT NULL,
-    `CHR` varchar(4) DEFAULT NULL,
+    `CHR` varchar(5) DEFAULT NULL,
     `CYTOBAND` varchar(64) DEFAULT NULL,
     `EXONIC_LENGTH` int(11) DEFAULT NULL,
     `START` bigint(20) DEFAULT NULL,
@@ -846,4 +847,4 @@ CREATE TABLE `info` (
   `GENESET_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.10.1', NULL);
+INSERT INTO info VALUES ('2.11.0', NULL);

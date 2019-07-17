@@ -1,0 +1,2 @@
+#species	name	build_name	nonN_bases	URL	release_date
+mouse	mm10	GRCm38	2652783500	http://hgdownload.cse.ucsc.edu/goldenPath/mm10	2011-12-01 00:00:00

@@ -40,7 +40,10 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoReferenceGenomeGene;
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ReferenceGenome;
+import org.mskcc.cbio.portal.model.ReferenceGenomeGene;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -64,13 +67,9 @@ public class TestImportGeneData {
     public void testImportGeneData() throws Exception {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         ProgressMonitor.setConsoleMode(false);
-	
-        File file = new File("src/test/resources/supp-genes.txt");
-
-        ImportGeneData.importSuppGeneData(file);
         
-        file = new File("src/test/resources/genes_test.txt");
-        ImportGeneData.importData(file);
+        File file = new File("src/test/resources/genes_test.txt");
+        ImportGeneData.importData(file, "GRCh37");
 
         CanonicalGene gene = daoGene.getGene(10);
         assertEquals("NAT2", gene.getHugoGeneSymbolAllCaps());

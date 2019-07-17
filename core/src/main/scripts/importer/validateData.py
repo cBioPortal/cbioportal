@@ -288,26 +288,35 @@ class PortalInstance(object):
                 for entrez_list in list(entrez_map.values()):
                     for entrez_id in entrez_list:
                         self.entrez_set.add(entrez_id)
+                        
+        #Set defaults for genome version and species
+        self.__species = 'human'
+        self.__ncbi_build = '37'
+        self.__genome_build = 'hg19'
 
-        # Set defaults for genome version and species
-        self.species = 'human'
-        self.ncbi_build = '37'
-        self.genome_build = 'hg19'
+    @property
+    def species(self):
+        return self.__species
 
-    def load_genome_info(self, properties_filename):
-        """Retrieves the species and genome information from portal.properties."""
-        with open(properties_filename, 'r') as properties_file:
-            for line in properties_file:
-                line = line.strip()
-                if line.startswith('#') or '=' not in line:
-                    continue
-                sp_line = line.split('=', 1)
-                if sp_line[0] == 'species':
-                    self.species = sp_line[1]
-                elif sp_line[0] == 'ncbi.build':
-                    self.ncbi_build = sp_line[1]
-                elif sp_line[0] == 'ucsc.build':
-                    self.genome_build = sp_line[1]
+    @species.setter
+    def species(self, species):
+       self.__species= species
+       
+    @property
+    def genome_build(self):
+        return self.__genome_build
+
+    @genome_build.setter
+    def genome_build(self, genome_build):
+       self.__genome_build= genome_build
+
+    @property
+    def ncbi_build(self):
+       return self.__ncbi_build
+
+    @ncbi_build.setter
+    def ncbi_build(self, ncbi_build):
+       self.__ncbi_build = ncbi_build
 
 class Validator(object):
 
@@ -4614,9 +4623,15 @@ def interface(args=None):
                                    action='store_true',
                                    help='Skip tests requiring information '
                                         'from the cBioPortal installation')
-    parser.add_argument('-P', '--portal_properties', type=str,
-                        help='portal.properties file path (default: assumed hg19)',
+    parser.add_argument('-species', '--species', type=str, default='human',
+                        help='species information (default: assumed human)',
                         required=False)
+    parser.add_argument('-ucsc', '--ucsc_build_name', type=str, default='hg19',
+                        help='UCSC reference genome assembly name(default: assumed hg19)',
+                        required=False)   
+    parser.add_argument('-ncbi', '--ncbi_build_number', type=str, default='37',
+                         help='NCBI reference genome build number (default: assumed 37 for UCSC reference genome build hg19)',
+                         required=False)    
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
     parser.add_argument('-e', '--error_file', type=str, required=False,
@@ -4921,9 +4936,11 @@ def main_validate(args):
     else:
         portal_instance = load_portal_info(server_url, logger)
 
-    if args.portal_properties:
-        portal_instance.load_genome_info(args.portal_properties)
-
+    # specify species and genomic information
+    portal_instance.species = args.species
+    portal_instance.genome_build = args.ucsc_build_name
+    portal_instance.ncbi_build = args.ncbi_build_number
+       
     validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_checks)
 
     if html_handler is not None:

@@ -137,16 +137,29 @@ public class ImportExtendedMutationData{
         }
 
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
+        
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(geneticProfile.getCancerStudyId());
+        String genomeBuildName;
+        String referenceGenome = cancerStudy.getReferenceGenome();
+        if (referenceGenome == null) {
+            genomeBuildName = GlobalProperties.getReferenceGenomeName();
+        } else {   
+            genomeBuildName = DaoReferenceGenome.getReferenceGenomeByGenomeName(referenceGenome).getBuildName();
+        }
+        
         while((line=buf.readLine()) != null)
         {
             ProgressMonitor.incrementCurValue();
             ConsoleUtil.showProgress();
-
+            
             if( !line.startsWith("#") && line.trim().length() > 0)
             {
                 String[] parts = line.split("\t", -1 ); // the -1 keeps trailing empty strings; see JavaDoc for String
                 MafRecord record = mafUtil.parseRecord(line);
 
+                if (!record.getNcbiBuild().equalsIgnoreCase(genomeBuildName)) {
+                    ProgressMonitor.logWarning("Genome Build Name does not match, expecting " + genomeBuildName);
+                }
                 // process case id
                 String barCode = record.getTumorSampleID();
                 Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
@@ -299,7 +312,7 @@ public class ImportExtendedMutationData{
                 if (gene == null &&
                         !(geneSymbol.equals("") ||
                           geneSymbol.equals("Unknown"))) {
-                    gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
+                    gene = daoGene.getNonAmbiguousGene(geneSymbol, true);
                 }
 
                 // assume symbol=Unknown and entrez=0 (or missing Entrez column) to imply an

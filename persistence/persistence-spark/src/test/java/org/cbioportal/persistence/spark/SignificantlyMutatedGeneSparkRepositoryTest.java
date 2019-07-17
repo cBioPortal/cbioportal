@@ -56,8 +56,6 @@ public class SignificantlyMutatedGeneSparkRepositoryTest {
 
     @Test
     public void testGetSignificantlyMutatedGenesPagination() {
-        when(ds.unionByName(any(Dataset.class))).thenReturn(ds);
-        when(ds.drop(anyString())).thenReturn(ds);
         
         List<MutSig> res = significantlyMutatedGeneSparkRepository
             .getSignificantlyMutatedGenes("msk_impact_2017", "SUMMARY", 10, 2, null, null);

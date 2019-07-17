@@ -5,6 +5,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.SampleRepository;
+import org.cbioportal.persistence.spark.GeneralSparkRepository;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
@@ -32,6 +33,8 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     private SampleRepository sampleRepository;
     @Mock
     private SampleRepository sampleSparkRepository;
+    @Mock
+    private GeneralSparkRepository generalSparkRepository;
     @Mock
     private StudyService studyService;
     @Mock
@@ -219,13 +222,13 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         List<Integer> expectedInternalIdList = new ArrayList<>();
         expectedInternalIdList.add(SAMPLE_INTERNAL_ID);
        
-        
+        Mockito.when(generalSparkRepository.fetchSamplesWithCopyNumberSegments(
+            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class)))
+            .thenReturn(Arrays.asList(SAMPLE_ID1, SAMPLE_ID1));
         Mockito.when(sampleSparkRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED"))
                 .thenReturn(expectedSampleList);
         Mockito.when(sampleListSparkRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
-        Mockito.when(copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(expectedInternalIdList);
         
         List<Sample> result = sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED");
         Assert.assertEquals(2, result.size());
@@ -233,7 +236,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Assert.assertFalse(result.get(1).getCopyNumberSegmentPresent());
     }
 
-    @Test
+    @TestMolecularProfileRepository
     public void fetchSamplesBySampleListIds() throws Exception {
 
         List<Sample> expectedSampleList = new ArrayList<>();

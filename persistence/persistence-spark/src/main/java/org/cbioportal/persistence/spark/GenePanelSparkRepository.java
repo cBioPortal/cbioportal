@@ -1,15 +1,15 @@
 package org.cbioportal.persistence.spark;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.GenePanelToGene;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
+import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.persistence.spark.util.ParquetConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,6 +17,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.apache.spark.sql.functions.lit;
 
 @Component
 @Qualifier("genePanelSparkRepository")
@@ -27,6 +30,10 @@ public class GenePanelSparkRepository implements GenePanelRepository {
 
     @Value("${data.parquet.folder}")
     private String PARQUET_DIR;
+    
+    @Autowired
+    @Qualifier("molecularProfileMyBatisRepository")
+    private MolecularProfileRepository molecularProfileRepository;
     
     @Override
     public List<GenePanel> getAllGenePanels(String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction) {
@@ -60,60 +67,53 @@ public class GenePanelSparkRepository implements GenePanelRepository {
 
     @Override
     public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds) {
+        
         List<Dataset<Row>> res = new ArrayList<>();
-        // get studyIds.. 
-        // 1) Either derive StudyID from mpid reverse engineer GeneticProfileReader.parseStableId
-        // 2) name parquet files so they are retrievable by mpid
-        Set<String> molecularProfileSet = new TreeSet<>(molecularProfileIds);
-        String[] molecularProfiles = (String[]) molecularProfileSet.toArray();
-        String prefix = StringUtils.getCommonPrefix(molecularProfiles);
-        List<String> studyIds = new ArrayList<>();
-        if (prefix != "") {
-            // 1 study id
-            if (prefix.endsWith("_")) {
-                prefix = prefix.substring(0, prefix.length()-1);
-                studyIds.add(prefix);
-            }
-            studyIds.add(prefix);
-        } else {
-            // multiple study ids // iterate over pairs
-        }
+        List<MolecularProfile> molecularProfiles = molecularProfileRepository.getMolecularProfiles(molecularProfileIds, "ID");
+        Set<String> studyIds = molecularProfiles.stream().map(mp -> mp.getCancerStudyIdentifier())
+            .collect(Collectors.toSet());
+        Set<String> molecularProfileSet = new HashSet<>(molecularProfileIds);
         
         for (String studyId: studyIds) {
             Dataset<Row> geneMatrix = spark.read()
-                .option("mergeSchema", true)
-                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.GENE_MATRIX); //sample,cna,mutations
-            // if molecularProfileId ends in columnName?
+                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.GENE_MATRIX);
+
             if (sampleIds != null && !sampleIds.isEmpty()) {
                 geneMatrix = geneMatrix
                     .where(geneMatrix.col("SAMPLE_ID").isin(sampleIds.toArray()));
             }
-            // need patientId -- join with data_clinical_sample.txt // studyId --
-            Dataset<Row> clinicalSamples = spark.read()
-                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.DATA_CLINICAL_SAMPLE);
-            geneMatrix = geneMatrix.join(clinicalSamples, "SAMPLE_ID");
 
-            // Get distinct gene_panels.
-            List<String> matColumns = Arrays.asList(geneMatrix.columns());
-            matColumns.remove("SAMPLE_ID");
-
-            geneMatrix = geneMatrix.select((Column[]) matColumns.toArray()).distinct();
-
-
-            Dataset<Row> genePanel = spark.read()
-                .option("mergeSchema", true)
-                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.GENE_PANEL_DIR); //partition by IMPACT341
-            // cnaCol = molecularProfileSet.replace(studyId+"_", "");
-            // join where genePanel.stable_id == geneMatrix.cna or geneMatrix.mutations
+            List<String> mpIds = molecularProfileSet.stream().filter(id -> id.startsWith(studyId)).collect(Collectors.toList());
+            for (String molecularProfileId : mpIds) {
+                String colName = molecularProfileId.replaceFirst(studyId + "_", "");
+                Dataset<Row> sub = geneMatrix.select("SAMPLE_ID", colName);
+                sub = sub.withColumn("molecularProfileId", lit(molecularProfileId));
+                res.add(sub);
+            }
+        }
+        Dataset<Row> ds = res.get(0);
+        if (res.size() > 1) {
+            for (Dataset<Row> sub: res.subList(1, res.size())) {
+                ds = ds.unionByName(sub);
+            }
         }
 
-
-        
-        return null;
+        List<Row> resls = ds.collectAsList();
+        List<GenePanelData> genePanelData = resls.stream().
+            map(r -> mapToGenePanelData(r)).collect(Collectors.toList());
+        return genePanelData;
     }
 
     @Override
     public List<GenePanelToGene> getGenesOfPanels(List<String> genePanelIds) {
         throw new UnsupportedOperationException();
+    }
+    
+    private GenePanelData mapToGenePanelData(Row row) {
+        GenePanelData gpd = new GenePanelData();
+        gpd.setSampleId(row.getString(0));
+        gpd.setGenePanelId(row.getString(1));
+        gpd.setMolecularProfileId(row.getString(2));
+        return gpd;
     }
 }

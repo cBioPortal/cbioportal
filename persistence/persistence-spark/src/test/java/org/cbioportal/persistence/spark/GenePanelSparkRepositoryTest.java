@@ -1,7 +1,9 @@
 package org.cbioportal.persistence.spark;
 
 import org.apache.spark.sql.*;
-import org.cbioportal.model.Sample;
+import org.cbioportal.model.GenePanelData;
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.persistence.MolecularProfileRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,13 +28,16 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration("/testSparkContext.xml")
 @TestPropertySource("/testPortal.properties")
 @Configurable
-public class SampleSparkRepositoryTest {
+public class GenePanelSparkRepositoryTest {
 
     @Mock
     private SparkSession spark;
 
+    @Mock
+    private MolecularProfileRepository molecularProfileRepository;
+    
     @InjectMocks
-    private SampleSparkRepository sampleSparkRepository;
+    private GenePanelSparkRepository genePanelSparkRepository;
 
     private Dataset<Row> ds;
 
@@ -39,21 +45,27 @@ public class SampleSparkRepositoryTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
-        ds = mock(Dataset.class);
         DataFrameReader dfr = mock(DataFrameReader.class);
         when(spark.read()).thenReturn(dfr);
+        ds = mock(Dataset.class);
         when(dfr.parquet(anyString())).thenReturn(ds);
-        when(spark.sql(anyString())).thenReturn(ds);
-        when(ds.withColumn(anyString(), any(Column.class))).thenReturn(ds);
     }
-    
-    @Test
-    public void testFetchSamplesSummary() {
 
-        List<Row> res = Arrays.asList(RowFactory.create("patientId", "sampleId", "type", "studyId"));
+    @Test
+    public void testFetchGenePanelDataInMultipleMolecularProfiles() {
+        MolecularProfile mp = new MolecularProfile();
+        mp.setCancerStudyIdentifier("msk_impact_2017");
+        List<MolecularProfile> molecularProfileIds = Arrays.asList(mp);
+        when(molecularProfileRepository.getMolecularProfiles(anyList(), anyString()))
+            .thenReturn(molecularProfileIds);
+        when(ds.select(anyString(), anyString())).thenReturn(ds);
+        when(ds.withColumn(anyString(), any(Column.class))).thenReturn(ds);
+        
+        List<Row> res = Arrays.asList(RowFactory.create("sampleId", "genePanelId", "msk_impact_2017_cna"));
         when(ds.collectAsList()).thenReturn(res);
         
-        List<Sample> result = sampleSparkRepository.fetchSamples(Arrays.asList("msk_impact_2017"), null, "SUMMARY");
+        List<GenePanelData> result = genePanelSparkRepository.fetchGenePanelDataInMultipleMolecularProfiles(
+            Arrays.asList("msk_impact_2017_cna"), null);
 
         Assert.assertEquals(1, result.size());
     }

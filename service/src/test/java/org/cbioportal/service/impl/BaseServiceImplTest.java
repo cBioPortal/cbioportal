@@ -24,6 +24,13 @@ public class BaseServiceImplTest {
     public static final String CLINICAL_DATA_TYPE = "clinical_data_type";
     public static final Integer ENTREZ_GENE_ID_1 = 1;
     public static final Integer ENTREZ_GENE_ID_2 = 2;
+    public static final Integer ENTREZ_GENE_ID_3 = 3;
+    public static final Integer ENTREZ_GENE_ID_4 = 4;
+    public static final Integer GENETIC_ENTITY_ID_1 = 1;
+    public static final Integer GENETIC_ENTITY_ID_2 = 2;
+    public static final Integer GENETIC_ENTITY_ID_3 = 3;
+    public static final Integer GENETIC_ENTITY_ID_4 = 4;
+    public static final Integer REFERENCE_GENOME_ID = 1;
     public static final String GENESET_ID1 = "geneset_id1";
     public static final String GENESET_ID2 = "geneset_id2";
     public static final String HUGO_GENE_SYMBOL = "hugo_gene_symbol";

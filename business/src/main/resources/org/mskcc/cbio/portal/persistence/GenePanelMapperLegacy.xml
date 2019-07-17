@@ -69,7 +69,6 @@
         <result property="entrezGeneId" column="ENTREZ_GENE_ID"/>
         <result property="hugoGeneSymbol" column="HUGO_GENE_SYMBOL"/>
         <result property="type" column="TYPE"/>
-        <result property="cytoband" column="CYTOBAND"/>
     </resultMap>
 
     <resultMap id="geneticProfileResultMap" type="org.cbioportal.model.MolecularProfile">
@@ -128,8 +127,7 @@
             gene_panel.DESCRIPTION as description,
             gene.ENTREZ_GENE_ID as entrezGeneId,
             gene.HUGO_GENE_SYMBOL as hugoGeneSymbol,
-            gene.TYPE as type,
-            gene.CYTOBAND as cytoband
+            gene.TYPE as type
         from gene_panel
             left join gene_panel_list on gene_panel.INTERNAL_ID = gene_panel_list.INTERNAL_ID
             left join gene on gene_panel_list.GENE_ID = gene.ENTREZ_GENE_ID
@@ -149,8 +147,7 @@
         select
             gene.ENTREZ_GENE_ID,
             gene.HUGO_GENE_SYMBOL,
-            gene.TYPE,
-            gene.CYTOBAND
+            gene.TYPE
         from gene
         <where>
             gene.HUGO_GENE_SYMBOL = #{symbol}
@@ -162,8 +159,7 @@
         select
             gene.ENTREZ_GENE_ID,
             gene.HUGO_GENE_SYMBOL,
-            gene.TYPE,
-            gene.CYTOBAND
+            gene.TYPE
         from gene
         <where>
             gene.ENTREZ_GENE_ID = #{geneId}
@@ -174,8 +170,7 @@
         select
             gene.ENTREZ_GENE_ID,
             gene.HUGO_GENE_SYMBOL,
-            gene.TYPE,
-            gene.CYTOBAND
+            gene.TYPE
         from gene_alias
             inner join gene on gene_alias.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
         <where>

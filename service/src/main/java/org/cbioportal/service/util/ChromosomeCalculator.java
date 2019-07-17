@@ -1,6 +1,5 @@
 package org.cbioportal.service.util;
 
-import org.cbioportal.model.Gene;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;
@@ -29,12 +28,5 @@ public class ChromosomeCalculator {
         }
 
         return null;
-    }
-
-    public void setChromosome(Gene gene) {
-
-        if (gene != null) {
-            gene.setChromosome(getChromosome(gene.getCytoband()));
-        }
     }
 }

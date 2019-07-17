@@ -83,6 +83,7 @@ public class TestImportClinicalData {
         
         // new dummy study to simulate importing clinical data in empty study:
         cancerStudy = new CancerStudy("testnew","testnew","testnew","brca",true);
+        cancerStudy.setReferenceGenome("hg19");
         DaoCancerStudy.addCancerStudy(cancerStudy);
         // implicit test:
         cancerStudy = DaoCancerStudy.getCancerStudyByStableId("testnew");

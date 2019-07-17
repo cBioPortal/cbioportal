@@ -779,7 +779,7 @@ public class ImportTabDelimData {
                 ProgressMonitor.logWarning("Gene " + symbol + " will be interpreted as 'Not Available' in this case. Record will be skipped for this gene.");
             }
             else {
-                CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, null);
+                CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, true);
                 if (gene!=null) {
                     genes.add(gene);
                 }
@@ -825,7 +825,6 @@ public class ImportTabDelimData {
                 ProgressMonitor.logWarning("Phosphoprotein " + phosphoSymbol + " not yet known in DB. Adding it to `gene` table with 3 aliases in `gene_alias` table.");
                 phosphoGene = new CanonicalGene(phosphoSymbol, aliases);
                 phosphoGene.setType(CanonicalGene.PHOSPHOPROTEIN_TYPE);
-                phosphoGene.setCytoband(gene.getCytoband());
                 daoGene.addGene(phosphoGene);
             }
             phosphoGenes.add(phosphoGene);

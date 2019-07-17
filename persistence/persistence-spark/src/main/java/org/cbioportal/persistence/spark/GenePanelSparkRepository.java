@@ -61,46 +61,51 @@ public class GenePanelSparkRepository implements GenePanelRepository {
     @Override
     public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds) {
         List<Dataset<Row>> res = new ArrayList<>();
-        /* get studyIds.. 1) Either derive StudyID from mpid or 2) name parquet files so they are retrievable by mpid
+        // get studyIds.. 
+        // 1) Either derive StudyID from mpid reverse engineer GeneticProfileReader.parseStableId
+        // 2) name parquet files so they are retrievable by mpid
         Set<String> molecularProfileSet = new TreeSet<>(molecularProfileIds);
         String[] molecularProfiles = (String[]) molecularProfileSet.toArray();
-        List<String> studyIds = new ArrayList<>();
         String prefix = StringUtils.getCommonPrefix(molecularProfiles);
+        List<String> studyIds = new ArrayList<>();
         if (prefix != "") {
-            // 1 study ids
+            // 1 study id
             if (prefix.endsWith("_")) {
                 prefix = prefix.substring(0, prefix.length()-1);
+                studyIds.add(prefix);
             }
             studyIds.add(prefix);
         } else {
-            // multiple study ids
-        }*/
-        
-        Dataset<Row> geneMatrix = spark.read()
-            .option("mergeSchema", true)
-            .parquet(PARQUET_DIR + "/" + ParquetConstants.GENE_MATRIX); //sample,cna,mutations
-        // if molecularProfileId ends in columnName?
-        if (sampleIds != null && !sampleIds.isEmpty()) {
-            geneMatrix = geneMatrix
-                .where(geneMatrix.col("SAMPLE_ID").isin(sampleIds.toArray()))
-                .na().drop();
+            // multiple study ids // iterate over pairs
         }
-        // need patientId -- join with data_clinical_sample.txt // studyId --
         
-        // Get distinct gene_panels.
-        List<String> matColumns = Arrays.asList(geneMatrix.columns());
-        matColumns.remove("SAMPLE_ID");
-        
-        geneMatrix = geneMatrix.select((Column[]) matColumns.toArray())
-            .distinct();
-        
+        for (String studyId: studyIds) {
+            Dataset<Row> geneMatrix = spark.read()
+                .option("mergeSchema", true)
+                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.GENE_MATRIX); //sample,cna,mutations
+            // if molecularProfileId ends in columnName?
+            if (sampleIds != null && !sampleIds.isEmpty()) {
+                geneMatrix = geneMatrix
+                    .where(geneMatrix.col("SAMPLE_ID").isin(sampleIds.toArray()));
+            }
+            // need patientId -- join with data_clinical_sample.txt // studyId --
+            Dataset<Row> clinicalSamples = spark.read()
+                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.DATA_CLINICAL_SAMPLE);
+            geneMatrix = geneMatrix.join(clinicalSamples, "SAMPLE_ID");
 
-        Dataset<Row> genePanel = spark.read()
-            .option("mergeSchema", true)
-            .parquet(PARQUET_DIR + ParquetConstants.GENE_PANEL_DIR); //partition by IMPACT341
-        // cnaCol = molecularProfileSet.replace(studyId+"_", "");
-        // join where genePanel.stable_id == geneMatrix.cna or geneMatrix.mutations
-        
+            // Get distinct gene_panels.
+            List<String> matColumns = Arrays.asList(geneMatrix.columns());
+            matColumns.remove("SAMPLE_ID");
+
+            geneMatrix = geneMatrix.select((Column[]) matColumns.toArray()).distinct();
+
+
+            Dataset<Row> genePanel = spark.read()
+                .option("mergeSchema", true)
+                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.GENE_PANEL_DIR); //partition by IMPACT341
+            // cnaCol = molecularProfileSet.replace(studyId+"_", "");
+            // join where genePanel.stable_id == geneMatrix.cna or geneMatrix.mutations
+        }
 
 
         

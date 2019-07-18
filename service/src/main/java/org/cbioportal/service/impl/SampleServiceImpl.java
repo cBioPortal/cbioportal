@@ -179,7 +179,7 @@ public class SampleServiceImpl implements SampleService {
                 .collect(Collectors.toList());
             for (String studyId : distinctStudyIds) {
                 sequencedSampleIdsMap.put(studyId,
-                                          new HashSet<String>(sampleListSparkRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
+                                          new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
             }
             List<Integer> samplesWithCopyNumberSeg = copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
                 samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()), 
@@ -206,7 +206,7 @@ public class SampleServiceImpl implements SampleService {
                 .collect(Collectors.toList());
             for (String studyId : distinctStudyIds) {
                 sequencedSampleIdsMap.put(studyId,
-                    new HashSet<String>(sampleListSparkRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
+                    new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
             }
             List<String> samplesWithCopyNumberSeg = generalSparkRepository.fetchSamplesWithCopyNumberSegments(
                 samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()),

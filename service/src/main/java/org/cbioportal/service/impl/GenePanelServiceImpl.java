@@ -137,7 +137,7 @@ public class GenePanelServiceImpl implements GenePanelService {
 			List<String> sampleIds) {
 
             List<GenePanelData> genePanelData =
-                genePanelSparkRepository.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds);
+                genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds);
             return createGenePanelData(createGenePanelDataMap(genePanelData), molecularProfileIds, sampleIds);
 	}
 

@@ -236,7 +236,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Assert.assertFalse(result.get(1).getCopyNumberSegmentPresent());
     }
 
-    @TestMolecularProfileRepository
+    @Test
     public void fetchSamplesBySampleListIds() throws Exception {
 
         List<Sample> expectedSampleList = new ArrayList<>();

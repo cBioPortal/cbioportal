@@ -179,7 +179,7 @@ public class StudyViewFilterApplier {
     {
         List<OncoKBDataFilter> attributes = oncoKBDataFilters.stream().collect(Collectors.toList());
 
-        return clinicalDataEqualityFilterApplier.apply(sampleIdentifiers, attributes, filterClinicalDataType, negateFilters);
+        return clinicalDataEqualityFilterApplier.apply(sampleIdentifiers, attributes, negateFilters);
     }
 
     private List<SampleIdentifier> filterByProfiled(List<SampleIdentifier> sampleIdentifiers, Boolean criteria,

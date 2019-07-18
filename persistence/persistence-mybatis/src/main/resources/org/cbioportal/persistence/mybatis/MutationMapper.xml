@@ -41,6 +41,7 @@
             mutation.DRIVER_FILTER_ANNOTATION as driverFilterAnnotation,
             mutation.DRIVER_TIERS_FILTER as driverTiersFilter,
             mutation.DRIVER_TIERS_FILTER_ANNOTATION as driverTiersFilterAnnotation
+            mutation.annotation as annotation
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -184,6 +185,31 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
+        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
+            INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+        </if>
+        <if test="projection == 'DETAILED'">
+            INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        </if>
+        <include refid="whereInMultipleMolecularProfiles"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY genetic_profile.STABLE_ID ASC, sample.STABLE_ID ASC, mutation.ENTREZ_GENE_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    
+    <select id="getMutationsInMultipleMolecularProfilesByAnnotation" resultType="org.cbioportal.model.Mutation">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <if test="annotation != null">
+          SELECT * FROM mutation WHERE mutation.annotation = #{annotation}
+        </if>
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
         </if>

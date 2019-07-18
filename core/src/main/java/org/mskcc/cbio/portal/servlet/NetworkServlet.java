@@ -131,8 +131,7 @@ public class NetworkServlet extends HttpServlet {
         try {
         	if (cancerStudyId != null) {
 				cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
-				if (cancerStudy == null
-						|| accessControl.isAccessibleCancerStudy(cancerStudy.getCancerStudyStableId()).size() == 0) {
+				if (cancerStudy == null) {
 					return;
 				}
 			} else {

@@ -132,6 +132,9 @@
                 AND sample.INTERNAL_ID = mutation.SAMPLE_ID 
                 AND genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID)
             </if>
+            <if test="annotation != null">
+                mutation.annotation = #{annotation}
+            </if>
             <if test="sampleIds == null">
                 genetic_profile.STABLE_ID IN
                 <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
@@ -207,9 +210,6 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        <if test="annotation != null">
-          SELECT * FROM mutation WHERE mutation.annotation = #{annotation}
-        </if>
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
         </if>

@@ -212,9 +212,6 @@ public class MutationsJSON extends HttpServlet {
             String hugo = gene.getHugoGeneSymbolAllCaps();
             map.put("gene_symbol", hugo);
             
-            String cytoband = gene.getCytoband();
-            map.put("cytoband", cytoband);
-            
             Integer count = Integer.parseInt(entry.getValue().get("count"));
             map.put("num_muts", count);
             

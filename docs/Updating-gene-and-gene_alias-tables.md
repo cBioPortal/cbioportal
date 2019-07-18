@@ -42,9 +42,18 @@ ALTER TABLE `geneset` AUTO_INCREMENT = 1;
 5- To import gene data type the following commands when in the folder `<cbioportal_source_folder>/core/src/main/scripts`:
 ```
 export PORTAL_HOME=<cbioportal_configuration_folder>
-./importGenes.pl --genes <ncbi_species.gene_info>
+export JAVA_HOME=<jre_installation_folder>
+./importGenes.pl --genes <ncbi_species.gene_info> --gtf <gencode.v25.annotation.gtf> --genome-build <GRCh37>
 ```
-
+**IMPORTANT NOTE**: 
+1. The **reference_genome** table needs to be populated before updating the **gene** table. Further details can be found in [this document](import-reference-genome.md). 
+2. Use **--species** option when importing genes for a species other than human
+3. Use the **gene** table if you query information such as hugo symbols, types of the gene 
+4. Use **reference_genome_gene** table if you query information such as chromosome, cytoband, exonic length, or the start or end of the gene
+5. Load genes only to the **reference_genome_gene** table without updating the **gene** table, please use the following command:
+```
+./importGenes.pl --gtf <gencode.v27.annotation.gtf> --genome-build <GRCh38>
+```
 6- :warning: Check the `gene` and `gene_alias` tables to verify that they are filled correctly.
 ```sql
 SELECT count(*) FROM cbioportal.gene;

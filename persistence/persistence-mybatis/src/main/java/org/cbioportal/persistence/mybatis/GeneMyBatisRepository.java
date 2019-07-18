@@ -34,6 +34,11 @@ public class GeneMyBatisRepository implements GeneRepository {
     }
 
     @Override
+    public Gene getGeneByGeneticEntityId(Integer geneticEntityId) {
+        return geneMapper.getGeneByGeneticEntityId(geneticEntityId, PersistenceConstants.DETAILED_PROJECTION);
+    }
+    
+    @Override
     public Gene getGeneByEntrezGeneId(Integer entrezGeneId) {
 
         return geneMapper.getGeneByEntrezGeneId(entrezGeneId, PersistenceConstants.DETAILED_PROJECTION);

@@ -201,7 +201,11 @@ public class MolecularDataServiceImpl implements MolecularDataService {
                         molecularData.setPatientId(sample.getPatientStableId());
                         molecularData.setStudyId(sample.getCancerStudyIdentifier());
                         molecularData.setEntrezGeneId(molecularAlteration.getEntrezGeneId());
-                        molecularData.setValue(molecularAlteration.getSplitValues()[indexOfSampleId]);
+                        try {
+                            molecularData.setValue(molecularAlteration.getSplitValues()[indexOfSampleId]);
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            molecularData.setValue(null);
+                        }
                         molecularData.setGene(molecularAlteration.getGene());
                         molecularDataList.add(molecularData);
                     }

@@ -69,6 +69,19 @@ public class MutationServiceImpl implements MutationService {
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
         return mutationList;
     }
+    
+    @Override
+    public List<Mutation> getMutationsInMultipleMolecularProfilesByAnnotation(List<String> molecularProfileIds,
+                                                                  List<String> sampleIds, List<Integer> entrezGeneIds,
+                                                                  String projection, Integer pageSize,
+                                                                  Integer pageNumber, String sortBy, String direction, String annotation) {
+
+        List<Mutation> mutationList = mutationRepository.getMutationsInMultipleMolecularProfiles(molecularProfileIds,
+            sampleIds, entrezGeneIds, projection, pageSize, pageNumber, sortBy, direction);
+
+        mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
+        return mutationList;
+    }
 
     @Override
     public MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds,

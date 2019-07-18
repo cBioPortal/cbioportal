@@ -1,8 +1,7 @@
 package org.cbioportal.web.util;
 
-import org.apache.commons.collections.map.MultiKeyMap;
 import org.cbioportal.model.Sample;
-import org.cbioportal.service.ClinicalDataService;
+import org.cbioportal.service.MutationService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.web.parameter.*;
 
@@ -14,15 +13,15 @@ import java.util.stream.Collectors;
 
 public abstract class OncoKBDataFilterApplier
 {
-    private ClinicalDataService clinicalDataService;
+    private MutationService mutationService;
     private SampleService sampleService;
     protected StudyViewFilterUtil studyViewFilterUtil;
 
-    public OncoKBDataFilterApplier(ClinicalDataService clinicalDataService, 
+    public OncoKBDataFilterApplier(MutationService mutationaService, 
                                      SampleService sampleService,
                                      StudyViewFilterUtil studyViewFilterUtil) 
     {
-        this.clinicalDataService = clinicalDataService;
+        this.mutationService = mutationService;
         this.sampleService = sampleService;
         this.studyViewFilterUtil = studyViewFilterUtil;
     }

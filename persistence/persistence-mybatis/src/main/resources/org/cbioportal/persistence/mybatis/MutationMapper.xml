@@ -20,6 +20,7 @@
             mutation.NORMAL_ALT_COUNT AS normalAltCount,
             mutation.NORMAL_REF_COUNT AS normalRefCount,
             mutation.AMINO_ACID_CHANGE AS aminoAcidChange,
+            mutation_event.CHR as chr,
             mutation_event.START_POSITION AS startPosition,
             mutation_event.END_POSITION AS endPosition,
             mutation_event.REFERENCE_ALLELE AS referenceAllele,

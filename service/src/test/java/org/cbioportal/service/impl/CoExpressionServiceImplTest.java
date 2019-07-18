@@ -80,13 +80,13 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("2", coExpression1.getGeneticEntityId());
         Assert.assertEquals("HUGO2", coExpression1.getGeneticEntityName());
-        Assert.assertEquals("CYTOBAND2", coExpression1.getCytoband());
+        Assert.assertEquals("-", coExpression1.getCytoband());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getpValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("3", coExpression2.getGeneticEntityId());
         Assert.assertEquals("HUGO3", coExpression2.getGeneticEntityName());
-        Assert.assertEquals("CYTOBAND3", coExpression2.getCytoband());
+        Assert.assertEquals("-", coExpression2.getCytoband());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getpValue());
     }
@@ -125,13 +125,13 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("2", coExpression1.getGeneticEntityId());
         Assert.assertEquals("HUGO2", coExpression1.getGeneticEntityName());
-        Assert.assertEquals("CYTOBAND2", coExpression1.getCytoband());
+        Assert.assertEquals("-", coExpression1.getCytoband());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getpValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("3", coExpression2.getGeneticEntityId());
         Assert.assertEquals("HUGO3", coExpression2.getGeneticEntityName());
-        Assert.assertEquals("CYTOBAND3", coExpression2.getCytoband());
+        Assert.assertEquals("-", coExpression2.getCytoband());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getpValue());
     }
@@ -287,17 +287,17 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Gene gene1 = new Gene();
         gene1.setEntrezGeneId(2);
         gene1.setHugoGeneSymbol("HUGO2");
-        gene1.setCytoband("CYTOBAND2");
+        gene1.setGeneticEntityId(GENETIC_ENTITY_ID_2);
         genes.add(gene1);
         Gene gene2 = new Gene();
         gene2.setEntrezGeneId(3);
         gene2.setHugoGeneSymbol("HUGO3");
-        gene2.setCytoband("CYTOBAND3");
+        gene2.setGeneticEntityId(GENETIC_ENTITY_ID_3);
         genes.add(gene2);
         Gene gene3 = new Gene();
         gene3.setEntrezGeneId(4);
         gene3.setHugoGeneSymbol("HUGO4");
-        gene3.setCytoband("CYTOBAND4");
+        gene3.setGeneticEntityId(GENETIC_ENTITY_ID_4);
         genes.add(gene3);
         return genes;
     }

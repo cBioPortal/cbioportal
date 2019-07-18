@@ -1161,7 +1161,7 @@ public class GlobalProperties {
         String fileName = portalProperties.getProperty(SETSOFGENES_LOCATION, null);
         return readFile(fileName);
     }
-
+    
     public static String getMskWholeSlideViewerToken()
     {
         // this token is for the msk portal 
@@ -1184,5 +1184,9 @@ public class GlobalProperties {
 
     public static String getDatMethod() {
         return datMethod;
+    }
+    
+    public static String getReferenceGenomeName() {
+        return portalProperties.getProperty(UCSC_BUILD, DEFAULT_UCSC_BUILD);
     }
 }

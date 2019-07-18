@@ -162,6 +162,7 @@ public class TestGetTypesOfCancer {
         
         CancerStudy cancerStudy = new CancerStudy("Breast Invasive Carcinoma (TCGA, Nature 2012)", DESCRIPTION, 
             "study_tcga_pub_testapi2", "brca_testapi2", true);
+        cancerStudy.setReferenceGenome("hg19");
         DaoCancerStudy.addCancerStudy(cancerStudy, true);
         
         String output = GetTypesOfCancer.getCancerStudies();

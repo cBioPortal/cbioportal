@@ -186,7 +186,6 @@ public class GetCoExpressionJSON extends HttpServlet {
                                         CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
                                         ObjectNode _scores = mapper.createObjectNode();
                                         _scores.put("gene", comparedGene.getHugoGeneSymbolAllCaps());
-                                        _scores.put("cytoband", comparedGene.getCytoband());
                                         _scores.put("pearson", pearson);
                                         _scores.put("spearman", spearman);
                                         fullResultJson.add(_scores);
@@ -243,7 +242,6 @@ public class GetCoExpressionJSON extends HttpServlet {
                                 CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
                                 fullResutlStr.append(
                                     comparedGene.getHugoGeneSymbolAllCaps() + "\t" +
-                                    comparedGene.getCytoband() + "\t" +
                                     (double) Math.round(pearson * 100) / 100 + "\t" +
                                     (double) Math.round(spearman * 100) / 100 + "\n"
                                 );

@@ -30,6 +30,7 @@ public class CancerStudy implements Serializable {
     private Integer methylationHm27SampleCount;
     private Integer rppaSampleCount;
     private Integer completeSampleCount;
+    private String referenceGenome;
 
     public Integer getCancerStudyId() {
         return cancerStudyId;
@@ -214,4 +215,8 @@ public class CancerStudy implements Serializable {
     public void setCompleteSampleCount(Integer completeSampleCount) {
         this.completeSampleCount = completeSampleCount;
     }
+    
+    public String getReferenceGenome() { return  referenceGenome; }
+    
+    public void setReferenceGenome(String referenceGenome) { this.referenceGenome = referenceGenome; }
 }

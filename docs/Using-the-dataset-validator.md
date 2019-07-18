@@ -38,8 +38,12 @@ optional arguments:
   -n, --no_portal_checks
                         Skip tests requiring information from the cBioPortal
                         installation
-  -P PORTAL_PROPERTIES, --portal_properties PORTAL_PROPERTIES
-                        portal.properties file path (default: assumed hg19)
+  -species SPECIES, --species SPECIES
+                        species information (default: assumed human)
+  -ucsc UCSC_BUILD_NAME, --ucsc_build_name UCSC_BUILD_NAME
+                        UCSC reference genome assembly name (default: assumed hg19)
+  -ncbi NCBI_BUILD_NUMBER, --ncbi_build_number NCBI_BUILD_NUMBER
+                        NCBI reference genome build number (default: assumed GRCh37 for UCSC reference genome build hg19)
   -html HTML_TABLE, --html_table HTML_TABLE
                         path to html report output file
   -e ERROR_FILE, --error_file ERROR_FILE
@@ -61,7 +65,10 @@ optional arguments:
                         reporting "GeneA, GeneB, GeneC, 213 more"
 ```
 
-For more information on the `--portal_info_dir` option, see [Offline validation](#offline-validation) below. If your cBioPortal is not using `hg19`, you must use the `--portal_properties` option. For more information, see [Validation of non-human data](#validation-of-non-human-data).
+For more information on the `--portal_info_dir` option, see [Offline validation](#offline-validation) below. If your cBioPortal is not using `hg19`, 
+you must use all three `--species` , `--reference_genome` , `--genome_build` options. 
+
+For more information, see [Validation of non-human data](#validation-of-non-human-data).
 
 When running the validator with parameter `-r` the validator will run the validation of the clinical data it will ignore all failing checks
 about values in the headers of the clinical data file.
@@ -421,25 +428,25 @@ Validation of study succeeded with warnings.
 ```
 
 ## Validation of non-human data ##
-When importing a study, the validator assumes by default that the following parameters from `portal.properties` are set to:
+When importing a study, the validator assumes by default that the following three parameters 
+`--species` , `--ucsc_build_name` , `--ncbi_build_number` are set to the following:
 ```
-species=human
-ncbi.build=37
-ucsc.build=hg19
+--species=human
+--ncbi_build_number=GRCh37
+--ucsc_build_name=hg19
 ```
 
 cBioPortal is gradually introducing support for mouse. If you want to load mouse studies and you have [set up your database for mouse](Import-the-Seed-Database.md#download-the-cbioportal-database), you should set the previous parameters to:
 ```
-species=mouse
-ncbi.build=38
-ucsc.build=mm10
+--species=mouse
+--ncbi_build_number=GRCh38
+--ucsc_build_name=mm10
 ```
 
-If your `portal.properties` does not have the default (human) settings, you should introduce a new parameter `-P` in your command. This parameter should point to either `portal.properties` or a file which contains the new global variables. 
-
-As an example, the command for the "Example 1" listed above incorporating the `-P` parameter is given:
+As an example, the command for the mouse example using the three parameters is given:
 ```
 ./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -P ../../../../../src/main/resources/portal.properties -u http://localhost:8080 -v
+./validateData.py -s ../../../test/scripts/test_data/study_es_0/ --species mouse --reference_genome mm10 --genome_build 38 -u http://localhost:8080/cbioportal -v
 ```
 
 ## Running the validator for multiple studies
@@ -474,8 +481,12 @@ optional arguments:
   -n, --no_portal_checks
                         Skip tests requiring information from the cBioPortal
                         installation
-  -P PORTAL_PROPERTIES, --portal_properties PORTAL_PROPERTIES
-                        portal.properties file path (default: assumed hg19)
+  -species SPECIES, --species SPECIES
+                        species information (default: assumed human)
+  -ucsc UCSC_BUILD_NAME, --ucsc_build_name UCSC_BUILD_NAME
+                        UCSC reference genome assembly name (default: assumed hg19)
+  -ncbi NCBI_BUILD_NUMBER, --ncbi_build_number NCBI_BUILD_NUMBER
+                        NCBI reference genome build number (default: assumed GRCh37 for UCSC genome build hg19)
   -m, --strict_maf_checks
                         Option to enable strict mode for validator when
                         validating mutation data

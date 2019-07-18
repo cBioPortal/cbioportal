@@ -622,7 +622,7 @@ The extended MAF format recognized by the portal has:
 1. **Hugo_Symbol (Required)**: A [HUGO](http://www.genenames.org/) gene symbol.
 2. **Entrez_Gene_Id (Optional, but recommended)**: A [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier.
 3. **Center (Optional)**: The sequencing center.
-4. **NCBI_Build (Optional)<sup>1</sup>**: Must be "GRCh37" for human, and "GRCm38" for mouse.
+4. **NCBI_Build (Required)<sup>1</sup>**: The Genome Reference Consortium Build is used by a variant calling software. It must be "GRCh37" or "GRCh38" for a human, and "GRCm38" for a mouse.
 5. **Chromosome (Optional)**: A chromosome number, e.g., "7".
 6. **Start_Position (Optional)**: Start position of event.
 7. **End_Position (Optional)**: End position of event.

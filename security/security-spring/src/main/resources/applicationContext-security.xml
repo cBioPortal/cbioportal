@@ -138,6 +138,7 @@
         <intercept-url pattern="/login.jsp*" access="permitAll"/>
         <intercept-url pattern="/case.do*" access="permitAll"/>
         <intercept-url pattern="/patient*" access="permitAll"/>
+        <intercept-url pattern="/network.do*" access="permitAll"/>
         <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
         <intercept-url pattern="/**" access="isAuthenticated()"/>
         <!-- used for google+ authentication (spring social) -->
@@ -269,6 +270,7 @@
         <intercept-url pattern="/login.jsp*" access="permitAll"/>
         <intercept-url pattern="/case.do*" access="permitAll"/>
         <intercept-url pattern="/patient*" access="permitAll"/>
+        <intercept-url pattern="/network.do*" access="permitAll"/>
         <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
         <intercept-url pattern="/**" access="isAuthenticated()"/>
         <!-- used for saml authentication -->
@@ -532,6 +534,7 @@
             <intercept-url pattern="/login.jsp*" access="permitAll"/>
             <intercept-url pattern="/case.do*" access="permitAll"/>
             <intercept-url pattern="/patient*" access="permitAll"/>
+            <intercept-url pattern="/network.do*" access="permitAll"/>
             <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
             <intercept-url pattern="/**" access="isAuthenticated()"/>
             <!-- to enable access from matlab, r, python, etc clients -->
@@ -566,6 +569,7 @@
             <intercept-url pattern="/login.jsp*" access="permitAll"/>
             <intercept-url pattern="/case.do*" access="permitAll"/>
             <intercept-url pattern="/patient*" access="permitAll"/>
+            <intercept-url pattern="/network.do*" access="permitAll"/>
             <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
             <intercept-url pattern="/**" access="isAuthenticated()"/>
 

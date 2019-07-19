@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CopyNumberSegMixin {
 
     @JsonIgnore
-    private Integer segId;
+    private Long segId;
     @JsonIgnore
     private Integer cancerStudyId;
     @JsonProperty("studyId")

@@ -6,7 +6,6 @@ import java.util.List;
 public class OncoKBDataCountItem implements Serializable {
 
     private String attributeId;
-    private OncoKBDataType oncoKBDataType;
     private List<OncoKBDataCount> counts;
 
     public String getAttributeId() {

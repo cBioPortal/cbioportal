@@ -27,7 +27,7 @@ public abstract class OncoKBDataFilterApplier
     }
 
     public List<SampleIdentifier> apply(List<SampleIdentifier> sampleIdentifiers,
-                                        List<T> attributes,
+                                        List<OncoKBDataFilter> attributes,
                                         Boolean negateFilters) {
         List<Mutation> annotationDataList = new ArrayList<>();
         if (!attributes.isEmpty() && !sampleIdentifiers.isEmpty()) {

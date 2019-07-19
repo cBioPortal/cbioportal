@@ -130,9 +130,8 @@ public class StudyViewController {
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-        List<ClinicalDataCountItem> resultForSampleAttributes = clinicalDataService.fetchClinicalDataCounts(
-            studyIds, sampleIds, attributes.stream().filter(a -> a.getClinicalDataType().equals(ClinicalDataType.SAMPLE))
-            .map(a -> a.getAttributeId()).collect(Collectors.toList()), ClinicalDataType.SAMPLE);
+        List<Mutation> resultForSampleAttributes = mutationService.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileService
+            .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, SUMMARY, null, null);
         combinedResult.addAll(resultForSampleAttributes);
         return new ResponseEntity<>(combinedResult, HttpStatus.OK);
     }

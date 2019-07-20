@@ -145,7 +145,7 @@ public class StudyViewFilterApplier {
         
         List<OncoKBDataFilter> oncoKBDataFilters = studyViewFilter.getOncoKBDataFilters();
         if (oncoKBDataFilters != null) {
-            sampleIdentifiers = equalityFilterOncoKBData(sampleIdentifiers, clinicalDataEqualityFilters, negateFilters);
+            sampleIdentifiers = equalityFilterOncoKBData(sampleIdentifiers, oncoKBDataFilters, negateFilters);
         }
 
         return sampleIdentifiers;

@@ -26,7 +26,7 @@ public abstract class OncoKBDataFilterApplier
         this.studyViewFilterUtil = studyViewFilterUtil;
     }
 
-    public List<SampleIdentifier> apply(List<SampleIdentifier> sampleIdentifiers,
+    public List<Mutation> apply(List<SampleIdentifier> sampleIdentifiers,
                                         List<OncoKBDataFilter> attributes,
                                         Boolean negateFilters) {
         List<Mutation> annotationDataList = new ArrayList<>();

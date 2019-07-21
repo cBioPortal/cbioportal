@@ -6,7 +6,7 @@ public class OncoKBDataCount implements Serializable {
 
     private String attributeId;
     private String value;
-    private Integer count;
+    private Integer count = 0;
 
     public String getAttributeId() {
 		return attributeId;

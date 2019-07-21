@@ -136,11 +136,41 @@ public class StudyViewController {
         Set<OncoKBDataCount> set = new HashSet();
         for(Mutation mutationProfile : resultForSampleAttributes) {
           JSONObject jsonMutation = new JSONObject(mutationProfile.getAnnotation());
-          OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
-          oncoKBCancer.setAttributeId("oncogenic");
-          oncoKBCancer.setValue(jsonMutation.getJSONObject("oncogenic").getString());
-          oncoKBCancer.setCount(oncoKBCancer.getCount()++);
-          set.add(oncoKBCancer);
+          if(jsonMutation.getJSONObject("oncokb").has("oncongenic")) {
+            OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
+            oncoKBCancer.setAttributeId("oncogenic");
+            oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("oncogenic").getString());
+            oncoKBCancer.setCount(oncoKBCancer.getCount()++);
+            set.add(oncoKBCancer);
+          }
+          if(jsonMutation.getJSONObject("oncokb").has("mutationEffect")) {
+            OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
+            oncoKBCancer.setAttributeId("mutationEffect");
+            oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("mutationEffect").getString());
+            oncoKBCancer.setCount(oncoKBCancer.getCount()++);
+            set.add(oncoKBCancer);
+          }
+          if(jsonMutation.getJSONObject("oncokb").has("highestSensitiveLevel")) {
+            OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
+            oncoKBCancer.setAttributeId("highestSensitiveLevel");
+            oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("highestSensitiveLevel").getString());
+            oncoKBCancer.setCount(oncoKBCancer.getCount()++);
+            set.add(oncoKBCancer);
+          }
+          if(jsonMutation.getJSONObject("oncokb").has("highestResistanceLevel")) {
+            OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
+            oncoKBCancer.setAttributeId("highestResistanceLevel");
+            oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("highestResistanceLevel").getString());
+            oncoKBCancer.setCount(oncoKBCancer.getCount()++);
+            set.add(oncoKBCancer);
+          }
+          if(jsonMutation.getJSONObject("oncokb").has("lastUpdate")) {
+            OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
+            oncoKBCancer.setAttributeId("lastUpdate");
+            oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("lastUpdate").getString());
+            oncoKBCancer.setCount(oncoKBCancer.getCount()++);
+            set.add(oncoKBCancer);
+          }
         }
         //combinedResult.addAll(resultForSampleAttributes);
         return new ResponseEntity<>(combinedResult, HttpStatus.OK);

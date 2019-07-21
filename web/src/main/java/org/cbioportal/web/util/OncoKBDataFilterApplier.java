@@ -26,7 +26,7 @@ public abstract class OncoKBDataFilterApplier
         this.studyViewFilterUtil = studyViewFilterUtil;
     }
 
-    public List<Mutation> apply(List<SampleIdentifier> sampleIdentifiers,
+    public List<SampleIdentifier> apply(List<SampleIdentifier> sampleIdentifiers,
                                         List<OncoKBDataFilter> attributes,
                                         Boolean negateFilters) {
         List<Mutation> annotationDataList = new ArrayList<>();
@@ -34,8 +34,26 @@ public abstract class OncoKBDataFilterApplier
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+            String annotationMap = "{";
+            for(OncoKBDataFilter attributeProfile : attributes) {
+              annotationMap += attributeProfile.getAttributeId() + ":";
+              annotationMap += "[";
+              for(String valueMutation : attributeProfile.getValues()) {
+                annotationMap += valueMutation + ","; 
+              }
+              annotationMap += "]";
+            }
+            annotationMap += "}";
             annotationDataList = mutationService.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileService
-                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, SUMMARY, 10000000, 0, null, null, null);
+                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, SUMMARY, 10000000, 0, null, null, annotationMap);
+            
+            sampleIdentifiers = annotationDataList.stream().map(mutation -> {
+                SampleIdentifier sampleIdentifier = new SampleIdentifier();
+                sampleIdentifier.setSampleId(mutation.getSampleId());
+                sampleIdentifier.setStudyId(mutation.getStudyId());
+                return sampleIdentifier;
+            }).distinct().collect(Collectors.toList());
+            return sampleIdentifiers;
           }
         else {
           return sampleIdentifiers;

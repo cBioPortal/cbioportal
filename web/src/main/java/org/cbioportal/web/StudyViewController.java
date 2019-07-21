@@ -35,6 +35,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.math.NumberUtils;
+import org.json.*;
 
 @InternalApi
 @RestController
@@ -130,9 +131,18 @@ public class StudyViewController {
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-        List<Mutation> resultForSampleAttributes = mutationService.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileService
-            .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, SUMMARY, null, null);
-        combinedResult.addAll(resultForSampleAttributes);
+        List<Mutation> resultForSampleAttributes = mutationService.getMutationsInMultipleMolecularProfiles(molecularProfileService
+            .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, SUMMARY, 10000000, 0, null, null);
+        Set<OncoKBDataCount> set = new HashSet();
+        for(Mutation mutationProfile : resultForSampleAttributes) {
+          JSONObject jsonMutation = new JSONObject(mutationProfile.getAnnotation());
+          OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
+          oncoKBCancer.setAttributeId("oncogenic");
+          oncoKBCancer.setValue(jsonMutation.getJSONObject("oncogenic").getString());
+          oncoKBCancer.setCount(oncoKBCancer.getCount()++);
+          set.add(oncoKBCancer);
+        }
+        //combinedResult.addAll(resultForSampleAttributes);
         return new ResponseEntity<>(combinedResult, HttpStatus.OK);
     }
 

@@ -41,7 +41,7 @@ public abstract class OncoKBDataFilterApplier
               for(String valueMutation : attributeProfile.getValues()) {
                 annotationMap += valueMutation + ","; 
               }
-              annotationMap += "]";
+              annotationMap += "]" + ",";
             }
             annotationMap += "}";
             annotationDataList = mutationService.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileService

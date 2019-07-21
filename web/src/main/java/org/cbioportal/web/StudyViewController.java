@@ -136,7 +136,7 @@ public class StudyViewController {
         Set<OncoKBDataCount> set = new HashSet();
         for(Mutation mutationProfile : resultForSampleAttributes) {
           JSONObject jsonMutation = new JSONObject(mutationProfile.getAnnotation());
-          if(jsonMutation.getJSONObject("oncokb").has("oncongenic")) {
+          if(jsonMutation.getJSONObject("oncokb").has("oncogenic")) {
             OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
             oncoKBCancer.setAttributeId("oncogenic");
             oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("oncogenic").getString());

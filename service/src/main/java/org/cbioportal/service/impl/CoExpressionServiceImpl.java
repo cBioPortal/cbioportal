@@ -222,6 +222,8 @@ public class CoExpressionServiceImpl implements CoExpressionService {
     }
 
     @Override
+    // transaction needs to be setup here in order to return Iterable from molecularDataService in fetchCoExpressions
+    @Transactional(readOnly=true)
     public List<CoExpression> fetchCoExpressions(String geneticEntityId,
             CoExpression.GeneticEntityType geneticEntityType, List<String> sampleIds, String molecularProfileIdB,
             String molecularProfileIdA, Double threshold) throws MolecularProfileNotFoundException, GenesetNotFoundException, GeneNotFoundException {

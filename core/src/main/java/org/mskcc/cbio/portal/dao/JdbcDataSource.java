@@ -15,6 +15,7 @@ public class JdbcDataSource extends BasicDataSource {
         String password = dbProperties.getDbPassword();
         String database = dbProperties.getDbName();
         String useSSL = (!StringUtils.isBlank(dbProperties.getDbUseSSL())) ? dbProperties.getDbUseSSL() : "false";
+        String enablePooling = (!StringUtils.isBlank(dbProperties.getDbEnablePooling())) ? dbProperties.getDbEnablePooling(): "false";
         String url ="jdbc:mysql://" + host + "/" + database +
                         "?user=" + userName + "&password=" + password +
                         "&zeroDateTimeBehavior=convertToNull&useSSL=" + useSSL;
@@ -23,9 +24,8 @@ public class JdbcDataSource extends BasicDataSource {
         this.setUsername(userName);
         this.setPassword(password);
         this.setUrl(url);
-        // Disable this to avoid caching statements (TODO: might need to make
-        // this a property, so importer could choose to cache them)
-        this.setPoolPreparedStatements(false);
+        // Disable this to avoid caching statements
+        this.setPoolPreparedStatements(Boolean.valueOf(enablePooling));
         // these are the values cbioportal has been using in their production
         // context.xml files when using jndi
         this.setMaxTotal(500);

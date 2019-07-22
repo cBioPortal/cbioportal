@@ -2,15 +2,17 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 public class AlterationCountByGene implements Serializable {
 
     private Integer entrezGeneId;
     private String hugoGeneSymbol;
-    private Integer countByEntity;
+    private Integer numberOfAlteredCases;
 	private Integer totalCount;
-	private BigDecimal frequency;
-	private BigDecimal qValue;
+	private Integer numberOfSamplesProfiled;
+    private BigDecimal qValue;
+    private List<GenePanel> matchingGenePanels;
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -28,12 +30,12 @@ public class AlterationCountByGene implements Serializable {
 		this.hugoGeneSymbol = hugoGeneSymbol;
 	}
 
-	public Integer getCountByEntity() {
-		return countByEntity;
+	public Integer getNumberOfAlteredCases() {
+		return numberOfAlteredCases;
 	}
 
-	public void setCountByEntity(Integer countByEntity) {
-		this.countByEntity = countByEntity;
+	public void setNumberOfAlteredCases(Integer numberOfAlteredCases) {
+		this.numberOfAlteredCases = numberOfAlteredCases;
 	}
 
 	public Integer getTotalCount() {
@@ -44,12 +46,12 @@ public class AlterationCountByGene implements Serializable {
 		this.totalCount = totalCount;
 	}
 
-	public BigDecimal getFrequency() {
-		return frequency;
+	public Integer getNumberOfSamplesProfiled() {
+		return numberOfSamplesProfiled;
 	}
 
-	public void setFrequency(BigDecimal frequency) {
-		this.frequency = frequency;
+	public void setNumberOfSamplesProfiled(Integer numberOfSamplesProfiled) {
+		this.numberOfSamplesProfiled = numberOfSamplesProfiled;
 	}
 
 	public BigDecimal getqValue() {
@@ -58,5 +60,13 @@ public class AlterationCountByGene implements Serializable {
 
 	public void setqValue(BigDecimal qValue) {
 		this.qValue = qValue;
-	}	
+    }	
+    
+    public List<GenePanel> getMatchingGenePanels() {
+        return matchingGenePanels;
+    }
+
+    public void setMatchingGenePanels(List<GenePanel> matchingGenePanels) {
+        this.matchingGenePanels = matchingGenePanels;
+    }
 }

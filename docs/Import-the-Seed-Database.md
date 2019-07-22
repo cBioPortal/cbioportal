@@ -37,12 +37,16 @@ After download, the files can be unzipped by entering the following command:
     ```
     **Important:** Replace `seed-cbioportal_hg19_vX.Y.Z_only-pdb.sql` with the downloaded version of the PDB database, such as `seed-cbioportal_hg19_v2.3.1_only-pdb.sql`.
 
+4. (optional : support for microRNA genomic profiles) Import constructed gene table records for microRNA genomic profiles. Currently, cBioPortal supports the combined display of copy number alterations (generally reported for microRNA precursors) and expression (generally reported for microRNA mature forms) by adding gene table records which represent the combination of microRNA precursor and microRNA mature form. Appropriate aliases are added to the gene_alias table so that both the name of the precursor and the name of the mature form are recognized references to the combination.
+
+    After the code has been successfully configured and built, you can import the needed microRNA records by running the following command from the $PORTAL_HOME directory:
+
+    ```
+    java -cp scripts/target/scripts-*.jar org.mskcc.cbio.portal.scripts.ImportGeneData -microrna core/src/main/resources/micrornas.tsv
+    ```
+
 **Important:** Please be aware of the version of the seed database. In the [README on datahub](https://github.com/cbioportal/datahub/blob/master/seedDB/README.md), we stated which version of cBioPortal is compatible with the current seed database.
 
 If the database is older than what cBioPortal is expecting, the system will ask you (during startup or data loading) to migrate the database to a newer version. The migration process is described [here](Updating-your-cBioPortal-installation.md#running-the-migration-script).
-
-## Drug-target Data
-
-Due to data provider specific restrictions on data re-distribution, the database setup, as outlined above, will lack some of the drug-gene relationships from specific data-resources. If you would like to obtain the complete the data sets from these resources, we encourage you to take advantage of [PiHelper](http://bitbucket.org/armish/pihelper) for aggregating drug-target associations and use the corresponding data importer `importPiHelperData.sh` which is distributed as part of cBioPortal.
 
 [Next Step: Deploying the Web Application](Deploying.md)

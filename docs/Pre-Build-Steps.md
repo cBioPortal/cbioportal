@@ -2,7 +2,7 @@
 
 ## Get the Latest Code
 
-Make sure that you have cloned the last code, and make sure you are on the ```master``` branch:
+Make sure that you have cloned the last code, and make sure you are on the `master` branch:
 ```
 	git clone https://github.com/cBioPortal/cbioportal.git
 	git checkout master
@@ -53,26 +53,6 @@ You must create a `cbioportal` database and a `cgds_test` database within MySQL,
 
     mysql>  flush privileges;
     Query OK, 0 rows affected (0.00 sec)
-```
-
-## Create a Maven Settings File
-
-In order to access your database, you must create a Maven settings.xml file, and populate it with your database username and password.
-
-The file must be located under:  `~/.m2`, and named:  `settings.xml`.
-
-A sample file is shown below:
-
-```xml
-    <settings>
-      <servers>
-        <server>
-          <id>settingsKey</id>
-          <username>cbio_user</username>
-          <password>somepassword</password>
-        </server>
-      </servers>
-    </settings>
 ```
 
 [Next Step: Building From Source](Build-from-Source.md)

@@ -34,15 +34,8 @@ public class SignificantlyMutatedGeneSparkRepository implements SignificantlyMut
     @Override
     public List<MutSig> getSignificantlyMutatedGenes(String studyId, String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction) {
         Dataset<Row> mutationDf = spark.read()
+            .option("mergeSchema", true)
             .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.DATA_MUTATIONS);
-
-        // for MSK
-        if (studyId.contains("msk")) {
-            Dataset<Row> mutationsMskcc = spark.read()
-                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.DATA_MUTATIONS_MSKCC);
-            mutationsMskcc = mutationsMskcc.drop("cDNA_change");
-            mutationDf = mutationDf.unionByName(mutationsMskcc);
-        }
         mutationDf.createOrReplaceTempView("mutation");
 
         StringBuilder sb = new StringBuilder("select first(Hugo_Symbol),");
@@ -54,9 +47,11 @@ public class SignificantlyMutatedGeneSparkRepository implements SignificantlyMut
         if (sortBy != null && direction != null) {
             sb.append("sort by " + sortBy + " " + direction);
         }
+        if (pageNumber != null && pageSize != null) {
+            sb.append("LIMIT " + pageSize + " OFFSET " + (pageSize * pageNumber));
+        }
 
         Dataset<Row> result = spark.sql(sb.toString());
-
         List<Row> resultls = result.collectAsList();
         List<MutSig> mutGenes = resultls.stream()
             .map(r -> mapToMutSig(r)).collect(Collectors.toList());

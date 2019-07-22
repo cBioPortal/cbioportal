@@ -90,8 +90,7 @@ public class StudyViewControllerTest {
     @Autowired
     private GenePanelService genePanelService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
 
@@ -255,13 +254,13 @@ public class StudyViewControllerTest {
         MutationCountByGene mutationCount1 = new MutationCountByGene();
         mutationCount1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
         mutationCount1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
-        mutationCount1.setCountByEntity(1);
+        mutationCount1.setNumberOfAlteredCases(1);
         mutationCount1.setTotalCount(3);
         mutationCounts.add(mutationCount1);
         MutationCountByGene mutationCount2 = new MutationCountByGene();
         mutationCount2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         mutationCount2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
-        mutationCount2.setCountByEntity(2);
+        mutationCount2.setNumberOfAlteredCases(2);
         mutationCount2.setTotalCount(2);
         mutationCounts.add(mutationCount2);
 
@@ -279,11 +278,11 @@ public class StudyViewControllerTest {
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].countByEntity").value(2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].numberOfAlteredCases").value(2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].totalCount").value(2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].countByEntity").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].numberOfAlteredCases").value(1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].totalCount").value(3));
     }
 
@@ -305,14 +304,14 @@ public class StudyViewControllerTest {
         CopyNumberCountByGene cnaCount1 = new CopyNumberCountByGene();
         cnaCount1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
         cnaCount1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
-        cnaCount1.setCountByEntity(1);
+        cnaCount1.setNumberOfAlteredCases(1);
         cnaCount1.setCytoband(TEST_CYTOBAND_1);
         cnaCount1.setAlteration(-2);
         cnaCounts.add(cnaCount1);
         CopyNumberCountByGene cnaCount2 = new CopyNumberCountByGene();
         cnaCount2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         cnaCount2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
-        cnaCount2.setCountByEntity(2);
+        cnaCount2.setNumberOfAlteredCases(2);
         cnaCount2.setCytoband(TEST_CYTOBAND_2);
         cnaCount2.setAlteration(2);
         cnaCounts.add(cnaCount2);
@@ -332,13 +331,13 @@ public class StudyViewControllerTest {
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].countByEntity").value(2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].numberOfAlteredCases").value(2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(TEST_CYTOBAND_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].alteration").value(2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].totalCount").doesNotExist())
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].countByEntity").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].numberOfAlteredCases").value(1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].cytoband").value(TEST_CYTOBAND_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].alteration").value(-2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].totalCount").doesNotExist());

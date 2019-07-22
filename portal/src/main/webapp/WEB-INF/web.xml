@@ -20,7 +20,7 @@
     <display-name>Cancer Genomics Portal</display-name>
 
     <!-- context configuration -->
-    <!-- jndi profile is defined here to prevent exceptions during war deployment -->
+    <!-- dbcp profile is defined here to prevent exceptions during war deployment -->
     <context-param>
         <param-name>spring.profiles.active</param-name>
         <param-value>${dbconnector:dbcp},${authenticate}</param-value>
@@ -109,7 +109,7 @@
       <filter-name>springSecurityFilterChain</filter-name>
       <url-pattern>/*</url-pattern>
     </filter-mapping>
-    
+
     <!-- for mounting network tab through iframe -->
     <filter>
         <filter-name>httpHeaderSecurity</filter-name>
@@ -660,6 +660,8 @@
         <url-pattern>/index.do/*</url-pattern>
         <url-pattern>/case.do/*</url-pattern>
         <url-pattern>/study.do/*</url-pattern>
+        <url-pattern>/loading/*</url-pattern>
+        <url-pattern>/comparison/*</url-pattern>
     </servlet-mapping>
 
     <servlet>

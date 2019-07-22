@@ -16,12 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -122,12 +117,12 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     }
 
     @Override
-    public List<GeneMolecularAlteration> getMolecularAlterations(String molecularProfileId, 
-                                                                 List<Integer> entrezGeneIds, String projection)
+    public Iterable<GeneMolecularAlteration> getMolecularAlterations(String molecularProfileId, 
+                                                                     List<Integer> entrezGeneIds, String projection)
         throws MolecularProfileNotFoundException {
-        
+
         validateMolecularProfile(molecularProfileId);
-        return molecularDataRepository.getGeneMolecularAlterations(molecularProfileId, entrezGeneIds, projection);
+        return molecularDataRepository.getGeneMolecularAlterationsIterable(molecularProfileId, entrezGeneIds, projection);
     }
 
     @Override

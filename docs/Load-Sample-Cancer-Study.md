@@ -78,6 +78,6 @@ Done.
 Total time:  7742 ms
 ```
 
-After loading the study data, please restart Tomcat.
+After loading the study data, please restart the app.
 
 [Steps Complete: Return Home](README.md)

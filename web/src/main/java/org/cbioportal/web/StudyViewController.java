@@ -123,10 +123,9 @@ public class StudyViewController {
             studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
         }
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
-
-        List<OncoKBDataCountItem> combinedResult = new ArrayList<>();
+        Set<OncoKBDataCount> set = new HashSet();
         if (filteredSampleIdentifiers.isEmpty()) {
-            return new ResponseEntity<>(combinedResult, HttpStatus.OK);
+            return new ResponseEntity<>(set, HttpStatus.OK);
         }
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
@@ -172,8 +171,7 @@ public class StudyViewController {
             set.add(oncoKBCancer);
           }
         }
-        //combinedResult.addAll(resultForSampleAttributes);
-        return new ResponseEntity<>(combinedResult, HttpStatus.OK);
+        return new ResponseEntity<>(set, HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")

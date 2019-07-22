@@ -95,8 +95,12 @@ public class AlterationEnrichmentUtil {
 
                 ChiSquareTest chiSquareTest = new ChiSquareTest();
                 pValue = chiSquareTest.chiSquareTest(array);
+                
+                // set p-value to 1 when the cases in all groups are altered
+                if (Double.isNaN(pValue)) {
+                    pValue = 1;
+                }
             }
-
             alterationEnrichment.setpValue(BigDecimal.valueOf(pValue));
             alterationEnrichment.setCounts(counts);
             return alterationEnrichment;

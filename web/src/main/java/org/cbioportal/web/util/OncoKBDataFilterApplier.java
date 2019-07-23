@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.json.*;
 
 public abstract class OncoKBDataFilterApplier
 {
@@ -34,23 +35,24 @@ public abstract class OncoKBDataFilterApplier
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
-            String annotationMap = "{ oncokb: {";
+            JSONObject annotationMap = new JSONObject();
+            JSONObject keyProfile = new JSONObject();
             for(OncoKBDataFilter attributeProfile : attributes) {
               annotationMap += attributeProfile.getAttributeId() + ":";
               if(attributeProfile.getValues().size() == 1) {
-                annotationMap += valueMutation + ",";
+                keyProfile.put(attributeProfile.getAttributeId(), attributeProfile.getValues().get(0));
               }
               else {
-                annotationMap += "[";
+                JSONArray annotationValue = new JSONArray();
                 for(String valueMutation : attributeProfile.getValues()) {
-                  annotationMap += valueMutation + ","; 
+                  annotationValue.put(valueMutation);
                 }
-                annotationMap += "]" + ",";
+                keyProfile.put(attributeProfile.getAttributeId(), annotationValue);
               }
             }
-            annotationMap += "} + }";
+            annotationMap.put("oncokb", keyProfile);
             annotationDataList = mutationService.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileService
-                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, SUMMARY, 10000000, 0, null, null, annotationMap);
+                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, SUMMARY, 10000000, 0, null, null, annotationMap.getJSONObject("oncokb").toString());
             
             sampleIdentifiers = annotationDataList.stream().map(mutation -> {
                 SampleIdentifier sampleIdentifier = new SampleIdentifier();

@@ -137,10 +137,19 @@ public class StudyViewController {
           JSONObject jsonMutation = new JSONObject(mutationProfile.getAnnotation());
           if(jsonMutation.getJSONObject("oncokb").has("oncogenic")) {
             if(set.size() > 0) {
+              Boolean mutationIdentical = false;
               for(OncoKBDataCount mutationCancer : set) {
                 if(mutationCancer.getAttributeId().equals("oncogenic") && mutationCancer.getValue().equals(jsonMutation.getJSONObject("oncokb").getJSONObject("oncogenic").getString())) {
+                  mutationIdentical = true;
                   mutationCancer.setCount(mutationCancer.getCount()++);
                 }
+              }
+              if(mutationIdentical == false) {
+                OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
+                oncoKBCancer.setAttributeId("oncogenic");
+                oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("oncogenic").getString());
+                oncoKBCancer.setCount(oncoKBCancer.getCount()++);
+                set.add(oncoKBCancer);
               }
             }
             else {
@@ -153,10 +162,19 @@ public class StudyViewController {
           }
           if(jsonMutation.getJSONObject("oncokb").has("mutationEffect")) {
             if(set.size() > 0) {
+              Boolean mutationIdentical = false;
               for(OncoKBDataCount mutationCancer : set) {
                 if(mutationCancer.getAttributeId().equals("mutationEffect") && mutationCancer.getValue().equals(jsonMutation.getJSONObject("oncokb").getJSONObject("mutationEffect").getString())) {
+                  mutationIdentical = true;
                   mutationCancer.setCount(mutationCancer.getCount()++);
                 }
+              }
+              if(mutationIdentical == false) {
+                OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
+                oncoKBCancer.setAttributeId("mutationEffect");
+                oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("mutationEffect").getString());
+                oncoKBCancer.setCount(oncoKBCancer.getCount()++);
+                set.add(oncoKBCancer);
               }
             }
             else {
@@ -169,10 +187,19 @@ public class StudyViewController {
           }
           if(jsonMutation.getJSONObject("oncokb").has("highestSensitiveLevel")) {
             if(set.size() > 0) {
+              Boolean mutationIdentical = false;
               for(OncoKBDataCount mutationCancer : set) {
                 if(mutationCancer.getAttributeId().equals("highestSensitiveLevel") && mutationCancer.getValue().equals(jsonMutation.getJSONObject("oncokb").getJSONObject("highestSensitiveLevel").getString())) {
+                  mutationIdentical = true;
                   mutationCancer.setCount(mutationCancer.getCount()++);
                 }
+              }
+              if(mutationIdentical == false) {
+                OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
+                oncoKBCancer.setAttributeId("highestSensitiveLevel");
+                oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("highestSensitiveLevel").getString());
+                oncoKBCancer.setCount(oncoKBCancer.getCount()++);
+                set.add(oncoKBCancer);
               }
             }
             else {
@@ -185,10 +212,19 @@ public class StudyViewController {
           }
           if(jsonMutation.getJSONObject("oncokb").has("highestResistanceLevel")) {
             if(set.size() > 0) {
+              Boolean mutationIdentical = false;
               for(OncoKBDataCount mutationCancer : set) {
                 if(mutationCancer.getAttributeId().equals("highestResistanceLevel") && mutationCancer.getValue().equals(jsonMutation.getJSONObject("oncokb").getJSONObject("highestResistanceLevel").getString())) {
+                  mutationIdentical = true;
                   mutationCancer.setCount(mutationCancer.getCount()++);
                 }
+              }
+              if(mutationIdentical == false) {
+                OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
+                oncoKBCancer.setAttributeId("highestResistanceLevel");
+                oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("highestResistanceLevel").getString());
+                oncoKBCancer.setCount(oncoKBCancer.getCount()++);
+                set.add(oncoKBCancer);
               }
             }
             else {
@@ -202,9 +238,18 @@ public class StudyViewController {
           if(jsonMutation.getJSONObject("oncokb").has("lastUpdate")) {
             if(set.size() > 0) {
               for(OncoKBDataCount mutationCancer : set) {
+                Boolean mutationIdentical = false;
                 if(mutationCancer.getAttributeId().equals("lastUpdate") && mutationCancer.getValue().equals(jsonMutation.getJSONObject("oncokb").getJSONObject("lastUpdate").getString())) {
+                  mutationIdentical = true;
                   mutationCancer.setCount(mutationCancer.getCount()++);
                 }
+              }
+              if(mutationIdentical == false) {
+                OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
+                oncoKBCancer.setAttributeId("lastUpdate");
+                oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("lastUpdate").getString());
+                oncoKBCancer.setCount(oncoKBCancer.getCount()++);
+                set.add(oncoKBCancer);
               }
             }
             else {

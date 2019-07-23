@@ -34,16 +34,21 @@ public abstract class OncoKBDataFilterApplier
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
-            String annotationMap = "{";
+            String annotationMap = "{ oncokb: {";
             for(OncoKBDataFilter attributeProfile : attributes) {
               annotationMap += attributeProfile.getAttributeId() + ":";
-              annotationMap += "[";
-              for(String valueMutation : attributeProfile.getValues()) {
-                annotationMap += valueMutation + ","; 
+              if(attributeProfile.getValues().size() == 1) {
+                annotationMap += valueMutation + ",";
               }
-              annotationMap += "]" + ",";
+              else {
+                annotationMap += "[";
+                for(String valueMutation : attributeProfile.getValues()) {
+                  annotationMap += valueMutation + ","; 
+                }
+                annotationMap += "]" + ",";
+              }
             }
-            annotationMap += "}";
+            annotationMap += "} + }";
             annotationDataList = mutationService.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileService
                 .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, SUMMARY, 10000000, 0, null, null, annotationMap);
             

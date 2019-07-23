@@ -109,7 +109,7 @@ public class StudyViewController {
     @RequestMapping(value = "/oncokb/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch annotation data by study view filter")
-    public ResponseEntity<List<OncoKBDataCountItem>> fetchOncoKBData(
+    public ResponseEntity<List<OncoKBDataCount>> fetchOncoKBData(
         @ApiParam(required = true, value = "Annotation data filter")
         @Valid @RequestBody(required = false)  OncoKBDataCountFilter oncoKBDataCountFilter,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface

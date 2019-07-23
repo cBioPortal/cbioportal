@@ -26,7 +26,7 @@ public class GeneralSparkRepository {
         List<Dataset<Row>> res = new ArrayList<>();
         for (String studyId : new HashSet<>(studyIds)) {
             Dataset<Row> cnaSamples = spark.read()
-                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.CNA_SEG);
+                .parquet(PARQUET_DIR + ParquetConstants.STUDIES_DIR + studyId + "/" + ParquetConstants.CNA_SEG);
 
             if (sampleIds != null && !sampleIds.isEmpty()) {
                 cnaSamples = cnaSamples

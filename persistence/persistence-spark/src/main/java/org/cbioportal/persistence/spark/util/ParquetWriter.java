@@ -130,7 +130,7 @@ public class ParquetWriter {
             String outputFilePath = options.valueOf(outputFile);
             String inputFilePath = options.valueOf(inputFile);
             String typeOfData = "data";
-            if (type != null) {
+            if (options.valueOf(type) != null) {
                 typeOfData = options.valueOf(type);
             }
             write(inputFilePath, outputFilePath, typeOfData);

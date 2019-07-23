@@ -6,10 +6,8 @@ import org.apache.spark.sql.SparkSession;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.GenePanelToGene;
-import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GenePanelRepository;
-import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.persistence.spark.util.ParquetConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,10 +28,6 @@ public class GenePanelSparkRepository implements GenePanelRepository {
 
     @Value("${data.parquet.folder}")
     private String PARQUET_DIR;
-    
-    @Autowired
-    @Qualifier("molecularProfileMyBatisRepository")
-    private MolecularProfileRepository molecularProfileRepository;
     
     @Override
     public List<GenePanel> getAllGenePanels(String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction) {
@@ -67,29 +61,20 @@ public class GenePanelSparkRepository implements GenePanelRepository {
 
     @Override
     public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds) {
-        
+
         List<Dataset<Row>> res = new ArrayList<>();
-        List<MolecularProfile> molecularProfiles = molecularProfileRepository.getMolecularProfiles(molecularProfileIds, "ID");
-        Set<String> studyIds = molecularProfiles.stream().map(mp -> mp.getCancerStudyIdentifier())
-            .collect(Collectors.toSet());
-        Set<String> molecularProfileSet = new HashSet<>(molecularProfileIds);
-        
-        for (String studyId: studyIds) {
-            Dataset<Row> geneMatrix = spark.read()
-                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.GENE_MATRIX);
+        for (String molecularProfileId: new HashSet<>(molecularProfileIds)) {
+            Dataset<Row> casels = spark.read()
+                .parquet(PARQUET_DIR + ParquetConstants.CASE_LIST_DIR + molecularProfileId);
 
             if (sampleIds != null && !sampleIds.isEmpty()) {
-                geneMatrix = geneMatrix
-                    .where(geneMatrix.col("SAMPLE_ID").isin(sampleIds.toArray()));
+                casels = casels
+                    .where(casels.col("case_list_ids").isin(sampleIds.toArray()));
             }
-
-            List<String> mpIds = molecularProfileSet.stream().filter(id -> id.startsWith(studyId)).collect(Collectors.toList());
-            for (String molecularProfileId : mpIds) {
-                String colName = molecularProfileId.replaceFirst(studyId + "_", "");
-                Dataset<Row> sub = geneMatrix.select("SAMPLE_ID", colName);
-                sub = sub.withColumn("molecularProfileId", lit(molecularProfileId));
-                res.add(sub);
-            }
+            
+            Dataset<Row> sub = casels.select("case_list_ids");
+            sub = sub.withColumn("molecularProfileId", lit(molecularProfileId));
+            res.add(sub);
         }
         Dataset<Row> ds = res.get(0);
         if (res.size() > 1) {
@@ -112,8 +97,7 @@ public class GenePanelSparkRepository implements GenePanelRepository {
     private GenePanelData mapToGenePanelData(Row row) {
         GenePanelData gpd = new GenePanelData();
         gpd.setSampleId(row.getString(0));
-        gpd.setGenePanelId(row.getString(1));
-        gpd.setMolecularProfileId(row.getString(2));
+        gpd.setMolecularProfileId(row.getString(1));
         return gpd;
     }
 }

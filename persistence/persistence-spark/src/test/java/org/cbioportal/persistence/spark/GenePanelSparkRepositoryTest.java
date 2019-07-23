@@ -3,7 +3,6 @@ package org.cbioportal.persistence.spark;
 import org.apache.spark.sql.*;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.MolecularProfile;
-import org.cbioportal.persistence.MolecularProfileRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,9 +30,6 @@ public class GenePanelSparkRepositoryTest {
 
     @Mock
     private SparkSession spark;
-
-    @Mock
-    private MolecularProfileRepository molecularProfileRepository;
     
     @InjectMocks
     private GenePanelSparkRepository genePanelSparkRepository;
@@ -53,12 +48,8 @@ public class GenePanelSparkRepositoryTest {
 
     @Test
     public void testFetchGenePanelDataInMultipleMolecularProfiles() {
-        MolecularProfile mp = new MolecularProfile();
-        mp.setCancerStudyIdentifier("msk_impact_2017");
-        List<MolecularProfile> molecularProfileIds = Arrays.asList(mp);
-        when(molecularProfileRepository.getMolecularProfiles(anyList(), anyString()))
-            .thenReturn(molecularProfileIds);
-        when(ds.select(anyString(), anyString())).thenReturn(ds);
+
+        when(ds.select(anyString())).thenReturn(ds);
         when(ds.withColumn(anyString(), any(Column.class))).thenReturn(ds);
         
         List<Row> res = Arrays.asList(RowFactory.create("sampleId", "genePanelId", "msk_impact_2017_cna"));

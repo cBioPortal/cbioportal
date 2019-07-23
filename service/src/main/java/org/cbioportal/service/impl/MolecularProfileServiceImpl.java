@@ -26,7 +26,7 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     private MolecularProfileRepository molecularProfileRepository;
     @Autowired
     @Qualifier("molecularProfileSparkRepository")
-    private MolecularProfileRepository molecularSparkProfileRepository;
+    private MolecularProfileRepository molecularProfileSparkRepository;
     @Autowired
     private StudyService studyService;
     @Value("${authenticate:false}")
@@ -93,7 +93,7 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
     @Override
 	public List<MolecularProfile> getMolecularProfilesInStudies(List<String> studyIds, String projection) {
         
-        return molecularSparkProfileRepository.getMolecularProfilesInStudies(studyIds, projection);
+        return molecularProfileSparkRepository.getMolecularProfilesInStudies(studyIds, projection);
 	}
 
     @Override

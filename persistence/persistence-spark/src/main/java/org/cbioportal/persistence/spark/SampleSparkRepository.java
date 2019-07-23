@@ -80,7 +80,7 @@ public class SampleSparkRepository implements SampleRepository {
         List<Dataset<Row>> res = new ArrayList<>();
         for (String studyId : new HashSet<>(studyIds)) {
             Dataset<Row> samples = spark.read()
-                .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.DATA_CLINICAL_SAMPLE);
+                .parquet(PARQUET_DIR + ParquetConstants.STUDIES_DIR + studyId + "/" + ParquetConstants.DATA_CLINICAL_SAMPLE);
             
             samples.createOrReplaceTempView("samples");
             StringBuilder sb = new StringBuilder("SELECT PATIENT_ID, SAMPLE_ID");

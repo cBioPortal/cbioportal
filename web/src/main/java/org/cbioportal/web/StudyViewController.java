@@ -3,6 +3,8 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.cbioportal.web.util.OncoKBDataFilterApplier;
+import org.json.JSONObject;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.math.BigDecimal;
@@ -64,6 +66,8 @@ public class StudyViewController {
     @Autowired
     private SignificantCopyNumberRegionService significantCopyNumberRegionService;
     @Autowired
+    private OncoKBDataFilterApplier oncoKBDataFilterApplier;
+    @Autowired
     private DataBinner dataBinner;
     @Autowired
     private StudyViewFilterUtil studyViewFilterUtil;
@@ -117,151 +121,50 @@ public class StudyViewController {
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedOncoKBDataCountFilter") OncoKBDataCountFilter interceptedOncoKBDataCountFilter) {
 
-        List<OncoKBDataFilter> attributes = interceptedOncoKBDataCountFilter.getAttributes();
-        StudyViewFilter studyViewFilter = interceptedOncoKBDataCountFilter.getStudyViewFilter();
-        if (attributes.size() == 1) {
-            studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
-        }
+        StudyViewFilter studyViewFilter = oncoKBDataCountFilter.getStudyViewFilter();
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
-        Set<OncoKBDataCount> set = new HashSet();
+        List<OncoKBDataCount> oncoKBDataCounts = new ArrayList<>();
         if (filteredSampleIdentifiers.isEmpty()) {
-            return new ResponseEntity<>(set, HttpStatus.OK);
+            return new ResponseEntity<>(oncoKBDataCounts, HttpStatus.OK);
         }
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-        List<Mutation> resultForSampleAttributes = mutationService.getMutationsInMultipleMolecularProfiles(molecularProfileService
-            .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, SUMMARY, 10000000, 0, null, null);
-        Set<OncoKBDataCount> set = new HashSet();
+        
+        
+        List<Mutation> resultForSampleAttributes = mutationService.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileService
+            .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, Projection.SUMMARY.name(), 10000000, 0, null, null,
+            oncoKBDataFilterApplier.getAnnotationFilter(studyViewFilter.getOncoKBDataFilters()));
+        
         for(Mutation mutationProfile : resultForSampleAttributes) {
           JSONObject jsonMutation = new JSONObject(mutationProfile.getAnnotation());
-          if(jsonMutation.getJSONObject("oncokb").has("oncogenic")) {
-            if(set.size() > 0) {
+          if(jsonMutation.getJSONObject("oncokb").has("oncogenicity")) {
+            if(oncoKBDataCounts.size() > 0) {
               Boolean mutationIdentical = false;
-              for(OncoKBDataCount mutationCancer : set) {
-                if(mutationCancer.getAttributeId().equals("oncogenic") && mutationCancer.getValue().equals(jsonMutation.getJSONObject("oncokb").getJSONObject("oncogenic").getString())) {
+              for(OncoKBDataCount mutationCancer : oncoKBDataCounts) {
+                if(mutationCancer.getAttributeId().equals("oncogenicity") && mutationCancer.getValue().equals(jsonMutation.getJSONObject("oncokb").getString("oncogenicity"))) {
                   mutationIdentical = true;
-                  mutationCancer.setCount(mutationCancer.getCount()++);
+                  mutationCancer.setCount(mutationCancer.getCount() + 1);
                 }
               }
               if(mutationIdentical == false) {
                 OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
-                oncoKBCancer.setAttributeId("oncogenic");
-                oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("oncogenic").getString());
-                oncoKBCancer.setCount(oncoKBCancer.getCount()++);
-                set.add(oncoKBCancer);
+                oncoKBCancer.setAttributeId("oncogenicity");
+                oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getString("oncogenicity"));
+                oncoKBCancer.setCount(oncoKBCancer.getCount() + 1);
+                  oncoKBDataCounts.add(oncoKBCancer);
               }
             }
             else {
               OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
-              oncoKBCancer.setAttributeId("oncogenic");
-              oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("oncogenic").getString());
-              oncoKBCancer.setCount(oncoKBCancer.getCount()++);
-              set.add(oncoKBCancer);
-            }
-          }
-          if(jsonMutation.getJSONObject("oncokb").has("mutationEffect")) {
-            if(set.size() > 0) {
-              Boolean mutationIdentical = false;
-              for(OncoKBDataCount mutationCancer : set) {
-                if(mutationCancer.getAttributeId().equals("mutationEffect") && mutationCancer.getValue().equals(jsonMutation.getJSONObject("oncokb").getJSONObject("mutationEffect").getString())) {
-                  mutationIdentical = true;
-                  mutationCancer.setCount(mutationCancer.getCount()++);
-                }
-              }
-              if(mutationIdentical == false) {
-                OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
-                oncoKBCancer.setAttributeId("mutationEffect");
-                oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("mutationEffect").getString());
-                oncoKBCancer.setCount(oncoKBCancer.getCount()++);
-                set.add(oncoKBCancer);
-              }
-            }
-            else {
-              OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
-              oncoKBCancer.setAttributeId("mutationEffect");
-              oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("mutationEffect").getString());
-              oncoKBCancer.setCount(oncoKBCancer.getCount()++);
-              set.add(oncoKBCancer);
-            }
-          }
-          if(jsonMutation.getJSONObject("oncokb").has("highestSensitiveLevel")) {
-            if(set.size() > 0) {
-              Boolean mutationIdentical = false;
-              for(OncoKBDataCount mutationCancer : set) {
-                if(mutationCancer.getAttributeId().equals("highestSensitiveLevel") && mutationCancer.getValue().equals(jsonMutation.getJSONObject("oncokb").getJSONObject("highestSensitiveLevel").getString())) {
-                  mutationIdentical = true;
-                  mutationCancer.setCount(mutationCancer.getCount()++);
-                }
-              }
-              if(mutationIdentical == false) {
-                OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
-                oncoKBCancer.setAttributeId("highestSensitiveLevel");
-                oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("highestSensitiveLevel").getString());
-                oncoKBCancer.setCount(oncoKBCancer.getCount()++);
-                set.add(oncoKBCancer);
-              }
-            }
-            else {
-              OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
-              oncoKBCancer.setAttributeId("highestSensitiveLevel");
-              oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("highestSensitiveLevel").getString());
-              oncoKBCancer.setCount(oncoKBCancer.getCount()++);
-              set.add(oncoKBCancer);
-            }
-          }
-          if(jsonMutation.getJSONObject("oncokb").has("highestResistanceLevel")) {
-            if(set.size() > 0) {
-              Boolean mutationIdentical = false;
-              for(OncoKBDataCount mutationCancer : set) {
-                if(mutationCancer.getAttributeId().equals("highestResistanceLevel") && mutationCancer.getValue().equals(jsonMutation.getJSONObject("oncokb").getJSONObject("highestResistanceLevel").getString())) {
-                  mutationIdentical = true;
-                  mutationCancer.setCount(mutationCancer.getCount()++);
-                }
-              }
-              if(mutationIdentical == false) {
-                OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
-                oncoKBCancer.setAttributeId("highestResistanceLevel");
-                oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("highestResistanceLevel").getString());
-                oncoKBCancer.setCount(oncoKBCancer.getCount()++);
-                set.add(oncoKBCancer);
-              }
-            }
-            else {
-              OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
-              oncoKBCancer.setAttributeId("highestResistanceLevel");
-              oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("highestResistanceLevel").getString());
-              oncoKBCancer.setCount(oncoKBCancer.getCount()++);
-              set.add(oncoKBCancer);
-            }
-          }
-          if(jsonMutation.getJSONObject("oncokb").has("lastUpdate")) {
-            if(set.size() > 0) {
-              for(OncoKBDataCount mutationCancer : set) {
-                Boolean mutationIdentical = false;
-                if(mutationCancer.getAttributeId().equals("lastUpdate") && mutationCancer.getValue().equals(jsonMutation.getJSONObject("oncokb").getJSONObject("lastUpdate").getString())) {
-                  mutationIdentical = true;
-                  mutationCancer.setCount(mutationCancer.getCount()++);
-                }
-              }
-              if(mutationIdentical == false) {
-                OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
-                oncoKBCancer.setAttributeId("lastUpdate");
-                oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("lastUpdate").getString());
-                oncoKBCancer.setCount(oncoKBCancer.getCount()++);
-                set.add(oncoKBCancer);
-              }
-            }
-            else {
-              OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
-              oncoKBCancer.setAttributeId("lastUpdate");
-              oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getJSONObject("lastUpdate").getString());
-              oncoKBCancer.setCount(oncoKBCancer.getCount()++);
-              set.add(oncoKBCancer);
+              oncoKBCancer.setAttributeId("oncogenicity");
+              oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getString("oncogenicity"));
+              oncoKBCancer.setCount(oncoKBCancer.getCount() + 1);
+                oncoKBDataCounts.add(oncoKBCancer);
             }
           }
         }
-        return new ResponseEntity<>(set, HttpStatus.OK);
+        return new ResponseEntity<>(oncoKBDataCounts, HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")

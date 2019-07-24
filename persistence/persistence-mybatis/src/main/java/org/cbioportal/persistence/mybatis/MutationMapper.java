@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
+import org.cbioportal.model.AnnotationFilter;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.MutationCountByGene;
@@ -20,6 +21,11 @@ public interface MutationMapper {
                                                            List<Integer> entrezGeneIds, Boolean snpOnly,
                                                            String projection, Integer limit, Integer offset,
                                                            String sortBy, String direction);
+
+    List<Mutation> getMutationsInMultipleMolecularProfilesByAnnotation(List<String> molecularProfileIds, List<String> sampleIds,
+                                                           List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                           String projection, Integer limit, Integer offset,
+                                                           String sortBy, String direction, List<AnnotationFilter> filters);
 
     MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
                                                              List<Integer> entrezGeneIds, Boolean snpOnly);

@@ -107,7 +107,9 @@ public class DebugHrrsFilter extends HrrsFilter {
     @Override
     public void destroy() {
         try {
-            writerTarget.close();
+            if (writerTarget != null) {
+                writerTarget.close();
+            }
         } catch (IOException error) {
             LOGGER.error("failed closing writer", error);
         }

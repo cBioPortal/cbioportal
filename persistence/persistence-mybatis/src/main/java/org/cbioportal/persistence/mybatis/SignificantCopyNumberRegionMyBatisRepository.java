@@ -6,11 +6,13 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SignificantCopyNumberRegionRepository;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
+@Qualifier("significantCopyNumberRegionMyBatisRepository")
 public class SignificantCopyNumberRegionMyBatisRepository implements SignificantCopyNumberRegionRepository {
     
     @Autowired

@@ -7,11 +7,13 @@ import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
+@Qualifier("sampleListMyBatisRepository")
 public class SampleListMyBatisRepository implements SampleListRepository {
 
     @Autowired

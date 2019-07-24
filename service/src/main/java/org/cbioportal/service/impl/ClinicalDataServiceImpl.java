@@ -15,6 +15,7 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,7 +28,11 @@ import java.util.stream.Collectors;
 public class ClinicalDataServiceImpl implements ClinicalDataService {
 
     @Autowired
+    @Qualifier("clinicalDataMyBatisRepository")
     private ClinicalDataRepository clinicalDataRepository;
+    @Autowired
+    @Qualifier("clinicalDataSparkRepository")
+    private ClinicalDataRepository clinicalDataSparkRepository;
     @Autowired
     private StudyService studyService;
     @Autowired
@@ -121,7 +126,7 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     public List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds, 
                                                 String clinicalDataType, String projection) {
 
-        return clinicalDataRepository.fetchClinicalData(studyIds, ids, attributeIds, clinicalDataType, projection);
+        return clinicalDataSparkRepository.fetchClinicalData(studyIds, ids, attributeIds, clinicalDataType, projection);
     }
 
     @Override
@@ -138,7 +143,7 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
         if (attributeIds.isEmpty()) {
             return new ArrayList<>();
         }
-        List<ClinicalDataCount> clinicalDataCounts = clinicalDataRepository.fetchClinicalDataCounts(studyIds, sampleIds,
+        List<ClinicalDataCount> clinicalDataCounts = clinicalDataSparkRepository.fetchClinicalDataCounts(studyIds, sampleIds,
             attributeIds, clinicalDataType.name()).stream().filter(c -> !c.getValue().toUpperCase().equals("NA") && 
             !c.getValue().toUpperCase().equals("NAN") && !c.getValue().toUpperCase().equals("N/A")).collect(Collectors.toList());
 

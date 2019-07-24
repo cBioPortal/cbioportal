@@ -13,6 +13,7 @@ import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.util.ProfiledSamplesCounter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,7 +28,11 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     private static final String CNA_LIST_SUFFIX = "_cna";
 
     @Autowired
+    @Qualifier("discreteCopyNumberMyBatisRepository")
     private DiscreteCopyNumberRepository discreteCopyNumberRepository;
+    @Autowired
+    @Qualifier("discreteCopyNumberSparkRepository")
+    private DiscreteCopyNumberRepository discreteCopyNumberSparkRepository;
     @Autowired
     private MolecularDataService molecularDataService;
     @Autowired
@@ -152,7 +157,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
         if (molecularProfileIds.isEmpty()) {
             result = Collections.emptyList();
         } else {
-            result =  discreteCopyNumberRepository.getSampleCountInMultipleMolecularProfiles(molecularProfileIds, 
+            result =  discreteCopyNumberSparkRepository.getSampleCountInMultipleMolecularProfiles(molecularProfileIds, 
                 sampleIds, entrezGeneIds, alterations);
             
             if (includeFrequency) {
@@ -169,7 +174,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
                                                                                        List<Integer> entrezGeneIds, 
                                                                                        List<Integer> alterations) {
 
-        return discreteCopyNumberRepository.getPatientCountByGeneAndAlterationAndPatientIds(molecularProfileId, 
+        return discreteCopyNumberSparkRepository.getPatientCountByGeneAndAlterationAndPatientIds(molecularProfileId, 
             patientIds, entrezGeneIds, alterations);
     }
 

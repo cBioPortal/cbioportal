@@ -36,6 +36,8 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
     @Mock
     private GenePanelRepository genePanelRepository;
     @Mock
+    private GenePanelRepository genePanelSparkRepository;
+    @Mock
     private MolecularProfileService molecularProfileService;
     @Mock
     private SampleListRepository sampleListRepository;
@@ -329,11 +331,11 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID, STUDY_ID), 
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), "ID")).thenReturn(samples);
         
-        Mockito.when(genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(
+        Mockito.when(genePanelSparkRepository.fetchGenePanelDataInMultipleMolecularProfiles(
             Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, "invalid_profile"), Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3)))
             .thenReturn(genePanelDataList);
 
-        Mockito.when(genePanelRepository.getGenesOfPanels(Arrays.asList(GENE_PANEL_ID)))
+        Mockito.when(genePanelSparkRepository.getGenesOfPanels(Arrays.asList(GENE_PANEL_ID)))
             .thenReturn(genePanelToGeneList);
         
         List<GenePanelData> result = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(

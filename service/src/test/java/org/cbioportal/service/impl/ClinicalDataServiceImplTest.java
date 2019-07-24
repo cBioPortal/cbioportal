@@ -35,6 +35,8 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
     @Mock
     private ClinicalDataRepository clinicalDataRepository;
     @Mock
+    private ClinicalDataRepository clinicalDataSparkRepository;
+    @Mock
     private StudyService studyService;
     @Mock
     private PatientService patientService;
@@ -195,7 +197,7 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
         ClinicalData patientClinicalData = new ClinicalData();
         expectedPatientClinicalDataList.add(patientClinicalData);
 
-        Mockito.when(clinicalDataRepository.fetchClinicalData(studyIds, patientIds, 
+        Mockito.when(clinicalDataSparkRepository.fetchClinicalData(studyIds, patientIds, 
             Arrays.asList(CLINICAL_ATTRIBUTE_ID_1), CLINICAL_DATA_TYPE, PROJECTION))
             .thenReturn(expectedPatientClinicalDataList);
 
@@ -255,7 +257,7 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
         clinicalDataCount5.setCount(3);
         clinicalDataCounts.add(clinicalDataCount5);
 
-        Mockito.when(clinicalDataRepository.fetchClinicalDataCounts(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID), 
+        Mockito.when(clinicalDataSparkRepository.fetchClinicalDataCounts(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID), 
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3), Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, 
             CLINICAL_ATTRIBUTE_ID_2, CLINICAL_ATTRIBUTE_ID_3), "PATIENT")).thenReturn(clinicalDataCounts);
 

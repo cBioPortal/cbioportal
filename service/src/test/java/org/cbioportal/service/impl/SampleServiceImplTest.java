@@ -31,14 +31,20 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     @Mock
     private SampleRepository sampleRepository;
     @Mock
+    private SampleRepository sampleSparkRepository;
+    @Mock
     private StudyService studyService;
     @Mock
     private PatientService patientService;
     @Mock
     private SampleListRepository sampleListRepository;
     @Mock
+    private SampleListRepository sampleListSparkRepository;
+    @Mock
     private CopyNumberSegmentRepository copyNumberSegmentRepository;
-
+    @Mock
+    private CopyNumberSegmentRepository copyNumberSegmentSparkRepository;
+    
     @Test
     public void getAllSamplesInStudy() throws Exception {
 
@@ -48,9 +54,9 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
 
         Mockito.when(sampleRepository.getAllSamplesInStudy(STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
                 DIRECTION)).thenReturn(expectedSampleList);
-        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
+        Mockito.when(sampleListSparkRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
-        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class), 
+        Mockito.when(copyNumberSegmentSparkRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class), 
             Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
 
         List<Sample> result = sampleService.getAllSamplesInStudy(STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
@@ -102,7 +108,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
 
         Sample expectedSample = new Sample();
         Mockito.when(sampleRepository.getSampleInStudy(STUDY_ID, SAMPLE_ID1)).thenReturn(expectedSample);
-        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
+        Mockito.when(sampleListSparkRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
@@ -121,7 +127,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
 
         Mockito.when(sampleRepository.getAllSamplesOfPatientInStudy(STUDY_ID, PATIENT_ID_1, PROJECTION, PAGE_SIZE,
                 PAGE_NUMBER, SORT, DIRECTION)).thenReturn(expectedSampleList);
-        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
+        Mockito.when(sampleListSparkRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
@@ -168,7 +174,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
 
         Mockito.when(sampleRepository.getAllSamplesOfPatientsInStudy(STUDY_ID, Arrays.asList(PATIENT_ID_1), PROJECTION))
             .thenReturn(expectedSampleList);
-        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
+        Mockito.when(sampleListSparkRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
@@ -185,9 +191,9 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Sample sample = new Sample();
         expectedSampleList.add(sample);
 
-        Mockito.when(sampleRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), PROJECTION))
+        Mockito.when(sampleSparkRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), PROJECTION))
                 .thenReturn(expectedSampleList);
-        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
+        Mockito.when(sampleListSparkRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
@@ -211,17 +217,14 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         sample2.setCancerStudyIdentifier(STUDY_ID);
         sample2.setStableId(SAMPLE_ID2);
         sample2.setInternalId(SAMPLE_INTERNAL_ID2);
-        
-        List<Integer> expectedInternalIdList = new ArrayList<>();
-        expectedInternalIdList.add(SAMPLE_INTERNAL_ID);
        
-        
-        Mockito.when(sampleRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED"))
+        Mockito.when(copyNumberSegmentSparkRepository.fetchSamplesWithCopyNumberSegments(
+            Mockito.anyListOf(String.class), Mockito.anyListOf(String.class)))
+            .thenReturn(Arrays.asList(sample1));
+        Mockito.when(sampleSparkRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED"))
                 .thenReturn(expectedSampleList);
-        Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
+        Mockito.when(sampleListSparkRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
-        Mockito.when(copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(expectedInternalIdList);
         
         List<Sample> result = sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED");
         Assert.assertEquals(2, result.size());

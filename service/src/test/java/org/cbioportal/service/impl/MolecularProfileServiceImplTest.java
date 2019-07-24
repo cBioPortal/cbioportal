@@ -29,6 +29,8 @@ public class MolecularProfileServiceImplTest extends BaseServiceImplTest {
     @Mock
     private MolecularProfileRepository molecularProfileRepository;
     @Mock
+    private MolecularProfileRepository molecularProfileSparkRepository;
+    @Mock
     private StudyService studyService;
 
     @Before
@@ -161,7 +163,7 @@ public class MolecularProfileServiceImplTest extends BaseServiceImplTest {
         MolecularProfile molecularProfile = new MolecularProfile();
         expectedMolecularProfileList.add(molecularProfile);
 
-        Mockito.when(molecularProfileRepository.getMolecularProfilesInStudies(Arrays.asList(STUDY_ID), PROJECTION))
+        Mockito.when(molecularProfileSparkRepository.getMolecularProfilesInStudies(Arrays.asList(STUDY_ID), PROJECTION))
             .thenReturn(expectedMolecularProfileList);
 
         List<MolecularProfile> result = molecularProfileService.getMolecularProfilesInStudies(

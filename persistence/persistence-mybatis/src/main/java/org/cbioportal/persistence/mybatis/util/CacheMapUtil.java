@@ -57,11 +57,13 @@ public class CacheMapUtil {
     private StudyRepository studyRepository;
 
     @Autowired
+    @Qualifier("molecularProfileMyBatisRepository")
     private MolecularProfileRepository molecularProfileRepository;
 
     @Autowired
+    @Qualifier("sampleListMyBatisRepository")
     private SampleListRepository sampleListRepository;
-
+    
     @Value("${authenticate:false}")
     private String authenticate;
 

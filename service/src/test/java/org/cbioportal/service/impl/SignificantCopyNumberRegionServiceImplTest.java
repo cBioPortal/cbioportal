@@ -27,6 +27,8 @@ public class SignificantCopyNumberRegionServiceImplTest extends BaseServiceImplT
     @Mock
     private SignificantCopyNumberRegionRepository significantCopyNumberRegionRepository;
     @Mock
+    private SignificantCopyNumberRegionRepository significantCopyNumberRegionSparkRepository;
+    @Mock
     private StudyService studyService;
     
     @Test
@@ -35,18 +37,18 @@ public class SignificantCopyNumberRegionServiceImplTest extends BaseServiceImplT
         List<Gistic> expectedGisticList = new ArrayList<>();
         Gistic gistic = new Gistic();
         gistic.setGisticRoiId(GISTIC_ROI_ID);
-        expectedGisticList.add(gistic);
-
-        Mockito.when(significantCopyNumberRegionRepository.getSignificantCopyNumberRegions(STUDY_ID, PROJECTION, 
-            PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION)).thenReturn(expectedGisticList);
-        
         List<GisticToGene> expectedGisticToGeneList = new ArrayList<>();
         GisticToGene gisticToGene = new GisticToGene();
         gisticToGene.setGisticRoiId(GISTIC_ROI_ID);
         expectedGisticToGeneList.add(gisticToGene);
+        gistic.setGenes(expectedGisticToGeneList);
+        expectedGisticList.add(gistic);
         
-        Mockito.when(significantCopyNumberRegionRepository.getGenesOfRegions(Arrays.asList(GISTIC_ROI_ID)))
-            .thenReturn(expectedGisticToGeneList);
+        Mockito.when(significantCopyNumberRegionSparkRepository.getSignificantCopyNumberRegions(STUDY_ID, PROJECTION, 
+            PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION)).thenReturn(expectedGisticList);
+        
+        /*Mockito.when(significantCopyNumberRegionRepository.getGenesOfRegions(Arrays.asList(GISTIC_ROI_ID)))
+            .thenReturn(expectedGisticToGeneList);*/
         
         List<Gistic> result = significantCopyNumberRegionService.getSignificantCopyNumberRegions(STUDY_ID, PROJECTION,
             PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);

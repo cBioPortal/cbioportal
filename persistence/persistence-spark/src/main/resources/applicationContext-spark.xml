@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:context="http://www.springframework.org/schema/context"
+         xmlns:mvc="http://www.springframework.org/schema/mvc"
+         xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <context:component-scan base-package="org.cbioportal.persistence"/>
+    <context:annotation-config/>
+    <mvc:annotation-driven/>
+    <!-- scan for mappers and let them be autowired -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="org.cbioportal.persistence.mybatis" />
+    </bean>
+
+    <bean id="genesetMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="org.cbioportal.persistence.mybatis.GenesetMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+    
+    <bean id="customObjectFactory" class="org.cbioportal.persistence.mybatis.util.CustomMyBatisObjectFactory" />
+
+    <bean id="businessDataSource" destroy-method="close" class="org.mskcc.cbio.portal.dao.JdbcDataSource" />
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod" value="org.mskcc.cbio.portal.dao.JdbcUtil.setDataSource"/>
+        <property name="arguments">
+            <list><ref bean="businessDataSource"/></list>
+        </property>
+    </bean>
+    
+    <!-- define the SqlSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="businessDataSource" />
+        <property name="typeAliasesPackage" value="org.mskcc.cbio.portal.model" />
+        <property name="typeHandlersPackage" value="org.cbioportal.persistence.mybatis.typehandler" />
+        <property name="mapperLocations" value="classpath:org/cbioportal/persistence/mybatis/*.xml" />
+        <property name="objectFactory" ref="customObjectFactory" />
+        <property name="configuration">
+            <bean class="org.apache.ibatis.session.Configuration">
+                <property name="cacheEnabled" value="${mybatis.cache.enabled:true}" />
+            </bean>
+        </property>
+    </bean>
+</beans>

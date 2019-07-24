@@ -32,6 +32,8 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     @Mock
     private DiscreteCopyNumberRepository discreteCopyNumberRepository;
     @Mock
+    private DiscreteCopyNumberRepository discreteCopyNumberSparkRepository;
+    @Mock
     private MolecularDataService molecularDataService;
     @Mock
     private MolecularProfileService molecularProfileService;
@@ -254,7 +256,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         List<CopyNumberCountByGene> expectedCopyNumberSampleCountByGeneList = new ArrayList<>();
         expectedCopyNumberSampleCountByGeneList.add(new CopyNumberCountByGene());
 
-        Mockito.when(discreteCopyNumberRepository.getPatientCountByGeneAndAlterationAndPatientIds(MOLECULAR_PROFILE_ID, 
+        Mockito.when(discreteCopyNumberSparkRepository.getPatientCountByGeneAndAlterationAndPatientIds(MOLECULAR_PROFILE_ID, 
             null, Arrays.asList(ENTREZ_GENE_ID_1), Arrays.asList(-2)))
             .thenReturn(expectedCopyNumberSampleCountByGeneList);
         

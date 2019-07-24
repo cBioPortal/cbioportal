@@ -8,6 +8,7 @@ import org.cbioportal.service.SignificantCopyNumberRegionService;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +18,11 @@ import java.util.stream.Collectors;
 public class SignificantCopyNumberRegionServiceImpl implements SignificantCopyNumberRegionService {
     
     @Autowired
+    @Qualifier("significantCopyNumberRegionMyBatisRepository")
     private SignificantCopyNumberRegionRepository significantCopyNumberRegionRepository;
+    @Autowired
+    @Qualifier("significantCopyNumberRegionSparkRepository")
+    private SignificantCopyNumberRegionRepository significantCopyNumberRegionSparkRepository;
     @Autowired
     private StudyService studyService;
     
@@ -28,17 +33,18 @@ public class SignificantCopyNumberRegionServiceImpl implements SignificantCopyNu
         
         studyService.getStudy(studyId);
         
-        List<Gistic> gisticList = significantCopyNumberRegionRepository.getSignificantCopyNumberRegions(studyId, 
+        List<Gistic> gisticList = significantCopyNumberRegionSparkRepository.getSignificantCopyNumberRegions(studyId, 
             projection, pageSize, pageNumber, sortBy, direction);
         
-        if (!projection.equals("ID")) {
+        // spark version does setGenes() in getSignificantCopyNumberRegions() call
+        /*if (!projection.equals("ID")) {
             
             List<GisticToGene> gisticToGeneList = significantCopyNumberRegionRepository.getGenesOfRegions(gisticList
                 .stream().map(Gistic::getGisticRoiId).collect(Collectors.toList()));
 
             gisticList.forEach(g -> g.setGenes(gisticToGeneList.stream().filter(p -> p.getGisticRoiId()
                 .equals(g.getGisticRoiId())).collect(Collectors.toList())));
-        }
+        }*/
         
         return gisticList;
     }

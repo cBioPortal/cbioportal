@@ -1,6 +1,6 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.CopyNumberSeg;
+import javafx.util.Pair;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
@@ -13,6 +13,7 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -29,15 +30,24 @@ public class SampleServiceImpl implements SampleService {
     private static final String SEQUENCED = "_sequenced";
 
     @Autowired
+    @Qualifier("sampleMyBatisRepository")
     private SampleRepository sampleRepository;
+    @Autowired
+    @Qualifier("sampleSparkRepository")
+    private SampleRepository sampleSparkRepository;
     @Autowired
     private StudyService studyService;
     @Autowired
     private PatientService patientService;
     @Autowired
+    @Qualifier("sampleListMyBatisRepository")
     private SampleListRepository sampleListRepository;
     @Autowired
-    private CopyNumberSegmentRepository copyNumberSegmentRepository;
+    @Qualifier("sampleListSparkRepository")
+    private SampleListRepository sampleListSparkRepository;
+    @Autowired
+    @Qualifier("copyNumberSegmentSparkRepository")
+    private CopyNumberSegmentRepository copyNumberSegmentSparkRepository;
 
     @Override
     public List<Sample> getAllSamplesInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber,
@@ -126,7 +136,7 @@ public class SampleServiceImpl implements SampleService {
     @Override
     public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {
 
-        List<Sample> samples = sampleRepository.fetchSamples(studyIds, sampleIds, projection);
+        List<Sample> samples = sampleSparkRepository.fetchSamples(studyIds, sampleIds, projection);
         processSamples(samples, projection);
         return samples;
     }
@@ -169,19 +179,19 @@ public class SampleServiceImpl implements SampleService {
                                           new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
             }
 
-            List<Integer> samplesWithCopyNumberSeg = copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
+            List<Sample> samplesWithCopyNumberSeg = copyNumberSegmentSparkRepository.fetchSamplesWithCopyNumberSegments(
                 samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()), 
-                samples.stream().map(Sample::getStableId).collect(Collectors.toList()),
-                null
+                samples.stream().map(Sample::getStableId).collect(Collectors.toList())
             );
             
-            Set<Integer> samplesWithCopyNumberSegMap = new HashSet<>();
-            samplesWithCopyNumberSegMap.addAll(samplesWithCopyNumberSeg);
+            List<Pair<String, String>> samplesWithCopyNumberSegSet = samplesWithCopyNumberSeg.stream()
+                .map(s -> new Pair<String, String>(s.getCancerStudyIdentifier(), s.getStableId())).collect(Collectors.toList());
            
             samples.forEach(sample -> {
                 sample.setSequenced(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier())
                     .contains(sample.getStableId()));
-                sample.setCopyNumberSegmentPresent(samplesWithCopyNumberSegMap.contains(sample.getInternalId()));
+                sample.setCopyNumberSegmentPresent(samplesWithCopyNumberSegSet.contains(
+                    new Pair(sample.getCancerStudyIdentifier(), sample.getStableId())));
             });
         }
     }

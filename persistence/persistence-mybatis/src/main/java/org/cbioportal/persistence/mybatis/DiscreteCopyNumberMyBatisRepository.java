@@ -5,11 +5,13 @@ import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.DiscreteCopyNumberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
+@Qualifier("discreteCopyNumberMyBatisRepository")
 public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRepository {
 
     @Autowired

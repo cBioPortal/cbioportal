@@ -1,6 +1,11 @@
 ## July 24, 2019
 *   **Added data** consistng of 151 samples from 1 study:
-    *  [Myeloproliferative Neoplasms (CIMR, NEJM 2013)](https://www.cbioportal.org/study/summary?id=mpn_cimr_2013) *151 samples* 
+    *  [Myeloproliferative Neoplasms (CIMR, NEJM 2013)](https://www.cbioportal.org/study/summary?id=mpn_cimr_2013) *151 samples*
+## July 13, 2019
+ *   **Public Release 6.1 of AACR Project GENIE:**
+     *   The sixth data set, GENIE 6.0-public, was released in early July 2019.  A patch to GENIE 6.0-public, GENIE 6.1-pubic, was subsequently released on July 13, 2019.  The combined data set now includes nearly 70,000 de-identified genomic records collected from patients who were treated at each of the consortium's participating institutions, making it among the largest fully public cancer genomic data sets released to date. The combined data set now includes data for nearly 80 major cancer types, including data from nearly 11,000 patients with lung cancer, greater than  9,700 patients with breast cancer, and nearly 7,000 patients with colorectal cancer.
+ *   More detailed information can be found in the [AACR GENIE Data Guide](http://www.aacr.org/Research/Research/Documents/GENIE%20Data%20Guide.pdf).  In addition to accessing the data via the cBioPortal, users can download the data directly from [Sage Bionetworks](http://synapse.org/genie). Users will need to create an account for either site and agree to the [terms of access](http://www.aacr.org/Documents/Terms%20of%20Access.pdf).
+ *   For frequently asked questions, visit the [AACR FAQ page](http://www.aacr.org/Research/Research/Pages/aacr-project-genie.aspx).
 ## July 2, 2019
 *   **Added data** consistng of 785 samples from 4 studies:
     *  [Non-Small Cell Lung Cancer (TRACERx, NEJM 2017)](https://www.cbioportal.org/study/summary?id=nsclc_tracerx_2017) *327 samples* 

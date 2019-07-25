@@ -27,8 +27,6 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
     }
 
     @Override
-    // cursor processing requires a transaction 
-    @Transactional(readOnly=true, propagation=Propagation.NESTED)
     public List<GeneMolecularAlteration> getGeneMolecularAlterations(String molecularProfileId, 
                                                                      List<Integer> entrezGeneIds, String projection) {
 

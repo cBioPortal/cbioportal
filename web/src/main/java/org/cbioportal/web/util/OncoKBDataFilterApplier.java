@@ -5,6 +5,7 @@ import org.cbioportal.model.Mutation;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.util.OncoKBConverter;
 import org.cbioportal.web.parameter.*;
 
 import java.util.ArrayList;
@@ -25,16 +26,15 @@ public class OncoKBDataFilterApplier {
     private SampleService sampleService;
     protected StudyViewFilterUtil studyViewFilterUtil;
     private MolecularProfileService molecularProfileService;
+    private OncoKBUtils oncoKBUtils;
 
     @Autowired
-    public OncoKBDataFilterApplier(MutationService mutationService,
-                                   SampleService sampleService,
-                                   StudyViewFilterUtil studyViewFilterUtil,
-                                   MolecularProfileService molecularProfileService) {
+    public OncoKBDataFilterApplier(MutationService mutationService, SampleService sampleService, StudyViewFilterUtil studyViewFilterUtil, MolecularProfileService molecularProfileService, OncoKBUtils oncoKBUtils) {
         this.mutationService = mutationService;
         this.sampleService = sampleService;
         this.studyViewFilterUtil = studyViewFilterUtil;
         this.molecularProfileService = molecularProfileService;
+        this.oncoKBUtils = oncoKBUtils;
     }
 
     public List<SampleIdentifier> apply(List<SampleIdentifier> sampleIdentifiers,
@@ -47,7 +47,7 @@ public class OncoKBDataFilterApplier {
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
             annotationDataList = mutationService.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileService
                     .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, SUMMARY.name(), 10000000, 0, null, null,
-                getAnnotationFilter(attributes));
+                getAnnotationFilter(oncoKBUtils.getMutationFilters(attributes)));
 
             sampleIdentifiers = annotationDataList.stream().map(mutation -> {
                 SampleIdentifier sampleIdentifier = new SampleIdentifier();

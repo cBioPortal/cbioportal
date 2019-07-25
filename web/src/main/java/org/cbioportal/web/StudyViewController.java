@@ -3,7 +3,8 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.cbioportal.web.util.OncoKBDataFilterApplier;
+import org.cbioportal.service.util.OncoKBConverter;
+import org.cbioportal.web.util.*;
 import org.json.JSONObject;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -20,9 +21,6 @@ import org.cbioportal.service.*;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.*;
-import org.cbioportal.web.util.DataBinner;
-import org.cbioportal.web.util.StudyViewFilterApplier;
-import org.cbioportal.web.util.StudyViewFilterUtil;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -68,7 +66,9 @@ public class StudyViewController {
     @Autowired
     private OncoKBDataFilterApplier oncoKBDataFilterApplier;
     @Autowired
-    private OncoKBService oncoKBService;
+    private OncoKBUtils oncoKBUtils;
+    @Autowired
+    private OncoKBConverter oncoKBConverter;
     @Autowired
     private DataBinner dataBinner;
     @Autowired
@@ -136,7 +136,8 @@ public class StudyViewController {
                 .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, Projection.SUMMARY.name(), 10000000, 0, null, null,
             oncoKBDataFilterApplier.getAnnotationFilter(studyViewFilter.getOncoKBDataFilters()));
 
-        List<OncoKBDataCount> oncoKBDataCounts = oncoKBService.getDataCounts(oncoKBDataCountFilter.getAttributes(), resultForSampleAttributes);
+//        List<String> mutationAttributes = oncoKBDataCountFilter.getAttributes().stream().map(sampleAttribute -> oncoKBConverter.getMutationAttributeBySampleAttribute(sampleAttribute)).collect(Collectors.toList());
+        List<OncoKBDataCount> oncoKBDataCounts = oncoKBUtils.getDataCounts(oncoKBDataCountFilter.getAttributes(), resultForSampleAttributes);
         return new ResponseEntity<>(oncoKBDataCounts, HttpStatus.OK);
     }
 

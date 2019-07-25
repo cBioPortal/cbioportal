@@ -39,7 +39,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Adam Resnick
 
 ## The Hyve
-* Pieter Lukasse
 * Fedde Schaeffer
 * Oleguer Plantalech
 * Pim van Nierop
@@ -73,6 +72,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Anders Jacobsen
 * Erik Larsson
 * Dong Li
+* Pieter Lukasse
 * Tamba Monrose
 * Peter Kok
 * Irina Pulyakhina

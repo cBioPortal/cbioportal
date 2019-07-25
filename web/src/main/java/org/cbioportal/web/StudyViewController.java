@@ -68,6 +68,8 @@ public class StudyViewController {
     @Autowired
     private OncoKBDataFilterApplier oncoKBDataFilterApplier;
     @Autowired
+    private OncoKBService oncoKBService;
+    @Autowired
     private DataBinner dataBinner;
     @Autowired
     private StudyViewFilterUtil studyViewFilterUtil;
@@ -123,47 +125,18 @@ public class StudyViewController {
 
         StudyViewFilter studyViewFilter = oncoKBDataCountFilter.getStudyViewFilter();
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
-        List<OncoKBDataCount> oncoKBDataCounts = new ArrayList<>();
         if (filteredSampleIdentifiers.isEmpty()) {
-            return new ResponseEntity<>(oncoKBDataCounts, HttpStatus.OK);
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
         }
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-        
-        
+
         List<Mutation> resultForSampleAttributes = mutationService.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileService
-            .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, Projection.SUMMARY.name(), 10000000, 0, null, null,
+                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, Projection.SUMMARY.name(), 10000000, 0, null, null,
             oncoKBDataFilterApplier.getAnnotationFilter(studyViewFilter.getOncoKBDataFilters()));
-        
-        for(Mutation mutationProfile : resultForSampleAttributes) {
-          JSONObject jsonMutation = new JSONObject(mutationProfile.getAnnotation());
-          if(jsonMutation.getJSONObject("oncokb").has("oncogenicity")) {
-            if(oncoKBDataCounts.size() > 0) {
-              Boolean mutationIdentical = false;
-              for(OncoKBDataCount mutationCancer : oncoKBDataCounts) {
-                if(mutationCancer.getAttributeId().equals("oncogenicity") && mutationCancer.getValue().equals(jsonMutation.getJSONObject("oncokb").getString("oncogenicity"))) {
-                  mutationIdentical = true;
-                  mutationCancer.setCount(mutationCancer.getCount() + 1);
-                }
-              }
-              if(mutationIdentical == false) {
-                OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
-                oncoKBCancer.setAttributeId("oncogenicity");
-                oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getString("oncogenicity"));
-                oncoKBCancer.setCount(oncoKBCancer.getCount() + 1);
-                  oncoKBDataCounts.add(oncoKBCancer);
-              }
-            }
-            else {
-              OncoKBDataCount oncoKBCancer = new OncoKBDataCount();
-              oncoKBCancer.setAttributeId("oncogenicity");
-              oncoKBCancer.setValue(jsonMutation.getJSONObject("oncokb").getString("oncogenicity"));
-              oncoKBCancer.setCount(oncoKBCancer.getCount() + 1);
-                oncoKBDataCounts.add(oncoKBCancer);
-            }
-          }
-        }
+
+        List<OncoKBDataCount> oncoKBDataCounts = oncoKBService.getDataCounts(oncoKBDataCountFilter.getAttributes(), resultForSampleAttributes);
         return new ResponseEntity<>(oncoKBDataCounts, HttpStatus.OK);
     }
 

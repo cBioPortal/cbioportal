@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.json.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,17 +20,16 @@ import org.springframework.stereotype.Component;
 import static org.cbioportal.web.parameter.Projection.SUMMARY;
 
 @Component
-public class OncoKBDataFilterApplier
-{
+public class OncoKBDataFilterApplier {
     private MutationService mutationService;
     private SampleService sampleService;
     protected StudyViewFilterUtil studyViewFilterUtil;
     private MolecularProfileService molecularProfileService;
 
     @Autowired
-    public OncoKBDataFilterApplier(MutationService mutationService, 
-                                   SampleService sampleService, 
-                                   StudyViewFilterUtil studyViewFilterUtil, 
+    public OncoKBDataFilterApplier(MutationService mutationService,
+                                   SampleService sampleService,
+                                   StudyViewFilterUtil studyViewFilterUtil,
                                    MolecularProfileService molecularProfileService) {
         this.mutationService = mutationService;
         this.sampleService = sampleService;
@@ -46,7 +46,7 @@ public class OncoKBDataFilterApplier
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
             annotationDataList = mutationService.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileService
-                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, SUMMARY.name(), 10000000, 0, null, null, 
+                    .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, SUMMARY.name(), 10000000, 0, null, null,
                 getAnnotationFilter(attributes));
 
             sampleIdentifiers = annotationDataList.stream().map(mutation -> {
@@ -60,9 +60,12 @@ public class OncoKBDataFilterApplier
             return sampleIdentifiers;
         }
     }
-    
+
     public List<AnnotationFilter> getAnnotationFilter(List<OncoKBDataFilter> oncoKBDataFilters) {
         List<AnnotationFilter> annotationFilters = new ArrayList<>();
+        if (oncoKBDataFilters == null) {
+            return annotationFilters;
+        }
 
         for (OncoKBDataFilter oncoKBDataFilter : oncoKBDataFilters) {
             AnnotationFilter annotationFilter = new AnnotationFilter();

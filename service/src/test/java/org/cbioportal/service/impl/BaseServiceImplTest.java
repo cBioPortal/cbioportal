@@ -14,6 +14,7 @@ public class BaseServiceImplTest {
     public static final String SAMPLE_ID1 = "sample_id1";
     public static final String SAMPLE_ID2 = "sample_id2";
     public static final String SAMPLE_ID3 = "sample_id3";
+    public static final String SAMPLE_ID4 = "sample_id4";
     public static final String PATIENT_ID_1 = "patient_id1";
     public static final String PATIENT_ID_2 = "patient_id2";
     public static final String PATIENT_ID_3 = "patient_id3";
@@ -50,4 +51,7 @@ public class BaseServiceImplTest {
     public static final String SORT_ORDER2 = "DESC";
     public static final Float PIVOT_POINT1 = 1f;
     public static final Float PIVOT_POINT2 = 2f;
+    public static final String HUGO_GENE_SYMBOL_1 = "HUGO1";
+    public static final String HUGO_GENE_SYMBOL_2 = "HUGO2";
+    public static final String HUGO_GENE_SYMBOL_3 = "HUGO3";
 }

@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.dao;
 
+import org.cbioportal.model.EntityType;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
@@ -136,7 +137,7 @@ final class DaoGene {
             CanonicalGene existingGene = getGene(gene.getEntrezGeneId());
             if (existingGene == null) {
             	//new gene, so add genetic entity first:
-            	int geneticEntityId = DaoGeneticEntity.addNewGeneticEntity(DaoGeneticEntity.EntityTypes.GENE);
+            	int geneticEntityId = DaoGeneticEntity.addNewGeneticEntity(EntityType.GENE);
             	//update the Canonical gene as well:
             	gene.setGeneticEntityId(geneticEntityId); //TODO can we find a better way for this, to avoid this side effect? 
             	//add gene, referring to this genetic entity

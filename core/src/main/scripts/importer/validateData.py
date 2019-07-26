@@ -102,7 +102,8 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX:'GenePanelMatrixValidator',
     cbioportal_common.MetaFileTypes.GSVA_SCORES:'GsvaScoreValidator',
     cbioportal_common.MetaFileTypes.GSVA_PVALUES:'GsvaPvalueValidator',
-    cbioportal_common.MetaFileTypes.GENERIC_ASSAY:'TreatmentValidator',
+    cbioportal_common.MetaFileTypes.TREATMENT:'TreatmentValidator',
+    cbioportal_common.MetaFileTypes.MUTATIONAL_SIGNATURE:'MutationalSignatureValidator',
     cbioportal_common.MetaFileTypes.STRUCTURAL_VARIANT:'StructuralVariantValidator'
 }
 
@@ -4070,6 +4071,144 @@ class TreatmentValidator(TreatmentWiseFileValidator):
 
         return
 
+class MutationalSignatureWiseFileValidator(MultipleDataFileValidator, metaclass=ABCMeta):
+    """Groups multiple treatment response files from a study to ensure consistency.
+
+    All Validator classes that check validity of different treatment response data
+    types in a study should inherit from this class.
+    """
+    prior_validated_sample_ids = None
+    prior_validated_feature_ids = None
+    prior_validated_header = None
+    REQUIRED_HEADERS = ['entity_stable_id']
+    OPTIONAL_HEADERS = ['META:name', 'META:description', 'META:additional_properties']
+    UNIQUE_COLUMNS = ['entity_stable_id','META:name']
+
+    def parseFeatureColumns(self, nonsample_col_vals):
+        self.checkDifferentNameInDb(nonsample_col_vals)
+        return super(MutationalSignatureWiseFileValidator, self).parseFeatureColumns(nonsample_col_vals)
+
+    def checkDifferentNameInDb(self, nonsample_col_vals):
+        """Raise warnings for discrepancies with how the db names treatments.
+
+        Check for different combinations of entity_stable_id and name of the treatment
+        in the database. If true, raise warnings for each discrepancy.
+        """
+        nonsample_cols = self.nonsample_cols
+        if 'META:name' not in nonsample_cols or self.portal.treatment_map is None:
+            return
+
+        entity_stable_id = nonsample_col_vals[nonsample_cols.index("entity_stable_id")]
+        file_treatment_name = nonsample_col_vals[nonsample_cols.index("META:name")]
+
+        # check whether a name for the treatment has been
+        # registered in the database
+        # db_treatment = self.portal.treatment_map.get(entity_stable_id)
+
+        # # when a name has been registered for this treatment and
+        # # is different from the new name, issue a warning.
+        # if db_treatment is not None and db_treatment['name'] != file_treatment_name:
+        #     self.logger.warning(
+        #         "Name `%s` for treatment `%s` is different from name "
+        #         "`%s` present in the cBioPortal database. "
+        #         "Treatment names in cBioPortal always reflect treatment names "
+        #         "in the last imported study.",
+        #         file_treatment_name, entity_stable_id, db_treatment['name'],
+        #         extra={'line_number': self.line_number,
+        #                'cause': file_treatment_name})
+
+    @staticmethod
+    def get_prior_validated_header():
+        return MutationalSignatureWiseFileValidator.prior_validated_header
+
+    @staticmethod
+    def set_prior_validated_header(header_names):
+        MutationalSignatureWiseFileValidator.prior_validated_header = header_names
+
+    @staticmethod
+    def get_prior_validated_feature_ids():
+        return MutationalSignatureWiseFileValidator.prior_validated_feature_ids
+
+    @staticmethod
+    def set_prior_validated_feature_ids(feature_ids):
+        MutationalSignatureWiseFileValidator.prior_validated_feature_ids = feature_ids
+
+    @staticmethod
+    def get_prior_validated_sample_ids():
+        return MutationalSignatureWiseFileValidator.prior_validated_sample_ids
+
+    @staticmethod
+    def set_prior_validated_sample_ids(sample_ids):
+        MutationalSignatureWiseFileValidator.prior_validated_sample_ids = sample_ids
+
+    @classmethod
+    def get_message_features_do_not_match(cls):
+        return "Mutational Signature feature columns (`entity_stable_id`, ...) in Mutational Signature profile data files are not identical. The same set of Mutational Signature should be used across the different Mutational Signature data files for this study. Please ensure that all entity stable id's of one file are present in all other Mutational Signature files."
+
+
+class MutationalSignatureValidator(MutationalSignatureWiseFileValidator):
+
+    """ Validator for files containing treatment response values.
+    """
+
+    # (1) Natural positive number (not 0)
+    # (2) Number may be prefixed by ">" or "<"; f.i. ">n" means that the treatment was ineffective at the highest tested concentration of n.
+    # (3) NA cell value is allowed; means treatment was not tested on a sample
+    # (4) Is an empty cell value allowed? (meaning treatment was not tested on a sample)
+    #
+    # Warnings for values:
+    # (1) Cell contains a value without decimals and is not prependend by ">"; value appears to be truncated but lacks ">" truncation indicator
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+
+        # value is not defined (empty cell)
+        stripped_value = value.strip()
+        if stripped_value == "":
+            self.logger.error("Cell is empty. A response value value is expected. Use 'NA' to indicate missing values.",
+                extra={'line_number': self.line_number,
+                'column_number': col_index + 1,
+                'cause': value})
+            return
+
+        # 'NA' is an allowed value. No further validations apply.
+        if stripped_value == 'NA':
+            return
+
+        # if the value is prefixed with '>' or '<' remove this prefix
+        # prior to evaluation of the numeric value
+        hasTruncSymbol = re.match("^[><]", stripped_value)
+        stripped_value = re.sub(r"^[><]\s*","", stripped_value)
+        
+        try:
+            numeric_value = float(stripped_value)
+        except ValueError:
+            self.logger.error("Value cannot be interpreted as a floating point number and is not valid response value.",
+                extra={'line_number': self.line_number,
+                'column_number': col_index + 1,
+                'cause': value})
+            return
+
+        if math.isnan(numeric_value):
+            self.logger.error("Value is NaN, therefore, not a valid response value.",
+                extra={'line_number': self.line_number,
+                'column_number': col_index + 1,
+                'cause': value})
+            return
+
+        if math.isinf(numeric_value):
+            self.logger.error("Value is infinite and, therefore, not a valid response value.",
+                extra={'line_number': self.line_number,
+                'column_number': col_index + 1,
+                'cause': value})
+            return
+
+        if numeric_value % 1 == 0 and not hasTruncSymbol:
+            self.logger.warning("Value has no decimals and may represent an invalid response value.",
+                extra={'line_number': self.line_number,
+                'column_number': col_index + 1,
+                'cause': value})
+                
+        return
 
 # ------------------------------------------------------------------------------
 # Functions

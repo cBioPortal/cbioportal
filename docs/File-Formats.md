@@ -1297,7 +1297,7 @@ The meta file will be similar to meta files of other genetic profiles, such as m
 Required fields: 
 ```
 cancer_study_identifier: Same value as specified in meta file of the study
-genetic_alteration_type: GENERIC_ASSAY
+genetic_alteration_type: TREATMENT
 datatype: LIMIT-VALUE
 stable_id: Any unique identifier using a combination of alphanumeric characters, _ and -
 profile_name: A name describing the analysis.
@@ -1311,7 +1311,7 @@ value_sort_order: A flag that determines whether samples with small treatment re
 Example:
 ```
 cancer_study_identifier: study_es_0
-genetic_alteration_type: GENERIC_ASSAY
+genetic_alteration_type: TREATMENT
 datatype: LIMIT-VALUE
 stable_id: treatment_ic50
 profile_name: IC50 values of compounds on cellular phenotype readout
@@ -1325,8 +1325,8 @@ value_sort_order: ASC
 #### Note on `value_sort_order`
 When values are sorted based on the `value_sort_order`, data points at the start of the sequence are considered more significant than data points at the end. This concept is used by the oncoprint when aggregating treatment response data from multiple samples from a single patient. When `value_sort_order` is `ASC` the sample with the smallest response value will be shown for that patient. When `value_sort_order` is `DESC` the sample with the largest response value will be shown for that patient.
 
-#### Note on `GENERIC_ASSAY` genetic_alteration_type and `LIMIT-VALUE` datatype
-Treatment response data is registered to be of the `GENERIC_ASSAY` genetic_alteration_type and data type `LIMIT-VALUE`. This alteration and data type is intended to be used for any numerical data set with similar structure (entities measured in samples).
+#### Note on `TREATMENT` genetic_alteration_type and `LIMIT-VALUE` datatype
+Treatment response data is registered to be of the `TREATMENT` genetic_alteration_type and data type `LIMIT-VALUE`. This alteration and data type is intended to be used for any numerical data set with similar structure (entities measured in samples).
 
 ### Treatment response data file
 The data file will be a simple tab separated format, similar to the expression data file: each sample is a column, each tested treatment (a compound or combination thereof) is a row, each cell contains treatment response values for that treatment x sample combination.

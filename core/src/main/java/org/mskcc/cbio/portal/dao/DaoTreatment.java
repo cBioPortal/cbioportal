@@ -41,6 +41,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.cbioportal.model.EntityType;
 import org.mskcc.cbio.portal.model.Treatment;
 
 public class DaoTreatment {
@@ -48,15 +49,16 @@ public class DaoTreatment {
     private enum SqlAction {INSERT, UPDATE, SELECT, DELETE}
 
     /**
+     * 
      * Adds a new Treatment record to the database.
      * @param treatment
-     * @return number of records successfully added
+     * @return number of re
      * @throws DaoException 
      */
     public static Treatment addTreatment(Treatment treatment) throws DaoException {
 
         // new treatment requires a genetic entity to be added first
-        int geneticEntityId = DaoGeneticEntity.addNewGeneticEntity(DaoGeneticEntity.EntityTypes.GENERIC_ASSAY);
+        int geneticEntityId = DaoGeneticEntity.addNewGeneticEntity(EntityType.TREATMENT);
         treatment.setGeneticEntityId(geneticEntityId);
 
         DbContainer container = executeSQLstatment(
@@ -130,19 +132,19 @@ public class DaoTreatment {
     private static void deleteTreatmentGeneticProfiles() throws DaoException {
         executeSQLstatment(
             SqlAction.DELETE,
-            "DELETE FROM genetic_profile WHERE GENETIC_ALTERATION_TYPE = 'GENERIC_ASSAY'"
+            "DELETE FROM genetic_profile WHERE GENETIC_ALTERATION_TYPE = 'TREATMENT'"
         );
     }
     
     /**
-     * Deletes genetic_profile_link records which are pointing to a profile of type to GENERIC_ASSAY genetic_alteration_type
+     * Deletes genetic_profile_link records which are pointing to a profile of type to TREATMENT genetic_alteration_type
      * @throws DaoException 
      */
 	private static void deleteTreatmentGeneticProfileLinks() throws DaoException {
 		executeSQLstatment(
             SqlAction.DELETE,
             "DELETE FROM genetic_profile_link WHERE REFERRED_GENETIC_PROFILE_ID IN "
-        	+ "(SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE GENETIC_ALTERATION_TYPE = 'GENERIC_ASSAY')");
+        	+ "(SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE GENETIC_ALTERATION_TYPE = 'TREATMENT')");
 	}    
 
     /**

@@ -41,6 +41,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.cbioportal.model.EntityType;
+import org.cbioportal.model.meta.GenericAssayMeta;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
@@ -123,8 +125,11 @@ public class ImportTabDelimData {
         boolean gsvaProfile = geneticProfile!=null
                                 && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE
                                 && parts[0].equalsIgnoreCase("geneset_id");
-        boolean genericAssayProfile = geneticProfile!=null
-                                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY
+        boolean treatmentProfile = geneticProfile!=null
+                                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.TREATMENT
+                                && parts[0].equalsIgnoreCase("entity_stable_id");
+        boolean mutationalSignatureProfile = geneticProfile!=null
+                                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATIONAL_SIGNATURE
                                 && parts[0].equalsIgnoreCase("entity_stable_id");
         
         int numRecordsToAdd = 0;
@@ -136,9 +141,7 @@ public class ImportTabDelimData {
             int genesetIdIndex = getGenesetIdIndex(parts);
             int sampleStartIndex = getStartIndex(parts, hugoSymbolIndex, entrezGeneIdIndex, rppaGeneRefIndex, genesetIdIndex);
             int treatmentIdIndex = getTreatmentIdIndex(parts);
-            int treatmentNameIndex = -1;
-            int treatmentDescIndex = -1;
-            int treatmentUrlIndex = -1;
+            int mutationalSignatureIdIndex = getMutationalSignatureIdIndex(parts);
             if (rppaProfile) {
                 if (rppaGeneRefIndex == -1) {
                     throw new RuntimeException("Error: the following column should be present for RPPA data: Composite.Element.Ref");
@@ -147,13 +150,14 @@ public class ImportTabDelimData {
                 if (genesetIdIndex == -1) {
                     throw new RuntimeException("Error: the following column should be present for gene set score data: geneset_id");
                 }
-            } else if (genericAssayProfile) {
+            } else if (treatmentProfile) {
                 if (treatmentIdIndex == -1) {
                     throw new RuntimeException("Error: the following column should be present for this type of data: entity_stable_id");
                 }
-                treatmentNameIndex = getTreatmentNameIndex(parts);
-                treatmentDescIndex = getTreatmentDescIndex(parts);
-                treatmentUrlIndex = getTreatmentUrlIndex(parts);
+            } else if (mutationalSignatureProfile) {
+                if (mutationalSignatureIdIndex == -1) {
+                    throw new RuntimeException("Error: the following column should be present for this type of data: entity_stable_id");
+                }
             } else if (hugoSymbolIndex == -1 && entrezGeneIdIndex == -1) {
                 throw new RuntimeException("Error: at least one of the following columns should be present: Hugo_Symbol or Entrez_Gene_Id");
             }
@@ -226,8 +230,11 @@ public class ImportTabDelimData {
                 if (gsvaProfile) {
                     recordAdded = parseGenesetLine(line, lenParts, sampleStartIndex, genesetIdIndex, 
                             filteredSampleIndices, daoGeneticAlteration);
-                } else if (genericAssayProfile) {
+                } else if (treatmentProfile) {
                     recordAdded = parseTreatmentLine(line, lenParts, sampleStartIndex, treatmentIdIndex, 
+                            filteredSampleIndices, daoGeneticAlteration);
+                } else if (mutationalSignatureProfile) {
+                    recordAdded = parseMutationalSignatureLine(line, lenParts, sampleStartIndex, mutationalSignatureIdIndex, 
                             filteredSampleIndices, daoGeneticAlteration);
                 } else {
                     recordAdded = parseLine(line, lenParts, sampleStartIndex, 
@@ -634,7 +641,7 @@ public class ImportTabDelimData {
             Geneset geneset = DaoGeneset.getGenesetByExternalId(parts[genesetIdIndex]);
             if (geneset !=  null) {
                 storedRecord = storeGeneticEntityGeneticAlterations(values, daoGeneticAlteration, geneset.getGeneticEntityId(), 
-                        DaoGeneticEntity.EntityTypes.GENESET, geneset.getExternalId());
+                        EntityType.GENESET, geneset.getExternalId());
             }
             else {
                 ProgressMonitor.logWarning("Geneset " + parts[genesetIdIndex] + " not found in DB. Record will be skipped.");
@@ -685,7 +692,58 @@ public class ImportTabDelimData {
                 ProgressMonitor.logWarning("Treatment " + parts[treatmentIdIndex] + " not found in DB. Record will be skipped.");
             } else {
                 recordIsStored = storeGeneticEntityGeneticAlterations(values, daoGeneticAlteration, treatment.getGeneticEntityId(), 
-                                    DaoGeneticEntity.EntityTypes.GENERIC_ASSAY, treatment.getStableId());
+                                    EntityType.TREATMENT, treatment.getStableId());
+            }
+
+            return recordIsStored;
+        }
+
+        return recordIsStored;
+    }
+
+    /**
+     * Parses line for treatment profile record and stores record in 'genetic_alteration' table.
+     * @param line  row from the separated-text that contains one or more values on a single sample
+     * @param nrColumns
+     * @param sampleStartIndex  index of the first sample column
+     * @param treatmentIdIndex  index of the column that uniquely identifies a sample
+     * @param filteredSampleIndices
+     * @param daoGeneticAlteration
+     * @return
+     * @throws DaoException 
+     */
+    // TODO: TREATMENT BACKLOG this code is a duplicate of the parseGenesetLine.
+    // consider refactoring do that both functions are covered by a single
+    // base class
+    private boolean parseMutationalSignatureLine(String line, int nrColumns, int sampleStartIndex, int mutationalSignatureIdIndex,
+             List<Integer> filteredSampleIndices, DaoGeneticAlteration daoGeneticAlteration) throws DaoException {
+
+        boolean recordIsStored = false;
+        
+        if (!line.startsWith("#") && line.trim().length() > 0) {
+            String[] parts = line.split("\t", -1);
+
+            if (parts.length > nrColumns) {
+                if (line.split("\t").length > nrColumns) {
+                    ProgressMonitor.logWarning("Ignoring line with more fields (" + parts.length
+                                        + ") than specified in the headers(" + nrColumns + "): \n"+parts[0]);
+                    return false;
+                }
+            }
+            
+            String values[] = (String[]) ArrayUtils.subarray(parts, sampleStartIndex, parts.length>nrColumns?nrColumns:parts.length);
+
+            // trim whitespace from values
+            values = Stream.of(values).map(String::trim).toArray(String[]::new);
+            values = filterOutNormalValues(filteredSampleIndices, values);
+            
+            GenericAssayMeta genericAssayMeta = DaoGeneticEntity.getGenericAssayMetaByStableId(parts[mutationalSignatureIdIndex]);
+            
+            if (genericAssayMeta ==  null) {
+                ProgressMonitor.logWarning("Mutational Signature " + parts[mutationalSignatureIdIndex] + " not found in DB. Record will be skipped.");
+            } else {
+                recordIsStored = storeGeneticEntityGeneticAlterations(values, daoGeneticAlteration, genericAssayMeta.getId(), 
+                                    EntityType.MUTATIONAL_SIGNATURE, genericAssayMeta.getStableId());
             }
 
             return recordIsStored;
@@ -730,7 +788,7 @@ public class ImportTabDelimData {
      * @return boolean indicating if record was stored successfully or not
      */
     private boolean storeGeneticEntityGeneticAlterations(String[] values, DaoGeneticAlteration daoGeneticAlteration,
-        Integer geneticEntityId, DaoGeneticEntity.EntityTypes geneticEntityType, String geneticEntityName) {
+        Integer geneticEntityId, EntityType geneticEntityType, String geneticEntityName) {
         try {
             if (importedGeneticEntitySet.add(geneticEntityId)) {
                 daoGeneticAlteration.addGeneticAlterationsForGeneticEntity(geneticProfile.getGeneticProfileId(), geneticEntityId, values);
@@ -843,19 +901,8 @@ public class ImportTabDelimData {
         return getColIndexByName(headers, "entity_stable_id");
     }
 
-    // returns index for treatment name column
-    private int getTreatmentNameIndex(String[] headers) {
-        return getColIndexByName(headers, ImportUtils.metaFieldTag+"name");
-    }
-
-    // returns index for treatment description column
-    private int getTreatmentDescIndex(String[] headers) {
-        return getColIndexByName(headers, ImportUtils.metaFieldTag+"description");
-    }
-
-    // returns index for treatment linkout url column
-    private int getTreatmentUrlIndex(String[] headers) {
-        return getColIndexByName(headers, ImportUtils.metaFieldTag+"url");
+    private int getMutationalSignatureIdIndex(String[] headers) {
+        return getColIndexByName(headers, "entity_stable_id");
     }
     
     private int getHugoSymbolIndex(String[] headers) {

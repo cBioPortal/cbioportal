@@ -36,10 +36,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.cbioportal.model.EntityType;
+import org.cbioportal.model.meta.GenericAssayMeta;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mskcc.cbio.portal.dao.DaoGeneticEntity;
 import org.mskcc.cbio.portal.dao.DaoTreatment;
 import org.mskcc.cbio.portal.dao.JdbcUtil;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.Treatment;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.springframework.test.context.ContextConfiguration;
@@ -63,10 +67,10 @@ public class TestImportGenericAssayData {
         ProgressMonitor.setConsoleMode(false);
         
         // Open genesets test data file
-        File file = new File("src/test/resources/treatments/data_treatment_ic50.txt");
+        File file = new File("core/src/test/resources/treatments/data_treatment_ic50.txt");
         
         // import data and test all treatments were added
-        ImportGenericAssayEntity.importData(file);
+        ImportGenericAssayEntity.importData(file, GeneticAlterationType.TREATMENT);
         assertEquals(10, getNumRecords());
  
         // test wether a record can be retrieved via stable id 
@@ -79,10 +83,39 @@ public class TestImportGenericAssayData {
         assertEquals("Url of Irinotecan", treatment1.getRefLink());
 
         // test fields are updated after loading new treatment file
-        File fileNewDesc = new File("src/test/resources/treatments/data_treatment_ic50_newdesc.txt");
-        ImportGenericAssayEntity.importData(fileNewDesc);
+        File fileNewDesc = new File("core/src/test/resources/treatments/data_treatment_ic50_newdesc.txt");
+        ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.TREATMENT);
         Treatment treatment3 = DaoTreatment.getTreatmentByStableId("Irinotecan");
         assertEquals("New desc of Irinotecan", treatment3.getDescription());
+        
+    }
+
+    @Test
+    public void testImportGenericAssayData() throws Exception {
+
+        ProgressMonitor.setConsoleMode(false);
+        
+        // Open genesets test data file
+        File file = new File("core/src/test/resources/data_mutational_signature.txt");
+        
+        // import data and test all treatments were added
+        ImportGenericAssayEntity.importData(file, GeneticAlterationType.MUTATIONAL_SIGNATURE);
+        assertEquals(11, getNumRecordsForGenericAssay());
+ 
+        // test wether a record can be retrieved via stable id 
+        GenericAssayMeta genericAssayMeta1 = DaoGeneticEntity.getGenericAssayMetaByStableId("signature_1_mean");
+        assertNotNull(genericAssayMeta1);
+
+        // Test whether fields were populated correctly
+        assertEquals("name of mean_1", genericAssayMeta1.getName());
+        assertEquals("description of mean_1", genericAssayMeta1.getDescription());
+        assertEquals("{\"test\": 1}", genericAssayMeta1.getAddtionalFields());
+
+        // // test fields are updated after loading new generic assay meta file
+        File fileNewDesc = new File("core/src/test/resources/data_mutational_signature_new.txt");
+        ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.MUTATIONAL_SIGNATURE);
+        GenericAssayMeta genericAssayMeta2 = DaoGeneticEntity.getGenericAssayMetaByStableId("signature_1_mean");
+        assertEquals("new description of mean_1", genericAssayMeta2.getDescription());
         
     }
 
@@ -103,6 +136,28 @@ public class TestImportGenericAssayData {
             System.out.println(e.getStackTrace());
         } finally {
             JdbcUtil.closeAll(DaoTreatment.class, con, stat, rs);
+        }
+
+        return 0;
+    }
+
+    private int getNumRecordsForGenericAssay() {
+
+		Connection con = null;
+		PreparedStatement stat = null;
+		ResultSet rs = null;
+		try {
+            con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
+            stat = con.prepareStatement("SELECT COUNT(*) FROM genetic_entity");
+            rs = stat.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            System.out.println(e.getStackTrace());
+        } finally {
+            JdbcUtil.closeAll(DaoGeneticEntity.class, con, stat, rs);
         }
 
         return 0;

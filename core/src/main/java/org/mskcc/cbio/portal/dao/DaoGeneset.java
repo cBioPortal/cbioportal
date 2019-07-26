@@ -37,6 +37,7 @@
 
 package org.mskcc.cbio.portal.dao;
 
+import org.cbioportal.model.EntityType;
 import org.mskcc.cbio.portal.dao.DaoGenesetHierarchyNode;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Geneset;
@@ -64,7 +65,7 @@ public class DaoGeneset {
         ResultSet rs = null;
         try {
             // new geneset so add genetic entity first
-            int geneticEntityId = DaoGeneticEntity.addNewGeneticEntity(DaoGeneticEntity.EntityTypes.GENESET);
+            int geneticEntityId = DaoGeneticEntity.addNewGeneticEntity(EntityType.GENESET);
             geneset.setGeneticEntityId(geneticEntityId);
             
             con = JdbcUtil.getDbConnection(DaoGeneset.class);

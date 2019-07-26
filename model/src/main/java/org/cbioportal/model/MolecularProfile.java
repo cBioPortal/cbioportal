@@ -26,7 +26,7 @@ public class MolecularProfile implements Serializable {
         PROTEIN_ARRAY_PROTEIN_LEVEL,
         PROTEIN_ARRAY_PHOSPHORYLATION,
         GENESET_SCORE,
-        GENERIC_ASSAY,
+        TREATMENT,
         MUTATIONAL_SIGNATURE
     }
 

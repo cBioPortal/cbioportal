@@ -38,6 +38,8 @@ import java.util.Date;
 import java.util.Set;
 
 import joptsimple.*;
+
+import org.cbioportal.model.EntityType;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 
@@ -93,10 +95,9 @@ public class ImportProfileData extends ConsoleRunnable {
             } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.FUSION) {
                 ImportFusionData importer = new ImportFusionData(dataFile, geneticProfile.getGeneticProfileId(), genePanel);
                 importer.importData();
-            } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY) {
-
+            } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.TREATMENT || geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATIONAL_SIGNATURE) {
                 // add all missing `genetic_entities` for this assay to the database
-                ImportGenericAssayEntity.importData(dataFile);
+                ImportGenericAssayEntity.importData(dataFile, geneticProfile.getGeneticAlterationType());
                 
                 ImportTabDelimData genericAssayProfileImporter = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(), geneticProfile.getGeneticProfileId(), genePanel);
                 genericAssayProfileImporter.importData(numLines);

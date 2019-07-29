@@ -198,7 +198,7 @@ For mRNA and microRNA expression data, we typically compute the relative express
 ### Is there any normal RNA-seq data in cBioPortal?
 No, we currently do not store any expression data from normal tissue samples in our system.
 ### How is TCGA RNASeqV2 processed? What units are used?
-RNASeqV2 from TCGA is processed and normalized using [RSEM](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-323) to generate TPM (transcripts per million). Specifically, the data_RNA_Seq_v2_expression_median file in cBioPortal corresponds to the rsem.genes.normalized_results file from TCGA. cBioPortal then calculates z-scores as described above in [What are mRNA and microRNA Z-Scores?](#what-are-mrna-and-microrna-z-scores) 
+RNASeqV2 from TCGA is processed and normalized using [RSEM](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-323). Specifically, the RNASeq V2 data in cBioPortal corresponds to the rsem.genes.normalized_results file from TCGA. A more detailed explanation of RSEM output can be found [here](https://www.biostars.org/p/106127/). cBioPortal then calculates z-scores as described above in [What are mRNA and microRNA Z-Scores?](#what-are-mrna-and-microrna-z-scores) 
 ### Is there microRNA data?
 We have microRNA data for only a few studies and they are not up to date. To download more updated miRNA data, please go to either [Broad Firehose](http://gdac.broadinstitute.org/), or [GDC](https://portal.gdc.cancer.gov/). 
 ### How can I query microRNAs in the portal?

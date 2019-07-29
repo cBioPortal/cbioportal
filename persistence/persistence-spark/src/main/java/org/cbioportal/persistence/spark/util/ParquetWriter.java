@@ -53,7 +53,8 @@ public class ParquetWriter {
             .option("header", "true")
             .option("comment","#")
             .load(inputFile);
-        df.write().parquet(outputFile);
+        df.write()
+            .mode("append").parquet(outputFile);
     }
     
     public static void main(String[] args) {

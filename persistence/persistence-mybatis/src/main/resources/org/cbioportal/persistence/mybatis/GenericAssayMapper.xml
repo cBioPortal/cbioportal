@@ -6,6 +6,7 @@
 
     <select id="getGenericAssayMeta" resultType="org.cbioportal.model.meta.GenericAssayMeta">
         SELECT genetic_entity.STABLE_ID as stableId,
+        genetic_entity.ENTITY_TYPE as entityType,
         genetic_entity.NAME as name,
         genetic_entity.DESCRIPTION as description,
         genetic_entity.ADDITIONAL_FIELDS as addtionalFields

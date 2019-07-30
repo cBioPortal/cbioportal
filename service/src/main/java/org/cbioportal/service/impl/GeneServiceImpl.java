@@ -7,21 +7,27 @@ import org.cbioportal.persistence.GeneRepository;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.exception.GeneNotFoundException;
 import org.cbioportal.service.util.ChromosomeCalculator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import org.slf4j.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.concurrent.CompletableFuture;
+
+import javax.annotation.PostConstruct;
 
 @Service
 public class GeneServiceImpl implements GeneService {
 
     public static final String ENTREZ_GENE_ID_GENE_ID_TYPE = "ENTREZ_GENE_ID";
+    private static final Logger LOG = LoggerFactory.getLogger(GeneServiceImpl.class);
+    private static boolean precachingHasStarted = false;
     
     @Autowired
     private GeneRepository geneRepository;
@@ -33,10 +39,36 @@ public class GeneServiceImpl implements GeneService {
     @PostConstruct
     public void init() {
         // query all genes so they would be cached
-        getAllGenes(null, null, "SUMMARY", null, null, null, null);
+        List<Gene> geneList = getAllGenes(null, null, "SUMMARY", null, null, null, null);
 
         geneAliasMap = geneRepository.getAllAliases().stream().collect(Collectors.groupingBy(
             GeneAlias::getEntrezGeneId, Collectors.mapping(GeneAlias::getGeneAlias, Collectors.toList())));
+
+        // the geneGene method is behind coexpressions, lets cache the data behind that method too
+        // run asynchronously as to speedup war deployment
+        if (!precachingHasStarted) {
+            precachingHasStarted = true;
+            CompletableFuture.runAsync(() -> {
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("init() - precaching gene information, this will take some time...");
+                    }
+                    try {
+                        int lc = 0;
+                        for (Gene gene : geneList) {
+                            getGene(gene.getEntrezGeneId().toString());
+                            if (((++lc % 1000) == 0) && LOG.isInfoEnabled()) {
+                                LOG.info("init() - precached " + lc + " genes out of " + geneList.size() + ".");
+                            }
+                        }
+                    }
+                    catch (GeneNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("init() - precaching gene information complete!");
+                    }
+                });
+        }
     }
 
 	@Override

@@ -12,12 +12,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import scala.collection.Seq;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +42,8 @@ public class GeneralSparkRepositoryTest {
         DataFrameReader dfr = mock(DataFrameReader.class);
         when(spark.read()).thenReturn(dfr);
         ds = mock(Dataset.class);
-        when(dfr.parquet(anyString())).thenReturn(ds);
+        when(dfr.option(anyString(), anyBoolean())).thenReturn(dfr);
+        when(dfr.parquet(any(Seq.class))).thenReturn(ds);
     }
 
     @Test

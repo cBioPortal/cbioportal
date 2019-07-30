@@ -7,11 +7,15 @@ import org.cbioportal.persistence.spark.util.ParquetConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import scala.collection.JavaConverters;
+import scala.collection.Seq;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
 
 @Component
 public class GeneralSparkRepository {
@@ -23,29 +27,24 @@ public class GeneralSparkRepository {
     private String PARQUET_DIR;
     
     public List<String> fetchSamplesWithCopyNumberSegments(List<String> studyIds, List<String> sampleIds) {
-        List<Dataset<Row>> res = new ArrayList<>();
-        for (String studyId : new HashSet<>(studyIds)) {
-            Dataset<Row> cnaSamples = spark.read()
-                .parquet(PARQUET_DIR + ParquetConstants.STUDIES_DIR + studyId + "/" + ParquetConstants.CNA_SEG);
-
-            if (sampleIds != null && !sampleIds.isEmpty()) {
-                cnaSamples = cnaSamples
-                    .where(cnaSamples.col("ID").isin(sampleIds.toArray()));
-            }
-
-            cnaSamples = cnaSamples.select("ID").distinct();
-            res.add(cnaSamples);
+        Dataset<Row> cnaSamples =loadStudyFiles(new HashSet<>(studyIds), ParquetConstants.CNA_SEG);
+        if (!CollectionUtils.isEmpty(sampleIds)) {
+            cnaSamples = cnaSamples.where(cnaSamples.col("ID").isin(sampleIds.toArray()));
         }
-        Dataset<Row> ds = res.get(0);
-        if (res.size() > 1) {
-            for (Dataset<Row> sub: res.subList(1, res.size())) {
-                ds = ds.unionByName(sub);
-            }
-        }
+        cnaSamples = cnaSamples.select("ID").distinct();
 
-        List<Row> resls = ds.collectAsList();
-        List<String> cnaSampleIds = resls.stream()
+        return cnaSamples.collectAsList().stream()
             .map(r -> r.getString(0)).collect(Collectors.toList());
-        return cnaSampleIds;
+    }
+
+    // Loads multiple tables with their schemas merged.
+    public Dataset<Row> loadStudyFiles(Set<String> studyIds, String file) {
+        List<String> studyIdArr = studyIds.stream()
+            .map(s -> PARQUET_DIR + ParquetConstants.STUDIES_DIR + s + "/" + file).collect(Collectors.toList());
+        Seq<String> fileSeq = JavaConverters.asScalaBuffer(studyIdArr).toSeq();
+
+        return spark.read()
+            .option("mergeSchema", true)
+            .parquet(fileSeq);
     }
 }

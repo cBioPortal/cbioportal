@@ -11,10 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import scala.collection.JavaConverters;
+import scala.collection.Seq;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -66,28 +69,14 @@ public class MolecularProfileSparkRepository implements MolecularProfileReposito
 
     @Override
     public List<MolecularProfile> getMolecularProfilesInStudies(List<String> studyIds, String projection) {
-        List<Dataset<Row>> res = new ArrayList<>();
-        for (String studyId : new HashSet<>(studyIds)) {
-            Dataset<Row> meta = spark.read()
-                .option("mergeSchema", true)
-                .parquet(PARQUET_DIR + ParquetConstants.STUDIES_DIR + studyId + "/" + ParquetConstants.META);
+        Dataset<Row> meta = loadStudyFiles(new HashSet<>(studyIds), ParquetConstants.META);
             
-            meta = meta.select("cancer_study_identifier", "genetic_alteration_type", "datatype",
-                "stable_id", "show_profile_in_analysis_tab", "profile_name", "profile_description");
-            meta = meta.na().drop();
-            res.add(meta);
-        }
-        Dataset<Row> ds = res.get(0);
-        if (res.size() > 1) {
-            for (Dataset<Row> sub: res.subList(1, res.size())) {
-                ds = ds.unionByName(sub);
-            }
-        }
+        meta = meta.select("cancer_study_identifier", "genetic_alteration_type", "datatype",
+            "stable_id", "show_profile_in_analysis_tab", "profile_name", "profile_description");
+        meta = meta.na().drop();
 
-        List<Row> resls = ds.collectAsList();
-        List<MolecularProfile> molecularProfiles = resls.stream().
+        return meta.collectAsList().stream().
             map(r -> mapToMolecularProfile(r)).collect(Collectors.toList());
-        return molecularProfiles;
     }
 
     @Override
@@ -110,11 +99,21 @@ public class MolecularProfileSparkRepository implements MolecularProfileReposito
         mp.setCancerStudyIdentifier(row.getString(0));
         mp.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.valueOf(row.getString(1)));
         mp.setDatatype(row.getString(2));
-        // TODO check: mp.getCancerStudyIdentifier() + "_" may not generalize.
         mp.setStableId(mp.getCancerStudyIdentifier() + "_" + row.getString(3));
         mp.setShowProfileInAnalysisTab(Boolean.valueOf(row.getString(4)));
         mp.setName(row.getString(5));
         mp.setDescription(row.getString(6));
         return mp;
+    }
+
+    // Loads multiple tables with their schemas merged.
+    public Dataset<Row> loadStudyFiles(Set<String> studyIds, String file) {
+        List<String> studyIdArr = studyIds.stream()
+            .map(s -> PARQUET_DIR + ParquetConstants.STUDIES_DIR + s + "/" + file).collect(Collectors.toList());
+        Seq<String> fileSeq = JavaConverters.asScalaBuffer(studyIdArr).toSeq();
+
+        return spark.read()
+            .option("mergeSchema", true)
+            .parquet(fileSeq);
     }
 }

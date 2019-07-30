@@ -13,6 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import scala.collection.Seq;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +44,7 @@ public class MolecularProfileSparkRepositoryTest {
         DataFrameReader dfr = mock(DataFrameReader.class);
         when(spark.read()).thenReturn(dfr);
         when(dfr.option(anyString(), anyBoolean())).thenReturn(dfr);
-        when(dfr.parquet(anyString())).thenReturn(ds);
+        when(dfr.parquet(any(Seq.class))).thenReturn(ds);
         when(ds.select(anyString(),anyString(),anyString(),anyString(),anyString(),anyString(),anyString())).thenReturn(ds);
         DataFrameNaFunctions dfna = mock(DataFrameNaFunctions.class);
         when(ds.na()).thenReturn(dfna);
@@ -52,7 +53,6 @@ public class MolecularProfileSparkRepositoryTest {
 
     @Test
     public void testGetMolecularProfilesInStudies() {
-        ;
         when(ds.collectAsList()).thenReturn(Arrays.asList(RowFactory.create("cancer_study_identifier",
             "MUTATION_EXTENDED", "datatype", "stable_id", "show_profile_in_analysis_tab", 
             "profile_name", "profile_description")));

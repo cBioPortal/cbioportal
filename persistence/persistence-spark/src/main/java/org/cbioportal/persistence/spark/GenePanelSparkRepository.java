@@ -3,6 +3,8 @@ package org.cbioportal.persistence.spark;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.expressions.UserDefinedFunction;
+import org.apache.spark.sql.types.DataTypes;
 import org.cbioportal.model.GenePanel;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.GenePanelToGene;
@@ -13,11 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import scala.collection.JavaConverters;
+import scala.collection.Seq;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.spark.sql.functions.lit;
+import static org.apache.spark.sql.functions.*;
 
 @Component
 @Qualifier("genePanelSparkRepository")
@@ -61,32 +66,14 @@ public class GenePanelSparkRepository implements GenePanelRepository {
 
     @Override
     public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds) {
-
-        List<Dataset<Row>> res = new ArrayList<>();
-        for (String molecularProfileId: new HashSet<>(molecularProfileIds)) {
-            Dataset<Row> casels = spark.read()
-                .parquet(PARQUET_DIR + ParquetConstants.CASE_LIST_DIR + molecularProfileId);
-
-            if (sampleIds != null && !sampleIds.isEmpty()) {
-                casels = casels
-                    .where(casels.col("case_list_ids").isin(sampleIds.toArray()));
-            }
+        Dataset<Row> casels =  loadFiles(new HashSet<>(molecularProfileIds));
+        if (!CollectionUtils.isEmpty(sampleIds)) {
+            casels = casels.where(casels.col("case_list_ids").isin(sampleIds.toArray()));
+        }
+        Dataset<Row> result = casels.select("case_list_ids", "molecularProfileId");
             
-            Dataset<Row> sub = casels.select("case_list_ids");
-            sub = sub.withColumn("molecularProfileId", lit(molecularProfileId));
-            res.add(sub);
-        }
-        Dataset<Row> ds = res.get(0);
-        if (res.size() > 1) {
-            for (Dataset<Row> sub: res.subList(1, res.size())) {
-                ds = ds.unionByName(sub);
-            }
-        }
-
-        List<Row> resls = ds.collectAsList();
-        List<GenePanelData> genePanelData = resls.stream().
+        return result.collectAsList().stream().
             map(r -> mapToGenePanelData(r)).collect(Collectors.toList());
-        return genePanelData;
     }
 
     @Override
@@ -99,5 +86,22 @@ public class GenePanelSparkRepository implements GenePanelRepository {
         gpd.setSampleId(row.getString(0));
         gpd.setMolecularProfileId(row.getString(1));
         return gpd;
+    }
+
+    // Loads multiple tables with their schemas merged.
+    private Dataset<Row> loadFiles(Set<String> molecularProfileIds) {
+        List<String> molecularProfileArr = molecularProfileIds.stream()
+            .map(id -> PARQUET_DIR + ParquetConstants.CASE_LIST_DIR + id).collect(Collectors.toList());
+        Seq<String> fileSeq = JavaConverters.asScalaBuffer(molecularProfileArr).toSeq();
+
+        UserDefinedFunction getStudyId = udf((String fullPath) -> {
+            String[] paths = fullPath.split("/");
+            return paths[paths.length-2];
+        }, DataTypes.StringType);
+
+        return spark.read()
+            .option("mergeSchema", true)
+            .parquet(fileSeq)
+            .withColumn("molecularProfileId", getStudyId.apply(input_file_name()));
     }
 }

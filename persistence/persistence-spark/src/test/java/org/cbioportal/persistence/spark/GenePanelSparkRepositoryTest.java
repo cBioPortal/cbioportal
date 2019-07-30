@@ -2,7 +2,6 @@ package org.cbioportal.persistence.spark;
 
 import org.apache.spark.sql.*;
 import org.cbioportal.model.GenePanelData;
-import org.cbioportal.model.MolecularProfile;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import scala.collection.Seq;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,16 +43,17 @@ public class GenePanelSparkRepositoryTest {
         DataFrameReader dfr = mock(DataFrameReader.class);
         when(spark.read()).thenReturn(dfr);
         ds = mock(Dataset.class);
-        when(dfr.parquet(anyString())).thenReturn(ds);
+        when(dfr.option(anyString(), anyBoolean())).thenReturn(dfr);
+        when(dfr.parquet(any(Seq.class))).thenReturn(ds);
     }
 
     @Test
     public void testFetchGenePanelDataInMultipleMolecularProfiles() {
 
-        when(ds.select(anyString())).thenReturn(ds);
+        when(ds.select(anyString(), anyString())).thenReturn(ds);
         when(ds.withColumn(anyString(), any(Column.class))).thenReturn(ds);
         
-        List<Row> res = Arrays.asList(RowFactory.create("sampleId", "genePanelId", "msk_impact_2017_cna"));
+        List<Row> res = Arrays.asList(RowFactory.create("sampleId", "msk_impact_2017_cna"));
         when(ds.collectAsList()).thenReturn(res);
         
         List<GenePanelData> result = genePanelSparkRepository.fetchGenePanelDataInMultipleMolecularProfiles(

@@ -1,6 +1,5 @@
 package org.cbioportal.persistence.spark;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -9,14 +8,11 @@ import org.cbioportal.model.SampleListToSampleId;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.spark.util.ParquetConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,9 +57,8 @@ public class SampleListSparkRepository implements SampleListRepository {
             .parquet(PARQUET_DIR + ParquetConstants.CASE_LIST_DIR + sampleListId);
         sampleList = sampleList.select("case_list_ids");
         List<Row> sampleListRows = sampleList.collectAsList();
-        List<String> sampleListStrings = sampleListRows.stream()
+        return sampleListRows.stream()
             .map(r -> r.getString(0)).collect(Collectors.toList());
-        return sampleListStrings;
     }
 
     @Override

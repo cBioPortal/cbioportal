@@ -10,8 +10,11 @@ public interface MolecularDataMapper {
 
     List<String> getCommaSeparatedSampleIdsOfMolecularProfiles(List<String> molecularProfileIds);
 
-    Cursor<GeneMolecularAlteration> getGeneMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds,
+    List<GeneMolecularAlteration> getGeneMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds,
                                                                 String projection);
+
+    Cursor<GeneMolecularAlteration> getGeneMolecularAlterationsIter(String molecularProfileId, List<Integer> entrezGeneIds,
+                                                                    String projection);
 
     List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
                                                                                          List<Integer> entrezGeneIds,

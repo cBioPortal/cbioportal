@@ -15,7 +15,7 @@
 	    <property name="ignoreResourceNotFound" value="true" />
 	    <property name="locations">
 		     <list>                 
-                 <value>classpath:test.properties</value>
+                 <value>classpath:portal.properties</value>
                  <value>file:///#{systemEnvironment['PORTAL_HOME']}/src/main/resources/portal.properties</value>
                  <value>file:///#{systemEnvironment['PORTAL_HOME']}/src/main/resources/maven.properties</value>
 		     </list>

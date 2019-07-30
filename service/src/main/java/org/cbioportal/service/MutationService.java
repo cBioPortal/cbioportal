@@ -1,5 +1,6 @@
 package org.cbioportal.service;
 
+import org.cbioportal.model.AnnotationFilter;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.MutationCountByGene;
@@ -25,6 +26,11 @@ public interface MutationService {
                                                            Integer pageSize, Integer pageNumber,
                                                            String sortBy, String direction);
 
+    List<Mutation> getMutationsInMultipleMolecularProfilesByAnnotation(List<String> molecularProfileIds, List<String> sampleIds,
+                                                                       List<Integer> entrezGeneIds, String projection,
+                                                                       Integer pageSize, Integer pageNumber,
+                                                                       String sortBy, String direction, List<AnnotationFilter> filters);
+    
     MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
                                                              List<Integer> entrezGeneIds);
 

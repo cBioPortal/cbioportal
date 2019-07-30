@@ -1,5 +1,6 @@
 package org.cbioportal.persistence.mybatis;
 
+import org.cbioportal.model.AnnotationFilter;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
 import org.cbioportal.model.MutationCountByGene;
@@ -45,6 +46,12 @@ public class MutationMyBatisRepository implements MutationRepository {
 
         return mutationMapper.getMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds, entrezGeneIds, 
             null, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
+    }
+
+    @Override
+    public List<Mutation> getMutationsInMultipleMolecularProfilesByAnnotation(List<String> molecularProfileIds, List<String> sampleIds, List<Integer> entrezGeneIds, String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction, List<AnnotationFilter> filters) {
+        return mutationMapper.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileIds, sampleIds, entrezGeneIds,
+            null, projection, pageSize, offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction, filters);
     }
 
     @Override

@@ -83,8 +83,11 @@ public class GenesetDataServiceImpl implements GenesetDataService {
         List<GenesetMolecularAlteration> genesetAlterations = molecularDataRepository.getGenesetMolecularAlterations(molecularProfileId,
                 genesetIds, "SUMMARY");
 
+        List<String> samplesByInternalIds = sampleService.getSamplesByInternalIds(internalSampleIds)
+            .stream().map(s -> s.getStableId()).collect(Collectors.toList());
+        
         for (Sample sample : samples) {
-            int indexOfSampleId = internalSampleIds.indexOf(sample.getInternalId());
+            int indexOfSampleId = samplesByInternalIds.indexOf(sample.getStableId());
             if (indexOfSampleId != -1) {
                 for (GenesetMolecularAlteration genesetAlteration : genesetAlterations) {
                     GenesetMolecularData genesetData = new GenesetMolecularData();

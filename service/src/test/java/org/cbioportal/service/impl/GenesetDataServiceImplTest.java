@@ -49,14 +49,14 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
         sample.setInternalId(1);
         sample.setStableId(SAMPLE_ID1);
         sampleList1.add(sample);
-        Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "ID"))
+        Mockito.when(sampleService.getSamplesByInternalIds(Arrays.asList(1)))
             .thenReturn(sampleList1);
         List<Sample> sampleListAll = new ArrayList<>(sampleList1);
         sample = new Sample();
         sample.setInternalId(2);
         sample.setStableId(SAMPLE_ID2);
         sampleListAll.add(sample);
-        Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID, STUDY_ID), Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), "ID"))
+        Mockito.when(sampleService.getSamplesByInternalIds(Arrays.asList(1,2)))
             .thenReturn(sampleListAll);
 
         //stub for genetic profile
@@ -84,15 +84,7 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
 
     @Test
     public void fetchGenesetData() throws Exception {
-        
-        List<Sample> samples = new ArrayList<>();
-        Sample sample1 = new Sample();
-        sample1.setStableId(SAMPLE_ID1);
-        samples.add(sample1);
-        Sample sample2 = new Sample();
-        sample2.setStableId(SAMPLE_ID2);
-        samples.add(sample2);
-        Mockito.when(sampleService.getSamplesByInternalIds(Mockito.anyList())).thenReturn(samples);
+
         List<GenesetMolecularData> result = genesetDataService.fetchGenesetData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
                 Arrays.asList(GENESET_ID1, GENESET_ID2));
 

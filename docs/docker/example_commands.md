@@ -12,7 +12,7 @@ docker run -it --rm --net cbio-net \
     -v "$PWD/study-dir:/study:ro" \
     -v "$HOME/Desktop:/outdir" \
     cbioportal-image \
-    metaImport.py -u http://cbioportal-container:8080/cbioportal -s /study --html=/outdir/report.html
+    metaImport.py -u http://cbioportal-container:8080 -s /study --html=/outdir/report.html
 ```
 :warning: after importing a study, remember to restart `cbioportal-container`
 to see the study on the home page. Run `docker restart cbioportal-container`.
@@ -71,7 +71,7 @@ docker exec -it importer-container bash
 ```
 The import command:
 ```shell
-metaImport.py -u http://cbioportal-container:8080/cbioportal -s /study --html=/outdir/report.html
+metaImport.py -u http://cbioportal-container:8080 -s /study --html=/outdir/report.html
 ```
 
 ### Inspecting or adjusting the database ###

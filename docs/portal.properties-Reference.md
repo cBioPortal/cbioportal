@@ -14,6 +14,7 @@ This page describes the main properties within portal.properties.
 	- [Automatic selection of OncoKB annotations](#automatic-selection-of-oncokb-annotations)
 	- [Automatic hiding of putative passenger mutations](#automatic-hiding-of-putative-passenger-mutations)
 - [Gene sets used for gene querying](#gene-sets-used-for-gene-querying)
+- [Spark & Parquet](#spark--parquet)
 
 # Database Settings
 
@@ -281,16 +282,23 @@ This gene set will add the following in the query box:
 "BRCA genes" BRCA1: MUT=E1258D; BRCA2: HOMDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;
 ```
 
-# Spark Configuration Settings
-
+# Spark & Parquet
+Spark application properties are used to configure the [SparkContext](https://spark.apache.org/docs/latest/api/java/org/apache/spark/SparkContext.html) configuration.
+Below are a few properties that can be set globally. For developers, other properties related to Parquet or Spark SQL can be set locally during a method call.
+For a full list of Spark configuration properties and description please refer to [Spark documentation](https://spark.apache.org/docs/latest/configuration.html).
 ```
 spark.app.name=cBioPortal
-spark.master.uri=[cluster local[*]]
+spark.master.uri=[cluster e.g. local[*]]
 spark.driver.bindAddress=[driver address for local e.g. 127.0.0.1]
 spark.driver.host=[driver host for local e.g. 127.0.0.1]
 spark.driver.memory=[driver memory e.g. 2g]
 spark.executor.memory=[executor memory e.g. 1g]
 spark.shuffle.partitions=[default number of logical cores]
 spark.default.parallelism=[default 200]
-data.parquet.folder=[location to save parquet files e.g. cbioportal/persistence/persistence-spark/src/main/resources/parquet/]
+```
+
+Parquet files for Spark implementation should be stored in the location specified in below property.
+See [here](Spark-Parquet-Data-Loading.md) for details on Parquet file organization.
+```
+data.parquet.folder=your/parquet_folder/
 ```

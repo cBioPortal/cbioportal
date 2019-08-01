@@ -38,7 +38,38 @@
         ORDER BY REPLACE(genetic_profile.STABLE_ID, '_', ' '), genetic_profile.STABLE_ID ASC
     </select>
     
+    <!-- Any changes to this routine should be kept in sync with getGeneMolecularAlterationsIter below -->
     <select id="getGeneMolecularAlterations" resultType="org.cbioportal.model.GeneMolecularAlteration">
+        SELECT
+        gene.ENTREZ_GENE_ID AS entrezGeneId,
+        genetic_alteration.VALUES AS "values"
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.persistence.mybatis.GeneMapper.select">
+                <property name="prefix" value="gene."/>
+            </include>
+        </if>
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN gene ON genetic_alteration.GENETIC_ENTITY_ID = gene.GENETIC_ENTITY_ID
+        <where>
+            genetic_profile.STABLE_ID = #{molecularProfileId}
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND gene.ENTREZ_GENE_ID IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- This routine is a copy of getGeneMolecularAlterations above.  This copy is necessary because
+         it is backing a corresponding method in MolecularDataMapper.java which returns a Cursor as
+         opposed to a List. This method should be kept in sync with getGeneMolecularAlterations above.
+         (Attempts where made to share getGeneMolecularAlterations between methods in MolecularDataMapper.java
+         all of which have failed).
+    -->
+    <select id="getGeneMolecularAlterationsIter" resultType="org.cbioportal.model.GeneMolecularAlteration">
         SELECT
         gene.ENTREZ_GENE_ID AS entrezGeneId,
         genetic_alteration.VALUES AS "values"

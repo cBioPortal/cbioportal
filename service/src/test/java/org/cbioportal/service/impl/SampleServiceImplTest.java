@@ -5,7 +5,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.SampleRepository;
-import org.cbioportal.persistence.spark.GeneralSparkRepository;
+import org.cbioportal.persistence.spark.CopyNumberSegmentSparkRepository;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
@@ -34,7 +34,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     @Mock
     private SampleRepository sampleSparkRepository;
     @Mock
-    private GeneralSparkRepository generalSparkRepository;
+    private CopyNumberSegmentSparkRepository copyNumberSegmentSparkRepository;
     @Mock
     private StudyService studyService;
     @Mock
@@ -222,7 +222,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         List<Integer> expectedInternalIdList = new ArrayList<>();
         expectedInternalIdList.add(SAMPLE_INTERNAL_ID);
        
-        Mockito.when(generalSparkRepository.fetchSamplesWithCopyNumberSegments(
+        Mockito.when(copyNumberSegmentSparkRepository.fetchSamplesWithCopyNumberSegments(
             Mockito.anyListOf(String.class), Mockito.anyListOf(String.class)))
             .thenReturn(Arrays.asList(SAMPLE_ID1, SAMPLE_ID1));
         Mockito.when(sampleSparkRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED"))

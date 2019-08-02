@@ -2,6 +2,7 @@ package org.cbioportal.persistence.spark;
 
 import org.apache.spark.sql.*;
 import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.persistence.spark.util.ParquetLoader;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +32,9 @@ public class MolecularProfileSparkRepositoryTest {
     @Mock
     private SparkSession spark;
 
+    @Mock
+    private ParquetLoader parquetLoader;
+    
     @InjectMocks
     private MolecularProfileSparkRepository molecularProfileSparkRepository;
 
@@ -38,17 +42,13 @@ public class MolecularProfileSparkRepositoryTest {
 
     @Before
     public void setup() {
-        MockitoAnnotations.initMocks(this);
-
         ds = mock(Dataset.class);
         DataFrameReader dfr = mock(DataFrameReader.class);
-        when(spark.read()).thenReturn(dfr);
-        when(dfr.option(anyString(), anyBoolean())).thenReturn(dfr);
-        when(dfr.parquet(any(Seq.class))).thenReturn(ds);
         when(ds.select(anyString(),anyString(),anyString(),anyString(),anyString(),anyString(),anyString())).thenReturn(ds);
         DataFrameNaFunctions dfna = mock(DataFrameNaFunctions.class);
         when(ds.na()).thenReturn(dfna);
         when(dfna.drop()).thenReturn(ds);
+        when(parquetLoader.loadStudyFiles(any(SparkSession.class), anySet(), anyString(), anyBoolean())).thenReturn(ds);
     }
 
     @Test

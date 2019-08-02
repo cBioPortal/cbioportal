@@ -6,7 +6,7 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.SampleRepository;
-import org.cbioportal.persistence.spark.GeneralSparkRepository;
+import org.cbioportal.persistence.spark.CopyNumberSegmentSparkRepository;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.StudyService;
@@ -37,7 +37,7 @@ public class SampleServiceImpl implements SampleService {
     @Qualifier("sampleSparkRepository")
     private SampleRepository sampleSparkRepository;
     @Autowired
-    private GeneralSparkRepository generalSparkRepository;
+    private CopyNumberSegmentSparkRepository copyNumberSegmentSparkRepository;
     @Autowired
     private StudyService studyService;
     @Autowired
@@ -208,7 +208,7 @@ public class SampleServiceImpl implements SampleService {
                 sequencedSampleIdsMap.put(studyId,
                     new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
             }
-            List<String> samplesWithCopyNumberSeg = generalSparkRepository.fetchSamplesWithCopyNumberSegments(
+            List<String> samplesWithCopyNumberSeg = copyNumberSegmentSparkRepository.fetchSamplesWithCopyNumberSegments(
                 samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()),
                 samples.stream().map(Sample::getStableId).collect(Collectors.toList())
             );

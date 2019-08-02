@@ -7,17 +7,12 @@ import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.persistence.spark.util.ParquetConstants;
+import org.cbioportal.persistence.spark.util.ParquetLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import scala.collection.JavaConverters;
-import scala.collection.Seq;
-
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -27,8 +22,8 @@ public class MolecularProfileSparkRepository implements MolecularProfileReposito
     @Autowired
     private SparkSession spark;
 
-    @Value("${data.parquet.folder}")
-    private String PARQUET_DIR;
+    @Autowired
+    private ParquetLoader parquetLoader;
     
     @Override
     public List<MolecularProfile> getAllMolecularProfiles(String projection, Integer pageSize, Integer pageNumber,
@@ -69,7 +64,8 @@ public class MolecularProfileSparkRepository implements MolecularProfileReposito
 
     @Override
     public List<MolecularProfile> getMolecularProfilesInStudies(List<String> studyIds, String projection) {
-        Dataset<Row> meta = loadStudyFiles(new HashSet<>(studyIds), ParquetConstants.META);
+        Dataset<Row> meta = parquetLoader.loadStudyFiles(
+            spark, new HashSet<>(studyIds), ParquetConstants.META, false);
             
         meta = meta.select("cancer_study_identifier", "genetic_alteration_type", "datatype",
             "stable_id", "show_profile_in_analysis_tab", "profile_name", "profile_description");
@@ -104,16 +100,5 @@ public class MolecularProfileSparkRepository implements MolecularProfileReposito
         mp.setName(row.getString(5));
         mp.setDescription(row.getString(6));
         return mp;
-    }
-
-    // Loads multiple tables with their schemas merged.
-    public Dataset<Row> loadStudyFiles(Set<String> studyIds, String file) {
-        List<String> studyIdArr = studyIds.stream()
-            .map(s -> PARQUET_DIR + ParquetConstants.STUDIES_DIR + s + "/" + file).collect(Collectors.toList());
-        Seq<String> fileSeq = JavaConverters.asScalaBuffer(studyIdArr).toSeq();
-
-        return spark.read()
-            .option("mergeSchema", true)
-            .parquet(fileSeq);
     }
 }

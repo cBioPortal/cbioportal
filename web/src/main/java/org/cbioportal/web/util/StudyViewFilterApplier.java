@@ -50,6 +50,8 @@ public class StudyViewFilterApplier {
 
     private ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier;
 
+    private OncoKBDataFilterApplier oncoKBDataFilterApplier;
+
     private StudyViewFilterUtil studyViewFilterUtil;
 
     @Autowired
@@ -61,6 +63,7 @@ public class StudyViewFilterApplier {
                                   ClinicalDataService clinicalDataService,
                                   ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier,
                                   ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier,
+                                  OncoKBDataFilterApplier oncoKBDataFilterApplier,
                                   StudyViewFilterUtil studyViewFilterUtil)
     {
         this.sampleService = sampleService;
@@ -71,6 +74,7 @@ public class StudyViewFilterApplier {
         this.clinicalDataService = clinicalDataService;
         this.clinicalDataEqualityFilterApplier = clinicalDataEqualityFilterApplier;
         this.clinicalDataIntervalFilterApplier = clinicalDataIntervalFilterApplier;
+        this.oncoKBDataFilterApplier = oncoKBDataFilterApplier;
         this.studyViewFilterUtil = studyViewFilterUtil;
     }
 
@@ -179,7 +183,7 @@ public class StudyViewFilterApplier {
     {
         List<OncoKBDataFilter> attributes = oncoKBDataFilters.stream().collect(Collectors.toList());
 
-        return OncoKBDataFilterApplier.apply(sampleIdentifiers, attributes, negateFilters);
+        return oncoKBDataFilterApplier.apply(sampleIdentifiers, attributes, negateFilters);
     }
 
     private List<SampleIdentifier> filterByProfiled(List<SampleIdentifier> sampleIdentifiers, Boolean criteria,

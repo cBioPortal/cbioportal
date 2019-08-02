@@ -5,14 +5,14 @@ import java.util.List;
 
 public class OncoKBDataCountFilter implements Serializable {
 
-    private List<OncoKBDataFilter> attributes;
+    private List<String> attributes;
     private StudyViewFilter studyViewFilter;
 
-    public List<OncoKBDataFilter> getAttributes() {
+    public List<String> getAttributes() {
 		return attributes;
 	}
 
-	public void setAttributes(List<OncoKBDataFilter> attributes) {
+	public void setAttributes(List<String> attributes) {
 		this.attributes = attributes;
     }
 

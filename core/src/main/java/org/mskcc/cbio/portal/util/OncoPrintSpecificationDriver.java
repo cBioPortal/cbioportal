@@ -43,7 +43,8 @@ import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 
-public class OncoPrintSpecificationDriver {
+public class 
+OncoPrintSpecificationDriver {
 
     /**
      * A wrapper for the OncoPrintSpec parser, which includes the list of genetic

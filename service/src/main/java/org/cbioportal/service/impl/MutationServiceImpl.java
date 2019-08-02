@@ -74,10 +74,10 @@ public class MutationServiceImpl implements MutationService {
     public List<Mutation> getMutationsInMultipleMolecularProfilesByAnnotation(List<String> molecularProfileIds,
                                                                   List<String> sampleIds, List<Integer> entrezGeneIds,
                                                                   String projection, Integer pageSize,
-                                                                  Integer pageNumber, String sortBy, String direction, String annotation) {
+                                                                  Integer pageNumber, String sortBy, String direction, List<AnnotationFilter> filters) {
 
-        List<Mutation> mutationList = mutationRepository.getMutationsInMultipleMolecularProfiles(molecularProfileIds,
-            sampleIds, entrezGeneIds, projection, pageSize, pageNumber, sortBy, direction);
+        List<Mutation> mutationList = mutationRepository.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileIds,
+            sampleIds, entrezGeneIds, projection, pageSize, pageNumber, sortBy, direction, filters);
 
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
         return mutationList;

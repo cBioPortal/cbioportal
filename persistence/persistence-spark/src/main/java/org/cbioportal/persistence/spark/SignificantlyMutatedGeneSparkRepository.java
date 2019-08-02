@@ -35,7 +35,7 @@ public class SignificantlyMutatedGeneSparkRepository implements SignificantlyMut
     public List<MutSig> getSignificantlyMutatedGenes(String studyId, String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction) {
         Dataset<Row> mutationDf = spark.read()
             .option("mergeSchema", true)
-            .parquet(PARQUET_DIR + "/" + studyId + "/" + ParquetConstants.DATA_MUTATIONS);
+            .parquet(PARQUET_DIR + ParquetConstants.STUDIES_DIR + studyId + "/" + ParquetConstants.DATA_MUTATIONS);
         mutationDf.createOrReplaceTempView("mutation");
 
         StringBuilder sb = new StringBuilder("select first(Hugo_Symbol),");

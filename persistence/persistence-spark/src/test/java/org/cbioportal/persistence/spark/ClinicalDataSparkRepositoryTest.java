@@ -129,7 +129,7 @@ public class ClinicalDataSparkRepositoryTest {
     @Test
     public void testClinicalDataStatusMonths() {
         String[] samples = {"P-0000004","P-0000015"};
-        when(ds.filter(col("PATIENT_ID").isin(samples).or(col("SAMPLE_ID").isin(samples))))
+        when(ds.filter(col("PATIENT_ID").isin(samples)))
             .thenReturn(ds);
 
         List<ClinicalData> res = clinicalDataSparkRepository

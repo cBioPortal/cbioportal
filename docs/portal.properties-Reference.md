@@ -283,9 +283,10 @@ This gene set will add the following in the query box:
 ```
 
 # Spark & Parquet
-Spark application properties are used to configure the [SparkContext](https://spark.apache.org/docs/latest/api/java/org/apache/spark/SparkContext.html) configuration.
-Below are a few properties that can be set globally. For developers, other properties related to Parquet or Spark SQL can be set locally during a method call.
-For a full list of Spark configuration properties and description please refer to [Spark documentation](https://spark.apache.org/docs/latest/configuration.html).
+Spark application properties are provided for the [SparkContext](https://spark.apache.org/docs/latest/api/java/org/apache/spark/SparkContext.html) configuration.
+Below are a few properties that can be customized to fit the infrastructure you are deploying.<br>
+To add new properties, add it to portal.properties and `org.cbioportal.persistence.spark.util.SparkConfiguration`.
+For a full list of Spark configuration properties please refer to [Spark documentation](https://spark.apache.org/docs/latest/configuration.html).
 ```
 spark.app.name=cBioPortal
 spark.master.uri=[cluster e.g. local[*]]

@@ -9,16 +9,16 @@ A utility is provided to write TSV files into Parquet files.
 The naming convention for Parquet files are detailed [here](#organization-of-parquet-files).
  
 ### Running ParquetWriter with Arguments
---input-file `<path to the TSV file>`
---output-file `path to write Parquet file>`
---type `<type of file (case, dna, meta, panel, data by default)>`
+**--input-file** `<path to the TSV file>`<br>
+**--output-file** `<path to write Parquet file>`<br>
+**--type** `<type of file (case, dna, meta, panel, data by default)>`<br>
 
 Below are examples of writing Parquet files where below should be substituted with your paths.
 **$HOME** - the path to your cbioportal project
 **$TSV_LOCATION** - the path to your TSV files
 **$PARQUET_DATA** - the path to Parquet data that is the same as `${data.parquet.folder}` property.
 
-#### Example 1: Data file
+#### Example 1: Data file (all data_* files with the exception of data_CNA, data_gene_panel_*)
 ```console
 $JAVA_HOME/bin/java -cp $HOME/cbioportal/scripts/target/scripts*.jar org.cbioportal.persistence.spark.util.ParquetWriter
 --input-file $TSV_LOCATION/msk_impact_2017/data_clinical_sample.txt
@@ -42,12 +42,28 @@ $JAVA_HOME/bin/java -cp $HOME/cbioportal/scripts/target/scripts*.jar org.cbiopor
 --type case
 ```
 
+#### Example 4: Gene panel file
+```console
+$JAVA_HOME/bin/java -cp $HOME/cbioportal/scripts/target/scripts*.jar org.cbioportal.persistence.spark.util.ParquetWriter
+--input-file $TSV_LOCATION/msk_impact_2017/data_gene_panel_impact341.txt
+--output-file $PARQUET_DATA/gene_panels/impact341
+--type panel
+```
+
+#### Example 5: data CNA file
+```console
+$JAVA_HOME/bin/java -cp $HOME/cbioportal/scripts/target/scripts*.jar org.cbioportal.persistence.spark.util.ParquetWriter
+--input-file $TSV_LOCATION/msk_impact_2017/data_CNA.txt
+--output-file $PARQUET_DATA/gene_panels/data_CNA
+--type cna
+```
+
 ## Organization of Parquet Files
 
 Parquet files are used in persistence-spark code in order to load data, and should follow the convention as documented.
 `org.cbioportal.persistence.spark.util.ParquetConstants.java` contains all file names and directories for Parquet files. 
 
-All files should be placed in `${data.parquet.folder}` specified in the [properties](portal.properties-Reference.md#spark-parquet) with **case_lists**, **gene_panels**, **studies** as the top level directories.
+All files should be placed in PARQUET_DIR `${data.parquet.folder}` property specified in the [properties](portal.properties-Reference.md#spark-parquet) with **case_lists**, **gene_panels**, **studies** as the top level directories.
 
 ### Example of Organization
  

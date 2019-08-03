@@ -40,22 +40,22 @@ Please note if you are logged in the master realm, this drop-down menu lists all
 3. To create a SAML client, go to the **Clients** item in the left menu. On this page, click the **Create** button on the right. This will bring you to the **Add Client** page.
     * Enter a **Client ID** for the client, e.g. '_cbioportal_', this will be the expected `issuer` value in SAML requests sent by the application.
     * Select _saml_ in the **Client Protocol** drop down box.
-    * Enter `http://localhost:8081/cbioportal/saml` in the **Client SAML Endpoint** textbox, this is the URL that the Keycloak server will send SAML requests and responses to. Then click the **Save** button; this will take you to the client page below.
+    * Enter `http://localhost:8081/saml` in the **Client SAML Endpoint** textbox, this is the URL that the Keycloak server will send SAML requests and responses to. Then click the **Save** button; this will take you to the client page below.
 
 ![](images/previews/edit-client.png)
 
 4. Choose _email_ as your **Name ID Format**.
-5. Next, enter a pattern for **Valid Redirect URIs** that Keycloak can use upon a successful authentication, e.g. `http://localhost:8081/cbioportal/*`. :information_source: notice that you can add multiple URLs in this field. You could use this in some cases to support 
-the URLs with and without port (e.g. if tomcat is running on port `80` and you want to allow both `http://localhost:80/cbioportal/*` and `http://localhost/cbioportal/*` as redirect URLs).
+5. Next, enter a pattern for **Valid Redirect URIs** that Keycloak can use upon a successful authentication, e.g. `http://localhost:8081/*`. :information_source: notice that you can add multiple URLs in this field. You could use this in some cases to support 
+the URLs with and without port (e.g. if tomcat is running on port `80` and you want to allow both `http://localhost:80/*` and `http://localhost/*` as redirect URLs).
 6. Set **Force POST Binding** and **Front Channel Logout** to _OFF_ and **Force Name ID Format** to _ON_.
-7. Expand the subsection **Fine Grain SAML Endpoint Configuration** and set **Logout Service POST Binding URL** to `http://localhost:8081/cbioportal/saml/logout`.
+7. Expand the subsection **Fine Grain SAML Endpoint Configuration** and set **Logout Service POST Binding URL** to `http://localhost:8081/saml/logout`.
 8. Leave everything else as it is and click **Save**.
 
 ### Map SAML Assertion Attributes
 To specify attributes included in the SAML assertion, simply click on the **Mappers** tab, and add mappers using the **Add Builtin** and **Create** buttons.
 Make sure you add at least:
 - the built-in User Property mapper named _X500 email_ and
-- a _Role list_-type attribute using the word _roles_ as its **Role attribute name**.
+- a _Role list_-type attribute (keep the default word _Role_ as its **Role attribute name**).
 
 ![](images/previews/add-mappers.png)
 
@@ -118,7 +118,7 @@ should now see the certificate and no private key.
     saml.idp.comm.binding.settings=defaultBinding
     saml.idp.comm.binding.type=
     saml.idp.metadata.attribute.email=email
-    saml.idp.metadata.attribute.role=roles
+    saml.idp.metadata.attribute.role=Role
     saml.custom.userservice.class=org.cbioportal.security.spring.authentication.keycloak.SAMLUserDetailsServiceImpl
     # global logout (as opposed to local logout):
     saml.logout.local=false
@@ -237,7 +237,7 @@ the same as the one for assigning roles to individual users.
 Rebuild the WAR file and follow the [Deployment with authentication
 steps](Deploying.md#required-login) using `authenticate=saml`.
 
-Then, go to:  [http://localhost:8081/cbioportal/](http://localhost:8081/cbioportal/).
+Then, go to:  [http://localhost:8081/](http://localhost:8081/).
 
 If all goes well, the following should happen:
 

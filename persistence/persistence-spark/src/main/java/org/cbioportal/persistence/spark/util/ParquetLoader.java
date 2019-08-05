@@ -45,7 +45,6 @@ public class ParquetLoader {
         }
     }
 
-
     public Dataset<Row> loadCaseListFiles(SparkSession spark, Set<String> molecularProfileIds, boolean withStudyColumn) {
         List<String> molecularProfileArr = molecularProfileIds.stream()
             .map(id -> PARQUET_DIR + ParquetConstants.CASE_LIST_DIR + id).collect(Collectors.toList());
@@ -67,7 +66,4 @@ public class ParquetLoader {
                 .parquet(fileSeq);
         }
     }
-    
-    
-    
 }

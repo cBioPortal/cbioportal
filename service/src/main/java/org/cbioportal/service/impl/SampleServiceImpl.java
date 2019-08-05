@@ -139,7 +139,6 @@ public class SampleServiceImpl implements SampleService {
     public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {
 
         List<Sample> samples = sampleSparkRepository.fetchSamples(studyIds, sampleIds, projection);
-        
         processSamplesSpark(samples, projection);
         return samples;
     }

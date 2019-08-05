@@ -9,12 +9,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import scala.collection.Seq;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +32,7 @@ public class SampleSparkRepositoryTest {
 
     @Mock
     private ParquetLoader parquetLoader;
-
+    
     @InjectMocks
     private SampleSparkRepository sampleSparkRepository;
 
@@ -72,12 +70,10 @@ public class SampleSparkRepositoryTest {
         Sample sample1 = result.get(0);
         Assert.assertEquals(Sample.SampleType.PRIMARY_SOLID_TUMOR, sample1.getSampleType());
         Assert.assertEquals("msk_impact_2017", sample1.getCancerStudyIdentifier());
-
         Sample sample2 = result.get(1);
         Assert.assertEquals(Sample.SampleType.RECURRENT_SOLID_TUMOR, sample2.getSampleType());
         Assert.assertEquals("msk_impact_2017", sample2.getCancerStudyIdentifier());
         Assert.assertEquals("TCGA-AC-A6IX-02", sample2.getStableId());
-
         Assert.assertEquals(Sample.SampleType.PRIMARY_BLOOD_TUMOR, result.get(2).getSampleType());
         Assert.assertEquals(Sample.SampleType.RECURRENT_BLOOD_TUMOR, result.get(3).getSampleType());
         Assert.assertEquals(Sample.SampleType.METASTATIC, result.get(4).getSampleType());
@@ -95,7 +91,7 @@ public class SampleSparkRepositoryTest {
         when(ds.collectAsList()).thenReturn(res);
 
         List<Sample> result = sampleSparkRepository.fetchSamples(Arrays.asList("msk_impact_2017"), null, "ID");
-
+        
         Assert.assertEquals(1, result.size());
         Sample sample = result.get(0);
         Assert.assertEquals("msk_impact_2017", sample.getCancerStudyIdentifier());

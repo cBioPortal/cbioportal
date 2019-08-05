@@ -9,6 +9,7 @@ import org.cbioportal.persistence.PatientRepository;
 import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
+@Qualifier("clinicalDataMyBatisRepository")
 public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
     @Autowired

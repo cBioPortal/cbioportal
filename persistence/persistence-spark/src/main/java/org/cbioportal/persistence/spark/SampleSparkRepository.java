@@ -79,11 +79,10 @@ public class SampleSparkRepository implements SampleRepository {
 
         Dataset<Row> samples = parquetLoader.loadStudyFiles(spark,
             new HashSet<>(studyIds), ParquetConstants.CLINICAL_SAMPLE, true);
-
         if (!CollectionUtils.isEmpty(sampleIds)) {
             samples = samples.where(samples.col("SAMPLE_ID").isin(sampleIds.toArray()));
         }
-
+        
         samples.createOrReplaceTempView("samples");
         StringBuilder sb = new StringBuilder("SELECT PATIENT_ID, SAMPLE_ID, studyId");
         if (PersistenceConstants.SUMMARY_PROJECTION.equalsIgnoreCase(projection)
@@ -93,7 +92,6 @@ public class SampleSparkRepository implements SampleRepository {
         sb.append(" FROM samples");
 
         Dataset<Row> res = spark.sql(sb.toString());
-
         return res.collectAsList().stream().
             map(r -> mapToSample(r, projection)).collect(Collectors.toList());
     }
@@ -116,7 +114,7 @@ public class SampleSparkRepository implements SampleRepository {
     public List<Sample> getSamplesByInternalIds(List<Integer> internalIds) {
         throw new UnsupportedOperationException();
     }
-
+    
     private Sample mapToSample(Row row, String projection) {
         Sample sample = new Sample();
         sample.setPatientStableId(row.getString(0));

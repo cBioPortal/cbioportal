@@ -31,6 +31,8 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     @Mock
     private SampleRepository sampleRepository;
     @Mock
+    private SampleRepository sampleSparkRepository;
+    @Mock
     private StudyService studyService;
     @Mock
     private PatientService patientService;
@@ -185,7 +187,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         Sample sample = new Sample();
         expectedSampleList.add(sample);
 
-        Mockito.when(sampleRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), PROJECTION))
+        Mockito.when(sampleSparkRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), PROJECTION))
                 .thenReturn(expectedSampleList);
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
@@ -216,7 +218,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         expectedInternalIdList.add(SAMPLE_INTERNAL_ID);
        
         
-        Mockito.when(sampleRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED"))
+        Mockito.when(sampleSparkRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED"))
                 .thenReturn(expectedSampleList);
         Mockito.when(sampleListRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());

@@ -1,23 +1,16 @@
 package org.cbioportal.persistence.spark;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.apache.spark.sql.*;
-import org.apache.spark.sql.expressions.UserDefinedFunction;
-import org.apache.spark.sql.types.DataTypes;
 import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
 import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.persistence.spark.util.ParquetConstants;
+import org.cbioportal.persistence.spark.util.ParquetLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import scala.collection.JavaConverters;
-import scala.collection.Seq;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,10 +25,9 @@ public class ClinicalDataSparkRepository implements ClinicalDataRepository {
     @Autowired
     private SparkSession spark;
 
-    @Value("${data.parquet.folder}")
-    private String PARQUET_DIR;
+    @Autowired
+    private ParquetLoader parquetLoader;
 
-    private static Log logger = LogFactory.getLog(ClinicalDataSparkRepository.class);
     private static final String MUTATION_COUNT = "MUTATION_COUNT";
     private static final String FRACTION_GENOME_ALTERED = "FRACTION_GENOME_ALTERED";
 
@@ -89,11 +81,12 @@ public class ClinicalDataSparkRepository implements ClinicalDataRepository {
         if (PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE.equalsIgnoreCase(clinicalDataType)) {
             dataFile = ParquetConstants.CLINICAL_SAMPLE;
         }
-        Dataset<Row> clinicalData = loadStudyFiles(studyIdSet, dataFile);
+        Dataset<Row> clinicalData = parquetLoader.loadStudyFiles(spark, studyIdSet, dataFile, true);
         
         // join with clinical sample data to get sample id information.
         if (PersistenceConstants.PATIENT_CLINICAL_DATA_TYPE.equalsIgnoreCase(clinicalDataType)) {
-            Dataset<Row> clinicalSampleData = loadStudyFiles(studyIdSet, ParquetConstants.CLINICAL_SAMPLE);
+            Dataset<Row> clinicalSampleData = parquetLoader.loadStudyFiles(
+                spark, studyIdSet, ParquetConstants.CLINICAL_SAMPLE, true);
             clinicalData = clinicalData.join(clinicalSampleData.drop("studyId"), "PATIENT_ID");
         }
         
@@ -162,11 +155,12 @@ public class ClinicalDataSparkRepository implements ClinicalDataRepository {
         if (PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE.equalsIgnoreCase(clinicalDataType)) {
             dataFile = ParquetConstants.CLINICAL_SAMPLE;
         }
-        Dataset<Row> clinicalData = loadStudyFiles(studyIdSet, dataFile);
+        Dataset<Row> clinicalData = parquetLoader.loadStudyFiles(spark, studyIdSet, dataFile, true);
 
         // join with clinical sample data to get sample id information.
         if (PersistenceConstants.PATIENT_CLINICAL_DATA_TYPE.equalsIgnoreCase(clinicalDataType)) {
-            Dataset<Row> clinicalSampleData = loadStudyFiles(studyIdSet, ParquetConstants.CLINICAL_SAMPLE);
+            Dataset<Row> clinicalSampleData = parquetLoader.loadStudyFiles(
+                spark, studyIdSet, ParquetConstants.CLINICAL_SAMPLE, true);
             clinicalData = clinicalData.join(clinicalSampleData.drop("studyId"), "PATIENT_ID");
         }
 
@@ -237,26 +231,8 @@ public class ClinicalDataSparkRepository implements ClinicalDataRepository {
         return cd;
     }
 
-    // Loads multiple tables with their schemas merged.
-    public Dataset<Row> loadStudyFiles(Set<String> studyIds, String file) {
-        List<String> studyIdArr = studyIds.stream()
-            .map(s -> PARQUET_DIR + ParquetConstants.STUDIES_DIR + s + "/" + file).collect(Collectors.toList());
-        Seq<String> fileSeq = JavaConverters.asScalaBuffer(studyIdArr).toSeq();
-
-        UserDefinedFunction getStudyId = udf((String fullPath) -> {
-                String[] paths = fullPath.split("/");
-                return paths[paths.length-3];
-            }, DataTypes.StringType);
-        
-        Dataset<Row> df = spark.read()
-            .option("mergeSchema", true)
-            .parquet(fileSeq)
-            .withColumn("studyId", getStudyId.apply(input_file_name()));
-        return df;
-    }
-
     private Dataset<Row> getMutationCount(Set<String> studyIds) {
-        Dataset<Row> mutationDf = loadStudyFiles(studyIds, ParquetConstants.DATA_MUTATIONS);
+        Dataset<Row> mutationDf = parquetLoader.loadStudyFiles(spark, studyIds, ParquetConstants.DATA_MUTATIONS, true);
         
         mutationDf = mutationDf.groupBy("Tumor_Sample_Barcode")
             .agg(countDistinct("Chromosome", "Start_Position", "End_Position",
@@ -268,7 +244,7 @@ public class ClinicalDataSparkRepository implements ClinicalDataRepository {
     }
 
     private Dataset<Row> getFractionGenomeAltered(Set<String> studyIds) {
-        Dataset<Row> copyNumberSeg = loadStudyFiles(studyIds, ParquetConstants.CNA_SEG);
+        Dataset<Row> copyNumberSeg = parquetLoader.loadStudyFiles(spark, studyIds, ParquetConstants.CNA_SEG, true);
 
         Dataset<Row> copyNumberSegFiltered =copyNumberSeg
             .filter(abs(col("`seg.mean`")).$greater$eq(0.2)).groupBy("ID")

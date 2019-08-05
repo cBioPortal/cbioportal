@@ -3,6 +3,7 @@ package org.cbioportal.persistence.spark;
 import org.apache.spark.sql.*;
 import org.cbioportal.model.*;
 import org.cbioportal.persistence.PersistenceConstants;
+import org.cbioportal.persistence.spark.util.ParquetLoader;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,9 @@ public class ClinicalDataSparkRepositoryTest {
     @Mock
     private SparkSession spark;
 
+    @Mock
+    private ParquetLoader parquetLoader;
+    
     @InjectMocks
     private ClinicalDataSparkRepository clinicalDataSparkRepository;
 
@@ -50,14 +54,13 @@ public class ClinicalDataSparkRepositoryTest {
 
     @Before
     public void setup() {
-        MockitoAnnotations.initMocks(this);
 
         dfr = mock(DataFrameReader.class);
         ds = mock(Dataset.class);
         dm = mock(Dataset.class);
         sqlContext = mock(SQLContext.class);
         gds = mock(RelationalGroupedDataset.class);
-
+        when(parquetLoader.loadStudyFiles(any(SparkSession.class), anySet(), anyString(), anyBoolean())).thenReturn(ds);
         mockAssumptions();
     }
 

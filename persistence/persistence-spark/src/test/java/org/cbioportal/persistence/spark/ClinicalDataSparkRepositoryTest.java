@@ -10,12 +10,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import scala.collection.Seq;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,7 +21,10 @@ import java.util.List;
 import static org.apache.spark.sql.functions.abs;
 import static org.apache.spark.sql.functions.col;
 import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doNothing;
+
 
 @RunWith(MockitoJUnitRunner.class)
 @ContextConfiguration("/testSparkContext.xml")
@@ -65,25 +66,18 @@ public class ClinicalDataSparkRepositoryTest {
     }
 
     private void mockAssumptions() {
-        when(spark.read()).thenReturn(dfr);
-        when(dfr.parquet(anyString())).thenReturn(ds);
         when(spark.sql(anyString())).thenReturn(ds);
-        when(spark.sqlContext()).thenReturn(sqlContext);
-        when(dfr.option(anyString(), anyBoolean())).thenReturn(dfr);
-        when(dfr.parquet(any(Seq.class))).thenReturn(ds);
-
         when(ds.withColumn(anyString(), any(Column.class))).thenReturn(ds);
         when(ds.filter(abs(col("`seg.mean`")).$greater$eq(0.2))).thenReturn(ds);
         when(ds.join(any(Dataset.class), anyString())).thenReturn(ds);
         when(ds.groupBy(anyString())).thenReturn(gds);
         when(gds.agg(any(Column.class))).thenReturn(ds);
-        when(ds.alias(anyString())).thenReturn(ds);
+        when(ds.drop(anyString())).thenReturn(ds);
         when(ds.unionByName(any(Dataset.class))).thenReturn(ds);
         when(ds.withColumnRenamed(anyString(), anyString())).thenReturn(ds);
         doNothing().when(ds).createOrReplaceTempView(anyString());
         String[] cols = {"col"};
         when(ds.columns()).thenReturn(cols);
-
         when(ds.as(any(Encoder.class))).thenReturn(dm);
         when(dm.collectAsList()).thenReturn(Arrays.asList(new ClinicalDataModel()));
         when(ds.collectAsList()).thenReturn(Arrays.asList(RowFactory.create(1L, "value", "attrId")));
@@ -95,7 +89,6 @@ public class ClinicalDataSparkRepositoryTest {
         String[] sampleArr = {"CANCER_TYPE",
             "CANCER_TYPE_DETAILED", "SAMPLE_TYPE", "MATCHED_STATUS", "METASTATIC_SITE", "ONCOTREE_CODE",
             "PRIMARY_SITE", "SAMPLE_CLASS", "SAMPLE_COLLECTION_SOURCE", "SPECIMEN_PRESERVATION_TYPE"};
-        when(ds.filter(col("SAMPLE_ID").isin(sampleArr))).thenReturn(ds);
 
         List<ClinicalDataCount> res = clinicalDataSparkRepository
             .fetchClinicalDataCounts(STUDY_IDS, null, SAMPLE_ATTR_IDS, PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE);
@@ -113,7 +106,6 @@ public class ClinicalDataSparkRepositoryTest {
     @Test
     public void testFetchClinicalDataCountsPatient() {
         String[] sampleArr = {"SAMPLE_COUNT", "SEX", "OS_STATUS", "VITAL_STATUS", "SMOKING_HISTORY"};
-        when(ds.filter(col("SAMPLE_ID").isin(sampleArr))).thenReturn(ds);
         List<ClinicalDataCount> res = clinicalDataSparkRepository
             .fetchClinicalDataCounts(STUDY_IDS, null, PATIENT_ATTR_IDS, "PATIENT");
         Assert.assertNotNull(res);
@@ -146,10 +138,12 @@ public class ClinicalDataSparkRepositoryTest {
     public void testClinicalDataSample() {
         Column col = mock(Column.class);
         when(ds.col(anyString())).thenReturn(col);
+        when(col.cast(anyString())).thenReturn(new Column("val"));
         when(col.divide(any(Column.class))).thenReturn(col);
+        when(ds.drop(anyString(), anyString())).thenReturn(ds);
 
         List<ClinicalData> res = clinicalDataSparkRepository
-            .fetchClinicalData(STUDY_IDS, null, Arrays.asList("MUTATION_COUNT","DNA_INPUT",
+            .fetchClinicalData(STUDY_IDS, null, Arrays.asList("DNA_INPUT", "MUTATION_COUNT",
                 "FRACTION_GENOME_ALTERED","SAMPLE_COVERAGE"),
                 PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE, "SUMMARY");
 

@@ -237,8 +237,8 @@ public class ClinicalDataSparkRepository implements ClinicalDataRepository {
         mutationDf = mutationDf.groupBy("Tumor_Sample_Barcode")
             .agg(countDistinct("Chromosome", "Start_Position", "End_Position",
                 "Reference_Allele", "Tumor_Seq_Allele1").alias("attrValue"));
-        mutationDf = mutationDf.withColumn("attrValue", mutationDf.col("attrValue").cast("string"))
-                    .withColumn("attrId", lit(MUTATION_COUNT));
+        mutationDf = mutationDf.withColumn("attrValue", mutationDf.col("attrValue").cast("string"));
+        mutationDf = mutationDf.withColumn("attrId", lit(MUTATION_COUNT));
         mutationDf = mutationDf.withColumnRenamed("Tumor_Sample_Barcode", "sampleId");
         return mutationDf;
     }
@@ -256,8 +256,8 @@ public class ClinicalDataSparkRepository implements ClinicalDataRepository {
         copyNumberSeg = copyNumberSeg.withColumn("attrValue",
             copyNumberSeg.col("filteredSum")
                 .divide(copyNumberSeg.col("sumVal"))
-                .cast("string"))
-            .withColumn("attrId", lit(FRACTION_GENOME_ALTERED));
+                .cast("string"));
+        copyNumberSeg = copyNumberSeg.withColumn("attrId", lit(FRACTION_GENOME_ALTERED));
         copyNumberSeg = copyNumberSeg.withColumnRenamed("ID", "sampleId");
         copyNumberSeg = copyNumberSeg.drop("filteredSum", "sumVal");
         return copyNumberSeg;

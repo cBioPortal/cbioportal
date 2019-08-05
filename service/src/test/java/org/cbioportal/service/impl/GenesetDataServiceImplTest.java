@@ -48,6 +48,7 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
         Sample sample = new Sample();
         sample.setInternalId(1);
         sample.setStableId(SAMPLE_ID1);
+        sample.setCancerStudyIdentifier(STUDY_ID);
         sampleList1.add(sample);
         Mockito.when(sampleService.getSamplesByInternalIds(Arrays.asList(1)))
             .thenReturn(sampleList1);
@@ -55,6 +56,7 @@ public class GenesetDataServiceImplTest extends BaseServiceImplTest {
         sample = new Sample();
         sample.setInternalId(2);
         sample.setStableId(SAMPLE_ID2);
+        sample.setCancerStudyIdentifier(STUDY_ID);
         sampleListAll.add(sample);
         Mockito.when(sampleService.getSamplesByInternalIds(Arrays.asList(1,2)))
             .thenReturn(sampleListAll);

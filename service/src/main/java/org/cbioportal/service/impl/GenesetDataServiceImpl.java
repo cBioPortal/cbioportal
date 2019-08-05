@@ -74,7 +74,8 @@ public class GenesetDataServiceImpl implements GenesetDataService {
         List<Sample> samples = sampleService.getSamplesByInternalIds(internalSampleIds);
         if (sampleIds != null) {
             samples = samples.stream()
-                .filter(s -> sampleIds.contains(s.getStableId())).collect(Collectors.toList());
+                .filter(s -> molecularProfile.getCancerStudyIdentifier().equalsIgnoreCase(s.getCancerStudyIdentifier())
+                    && sampleIds.contains(s.getStableId())).collect(Collectors.toList());
         }
 
         List<GenesetMolecularAlteration> genesetAlterations = molecularDataRepository.getGenesetMolecularAlterations(molecularProfileId,

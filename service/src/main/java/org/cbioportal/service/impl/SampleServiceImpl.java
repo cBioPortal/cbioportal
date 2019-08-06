@@ -1,5 +1,6 @@
 package org.cbioportal.service.impl;
 
+import javafx.util.Pair;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
@@ -183,13 +184,14 @@ public class SampleServiceImpl implements SampleService {
                 samples.stream().map(Sample::getStableId).collect(Collectors.toList())
             );
             
-            Set<String> samplesWithCopyNumberSegMap = new HashSet<>();
-            samplesWithCopyNumberSegMap.addAll(samplesWithCopyNumberSeg.stream().map(Sample::getStableId).collect(Collectors.toList()));
+            List<Pair<String, String>> samplesWithCopyNumberSegSet = samplesWithCopyNumberSeg.stream()
+                .map(s -> new Pair<String, String>(s.getCancerStudyIdentifier(), s.getStableId())).collect(Collectors.toList());
            
             samples.forEach(sample -> {
                 sample.setSequenced(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier())
                     .contains(sample.getStableId()));
-                sample.setCopyNumberSegmentPresent(samplesWithCopyNumberSegMap.contains(sample.getStableId()));
+                sample.setCopyNumberSegmentPresent(samplesWithCopyNumberSegSet.contains(
+                    new Pair(sample.getCancerStudyIdentifier(), sample.getStableId())));
             });
         }
     }

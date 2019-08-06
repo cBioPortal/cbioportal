@@ -59,12 +59,12 @@ public class ParquetWriter {
                     .format("csv")
                     .option("delimiter", ":")
                     .load(inputFile);
-
+                
+                String listCol = "case".equalsIgnoreCase(typeOfData) ? "case_list_ids" : "gene_list";
                 it = df.toLocalIterator();
                 while (it.hasNext()) {
                     Row row = (Row) it.next();
                     String colName = row.getString(0);
-                    String listCol = "case".equalsIgnoreCase(typeOfData) ? "case_list_ids" : "gene_list";
                     if (listCol.equalsIgnoreCase(colName)) {
                         df = df.withColumn(colName, explode(lit(row.getString(1).trim().split("\\s+"))));
                     } else {

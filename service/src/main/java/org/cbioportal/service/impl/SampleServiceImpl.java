@@ -1,12 +1,10 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.CopyNumberSeg;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.SampleRepository;
-import org.cbioportal.persistence.spark.CopyNumberSegmentSparkRepository;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.StudyService;
@@ -37,8 +35,6 @@ public class SampleServiceImpl implements SampleService {
     @Qualifier("sampleSparkRepository")
     private SampleRepository sampleSparkRepository;
     @Autowired
-    private CopyNumberSegmentSparkRepository copyNumberSegmentSparkRepository;
-    @Autowired
     private StudyService studyService;
     @Autowired
     private PatientService patientService;
@@ -49,7 +45,8 @@ public class SampleServiceImpl implements SampleService {
     @Qualifier("sampleListSparkRepository")
     private SampleListRepository sampleListSparkRepository;
     @Autowired
-    private CopyNumberSegmentRepository copyNumberSegmentRepository;
+    @Qualifier("copyNumberSegmentSparkRepository")
+    private CopyNumberSegmentRepository copyNumberSegmentSparkRepository;
 
     @Override
     public List<Sample> getAllSamplesInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber,
@@ -139,7 +136,7 @@ public class SampleServiceImpl implements SampleService {
     public List<Sample> fetchSamples(List<String> studyIds, List<String> sampleIds, String projection) {
 
         List<Sample> samples = sampleSparkRepository.fetchSamples(studyIds, sampleIds, projection);
-        processSamplesSpark(samples, projection);
+        processSamples(samples, projection);
         return samples;
     }
 
@@ -180,41 +177,15 @@ public class SampleServiceImpl implements SampleService {
                 sequencedSampleIdsMap.put(studyId,
                                           new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
             }
-            List<Integer> samplesWithCopyNumberSeg = copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
+
+            List<Sample> samplesWithCopyNumberSeg = copyNumberSegmentSparkRepository.fetchSamplesWithCopyNumberSegments(
                 samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()), 
-                samples.stream().map(Sample::getStableId).collect(Collectors.toList()),
-                null
-            );
-            
-            Set<Integer> samplesWithCopyNumberSegMap = new HashSet<>();
-            samplesWithCopyNumberSegMap.addAll(samplesWithCopyNumberSeg);
-           
-            samples.forEach(sample -> {
-                sample.setSequenced(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier())
-                    .contains(sample.getStableId()));
-                sample.setCopyNumberSegmentPresent(samplesWithCopyNumberSegMap.contains(sample.getInternalId()));
-            });
-        }
-    }
-
-    private void processSamplesSpark(List<Sample> samples, String projection) {
-
-        if (projection.equals("DETAILED")) {
-            Map<String, Set<String>> sequencedSampleIdsMap = new HashMap<>();
-            List<String> distinctStudyIds = samples.stream().map(Sample::getCancerStudyIdentifier).distinct()
-                .collect(Collectors.toList());
-            for (String studyId : distinctStudyIds) {
-                sequencedSampleIdsMap.put(studyId,
-                    new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
-            }
-            List<String> samplesWithCopyNumberSeg = copyNumberSegmentSparkRepository.fetchSamplesWithCopyNumberSegments(
-                samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()),
                 samples.stream().map(Sample::getStableId).collect(Collectors.toList())
             );
-
+            
             Set<String> samplesWithCopyNumberSegMap = new HashSet<>();
-            samplesWithCopyNumberSegMap.addAll(samplesWithCopyNumberSeg);
-
+            samplesWithCopyNumberSegMap.addAll(samplesWithCopyNumberSeg.stream().map(Sample::getStableId).collect(Collectors.toList()));
+           
             samples.forEach(sample -> {
                 sample.setSequenced(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier())
                     .contains(sample.getStableId()));

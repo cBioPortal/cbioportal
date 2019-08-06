@@ -8,6 +8,7 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 public class CopyNumberSegmentServiceImpl implements CopyNumberSegmentService {
 
     @Autowired
+    @Qualifier("copyNumberSegmentMyBatisRepository")
     private CopyNumberSegmentRepository copyNumberSegmentRepository;
     @Autowired
     private SampleService sampleService;

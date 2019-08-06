@@ -1,6 +1,7 @@
 package org.cbioportal.persistence.spark;
 
 import org.apache.spark.sql.*;
+import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.spark.util.ParquetLoader;
 import org.junit.Assert;
 import org.junit.Before;
@@ -52,7 +53,7 @@ public class CopyNumberSegmentSparkRepositoryTest {
         List<Row> res = Arrays.asList(RowFactory.create("sample1"));
         when(ds.collectAsList()).thenReturn(res);
         
-        List<String> cnaSampleIds = generalSparkRepository
+        List<Sample> cnaSampleIds = generalSparkRepository
             .fetchSamplesWithCopyNumberSegments(Arrays.asList("msk_impact_2017"), null);
 
         Assert.assertEquals(1, cnaSampleIds.size());

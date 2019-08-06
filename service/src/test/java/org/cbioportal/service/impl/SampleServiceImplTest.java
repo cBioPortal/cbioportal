@@ -5,7 +5,6 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.SampleRepository;
-import org.cbioportal.persistence.spark.CopyNumberSegmentSparkRepository;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
@@ -34,8 +33,6 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     @Mock
     private SampleRepository sampleSparkRepository;
     @Mock
-    private CopyNumberSegmentSparkRepository copyNumberSegmentSparkRepository;
-    @Mock
     private StudyService studyService;
     @Mock
     private PatientService patientService;
@@ -45,7 +42,9 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     private SampleListRepository sampleListSparkRepository;
     @Mock
     private CopyNumberSegmentRepository copyNumberSegmentRepository;
-
+    @Mock
+    private CopyNumberSegmentRepository copyNumberSegmentSparkRepository;
+    
     @Test
     public void getAllSamplesInStudy() throws Exception {
 
@@ -57,7 +56,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
                 DIRECTION)).thenReturn(expectedSampleList);
         Mockito.when(sampleListSparkRepository.getAllSampleIdsInSampleList(Mockito.anyString()))
             .thenReturn(new ArrayList<>());
-        Mockito.when(copyNumberSegmentRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class), 
+        Mockito.when(copyNumberSegmentSparkRepository.fetchCopyNumberSegments(Mockito.anyListOf(String.class), 
             Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<>());
 
         List<Sample> result = sampleService.getAllSamplesInStudy(STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT,
@@ -218,13 +217,10 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
         sample2.setCancerStudyIdentifier(STUDY_ID);
         sample2.setStableId(SAMPLE_ID2);
         sample2.setInternalId(SAMPLE_INTERNAL_ID2);
-        
-        List<Integer> expectedInternalIdList = new ArrayList<>();
-        expectedInternalIdList.add(SAMPLE_INTERNAL_ID);
        
         Mockito.when(copyNumberSegmentSparkRepository.fetchSamplesWithCopyNumberSegments(
             Mockito.anyListOf(String.class), Mockito.anyListOf(String.class)))
-            .thenReturn(Arrays.asList(SAMPLE_ID1, SAMPLE_ID1));
+            .thenReturn(Arrays.asList(sample1));
         Mockito.when(sampleSparkRepository.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED"))
                 .thenReturn(expectedSampleList);
         Mockito.when(sampleListSparkRepository.getAllSampleIdsInSampleList(Mockito.anyString()))

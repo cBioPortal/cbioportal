@@ -64,8 +64,6 @@ public class StudyViewController {
     @Autowired
     private SignificantCopyNumberRegionService significantCopyNumberRegionService;
     @Autowired
-    private OncoKBDataFilterApplier oncoKBDataFilterApplier;
-    @Autowired
     private OncoKBUtils oncoKBUtils;
     @Autowired
     private OncoKBConverter oncoKBConverter;
@@ -109,36 +107,6 @@ public class StudyViewController {
         combinedResult.addAll(resultForSampleAttributes);
         combinedResult.addAll(resultForPatientAttributes);
         return new ResponseEntity<>(combinedResult, HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/oncokb/fetch", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch annotation data by study view filter")
-    public ResponseEntity<List<OncoKBDataCount>> fetchOncoKBData(
-        @ApiParam(required = true, value = "Annotation data filter")
-        @Valid @RequestBody(required = false)  OncoKBDataCountFilter oncoKBDataCountFilter,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedOncoKBDataCountFilter") OncoKBDataCountFilter interceptedOncoKBDataCountFilter) {
-
-        StudyViewFilter studyViewFilter = oncoKBDataCountFilter.getStudyViewFilter();
-        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
-        if (filteredSampleIdentifiers.isEmpty()) {
-            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
-        }
-        List<String> studyIds = new ArrayList<>();
-        List<String> sampleIds = new ArrayList<>();
-        studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
-
-        List<Mutation> resultForSampleAttributes = mutationService.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileService
-                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, Projection.SUMMARY.name(), 10000000, 0, null, null,
-            oncoKBDataFilterApplier.getAnnotationFilter(studyViewFilter.getOncoKBDataFilters()));
-
-//        List<String> mutationAttributes = oncoKBDataCountFilter.getAttributes().stream().map(sampleAttribute -> oncoKBConverter.getMutationAttributeBySampleAttribute(sampleAttribute)).collect(Collectors.toList());
-        List<OncoKBDataCount> oncoKBDataCounts = oncoKBUtils.getDataCounts(oncoKBDataCountFilter.getAttributes(), resultForSampleAttributes);
-        return new ResponseEntity<>(oncoKBDataCounts, HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
@@ -241,6 +209,11 @@ public class StudyViewController {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+            
+            // getSampleCountInMultipleMolecularProfiles is counting the number of mutations within filtered samples
+            // But that does not guarantee they are driver mutations.
+            // I created method getSampleCountInMultipleMolecularProfilesByAnnotation in the MutationMapper.
+            // Please consider using that when updating the following code
             result = mutationService.getSampleCountInMultipleMolecularProfiles(molecularProfileService
                 .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, true);
             result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());

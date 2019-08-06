@@ -4,9 +4,7 @@ import org.cbioportal.model.Mutation;
 import org.cbioportal.model.OncoKBDataCount;
 import org.cbioportal.service.util.OncoKBConverter;
 import org.cbioportal.service.util.oncokb.HasDriver;
-import org.cbioportal.service.util.oncokb.MutationAttribute;
 import org.cbioportal.service.util.oncokb.SampleAttribute;
-import org.cbioportal.web.parameter.OncoKBDataFilter;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -68,22 +66,6 @@ public class OncoKBUtils {
             }
         }
         return oncoKBDataCounts;
-    }
-
-    public List<OncoKBDataFilter> getMutationFilters(List<OncoKBDataFilter> sampleFilters) {
-        List<OncoKBDataFilter> mutationFilters = new ArrayList<>();
-        for (OncoKBDataFilter sampleFilter : sampleFilters) {
-            if (sampleFilter.getAttributeId().equals(SampleAttribute.HAS_DRIVER.name())) {
-                OncoKBDataFilter oncoKBDataFilter = new OncoKBDataFilter();
-                oncoKBDataFilter.setAttributeId(MutationAttribute.ONCOGENICITY.name());
-                oncoKBDataFilter.setValues(new ArrayList<>());
-                for (String value : sampleFilter.getValues()) {
-                    oncoKBDataFilter.getValues().addAll(oncoKBConverter.getOncogenicityByHasDriver(value));
-                }
-                mutationFilters.add(oncoKBDataFilter);
-            }
-        }
-        return mutationFilters;
     }
 
     public String resolveSampleValue(String attributeId, Set<String> values) {

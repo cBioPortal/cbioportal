@@ -23,6 +23,7 @@ import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.util.OncoKBConverter;
 import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -50,9 +51,9 @@ public class StudyViewFilterApplier {
 
     private ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier;
 
-    private OncoKBDataFilterApplier oncoKBDataFilterApplier;
-
     private StudyViewFilterUtil studyViewFilterUtil;
+    
+    private OncoKBConverter oncoKBConverter;
 
     @Autowired
     public StudyViewFilterApplier(SampleService sampleService,
@@ -63,8 +64,9 @@ public class StudyViewFilterApplier {
                                   ClinicalDataService clinicalDataService,
                                   ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier,
                                   ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier,
-                                  OncoKBDataFilterApplier oncoKBDataFilterApplier,
-                                  StudyViewFilterUtil studyViewFilterUtil)
+                                  StudyViewFilterUtil studyViewFilterUtil
+                                  ,OncoKBConverter oncoKBConverter
+    )
     {
         this.sampleService = sampleService;
         this.mutationService = mutationService;
@@ -74,8 +76,8 @@ public class StudyViewFilterApplier {
         this.clinicalDataService = clinicalDataService;
         this.clinicalDataEqualityFilterApplier = clinicalDataEqualityFilterApplier;
         this.clinicalDataIntervalFilterApplier = clinicalDataIntervalFilterApplier;
-        this.oncoKBDataFilterApplier = oncoKBDataFilterApplier;
         this.studyViewFilterUtil = studyViewFilterUtil;
+        this.oncoKBConverter = oncoKBConverter;
     }
 
     Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
@@ -147,12 +149,22 @@ public class StudyViewFilterApplier {
             sampleIdentifiers = filterMutationCountVsCNASelection(mutationCountVsCNASelection, sampleIdentifiers);
         }
         
-        List<OncoKBDataFilter> oncoKBDataFilters = studyViewFilter.getOncoKBDataFilters();
-        if (oncoKBDataFilters != null) {
-            sampleIdentifiers = equalityFilterOncoKBData(sampleIdentifiers, oncoKBDataFilters, negateFilters);
-        }
+        // Filter the samples if the withOncoKBDriverMutationData is specified.
+        // Please see withMutationData as example above
+        // Please use the function filterByDriverMutation defined bellow
+        
 
         return sampleIdentifiers;
+    }
+    
+    
+    private List<SampleIdentifier> filterByDriverMutation() {
+        // Based on withOncoKBDriverMutationData, you need to convert that value to oncogenicity which the OncoKB
+        // This method should be used: oncoKBConverter.getOncogenicityByHasDriver()
+        // After getting oncogenicities, you need to construct the List<AnnotationFilter> for the function below
+        // The method need to used to get all qualified mutations: mutationService.getMutationsInMultipleMolecularProfilesByAnnotation()
+        // After getting the mutations, just get the list of samples from the mutations and return
+        return new ArrayList<>();
     }
 
     private List<SampleIdentifier> intervalFilterClinicalData(List<SampleIdentifier> sampleIdentifiers,
@@ -175,15 +187,6 @@ public class StudyViewFilterApplier {
             .filter(c-> c.getClinicalDataType().equals(filterClinicalDataType)).collect(Collectors.toList());
 
         return clinicalDataEqualityFilterApplier.apply(sampleIdentifiers, attributes, filterClinicalDataType, negateFilters);
-    }
-    
-    private List<SampleIdentifier> equalityFilterOncoKBData(List<SampleIdentifier> sampleIdentifiers,
-                                                              List<OncoKBDataFilter> oncoKBDataFilters,
-                                                              Boolean negateFilters)
-    {
-        List<OncoKBDataFilter> attributes = oncoKBDataFilters.stream().collect(Collectors.toList());
-
-        return oncoKBDataFilterApplier.apply(sampleIdentifiers, attributes, negateFilters);
     }
 
     private List<SampleIdentifier> filterByProfiled(List<SampleIdentifier> sampleIdentifiers, Boolean criteria,

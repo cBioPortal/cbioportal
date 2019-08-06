@@ -346,6 +346,20 @@
         GROUP BY mutation.ENTREZ_GENE_ID
     </select>
 
+    <select id="getSampleCountInMultipleMolecularProfilesByAnnotation" resultType="org.cbioportal.model.MutationCountByGene">
+        SELECT
+        mutation.ENTREZ_GENE_ID AS entrezGeneId,
+        gene.HUGO_GENE_SYMBOL AS hugoGeneSymbol,
+        COUNT(*) AS totalCount,
+        COUNT(DISTINCT(mutation.SAMPLE_ID)) AS numberOfAlteredCases
+        FROM mutation
+        INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+        INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
+        INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        <include refid="whereInMultipleMolecularProfilesByAnnotation"/>
+        GROUP BY mutation.ENTREZ_GENE_ID
+    </select>
+
     <select id="getPatientCountByEntrezGeneIdsAndSampleIds" resultType="org.cbioportal.model.MutationCountByGene">
         SELECT
         mutation.ENTREZ_GENE_ID AS entrezGeneId,

@@ -35,26 +35,76 @@ package org.cbioportal.persistence.spark.util;
 import org.apache.spark.sql.*;
 import joptsimple.*;
 
+import java.util.Iterator;
+
+import static org.apache.spark.sql.functions.*;
+
 
 /**
  * Command Line tool to Write Parquet Files.
  */
 public class ParquetWriter {
 
-    private static void write(String inputFile, String outputFile) {
+    private static void write(String inputFile, String outputFile, String typeOfData) {
         SparkSession spark = SparkSession.builder()
             .appName("cBioPortal")
             .master("local[*]")
             .getOrCreate();
         
-        Dataset<Row> df = spark.read()
-            .format("csv")
-            .option("delimiter", "\t")
-            .option("header", "true")
-            .option("comment","#")
-            .load(inputFile);
-        df.write()
-            .mode("append").parquet(outputFile);
+        Dataset<Row> df = null;
+        Iterator it = null;
+        switch (typeOfData) {
+            case "case": case "panel":
+                df = spark.read()
+                    .format("csv")
+                    .option("delimiter", ":")
+                    .load(inputFile);
+                
+                String listCol = "case".equalsIgnoreCase(typeOfData) ? "case_list_ids" : "gene_list";
+                it = df.toLocalIterator();
+                while (it.hasNext()) {
+                    Row row = (Row) it.next();
+                    String colName = row.getString(0);
+                    if (listCol.equalsIgnoreCase(colName)) {
+                        df = df.withColumn(colName, explode(lit(row.getString(1).trim().split("\\s+"))));
+                    } else {
+                        df = df.withColumn(colName, lit(row.getString(1).trim()));
+                    }
+                }
+                df = df.drop("_c0", "_c1").distinct();
+                df.write()
+                    .mode("append").parquet(outputFile);
+                break;
+
+            case "meta":
+                df = spark.read()
+                    .format("csv")
+                    .option("delimiter", ":")
+                    .load(inputFile);
+
+                it = df.toLocalIterator();
+                while (it.hasNext()) {
+                    Row row = (Row) it.next();
+                    String colName = row.getString(0);
+                    df = df.withColumn(colName, lit(row.getString(1).trim()));
+                }
+                df = df.drop("_c0", "_c1").distinct();
+                df.write()
+                    .mode("append").parquet(outputFile);
+                break;
+                
+            default:
+                df = spark.read()
+                    .format("csv")
+                    .option("delimiter", "\t")
+                    .option("header", "true")
+                    .option("comment","#")
+                    .load(inputFile);
+
+                df.write()
+                    .mode("append").parquet(outputFile);
+                break;
+        }
     }
     
     public static void main(String[] args) {
@@ -66,6 +116,9 @@ public class ParquetWriter {
                 "tsv file" ).withRequiredArg().describedAs( "path-to-input-file" ).ofType( String.class );
             OptionSpec<String> outputFile = parser.accepts( "output-file",
                 "parquet file" ).withRequiredArg().describedAs( "path-to-output-file" ).ofType( String.class );
+            OptionSpec<String> type = parser.accepts( "type",
+                "type of data" ).withOptionalArg()
+                .describedAs("case for case_lists, meta for meta, panel for gene_panel, otherwise data.").ofType( String.class );
 
             OptionSet options = null;
             try {
@@ -76,7 +129,11 @@ public class ParquetWriter {
 
             String outputFilePath = options.valueOf(outputFile);
             String inputFilePath = options.valueOf(inputFile);
-            write(inputFilePath, outputFilePath);
+            String typeOfData = "data";
+            if (options.valueOf(type) != null) {
+                typeOfData = options.valueOf(type);
+            }
+            write(inputFilePath, outputFilePath, typeOfData);
 
         } catch (RuntimeException e) {
             throw e;

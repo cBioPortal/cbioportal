@@ -16,6 +16,7 @@ import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.apache.commons.collections.map.MultiKeyMap;
 
@@ -34,10 +35,15 @@ public class GenePanelServiceImpl implements GenePanelService {
     private static final String SEQUENCED_LIST_SUFFIX = "_sequenced";
     
     @Autowired
+    @Qualifier("genePanelMyBatisRepository")
     private GenePanelRepository genePanelRepository;
+    @Autowired
+    @Qualifier("genePanelSparkRepository")
+    private GenePanelRepository genePanelSparkRepository;
     @Autowired
     private MolecularProfileService molecularProfileService;
     @Autowired
+    @Qualifier("sampleListMyBatisRepository")
     private SampleListRepository sampleListRepository;
     @Autowired
     private SampleListService sampleListService;
@@ -131,7 +137,7 @@ public class GenePanelServiceImpl implements GenePanelService {
 			List<String> sampleIds) {
 
             List<GenePanelData> genePanelData =
-                genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds);
+                genePanelSparkRepository.fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds);
             return createGenePanelData(createGenePanelDataMap(genePanelData), molecularProfileIds, sampleIds);
 	}
 

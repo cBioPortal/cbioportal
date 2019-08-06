@@ -44,4 +44,26 @@ public class ParquetLoader {
                 .parquet(fileSeq);
         }
     }
+
+    public Dataset<Row> loadCaseListFiles(SparkSession spark, Set<String> molecularProfileIds, boolean withStudyColumn) {
+        List<String> molecularProfileArr = molecularProfileIds.stream()
+            .map(id -> PARQUET_DIR + ParquetConstants.CASE_LIST_DIR + id).collect(Collectors.toList());
+        Seq<String> fileSeq = JavaConverters.asScalaBuffer(molecularProfileArr).toSeq();
+
+        if (withStudyColumn) {
+            UserDefinedFunction getStudyId = udf((String fullPath) -> {
+                String[] paths = fullPath.split("/");
+                return paths[paths.length - 2];
+            }, DataTypes.StringType);
+
+            return spark.read()
+                .option("mergeSchema", true)
+                .parquet(fileSeq)
+                .withColumn("molecularProfileId", getStudyId.apply(input_file_name()));
+        } else {
+            return spark.read()
+                .option("mergeSchema", true)
+                .parquet(fileSeq);
+        }
+    }
 }

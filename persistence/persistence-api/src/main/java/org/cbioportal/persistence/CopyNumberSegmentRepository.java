@@ -1,6 +1,7 @@
 package org.cbioportal.persistence;
 
 import org.cbioportal.model.CopyNumberSeg;
+import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 
 import java.util.List;
@@ -14,7 +15,9 @@ public interface CopyNumberSegmentRepository {
     BaseMeta getMetaCopyNumberSegmentsInSampleInStudy(String studyId, String sampleId, String chromosome);
 
     List<Integer> fetchSamplesWithCopyNumberSegments(List<String> studyIds, List<String> sampleIds, String chromosome);
-	    
+
+    List<Sample> fetchSamplesWithCopyNumberSegments(List<String> studyIds, List<String> sampleIds);
+    
     List<CopyNumberSeg> fetchCopyNumberSegments(List<String> studyIds, List<String> sampleIds, String chromosome, String projection);
 
     BaseMeta fetchMetaCopyNumberSegments(List<String> studyIds, List<String> sampleIds, String chromosome);

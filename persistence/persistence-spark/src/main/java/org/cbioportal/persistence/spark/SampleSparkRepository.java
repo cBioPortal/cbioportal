@@ -79,7 +79,6 @@ public class SampleSparkRepository implements SampleRepository {
 
         Dataset<Row> samples = parquetLoader.loadStudyFiles(spark,
             new HashSet<>(studyIds), ParquetConstants.CLINICAL_SAMPLE, true);
-        
         if (!CollectionUtils.isEmpty(sampleIds)) {
             samples = samples.where(samples.col("SAMPLE_ID").isin(sampleIds.toArray()));
         }
@@ -93,7 +92,6 @@ public class SampleSparkRepository implements SampleRepository {
         sb.append(" FROM samples");
 
         Dataset<Row> res = spark.sql(sb.toString());
-        
         return res.collectAsList().stream().
             map(r -> mapToSample(r, projection)).collect(Collectors.toList());
     }

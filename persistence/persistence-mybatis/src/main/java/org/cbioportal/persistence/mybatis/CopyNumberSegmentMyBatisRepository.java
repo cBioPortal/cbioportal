@@ -1,16 +1,19 @@
 package org.cbioportal.persistence.mybatis;
 
 import org.cbioportal.model.CopyNumberSeg;
+import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
 import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Repository
+@Qualifier("copyNumberSegmentMyBatisRepository")
 public class CopyNumberSegmentMyBatisRepository implements CopyNumberSegmentRepository {
     
     @Autowired
@@ -63,4 +66,10 @@ public class CopyNumberSegmentMyBatisRepository implements CopyNumberSegmentRepo
         
         return copyNumberSegmentMapper.getCopyNumberSegmentsBySampleListId(studyId, sampleListId, chromosome, projection);
     }
+    
+    @Override
+    public List<Sample> fetchSamplesWithCopyNumberSegments(List<String> studyIds, List<String> sampleIds) {
+        throw new UnsupportedOperationException();
+    }
+
 }

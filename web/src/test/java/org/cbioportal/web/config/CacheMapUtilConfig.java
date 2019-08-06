@@ -26,6 +26,8 @@ import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 
 /**
  *
@@ -50,10 +52,12 @@ public class CacheMapUtilConfig {
         return Mockito.mock(StudyRepository.class);
     }
     @Bean
+    @Qualifier("molecularProfileMyBatisRepository")
     public MolecularProfileRepository molecularProfileRepository() {
         return Mockito.mock(MolecularProfileRepository.class);
     }
     @Bean
+    @Qualifier("sampleListMyBatisRepository")
     public SampleListRepository sampleListRepository() {
         return Mockito.mock(SampleListRepository.class);
     }

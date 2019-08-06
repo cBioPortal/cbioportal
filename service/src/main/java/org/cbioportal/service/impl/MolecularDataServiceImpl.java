@@ -13,6 +13,7 @@ import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,7 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     @Autowired
     private MolecularProfileService molecularProfileService;
     @Autowired
+    @Qualifier("sampleListMyBatisRepository")
     private SampleListRepository sampleListRepository;
 
     @Override

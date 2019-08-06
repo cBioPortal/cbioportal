@@ -9,12 +9,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import scala.collection.Seq;
 
 import java.util.Arrays;
 import java.util.List;
@@ -45,11 +43,7 @@ public class SampleSparkRepositoryTest {
 
         ds = mock(Dataset.class);
         DataFrameReader dfr = mock(DataFrameReader.class);
-        when(spark.read()).thenReturn(dfr);
-        when(dfr.option(anyString(), anyBoolean())).thenReturn(dfr);
-        when(dfr.parquet(any(Seq.class))).thenReturn(ds);
         when(spark.sql(anyString())).thenReturn(ds);
-        when(ds.withColumn(anyString(), any(Column.class))).thenReturn(ds);
         when(parquetLoader.loadStudyFiles(any(SparkSession.class), anySet(), anyString(), anyBoolean())).thenReturn(ds);
     }
 
@@ -76,12 +70,10 @@ public class SampleSparkRepositoryTest {
         Sample sample1 = result.get(0);
         Assert.assertEquals(Sample.SampleType.PRIMARY_SOLID_TUMOR, sample1.getSampleType());
         Assert.assertEquals("msk_impact_2017", sample1.getCancerStudyIdentifier());
-        
         Sample sample2 = result.get(1);
         Assert.assertEquals(Sample.SampleType.RECURRENT_SOLID_TUMOR, sample2.getSampleType());
         Assert.assertEquals("msk_impact_2017", sample2.getCancerStudyIdentifier());
         Assert.assertEquals("TCGA-AC-A6IX-02", sample2.getStableId());
-        
         Assert.assertEquals(Sample.SampleType.PRIMARY_BLOOD_TUMOR, result.get(2).getSampleType());
         Assert.assertEquals(Sample.SampleType.RECURRENT_BLOOD_TUMOR, result.get(3).getSampleType());
         Assert.assertEquals(Sample.SampleType.METASTATIC, result.get(4).getSampleType());
@@ -97,11 +89,9 @@ public class SampleSparkRepositoryTest {
 
         List<Row> res = Arrays.asList(RowFactory.create("P-1000", "P-1000-01", "msk_impact_2017"));
         when(ds.collectAsList()).thenReturn(res);
-        when(ds.where(any(Column.class))).thenReturn(ds);
-        when(ds.col(anyString())).thenReturn(mock(Column.class));
 
-        List<Sample> result = sampleSparkRepository.fetchSamples(Arrays.asList("msk_impact_2017"), Arrays.asList("P-1000-01"), "ID");
-
+        List<Sample> result = sampleSparkRepository.fetchSamples(Arrays.asList("msk_impact_2017"), null, "ID");
+        
         Assert.assertEquals(1, result.size());
         Sample sample = result.get(0);
         Assert.assertEquals("msk_impact_2017", sample.getCancerStudyIdentifier());

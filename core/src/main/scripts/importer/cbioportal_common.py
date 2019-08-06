@@ -592,7 +592,7 @@ def validate_types_and_id(meta_dictionary, logger, filename):
                                genetic_alteration_type, data_type)
         # validate stable_id:
         elif stable_id not in alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)]:
-            logger.error("Invalid stable id for genetic_alteration_type '%s', "
+            logger.warning("Invalid stable id for genetic_alteration_type '%s', "
                          "data_type '%s'; expected one of [%s]",
                         genetic_alteration_type,
                         data_type,

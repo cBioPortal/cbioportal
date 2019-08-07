@@ -158,13 +158,18 @@ public class StudyViewFilterApplier {
     }
     
     
-    private List<SampleIdentifier> filterByDriverMutation() {
+    private List<SampleIdentifier> filterByDriverMutation(List<SampleIdentifier> sampleIdentifiers, Boolean withOncoKBDriverMutationData) {
         // Based on withOncoKBDriverMutationData, you need to convert that value to oncogenicity which the OncoKB
         // This method should be used: oncoKBConverter.getOncogenicityByHasDriver()
         // After getting oncogenicities, you need to construct the List<AnnotationFilter> for the function below
         // The method need to used to get all qualified mutations: mutationService.getMutationsInMultipleMolecularProfilesByAnnotation()
         // After getting the mutations, just get the list of samples from the mutations and return
-        List<String> oncogenicityIdentifier = oncoKBConverter.getOncogenicityByHasDriver();
+        if(withOncoKBDriverMutationData == true) {
+          List<String> oncogenicityIdentifier = oncoKBConverter.getOncogenicityByHasDriver("YES");
+        }
+        if(withOncoKBDriverMutationData == false) {
+          List<String> oncogenicityIdentifier = oncoKBConverter.getOncogenicityByHasDriver("NO");
+        }
         return new ArrayList<>();
     }
 

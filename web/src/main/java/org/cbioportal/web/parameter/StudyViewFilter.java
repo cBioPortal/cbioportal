@@ -24,6 +24,8 @@ public class StudyViewFilter implements Serializable {
 	private Boolean withMutationData;
 	private Boolean withCNAData;
 	private RectangleBounds mutationCountVsCNASelection;
+	private Boolean withOncoKBDriverMutationData;
+	private Boolean withOncoKBDriverCNAData;
 
 	@AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {

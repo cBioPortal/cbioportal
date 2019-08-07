@@ -164,6 +164,7 @@ public class StudyViewFilterApplier {
         // After getting oncogenicities, you need to construct the List<AnnotationFilter> for the function below
         // The method need to used to get all qualified mutations: mutationService.getMutationsInMultipleMolecularProfilesByAnnotation()
         // After getting the mutations, just get the list of samples from the mutations and return
+        List<String> oncogenicityIdentifier = oncoKBConverter.getOncogenicityByHasDriver();
         return new ArrayList<>();
     }
 

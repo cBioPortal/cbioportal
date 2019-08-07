@@ -118,4 +118,20 @@ public class StudyViewFilter implements Serializable {
 	public void setMutationCountVsCNASelection(RectangleBounds mutationCountVsCNASelection) {
 		this.mutationCountVsCNASelection = mutationCountVsCNASelection;
 	}
+	
+	public Boolean getwithOncoKBDriverMutationData() {
+		return withOncoKBDriverMutationData;
+	}
+	
+	public void setwithOncoKBDriverMutationData(Boolean withOncoKBDriverMutationData) {
+		this.withOncoKBDriverMutationData = withOncoKBDriverMutationData;
+	}
+	
+	public Boolean getwithOncoKBDriverCNAData() {
+		return withOncoKBDriverCNAData;
+	}
+	
+	public void setwithOncoKBDriverCNAData(Boolean withOncoKBDriverCNAData) {
+		this.withOncoKBDriverCNAData = withOncoKBDriverCNAData;
+	}
 }

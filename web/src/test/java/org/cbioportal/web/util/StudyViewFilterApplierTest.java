@@ -70,8 +70,6 @@ public class StudyViewFilterApplierTest {
     private ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier;
     @InjectMocks
     private ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier;
-    @InjectMocks
-    private OncoKBDataFilterApplier oncoKBDataFilterApplier;
     @Spy
     private StudyViewFilterUtil studyViewFilterUtil;
 
@@ -86,7 +84,7 @@ public class StudyViewFilterApplierTest {
         studyViewFilterApplier = new StudyViewFilterApplier(
             sampleService, mutationService, discreteCopyNumberService, 
             molecularProfileService, genePanelService, clinicalDataService, clinicalDataEqualityFilterApplier, 
-            clinicalDataIntervalFilterApplier, oncoKBDataFilterApplier, studyViewFilterUtil);
+            clinicalDataIntervalFilterApplier, studyViewFilterUtil);
     }
     
     @Test

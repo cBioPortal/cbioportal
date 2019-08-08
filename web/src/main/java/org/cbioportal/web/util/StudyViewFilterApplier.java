@@ -164,13 +164,34 @@ public class StudyViewFilterApplier {
         // After getting oncogenicities, you need to construct the List<AnnotationFilter> for the function below
         // The method need to used to get all qualified mutations: mutationService.getMutationsInMultipleMolecularProfilesByAnnotation()
         // After getting the mutations, just get the list of samples from the mutations and return
+        List<String> studyIds = new ArrayList<>();
+        List<String> sampleIds = new ArrayList<>();
+        studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+        
+        List<String> oncogenicityIdentifier;
         if(withOncoKBDriverMutationData == true) {
-          List<String> oncogenicityIdentifier = oncoKBConverter.getOncogenicityByHasDriver("YES");
+          oncogenicityIdentifier = oncoKBConverter.getOncogenicityByHasDriver("YES");
         }
         if(withOncoKBDriverMutationData == false) {
-          List<String> oncogenicityIdentifier = oncoKBConverter.getOncogenicityByHasDriver("NO");
+          oncogenicityIdentifier = oncoKBConverter.getOncogenicityByHasDriver("NO");
         }
-        return new ArrayList<>();
+        List<AnnotationFilter> annotationProfiles;
+        for(String dataQualified : oncogenicityIdentifier) {
+          AnnotationFilter annotationOncoKBData = new AnnotationFilter();
+          annotationOncoKBData.setPath("oncokb.oncogenicity");
+          annotationOncoKBData.setValues(new List<String>("YES", "NO", "YES,NO"));
+          annotationProfiles.add(annotationOncoKBData);
+        }
+        List<Mutation> mutationData = mutationService.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileService
+            .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, Projection.ID.name(), null, null, null, null, annotationProfiles);
+        sampleIdentifiers = mutationData.stream().map(annotationQualified -> {
+          SampleIdentifier sampleIdentifier = new SampleIdentifier();
+          sampleIdentifier.setSampleId(annotationQualified.getSampleId());
+          sampleIdentifier.setStudyId(annotationQualified.getStudyId());
+          return sampleIdentifier;
+          }).distinct().collect(Collectors.toList());
+        
+        return sampleIdentifiers;
     }
 
     private List<SampleIdentifier> intervalFilterClinicalData(List<SampleIdentifier> sampleIdentifiers,

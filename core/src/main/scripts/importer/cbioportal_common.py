@@ -742,6 +742,15 @@ def parse_metadata_file(filename,
                                         'cause': meta_dictionary[attribute] + ' (%s)' % len(meta_dictionary[attribute])}
                                  )
 
+    # Restrict the show_profile_in_analysis_tab value to false (https://github.com/cBioPortal/cbioportal/issues/5023)
+    if meta_file_type in (MetaFileTypes.CNA_CONTINUOUS, MetaFileTypes.CNA_LOG2):
+        if meta_dictionary['show_profile_in_analysis_tab'] != 'false':
+            logger.info("The 'show_profile_in_analysis_tab' parameter was set to 'false', as this is only applicable for "
+                        "CNA data of the DISCRETE type.",
+                        extra={'filename_': filename,
+                        'cause': 'show_profile_in_analysis_tab: %s' % meta_dictionary['show_profile_in_analysis_tab']})
+            meta_dictionary['show_profile_in_analysis_tab'] = 'false'
+
     if meta_file_type in (MetaFileTypes.SEG, MetaFileTypes.GISTIC_GENES):
         valid_segment_reference_genomes = ['hg19']
         if meta_dictionary['reference_genome_id'] not in valid_segment_reference_genomes:

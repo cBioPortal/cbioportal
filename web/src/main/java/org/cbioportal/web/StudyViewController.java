@@ -214,8 +214,13 @@ public class StudyViewController {
             // But that does not guarantee they are driver mutations.
             // I created method getSampleCountInMultipleMolecularProfilesByAnnotation in the MutationMapper.
             // Please consider using that when updating the following code
+            List<AnnotationFilter> annotationCancer;
+            AnnotationFilter annotationCase = new AnnotationFilter();
+            annotationCase.setPath("oncokb.oncogenicity");
+            annotationCase.setValues(new List<String>("YES", "NO", "YES,NO"));
+            annotationCancer.add(annotationCase);
             result = mutationMapper.getSampleCountInMultipleMolecularProfilesByAnnotation(molecularProfileService
-                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, true);
+                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, true, annotationCancer);
             result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1 && !result.isEmpty()) {

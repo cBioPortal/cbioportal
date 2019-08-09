@@ -181,12 +181,11 @@ public class StudyViewFilterApplier {
           oncogenicityIdentifier = oncoKBConverter.getOncogenicityByHasDriver("NO");
         }
         List<AnnotationFilter> annotationProfiles;
-        for(String dataQualified : oncogenicityIdentifier) {
-          AnnotationFilter annotationOncoKBData = new AnnotationFilter();
-          annotationOncoKBData.setPath("oncokb.oncogenicity");
-          annotationOncoKBData.setValues(new List<String>("YES", "NO", "YES,NO"));
-          annotationProfiles.add(annotationOncoKBData);
-        }
+        AnnotationFilter annotationOncoKBData = new AnnotationFilter();
+        annotationOncoKBData.setPath("oncokb.oncogenicity");
+        annotationOncoKBData.setValues(new List<String>("YES", "NO", "YES,NO"));
+        annotationProfiles.add(annotationOncoKBData);
+        
         List<Mutation> mutationData = mutationService.getMutationsInMultipleMolecularProfilesByAnnotation(molecularProfileService
             .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, Projection.ID.name(), null, null, null, null, annotationProfiles);
         sampleIdentifiers = mutationData.stream().map(annotationQualified -> {

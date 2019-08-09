@@ -29,8 +29,10 @@ import org.springframework.web.context.WebApplicationContext;
 @Configuration
 public class CacheStatsControllerTest {
 
-    public static final String REPOSITORY_CACHE_ALIAS = "RepositoryCache";
-    public static final String INVALID_CACHE_ALIAS = "invalidcachealias";
+    public static final String VALID_CACHE_ALIAS = "GeneralRepositoryCache";
+
+    public static final String INVALID_CACHE_ALIAS = "InvalidCacheForTesting";
+
     @Autowired
     private WebApplicationContext wac;
     
@@ -51,7 +53,7 @@ public class CacheStatsControllerTest {
             public List<String> answer(InvocationOnMock invocation) throws CacheNotFoundException {
                 Object[] args = invocation.getArguments();
                 String cacheAlias = (String)args[0];
-                if (REPOSITORY_CACHE_ALIAS.equals(cacheAlias)) {
+                if (VALID_CACHE_ALIAS.equals(cacheAlias)) {
                     return new ArrayList<String>();
                 } 
                 throw new CacheNotFoundException(cacheAlias);
@@ -61,7 +63,7 @@ public class CacheStatsControllerTest {
             public List<String> answer(InvocationOnMock invocation) throws CacheNotFoundException {
                 Object[] args = invocation.getArguments();
                 String cacheAlias = (String)args[0];
-                if (REPOSITORY_CACHE_ALIAS.equals(cacheAlias)) {
+                if (VALID_CACHE_ALIAS.equals(cacheAlias)) {
                     return new ArrayList<String>();
                 } 
                 throw new CacheNotFoundException(cacheAlias);
@@ -72,7 +74,7 @@ public class CacheStatsControllerTest {
 
     @Test
     public void testGetKeysInCache() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + REPOSITORY_CACHE_ALIAS + "/keysInCache")
+        mockMvc.perform(MockMvcRequestBuilders.get("/" + VALID_CACHE_ALIAS + "/keysInCache")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
@@ -87,7 +89,7 @@ public class CacheStatsControllerTest {
 
     @Test
     public void testGetKeyCountsPerClass() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + REPOSITORY_CACHE_ALIAS + "/keyCountsPerClass")
+        mockMvc.perform(MockMvcRequestBuilders.get("/" + VALID_CACHE_ALIAS + "/keyCountsPerClass")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));

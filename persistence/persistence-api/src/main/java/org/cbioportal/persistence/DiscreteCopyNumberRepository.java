@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface DiscreteCopyNumberRepository {
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMolecularProfileBySampleListId(String molecularProfileId,
                                                                                         String sampleListId,
                                                                                         List<Integer> entrezGeneIds,
@@ -18,42 +18,42 @@ public interface DiscreteCopyNumberRepository {
                                                                                         String projection);
 
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(String molecularProfileId, String sampleListId,
                                                                         List<Integer> entrezGeneIds,
                                                                         List<Integer> alterationTypes);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<DiscreteCopyNumberData> fetchDiscreteCopyNumbersInMolecularProfile(String molecularProfileId,
                                                                             List<String> sampleIds,
                                                                             List<Integer> entrezGeneIds,
                                                                             List<Integer> alterationTypes,
                                                                             String projection);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfiles(List<String> molecularProfileIds, 
                                                                                    List<String> sampleIds,
                                                                                    List<Integer> entrezGeneIds,
                                                                                    List<Integer> alterationTypes, 
                                                                                    String projection);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta fetchMetaDiscreteCopyNumbersInMolecularProfile(String molecularProfileId, List<String> sampleIds,
                                                             List<Integer> entrezGeneIds, List<Integer> alterationTypes);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<CopyNumberCountByGene> getSampleCountByGeneAndAlterationAndSampleIds(String molecularProfileId,
                                                                               List<String> sampleIds,
                                                                               List<Integer> entrezGeneIds,
                                                                               List<Integer> alterations);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<CopyNumberCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                           List<String> sampleIds, 
                                                                           List<Integer> entrezGeneIds, 
                                                                           List<Integer> alterations);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId,
                                                                                 List<String> patientIds,
                                                                                 List<Integer> entrezGeneIds,

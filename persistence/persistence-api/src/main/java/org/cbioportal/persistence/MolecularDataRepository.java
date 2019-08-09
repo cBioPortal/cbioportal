@@ -10,29 +10,29 @@ import org.springframework.cache.annotation.Cacheable;
 
 public interface MolecularDataRepository {
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     String getCommaSeparatedSampleIdsOfMolecularProfile(String molecularProfileId);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<String> getCommaSeparatedSampleIdsOfMolecularProfiles(List<String> molecularProfileIds);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<GeneMolecularAlteration> getGeneMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds,
                                                               String projection);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     Iterable<GeneMolecularAlteration> getGeneMolecularAlterationsIterable(String molecularProfileId, List<Integer> entrezGeneIds,
                                                                           String projection);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                                          List<Integer> entrezGeneIds,
                                                                                          String projection);
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<GenesetMolecularAlteration> getGenesetMolecularAlterations(String molecularProfileId, List<String> genesetIds,
                                                                     String projection);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<TreatmentMolecularAlteration> getTreatmentMolecularAlterations(String molecularProfileId,
                                                                         List<String> treatmentIds, String projection);
 }

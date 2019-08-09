@@ -10,48 +10,48 @@ import java.util.List;
 
 public interface ClinicalDataRepository {
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId, String attributeId,
                                                          String projection, Integer pageSize, Integer pageNumber,
                                                          String sortBy, String direction);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaSampleClinicalData(String studyId, String sampleId, String attributeId);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<ClinicalData> getAllClinicalDataOfPatientInStudy(String studyId, String patientId, String attributeId,
                                                           String projection, Integer pageSize,
                                                           Integer pageNumber, String sortBy, String direction);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaPatientClinicalData(String studyId, String patientId, String attributeId);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<ClinicalData> getAllClinicalDataInStudy(String studyId, String attributeId,
                                                  String clinicalDataType, String projection,
                                                  Integer pageSize, Integer pageNumber, String sortBy,
                                                  String direction);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaAllClinicalData(String studyId, String attributeId, String clinicalDataType);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<ClinicalData> fetchAllClinicalDataInStudy(String studyId, List<String> ids, List<String> attributeIds, 
                                                    String clinicalDataType, String projection);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta fetchMetaClinicalDataInStudy(String studyId, List<String> ids, List<String> attributeIds, 
                                           String clinicalDataType);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<ClinicalData> fetchClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                          String clinicalDataType, String projection);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta fetchMetaClinicalData(List<String> studyIds, List<String> ids, List<String> attributeIds,
                                    String clinicalDataType);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<ClinicalDataCount> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds, List<String> attributeIds, 
         String clinicalDataType);
 }

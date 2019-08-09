@@ -9,38 +9,38 @@ import java.util.List;
 
 public interface MolecularProfileRepository {
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<MolecularProfile> getAllMolecularProfiles(String projection, Integer pageSize, Integer pageNumber, 
                                                    String sortBy, String direction);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaMolecularProfiles();
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     MolecularProfile getMolecularProfile(String molecularProfileId);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<MolecularProfile> getMolecularProfiles(List<String> molecularProfileIds, String projection);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaMolecularProfiles(List<String> molecularProfileIds);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<MolecularProfile> getAllMolecularProfilesInStudy(String studyId, String projection, Integer pageSize,
                                                           Integer pageNumber, String sortBy, String direction);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaMolecularProfilesInStudy(String studyId);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<MolecularProfile> getMolecularProfilesInStudies(List<String> studyIds, String projection);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaMolecularProfilesInStudies(List<String> studyIds);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<MolecularProfile> getMolecularProfilesReferredBy(String referringMolecularProfileId);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<MolecularProfile> getMolecularProfilesReferringTo(String referredMolecularProfileId);
 }

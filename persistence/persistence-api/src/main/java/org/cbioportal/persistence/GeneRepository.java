@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Memorial Sloan Kettering Cancer Center.
+ * Copyright (c) 2019 Memorial Sloan Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -41,39 +41,40 @@ import java.util.List;
 
 public interface GeneRepository {
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<Gene> getAllGenes(String keyword, String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy, 
                            String direction);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaGenes(String keyword, String alias);
     
+    @Cacheable("StaticRepositoryCacheOne")
     Gene getGeneByGeneticEntityId(Integer geneticEntityId);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("StaticRepositoryCacheOne")
     Gene getGeneByEntrezGeneId(Integer entrezGeneId);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("StaticRepositoryCacheOne")
     Gene getGeneByHugoGeneSymbol(String hugoGeneSymbol);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<String> getAliasesOfGeneByEntrezGeneId(Integer entrezGeneId);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<String> getAliasesOfGeneByHugoGeneSymbol(String hugoGeneSymbol);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<GeneAlias> getAllAliases();
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<Gene> fetchGenesByEntrezGeneIds(List<Integer> entrezGeneIds, String projection);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<Gene> fetchGenesByHugoGeneSymbols(List<String> hugoGeneSymbols, String projection);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta fetchMetaGenesByEntrezGeneIds(List<Integer> entrezGeneIds);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta fetchMetaGenesByHugoGeneSymbols(List<String> hugoGeneSymbols);
 }

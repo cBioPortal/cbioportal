@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface VariantCountRepository {
     
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<VariantCount> fetchVariantCounts(String molecularProfileId, List<Integer> entrezGeneIds, 
                                           List<String> keywords);
 }

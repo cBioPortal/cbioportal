@@ -10,25 +10,25 @@ import java.util.List;
 
 public interface StudyRepository {
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<CancerStudy> getAllStudies(String keyword, String projection, Integer pageSize, Integer pageNumber,
                                     String sortBy, String direction);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaStudies(String keyword);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     CancerStudy getStudy(String studyId, String projection);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<CancerStudy> fetchStudies(List<String> studyIds, String projection);
     
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta fetchMetaStudies(List<String> studyIds);
     
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     CancerStudyTags getTags(String studyId);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<CancerStudyTags> getTagsForMultipleStudies(List<String> studyIds);
 }

@@ -151,7 +151,7 @@ public class StudyViewFilterApplier {
         
         Boolean withOncoKBDriverMutationData = studyViewFilter.getwithOncoKBDriverMutationData();
         if (withOncoKBDriverMutationData != null && !sampleIdentifiers.isEmpty()) {
-            sampleIdentifiers = filterByProfiled(sampleIdentifiers, withOncoKBDriverMutationData);
+            sampleIdentifiers = filterByDriverMutation(sampleIdentifiers, withOncoKBDriverMutationData);
         }
         
         // Filter the samples if the withOncoKBDriverMutationData is specified.

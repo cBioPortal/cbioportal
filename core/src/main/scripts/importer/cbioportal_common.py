@@ -777,6 +777,14 @@ def parse_metadata_file(filename,
                                         'cause': meta_dictionary[attribute] + ' (%s)' % len(meta_dictionary[attribute])}
                                  )
 
+    # Restrict the show_profile_in_analysis_tab value to false (https://github.com/cBioPortal/cbioportal/issues/5023)
+    if meta_file_type in (MetaFileTypes.CNA_CONTINUOUS, MetaFileTypes.CNA_LOG2):
+        if meta_dictionary['show_profile_in_analysis_tab'] != 'false':
+            logger.error("The 'show_profile_in_analysis_tab' setting must be 'false', as this is only applicable for "
+                        "CNA data of the DISCRETE type.",
+                        extra={'filename_': filename,
+                        'cause': 'show_profile_in_analysis_tab: %s' % meta_dictionary['show_profile_in_analysis_tab']})
+
     if meta_file_type in (MetaFileTypes.SEG, MetaFileTypes.GISTIC_GENES):
         # Todo: Restore validation for reference genome in segment files
         # Validation can be restored to normal when hg18 data on public portal and data hub has been

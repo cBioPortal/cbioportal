@@ -214,7 +214,7 @@ public class StudyViewController {
             // But that does not guarantee they are driver mutations.
             // I created method getSampleCountInMultipleMolecularProfilesByAnnotation in the MutationMapper.
             // Please consider using that when updating the following code
-            result = mutationService.getSampleCountInMultipleMolecularProfiles(molecularProfileService
+            result = mutationMapper.getSampleCountInMultipleMolecularProfilesByAnnotation(molecularProfileService
                 .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, true);
             result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());

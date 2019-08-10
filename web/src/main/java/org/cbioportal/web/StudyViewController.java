@@ -214,10 +214,17 @@ public class StudyViewController {
             // But that does not guarantee they are driver mutations.
             // I created method getSampleCountInMultipleMolecularProfilesByAnnotation in the MutationMapper.
             // Please consider using that when updating the following code
+            List<String> oncogenicitySpecific;
+            if(interceptedStudyViewFilter.getwithOncoKBDriverMutationData() == true) {
+              oncogenicitySpecific = oncoKBConverter.getOncogenicityByHasDriver("YES");
+            }
+            if(interceptedStudyViewFilter.getwithOncoKBDriverMutationData() == true) {
+              oncogenicitySpecific = oncoKBConverter.getOncogenicityByHasDriver("NO");
+            }
             List<AnnotationFilter> annotationCancer;
             AnnotationFilter annotationCase = new AnnotationFilter();
             annotationCase.setPath("oncokb.oncogenicity");
-            annotationCase.setValues(new List<String>("YES", "NO", "YES,NO"));
+            annotationCase.setValues(oncogenicitySpecific);
             annotationCancer.add(annotationCase);
             result = mutationMapper.getSampleCountInMultipleMolecularProfilesByAnnotation(molecularProfileService
                 .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, true, annotationCancer);

@@ -11,11 +11,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.map.MultiKeyMap;
-import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.GenePanelData;
-import org.cbioportal.model.Mutation;
-import org.cbioportal.model.Sample;
+import org.cbioportal.model.*;
 import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.DiscreteCopyNumberService;
@@ -173,16 +169,16 @@ public class StudyViewFilterApplier {
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
         
-        List<String> oncogenicityIdentifier;
+        List<String> oncogenicityIdentifier= new ArrayList<>();
         if(withOncoKBDriverMutationData == true) {
           oncogenicityIdentifier = oncoKBConverter.getOncogenicityByHasDriver("YES");
         }
         if(withOncoKBDriverMutationData == false) {
           oncogenicityIdentifier = oncoKBConverter.getOncogenicityByHasDriver("NO");
         }
-        List<AnnotationFilter> annotationProfiles;
+        List<AnnotationFilter> annotationProfiles= new ArrayList<>();
         AnnotationFilter annotationOncoKBData = new AnnotationFilter();
-        annotationOncoKBData.setPath("oncokb.oncogenicity");
+        annotationOncoKBData.setPath("$.oncokb.oncogenicity");
         annotationOncoKBData.setValues(oncogenicityIdentifier);
         annotationProfiles.add(annotationOncoKBData);
         

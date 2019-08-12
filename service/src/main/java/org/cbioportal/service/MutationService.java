@@ -54,6 +54,12 @@ public interface MutationService {
                                                                         List<Integer> entrezGeneIds,
                                                                         boolean includeFrequency);
 
+    List<MutationCountByGene> getSampleCountInMultipleMolecularProfilesByAnnotation(List<String> molecularProfileIds,
+                                                                                    List<String> sampleIds,
+                                                                                    List<Integer> entrezGeneIds,
+                                                                                    boolean includeFrequency,
+                                                                                    List<AnnotationFilter> filters);
+
     List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
                                                                         List<String> patientIds,
                                                                         List<Integer> entrezGeneIds)

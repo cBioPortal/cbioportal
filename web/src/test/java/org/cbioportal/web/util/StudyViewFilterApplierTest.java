@@ -18,6 +18,7 @@ import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.util.OncoKBConverter;
 import org.cbioportal.web.parameter.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -70,6 +71,8 @@ public class StudyViewFilterApplierTest {
     private ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier;
     @InjectMocks
     private ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier;
+    @InjectMocks
+    private OncoKBConverter oncoKBConverter;
     @Spy
     private StudyViewFilterUtil studyViewFilterUtil;
 
@@ -84,7 +87,7 @@ public class StudyViewFilterApplierTest {
         studyViewFilterApplier = new StudyViewFilterApplier(
             sampleService, mutationService, discreteCopyNumberService, 
             molecularProfileService, genePanelService, clinicalDataService, clinicalDataEqualityFilterApplier, 
-            clinicalDataIntervalFilterApplier, studyViewFilterUtil);
+            clinicalDataIntervalFilterApplier, studyViewFilterUtil, oncoKBConverter);
     }
     
     @Test

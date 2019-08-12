@@ -187,10 +187,12 @@
             </if>
             <if test="filters != null and !filters.isEmpty()">
                 <foreach item="filter" collection="filters">
-                    AND JSON_EXTRACT(mutation.annotation, #{filter.path}) in
-                    <foreach item="value" collection="filter.values" open="(" separator="," close=")">
-                        #{value}
+                    <if test="filter.values != null and !filter.values.isEmpty()">
+                    AND
+                    <foreach item="value" collection="filter.values" open="(" separator="OR" close=")">
+                        JSON_CONTAINS(mutation.annotation, '"${value}"' , "${filter.path}")
                     </foreach>
+                    </if>
                 </foreach>
             </if>
             <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">

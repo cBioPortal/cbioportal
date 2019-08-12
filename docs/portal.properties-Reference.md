@@ -283,10 +283,8 @@ This gene set will add the following in the query box:
 ```
 
 # Spark & Parquet
-Spark application properties are provided for the [SparkContext](https://spark.apache.org/docs/latest/api/java/org/apache/spark/SparkContext.html) configuration.
-Below are a few properties that can be customized to fit the infrastructure you are deploying.<br>
-To add new properties, add it to portal.properties and `org.cbioportal.persistence.spark.util.SparkConfiguration`.
-For a full list of Spark configuration properties please refer to [Spark documentation](https://spark.apache.org/docs/latest/configuration.html).
+Below are the properties that can be customized to fit the infrastructure you are deploying to.<br>
+For a full description of the supported Spark configuration properties, please refer to [Spark documentation](https://spark.apache.org/docs/latest/configuration.html).
 
 ```
 spark.app.name=cBioPortal
@@ -300,7 +298,7 @@ spark.default.parallelism=[default 200]
 data.parquet.folder=[location to save parquet files e.g. cbioportal/persistence/persistence-spark/src/main/resources/parquet/]
 ```
 
-Parquet files for Spark implementation should be stored in the location specified in below property.
+Parquet files for Spark implementation should be stored in the location specified in the property below.
 See [here](Spark-Parquet-Data-Loading.md) for details on Parquet file organization.
 ```
 data.parquet.folder=your/parquet_folder/

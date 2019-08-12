@@ -4,6 +4,7 @@ import org.cbioportal.model.DataBin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,8 +20,8 @@ public class DiscreteDataBinner
     }
 
     public List<DataBin> calculateDataBins(String attributeId,
-                                           List<Double> values,
-                                           Set<Double> uniqueValues)
+                                           List<BigDecimal> values,
+                                           Set<BigDecimal> uniqueValues)
     {
         List<DataBin> dataBins = initDataBins(attributeId, uniqueValues);
 
@@ -30,7 +31,7 @@ public class DiscreteDataBinner
     }
     
     public List<DataBin> initDataBins(String attributeId,
-                                      Set<Double> uniqueValues)
+                                      Set<BigDecimal> uniqueValues)
     {
         return uniqueValues.stream()
             .map(d -> {

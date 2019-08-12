@@ -10,29 +10,29 @@ import java.util.List;
 
 public interface SampleListRepository {
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<SampleList> getAllSampleLists(String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                        String direction);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaSampleLists();
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     SampleList getSampleList(String sampleListId);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<SampleList> getSampleLists(List<String> sampleListIds, String projection);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<SampleList> getAllSampleListsInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber,
                                               String sortBy, String direction);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaSampleListsInStudy(String studyId);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<String> getAllSampleIdsInSampleList(String sampleListId);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<SampleListToSampleId> getSampleListSampleIds(List<Integer> sampleListIds);
 }

@@ -9,12 +9,12 @@ import java.util.List;
 
 public interface CancerTypeRepository {
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<TypeOfCancer> getAllCancerTypes(String projection, Integer pageSize, Integer pageNumber, String sortBy,
                                          String direction);
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaCancerTypes();
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     TypeOfCancer getCancerType(String cancerTypeId);
 }

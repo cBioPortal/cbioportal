@@ -18,9 +18,9 @@
       <ehcache:max-object-graph-size>10000000</ehcache:max-object-graph-size>
     </ehcache:heap-store>
 
-    <ehcache:cache alias="RepositoryCache">
+    <ehcache:cache alias="GeneralRepositoryCache">
       <ehcache:expiry>
-        <ehcache:tti unit="days">3</ehcache:tti>
+        <ehcache:none></ehcache:none>
       </ehcache:expiry>
       <ehcache:listeners>
         <ehcache:listener>
@@ -35,8 +35,30 @@
         </ehcache:listener>
       </ehcache:listeners>
       <ehcache:resources>
-        <ehcache:heap unit="${ehcache.RepositoryCache.maxBytesHeapUnits}">${ehcache.RepositoryCache.maxBytesHeap}</ehcache:heap>
-        <ehcache:disk unit="${ehcache.RepositoryCache.maxBytesLocalDiskUnits}" persistent="false">${ehcache.RepositoryCache.maxBytesLocalDisk}</ehcache:disk>
+        <ehcache:heap unit="${ehcache.general_repository_cache.max_bytes_heap_units}">${ehcache.general_repository_cache.max_bytes_heap}</ehcache:heap>
+        <ehcache:disk unit="${ehcache.general_repository_cache.max_bytes_local_disk_units}" persistent="false">${ehcache.general_repository_cache.max_bytes_local_disk}</ehcache:disk>
+      </ehcache:resources>
+    </ehcache:cache>
+
+    <ehcache:cache alias="StaticRepositoryCacheOne">
+      <ehcache:expiry>
+        <ehcache:none></ehcache:none>
+      </ehcache:expiry>
+      <ehcache:listeners>
+        <ehcache:listener>
+          <ehcache:class>org.cbioportal.persistence.util.CacheEventLogger</ehcache:class>
+          <ehcache:event-firing-mode>ASYNCHRONOUS</ehcache:event-firing-mode>
+          <ehcache:event-ordering-mode>UNORDERED</ehcache:event-ordering-mode>
+          <ehcache:events-to-fire-on>CREATED</ehcache:events-to-fire-on>
+          <ehcache:events-to-fire-on>REMOVED</ehcache:events-to-fire-on>
+          <ehcache:events-to-fire-on>EXPIRED</ehcache:events-to-fire-on>
+          <ehcache:events-to-fire-on>EVICTED</ehcache:events-to-fire-on>
+          <ehcache:events-to-fire-on>UPDATED</ehcache:events-to-fire-on>
+        </ehcache:listener>
+      </ehcache:listeners>
+      <ehcache:resources>
+        <ehcache:heap unit="${ehcache.static_repository_cache_one.max_bytes_heap_units}">${ehcache.static_repository_cache_one.max_bytes_heap}</ehcache:heap>
+        <ehcache:disk unit="${ehcache.static_repository_cache_one.max_bytes_local_disk_units}" persistent="false">${ehcache.static_repository_cache_one.max_bytes_local_disk}</ehcache:disk>
       </ehcache:resources>
     </ehcache:cache>
 

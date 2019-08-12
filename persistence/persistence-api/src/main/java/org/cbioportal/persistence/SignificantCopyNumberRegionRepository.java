@@ -10,13 +10,13 @@ import java.util.List;
 
 public interface SignificantCopyNumberRegionRepository {
     
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<Gistic> getSignificantCopyNumberRegions(String studyId, String projection, Integer pageSize, 
                                                  Integer pageNumber, String sortBy, String direction);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     BaseMeta getMetaSignificantCopyNumberRegions(String studyId);
 
-    @Cacheable("RepositoryCache")
+    @Cacheable("GeneralRepositoryCache")
     List<GisticToGene> getGenesOfRegions(List<Long> gisticRoiIds);
 }

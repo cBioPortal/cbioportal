@@ -4,9 +4,9 @@ import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GenesetMolecularAlteration;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.*;
 import org.springframework.stereotype.Repository;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Repository
 public class MolecularDataMyBatisRepository implements MolecularDataRepository {
@@ -31,6 +31,16 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
                                                                      List<Integer> entrezGeneIds, String projection) {
 
         return molecularDataMapper.getGeneMolecularAlterations(molecularProfileId, entrezGeneIds, projection);
+    }
+
+    @Override
+    // In order to return a cursor/iterator to the service layer, we need a transaction setup in the service
+    // layer. Currently, the bottom stackframe is CoExpressionService:getCoExpressions.  It is there where
+    // you will find the transaction created.
+    public Iterable<GeneMolecularAlteration> getGeneMolecularAlterationsIterable(String molecularProfileId, 
+                                                                                 List<Integer> entrezGeneIds, String projection) {
+
+        return molecularDataMapper.getGeneMolecularAlterationsIter(molecularProfileId, entrezGeneIds, projection);
     }
 
     @Override

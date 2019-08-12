@@ -74,8 +74,6 @@ public class ImportMicroRNAIDs {
             }
         }
         
-        removePreviousMicroRNARecord(daoGene, mirnas);
-        
         for (CanonicalGene mirna : mirnas) {
             daoGene.addGene(mirna);
         }       
@@ -100,40 +98,6 @@ public class ImportMicroRNAIDs {
         int ix = mir.indexOf("-");
         sb.append(mir.substring(ix+1));
         return sb.toString();
-    }
-    
-    /**
-     * 
-     * @param daoGene
-     * @param id
-     * @param mirnas 
-     */
-    private static void removePreviousMicroRNARecord(DaoGeneOptimized daoGene, List<CanonicalGene> mirnas) {
-        for (CanonicalGene mirna : mirnas) {
-            Set<String> aliases = new HashSet<String>();
-            aliases.addAll(mirna.getAliases());
-            for (String mirnaid : mirna.getAliases()) {
-                List<CanonicalGene> pres = new ArrayList<CanonicalGene>(daoGene.guessGene(mirnaid));
-                for (CanonicalGene pre : pres) {
-                    String preCap = pre.getHugoGeneSymbolAllCaps();
-                    if (!preCap.startsWith("MIR")&&!preCap.startsWith("LET")) {
-                        continue;
-                    }
-//                    aliases.add(pre.getStandardSymbol());
-//                    aliases.add(Long.toString(pre.getEntrezGeneId()));
-//                    aliases.addAll(pre.getAliases());
-                    try {
-                        daoGene.deleteGene(pre);
-                    } catch (DaoException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            if(aliases.size()>2) {
-                mirna.setAliases(aliases);
-            }
-        }
-        
     }
 
     public static void main(String[] args) throws Exception {

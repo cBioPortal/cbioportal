@@ -45,14 +45,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class CacheMapUtil {
 
-    // can't find another way to pull in the required mapper dependency at runtime for initCacheMemory
-    @Autowired
-    private PatientRepository patientRepository;
-
-    // can't find another way to pull in the required mapper dependency at runtime for initCacheMemory
-    @Autowired
-    private CancerTypeRepository cancerTypeRepository;
-
     @Autowired
     private StudyRepository studyRepository;
 
@@ -93,7 +85,7 @@ public class CacheMapUtil {
         // CHANGES TO THIS LIST MUST BE PROPAGATED TO 'GlobalProperties'
         this.cacheEnabled = (!authenticate.isEmpty() 
                 && !authenticate.equals("false") 
-                && !authenticate.equals("social_auth"));
+                && !authenticate.contains("social_auth"));
         if (cacheEnabled) {
             LOG.debug("creating cache maps for authorization");
             populateMolecularProfileMap();

@@ -5,7 +5,7 @@ import javax.validation.constraints.NotNull;
 
 public class CopyNumberSeg extends UniqueKeyBase {
 
-    private Integer segId;
+    private Long segId;
     private Integer cancerStudyId;
     @NotNull
     private String cancerStudyIdentifier;
@@ -25,11 +25,11 @@ public class CopyNumberSeg extends UniqueKeyBase {
     @NotNull
     private BigDecimal segmentMean;
 
-    public Integer getSegId() {
+    public Long getSegId() {
         return segId;
     }
 
-    public void setSegId(Integer segId) {
+    public void setSegId(Long segId) {
         this.segId = segId;
     }
 

@@ -13,7 +13,7 @@
         profiles are selected through the java system property "authenticate" (e.g. java -Dauthenticate=saml) or the portal.properties property "authenticate".
         The following profiles are available:
             "googleplus"    - authentication required (provided by google oauth2 server).
-            "social_auth"   - authentication optional (provided by google oauth2 server).
+            "social_auth_google/social_auth_microsoft"   - authentication optional (provided by google oauth2 and microsoft oauth servers).
             "openid"        - authentication required (provided by google, yahoo, or myopenid).
                             - note : some/all of these openid providers are no longer providing openid authentication services
             "saml"          - authentication required (provided by a saml SSO authentication server).
@@ -24,7 +24,7 @@
                             - no authentication occurs when connecting to the portal
                             - note: similar to the "false" profile, but allows testing of the session-service (which normally requires authentication)
         User authorities determine study access in the following profiles: googleplus, openid, saml, ad, ldap
-        All studies are available to all users in the following profiles: social_auth, false, noauthsessionservice
+        All studies are available to all users in the following profiles: social_auth_google(which is same as social_auth), social_auth_microsoft, false, noauthsessionservice
     -->
 
     <!-- Data Access Tokens beans -->
@@ -56,7 +56,7 @@
     </b:bean>
 
     <!-- Used to compare token returned by authentication-provider against portal user db tables -->
-    <b:bean id="tokenUserDetailsService" class="org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService"/>
+    <b:bean id="tokenUserDetailsService" class="org.cbioportal.security.spring.authentication.social.PortalUserDetailsService"/>
     <!-- End of Data Access Tokens beans -->
 
     <!-- beans shared across any authentication system -->
@@ -138,6 +138,7 @@
         <intercept-url pattern="/login.jsp*" access="permitAll"/>
         <intercept-url pattern="/case.do*" access="permitAll"/>
         <intercept-url pattern="/patient*" access="permitAll"/>
+        <intercept-url pattern="/network.do*" access="permitAll"/>
         <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
         <intercept-url pattern="/**" access="isAuthenticated()"/>
         <!-- used for google+ authentication (spring social) -->
@@ -177,7 +178,7 @@
     </authentication-manager>
 
     <!-- beans used to compare token returned by authentication-provider against portal user db tables -->
-    <b:bean id="userDetailsService" class="org.cbioportal.security.spring.authentication.googleplus.PortalUserDetailsService">
+    <b:bean id="userDetailsService" class="org.cbioportal.security.spring.authentication.social.PortalUserDetailsService">
     </b:bean>
 
      <!-- configure the social authentication provider which processes authentication requests -->
@@ -199,7 +200,7 @@
         <b:constructor-arg ref="connectionFactoryLocator" />
         <b:property name="connectionSignUp" ref="connectionSignUp"/>
     </b:bean>
-    <b:bean id="connectionSignUp" class="org.cbioportal.security.spring.authentication.googleplus.GoogleplusConnectionSignUp"/>
+    <b:bean id="connectionSignUp" class="org.cbioportal.security.spring.authentication.social.SocialConnectionSignUp"/>
     <b:bean id="connectionFactoryLocator" class="org.springframework.social.security.SocialAuthenticationServiceRegistry">
         <b:property name="authenticationServices">
             <b:list>
@@ -269,6 +270,7 @@
         <intercept-url pattern="/login.jsp*" access="permitAll"/>
         <intercept-url pattern="/case.do*" access="permitAll"/>
         <intercept-url pattern="/patient*" access="permitAll"/>
+        <intercept-url pattern="/network.do*" access="permitAll"/>
         <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
         <intercept-url pattern="/**" access="isAuthenticated()"/>
         <!-- used for saml authentication -->
@@ -532,6 +534,7 @@
             <intercept-url pattern="/login.jsp*" access="permitAll"/>
             <intercept-url pattern="/case.do*" access="permitAll"/>
             <intercept-url pattern="/patient*" access="permitAll"/>
+            <intercept-url pattern="/network.do*" access="permitAll"/>
             <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
             <intercept-url pattern="/**" access="isAuthenticated()"/>
             <!-- to enable access from matlab, r, python, etc clients -->
@@ -566,6 +569,7 @@
             <intercept-url pattern="/login.jsp*" access="permitAll"/>
             <intercept-url pattern="/case.do*" access="permitAll"/>
             <intercept-url pattern="/patient*" access="permitAll"/>
+            <intercept-url pattern="/network.do*" access="permitAll"/>
             <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
             <intercept-url pattern="/**" access="isAuthenticated()"/>
 
@@ -621,8 +625,9 @@
         </http>
         <authentication-manager alias="authenticationManager"/>
     </b:beans>
-
-    <b:beans profile="social_auth">
+    
+    <!-- social_auth included for backward compatibility -->
+    <b:beans profile="social_auth | social_auth_google | social_auth_microsoft">
 
 	    <b:bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 	        <b:property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
@@ -667,7 +672,6 @@
 	            <b:constructor-arg value="/index.do" />
 	        </b:bean>
 
-	    <!-- google+ beans -->
 	    <b:bean id="socialAuthenticationFilter" class="org.springframework.social.security.SocialAuthenticationFilter">
 	        <b:constructor-arg index="0" ref="authenticationManager" />
 	        <b:constructor-arg index="1" ref="userIdSource" />
@@ -680,50 +684,134 @@
 	        <!-- UsernameNotFoundException will be stored in session with username as message -->
 	        <b:property name="allowSessionCreation" value="true" />
 	    </b:bean>
-
+	    
 	    <authentication-manager alias="authenticationManager">
-            <!-- token access for the API -->
-            <authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
+	    	<authentication-provider ref="tokenUserDetailsAuthenticationProvider"/>
 	        <authentication-provider ref="socialAuthenticationProvider"/>
 	    </authentication-manager>
-
-	     <!-- configure the social authentication provider which processes authentication requests -->
+	    
+	    <!-- configure the social authentication provider which processes authentication requests -->
 	    <b:bean id="socialAuthenticationProvider" class="org.springframework.social.security.SocialAuthenticationProvider">
 	        <b:constructor-arg index="0" ref="usersConnectionRepository" />
 	        <b:constructor-arg index="1" ref="socialUserDetailsService" />
 	    </b:bean>
-
-	    <b:bean id="socialUserDetailsService" class="org.cbioportal.security.spring.authentication.googleplus.CustomUserDetailsService" />
-
+	    
+	    <b:bean id="socialUserDetailsService" class="org.cbioportal.security.spring.authentication.social.CustomUserDetailsService" />
+	    
 	    <!-- returns the spring security account id for the user -->
 	    <!--Implementation of UserIdSource that returns the Spring Security Authentication's name as the user ID -->
 	    <b:bean id="userIdSource" class="org.springframework.social.security.AuthenticationNameUserIdSource"/>
-
-	    <b:bean id="usersConnectionRepository"
+	
+	    <b:bean id="usersConnectionRepository" 
 	            class="org.springframework.social.connect.mem.InMemoryUsersConnectionRepository">
 	        <b:constructor-arg ref="connectionFactoryLocator" />
 	        <b:property name="connectionSignUp" ref="connectionSignUp"/>
 	    </b:bean>
-	    <b:bean id="connectionSignUp" class="org.cbioportal.security.spring.authentication.googleplus.GoogleplusConnectionSignUp"/>
-	    <b:bean id="connectionFactoryLocator" class="org.springframework.social.security.SocialAuthenticationServiceRegistry">
-	        <b:property name="authenticationServices">
-	            <b:list>
-	                <b:bean class="org.springframework.social.google.security.GoogleAuthenticationService">
-	                    <b:constructor-arg value="${googleplus.consumer.key}" />
-	                    <b:constructor-arg value="${googleplus.consumer.secret}" />
-	                    <b:property name="connectionFactory" ref="googleplusConnectionFactory" />
-	                    <!-- Important: The next property name changed from "scope" to "defaultScope" in 1.1.0.M4 -->
-	                    <b:property name="defaultScope" value="email" />
-	                </b:bean>
-	            </b:list>
-	        </b:property>
-	    </b:bean>
-	    <b:bean id="googleplusConnectionFactory" class="org.cbioportal.security.spring.authentication.googleplus.GoogleplusConnectionFactory" >
-	        <b:constructor-arg value="${googleplus.consumer.key}" />
-	        <b:constructor-arg value="${googleplus.consumer.secret}" />
-	    </b:bean>
-
-	    <!-- end googleplus beans -->
+	    <b:bean id="connectionSignUp" class="org.cbioportal.security.spring.authentication.social.SocialConnectionSignUp"/>
+	    
 	</b:beans>
+	 
+	 <b:beans profile="social_auth_microsoft">
+		<b:bean id="connectionFactoryLocator"
+			class="org.springframework.social.security.SocialAuthenticationServiceRegistry">
+			<b:property name="authenticationServices">
+				<b:list>
+					<b:bean
+						class="org.springframework.social.live.security.LiveAuthenticationService">
+						<b:constructor-arg
+							value="${microsoftlive.consumer.key}" />
+						<b:constructor-arg
+							value="${microsoftlive.consumer.secret}" />
+						<b:property name="connectionFactory"
+							ref="microsoftliveConnectionFactory" />
+						<b:property name="defaultScope" value="wl.emails" />
+					</b:bean>
+				</b:list>
+			</b:property>
+		</b:bean>
+	
+		<b:bean id="microsoftliveConnectionFactory"
+			class="org.cbioportal.security.spring.authentication.live.LiveConnectionFactory">
+			<b:constructor-arg
+				value="${microsoftlive.consumer.key}" />
+			<b:constructor-arg
+				value="${microsoftlive.consumer.secret}" />
+		</b:bean>
+	</b:beans>
+	
+	<!-- social_auth included for backward compatibility -->
+	<b:beans profile="social_auth | social_auth_google">
+		<b:bean id="connectionFactoryLocator"
+			class="org.springframework.social.security.SocialAuthenticationServiceRegistry">
+			<b:property name="authenticationServices">
+				<b:list>
+					<b:bean
+						class="org.springframework.social.google.security.GoogleAuthenticationService">
+						<b:constructor-arg
+							value="${googleplus.consumer.key}" />
+						<b:constructor-arg
+							value="${googleplus.consumer.secret}" />
+						<b:property name="connectionFactory"
+							ref="googleplusConnectionFactory" />
+						<b:property name="defaultScope" value="email" />
+					</b:bean>
+				</b:list>
+			</b:property>
+		</b:bean>
 
+		<b:bean id="googleplusConnectionFactory"
+			class="org.cbioportal.security.spring.authentication.googleplus.GoogleplusConnectionFactory">
+			<b:constructor-arg
+				value="${googleplus.consumer.key}" />
+			<b:constructor-arg
+				value="${googleplus.consumer.secret}" />
+		</b:bean>
+	</b:beans>
+	
+	<!-- social_auth included for backward compatibility -->
+	<b:beans profile="(social_auth | social_auth_google) &amp; social_auth_microsoft">
+		<b:bean id="connectionFactoryLocator"
+			class="org.springframework.social.security.SocialAuthenticationServiceRegistry">
+			<b:property name="authenticationServices">
+				<b:list>
+					<b:bean
+						class="org.springframework.social.live.security.LiveAuthenticationService">
+						<b:constructor-arg
+							value="${microsoftlive.consumer.key}" />
+						<b:constructor-arg
+							value="${microsoftlive.consumer.secret}" />
+						<b:property name="connectionFactory"
+							ref="microsoftliveConnectionFactory" />
+						<b:property name="defaultScope" value="wl.emails" />
+					</b:bean>
+					<b:bean
+						class="org.springframework.social.google.security.GoogleAuthenticationService">
+						<b:constructor-arg
+							value="${googleplus.consumer.key}" />
+						<b:constructor-arg
+							value="${googleplus.consumer.secret}" />
+						<b:property name="connectionFactory"
+							ref="googleplusConnectionFactory" />
+						<b:property name="defaultScope" value="email" />
+					</b:bean>
+				</b:list>
+			</b:property>
+		</b:bean>
+
+		<b:bean id="googleplusConnectionFactory"
+			class="org.cbioportal.security.spring.authentication.googleplus.GoogleplusConnectionFactory">
+			<b:constructor-arg
+				value="${googleplus.consumer.key}" />
+			<b:constructor-arg
+				value="${googleplus.consumer.secret}" />
+		</b:bean>
+		<b:bean id="microsoftliveConnectionFactory"
+			class="org.cbioportal.security.spring.authentication.live.LiveConnectionFactory">
+			<b:constructor-arg
+				value="${microsoftlive.consumer.key}" />
+			<b:constructor-arg
+				value="${microsoftlive.consumer.secret}" />
+		</b:bean>
+	</b:beans>
+	
 </b:beans>

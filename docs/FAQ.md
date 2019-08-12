@@ -28,6 +28,7 @@
         * [Are there any normal tissue samples available through cBioPortal?](#are-there-any-normal-tissue-samples-available-through-cbioportal)
         * [How can I find which studies have mRNA expression data (or any other specific data type)?](#how-can-i-find-which-studies-have-mrna-expression-data-or-any-other-specific-data-type)
         * [Can I download all data at once?](#can-i-download-all-data-at-once)
+        * [The data today is different than the last time I looked. What happened?](#the-data-today-is-different-than-the-last-time-I-looked-what-happened)
         * [How do I access data from AACR Project GENIE?](#how-do-i-access-data-from-aacr-project-genie)
     * [TCGA](#tcga)
         * [How does TCGA data in cBioPortal compare to TCGA data in Genome Data Commons?](#how-does-tcga-data-in-cbioportal-compare-to-tcga-data-in-genome-data-commons)
@@ -139,6 +140,10 @@ No, we currently do not store any normal tissue data in our system.
 Check out the [Data Sets Page](https://www.cbioportal.org/data_sets.jsp) where you can view the complete set of cancer studies and sort by the number of samples with data available for any data type.
 ### Can I download all data at once?
 You can download all data for individual studies on the [Data Sets Page](https://www.cbioportal.org/data_sets.jsp) or the study view page for the study of interest. You can also download all studies from our [Data Hub](https://github.com/cBioPortal/datahub).
+### The data today is different than the last time I looked. What happened?
+We do occasionally update existing datasets to provide the most up-to-date, accurate and consistent data possible. The data you see today is likely an improved version of what you have seen previously. However, if you suspect that there is an error in the current version, please let us know at [cbioportal@googlegroups.com](mailto:cbioportal@googlegroups.com).
+
+If you need to reference an old version of a dataset, you can find previous versions in our [Datahub repository](https://github.com/cBioPortal/datahub/tree/master/public).
 ### How do I access data from AACR Project GENIE?
 Data from AACR Project GENIE are provided in a [dedicated instance of cBioPortal](https://www.cbioportal.org/genie/). You can also download GENIE data from the [Synapse Platform](http://synapse.org/genie). Note that you will need to register before accessing the data. Additional information about AACR Project GENIE can be found on the [AACR website](http://www.aacr.org/Research/Research/Pages/aacr-project-genie.aspx).
 
@@ -172,9 +177,9 @@ A “splice site” mutation occurs in an intron, in a splice acceptor or donor 
 ### What do “Amplification”, “Gain”, “Deep Deletion”, “Shallow Deletion” and "-2", "-1", "0", "1", and "2" mean in the copy-number data?
 These levels are derived from copy-number analysis algorithms like GISTIC or RAE, and indicate the copy-number level per gene:
 * -2 or Deep Deletion indicates a deep loss, possibly a homozygous deletion
-* -1 or Shallow Deletion indicates a shallow loss, possible a heterozygous deletion
+* -1 or Shallow Deletion indicates a shallow loss, possibley a heterozygous deletion
 * 0 is diploid
-* 1 or Gain indicates a low-level gain (a few additional copies copies, often broad)
+* 1 or Gain indicates a low-level gain (a few additional copies, often broad)
 * 2 or Amplification indicate a high-level amplification (more copies, often focal)
 
 Note that these calls are putative. We consider the deep deletions and amplifications as biologically relevant for individual genes by default. Note that these calls are usually not manually reviewed, and due to differences in purity and ploidy between samples, there may be false positives and false negatives.
@@ -193,7 +198,7 @@ For mRNA and microRNA expression data, we typically compute the relative express
 ### Is there any normal RNA-seq data in cBioPortal?
 No, we currently do not store any expression data from normal tissue samples in our system.
 ### How is TCGA RNASeqV2 processed? What units are used?
-RNASeqV2 from TCGA is processed and normalized using [RSEM](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-323) to generate TPM (transcripts per million). Specifically, the data_RNA_Seq_v2_expression_median file in cBioPortal corresponds to the rsem.genes.normalized_results file from TCGA. cBioPortal then calculates z-scores as described above in [What are mRNA and microRNA Z-Scores?](#what-are-mrna-and-microrna-z-scores) 
+RNASeqV2 from TCGA is processed and normalized using [RSEM](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-323). Specifically, the RNASeq V2 data in cBioPortal corresponds to the rsem.genes.normalized_results file from TCGA. A more detailed explanation of RSEM output can be found [here](https://www.biostars.org/p/106127/). cBioPortal then calculates z-scores as described above in [What are mRNA and microRNA Z-Scores?](#what-are-mrna-and-microrna-z-scores) 
 ### Is there microRNA data?
 We have microRNA data for only a few studies and they are not up to date. To download more updated miRNA data, please go to either [Broad Firehose](http://gdac.broadinstitute.org/), or [GDC](https://portal.gdc.cancer.gov/). 
 ### How can I query microRNAs in the portal?

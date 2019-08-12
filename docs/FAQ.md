@@ -177,9 +177,9 @@ A “splice site” mutation occurs in an intron, in a splice acceptor or donor 
 ### What do “Amplification”, “Gain”, “Deep Deletion”, “Shallow Deletion” and "-2", "-1", "0", "1", and "2" mean in the copy-number data?
 These levels are derived from copy-number analysis algorithms like GISTIC or RAE, and indicate the copy-number level per gene:
 * -2 or Deep Deletion indicates a deep loss, possibly a homozygous deletion
-* -1 or Shallow Deletion indicates a shallow loss, possible a heterozygous deletion
+* -1 or Shallow Deletion indicates a shallow loss, possibley a heterozygous deletion
 * 0 is diploid
-* 1 or Gain indicates a low-level gain (a few additional copies copies, often broad)
+* 1 or Gain indicates a low-level gain (a few additional copies, often broad)
 * 2 or Amplification indicate a high-level amplification (more copies, often focal)
 
 Note that these calls are putative. We consider the deep deletions and amplifications as biologically relevant for individual genes by default. Note that these calls are usually not manually reviewed, and due to differences in purity and ploidy between samples, there may be false positives and false negatives.
@@ -198,7 +198,7 @@ For mRNA and microRNA expression data, we typically compute the relative express
 ### Is there any normal RNA-seq data in cBioPortal?
 No, we currently do not store any expression data from normal tissue samples in our system.
 ### How is TCGA RNASeqV2 processed? What units are used?
-RNASeqV2 from TCGA is processed and normalized using [RSEM](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-323) to generate TPM (transcripts per million). Specifically, the data_RNA_Seq_v2_expression_median file in cBioPortal corresponds to the rsem.genes.normalized_results file from TCGA. cBioPortal then calculates z-scores as described above in [What are mRNA and microRNA Z-Scores?](#what-are-mrna-and-microrna-z-scores) 
+RNASeqV2 from TCGA is processed and normalized using [RSEM](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-323). Specifically, the RNASeq V2 data in cBioPortal corresponds to the rsem.genes.normalized_results file from TCGA. A more detailed explanation of RSEM output can be found [here](https://www.biostars.org/p/106127/). cBioPortal then calculates z-scores as described above in [What are mRNA and microRNA Z-Scores?](#what-are-mrna-and-microrna-z-scores) 
 ### Is there microRNA data?
 We have microRNA data for only a few studies and they are not up to date. To download more updated miRNA data, please go to either [Broad Firehose](http://gdac.broadinstitute.org/), or [GDC](https://portal.gdc.cancer.gov/). 
 ### How can I query microRNAs in the portal?

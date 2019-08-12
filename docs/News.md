@@ -1,3 +1,52 @@
+## July 26, 2019
+*   **Added data** consisting of 35 samples from 1 study:
+    *  [Clear Cell Renal Cell Carcinoma (DFCI, Science 2019)](https://www.cbioportal.org/study/summary?id=ccrcc_dfci_2019) *35 samples*
+*   Added Hypoxia data for:
+    *  [Breast Invasive Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=brca_tcga_pan_can_atlas_2018)
+    *  [Colorectal Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=coadread_tcga_pan_can_atlas_2018)
+    *  [Cervical Squamous Cell Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=cesc_tcga_pan_can_atlas_2018)
+    *  [Glioblastoma Multiforme (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=gbm_tcga_pan_can_atlas_2018)
+    *  [Head and Neck Squamous Cell Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=hnsc_tcga_pan_can_atlas_2018)
+    *  [Kidney Renal Clear Cell Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=kirc_tcga_pan_can_atlas_2018)
+    *  [Kidney Renal Papillary Cell Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=kirp_tcga_pan_can_atlas_2018)
+    *  [Brain Lower Grade Glioma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=lgg_tcga_pan_can_atlas_2018)
+    *  [Liver Hepatocellular Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=lihc_tcga_pan_can_atlas_2018)
+    *  [Lung Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=luad_tcga_pan_can_atlas_2018)
+    *  [Lung Squamous Cell Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=lusc_tcga_pan_can_atlas_2018)
+    *  [Ovarian Serous Cystadenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=ov_tcga_pan_can_atlas_2018)
+    *  [Pancreatic Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=paad_tcga_pan_can_atlas_2018)
+    *  [Pheochromocytoma and Paraganglioma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=pcpg_tcga_pan_can_atlas_2018)
+    *  [Prostate Adenocarcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=prad_tcga_pan_can_atlas_2018)
+    *  [Skin Cutaneous Melanoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=skcm_tcga_pan_can_atlas_2018)
+    *  [Thyroid Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=thca_tcga_pan_can_atlas_2018)
+    *  [Uterine Corpus Endometrial Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=ucec_tcga_pan_can_atlas_2018)
+## July 24, 2019
+*   **Added data** consisting of 151 samples from 1 study:
+    *  [Myeloproliferative Neoplasms (CIMR, NEJM 2013)](https://www.cbioportal.org/study/summary?id=mpn_cimr_2013) *151 samples*
+## July 13, 2019
+ *   **Public Release 6.1 of AACR Project GENIE:**
+     *   The sixth data set, GENIE 6.0-public, was released in early July 2019.  A patch to GENIE 6.0-public, GENIE 6.1-pubic, was subsequently released on July 13, 2019.  The combined data set now includes nearly 70,000 de-identified genomic records collected from patients who were treated at each of the consortium's participating institutions, making it among the largest fully public cancer genomic data sets released to date. The combined data set now includes data for nearly 80 major cancer types, including data from nearly 11,000 patients with lung cancer, greater than  9,700 patients with breast cancer, and nearly 7,000 patients with colorectal cancer.
+ *   More detailed information can be found in the [AACR GENIE Data Guide](http://www.aacr.org/Research/Research/Documents/GENIE%20Data%20Guide.pdf).  In addition to accessing the data via the cBioPortal, users can download the data directly from [Sage Bionetworks](http://synapse.org/genie). Users will need to create an account for either site and agree to the [terms of access](http://www.aacr.org/Documents/Terms%20of%20Access.pdf).
+ *   For frequently asked questions, visit the [AACR FAQ page](http://www.aacr.org/Research/Research/Pages/aacr-project-genie.aspx).
+## July 2, 2019
+*   **Added data** consistng of 785 samples from 4 studies:
+    *  [Non-Small Cell Lung Cancer (TRACERx, NEJM 2017)](https://www.cbioportal.org/study/summary?id=nsclc_tracerx_2017) *327 samples* 
+    *  [Acute myeloid leukemia or myelodysplastic syndromes (WashU, 2016)](https://www.cbioportal.org/study/summary?id=mnm_washu_2016) *136 samples* 
+    *  [Basal Cell Carcinoma (UNIGE, Nat Genet 2016)](https://www.cbioportal.org/study/summary?id=bcc_unige_2016) *293 samples* 
+    *  [Colon Adenocarcinoma (CaseCCC, PNAS 2015)](https://www.cbioportal.org/study/summary?id=coad_caseccc_2015) *29 samples* 
+
+## June 19, 2019
+* **New Feature**: Show *Genome Aggregation Database (gnomAD)* population frequencies in the mutations table - see [example](http://bit.ly/2ISHgiu):
+    
+    ![gnomad feature news](https://user-images.githubusercontent.com/1334004/59794400-e07c9c00-92a6-11e9-97ea-a79bfc8f3885.gif)
+
+## June 12, 2019
+ *   **Added data**  of 1350 samples from 3 studies:
+     *  [Pheochromocytoma and Paraganglioma (TCGA, Cell 2017)](https://www.cbioportal.org/study?id=pcpg_tcga_pub) *178 samples*
+     *  [Metastatic Solid Cancers (UMich, Nature 2017)](https://www.cbioportal.org/study?id=metastatic_solid_tumors_mich_2017) *500 samples*
+     *   [Acute Myeloid Leukemia (OHSU, Nature 2018)](https://www.cbioportal.org/study/summary?id=aml_ohsu_2018) *672 samples*
+ *    Added survival data for TCGA PanCan Atlas Cohorts (>10,000 samples across 33 tumor types).
+ *    Added hypoxia data for [Bladder Urothelial Carcinoma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/study/summary?id=blca_tcga_pan_can_atlas_2018)
 ## June 7, 2019
 * **New Group Comparison Feature**: Compare clinical and genomic features of user-defined groups of samples/patients. [View Tutorial](https://www.cbioportal.org/tutorials#group-comparison)
 

@@ -35,9 +35,8 @@ package org.mskcc.cbio.maf;
 /**
  * Encapsulates Details Regarding a Single MAF Record.
  */
-public class MafRecord
-{
-	// standard MAF cols
+public class MafRecord {
+    // standard MAF cols
     private String chr;
     private String ncbiBuild;
     private long startPosition;
@@ -71,10 +70,10 @@ public class MafRecord
     private String validationMethod;
     private String score;
     private String bamFile;
-    
+
     private String aminoAcidChange;
 
-	// allele frequency cols
+    // allele frequency cols
     private int tumorAltCount;
     private int tumorRefCount;
     private int normalAltCount;
@@ -88,57 +87,38 @@ public class MafRecord
     private int normalDepth;
     private float normalVaf;
 
-	// custom annotator columns
-	private String proteinChange;
-	private String codons;
-	private String refSeq;
-	private String swissprot;
-	private String proteinPosition;
+    // custom annotator columns
+    private String proteinChange;
+    private String codons;
+    private String refSeq;
+    private String swissprot;
+    private String proteinPosition;
 
-	// Mutation Assessor cols
-	private String maFuncImpact;
-	private float maFIS;
-	private String maLinkVar;
-	private String maLinkMsa;
-	private String maLinkPdb;
-	private String maProteinChange;
+    // Mutation Assessor cols
+    private String maFuncImpact;
+    private float maFIS;
+    private String maLinkVar;
+    private String maLinkMsa;
+    private String maLinkPdb;
 
-	// Oncotator cols
-	private String oncotatorCosmicOverlapping;
-	private String oncotatorDbSnpRs;
-	private String oncotatorDbSnpValStatus;
-	private String oncotatorProteinChange;
+    // Oncotator cols
+    private String oncotatorDbSnpRs;
+    private String oncotatorDbSnpValStatus;
     private String oncotatorVariantClassification;
-	private String oncotatorGeneSymbol;
-	private String oncotatorRefseqMrnaId;
-	private String oncotatorRefseqProtId;
-	private int oncotatorExonAffected;
-	private String oncotatorTranscriptChange;
-	private String oncotatorUniprotName;
-	private String oncotatorUniprotAccession;
-	private String oncotatorCodonChange;
-	private int oncotatorProteinPosStart;
-	private int oncotatorProteinPosEnd;
-	private String oncotatorProteinChangeBestEffect;
-	private String oncotatorVariantClassificationBestEffect;
-	private String oncotatorGeneSymbolBestEffect;
-	private String oncotatorRefseqMrnaIdBestEffect;
-	private String oncotatorRefseqProtIdBestEffect;
-	private int oncotatorExonAffectedBestEffect;
-	private String oncotatorTranscriptChangeBestEffect;
-	private String oncotatorUniprotNameBestEffect;
-	private String oncotatorUniprotAccessionBestEffect;
-	private String oncotatorCodonChangeBestEffect;
-	private int oncotatorProteinPosStartBestEffect;
-	private int oncotatorProteinPosEndBestEffect;
-	
-	// custom filtering of passenger and driver mutations cols
-	private String driverFilter;
-	private String driverFilterAnn;
-	private String driverTiersFilter;
-	private String driverTiersFilterAnn;
-	
-	public String getChr() {
+    private String oncotatorRefseqMrnaId;
+    private String oncotatorUniprotName;
+    private String oncotatorUniprotAccession;
+    private String oncotatorCodonChange;
+    private int oncotatorProteinPosStart;
+    private int oncotatorProteinPosEnd;
+
+    // custom filtering of passenger and driver mutations cols
+    private String driverFilter;
+    private String driverFilterAnn;
+    private String driverTiersFilter;
+    private String driverTiersFilterAnn;
+
+    public String getChr() {
         return chr;
     }
 
@@ -273,118 +253,118 @@ public class MafRecord
     public void setValidationStatus(String validationStatus) {
         this.validationStatus = validationStatus;
     }
-    
+
     public String getSequencer() {
-		return sequencer;
-	}
+        return sequencer;
+    }
 
-	public void setSequencer(String sequencer) {
-		this.sequencer = sequencer;
-	}
+    public void setSequencer(String sequencer) {
+        this.sequencer = sequencer;
+    }
 
-	public String getDbSnpValStatus() {
-		return dbSnpValStatus;
-	}
+    public String getDbSnpValStatus() {
+        return dbSnpValStatus;
+    }
 
-	public void setDbSnpValStatus(String dbSnpValStatus) {
-		this.dbSnpValStatus = dbSnpValStatus;
-	}
+    public void setDbSnpValStatus(String dbSnpValStatus) {
+        this.dbSnpValStatus = dbSnpValStatus;
+    }
 
-	public String getMatchedNormSampleBarcode() {
-		return matchedNormSampleBarcode;
-	}
+    public String getMatchedNormSampleBarcode() {
+        return matchedNormSampleBarcode;
+    }
 
-	public void setMatchedNormSampleBarcode(String matchedNormSampleBarcode) {
-		this.matchedNormSampleBarcode = matchedNormSampleBarcode;
-	}
+    public void setMatchedNormSampleBarcode(String matchedNormSampleBarcode) {
+        this.matchedNormSampleBarcode = matchedNormSampleBarcode;
+    }
 
-	public String getMatchNormSeqAllele1() {
-		return matchNormSeqAllele1;
-	}
+    public String getMatchNormSeqAllele1() {
+        return matchNormSeqAllele1;
+    }
 
-	public void setMatchNormSeqAllele1(String matchNormSeqAllele1) {
-		this.matchNormSeqAllele1 = matchNormSeqAllele1;
-	}
+    public void setMatchNormSeqAllele1(String matchNormSeqAllele1) {
+        this.matchNormSeqAllele1 = matchNormSeqAllele1;
+    }
 
-	public String getMatchNormSeqAllele2() {
-		return matchNormSeqAllele2;
-	}
+    public String getMatchNormSeqAllele2() {
+        return matchNormSeqAllele2;
+    }
 
-	public void setMatchNormSeqAllele2(String matchNormSeqAllele2) {
-		this.matchNormSeqAllele2 = matchNormSeqAllele2;
-	}
+    public void setMatchNormSeqAllele2(String matchNormSeqAllele2) {
+        this.matchNormSeqAllele2 = matchNormSeqAllele2;
+    }
 
-	public String getTumorValidationAllele1() {
-		return tumorValidationAllele1;
-	}
+    public String getTumorValidationAllele1() {
+        return tumorValidationAllele1;
+    }
 
-	public void setTumorValidationAllele1(String tumorValidationAllele1) {
-		this.tumorValidationAllele1 = tumorValidationAllele1;
-	}
+    public void setTumorValidationAllele1(String tumorValidationAllele1) {
+        this.tumorValidationAllele1 = tumorValidationAllele1;
+    }
 
-	public String getTumorValidationAllele2() {
-		return tumorValidationAllele2;
-	}
+    public String getTumorValidationAllele2() {
+        return tumorValidationAllele2;
+    }
 
-	public void setTumorValidationAllele2(String tumorValidationAllele2) {
-		this.tumorValidationAllele2 = tumorValidationAllele2;
-	}
+    public void setTumorValidationAllele2(String tumorValidationAllele2) {
+        this.tumorValidationAllele2 = tumorValidationAllele2;
+    }
 
-	public String getMatchNormValidationAllele1() {
-		return matchNormValidationAllele1;
-	}
+    public String getMatchNormValidationAllele1() {
+        return matchNormValidationAllele1;
+    }
 
-	public void setMatchNormValidationAllele1(String matchNormValidationAllele1) {
-		this.matchNormValidationAllele1 = matchNormValidationAllele1;
-	}
+    public void setMatchNormValidationAllele1(String matchNormValidationAllele1) {
+        this.matchNormValidationAllele1 = matchNormValidationAllele1;
+    }
 
-	public String getMatchNormValidationAllele2() {
-		return matchNormValidationAllele2;
-	}
+    public String getMatchNormValidationAllele2() {
+        return matchNormValidationAllele2;
+    }
 
-	public void setMatchNormValidationAllele2(String matchNormValidationAllele2) {
-		this.matchNormValidationAllele2 = matchNormValidationAllele2;
-	}
+    public void setMatchNormValidationAllele2(String matchNormValidationAllele2) {
+        this.matchNormValidationAllele2 = matchNormValidationAllele2;
+    }
 
-	public String getVerificationStatus() {
-		return verificationStatus;
-	}
+    public String getVerificationStatus() {
+        return verificationStatus;
+    }
 
-	public void setVerificationStatus(String verificationStatus) {
-		this.verificationStatus = verificationStatus;
-	}
+    public void setVerificationStatus(String verificationStatus) {
+        this.verificationStatus = verificationStatus;
+    }
 
-	public String getSequencingPhase() {
-		return sequencingPhase;
-	}
+    public String getSequencingPhase() {
+        return sequencingPhase;
+    }
 
-	public void setSequencingPhase(String sequencingPhase) {
-		this.sequencingPhase = sequencingPhase;
-	}
+    public void setSequencingPhase(String sequencingPhase) {
+        this.sequencingPhase = sequencingPhase;
+    }
 
-	public String getSequenceSource() {
-		return sequenceSource;
-	}
+    public String getSequenceSource() {
+        return sequenceSource;
+    }
 
-	public void setSequenceSource(String sequenceSource) {
-		this.sequenceSource = sequenceSource;
-	}
+    public void setSequenceSource(String sequenceSource) {
+        this.sequenceSource = sequenceSource;
+    }
 
-	public String getValidationMethod() {
-		return validationMethod;
-	}
+    public String getValidationMethod() {
+        return validationMethod;
+    }
 
-	public void setValidationMethod(String validationMethod) {
-		this.validationMethod = validationMethod;
-	}
+    public void setValidationMethod(String validationMethod) {
+        this.validationMethod = validationMethod;
+    }
 
-	public String getScore() {
-		return score;
-	}
+    public String getScore() {
+        return score;
+    }
 
-	public void setScore(String score) {
-		this.score = score;
-	}
+    public void setScore(String score) {
+        this.score = score;
+    }
 
     public String getAminoAcidChange() {
         return aminoAcidChange;
@@ -394,45 +374,45 @@ public class MafRecord
         this.aminoAcidChange = aminoAcidChange;
     }
 
-	public String getBamFile() {
-		return bamFile;
-	}
+    public String getBamFile() {
+        return bamFile;
+    }
 
-	public void setBamFile(String bamFile) {
-		this.bamFile = bamFile;
-	}
+    public void setBamFile(String bamFile) {
+        this.bamFile = bamFile;
+    }
 
-	public int getTumorAltCount() {
-		return tumorAltCount;
-	}
+    public int getTumorAltCount() {
+        return tumorAltCount;
+    }
 
-	public void setTumorAltCount(int tumorAltCount) {
-		this.tumorAltCount = tumorAltCount;
-	}
+    public void setTumorAltCount(int tumorAltCount) {
+        this.tumorAltCount = tumorAltCount;
+    }
 
-	public int getTumorRefCount() {
-		return tumorRefCount;
-	}
+    public int getTumorRefCount() {
+        return tumorRefCount;
+    }
 
-	public void setTumorRefCount(int tumorRefCount) {
-		this.tumorRefCount = tumorRefCount;
-	}
+    public void setTumorRefCount(int tumorRefCount) {
+        this.tumorRefCount = tumorRefCount;
+    }
 
-	public int getNormalAltCount() {
-		return normalAltCount;
-	}
+    public int getNormalAltCount() {
+        return normalAltCount;
+    }
 
-	public void setNormalAltCount(int normalAltCount) {
-		this.normalAltCount = normalAltCount;
-	}
+    public void setNormalAltCount(int normalAltCount) {
+        this.normalAltCount = normalAltCount;
+    }
 
-	public int getNormalRefCount() {
-		return normalRefCount;
-	}
+    public int getNormalRefCount() {
+        return normalRefCount;
+    }
 
-	public void setNormalRefCount(int normalRefCount) {
-		this.normalRefCount = normalRefCount;
-	}
+    public void setNormalRefCount(int normalRefCount) {
+        this.normalRefCount = normalRefCount;
+    }
 
     public int getTTotCov() {
         return tTotCov;
@@ -498,403 +478,187 @@ public class MafRecord
         this.normalVaf = normalVaf;
     }
 
-	public String getProteinChange()
-	{
-		return proteinChange;
-	}
-
-	public void setProteinChange(String proteinChange)
-	{
-		this.proteinChange = proteinChange;
-	}
-
-	public String getCodons()
-	{
-		return codons;
-	}
-
-	public void setCodons(String codons)
-	{
-		this.codons = codons;
-	}
-
-	public String getRefSeq()
-	{
-		return refSeq;
-	}
-
-	public void setRefSeq(String refSeq)
-	{
-		this.refSeq = refSeq;
-	}
-
-	public String getSwissprot()
-	{
-		return swissprot;
-	}
-
-	public void setSwissprot(String swissprot)
-	{
-		this.swissprot = swissprot;
-	}
-
-	public String getProteinPosition()
-	{
-		return proteinPosition;
-	}
-
-	public void setProteinPosition(String proteinPosition)
-	{
-		this.proteinPosition = proteinPosition;
-	}
-
-	public String getOncotatorProteinChange()
-	{
-		return oncotatorProteinChange;
-	}
-
-	public void setOncotatorProteinChange(String oncotatorProteinChange)
-	{
-		this.oncotatorProteinChange = oncotatorProteinChange;
-	}
-
-	public String getOncotatorVariantClassification()
-	{
-		return oncotatorVariantClassification;
-	}
-
-	public void setOncotatorVariantClassification(String oncotatorVariantClassification)
-	{
-		this.oncotatorVariantClassification = oncotatorVariantClassification;
-	}
-
-	public String getOncotatorCosmicOverlapping()
-	{
-		return oncotatorCosmicOverlapping;
-	}
-
-	public void setOncotatorCosmicOverlapping(String oncotatorCosmicOverlapping)
-	{
-		this.oncotatorCosmicOverlapping = oncotatorCosmicOverlapping;
-	}
-
-	public String getOncotatorDbSnpRs()
-	{
-		return oncotatorDbSnpRs;
-	}
-
-	public void setOncotatorDbSnpRs(String oncotatorDbSnpRs)
-	{
-		this.oncotatorDbSnpRs = oncotatorDbSnpRs;
-	}
-
-	public String getOncotatorGeneSymbol()
-	{
-		return oncotatorGeneSymbol;
-	}
-
-	public void setOncotatorGeneSymbol(String oncotatorGeneSymbol)
-	{
-		this.oncotatorGeneSymbol = oncotatorGeneSymbol;
-	}
-
-	public String getOncotatorDbSnpValStatus()
-	{
-		return oncotatorDbSnpValStatus;
-	}
-
-	public void setOncotatorDbSnpValStatus(String oncotatorDbSnpValStatus)
-	{
-		this.oncotatorDbSnpValStatus = oncotatorDbSnpValStatus;
-	}
-
-	public String getOncotatorRefseqMrnaId()
-	{
-		return oncotatorRefseqMrnaId;
-	}
-
-	public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId)
-	{
-		this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
-	}
-
-	public String getOncotatorRefseqProtId()
-	{
-		return oncotatorRefseqProtId;
-	}
-
-	public void setOncotatorRefseqProtId(String oncotatorRefseqProtId)
-	{
-		this.oncotatorRefseqProtId = oncotatorRefseqProtId;
-	}
-
-	public int getOncotatorExonAffected()
-	{
-		return oncotatorExonAffected;
-	}
-
-	public void setOncotatorExonAffected(int oncotatorExonAffected)
-	{
-		this.oncotatorExonAffected = oncotatorExonAffected;
-	}
-
-	public String getOncotatorTranscriptChange()
-	{
-		return oncotatorTranscriptChange;
-	}
-
-	public void setOncotatorTranscriptChange(String oncotatorTranscriptChange)
-	{
-		this.oncotatorTranscriptChange = oncotatorTranscriptChange;
-	}
-
-	public String getOncotatorUniprotName()
-	{
-		return oncotatorUniprotName;
-	}
-
-	public void setOncotatorUniprotName(String oncotatorUniprotName)
-	{
-		this.oncotatorUniprotName = oncotatorUniprotName;
-	}
-
-	public String getOncotatorUniprotAccession()
-	{
-		return oncotatorUniprotAccession;
-	}
-
-	public void setOncotatorUniprotAccession(String oncotatorUniprotAccession)
-	{
-		this.oncotatorUniprotAccession = oncotatorUniprotAccession;
-	}
-
-	public String getOncotatorCodonChange()
-	{
-		return oncotatorCodonChange;
-	}
-
-	public void setOncotatorCodonChange(String oncotatorCodonChange)
-	{
-		this.oncotatorCodonChange = oncotatorCodonChange;
-	}
-
-	public int getOncotatorProteinPosStart()
-	{
-		return oncotatorProteinPosStart;
-	}
-
-	public void setOncotatorProteinPosStart(int oncotatorProteinPosStart)
-	{
-		this.oncotatorProteinPosStart = oncotatorProteinPosStart;
-	}
-
-	public int getOncotatorProteinPosEnd()
-	{
-		return oncotatorProteinPosEnd;
-	}
-
-	public void setOncotatorProteinPosEnd(int oncotatorProteinPosEnd)
-	{
-		this.oncotatorProteinPosEnd = oncotatorProteinPosEnd;
-	}
-
-	public String getOncotatorProteinChangeBestEffect()
-	{
-		return oncotatorProteinChangeBestEffect;
-	}
-
-	public void setOncotatorProteinChangeBestEffect(String oncotatorProteinChangeBestEffect)
-	{
-		this.oncotatorProteinChangeBestEffect = oncotatorProteinChangeBestEffect;
-	}
-
-	public String getOncotatorVariantClassificationBestEffect()
-	{
-		return oncotatorVariantClassificationBestEffect;
-	}
-
-	public void setOncotatorVariantClassificationBestEffect(String oncotatorVariantClassificationBestEffect)
-	{
-		this.oncotatorVariantClassificationBestEffect = oncotatorVariantClassificationBestEffect;
-	}
-
-	public String getOncotatorGeneSymbolBestEffect()
-	{
-		return oncotatorGeneSymbolBestEffect;
-	}
-
-	public void setOncotatorGeneSymbolBestEffect(String oncotatorGeneSymbolBestEffect)
-	{
-		this.oncotatorGeneSymbolBestEffect = oncotatorGeneSymbolBestEffect;
-	}
-
-	public String getOncotatorRefseqMrnaIdBestEffect()
-	{
-		return oncotatorRefseqMrnaIdBestEffect;
-	}
-
-	public void setOncotatorRefseqMrnaIdBestEffect(String oncotatorRefseqMrnaIdBestEffect)
-	{
-		this.oncotatorRefseqMrnaIdBestEffect = oncotatorRefseqMrnaIdBestEffect;
-	}
-
-	public String getOncotatorRefseqProtIdBestEffect()
-	{
-		return oncotatorRefseqProtIdBestEffect;
-	}
-
-	public void setOncotatorRefseqProtIdBestEffect(String oncotatorRefseqProtIdBestEffect)
-	{
-		this.oncotatorRefseqProtIdBestEffect = oncotatorRefseqProtIdBestEffect;
-	}
-
-	public int getOncotatorExonAffectedBestEffect()
-	{
-		return oncotatorExonAffectedBestEffect;
-	}
-
-	public void setOncotatorExonAffectedBestEffect(int oncotatorExonAffectedBestEffect)
-	{
-		this.oncotatorExonAffectedBestEffect = oncotatorExonAffectedBestEffect;
-	}
-
-	public String getOncotatorTranscriptChangeBestEffect()
-	{
-		return oncotatorTranscriptChangeBestEffect;
-	}
-
-	public void setOncotatorTranscriptChangeBestEffect(String oncotatorTranscriptChangeBestEffect)
-	{
-		this.oncotatorTranscriptChangeBestEffect = oncotatorTranscriptChangeBestEffect;
-	}
-
-	public String getOncotatorUniprotNameBestEffect()
-	{
-		return oncotatorUniprotNameBestEffect;
-	}
-
-	public void setOncotatorUniprotNameBestEffect(String oncotatorUniprotNameBestEffect)
-	{
-		this.oncotatorUniprotNameBestEffect = oncotatorUniprotNameBestEffect;
-	}
-
-	public String getOncotatorUniprotAccessionBestEffect()
-	{
-		return oncotatorUniprotAccessionBestEffect;
-	}
-
-	public void setOncotatorUniprotAccessionBestEffect(String oncotatorUniprotAccessionBestEffect)
-	{
-		this.oncotatorUniprotAccessionBestEffect = oncotatorUniprotAccessionBestEffect;
-	}
-
-	public String getOncotatorCodonChangeBestEffect()
-	{
-		return oncotatorCodonChangeBestEffect;
-	}
-
-	public void setOncotatorCodonChangeBestEffect(String oncotatorCodonChangeBestEffect)
-	{
-		this.oncotatorCodonChangeBestEffect = oncotatorCodonChangeBestEffect;
-	}
-
-	public int getOncotatorProteinPosStartBestEffect()
-	{
-		return oncotatorProteinPosStartBestEffect;
-	}
-
-	public void setOncotatorProteinPosStartBestEffect(int oncotatorProteinPosStartBestEffect)
-	{
-		this.oncotatorProteinPosStartBestEffect = oncotatorProteinPosStartBestEffect;
-	}
-
-	public int getOncotatorProteinPosEndBestEffect()
-	{
-		return oncotatorProteinPosEndBestEffect;
-	}
-
-	public void setOncotatorProteinPosEndBestEffect(int oncotatorProteinPosEndBestEffect)
-	{
-		this.oncotatorProteinPosEndBestEffect = oncotatorProteinPosEndBestEffect;
-	}
-
-	public String getMaFuncImpact() {
-		return maFuncImpact;
-	}
-
-	public void setMaFuncImpact(String maFuncImpact) {
-		this.maFuncImpact = maFuncImpact;
-	}
-
-	public float getMaFIS() {
-		return maFIS;
-	}
-
-	public void setMaFIS(float maFIS) {
-		this.maFIS = maFIS;
-	}
-
-	public String getMaLinkVar() {
-		return maLinkVar;
-	}
-
-	public void setMaLinkVar(String maLinkVar) {
-		this.maLinkVar = maLinkVar;
-	}
-
-	public String getMaLinkMsa() {
-		return maLinkMsa;
-	}
-
-	public void setMaLinkMsa(String maLinkMsa) {
-		this.maLinkMsa = maLinkMsa;
-	}
-
-	public String getMaLinkPdb() {
-		return maLinkPdb;
-	}
-
-	public void setMaLinkPdb(String maLinkPdb) {
-		this.maLinkPdb = maLinkPdb;
-	}
-
-	public String getMaProteinChange() {
-		return maProteinChange;
-	}
-
-	public void setMaProteinChange(String maProteinChange) {
-		this.maProteinChange = maProteinChange;
-	}
-	
-	public String getDriverFilter() {
-		return driverFilter;
-	}
-	
-	public void setDriverFilter(String driverFilter) {
-		this.driverFilter = driverFilter;
-	}
-	
-	public String getDriverFilterAnn() {
-		return driverFilterAnn;
-	}
-	
-	public void setDriverFilterAnn(String driverFilterAnn) {
-		this.driverFilterAnn = driverFilterAnn;
-	}
-	
-	public String getDriverTiersFilter() {
-		return driverTiersFilter;
-	}
-	
-	public void setDriverTiersFilter(String driverTiersFilter) {
-		this.driverTiersFilter = driverTiersFilter;
-	}
-	
-	public String getDriverTiersFilterAnn() {
-		return driverTiersFilterAnn;
-	}
-	
-	public void setDriverTiersFilterAnn(String driverTiersFilterAnn) {
-		this.driverTiersFilterAnn = driverTiersFilterAnn;
-	}
+    public String getProteinChange() {
+        return proteinChange;
+    }
+
+    public void setProteinChange(String proteinChange) {
+        this.proteinChange = proteinChange;
+    }
+
+    public String getCodons() {
+        return codons;
+    }
+
+    public void setCodons(String codons) {
+        this.codons = codons;
+    }
+
+    public String getRefSeq() {
+        return refSeq;
+    }
+
+    public void setRefSeq(String refSeq) {
+        this.refSeq = refSeq;
+    }
+
+    public String getSwissprot() {
+        return swissprot;
+    }
+
+    public void setSwissprot(String swissprot) {
+        this.swissprot = swissprot;
+    }
+
+    public String getProteinPosition() {
+        return proteinPosition;
+    }
+
+    public void setProteinPosition(String proteinPosition) {
+        this.proteinPosition = proteinPosition;
+    }
+
+    public String getOncotatorVariantClassification() {
+        return oncotatorVariantClassification;
+    }
+
+    public void setOncotatorVariantClassification(String oncotatorVariantClassification) {
+        this.oncotatorVariantClassification = oncotatorVariantClassification;
+    }
+
+    public String getOncotatorDbSnpRs() {
+        return oncotatorDbSnpRs;
+    }
+
+    public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
+        this.oncotatorDbSnpRs = oncotatorDbSnpRs;
+    }
+
+    public String getOncotatorDbSnpValStatus() {
+        return oncotatorDbSnpValStatus;
+    }
+
+    public void setOncotatorDbSnpValStatus(String oncotatorDbSnpValStatus) {
+        this.oncotatorDbSnpValStatus = oncotatorDbSnpValStatus;
+    }
+
+    public String getOncotatorRefseqMrnaId() {
+        return oncotatorRefseqMrnaId;
+    }
+
+    public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId) {
+        this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
+    }
+
+    public String getOncotatorUniprotName() {
+        return oncotatorUniprotName;
+    }
+
+    public void setOncotatorUniprotName(String oncotatorUniprotName) {
+        this.oncotatorUniprotName = oncotatorUniprotName;
+    }
+
+    public String getOncotatorUniprotAccession() {
+        return oncotatorUniprotAccession;
+    }
+
+    public void setOncotatorUniprotAccession(String oncotatorUniprotAccession) {
+        this.oncotatorUniprotAccession = oncotatorUniprotAccession;
+    }
+
+    public String getOncotatorCodonChange() {
+        return oncotatorCodonChange;
+    }
+
+    public void setOncotatorCodonChange(String oncotatorCodonChange) {
+        this.oncotatorCodonChange = oncotatorCodonChange;
+    }
+
+    public int getOncotatorProteinPosStart() {
+        return oncotatorProteinPosStart;
+    }
+
+    public void setOncotatorProteinPosStart(int oncotatorProteinPosStart) {
+        this.oncotatorProteinPosStart = oncotatorProteinPosStart;
+    }
+
+    public int getOncotatorProteinPosEnd() {
+        return oncotatorProteinPosEnd;
+    }
+
+    public void setOncotatorProteinPosEnd(int oncotatorProteinPosEnd) {
+        this.oncotatorProteinPosEnd = oncotatorProteinPosEnd;
+    }
+
+    public String getMaFuncImpact() {
+        return maFuncImpact;
+    }
+
+    public void setMaFuncImpact(String maFuncImpact) {
+        this.maFuncImpact = maFuncImpact;
+    }
+
+    public float getMaFIS() {
+        return maFIS;
+    }
+
+    public void setMaFIS(float maFIS) {
+        this.maFIS = maFIS;
+    }
+
+    public String getMaLinkVar() {
+        return maLinkVar;
+    }
+
+    public void setMaLinkVar(String maLinkVar) {
+        this.maLinkVar = maLinkVar;
+    }
+
+    public String getMaLinkMsa() {
+        return maLinkMsa;
+    }
+
+    public void setMaLinkMsa(String maLinkMsa) {
+        this.maLinkMsa = maLinkMsa;
+    }
+
+    public String getMaLinkPdb() {
+        return maLinkPdb;
+    }
+
+    public void setMaLinkPdb(String maLinkPdb) {
+        this.maLinkPdb = maLinkPdb;
+    }
+
+    public String getDriverFilter() {
+        return driverFilter;
+    }
+
+    public void setDriverFilter(String driverFilter) {
+        this.driverFilter = driverFilter;
+    }
+
+    public String getDriverFilterAnn() {
+        return driverFilterAnn;
+    }
+
+    public void setDriverFilterAnn(String driverFilterAnn) {
+        this.driverFilterAnn = driverFilterAnn;
+    }
+
+    public String getDriverTiersFilter() {
+        return driverTiersFilter;
+    }
+
+    public void setDriverTiersFilter(String driverTiersFilter) {
+        this.driverTiersFilter = driverTiersFilter;
+    }
+
+    public String getDriverTiersFilterAnn() {
+        return driverTiersFilterAnn;
+    }
+
+    public void setDriverTiersFilterAnn(String driverTiersFilterAnn) {
+        this.driverTiersFilterAnn = driverTiersFilterAnn;
+    }
 }

@@ -133,8 +133,7 @@ public class CnaJSON extends HttpServlet {
         	            }else{
         	                internalSampleIds = InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), Arrays.asList(sampleIds));
         	            }
-        	            cnaEvents = DaoCnaEvent.getCnaEvents(internalSampleIds,
-        	                    (filterByCbioGene?daoGeneOptimized.getEntrezGeneIds(daoGeneOptimized.getCbioCancerGenes()):null), cnaProfile.getGeneticProfileId(), Arrays.asList((short)-2,(short)2));
+        	            cnaEvents = DaoCnaEvent.getCnaEvents(internalSampleIds, null, cnaProfile.getGeneticProfileId(), Arrays.asList((short)-2,(short)2));
         	            if (!cnaEvents.isEmpty()) {
                             String concatEventIds = getConcatEventIds(cnaEvents);
                             int profileId = cnaProfile.getGeneticProfileId();
@@ -449,15 +448,13 @@ public class CnaJSON extends HttpServlet {
         data.get("altrate").add(context);
         
         boolean isSangerGene = false;
-        boolean isCbioCancerGene = false;
         try {
             isSangerGene = DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(symbol);
-            isCbioCancerGene = daoGeneOptimized.isCbioCancerGene(gene);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         data.get("sanger").add(isSangerGene);
-        data.get("cancer-gene").add(isCbioCancerGene);
+        data.get("cancer-gene").add(false);
         
         // drug
         data.get("drug").add(drugs);

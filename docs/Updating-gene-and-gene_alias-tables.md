@@ -80,7 +80,7 @@ ALTER TABLE uniprot_id_mapping
   ADD CONSTRAINT uniprot_id_mapping_ibfk_1 FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`);
 ```
 
-11- You can import new gene sets using the gene set importer. These gene sets are currently only used for gene set scoring. See [Import-Gene-Sets.md](Import-Gene-Sets.md) and [File-Formats.md#gene-set-data].
+11- You can import new gene sets using the gene set importer. These gene sets are currently only used for gene set scoring. See [Import-Gene-Sets.md](Import-Gene-Sets.md) and [File-Formats.md#gene-set-data](File-Formats.md#gene-set-data).
 
 For example, run in folder `<cbioportal_source_folder>/core/src/main/scripts`:
 ```bash

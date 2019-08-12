@@ -101,7 +101,7 @@ versions of the portal code.
 ```
 docker run --rm -it --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
-    cbioportal:update-docker-docs \
+    cbioportal/cbioportal:3.0.1 \
     migrate_db.py -p /cbioportal/portal.properties -s /cbioportal/db-scripts/src/main/resources/migration.sql
 ```
 
@@ -134,18 +134,18 @@ Then start the web server as follows.
 
 ```
 docker run -d --restart=always \
-    --name=cbioportal \
+    --name=cbioportal-container \
     --net=cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
-    -e JAVA_OPTS='\
-        -Xms2g \
-        -Xmx4g \
-        -Dauthenticate=noauthsessionservice \
+    -e JAVA_OPTS='
+        -Xms2g
+        -Xmx4g
+        -Dauthenticate=noauthsessionservice
         -Dsession.service.url=http://cbio-session-service:5000/api/sessions/my_portal/
     ' \
     -p 8081:8080 \
-    cbioportal-container:update-docker-docs \
-    /bin/sh -c 'java ${JAVA_OPTS} -jar webapp-runner.jar /app.war'
+    cbioportal/cbioportal:3.0.1 \
+    /bin/sh -c 'java ${JAVA_OPTS} -jar webapp-runner.jar /cbioportal-webapp'
 ```
 
 To read more about the various ways to use authentication and `webapp-runner`
@@ -159,7 +159,7 @@ co-expression tab. If you are using MacOS or Windows, make sure to take a look
 at [these notes](notes-for-non-linux.md) to allocate more memory for the
 virtual machine in which all Docker processes are running.
 
-cBioPortal can now be reached at <http://localhost:8081/cbioportal/>
+cBioPortal can now be reached at <http://localhost:8081/>
 
 Activity of Docker containers can be seen with:
 ```

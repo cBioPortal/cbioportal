@@ -83,16 +83,22 @@ on the page about SAML in cBioPortal:
 keytool -genkey -alias secure-key -keyalg RSA -keystore samlKeystore.jks
 ```
 
+**Important:** The validity of this keystore is **90 days**. You can change the default 
+value by adding the `-validity` parameter and the number of days (e.g. `-validity 200` 
+for 200 days). If the keystore expires, then **'invalid requester'** errors are thrown.
+
 Install the generated JKS file to `portal/src/main/resources/`
 
-In order to let Keycloak know that it can trust the holder of this
-key, you'll need to import the key's certificate into Keycloak. In the
-Keycloak admin screen about the `cbioportal` client, head to the
-**SAML Keys** tab and click the **Import** button. Select the _JKS_
-archive format, specify the key alias _secure-key_ and type the store
-password _apollo1_ (not the private key password, as Keycloak only
-needs to know the certificate), and select the file you just
-installed. Keycloak may not give an indication of successful
+Import the key's certificate into Keycloak, so that Keycloak knows that it can trust the holder of this
+key. To do that, head to the **SAML Keys** tab in the keycloak admin screen about the `cbioportal` client and:
+1. Click the **Import** button.
+2. Select the _JKS_ archive format.
+3. Specify the key alias _secure-key_.
+4. Type the store password _apollo1_ (not the private key password, as Keycloak only
+needs to know the certificate)
+5. Select the file you just installed.
+
+**Important:** Keycloak may not give an indication of successful
 completion, but when navigating to the **SAML Keys** tab again you
 should now see the certificate and no private key.
 

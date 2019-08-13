@@ -14,6 +14,11 @@
 
     <ehcache:persistence directory="${ehcache.persistence.path}"/>
 
+    <ehcache:heap-store>
+      <ehcache:max-object-graph-size>9223372036854775807</ehcache:max-object-graph-size><!-- using Long.MAX_VALUE -->
+      <ehcache:max-object-size>9223372036854775807</ehcache:max-object-size><!-- using Long.MAX_VALUE -->
+    </ehcache:heap-store>
+
     <ehcache:cache alias="GeneralRepositoryCache">
       <ehcache:expiry>
         <ehcache:none></ehcache:none>

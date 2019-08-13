@@ -244,10 +244,10 @@ ehcache.general_repository_cache.max_bytes_heap_units=MB
 ehcache.general_repository_cache.max_bytes_local_disk=4
 ehcache.general_repository_cache.max_bytes_local_disk_units=GB
 # size allocation preferences for the first static persistence cache (genes)
-ehcache.static_repository_cache_one.max_bytes_heap=3
+ehcache.static_repository_cache_one.max_bytes_heap=30
 ehcache.static_repository_cache_one.max_bytes_heap_units=MB
-ehcache.static_repository_cache_one.max_bytes_local_disk=4
-ehcache.static_repository_cache_one.max_bytes_local_disk_units=GB
+ehcache.static_repository_cache_one.max_bytes_local_disk=32
+ehcache.static_repository_cache_one.max_bytes_local_disk_units=MB
 
 # Default cross cancer study query
 # query this session id when not specifying a study for

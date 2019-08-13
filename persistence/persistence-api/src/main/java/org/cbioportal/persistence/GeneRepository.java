@@ -41,7 +41,7 @@ import java.util.List;
 
 public interface GeneRepository {
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable("StaticRepositoryCacheOne")
     List<Gene> getAllGenes(String keyword, String alias, String projection, Integer pageSize, Integer pageNumber, String sortBy, 
                            String direction);
 
@@ -57,13 +57,13 @@ public interface GeneRepository {
     @Cacheable("StaticRepositoryCacheOne")
     Gene getGeneByHugoGeneSymbol(String hugoGeneSymbol);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable("StaticRepositoryCacheOne")
     List<String> getAliasesOfGeneByEntrezGeneId(Integer entrezGeneId);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable("StaticRepositoryCacheOne")
     List<String> getAliasesOfGeneByHugoGeneSymbol(String hugoGeneSymbol);
 
-    @Cacheable("GeneralRepositoryCache")
+    // not cached because this is called only a single time, during @PostConstruct method of GeneServiceImpl
     List<GeneAlias> getAllAliases();
 
     @Cacheable("GeneralRepositoryCache")

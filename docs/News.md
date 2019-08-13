@@ -1,6 +1,6 @@
 ## August 13, 2019
 *   **Added data** consisting of 295 samples from 3 studies:
-    *  [Pediatric Preclinical Testing Consortium (Maris, 2019)](https://www.cbioportal.org/study/summary?id=pptc_2019) *261 samples*
+    *  [Pediatric Preclinical Testing Consortium (PPTC, 2019)](https://www.cbioportal.org/study/summary?id=pptc_2019) *261 samples*
     *  [Non-small cell lung cancer (MSK, Science 2015)](https://www.cbioportal.org/study/summary?id=nsclc_mskcc_2015) *16 samples*
     *  [Prostate Cancer (MSK, 2019)](https://www.cbioportal.org/study/summary?id=prad_msk_2019) *18 samples*
 

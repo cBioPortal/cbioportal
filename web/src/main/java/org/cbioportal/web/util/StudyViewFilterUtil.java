@@ -5,6 +5,7 @@ import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Component
@@ -29,7 +30,7 @@ public class StudyViewFilterUtil
         }
     }
 
-    public Range<Double> calcRange(Double start, boolean startInclusive, Double end, boolean endInclusive)
+    public Range<BigDecimal> calcRange(BigDecimal start, boolean startInclusive, BigDecimal end, boolean endInclusive)
     {
         // check for invalid filter (no start or end provided)
         if (start == null && end == null) {

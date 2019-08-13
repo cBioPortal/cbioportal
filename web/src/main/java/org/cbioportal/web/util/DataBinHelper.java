@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,11 +20,11 @@ public class DataBinHelper
         this.studyViewFilterUtil = studyViewFilterUtil;
     }
 
-    public DataBin calcUpperOutlierBin(String attributeId, List<Double> gteValues, List<Double> gtValues)
+    public DataBin calcUpperOutlierBin(String attributeId, List<BigDecimal> gteValues, List<BigDecimal> gtValues)
     {
-        Double gteMin = gteValues.size() > 0 ? Collections.min(gteValues) : null;
-        Double gtMin = gtValues.size() > 0 ? Collections.min(gtValues) : null;
-        Double min;
+        BigDecimal gteMin = gteValues.size() > 0 ? Collections.min(gteValues) : null;
+        BigDecimal gtMin = gtValues.size() > 0 ? Collections.min(gtValues) : null;
+        BigDecimal min;
         String value;
 
         if (gtMin == null && gteMin == null) {
@@ -31,7 +32,7 @@ public class DataBinHelper
             min = null;
             value = ">";
         }
-        else if (gtMin == null || (gteMin != null && gteMin < gtMin)) {
+        else if (gtMin == null || (gteMin != null && gteMin.compareTo(gtMin) == -1)) {
             min = gteMin;
             value = ">=";
         }
@@ -50,18 +51,18 @@ public class DataBinHelper
         return dataBin;
     }
 
-    public DataBin calcLowerOutlierBin(String attributeId, List<Double> lteValues, List<Double> ltValues)
+    public DataBin calcLowerOutlierBin(String attributeId, List<BigDecimal> lteValues, List<BigDecimal> ltValues)
     {
-        Double lteMax = lteValues.size() > 0 ? Collections.max(lteValues) : null;
-        Double ltMax = ltValues.size() > 0 ? Collections.max(ltValues) : null;
-        Double max;
+        BigDecimal lteMax = lteValues.size() > 0 ? Collections.max(lteValues) : null;
+        BigDecimal ltMax = ltValues.size() > 0 ? Collections.max(ltValues) : null;
+        BigDecimal max;
         String specialValue;
 
         if (ltMax == null && lteMax == null) {
             max = null;
             specialValue = "<=";
         }
-        else if (lteMax == null || (ltMax != null && lteMax < ltMax)) {
+        else if (lteMax == null || (ltMax != null && lteMax.compareTo(ltMax) == -1)) {
             max = ltMax;
             specialValue = "<";
         }
@@ -80,7 +81,7 @@ public class DataBinHelper
         return dataBin;
     }
     
-    public Range<Double> calcBoxRange(List<Double> sortedValues)
+    public Range<BigDecimal> calcBoxRange(List<BigDecimal> sortedValues)
     {
         if (sortedValues == null || sortedValues.size() == 0) {
             return null;
@@ -89,64 +90,68 @@ public class DataBinHelper
         // Find a generous IQR. This is generous because if (values.length / 4) 
         // is not an int, then really you should average the two elements on either 
         // side to find q1 and q3.
-        Range<Double> interquartileRange = calcInterquartileRange(sortedValues);
+        Range<BigDecimal> interquartileRange = calcInterquartileRange(sortedValues);
 
-        Double q1 = interquartileRange.lowerEndpoint();
-        Double q3 = interquartileRange.upperEndpoint();
-        Double iqr = q3 - q1;
+        BigDecimal q1 = interquartileRange.lowerEndpoint();
+        BigDecimal q3 = interquartileRange.upperEndpoint();
+        BigDecimal iqr = q3.subtract(q1);
+        BigDecimal iqrOneAndHalf = iqr.multiply(new BigDecimal("1.5"));
+        BigDecimal q1LowerBoundry = q1.subtract(iqrOneAndHalf);
+        BigDecimal q3upperBoundry = q3.add(iqrOneAndHalf);
+        
 
         // Then find min and max values
-        Double maxValue;
-        Double minValue;
+        BigDecimal maxValue;
+        BigDecimal minValue;
 
-        if (sortedValues.get(0).equals(sortedValues.get(sortedValues.size() - 1))) {
+        if (sortedValues.get(0).compareTo(sortedValues.get(sortedValues.size() - 1)) == 0) {
             // if the first and last values are the same, no need to do any other calculation
             // we simply set min and max to the same value
             minValue = sortedValues.get(0);
             maxValue = minValue;
         }
-        else if (0.001 <= q3 && q3 < 1.0) {
+        else if (q3.compareTo(new BigDecimal("0.001")) != -1 && q3.compareTo(new BigDecimal("1")) == -1) {
             //maxValue = Number((q3 + iqr * 1.5).toFixed(3));
             //minValue = Number((q1 - iqr * 1.5).toFixed(3));
-            maxValue = (new BigDecimal(q3 + iqr * 1.5)).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
-            minValue = (new BigDecimal(q1 - iqr * 1.5)).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+            maxValue = q3upperBoundry.setScale(3, BigDecimal.ROUND_HALF_UP);
+            minValue = q1LowerBoundry.setScale(3, BigDecimal.ROUND_HALF_UP);
         } 
-        else if (q3 < 0.001) {
+        else if (q3.compareTo(BigDecimal.valueOf(0.001)) == -1) {
             // get IQR for very small number(<0.001)
-            maxValue = q3 + iqr * 1.5;
-            minValue = q1 - iqr * 1.5;
+            maxValue = q3upperBoundry;
+            minValue = q1LowerBoundry;
         } 
         else {
-            maxValue = Math.ceil(q3 + iqr * 1.5);
-            minValue = Math.floor(q1 - iqr * 1.5);
+            maxValue = q3upperBoundry.setScale(1, RoundingMode.CEILING);
+            minValue = q1LowerBoundry.setScale(1, RoundingMode.FLOOR);
         }
         
-        if (minValue < sortedValues.get(0)) {
+        if (minValue.compareTo(sortedValues.get(0)) == -1) {
             minValue = sortedValues.get(0);
         }
         
-        if (maxValue > sortedValues.get(sortedValues.size() - 1)) {
+        if (maxValue.compareTo(sortedValues.get(sortedValues.size() - 1)) == 1) {
             maxValue = sortedValues.get(sortedValues.size() - 1);
         }
 
         return Range.closed(minValue, maxValue);
     }
     
-    public Range<Double> calcInterquartileRange(List<Double> sortedValues)
+    public Range<BigDecimal> calcInterquartileRange(List<BigDecimal> sortedValues)
     {
-        Range<Double> iqr = null;
+        Range<BigDecimal> iqr = null;
         
         if (sortedValues.size() > 0)
         {
-            Double q1 = calcQ1(sortedValues);
-            Double q3 = calcQ3(sortedValues);
-            Double max = sortedValues.get(sortedValues.size() - 1);
+            BigDecimal q1 = calcQ1(sortedValues);
+            BigDecimal q3 = calcQ3(sortedValues);
+            BigDecimal max = sortedValues.get(sortedValues.size() - 1);
 
             // if iqr == 0 AND max == q3 then recursively try finding a non-zero iqr
-            if (q1.equals(q3) && max.equals(q3)) {
+            if (q1.compareTo(q3) == 0 && max.compareTo(q3) == 0) {
                 // filter out max and try again
                 iqr = this.calcInterquartileRange(
-                    sortedValues.stream().filter(d -> d < max).collect(Collectors.toList()));
+                    sortedValues.stream().filter(d -> d.compareTo(max) == -1).collect(Collectors.toList()));
             }
 
             // if range is still empty use the original q1 and q3 values
@@ -158,31 +163,31 @@ public class DataBinHelper
         return iqr;
     }
     
-    public Double calcQ1(List<Double> sortedValues)
+    public BigDecimal calcQ1(List<BigDecimal> sortedValues)
     {
         return sortedValues.size() > 0 ? 
             sortedValues.get((int) Math.floor(sortedValues.size() / 4.0)) : null;
     }
 
-    public Double calcQ3(List<Double> sortedValues)
+    public BigDecimal calcQ3(List<BigDecimal> sortedValues)
     {
         return sortedValues.size() > 0 ? 
             sortedValues.get((int) Math.floor(sortedValues.size() * (3.0 / 4.0))) : null;
     }
     
-    public List<Double> filterIntervals(List<Double> intervals, Double lowerOutlier, Double upperOutlier)
+    public List<BigDecimal> filterIntervals(List<BigDecimal> intervals, BigDecimal lowerOutlier, BigDecimal upperOutlier)
     {
         // remove values that fall outside the lower and upper outlier limits
         return intervals.stream()
-            .filter(d -> (lowerOutlier == null || d > lowerOutlier) && (upperOutlier == null || d < upperOutlier))
+            .filter(d -> (lowerOutlier == null || d.compareTo(lowerOutlier) == 1 ) && (upperOutlier == null || d.compareTo(upperOutlier) == -1))
             .collect(Collectors.toList());
     }
     
     public List<DataBin> initDataBins(String attributeId,
-                                      List<Double> values,
-                                      List<Double> intervals,
-                                      Double lowerOutlier,
-                                      Double upperOutlier)
+                                      List<BigDecimal> values,
+                                      List<BigDecimal> intervals,
+                                      BigDecimal lowerOutlier,
+                                      BigDecimal upperOutlier)
     {
         return initDataBins(attributeId,
             values,
@@ -190,8 +195,8 @@ public class DataBinHelper
     }
 
     public List<DataBin> initDataBins(String attributeId,
-                                      List<Double> values,
-                                      List<Double> intervals)
+                                      List<BigDecimal> values,
+                                      List<BigDecimal> intervals)
     {
         List<DataBin> dataBins = initDataBins(attributeId, intervals);
 
@@ -200,7 +205,7 @@ public class DataBinHelper
         return dataBins;
     }
     
-    public List<DataBin> initDataBins(String attributeId, List<Double> intervalValues)
+    public List<DataBin> initDataBins(String attributeId, List<BigDecimal> intervalValues)
     {
         List<DataBin> dataBins = new ArrayList<>();
 
@@ -253,13 +258,13 @@ public class DataBinHelper
         return trimmed;
     }
     
-    public void calcCounts(List<DataBin> dataBins, List<Double> values)
+    public void calcCounts(List<DataBin> dataBins, List<BigDecimal> values)
     {
-        Map<Range<Double>, DataBin> rangeMap = dataBins.stream().collect(Collectors.toMap(this::calcRange, b -> b));
+        Map<Range<BigDecimal>, DataBin> rangeMap = dataBins.stream().collect(Collectors.toMap(this::calcRange, b -> b));
         
         // TODO complexity here is O(n x m), find a better way to do this
-        for (Range<Double> range : rangeMap.keySet()) {
-            for (Double value: values) {
+        for (Range<BigDecimal> range : rangeMap.keySet()) {
+            for (BigDecimal value: values) {
                 // check if the value falls within the data bin range
                 if (range != null && range.contains(value)) {
                     DataBin dataBin = rangeMap.get(range); 
@@ -269,25 +274,25 @@ public class DataBinHelper
         }
     }
     
-    public Range<Double> calcRange(DataBin dataBin)
+    public Range<BigDecimal> calcRange(DataBin dataBin)
     {
         boolean startInclusive = ">=".equals(dataBin.getSpecialValue());
         boolean endInclusive = !"<".equals(dataBin.getSpecialValue());
         
         // special condition (start == end)
-        if (dataBin.getStart() != null && dataBin.getStart().equals(dataBin.getEnd())) {
+        if (dataBin.getStart() != null && dataBin.getEnd() != null && dataBin.getStart().compareTo(dataBin.getEnd())==0) {
             startInclusive = endInclusive = true;
         }
         
         return studyViewFilterUtil.calcRange(dataBin.getStart(), startInclusive, dataBin.getEnd(), endInclusive);
     }
 
-    public Range<Double> calcRange(String operator, Double value)
+    public Range<BigDecimal> calcRange(String operator, BigDecimal value)
     {
         boolean startInclusive = ">=".equals(operator);
-        Double start = operator.contains(">") ? value : null;
+        BigDecimal start = operator.contains(">") ? value : null;
         boolean endInclusive = !"<".equals(operator);
-        Double end = operator.contains("<") ? value : null;
+        BigDecimal end = operator.contains("<") ? value : null;
 
         return studyViewFilterUtil.calcRange(start, startInclusive, end, endInclusive);
     }
@@ -299,11 +304,11 @@ public class DataBinHelper
             value.toUpperCase().equals("N/A");
     }
     
-    public boolean isSmallData(List<Double> sortedValues)
+    public boolean isSmallData(List<BigDecimal> sortedValues)
     {
-        Double median = sortedValues.get((int) Math.ceil((sortedValues.size() * (1.0 / 2.0))));
+        BigDecimal median = sortedValues.get((int) Math.ceil((sortedValues.size() * (1.0 / 2.0))));
         
-        return 0.001 > median && median > -0.001 && !median.equals(0.0);
+        return median.compareTo(new BigDecimal("0.001")) == -1&& median.compareTo(new BigDecimal("-0.001")) == 1 && median.compareTo(new BigDecimal("0")) != 0;
     }
 
     public String extractOperator(String value)
@@ -320,11 +325,9 @@ public class DataBinHelper
         return value.trim().substring(0, length);
     }
     
-    public Integer calcExponent(Double value)
+    public Integer calcExponent(BigDecimal value)
     {
-        BigDecimal decimal = new BigDecimal(value);
-
-        return decimal.precision() - decimal.scale() - 1;
+        return value.precision() - value.scale() - 1;
     }
 
     public String stripOperator(String value) 

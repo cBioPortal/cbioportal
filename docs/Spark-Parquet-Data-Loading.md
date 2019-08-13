@@ -43,10 +43,10 @@ All files should be placed in PARQUET_DIR `${data.parquet.folder}` property spec
 ParquetWriter takes arguments:<br>
 **--input-file** `<path to the TSV file>`<br>
 **--output-file** `<path to write Parquet file>`<br>
-**--input-file-type** `<type of input file - see previous Parquet File Name table>`<br>
+**--input-file-type** `<Parquet Type - see Parquet File Name table>`<br>
 
 Below are examples illustrating how to run the ParquetWriter utility. The following path variables in the examples 
-below should be substituted with path values from your environment.
+below should be substituted with path values from your environment:
 
 **$HOME** - the path to your cbioportal project<br>
 **$TSV_LOCATION** - the path to your TSV files<br>

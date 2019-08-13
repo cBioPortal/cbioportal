@@ -2,13 +2,12 @@
 
 To better support large datasets (over 200k samples), a Spark/Parquet implementation of the Study View web service has been implemented.
 As a prerequisite, all [supported filetypes](https://github.com/cBioPortal/cbioportal/blob/af549ac4726e47d7e142f148cf6d3057f232da8c/docs/File-Formats.md)
- need to be converted to Parquet columnar storage format, organized and named in the following manner:
+ need to be converted to Parquet columnar storage format, using the ParquetWriter utility, organized and named in a specific way. 
+More information about this organization and naming specification as well as instructions for running the utility are found below.
 
 ## Organization of Parquet Files
 
-Parquet files are used in persistence-spark code in order to load data, and should follow the convention as documented.
-`org.cbioportal.persistence.spark.util.ParquetConstants.java` contains all file names and directories for Parquet files. 
-
+Parquet files are used in persistence-spark code in order to load data, and should follow the naming convention as documented.
 All files should be placed in PARQUET_DIR `${data.parquet.folder}` property specified in the [properties](portal.properties-Reference.md#spark-parquet) with **case_lists**, **gene_panels**, **studies** as the top level directories.
 
 ### Example of Organization

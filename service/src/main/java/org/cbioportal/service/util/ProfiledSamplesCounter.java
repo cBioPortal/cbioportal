@@ -56,7 +56,11 @@ public class ProfiledSamplesCounter {
                 List<GenePanel> matchingGenePanels = geneGenePanelMap.get(entrezGeneId);
                 for (GenePanel genePanel : matchingGenePanels) {
                     numberOfSamplesProfiled += genePanelDataMap.get(genePanel.getStableId()).size();
-                    allPanels.add(genePanel);
+                    GenePanel genePanelSummary = new GenePanel();
+                    genePanelSummary.setDescription(genePanel.getDescription());
+                    genePanelSummary.setInternalId(genePanel.getInternalId());
+                    genePanelSummary.setStableId(genePanel.getStableId());
+                    allPanels.add(genePanelSummary);
                 }
                 
                 numberOfSamplesProfiled += profiled.stream().filter(g -> g.getGenePanelId() == null).count();

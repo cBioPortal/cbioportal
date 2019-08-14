@@ -51,44 +51,26 @@ A new backend commit usually also means a new frontend change is necessary. For
 this reason the following sections assume that's the case.
 
 ### Public Portal Backend Upgrade
-For a backend upgrade a new docker image needs to be generated. You will need
-to have access to the cbioportal org account. Currently we are using a
-different docker image in production then the default one provided with the
-repo. This is an open issue that we're trying to solve. For now we generate the
-docker image like this. Make sure you have the following Dockerfile in the root
-of where you checked out the cbioportal repo:
+Once the backend repo has been tagged on github, a docker image gets build on Docker Hub automatically. It can take ~20m or so before the image is available. You can check here what the status of the builds is: https://hub.docker.com/r/cbioportal/cbioportal/builds.
 
-```
-$ cat norebuild.Dockerfile
-FROM shipilev/openjdk-shenandoah:8
-# copy application WAR (with libraries inside)
-COPY portal/target/cbioportal*.war /app.war
-COPY portal/target/dependency/webapp-runner.jar /webapp-runner.jar
-# specify default command
-CMD ["/usr/bin/java", "-Dspring.data.mongodb.uri=${MONGODB_URI}", "-jar", "/webapp-runner.jar", "/app.war"]
-```
-
-Then generate the image like this (pick a sensible CBIOPORTAL_DOCKER_TAG):
-
-```
-export CBIOPORTAL_DOCKER_TAG=release-2.1.0-rc6 && cp src/main/resources/portal.properties.EXAMPLE src/main/resources/portal.properties && mvn  -DskipTests clean install && docker build -f norebuild.Dockerfile -t cbioportal/cbioportal:${CBIOPORTAL_DOCKER_TAG} . && docker  push cbioportal/cbioportal:${CBIOPORTAL_DOCKER_TAG}
-```	
 
 After that, if you have access to the kubernetes cluster you can change the image in the configuration of the kubernetes cluster:
 
 
 https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_spring_boot.yaml
 
-point this line, to the new `CBIOPORTAL_DOCKER_TAG` you pushed to docker hub:
+point this line, to the new tag on docker hub e.g.:
 
 ```
-image: cbioportal/cbioportal:release-2.1.0-rc5
+image: cbioportal/cbioportal:3.0.3-web-shenandoah
 ```
+
+Make sure it is an image with the postfix `-web-shenandoah`. This is the image that only has the web part of cBioPortal and uses the shenandoah garbage collector.
 
 Also remove the `-Dfrontend.url` parameter such that the frontend version inside the war will be used:
 
 ```
-"-Dfrontend.url=https://cbioportal-frontend.netlify.com/"
+"-Dfrontend.url=https://frontend.cbioportal.org"
 ```
 
 Then running this command applies the changes to the cluster:

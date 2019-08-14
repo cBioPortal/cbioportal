@@ -22,13 +22,13 @@ import org.cbioportal.model.MolecularAlteration;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.model.ReferenceGenomeGene;
+import org.cbioportal.model.Gene;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.service.ExpressionEnrichmentService;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.MolecularProfileService;
-import org.cbioportal.service.ReferenceGenomeGeneService;
+import org.cbioportal.service.GeneService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +48,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     @Autowired
     private MolecularDataService molecularDataService;
     @Autowired
-    private ReferenceGenomeGeneService refGeneService;
+    private GeneService geneService;
     @Autowired
     private MolecularDataRepository molecularDataRepository;
 
@@ -131,15 +131,21 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
                 .map(ExpressionEnrichment::getEntrezGeneId)
                 .collect(Collectors.toList());
 
-        Map<Integer, List<ReferenceGenomeGene>> geneMapByEntrezId = refGeneService
-                .fetchGenesByGenomeName(entrezGeneIds, molecularProfile.getCancerStudy().getReferenceGenome())
+        Map<Integer, List<Gene>> geneMapByEntrezId = geneService
+                .fetchGenes(entrezGeneIds
+                    .stream()
+                    .map(Object::toString)
+                    .collect(Collectors.toList()),
+            "ENTREZ_GENE_ID",
+            "SUMMARY")
                 .stream()
-                .collect(Collectors.groupingBy(ReferenceGenomeGene::getEntrezGeneId));
+                .collect(Collectors.groupingBy(Gene::getEntrezGeneId));
 
         expressionEnrichments.forEach(expressionEnrichment -> {
-            ReferenceGenomeGene gene = geneMapByEntrezId.get(expressionEnrichment.getEntrezGeneId()).get(0);
-            expressionEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
-            expressionEnrichment.setCytoband(gene.getCytoband());
+            Gene gene = geneMapByEntrezId.get(expressionEnrichment.getEntrezGeneId()).get(0);
+            if (gene != null) {
+                expressionEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
+            }
         });
         
         return expressionEnrichments;

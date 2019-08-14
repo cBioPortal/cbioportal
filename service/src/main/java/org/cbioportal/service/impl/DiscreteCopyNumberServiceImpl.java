@@ -164,12 +164,12 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
 	}
 
     @Override
-    public List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId, 
+    public List<CopyNumberCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                                        List<String> patientIds, 
                                                                                        List<Integer> entrezGeneIds, 
                                                                                        List<Integer> alterations) {
 
-        return discreteCopyNumberRepository.getPatientCountByGeneAndAlterationAndPatientIds(molecularProfileId, 
+        return discreteCopyNumberRepository.getPatientCountInMultipleMolecularProfiles(molecularProfileIds, 
             patientIds, entrezGeneIds, alterations);
     }
 

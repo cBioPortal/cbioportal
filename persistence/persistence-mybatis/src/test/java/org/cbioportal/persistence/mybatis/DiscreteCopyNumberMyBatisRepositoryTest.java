@@ -170,7 +170,7 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     public void getPatientCountByGeneAndAlterationAndPatientIds() throws Exception {
 
         List<CopyNumberCountByGene> result  = discreteCopyNumberMyBatisRepository
-            .getPatientCountByGeneAndAlterationAndPatientIds("study_tcga_pub_gistic", null, 
+            .getPatientCountInMultipleMolecularProfiles(Arrays.asList("study_tcga_pub_gistic"), null, 
                 Arrays.asList(207, 208), Arrays.asList(-2, 2));
         
         Assert.assertEquals(2, result.size());

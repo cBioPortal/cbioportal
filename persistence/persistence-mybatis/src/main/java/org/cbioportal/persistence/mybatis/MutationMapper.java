@@ -41,7 +41,7 @@ public interface MutationMapper {
                                                                         List<Integer> entrezGeneIds,
                                                                         Boolean snpOnly);
 
-    List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
+    List<MutationCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                          List<String> patientIds,
                                                                          List<Integer> entrezGeneIds,
                                                                          Boolean snpOnly);

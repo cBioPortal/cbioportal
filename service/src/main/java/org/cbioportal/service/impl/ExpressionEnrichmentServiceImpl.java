@@ -143,9 +143,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
 
         expressionEnrichments.forEach(expressionEnrichment -> {
             Gene gene = geneMapByEntrezId.get(expressionEnrichment.getEntrezGeneId()).get(0);
-            if (gene != null) {
-                expressionEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
-            }
+            expressionEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
         });
         
         return expressionEnrichments;

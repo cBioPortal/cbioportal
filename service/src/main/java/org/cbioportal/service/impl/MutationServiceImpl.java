@@ -135,14 +135,12 @@ public class MutationServiceImpl implements MutationService {
 	}
 
     @Override
-    public List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
+    public List<MutationCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                                 List<String> patientIds,
-                                                                                List<Integer> entrezGeneIds)
-        throws MolecularProfileNotFoundException {
+                                                                                List<Integer> entrezGeneIds) {
 
-        validateMolecularProfile(molecularProfileId);
 
-        return mutationRepository.getPatientCountByEntrezGeneIdsAndSampleIds(molecularProfileId, patientIds, 
+        return mutationRepository.getPatientCountInMultipleMolecularProfiles(molecularProfileIds, patientIds, 
             entrezGeneIds);
     }
 

@@ -44,7 +44,7 @@ public interface DiscreteCopyNumberRepository {
                                                                           List<Integer> entrezGeneIds, 
                                                                           List<Integer> alterations);
 
-    List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId,
+    List<CopyNumberCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                                 List<String> patientIds,
                                                                                 List<Integer> entrezGeneIds,
                                                                                 List<Integer> alterations);

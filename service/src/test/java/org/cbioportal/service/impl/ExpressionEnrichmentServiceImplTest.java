@@ -14,12 +14,12 @@ import org.cbioportal.model.GroupStatistics;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.model.ReferenceGenome;
-import org.cbioportal.model.ReferenceGenomeGene;
+import org.cbioportal.model.Gene;
 import org.cbioportal.model.Sample;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.MolecularProfileService;
-import org.cbioportal.service.ReferenceGenomeGeneService;
+import org.cbioportal.service.GeneService;
 import org.cbioportal.service.SampleService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
     @Mock
     private MolecularDataRepository molecularDataRepository;
     @Mock
-    private ReferenceGenomeGeneService refGeneService;
+    private GeneService geneService;
 
     @Test
     public void getExpressionEnrichments() throws Exception {
@@ -57,9 +57,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         geneMolecularProfile.setCancerStudyIdentifier(STUDY_ID);
         geneMolecularProfile.setStableId(MOLECULAR_PROFILE_ID);
         geneMolecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
-        
         geneMolecularProfile.setCancerStudy(cancerStudy);
-       // geneMolecularProfile.getCancerStudy().setReferenceGenome(ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
 
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
                 .thenReturn(geneMolecularProfile);
@@ -105,21 +103,18 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         Mockito.when(molecularDataService.getMolecularAlterations(MOLECULAR_PROFILE_ID, null, "SUMMARY"))
                 .thenReturn(molecularDataList);
         
-        List<ReferenceGenomeGene> expectedGeneList = new ArrayList<>();
-        ReferenceGenomeGene gene1 = new ReferenceGenomeGene();
+        List<Gene> expectedGeneList = new ArrayList<>();
+        Gene gene1 = new Gene();
         gene1.setEntrezGeneId(ENTREZ_GENE_ID_2);
         gene1.setHugoGeneSymbol(HUGO_GENE_SYMBOL_2);
-        gene1.setCytoband("CYTOBAND2");
-        gene1.setReferenceGenomeId(REFERENCE_GENOME_ID);
         expectedGeneList.add(gene1);
-        ReferenceGenomeGene gene2 = new ReferenceGenomeGene();
+        Gene gene2 = new Gene();
         gene2.setEntrezGeneId(ENTREZ_GENE_ID_3);
         gene2.setHugoGeneSymbol(HUGO_GENE_SYMBOL_3);
-        gene2.setCytoband("CYTOBAND3");
-        gene2.setReferenceGenomeId(REFERENCE_GENOME_ID);
         expectedGeneList.add(gene2);
 
-        Mockito.when(refGeneService.fetchGenesByGenomeName(Arrays.asList(2, 3), ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME)).thenReturn(expectedGeneList);
+        Mockito.when(geneService.fetchGenes(Arrays.asList("2", "3"),
+            "ENTREZ_GENE_ID","SUMMARY")).thenReturn(expectedGeneList);
 
         Map<String, List<MolecularProfileCaseIdentifier>> molecularProfileCaseSets = new HashMap<>();
         List<MolecularProfileCaseIdentifier> alteredSampleIdentifieres = new ArrayList<>();
@@ -155,7 +150,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         ExpressionEnrichment expressionEnrichment = result.get(0);
         Assert.assertEquals(ENTREZ_GENE_ID_2, expressionEnrichment.getEntrezGeneId());
         Assert.assertEquals(HUGO_GENE_SYMBOL_2, expressionEnrichment.getHugoGeneSymbol());
-        Assert.assertEquals("CYTOBAND2", expressionEnrichment.getCytoband());
+        Assert.assertEquals(null, expressionEnrichment.getCytoband());
         Assert.assertEquals(2, expressionEnrichment.getGroupsStatistics().size());
 
         GroupStatistics unalteredGroupStats = expressionEnrichment.getGroupsStatistics().get(0);
@@ -173,7 +168,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
         expressionEnrichment = result.get(1);
         Assert.assertEquals(ENTREZ_GENE_ID_3, expressionEnrichment.getEntrezGeneId());
         Assert.assertEquals(HUGO_GENE_SYMBOL_3, expressionEnrichment.getHugoGeneSymbol());
-        Assert.assertEquals("CYTOBAND3", expressionEnrichment.getCytoband());
+        Assert.assertEquals(null, expressionEnrichment.getCytoband());
         Assert.assertEquals(2, expressionEnrichment.getGroupsStatistics().size());
 
         unalteredGroupStats = expressionEnrichment.getGroupsStatistics().get(0);

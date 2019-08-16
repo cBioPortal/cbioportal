@@ -22,7 +22,7 @@ relevance of variants (or biomarker alterations) in cancer. For information on
 how to deploy this service yourself see:
 https://github.com/griffithlab/civic-server. It is also possible to disable
 showing CIVIC in cBioPortal by setting `show.civic=false` in the
-`portal.properties` (See [portal.properties reference](portal.properties-Reference.md).
+`portal.properties` (See [portal.properties reference](portal.properties-Reference.md)).
 
 ## Genome Nexus
 [Genome Nexus](https://www.genomenexus.org) is a comprehensive one-stop

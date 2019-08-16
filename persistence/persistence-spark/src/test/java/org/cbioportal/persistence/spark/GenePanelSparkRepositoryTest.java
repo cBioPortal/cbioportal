@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 @Configurable
 public class GenePanelSparkRepositoryTest {
-
+  
     @Mock
     private SparkSession spark;
 
@@ -54,6 +54,7 @@ public class GenePanelSparkRepositoryTest {
 
         when(ds.select(anyString(), anyString())).thenReturn(ds);
         Column mockCol = mock(Column.class);
+
         List<Row> res = Arrays.asList(RowFactory.create("sampleId", "msk_impact_2017_cna"));
         when(ds.collectAsList()).thenReturn(res);
 

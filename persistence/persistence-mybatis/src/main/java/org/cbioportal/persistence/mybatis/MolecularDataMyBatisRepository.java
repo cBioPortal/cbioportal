@@ -27,18 +27,10 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
     }
 
     @Override
-    // cursor processing requires a transaction 
-    @Transactional(readOnly=true, propagation=Propagation.NESTED)
     public List<GeneMolecularAlteration> getGeneMolecularAlterations(String molecularProfileId, 
                                                                      List<Integer> entrezGeneIds, String projection) {
 
-        List<GeneMolecularAlteration> toReturn = new ArrayList();
-        Iterable<GeneMolecularAlteration> gmasItr =
-            molecularDataMapper.getGeneMolecularAlterations(molecularProfileId, entrezGeneIds, projection);
-        for (GeneMolecularAlteration gma : gmasItr) {
-            toReturn.add(gma);
-        }
-        return toReturn;
+        return molecularDataMapper.getGeneMolecularAlterations(molecularProfileId, entrezGeneIds, projection);
     }
 
     @Override
@@ -48,7 +40,7 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
     public Iterable<GeneMolecularAlteration> getGeneMolecularAlterationsIterable(String molecularProfileId, 
                                                                                  List<Integer> entrezGeneIds, String projection) {
 
-        return molecularDataMapper.getGeneMolecularAlterations(molecularProfileId, entrezGeneIds, projection);
+        return molecularDataMapper.getGeneMolecularAlterationsIter(molecularProfileId, entrezGeneIds, projection);
     }
 
     @Override

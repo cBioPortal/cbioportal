@@ -18,19 +18,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.cbioportal.model.GenePanel;
-import org.cbioportal.model.GenePanelData;
-import org.cbioportal.model.GenePanelToGene;
-import org.cbioportal.model.meta.BaseMeta;
-import org.cbioportal.persistence.GenePanelRepository;
-import org.cbioportal.persistence.spark.util.ParquetLoader;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import java.util.*;
-import java.util.stream.Collectors;
-
 @Component
 @Qualifier("genePanelSparkRepository")
 public class GenePanelSparkRepository implements GenePanelRepository {

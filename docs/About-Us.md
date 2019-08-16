@@ -22,7 +22,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 
 ## Dana-Farber Cancer Institute
 * Ethan Cerami
-* Ersin Ciftci
 * Tali Mazor
 * Augustin Luna
 * James Lindsay
@@ -40,19 +39,17 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Adam Resnick
 
 ## The Hyve
-* Pieter Lukasse
 * Fedde Schaeffer
-* Sander Tan
 * Oleguer Plantalech
 * Pim van Nierop
 * Riza Nugraha
+* Sander Rodenburg
 * Sjoerd van Hagen
 * Kees van Bochove
 
 ## Bilkent University
 * Ugur Dogrusoz
-* Istemi Bahceci
-* Kaan Sancak
+* Ziya Erkoc
 
 ## Weill Cornell Medicine
 * Alexandros Sigaras
@@ -60,8 +57,10 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 
 ## Alumni
 * B. Arman Aksoy
+* Istemi Bahceci
 * Caitlin Byrne
 * Hsiao-Wei Chen
+* Ersin Ciftci
 * Fred Criscuolo
 * Leonard Dervishi
 * Gideon Dresdner
@@ -73,10 +72,13 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Anders Jacobsen
 * Erik Larsson
 * Dong Li
+* Pieter Lukasse
 * Tamba Monrose
 * Peter Kok
 * Irina Pulyakhina
 * M. Furkan Sahin
+* Kaan Sancak
+* Sander Tan
 * Jiaojiao Wang
 * Stuart Watt
 * James Xu

@@ -190,7 +190,7 @@ public class ParquetWriter {
             OptionSpec<String> type = parser.accepts( "input-file-type",
                 "input file type" ).withOptionalArg()
                 .describedAs("case for case_lists, meta for meta, panel for gene_panel, cna for data_CNA, otherwise data.").ofType( String.class );
-            
+
             OptionSet options = null;
             try {
                 options = parser.parse(args);
@@ -204,7 +204,7 @@ public class ParquetWriter {
             if (options.valueOf(type) != null) {
                 typeOfData = options.valueOf(type);
             }
-            
+
             write(inputFilePath, outputFilePath, typeOfData);
 
         } catch (RuntimeException e) {

@@ -28,6 +28,7 @@ import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.service.exception.SampleListNotFoundException;
 import org.cbioportal.service.CoExpressionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -224,6 +225,8 @@ public class CoExpressionServiceImpl implements CoExpressionService {
     }
 
     @Override
+    // transaction needs to be setup here in order to return Iterable from molecularDataService in fetchCoExpressions
+    @Transactional(readOnly=true)
     public List<CoExpression> fetchCoExpressions(String geneticEntityId,
             CoExpression.GeneticEntityType geneticEntityType, List<String> sampleIds, String molecularProfileIdB,
             String molecularProfileIdA, Double threshold) throws MolecularProfileNotFoundException, GenesetNotFoundException, GeneNotFoundException {

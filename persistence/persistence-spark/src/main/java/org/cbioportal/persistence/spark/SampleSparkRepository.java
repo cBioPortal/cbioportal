@@ -83,7 +83,7 @@ public class SampleSparkRepository implements SampleRepository {
         if (!CollectionUtils.isEmpty(sampleIds)) {
             samples = samples.where(samples.col("SAMPLE_ID").isin(sampleIds.toArray()));
         }
-
+        
         samples.createOrReplaceTempView("samples");
         StringBuilder sb = new StringBuilder("SELECT PATIENT_ID, SAMPLE_ID, studyId");
         if (PersistenceConstants.SUMMARY_PROJECTION.equalsIgnoreCase(projection)

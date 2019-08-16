@@ -85,7 +85,7 @@ public class SampleSparkRepositoryTest {
 
         List<Row> res = Arrays.asList(RowFactory.create("P-1000", "P-1000-01", "msk_impact_2017"));
         when(ds.collectAsList()).thenReturn(res);
-        
+
         List<Sample> result = sampleSparkRepository.fetchSamples(Arrays.asList("msk_impact_2017"), null, "ID");
 
         Assert.assertEquals(1, result.size());

@@ -45,14 +45,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class CacheMapUtil {
 
-    // can't find another way to pull in the required mapper dependency at runtime for initCacheMemory
-    @Autowired
-    private PatientRepository patientRepository;
-
-    // can't find another way to pull in the required mapper dependency at runtime for initCacheMemory
-    @Autowired
-    private CancerTypeRepository cancerTypeRepository;
-
     @Autowired
     private StudyRepository studyRepository;
 

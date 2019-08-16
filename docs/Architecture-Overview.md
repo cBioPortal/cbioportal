@@ -11,6 +11,8 @@ cBioPortal consists of the following components:
   user saved data such as virtual studies and groups
 - Mongo database which session service uses
 
+cBioPortal also uses the APIs from various [external services](External-Services.md) to provide more information about a variant.
+
 ## Backend
 
 The [backend](https://github.com/cBioPortal/cbioportal) is written in Java and

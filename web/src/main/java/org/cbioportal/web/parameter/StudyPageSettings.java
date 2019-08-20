@@ -129,6 +129,7 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
         private List<CustomChartGroup> groups;
         private Layout layout;
         private Boolean patientAttribute;
+        private Boolean filterByCancerGenes;
 
         public String getId() {
             return id;
@@ -176,6 +177,14 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
 
         public void setPatientAttribute(Boolean patientAttribute) {
             this.patientAttribute = patientAttribute;
+        }
+
+        public Boolean getFilterByCancerGenes() {
+            return filterByCancerGenes;
+        }
+
+        public void setFilterByCancerGenes(Boolean filterByCancerGenes) {
+            this.filterByCancerGenes = filterByCancerGenes;
         }
 
     }

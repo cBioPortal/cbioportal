@@ -14,6 +14,7 @@ This page describes the main properties within portal.properties.
 	- [Automatic selection of OncoKB annotations](#automatic-selection-of-oncokb-annotations)
 	- [Automatic hiding of putative passenger mutations](#automatic-hiding-of-putative-passenger-mutations)
 - [Gene sets used for gene querying](#gene-sets-used-for-gene-querying)
+- [Ehcache Settings](#ehcache-settings)
 
 # Database Settings
 
@@ -280,3 +281,56 @@ This gene set will add the following in the query box:
 ```
 "BRCA genes" BRCA1: MUT=E1258D; BRCA2: HOMDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;
 ```
+# Ehcache Settings
+cBioPortal is supported on the backend with Ehcache. The configuration, size, and location of these caches are configurable from within portal.properties through the following properties.
+
+First, select a cache configuration using `ehcache.xml.configuration`. This specifies whether to use a disk-only, heap-only, or hybrid (disk + heap) cache. The default value is `ehcache-mixed.xml` which initializes a hybrid caching system.
+```
+ehcache.xml.configuration=[ehcache-heap-only.xml OR ehcache-mixed.xml OR ehcache-disk-only.xml]
+```
+
+If the cache is configured to use disk resources, users must make a directory available and set it with the `ehcache.persistence.path` property. Ehcache will create seperate directories under the provided path for each cache defined in the ehcache.xml configuration file. 
+```
+ehcache.persistence.path=[location on the disk filesystem where Ehcache can write the cache to /tmp/]
+```
+
+Cache size must be set for both heap and disk; Ehcache requires disk size to be greater than heap size. Default values are provided. The general repository cache is specified to use 1021MB for heap and 4GB for disk. The static repository cache is specified to use 30MB for heap and 32MB for disk. For installations with increased traffic or data, cache sizes can be increased to further improve performance. 
+```
+ehcache.general_repository_cache.max_bytes_heap=
+ehcache.general_repository_cache.max_bytes_heap_units=[size unit e.g MB, GB, entries]
+ehcache.general_repository_cache.max_bytes_local_disk=
+ehcache.general_repository_cache.max_bytes_local_disk_units=[size unit e.g MB, GB, entries]
+
+ehcache.static_repository_cache_one.max_bytes_heap=
+ehcache.static_repository_cache_one.max_bytes_heap_units=[size unit e.g MB, GB, entries]
+ehcache.static_repository_cache_one.max_bytes_local_disk=
+ehcache.static_repository_cache_one.max_bytes_local_disk_units[size unit e.g MB, GB, entries]
+```
+
+Additional properties can be specified for cache statistics monitoring. To log metrics regarding memory usage, set `ehcache.enable.statistics` to true. Logged metrics and additional information such as cache size and cached keys are available through an optional endpoint. The optional endpoint is turned off by default but can be turned on by setting `cache.statistics.endpoint.enabled` to true. 
+```
+ehcache.enable.statistics=true[true or false]
+cache.statistics.endpoint.enabled=false[true or false]
+```
+The cache statistics endpoint is hidden on the api page; users must directly access the URL to view the response. The cache statistics endpoint can be accessed in the following ways.
+
+For general statisics about the cache such as memory usage:
+```
+/api/cacheStatistics
+```
+
+For a list of all keys in the cache:
+```
+/api/[name of cache]/keysInCache
+```
+
+For a list of counts of keys in cache per repository class:
+```
+/api/[name of cache]/keyCountsPerClass
+```
+
+**WARNING**: It must be noted that since cache statistics endpoint returns data on cache keys, the endpoint may expose otherwise hidden database query parameters such as sample identifiers, study names, etc. Generally, it is recommended that the endpoint only be turned on during cache-related development for testing. Deployers of a protected portal where users only have authorities to a subset of studies should carefully consider whether or not to turn on the cache statistics endpoint, as it does not filter the results. 
+
+For more information on Ehcache, refer to the official documentation [here](https://www.ehcache.org/documentation/3.7/index.html)
+
+For more information on how Ehcache is implemented in cBioPortal refer to the [Caching](Caching.md) documentation.

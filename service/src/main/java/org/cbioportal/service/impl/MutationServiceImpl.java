@@ -121,14 +121,14 @@ public class MutationServiceImpl implements MutationService {
 
     @Override
 	public List<MutationCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
-			List<String> sampleIds, List<Integer> entrezGeneIds, boolean includeFrequency) {
+			List<String> sampleIds, List<Integer> entrezGeneIds, boolean includeFrequency, boolean excludeFusions) {
         
         List<MutationCountByGene> result;
         if (molecularProfileIds.isEmpty()) {
             result = Collections.emptyList();
         } else {
             result = mutationRepository.getSampleCountInMultipleMolecularProfiles(
-                molecularProfileIds, sampleIds, entrezGeneIds);
+                molecularProfileIds, sampleIds, entrezGeneIds, excludeFusions);
             if (includeFrequency) {
                 profiledSamplesCounter.calculate(molecularProfileIds, sampleIds, result);
             }

@@ -46,7 +46,7 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
                                     sampleIds.add(molecularProfileCase.getCaseId());
                                 });
                                 List<MutationCountByGene> mutationCounts = mutationService
-                                        .getSampleCountInMultipleMolecularProfiles(molecularProfileIds, sampleIds, null, false);
+                                        .getSampleCountInMultipleMolecularProfiles(molecularProfileIds, sampleIds, null, false, false);
         
                                 return mutationCounts;
                             }));

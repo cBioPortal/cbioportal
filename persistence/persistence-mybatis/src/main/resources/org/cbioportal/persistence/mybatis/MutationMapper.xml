@@ -147,6 +147,9 @@
                 AND mutation_event.REFERENCE_ALLELE IN ('A','T','C','G')
                 AND mutation_event.TUMOR_SEQ_ALLELE IN ('A','T','C','G')
             </if>
+            <if test="excludeFusions != null and excludeFusions == true">
+                AND mutation_event.MUTATION_TYPE  <![CDATA[ <> ]]> 'Fusion'
+            </if>
         </where>
     </sql>
 
@@ -264,6 +267,9 @@
         INNER JOIN genetic_profile ON mutation.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
         INNER JOIN sample ON mutation.SAMPLE_ID = sample.INTERNAL_ID
         INNER JOIN gene ON mutation.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+        <if test="excludeFusions != null and excludeFusions == true">
+            INNER JOIN mutation_event ON mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID
+        </if>
         <include refid="whereInMultipleMolecularProfiles"/>
         GROUP BY mutation.ENTREZ_GENE_ID
     </select>

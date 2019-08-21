@@ -70,7 +70,7 @@ public class MutationEnrichmentServiceImplTest extends BaseServiceImplTest {
                     });
 
             Mockito.when(mutationService.getSampleCountInMultipleMolecularProfiles(new ArrayList<>(molecularProfileIds),
-                    new ArrayList<>(sampleIds), null, false)).thenReturn(mutationSampleCountByGeneList);
+                    new ArrayList<>(sampleIds), null, false, false)).thenReturn(mutationSampleCountByGeneList);
         }
 
         List<AlterationEnrichment> expectedAlterationEnrichments = new ArrayList<>();

@@ -46,11 +46,14 @@ public class ProfiledSamplesCounter {
             }
         }
 
+        List<GenePanelData> profiled = genePanelDataList.stream().filter(g -> g.getProfiled()).collect(Collectors.toList());
+        long samplesWithoutPanelCount = profiled.stream().filter(g -> g.getGenePanelId() == null).count();
+        int profiledSize = profiled.size();
+
         for (AlterationCountByGene alterationCountByGene : alterationCounts) {
 
             int numberOfSamplesProfiled = 0;
             Integer entrezGeneId = alterationCountByGene.getEntrezGeneId();
-            List<GenePanelData> profiled = genePanelDataList.stream().filter(g -> g.getProfiled()).collect(Collectors.toList());
             List<GenePanel> allPanels = new ArrayList<>();
             if (geneGenePanelMap.containsKey(entrezGeneId)) {
                 List<GenePanel> matchingGenePanels = geneGenePanelMap.get(entrezGeneId);
@@ -59,11 +62,11 @@ public class ProfiledSamplesCounter {
                     allPanels.add(genePanel);
                 }
                 
-                numberOfSamplesProfiled += profiled.stream().filter(g -> g.getGenePanelId() == null).count();
+                numberOfSamplesProfiled += samplesWithoutPanelCount;
             } else {
-                numberOfSamplesProfiled = profiled.size();
+                numberOfSamplesProfiled = profiledSize;
             }
-            alterationCountByGene.setMatchingGenePanels(allPanels);
+            alterationCountByGene.setMatchingGenePanelIds(allPanels.stream().map(panel -> panel.getStableId()).collect(Collectors.toSet()));
             alterationCountByGene.setNumberOfSamplesProfiled(numberOfSamplesProfiled);
         }
     }

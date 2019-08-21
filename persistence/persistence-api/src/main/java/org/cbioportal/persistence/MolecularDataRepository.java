@@ -9,26 +9,26 @@ import org.springframework.cache.annotation.Cacheable;
 
 public interface MolecularDataRepository {
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     String getCommaSeparatedSampleIdsOfMolecularProfile(String molecularProfileId);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<String> getCommaSeparatedSampleIdsOfMolecularProfiles(List<String> molecularProfileIds);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<GeneMolecularAlteration> getGeneMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds,
                                                               String projection);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     Iterable<GeneMolecularAlteration> getGeneMolecularAlterationsIterable(String molecularProfileId, List<Integer> entrezGeneIds,
                                                                           String projection);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                                          List<Integer> entrezGeneIds,
                                                                                          String projection);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<GenesetMolecularAlteration> getGenesetMolecularAlterations(String molecularProfileId, List<String> genesetIds,
                                                                     String projection);
 

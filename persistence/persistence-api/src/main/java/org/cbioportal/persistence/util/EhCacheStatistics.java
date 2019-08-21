@@ -37,7 +37,6 @@ import org.ehcache.config.ResourceType;
 import org.ehcache.impl.internal.statistics.DefaultStatisticsService;
 
 import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;
 import javax.annotation.PostConstruct;
@@ -49,9 +48,6 @@ public class EhCacheStatistics {
 
     private static double BYTES_IN_MB = 1048576.0;
     private static double BYTES_IN_GB = 1073741824.0;
-
-    @Value("${ehcache.xml.configuration}")
-    private String xmlConfiguration;
 
     private javax.cache.CacheManager cacheManager;
     private DefaultStatisticsService statisticsService;

@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 public class CustomEhCachingProvider extends EhcacheCachingProvider {
 
-    @Value("${ehcache.xml.configuration}")
+    @Value("${ehcache.xml_configuration}")
     private String xmlConfiguration;
 
     @Override

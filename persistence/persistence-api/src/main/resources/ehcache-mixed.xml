@@ -9,10 +9,10 @@
     http://www.ehcache.org/v3/jsr107 http://www.ehcache.org/schema/ehcache-107-ext-3.0.xsd">
 
     <ehcache:service>
-      <jcache:defaults enable-management="true" enable-statistics="${ehcache.enable.statistics}"/>
+      <jcache:defaults enable-management="true" enable-statistics="${ehcache.statistics_enabled}"/>
     </ehcache:service>
 
-    <ehcache:persistence directory="${ehcache.persistence.path}"/>
+    <ehcache:persistence directory="${ehcache.persistence_path}"/>
 
     <ehcache:heap-store>
       <ehcache:max-object-graph-size>9223372036854775807</ehcache:max-object-graph-size><!-- using Long.MAX_VALUE -->

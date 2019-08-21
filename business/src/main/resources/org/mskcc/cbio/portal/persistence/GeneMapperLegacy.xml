@@ -3,8 +3,6 @@
 
 <mapper namespace="org.mskcc.cbio.portal.persistence.GeneMapperLegacy">
     
-<cache/>
-
 <select id="getGenesByHugo" resultType="DBGene" parameterType="list">
     select
         HUGO_GENE_SYMBOL as hugo_gene_symbol,

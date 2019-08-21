@@ -10,32 +10,32 @@ import java.util.List;
 
 public interface ClinicalAttributeRepository {
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<ClinicalAttribute> getAllClinicalAttributes(String projection, Integer pageSize, Integer pageNumber,
                                                      String sortBy, String direction);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     BaseMeta getMetaClinicalAttributes();
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     ClinicalAttribute getClinicalAttribute(String studyId, String clinicalAttributeId);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<ClinicalAttribute> getAllClinicalAttributesInStudy(String studyId, String projection, Integer pageSize,
                                                             Integer pageNumber, String sortBy, String direction);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     BaseMeta getMetaClinicalAttributesInStudy(String studyId);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<ClinicalAttribute> fetchClinicalAttributes(List<String> studyIds, String projection);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     BaseMeta fetchMetaClinicalAttributes(List<String> studyIds);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleIds(List<String> studyIds, List<String> sampleIds);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleListId(String sampleListId);
 }

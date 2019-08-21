@@ -22,7 +22,7 @@ public class CacheStatisticsServiceImpl implements CacheStatisticsService {
     @Autowired
     public EhCacheStatistics ehCacheStatistics;
 
-    @Value("${cache.statistics.endpoint.enabled:false}")
+    @Value("${cache.statistics_endpoint_enabled:false}")
     public boolean cacheStatisticsEndpointEnabled;
     
     private void checkIfCacheStatisticsEndpointEnabled() {

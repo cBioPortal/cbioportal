@@ -10,18 +10,18 @@ import org.springframework.cache.annotation.Cacheable;
 
 public interface GenesetRepository {
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<Geneset> getAllGenesets(String projection, Integer pageSize, Integer pageNumber);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     BaseMeta getMetaGenesets();
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     Geneset getGeneset(String genesetId);
     
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<Geneset> fetchGenesets(List<String> genesetIds);
     
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<Gene> getGenesByGenesetId(String genesetId);
 }

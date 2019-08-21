@@ -10,20 +10,20 @@ import java.util.List;
 
 public interface ClinicalEventRepository {
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<ClinicalEvent> getAllClinicalEventsOfPatientInStudy(String studyId, String patientId, String projection,
                                                              Integer pageSize, Integer pageNumber, String sortBy,
                                                              String direction);
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     BaseMeta getMetaPatientClinicalEvents(String studyId, String patientId);
     
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<ClinicalEventData> getDataOfClinicalEvents(List<Integer> clinicalEventIds);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<ClinicalEvent> getAllClinicalEventsInStudy(String studyId, String projection, Integer pageSize,
                                                     Integer pageNumber, String sortBy, String direction);
     
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     BaseMeta getMetaClinicalEvents(String studyId);
 }

@@ -9,14 +9,14 @@ import org.springframework.cache.annotation.Cacheable;
 import java.util.List;
 
 public interface SignificantCopyNumberRegionRepository {
-    
-    @Cacheable("GeneralRepositoryCache")
+   
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<Gistic> getSignificantCopyNumberRegions(String studyId, String projection, Integer pageSize, 
                                                  Integer pageNumber, String sortBy, String direction);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     BaseMeta getMetaSignificantCopyNumberRegions(String studyId);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<GisticToGene> getGenesOfRegions(List<Long> gisticRoiIds);
 }

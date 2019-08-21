@@ -284,14 +284,14 @@ This gene set will add the following in the query box:
 # Ehcache Settings
 cBioPortal is supported on the backend with Ehcache. The configuration, size, and location of these caches are configurable from within portal.properties through the following properties.
 
-First, select a cache configuration using `ehcache.xml.configuration`. This specifies whether to use a disk-only, heap-only, or hybrid (disk + heap) cache. The default value is `ehcache-mixed.xml` which initializes a hybrid caching system.
+First, select a cache configuration using `ehcache.xml_configuration`. This specifies whether to use a disk-only, heap-only, or hybrid (disk + heap) cache. The default value is `ehcache-mixed.xml` which initializes a hybrid caching system.
 ```
-ehcache.xml.configuration=[ehcache-heap-only.xml OR ehcache-mixed.xml OR ehcache-disk-only.xml]
+ehcache.xml_configuration=[ehcache-heap-only.xml OR ehcache-mixed.xml OR ehcache-disk-only.xml]
 ```
 
-If the cache is configured to use disk resources, users must make a directory available and set it with the `ehcache.persistence.path` property. Ehcache will create seperate directories under the provided path for each cache defined in the ehcache.xml configuration file. 
+If the cache is configured to use disk resources, users must make a directory available and set it with the `ehcache.persistence_path` property. Ehcache will create seperate directories under the provided path for each cache defined in the ehcache.xml_configuration file. 
 ```
-ehcache.persistence.path=[location on the disk filesystem where Ehcache can write the cache to /tmp/]
+ehcache.persistence_path=[location on the disk filesystem where Ehcache can write the cache to /tmp/]
 ```
 
 Cache size must be set for both heap and disk; Ehcache requires disk size to be greater than heap size. Default values are provided. The general repository cache is specified to use 1021MB for heap and 4GB for disk. The static repository cache is specified to use 30MB for heap and 32MB for disk. For installations with increased traffic or data, cache sizes can be increased to further improve performance. 
@@ -307,10 +307,16 @@ ehcache.static_repository_cache_one.max_bytes_local_disk=
 ehcache.static_repository_cache_one.max_bytes_local_disk_units[size unit e.g MB, GB, entries]
 ```
 
-Additional properties can be specified for cache statistics monitoring. To log metrics regarding memory usage, set `ehcache.enable.statistics` to true. Logged metrics and additional information such as cache size and cached keys are available through an optional endpoint. The optional endpoint is turned off by default but can be turned on by setting `cache.statistics.endpoint.enabled` to true. 
+To configure a system where no caching occurs, use ehache-heap-only.xml with minimal heap sizes (0 is not supported, so set max_bytes_heap=1 and max_bytes_heap_units=B for all caches) and set
 ```
-ehcache.enable.statistics=true[true or false]
-cache.statistics.endpoint.enabled=false[true or false]
+ehcache.cache_enabled=false
+```
+This will prevent any response from being stored in the cache.
+
+Additional properties can be specified for cache statistics monitoring. To log metrics regarding memory usage, set `ehcache.statistics_enabled` to true. Logged metrics and additional information such as cache size and cached keys are available through an optional endpoint. The optional endpoint is turned off by default but can be turned on by setting `cache.statistics_endpoint_enabled` to true. 
+```
+ehcache.statistics_enabled=true[true or false]
+cache.statistics_endpoint_enabled=false[true or false]
 ```
 The cache statistics endpoint is hidden on the api page; users must directly access the URL to view the response. The cache statistics endpoint can be accessed in the following ways.
 

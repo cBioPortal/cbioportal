@@ -9,12 +9,12 @@ import org.springframework.cache.annotation.Cacheable;
 
 public interface GenesetHierarchyRepository {
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
 	List<GenesetHierarchyInfo> getGenesetHierarchyParents(List<String> genesetIds);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
 	List<Geneset> getGenesetHierarchyGenesets(Integer nodeId);
 
-    @Cacheable("GeneralRepositoryCache")
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
 	List<GenesetHierarchyInfo> getGenesetHierarchySuperNodes(List<String> genesetIds);
 }

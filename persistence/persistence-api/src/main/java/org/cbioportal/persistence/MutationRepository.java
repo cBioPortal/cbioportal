@@ -21,10 +21,10 @@ public interface MutationRepository {
     List<Mutation> getMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
                                                            List<Integer> entrezGeneIds, String projection,
                                                            Integer pageSize, Integer pageNumber,
-                                                           String sortBy, String direction);
+                                                           String sortBy, String direction, Boolean excludeFusions);
 
     MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
-                                                             List<Integer> entrezGeneIds);
+                                                             List<Integer> entrezGeneIds, Boolean excludeFusions);
 
     List<Mutation> fetchMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
                                                     List<Integer> entrezGeneIds, Boolean snpOnly, String projection,

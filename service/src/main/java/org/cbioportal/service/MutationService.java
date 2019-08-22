@@ -26,7 +26,7 @@ public interface MutationService {
                                                            String sortBy, String direction);
 
     MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
-                                                             List<Integer> entrezGeneIds);
+                                                             List<Integer> entrezGeneIds, Boolean excludeFusions);
 
     List<Mutation> fetchMutationsInMolecularProfile(String molecularProfileId, List<String> sampleIds,
                                                     List<Integer> entrezGeneIds, Boolean snpOnly, String projection,

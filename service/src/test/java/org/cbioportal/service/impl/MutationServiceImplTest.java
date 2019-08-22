@@ -104,7 +104,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
 
         Mockito.when(mutationRepository.getMutationsInMultipleMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID), 
             Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1), PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, 
-            DIRECTION)).thenReturn(expectedMutationList);
+            DIRECTION, false)).thenReturn(expectedMutationList);
         Mockito.doAnswer(invocationOnMock -> {
             ((Gene) invocationOnMock.getArguments()[0]).setChromosome("19");
             return null;
@@ -123,9 +123,9 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
 
         MutationMeta expectedMutationMeta = new MutationMeta();
         Mockito.when(mutationRepository.getMetaMutationsInMultipleMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID),
-            Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1))).thenReturn(expectedMutationMeta);
+            Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1), false)).thenReturn(expectedMutationMeta);
         MutationMeta result = mutationService.getMetaMutationsInMultipleMolecularProfiles(
-            Arrays.asList(MOLECULAR_PROFILE_ID), Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1));
+            Arrays.asList(MOLECULAR_PROFILE_ID), Arrays.asList(SAMPLE_ID1), Arrays.asList(ENTREZ_GENE_ID_1), false);
 
         Assert.assertEquals(expectedMutationMeta, result);
     }

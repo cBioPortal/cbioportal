@@ -19,10 +19,11 @@ public interface MutationMapper {
     List<Mutation> getMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
                                                            List<Integer> entrezGeneIds, Boolean snpOnly,
                                                            String projection, Integer limit, Integer offset,
-                                                           String sortBy, String direction);
+                                                           String sortBy, String direction, Boolean excludeFusions);
 
     MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,
-                                                             List<Integer> entrezGeneIds, Boolean snpOnly);
+                                                             List<Integer> entrezGeneIds, Boolean snpOnly,
+                                                             Boolean excludeFusions);
 
     List<Mutation> getMutationsBySampleIds(String molecularProfileId, List<String> sampleIds, 
                                            List<Integer> entrezGeneIds, Boolean snpOnly, String projection, 

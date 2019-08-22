@@ -64,7 +64,7 @@ public class MutationServiceImpl implements MutationService {
                                                                   Integer pageNumber, String sortBy, String direction) {
 
         List<Mutation> mutationList = mutationRepository.getMutationsInMultipleMolecularProfiles(molecularProfileIds,
-            sampleIds, entrezGeneIds, projection, pageSize, pageNumber, sortBy, direction);
+            sampleIds, entrezGeneIds, projection, pageSize, pageNumber, sortBy, direction, false);
 
         mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
         return mutationList;
@@ -73,10 +73,11 @@ public class MutationServiceImpl implements MutationService {
     @Override
     public MutationMeta getMetaMutationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
                                                                     List<String> sampleIds, 
-                                                                    List<Integer> entrezGeneIds) {
+                                                                    List<Integer> entrezGeneIds,
+                                                                    Boolean excludeFusions) {
 
         return mutationRepository.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds, sampleIds,
-            entrezGeneIds);
+            entrezGeneIds, false);
     }
 
     @Override

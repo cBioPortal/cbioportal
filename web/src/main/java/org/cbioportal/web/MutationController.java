@@ -181,14 +181,14 @@ public class MutationController {
             if (interceptedMutationMultipleStudyFilter.getMolecularProfileIds() != null) {
                 mutationMeta = mutationService.getMetaMutationsInMultipleMolecularProfiles(
                     interceptedMutationMultipleStudyFilter.getMolecularProfileIds(), null,
-                    interceptedMutationMultipleStudyFilter.getEntrezGeneIds());
+                    interceptedMutationMultipleStudyFilter.getEntrezGeneIds(), false);
             } else {
 
                 List<String> molecularProfileIds = new ArrayList<>();
                 List<String> sampleIds = new ArrayList<>();
                 extractMolecularProfileAndSampleIds(interceptedMutationMultipleStudyFilter, molecularProfileIds, sampleIds);
                 mutationMeta = mutationService.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds,
-                    sampleIds, interceptedMutationMultipleStudyFilter.getEntrezGeneIds());
+                    sampleIds, interceptedMutationMultipleStudyFilter.getEntrezGeneIds(), false);
             }
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
             responseHeaders.add(HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());

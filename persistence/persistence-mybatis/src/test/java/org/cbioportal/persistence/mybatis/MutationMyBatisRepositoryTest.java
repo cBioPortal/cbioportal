@@ -219,7 +219,7 @@ public class MutationMyBatisRepositoryTest {
         sampleIds.add("TCGA-A1-A0SH-01");
         
         List<Mutation> result = mutationMyBatisRepository.getMutationsInMultipleMolecularProfiles(molecularProfileIds, 
-            sampleIds, null, "SUMMARY", null, null, null, null);
+            sampleIds, null, "SUMMARY", null, null, null, null, false);
         
         Assert.assertEquals(3, result.size());
         Mutation mutation1 = result.get(0);
@@ -245,7 +245,7 @@ public class MutationMyBatisRepositoryTest {
         sampleIds.add("TCGA-A1-A0SH-01");
         
         MutationMeta result = mutationMyBatisRepository.getMetaMutationsInMultipleMolecularProfiles(molecularProfileIds,
-            sampleIds, null);
+            sampleIds, null, false);
 
         Assert.assertEquals((Integer) 3, result.getTotalCount());
         Assert.assertEquals((Integer) 2, result.getSampleCount());

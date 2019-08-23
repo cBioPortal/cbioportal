@@ -32,6 +32,8 @@
 
 package org.mskcc.cbio.maf;
 
+import java.util.*;
+
 /**
  * Encapsulates Details Regarding a Single MAF Record.
  */
@@ -117,6 +119,7 @@ public class MafRecord {
     private String driverFilterAnn;
     private String driverTiersFilter;
     private String driverTiersFilterAnn;
+    private Map<String, Map<String, String>> namespacesMap;
 
     public String getChr() {
         return chr;
@@ -660,5 +663,13 @@ public class MafRecord {
 
     public void setDriverTiersFilterAnn(String driverTiersFilterAnn) {
         this.driverTiersFilterAnn = driverTiersFilterAnn;
+    }
+
+    public Map<String, Map<String, String>> getNamespacesMap() {
+        return namespacesMap;
+    }
+
+    public void setNamespacesMap(Map<String, Map<String, String>> namespacesMap) {
+        this.namespacesMap = namespacesMap;
     }
 }

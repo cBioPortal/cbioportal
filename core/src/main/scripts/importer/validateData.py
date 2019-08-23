@@ -1297,6 +1297,17 @@ class MutationsExtendedValidator(Validator):
        'De_novo_Start_InFrame',
        'De_novo_Start_OutOfFrame'] + SKIP_VARIANT_TYPES + EXTRA_VARIANT_CLASSIFICATION_VALUES + ['Unknown']
 
+    REQUIRED_ASCN_COLUMNS = [
+        'ASCN.ASCN_METHOD',
+        'ASCN.ASCN_INTEGER_COPY_NUMBER',
+        'ASCN.TOTAL_COPY_NUMBER',
+        'ASCN.MINOR_COPY_NUMBER',
+        'ASCN.CCF_M_COPIES',
+        'ASCN.CCF_M_COPIES_UPPER',
+        'ASCN.CLONAL',
+        'ASCN.MUTANT_COPIES'
+    ]
+
     # Used for mapping column names to the corresponding function that does a check on the value.
     CHECK_FUNCTION_MAP = {
         'Matched_Norm_Sample_Barcode':'checkMatchedNormSampleBarcode',
@@ -1384,6 +1395,33 @@ class MutationsExtendedValidator(Validator):
                               'found without any cbp_driver_tiers_annotation '
                               'column.', extra={'column_number': self.cols.index('cbp_driver_tiers')})
 
+        namespaces = []
+        missing_ascn_columns = []
+        ascn_namespace_defined = False
+        if 'namespaces' in self.meta_dict:
+            namespaces = self.meta_dict['namespaces'].split(',')
+            for namespace in namespaces:
+                if 'ascn' == namespace.strip().lower():
+                    ascn_namespace_defined = True
+
+        if ascn_namespace_defined:
+            for required_ascn_column in self.REQUIRED_ASCN_COLUMNS:
+                if required_ascn_column not in self.cols:
+                    missing_ascn_columns.append(required_ascn_column)
+            if len(missing_ascn_columns) > 0:
+                self.logger.error('ASCN namespace defined but MAF '
+                                  'missing required ASCN columns. '
+                                  'Missing %s' % (','.join(missing_ascn_columns)))
+                num_errors += 1
+
+        for namespace in namespaces:
+            defined_namespace = namespace.strip().lower()
+            if defined_namespace != 'ascn':
+                defined_namespace_found = any([True for col in self.cols if col.lower().startswith(defined_namespace + '.')])
+                if not defined_namespace_found:
+                    self.logger.error('%s namespace defined but MAF '
+                                      'does not have any matching columns' % (defined_namespace))
+                    num_errors += 1 
         return num_errors
 
     def checkLine(self, data):

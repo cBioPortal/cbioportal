@@ -40,6 +40,7 @@ import org.cbioportal.model.EntityType;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mskcc.cbio.portal.dao.DaoGenericAssay;
 import org.mskcc.cbio.portal.dao.DaoGeneticEntity;
 import org.mskcc.cbio.portal.dao.DaoTreatment;
 import org.mskcc.cbio.portal.dao.JdbcUtil;
@@ -70,7 +71,7 @@ public class TestImportGenericAssayData {
         File file = new File("core/src/test/resources/treatments/data_treatment_ic50.txt");
         
         // import data and test all treatments were added
-        ImportGenericAssayEntity.importData(file, GeneticAlterationType.TREATMENT);
+        ImportGenericAssayEntity.importData(file, GeneticAlterationType.TREATMENT, null);
         assertEquals(10, getNumRecords());
  
         // test wether a record can be retrieved via stable id 
@@ -84,7 +85,7 @@ public class TestImportGenericAssayData {
 
         // test fields are updated after loading new treatment file
         File fileNewDesc = new File("core/src/test/resources/treatments/data_treatment_ic50_newdesc.txt");
-        ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.TREATMENT);
+        ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.TREATMENT, null);
         Treatment treatment3 = DaoTreatment.getTreatmentByStableId("Irinotecan");
         assertEquals("New desc of Irinotecan", treatment3.getDescription());
         
@@ -95,27 +96,28 @@ public class TestImportGenericAssayData {
 
         ProgressMonitor.setConsoleMode(false);
         
-        // Open genesets test data file
+        // Open mutational signature test data file
         File file = new File("core/src/test/resources/data_mutational_signature.txt");
         
-        // import data and test all treatments were added
-        ImportGenericAssayEntity.importData(file, GeneticAlterationType.MUTATIONAL_SIGNATURE);
+        // import data and test all mutational signatures were added
+        ImportGenericAssayEntity.importData(file, GeneticAlterationType.MUTATIONAL_SIGNATURE, "name,description,additional_properties");
         assertEquals(11, getNumRecordsForGenericAssay());
  
         // test wether a record can be retrieved via stable id 
-        GenericAssayMeta genericAssayMeta1 = DaoGeneticEntity.getGenericAssayMetaByStableId("signature_1_mean");
+        GenericAssayMeta genericAssayMeta1 = DaoGenericAssay.getGenericAssayMetaByStableId("signature_1_mean");
         assertNotNull(genericAssayMeta1);
 
         // Test whether fields were populated correctly
-        assertEquals("name of mean_1", genericAssayMeta1.getName());
-        assertEquals("description of mean_1", genericAssayMeta1.getDescription());
-        assertEquals("{\"test\": 1}", genericAssayMeta1.getAddtionalFields());
+        assertEquals("name of mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("name"));
+        assertEquals("description of mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("description"));
+        assertEquals("123", genericAssayMeta1.getGenericEntityMetaProperties().get("additional_properties"));
 
         // // test fields are updated after loading new generic assay meta file
         File fileNewDesc = new File("core/src/test/resources/data_mutational_signature_new.txt");
-        ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.MUTATIONAL_SIGNATURE);
-        GenericAssayMeta genericAssayMeta2 = DaoGeneticEntity.getGenericAssayMetaByStableId("signature_1_mean");
-        assertEquals("new description of mean_1", genericAssayMeta2.getDescription());
+        ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.MUTATIONAL_SIGNATURE, "name,description,additional_properties");
+        GenericAssayMeta genericAssayMeta2 = DaoGenericAssay.getGenericAssayMetaByStableId("signature_1_mean");
+        assertEquals("new description of mean_1", genericAssayMeta2.getGenericEntityMetaProperties().get("description"));
+        assertEquals("new description of mean_1", "new description of mean_1");
         
     }
 

@@ -55,15 +55,30 @@ public class GenericAssayServiceImpl implements GenericAssayService {
             throw new GenericAssayNotFoundException(stableId);
         }
         else {
-            return result.get(0);
+            int geneticEntityId = genericAssayRepository.getGeneticEntityIdByStableId(stableId);
+            GenericAssayMeta meta = result.get(0);
+            HashMap<String, String> map = new HashMap<>();
+            for (HashMap<String, String> data : genericAssayRepository.getGenericAssayMetaPropertiesMap(geneticEntityId)) {
+                map.put(data.get("key"), data.get("value"));
+            }
+            return new GenericAssayMeta(meta.getEntityType(), meta.getStableId(), map);
         }
     }
 
     @Override
     public List<GenericAssayMeta> getGenericAssayMetaByStableIds(List<String> stableIds)
         throws GenericAssayNotFoundException {
-        
-        return genericAssayRepository.getGenericAssayMeta(stableIds);
+        List<GenericAssayMeta> metaResults = new ArrayList<GenericAssayMeta>();
+        List<GenericAssayMeta> metaData = genericAssayRepository.getGenericAssayMeta(stableIds);
+        for (GenericAssayMeta meta : metaData) {
+            int geneticEntityId = genericAssayRepository.getGeneticEntityIdByStableId(meta.getStableId());
+            HashMap<String, String> map = new HashMap<>();
+            for (HashMap<String, String> data : genericAssayRepository.getGenericAssayMetaPropertiesMap(geneticEntityId)) {
+                map.put(data.get("key"), data.get("value"));
+            }
+            metaResults.add(new GenericAssayMeta(meta.getEntityType(), meta.getStableId(), map));
+        }
+        return metaResults;
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.cbioportal.persistence.MolecularDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @Repository
@@ -20,5 +21,17 @@ public class GenericAssayMyBatisRepository implements GenericAssayRepository {
     public List<GenericAssayMeta> getGenericAssayMeta(List<String> stableIds) {
 
         return genericAssayMapper.getGenericAssayMeta(stableIds);
+    }
+
+    @Override
+    public int getGeneticEntityIdByStableId(String stableId) {
+
+        return genericAssayMapper.getGeneticEntityIdByStableId(stableId);
+    }
+
+    @Override
+    public List<HashMap<String, String>> getGenericAssayMetaPropertiesMap(int geneticEntityId) {
+
+        return genericAssayMapper.getGenericAssayMetaPropertiesMap(geneticEntityId);
     }
 }

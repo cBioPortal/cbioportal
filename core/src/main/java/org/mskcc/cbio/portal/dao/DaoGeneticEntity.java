@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.cbioportal.model.EntityType;
-import org.cbioportal.model.meta.GenericAssayMeta;
+import org.cbioportal.model.GeneticEntity;
 
 public class DaoGeneticEntity {
 
@@ -59,58 +59,52 @@ public class DaoGeneticEntity {
         }
     }
 
-    public static GenericAssayMeta addGenericAssayMeta(GenericAssayMeta genericAssayMeta) throws DaoException {
+    public static GeneticEntity addNewGeneticEntity(GeneticEntity geneticEntity) throws DaoException {
 
         DbContainer container = executeSQLstatment(
             SqlAction.INSERT,
-            "INSERT INTO genetic_entity (`ENTITY_TYPE`, `STABLE_ID`, `NAME`, `DESCRIPTION`, `ADDITIONAL_FIELDS`) "
-            + "VALUES(?,?,?,?,?)",
-            genericAssayMeta.getEntityType(),
-            genericAssayMeta.getStableId(),
-            genericAssayMeta.getName(),
-            genericAssayMeta.getDescription(),
-            genericAssayMeta.getAddtionalFields()
+            "INSERT INTO genetic_entity (`ENTITY_TYPE`, `STABLE_ID`) "
+            + "VALUES(?,?)",
+            geneticEntity.getEntityType(),
+            geneticEntity.getStableId()
         );
 
-        genericAssayMeta.setId(container.getId());
+        geneticEntity.setId(container.getId());
 
-        return genericAssayMeta;
+        return geneticEntity;
     }
 
-        /**
-     * Given an external id, returns a GenericAssayMeta record.
+    /**
+     * Given an external id, returns a GeneticEntity record.
      * @param stableId
-     * @return GenericAssayMeta record
+     * @return GeneticEntity record
      * @throws DaoException 
      */
-    public static GenericAssayMeta getGenericAssayMetaByStableId(String stableId) throws DaoException {
+    public static GeneticEntity getGeneticEntityByStableId(String stableId) throws DaoException {
         DbContainer container = executeSQLstatment(SqlAction.SELECT, "SELECT * FROM genetic_entity WHERE `STABLE_ID` = ?", stableId);
-        return container.getGenericAssayMeta();
+        return container.getGeneticEntity();
     }
     
     /**
-     * Get GenericAssayMeta record.
+     * Get GeneticEntity record.
      * @param id genetic_entity id
      */
-    public GenericAssayMeta getGenericAssayMetaById(int id) throws DaoException {
+    public static GeneticEntity getGeneticEntityById(int id) throws DaoException {
         DbContainer container = executeSQLstatment(SqlAction.SELECT, "SELECT * FROM genetic_entity WHERE ID = ?", String.valueOf(id));
-        return container.getGenericAssayMeta();
+        return container.getGeneticEntity();
     }
 
     /**
-     * Update GenericAssayMeta record.
-     * @param genericAssayMeta GenericAssayMeta
+     * Update GeneticEntity record.
+     * @param geneticEntity GeneticEntity
      */
-    public static void updateGenericAssayMeta(GenericAssayMeta genericAssayMeta) throws DaoException {
+    public static void updateGeneticEntity(GeneticEntity geneticEntity) throws DaoException {
 
         executeSQLstatment(
             SqlAction.UPDATE,
-            "UPDATE genetic_entity SET `ENTITY_TYPE` = ?, `NAME` = ?, `DESCRIPTION` = ?, `ADDITIONAL_FIELDS` = ? WHERE `STABLE_ID` = ?", 
-            genericAssayMeta.getEntityType(),
-            genericAssayMeta.getName(),
-            genericAssayMeta.getDescription(),
-            genericAssayMeta.getAddtionalFields(),
-            genericAssayMeta.getStableId()
+            "UPDATE genetic_entity SET `ENTITY_TYPE` = ? WHERE `STABLE_ID` = ?", 
+            geneticEntity.getEntityType(),
+            geneticEntity.getStableId()
         );
 
     }
@@ -122,22 +116,19 @@ public class DaoGeneticEntity {
      * @throws SQLException
      * @throws DaoException 
      */
-    private static GenericAssayMeta extractGenericAssayMeta(ResultSet rs) throws SQLException, DaoException {
+    private static GeneticEntity extractGeneticEntity(ResultSet rs) throws SQLException, DaoException {
 
         Integer id = rs.getInt("ID");
         String stableId = rs.getString("STABLE_ID");
         String entityType = rs.getString("ENTITY_TYPE");
-        String name = rs.getString("NAME");
-        String description = rs.getString("DESCRIPTION");
-        String addtionalFields = rs.getString("ADDITIONAL_FIELDS");
         
-        GenericAssayMeta genericAssayMeta = new GenericAssayMeta(id, entityType, stableId, name, description, addtionalFields);
+        GeneticEntity geneticEntity = new GeneticEntity(id, entityType, stableId);
 
-        return genericAssayMeta;
+        return geneticEntity;
     }
     
     /**
-     * Helper method for retrieval of a genericAssayMeta record from the database
+     * Helper method for retrieval of a geneticEntity record from the database
      * @param action type of MySQL operation
      * @param statement MySQL statement
      * @param keys Series of values used in the statement (order is important)
@@ -172,7 +163,7 @@ public class DaoGeneticEntity {
                 case SELECT:
                     rs = pstmt.executeQuery();
                     if (rs.next()) {
-                        return new DbContainer(extractGenericAssayMeta(rs));
+                        return new DbContainer(extractGeneticEntity(rs));
                     }
                     return new DbContainer();
                 default:
@@ -191,7 +182,7 @@ public class DaoGeneticEntity {
 
     final static class DbContainer {
         private int id;
-        private GenericAssayMeta genericAssayMeta;
+        private GeneticEntity geneticEntity;
 
         public DbContainer(){
         }
@@ -200,15 +191,15 @@ public class DaoGeneticEntity {
             this.id = id;
         }
         
-        public DbContainer(GenericAssayMeta genericAssayMeta) {
-            this.genericAssayMeta = genericAssayMeta;
+        public DbContainer(GeneticEntity geneticEntity) {
+            this.geneticEntity = geneticEntity;
         }
         
         /**
-         * @return the genericAssayMeta
+         * @return the geneticEntity
          */
-        public GenericAssayMeta getGenericAssayMeta() {
-            return genericAssayMeta;
+        public GeneticEntity getGeneticEntity() {
+            return geneticEntity;
         }
 
         /**

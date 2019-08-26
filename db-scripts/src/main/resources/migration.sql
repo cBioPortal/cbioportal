@@ -747,8 +747,15 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.0";
 ##version: 2.12.1
 -- update genetic_entity table
 ALTER TABLE `genetic_entity` ADD COLUMN `STABLE_ID` varchar(45) DEFAULT NULL;
-ALTER TABLE `genetic_entity` ADD COLUMN `NAME` varchar(45) DEFAULT NULL;
-ALTER TABLE `genetic_entity` ADD COLUMN `DESCRIPTION` varchar(45) DEFAULT NULL;
-ALTER TABLE `genetic_entity` ADD COLUMN `ADDITIONAL_FIELDS` json DEFAULT NULL;
+
+CREATE TABLE `generic_entity_properties` (
+  `ID` INT(11) NOT NULL auto_increment,
+  `GENETIC_ENTITY_ID` INT NOT NULL,
+  `NAME` varchar(255) NOT NULL,
+  `VALUE` varchar(5000) NOT NULL,
+  UNIQUE (`GENETIC_ENTITY_ID`, `NAME`),
+  PRIMARY KEY (`ID`),
+  FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
+);
 
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.1";

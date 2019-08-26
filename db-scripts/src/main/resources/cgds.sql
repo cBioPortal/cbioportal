@@ -217,9 +217,6 @@ CREATE TABLE `genetic_entity` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `ENTITY_TYPE` varchar(45) NOT NULL,
   `STABLE_ID` varchar(45) DEFAULT NULL,
-  `NAME` varchar(45) DEFAULT NULL,
-  `DESCRIPTION` varchar(45) DEFAULT NULL,
-  `ADDITIONAL_FIELDS` json DEFAULT NULL,
   PRIMARY KEY (`ID`)
 );
 
@@ -295,6 +292,17 @@ CREATE TABLE `treatment` (
   `GENETIC_ENTITY_ID` INT NOT NULL UNIQUE,
   PRIMARY KEY (`ID`),
   UNIQUE INDEX `TREATMENT_GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID` ASC),
+  FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
+);
+
+-- ------------------------------------------------------
+CREATE TABLE `generic_entity_properties` (
+  `ID` INT(11) NOT NULL auto_increment,
+  `GENETIC_ENTITY_ID` INT NOT NULL,
+  `NAME` varchar(255) NOT NULL,
+  `VALUE` varchar(5000) NOT NULL,
+  UNIQUE (`GENETIC_ENTITY_ID`, `NAME`),
+  PRIMARY KEY (`ID`),
   FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
 );
 

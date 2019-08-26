@@ -1,54 +1,34 @@
 package org.cbioportal.model.meta;
 
 import java.io.Serializable;
+import java.util.HashMap;   
 
 public class GenericAssayMeta implements Serializable {
     
-    private int id; 
     private String stableId;
     private String entityType;
-    private String name;
-    private String description;
-    private String addtionalFields;
+    private HashMap<String, String> genericEntityMetaProperties;
 
     /**
      * Create a Treatment object from fields
      * 
-     * @param entityType        Type of the generic assay meta
-     * @param stableId          Stable identifier of the generic assay meta used in the cBioPortal instance
-     * @param name              Name of the generic assay meta
-     * @param description       Description of the generic assay meta
-     * @param addtionalFields   Additional fields of the generic assay meta
-    */
-    public GenericAssayMeta(String entityType, String stableId, String name, String description, String addtionalFields) {
+     * @param entityType                  Type of the generic assay meta
+     * @param stableId                    Stable identifier of the generic assay
+     *                                    meta used in the cBioPortal instance
+     * @param genericEntityMetaProperties generic entity meta properties are the
+     *                                    additional properties, may differ between
+     *                                    different generic assay data
+     */
+    public GenericAssayMeta(String entityType, String stableId) {
         this.entityType = entityType;
         this.stableId = stableId;
-        this.name = name;
-        this.description = description;
-        this.addtionalFields = addtionalFields;
+        this.genericEntityMetaProperties = new HashMap<>();
     }
 
-    public GenericAssayMeta(Integer id, String entityType, String stableId, String name, String description, String addtionalFields) {
-        this.id = id;
+    public GenericAssayMeta(String entityType, String stableId, HashMap<String, String> genericEntityMetaProperties) {
         this.entityType = entityType;
         this.stableId = stableId;
-        this.name = name;
-        this.description = description;
-        this.addtionalFields = addtionalFields;
-    }
-
-    /**
-     * @return the id
-     */
-    public int getId() {
-        return id;
-    }
-
-    /**
-     * @param id the id to set
-     */
-    public void setId(Integer id) {
-        this.id = id;
+        this.genericEntityMetaProperties = genericEntityMetaProperties;
     }
 
 	/**
@@ -80,44 +60,16 @@ public class GenericAssayMeta implements Serializable {
     }
 
     /**
-     * @return the name
+     * @return the generic entity meta properties
      */
-    public String getName() {
-        return name;
+    public HashMap<String, String> getGenericEntityMetaProperties() {
+        return genericEntityMetaProperties;
     }
-
+    
     /**
-     * @param name the name to set
+     * @param genericEntityMetaProperties the genericEntityMetaProperties to set
      */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return the description
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * @param description the description to set
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     * @return the addtionalFields
-     */
-    public String getAddtionalFields() {
-        return addtionalFields;
-    }
-
-    /**
-     * @param addtionalFields the addtionalFields to set
-     */
-    public void setAddtionalFields(String addtionalFields) {
-        this.addtionalFields = addtionalFields;
+    public void setGenericEntityMetaProperties(HashMap<String, String> genericEntityMetaProperties) {
+        this.genericEntityMetaProperties = genericEntityMetaProperties;
     }
 }

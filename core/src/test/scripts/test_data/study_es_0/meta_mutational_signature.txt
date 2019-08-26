@@ -6,3 +6,4 @@ profile_name: EC50 values of compounds on cellular phenotype readout
 profile_description: EC50 (compound concentration resulting in half maximal activation) of compounds on cellular phenotype readout of cultured mutant cell lines.
 data_filename: data_mutational_signature.txt
 show_profile_in_analysis_tab: true
+generic_entity_meta_properties: name,description,additional_properties

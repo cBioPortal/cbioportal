@@ -1,12 +1,12 @@
-entity_stable_id	META:name	META:description	META:additional_properties	TCGA-A1-A0SB-01	TCGA-A1-A0SD-01	TCGA-A1-A0SE-01	TCGA-A1-A0SH-01	TCGA-A2-A04U-01	TCGA-B6-A0RS-01	TCGA-BH-A0HP-01	TCGA-BH-A18P-01
-Nmut_Mb	name of Nmut_Mb	description of Nmut_Mb	"{""test"":1}"	14.30422804	5.721691217	2.860845609	2.860845609	0.953615203	1.658359667	3.814460812	0.953615203
-signature_1_mean	name of mean_1	new description of mean_1	"{""test"":1}"	0.214787053	0.044772492	0.03835323	0.032881904	0.109294835	0.104352335	0.122205911	0.028389423
-signature_2_mean	name of mean_2	description of mean_2	"{""test"":1}"	0.016977563	0.021952952	0.022341116	0.013951085	0.022005147	0.016859244	0.008393793	0.02524779
-signature_3_mean	name of mean_3	description of mean_3	"{""test"":1}"	0.013036205	0.109981989	0.017518155	0.135436934	0.019200287	0.022476643	0.030176867	0.028492179
-signature_4_mean	name of mean_4	description of mean_4	"{""test"":1}"	0.010143441	0.064506369	0.020037178	0.063747439	0.018081558	0.023555087	0.048517126	0.037300349
-signature_5_mean	name of mean_5	description of mean_5	"{""test"":1}"	0.014892887	0.063964679	0.019810096	0.094831227	0.031588912	0.029037568	0.03998794	0.025884967
-signature_1_confidence	name of confidence_1	description of confidence_1	"{""test"":1}"	0.428	0.18	0.14	0.125	0.269	0.253	0.311	0.102
-signature_2_confidence	name of confidence_2	description of confidence_2	"{""test"":1}"	0.117	0.128	0.108	0.081	0.095	0.098	0.052	0.097
-signature_3_confidence	name of confidence_3	description of confidence_3	"{""test"":1}"	0.101	0.293	0.09	0.306	0.095	0.083	0.133	0.104
-signature_4_confidence	name of confidence_4	description of confidence_4	"{""test"":1}"	0.08	0.201	0.105	0.198	0.093	0.105	0.169	0.123
-signature_5_confidence	name of confidence_5	description of confidence_5	"{""test"":1}"	0.097	0.179	0.1	0.226	0.109	0.115	0.135	0.103
+entity_stable_id	name	description	additional_properties	TCGA-A1-A0SB-01	TCGA-A1-A0SD-01	TCGA-A1-A0SE-01	TCGA-A1-A0SH-01	TCGA-A2-A04U-01	TCGA-B6-A0RS-01	TCGA-BH-A0HP-01	TCGA-BH-A18P-01
+Nmut_Mb	name of Nmut_Mb	description of Nmut_Mb	123	14.30422804	5.721691217	2.860845609	2.860845609	0.953615203	1.658359667	3.814460812	0.953615203
+signature_1_mean	name of mean_1	new description of mean_1	123	0.214787053	0.044772492	0.03835323	0.032881904	0.109294835	0.104352335	0.122205911	0.028389423
+signature_2_mean	name of mean_2	description of mean_2	123	0.016977563	0.021952952	0.022341116	0.013951085	0.022005147	0.016859244	0.008393793	0.02524779
+signature_3_mean	name of mean_3	description of mean_3	123	0.013036205	0.109981989	0.017518155	0.135436934	0.019200287	0.022476643	0.030176867	0.028492179
+signature_4_mean	name of mean_4	description of mean_4	123	0.010143441	0.064506369	0.020037178	0.063747439	0.018081558	0.023555087	0.048517126	0.037300349
+signature_5_mean	name of mean_5	description of mean_5	123	0.014892887	0.063964679	0.019810096	0.094831227	0.031588912	0.029037568	0.03998794	0.025884967
+signature_1_confidence	name of confidence_1	description of confidence_1	123	0.428	0.18	0.14	0.125	0.269	0.253	0.311	0.102
+signature_2_confidence	name of confidence_2	description of confidence_2	123	0.117	0.128	0.108	0.081	0.095	0.098	0.052	0.097
+signature_3_confidence	name of confidence_3	description of confidence_3	123	0.101	0.293	0.09	0.306	0.095	0.083	0.133	0.104
+signature_4_confidence	name of confidence_4	description of confidence_4	123	0.08	0.201	0.105	0.198	0.093	0.105	0.169	0.123
+signature_5_confidence	name of confidence_5	description of confidence_5	123	0.097	0.179	0.1	0.226	0.109	0.115	0.135	0.103

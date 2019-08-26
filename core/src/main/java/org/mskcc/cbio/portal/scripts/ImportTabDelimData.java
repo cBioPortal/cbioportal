@@ -42,6 +42,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.cbioportal.model.EntityType;
+import org.cbioportal.model.GeneticEntity;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
@@ -70,6 +71,26 @@ public class ImportTabDelimData {
     private int nrExtraRecords = 0;
     private Set<String> arrayIdSet = new HashSet<String>();
     private String genePanel;
+    private String genericEntityProperties;
+
+    /**
+     * Constructor.
+     *
+     * @param dataFile         Data File containing Copy Number Alteration, MRNA Expression Data, or protein RPPA data
+     * @param targetLine       The line we want to import.
+     *                         If null, all lines are imported.
+     * @param geneticProfileId GeneticProfile ID.
+     * @param genericEntityProperties GeneticProfile ID.
+     * 
+     * @deprecated : TODO shall we deprecate this feature (i.e. the targetLine)? 
+     */
+    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId, String genePanel, String genericEntityProperties) {
+        this.dataFile = dataFile;
+        this.targetLine = targetLine;
+        this.geneticProfileId = geneticProfileId;
+        this.genePanel = genePanel;
+        this.genericEntityProperties = genericEntityProperties;
+    }
 
     /**
      * Constructor.
@@ -737,12 +758,16 @@ public class ImportTabDelimData {
             values = Stream.of(values).map(String::trim).toArray(String[]::new);
             values = filterOutNormalValues(filteredSampleIndices, values);
             
-            GenericAssayMeta genericAssayMeta = DaoGeneticEntity.getGenericAssayMetaByStableId(parts[mutationalSignatureIdIndex]);
+            GenericAssayMeta genericAssayMeta = DaoGenericAssay.getGenericAssayMetaByStableId(parts[mutationalSignatureIdIndex]);
             
             if (genericAssayMeta ==  null) {
                 ProgressMonitor.logWarning("Mutational Signature " + parts[mutationalSignatureIdIndex] + " not found in DB. Record will be skipped.");
             } else {
-                recordIsStored = storeGeneticEntityGeneticAlterations(values, daoGeneticAlteration, genericAssayMeta.getId(), 
+                GeneticEntity geneticEntity = DaoGeneticEntity.getGeneticEntityByStableId(genericAssayMeta.getStableId());
+                if (geneticEntity == null) {
+                    ProgressMonitor.logWarning("Mutational Signature " + parts[mutationalSignatureIdIndex] + " not found in DB. Record will be skipped.");
+                }
+                recordIsStored = storeGeneticEntityGeneticAlterations(values, daoGeneticAlteration, geneticEntity.getId(), 
                                     EntityType.MUTATIONAL_SIGNATURE, genericAssayMeta.getStableId());
             }
 
@@ -949,6 +974,11 @@ public class ImportTabDelimData {
             .filter(name -> name.startsWith(ImportUtils.metaFieldTag))
             .collect(Collectors.toList());
         featureColNames.addAll(metaColNames);
+        // add genericEntityProperties as the feature colum
+        if (genericEntityProperties != null && genericEntityProperties.trim().length() != 0) {
+            String[] propertyNames = genericEntityProperties.trim().split(",");
+            featureColNames.addAll(Arrays.asList(propertyNames));
+        }
 
         int startIndex = -1;
         

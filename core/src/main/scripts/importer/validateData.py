@@ -4071,7 +4071,7 @@ class TreatmentValidator(TreatmentWiseFileValidator):
 
         return
 
-class MutationalSignatureWiseFileValidator(MultipleDataFileValidator, metaclass=ABCMeta):
+class MutationalSignatureWiseFileValidator(FeaturewiseFileValidator):
     """Groups multiple treatment response files from a study to ensure consistency.
 
     All Validator classes that check validity of different treatment response data
@@ -4080,71 +4080,45 @@ class MutationalSignatureWiseFileValidator(MultipleDataFileValidator, metaclass=
     prior_validated_sample_ids = None
     prior_validated_feature_ids = None
     prior_validated_header = None
+    def __init__(self, *args, **kwargs):
+        """Initialize the instance attributes of the data file validator."""
+        super(MutationalSignatureWiseFileValidator, self).__init__(*args, **kwargs)
+        self.REQUIRED_HEADERS.extend(self.meta_dict['generic_entity_meta_properties'].split(','))
+        # import ipdb; ipdb.set_trace()
+
+    # data = super(MutationalSignatureWiseFileValidator, self).meta_dict
+    # import ipdb; ipdb.set_trace()
+    # for genetic_profile in study_meta_dictionary:
+    #     print("1122334455")
+    #     print(genetic_profile)
     REQUIRED_HEADERS = ['entity_stable_id']
-    OPTIONAL_HEADERS = ['META:name', 'META:description', 'META:additional_properties']
-    UNIQUE_COLUMNS = ['entity_stable_id','META:name']
+    OPTIONAL_HEADERS = []
+    UNIQUE_COLUMNS = ['entity_stable_id']
 
     def parseFeatureColumns(self, nonsample_col_vals):
-        self.checkDifferentNameInDb(nonsample_col_vals)
-        return super(MutationalSignatureWiseFileValidator, self).parseFeatureColumns(nonsample_col_vals)
+        """Check the IDs in the first column."""
+        # the ID consists of a space-separated list of gene symbols and/or
+        # Entrez identifiers, separated by a pipe symbol from the name of the
+        # antibody probe used to detect these genes. The values on the line
+        # will be loaded for each gene in the list, or for fictional genes that
+        # encode specific phosphorylated versions of the genes' protein
+        # products if the antibody name has a particular format.
+        value = nonsample_col_vals[0].strip()
+        if ' ' in value:
+            self.logger.error('Do not use space in the stable id',
+                              extra={'line_number': self.line_number,
+                                     'column_number': 1,
+                                     'cause': nonsample_col_vals[0]})
+            return None
 
-    def checkDifferentNameInDb(self, nonsample_col_vals):
-        """Raise warnings for discrepancies with how the db names treatments.
-
-        Check for different combinations of entity_stable_id and name of the treatment
-        in the database. If true, raise warnings for each discrepancy.
-        """
-        nonsample_cols = self.nonsample_cols
-        if 'META:name' not in nonsample_cols or self.portal.treatment_map is None:
-            return
-
-        entity_stable_id = nonsample_col_vals[nonsample_cols.index("entity_stable_id")]
-        file_treatment_name = nonsample_col_vals[nonsample_cols.index("META:name")]
-
-        # check whether a name for the treatment has been
-        # registered in the database
-        # db_treatment = self.portal.treatment_map.get(entity_stable_id)
-
-        # # when a name has been registered for this treatment and
-        # # is different from the new name, issue a warning.
-        # if db_treatment is not None and db_treatment['name'] != file_treatment_name:
-        #     self.logger.warning(
-        #         "Name `%s` for treatment `%s` is different from name "
-        #         "`%s` present in the cBioPortal database. "
-        #         "Treatment names in cBioPortal always reflect treatment names "
-        #         "in the last imported study.",
-        #         file_treatment_name, entity_stable_id, db_treatment['name'],
-        #         extra={'line_number': self.line_number,
-        #                'cause': file_treatment_name})
-
-    @staticmethod
-    def get_prior_validated_header():
-        return MutationalSignatureWiseFileValidator.prior_validated_header
-
-    @staticmethod
-    def set_prior_validated_header(header_names):
-        MutationalSignatureWiseFileValidator.prior_validated_header = header_names
-
-    @staticmethod
-    def get_prior_validated_feature_ids():
-        return MutationalSignatureWiseFileValidator.prior_validated_feature_ids
-
-    @staticmethod
-    def set_prior_validated_feature_ids(feature_ids):
-        MutationalSignatureWiseFileValidator.prior_validated_feature_ids = feature_ids
-
-    @staticmethod
-    def get_prior_validated_sample_ids():
-        return MutationalSignatureWiseFileValidator.prior_validated_sample_ids
-
-    @staticmethod
-    def set_prior_validated_sample_ids(sample_ids):
-        MutationalSignatureWiseFileValidator.prior_validated_sample_ids = sample_ids
-
-    @classmethod
-    def get_message_features_do_not_match(cls):
-        return "Mutational Signature feature columns (`entity_stable_id`, ...) in Mutational Signature profile data files are not identical. The same set of Mutational Signature should be used across the different Mutational Signature data files for this study. Please ensure that all entity stable id's of one file are present in all other Mutational Signature files."
-
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+        stripped_value = value.strip()
+        if stripped_value not in self.NULL_VALUES and not self.checkFloat(stripped_value):
+            self.logger.error("Value is neither a real number nor " + ', '.join(self.NULL_VALUES),
+                              extra={'line_number': self.line_number,
+                                     'column_number': col_index + 1,
+                                     'cause': value})
 
 class MutationalSignatureValidator(MutationalSignatureWiseFileValidator):
 

@@ -1,28 +1,15 @@
 package org.cbioportal.web.util;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.map.MultiKeyMap;
-import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.GenePanelData;
-import org.cbioportal.model.Mutation;
-import org.cbioportal.model.Sample;
+import org.cbioportal.model.*;
 import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
-import org.cbioportal.service.ClinicalDataService;
-import org.cbioportal.service.DiscreteCopyNumberService;
-import org.cbioportal.service.GenePanelService;
-import org.cbioportal.service.MolecularProfileService;
-import org.cbioportal.service.MutationService;
-import org.cbioportal.service.SampleService;
+import org.cbioportal.service.*;
 import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,6 +28,7 @@ public class StudyViewFilterApplier {
     private ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier;
     private ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier;
     private StudyViewFilterUtil studyViewFilterUtil;
+    private GeneService geneService;
 
     @Autowired
     public StudyViewFilterApplier(SampleService sampleService,
@@ -51,7 +39,8 @@ public class StudyViewFilterApplier {
                                   ClinicalDataService clinicalDataService,
                                   ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier,
                                   ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier,
-                                  StudyViewFilterUtil studyViewFilterUtil) {
+                                  StudyViewFilterUtil studyViewFilterUtil,
+                                  GeneService geneService) {
         this.sampleService = sampleService;
         this.mutationService = mutationService;
         this.discreteCopyNumberService = discreteCopyNumberService;
@@ -61,6 +50,7 @@ public class StudyViewFilterApplier {
         this.clinicalDataEqualityFilterApplier = clinicalDataEqualityFilterApplier;
         this.clinicalDataIntervalFilterApplier = clinicalDataIntervalFilterApplier;
         this.studyViewFilterUtil = studyViewFilterUtil;
+        this.geneService = geneService;
     }
 
     Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
@@ -176,9 +166,15 @@ public class StudyViewFilterApplier {
         for (MutationGeneFilter molecularProfileGeneFilter : mutatedGenes) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
+            List<Integer> entrezGeneIds = geneService
+                    .fetchGenes(molecularProfileGeneFilter.getHugoGeneSymbols(), GeneIdType.HUGO_GENE_SYMBOL.name(), Projection.SUMMARY.name())
+                    .stream()
+                    .map(gene -> gene.getEntrezGeneId())
+                    .collect(Collectors.toList());
+            
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
             List<Mutation> mutations = mutationService.getMutationsInMultipleMolecularProfiles(molecularProfileService
-                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, molecularProfileGeneFilter.getEntrezGeneIds(),
+                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, entrezGeneIds,
                 Projection.ID.name(), null, null, null, null);
 
             sampleIdentifiers = mutations.stream().map(m -> {
@@ -193,32 +189,36 @@ public class StudyViewFilterApplier {
     }
 
     private List<SampleIdentifier> filterCNAGenes(List<CopyNumberGeneFilter> cnaGenes, List<SampleIdentifier> sampleIdentifiers) {
+
         for (CopyNumberGeneFilter copyNumberGeneFilter : cnaGenes) {
 
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
-            List<Integer> ampEntrezGeneIds = copyNumberGeneFilter.getAlterations().stream().filter(a ->
-                a.getAlteration() == 2).map(CopyNumberGeneFilterElement::getEntrezGeneId).collect(Collectors.toList());
-            List<DiscreteCopyNumberData> ampCNAList = new ArrayList<>();
-            if (!ampEntrezGeneIds.isEmpty()) {
-                ampCNAList = discreteCopyNumberService
-                    .getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileService.getFirstDiscreteCNAProfileIds(
-                        studyIds, sampleIds), sampleIds, ampEntrezGeneIds, Arrays.asList(2), Projection.ID.name());
-            }
 
-            List<Integer> delEntrezGeneIds = copyNumberGeneFilter.getAlterations().stream().filter(a ->
-                a.getAlteration() == -2).map(CopyNumberGeneFilterElement::getEntrezGeneId).collect(Collectors.toList());
-            List<DiscreteCopyNumberData> delCNAList = new ArrayList<>();
-            if (!delEntrezGeneIds.isEmpty()) {
-                delCNAList = discreteCopyNumberService
-                    .getDiscreteCopyNumbersInMultipleMolecularProfiles(molecularProfileService.getFirstDiscreteCNAProfileIds(
-                        studyIds, sampleIds), sampleIds, delEntrezGeneIds, Arrays.asList(-2), Projection.ID.name());
-            }
+            List<DiscreteCopyNumberData> resultList = DiscreteCopyNumberEventType.HOMDEL_AND_AMP.getAlterationTypes()
+                    .stream().flatMap(alterationType -> {
+                        List<String> hugoGeneSymbols = copyNumberGeneFilter.getAlterations().stream()
+                                .filter(a -> alterationType == a.getAlteration())
+                                .map(CopyNumberGeneFilterElement::getHugoGeneSymbol).collect(Collectors.toList());
 
-            List<DiscreteCopyNumberData> resultList = new ArrayList<>();
-            resultList.addAll(ampCNAList);
-            resultList.addAll(delCNAList);
+                        List<Integer> entrezGeneIds = geneService
+                                .fetchGenes(new ArrayList<>(hugoGeneSymbols), GeneIdType.HUGO_GENE_SYMBOL.name(),
+                                        Projection.SUMMARY.name())
+                                .stream().map(gene -> gene.getEntrezGeneId()).collect(Collectors.toList());
+
+                        List<DiscreteCopyNumberData> copyNumberDatas = new ArrayList<>();
+                        if (!entrezGeneIds.isEmpty()) {
+                            copyNumberDatas = discreteCopyNumberService
+                                    .getDiscreteCopyNumbersInMultipleMolecularProfiles(
+                                            molecularProfileService.getFirstDiscreteCNAProfileIds(studyIds, sampleIds),
+                                            sampleIds, entrezGeneIds, Arrays.asList(alterationType),
+                                            Projection.ID.name());
+
+                        }
+                        return copyNumberDatas.stream();
+                    }).collect(Collectors.toList());
+
             sampleIdentifiers = resultList.stream().map(d -> {
                 SampleIdentifier sampleIdentifier = new SampleIdentifier();
                 sampleIdentifier.setSampleId(d.getSampleId());

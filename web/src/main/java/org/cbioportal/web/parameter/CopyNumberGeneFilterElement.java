@@ -4,7 +4,7 @@ import javax.validation.constraints.AssertTrue;
 
 public class CopyNumberGeneFilterElement {
 
-    private Integer entrezGeneId;
+    private String hugoGeneSymbol;
     private Integer alteration;
 
     @AssertTrue
@@ -12,12 +12,17 @@ public class CopyNumberGeneFilterElement {
         return alteration == -2 || alteration == 2;
     }
 
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
+    @AssertTrue
+    private boolean isHugoGeneSymbolPresent() {
+        return hugoGeneSymbol != null;
     }
 
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
+    public String getHugoGeneSymbol() {
+        return hugoGeneSymbol;
+    }
+
+    public void setHugoGeneSymbol(String hugoGeneSymbol) {
+        this.hugoGeneSymbol = hugoGeneSymbol;
     }
 
     public Integer getAlteration() {

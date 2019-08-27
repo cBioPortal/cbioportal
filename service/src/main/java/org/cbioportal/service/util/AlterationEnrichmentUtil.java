@@ -1,19 +1,13 @@
 package org.cbioportal.service.util;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.model.Gene;
-import org.cbioportal.model.CountSummary;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
-import org.cbioportal.service.GeneService;
+import org.cbioportal.model.*;
+import org.cbioportal.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +18,12 @@ public class AlterationEnrichmentUtil {
     private FisherExactTestCalculator fisherExactTestCalculator;
     @Autowired
     private GeneService geneService;
+    @Autowired
+    private MolecularProfileService molecularProfileService;
+    @Autowired
+    private ProfiledCasesCounter profiledCasesCounter;
+    @Autowired
+    private SampleService sampleService;
 
     public List<AlterationEnrichment> createAlterationEnrichments(
             Map<String, List<? extends AlterationCountByGene>> mutationCountsbyGroup,
@@ -56,22 +56,23 @@ public class AlterationEnrichmentUtil {
                     .collect(Collectors.toList()),
                 "ENTREZ_GENE_ID",
                 "SUMMARY");
-
+        
         return genes.stream().map(gene -> {
             AlterationEnrichment alterationEnrichment = new AlterationEnrichment();
             alterationEnrichment.setEntrezGeneId(gene.getEntrezGeneId());
             alterationEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
-
             List<CountSummary> counts = groups
                     .stream()
                     .map(group -> {
                         CountSummary groupCasesCount = new CountSummary();
                         AlterationCountByGene mutationCountByGene = mutationCountsbyEntrezGeneIdAndGroup
                                 .getOrDefault(group, new HashMap<Integer, AlterationCountByGene>()).get(gene.getEntrezGeneId());
-                        Integer count = mutationCountByGene != null ? mutationCountByGene.getNumberOfAlteredCases() : 0;
+                      
+                        Integer alteredCount = mutationCountByGene != null ? mutationCountByGene.getNumberOfAlteredCases() : 0;
+                        Integer profiledCount = mutationCountByGene != null ? mutationCountByGene.getNumberOfProfiledCases() : 0;
                         groupCasesCount.setName(group);
-                        groupCasesCount.setAlteredCount(count);
-                        groupCasesCount.setProfiledCount(molecularProfileCaseSets.get(group).size());
+                        groupCasesCount.setAlteredCount(alteredCount);
+                        groupCasesCount.setProfiledCount(profiledCount);
                         return groupCasesCount;
                     })
                     .collect(Collectors.toList());
@@ -84,7 +85,7 @@ public class AlterationEnrichmentUtil {
                 int alteredOnlyInQueryGenesCount = counts.get(0).getProfiledCount() - counts.get(0).getAlteredCount();
 
                 pValue = fisherExactTestCalculator.getCumulativePValue(alteredInNoneCount,
-                        counts.get(1).getAlteredCount(), alteredOnlyInQueryGenesCount, counts.get(0).getAlteredCount());
+                        counts.get(1).getAlteredCount(), alteredOnlyInQueryGenesCount, counts.get(0).getAlteredCount()); 
             } else {
 
                 long[][] array = counts.stream().map(count -> {
@@ -104,6 +105,50 @@ public class AlterationEnrichmentUtil {
             return alterationEnrichment;
         }).collect(Collectors.toList());
 
+    }
+    
+    public void includeFrequencyForSamples(List<String> molecularProfileIds,
+            List<String> sampleIds,
+            List<? extends AlterationCountByGene> alterationCountByGenes) {
+        
+        profiledCasesCounter.calculate(molecularProfileIds, sampleIds, alterationCountByGenes, false);
+        
+    }
+    
+    public void includeFrequencyForPatients(List<String> molecularProfileIds,
+            List<String> patientIds,
+            List<? extends AlterationCountByGene> alterationCountByGenes) {
+        
+        List<MolecularProfile> molecularProfiles = molecularProfileService
+                .getMolecularProfiles(molecularProfileIds, "SUMMARY");
+        
+        Map<String, MolecularProfile> molecularProfileMap = molecularProfiles.stream()
+                .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
+
+        List<String> studyIds = new ArrayList<String>();
+
+        Map<String, String> patientIdMolecularProfileIdMap = new HashMap<String, String>();
+
+        for (int index = 0; index < patientIds.size(); index++) {
+            String studyId = molecularProfileMap.get(molecularProfileIds.get(index)).getCancerStudyIdentifier();
+            studyIds.add(studyId);
+            patientIdMolecularProfileIdMap.put(patientIds.get(index), molecularProfileIds.get(index));
+        }
+
+        List<Sample> samples = sampleService.getSamplesOfPatientsInMultipleStudies(studyIds, patientIds,
+                "SUMMARY");
+
+        List<String> molecularProfileIdsofSampleIds = samples
+                .stream()
+                .map(sample -> patientIdMolecularProfileIdMap.get(sample.getPatientStableId()))
+                .collect(Collectors.toList());
+
+        List<String> sampleIds = samples
+                .stream()
+                .map(Sample::getStableId)
+                .collect(Collectors.toList());
+
+        profiledCasesCounter.calculate(molecularProfileIdsofSampleIds, sampleIds, alterationCountByGenes, true);
     }
 
 }

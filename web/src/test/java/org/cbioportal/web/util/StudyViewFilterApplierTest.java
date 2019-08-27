@@ -1,24 +1,11 @@
 package org.cbioportal.web.util;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.DiscreteCopyNumberData;
-import org.cbioportal.model.Mutation;
-import org.cbioportal.model.Patient;
-import org.cbioportal.model.Sample;
+import org.cbioportal.model.*;
 import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
-import org.cbioportal.service.ClinicalDataService;
-import org.cbioportal.service.DiscreteCopyNumberService;
-import org.cbioportal.service.GenePanelService;
-import org.cbioportal.service.MolecularProfileService;
-import org.cbioportal.service.MutationService;
-import org.cbioportal.service.PatientService;
-import org.cbioportal.service.SampleService;
+import org.cbioportal.service.*;
 import org.cbioportal.web.parameter.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,6 +32,8 @@ public class StudyViewFilterApplierTest {
     public static final String CLINICAL_ATTRIBUTE_ID_3 = "attribute_id3";
     public static final Integer ENTREZ_GENE_ID_1 = 1;
     public static final Integer ENTREZ_GENE_ID_2 = 2;
+    public static final String HUGO_GENE_SYMBOL_1 = "HUGO_GENE_SYMBOL_1";
+    public static final String HUGO_GENE_SYMBOL_2 = "HUGO_GENE_SYMBOL_2";
     public static final String MOLECULAR_PROFILE_ID_1 = "molecular_profile_id1";
     public static final String MOLECULAR_PROFILE_ID_2 = "molecular_profile_id2";
 
@@ -65,6 +54,8 @@ public class StudyViewFilterApplierTest {
     private MolecularProfileService molecularProfileService;
     @Mock
     private GenePanelService genePanelService;
+    @Mock
+    private GeneService geneService;
 
     // Do not mock utility classes, we also want to test their functionality
     @InjectMocks
@@ -85,7 +76,7 @@ public class StudyViewFilterApplierTest {
         studyViewFilterApplier = new StudyViewFilterApplier(
             sampleService, mutationService, discreteCopyNumberService,
             molecularProfileService, genePanelService, clinicalDataService, clinicalDataEqualityFilterApplier,
-            clinicalDataIntervalFilterApplier, studyViewFilterUtil);
+            clinicalDataIntervalFilterApplier, studyViewFilterUtil, geneService);
     }
 
     @Test
@@ -142,7 +133,7 @@ public class StudyViewFilterApplierTest {
         studyViewFilter.setClinicalDataEqualityFilters(clinicalDataEqualityFilters);
         List<MutationGeneFilter> mutatedGenes = new ArrayList<>();
         MutationGeneFilter mutationGeneFilter = new MutationGeneFilter();
-        mutationGeneFilter.setEntrezGeneIds(Arrays.asList(ENTREZ_GENE_ID_1));
+        mutationGeneFilter.setHugoGeneSymbols(Arrays.asList(HUGO_GENE_SYMBOL_1));
         mutatedGenes.add(mutationGeneFilter);
         studyViewFilter.setMutatedGenes(mutatedGenes);
         List<CopyNumberGeneFilter> cnaGenes = new ArrayList<>();
@@ -150,7 +141,7 @@ public class StudyViewFilterApplierTest {
         List<CopyNumberGeneFilterElement> copyNumberGeneFilterElements = new ArrayList<>();
         CopyNumberGeneFilterElement copyNumberGeneFilterElement = new CopyNumberGeneFilterElement();
         copyNumberGeneFilterElement.setAlteration(-2);
-        copyNumberGeneFilterElement.setEntrezGeneId(ENTREZ_GENE_ID_2);
+        copyNumberGeneFilterElement.setHugoGeneSymbol(HUGO_GENE_SYMBOL_2);
         copyNumberGeneFilterElements.add(copyNumberGeneFilterElement);
         copyNumberGeneFilter.setAlterations(copyNumberGeneFilterElements);
         cnaGenes.add(copyNumberGeneFilter);
@@ -321,9 +312,15 @@ public class StudyViewFilterApplierTest {
         mutation4.setStudyId(STUDY_ID);
         mutations.add(mutation4);
 
-        Mockito.when(mutationService.getMutationsInMultipleMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID_1,
-            MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1), updatedSampleIds,
-            Arrays.asList(ENTREZ_GENE_ID_1), "ID", null, null, null, null)).thenReturn(mutations);
+        Gene gene1 = new Gene();
+        gene1.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        Mockito.when(geneService.fetchGenes(Arrays.asList(HUGO_GENE_SYMBOL_1), GeneIdType.HUGO_GENE_SYMBOL.name(),
+                Projection.SUMMARY.name())).thenReturn(Arrays.asList(gene1));
+
+        Mockito.when(mutationService.getMutationsInMultipleMolecularProfiles(
+                Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1,
+                        MOLECULAR_PROFILE_ID_1),
+                updatedSampleIds, Arrays.asList(ENTREZ_GENE_ID_1), "ID", null, null, null, null)).thenReturn(mutations);
 
         updatedSampleIds = new ArrayList<>();
         updatedSampleIds.add(SAMPLE_ID1);
@@ -346,6 +343,11 @@ public class StudyViewFilterApplierTest {
         discreteCopyNumberData3.setSampleId(SAMPLE_ID2);
         discreteCopyNumberData3.setStudyId(STUDY_ID);
         discreteCopyNumberDataList.add(discreteCopyNumberData3);
+
+        Gene gene2 = new Gene();
+        gene2.setEntrezGeneId(ENTREZ_GENE_ID_2);
+        Mockito.when(geneService.fetchGenes(Arrays.asList(HUGO_GENE_SYMBOL_2), GeneIdType.HUGO_GENE_SYMBOL.name(),
+                Projection.SUMMARY.name())).thenReturn(Arrays.asList(gene2));
 
         Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(Arrays.asList(
             MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2), updatedSampleIds,

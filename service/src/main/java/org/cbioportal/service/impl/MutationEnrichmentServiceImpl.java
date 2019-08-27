@@ -49,12 +49,13 @@ public class MutationEnrichmentServiceImpl implements MutationEnrichmentService 
                                         .getSampleCountInMultipleMolecularProfiles(molecularProfileIds,
                                                 sampleIds,
                                                 null,
-                                                false);
+                                                true);
                             } else {
                                 return mutationService
                                         .getPatientCountInMultipleMolecularProfiles(molecularProfileIds,
                                                 sampleIds,
-                                                null);
+                                                null,
+                                                true);
                             }
                         }));
 

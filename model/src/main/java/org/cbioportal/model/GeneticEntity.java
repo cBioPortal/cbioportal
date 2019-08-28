@@ -9,8 +9,8 @@ public class GeneticEntity implements Serializable {
     private String entityType;
 
     /**
-     * Create a Treatment object from fields
-     * 
+     * Create a GeneticEntity object from fields
+     * @param id                          Internal Id
      * @param entityType                  Type of the genetic entity
      * @param stableId                    Stable identifier
      */
@@ -20,6 +20,11 @@ public class GeneticEntity implements Serializable {
         this.stableId = stableId;
     }
 
+    /**
+     * Create a GeneticEntity object from fields
+     * @param entityType                  Type of the genetic entity
+     * @param stableId                    Stable identifier
+     */
     public GeneticEntity(String entityType, String stableId) {
         this.entityType = entityType;
         this.stableId = stableId;

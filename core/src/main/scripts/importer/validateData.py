@@ -4084,25 +4084,13 @@ class MutationalSignatureWiseFileValidator(FeaturewiseFileValidator):
         """Initialize the instance attributes of the data file validator."""
         super(MutationalSignatureWiseFileValidator, self).__init__(*args, **kwargs)
         self.REQUIRED_HEADERS.extend(self.meta_dict['generic_entity_meta_properties'].split(','))
-        # import ipdb; ipdb.set_trace()
 
-    # data = super(MutationalSignatureWiseFileValidator, self).meta_dict
-    # import ipdb; ipdb.set_trace()
-    # for genetic_profile in study_meta_dictionary:
-    #     print("1122334455")
-    #     print(genetic_profile)
     REQUIRED_HEADERS = ['entity_stable_id']
     OPTIONAL_HEADERS = []
     UNIQUE_COLUMNS = ['entity_stable_id']
 
     def parseFeatureColumns(self, nonsample_col_vals):
         """Check the IDs in the first column."""
-        # the ID consists of a space-separated list of gene symbols and/or
-        # Entrez identifiers, separated by a pipe symbol from the name of the
-        # antibody probe used to detect these genes. The values on the line
-        # will be loaded for each gene in the list, or for fictional genes that
-        # encode specific phosphorylated versions of the genes' protein
-        # products if the antibody name has a particular format.
         value = nonsample_col_vals[0].strip()
         if ' ' in value:
             self.logger.error('Do not use space in the stable id',

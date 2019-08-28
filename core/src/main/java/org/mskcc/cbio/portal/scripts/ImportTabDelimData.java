@@ -723,19 +723,17 @@ public class ImportTabDelimData {
     }
 
     /**
-     * Parses line for treatment profile record and stores record in 'genetic_alteration' table.
+     * Parses line for generic assay profile record and stores record in 'genetic_alteration' table.
      * @param line  row from the separated-text that contains one or more values on a single sample
      * @param nrColumns
      * @param sampleStartIndex  index of the first sample column
-     * @param treatmentIdIndex  index of the column that uniquely identifies a sample
+     * @param mutationalSignatureIdIndex  index of the column that uniquely identifies a sample
      * @param filteredSampleIndices
      * @param daoGeneticAlteration
      * @return
      * @throws DaoException 
      */
-    // TODO: TREATMENT BACKLOG this code is a duplicate of the parseGenesetLine.
-    // consider refactoring do that both functions are covered by a single
-    // base class
+
     private boolean parseMutationalSignatureLine(String line, int nrColumns, int sampleStartIndex, int mutationalSignatureIdIndex,
              List<Integer> filteredSampleIndices, DaoGeneticAlteration daoGeneticAlteration) throws DaoException {
 

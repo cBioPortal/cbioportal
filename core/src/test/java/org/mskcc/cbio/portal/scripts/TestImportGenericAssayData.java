@@ -100,25 +100,22 @@ public class TestImportGenericAssayData {
         File file = new File("core/src/test/resources/data_mutational_signature.txt");
         
         // import data and test all mutational signatures were added
-        ImportGenericAssayEntity.importData(file, GeneticAlterationType.MUTATIONAL_SIGNATURE, "name,description,additional_properties");
-        assertEquals(11, getNumRecordsForGenericAssay());
+        ImportGenericAssayEntity.importData(file, GeneticAlterationType.MUTATIONAL_SIGNATURE, "name,description");
+        assertEquals(61, getNumRecordsForGenericAssay());
  
         // test wether a record can be retrieved via stable id 
-        GenericAssayMeta genericAssayMeta1 = DaoGenericAssay.getGenericAssayMetaByStableId("signature_1_mean");
+        GenericAssayMeta genericAssayMeta1 = DaoGenericAssay.getGenericAssayMetaByStableId("mean_1");
         assertNotNull(genericAssayMeta1);
 
         // Test whether fields were populated correctly
-        assertEquals("name of mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("name"));
-        assertEquals("description of mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("description"));
-        assertEquals("123", genericAssayMeta1.getGenericEntityMetaProperties().get("additional_properties"));
+        assertEquals("mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("name"));
+        assertEquals("mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("description"));
 
         // // test fields are updated after loading new generic assay meta file
         File fileNewDesc = new File("core/src/test/resources/data_mutational_signature_new.txt");
         ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.MUTATIONAL_SIGNATURE, "name,description,additional_properties");
-        GenericAssayMeta genericAssayMeta2 = DaoGenericAssay.getGenericAssayMetaByStableId("signature_1_mean");
-        assertEquals("new description of mean_1", genericAssayMeta2.getGenericEntityMetaProperties().get("description"));
-        assertEquals("new description of mean_1", "new description of mean_1");
-        
+        GenericAssayMeta genericAssayMeta2 = DaoGenericAssay.getGenericAssayMetaByStableId("mean_1");
+        assertEquals("new mean_1", genericAssayMeta2.getGenericEntityMetaProperties().get("description"));
     }
 
     private int getNumRecords() {

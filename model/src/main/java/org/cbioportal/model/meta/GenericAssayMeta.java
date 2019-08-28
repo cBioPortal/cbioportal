@@ -10,7 +10,7 @@ public class GenericAssayMeta implements Serializable {
     private HashMap<String, String> genericEntityMetaProperties;
 
     /**
-     * Create a Treatment object from fields
+     * Create a generic assay meta object from fields
      * 
      * @param entityType                  Type of the generic assay meta
      * @param stableId                    Stable identifier of the generic assay

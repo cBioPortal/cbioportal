@@ -98,7 +98,6 @@ public class GenericAssayServiceImpl implements GenericAssayService {
     public List<GenericAssayData> fetchGenericAssayData(String molecularProfileId, List<String> sampleIds,
             List<String> genericAssayStableIds, String projection) throws MolecularProfileNotFoundException {
 
-            validateMolecularProfile(molecularProfileId);
             List<GenericAssayData> molecularDataList = new ArrayList<>();
     
             String commaSeparatedSampleIdsOfMolecularProfile = molecularDataRepository

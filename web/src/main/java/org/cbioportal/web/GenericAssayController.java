@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "P. Generic Assay", description = " ")
+@Api(tags = "P. Generic Assay", description = "Generic Assay data and meta")
 public class GenericAssayController {
     
     @Autowired
@@ -51,7 +51,7 @@ public class GenericAssayController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all meta data in generic-assay by stable id")
     public ResponseEntity<GenericAssayMeta> getAllGenericAssayMetaData(
-        @ApiParam(required = true, value = "Stable ID e.g. 1")
+        @ApiParam(required = true, value = "Generic Assay Stable ID")
         @PathVariable String stableId) throws GenericAssayNotFoundException {
             GenericAssayMeta result = genericAssayService.getGenericAssayMetaByStableId(stableId);
             return new ResponseEntity<>(result, HttpStatus.OK);
@@ -61,7 +61,7 @@ public class GenericAssayController {
     @RequestMapping(value = "/generic_assay_meta/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch meta data for generic-assay by ID")
-    public ResponseEntity<List<GenericAssayMeta>> fetchGenes(
+    public ResponseEntity<List<GenericAssayMeta>> fetchAllGenericAssayMetaData(
         @RequestBody List<String> stableIds) throws GenericAssayNotFoundException {
             List<GenericAssayMeta> result = genericAssayService.getGenericAssayMetaByStableIds(stableIds);
             return new ResponseEntity<>(result, HttpStatus.OK);
@@ -72,11 +72,11 @@ public class GenericAssayController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all generic_assay_id in a molecular profile")
     public ResponseEntity<List<GenericAssayData>> getAllGenericAssayDataInMolecularProfile(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. study_tcga_pub_gistic")
+        @ApiParam(required = true, value = "Molecular Profile ID")
         @PathVariable String molecularProfileId,
-        @ApiParam(required = true, value = "Sample List ID e.g. study_tcga_pub_all")
+        @ApiParam(required = true, value = "Sample List ID")
         @RequestParam String sampleListId,
-        @ApiParam(required = true, value = "Generic Assay Stable ID e.g. 1")
+        @ApiParam(required = true, value = "Generic Assay Stable ID")
         @RequestParam String genericAssayStableId,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
@@ -99,7 +99,7 @@ public class GenericAssayController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("fetch all generic_assay_data in a molecular profile")
     public ResponseEntity<List<GenericAssayData>> fetchAllGenericAssayDataInMolecularProfile(
-        @ApiParam(required = true, value = "Molecular Profile ID e.g. study_tcga_pub_gistic")
+        @ApiParam(required = true, value = "Molecular Profile ID")
         @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
         @Valid @RequestBody GenericAssayDataFilter genericAssayDataFilter, 

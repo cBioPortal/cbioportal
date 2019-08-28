@@ -49,10 +49,9 @@ public class DaoTreatment {
     private enum SqlAction {INSERT, UPDATE, SELECT, DELETE}
 
     /**
-     * 
      * Adds a new Treatment record to the database.
      * @param treatment
-     * @return number of re
+     * @return number of records successfully added
      * @throws DaoException 
      */
     public static Treatment addTreatment(Treatment treatment) throws DaoException {

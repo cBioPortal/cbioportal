@@ -2629,6 +2629,21 @@ class MetaFilesTestCase(LogBufferTestCase):
         self.assertEqual('The PMID field in meta_study should not contain any embedded whitespace', record.getMessage())
         self.assertEqual('29625048, 29596782, 29622463A, 29617662 29625055, 29625050', record.cause)
 
+    def test_show_profile_setting_for_cna(self):
+        """Test the `show_profile_in_analysis_tab: false` setting for continuous CNA data"""
+        self.logger.setLevel(logging.ERROR)
+        validateData.process_metadata_files(
+            'test_data/meta_study/invalid_show_profile_setting_cna',
+            PORTAL_INSTANCE,
+            self.logger, False, False)
+        record_list = self.get_log_records()
+        # expecting 1 error:
+        self.assertEqual(len(record_list), 1)
+        
+        # Should raise an error when show_profile_in_analysis_tab is not false for non-discrete CNA metafile
+        record = record_list.pop()
+        self.assertEqual("The 'show_profile_in_analysis_tab' setting must be 'false', as this is only applicable for CNA data of the DISCRETE type.", record.getMessage())
+                
 class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
 
     """Tests for validation of clinical data files without metadata headers.

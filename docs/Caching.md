@@ -3,9 +3,7 @@ cBioPortal provides the option of caching information on the backend to improve 
 
 ## Cache Configuration
 The portal is configured to use Ehcache for backend caching; caching configuration is
-specified inside an xml file under `persistence/persistence-api/src/main/resources`. There are 
-three different configurations available - `disk-only`, `heap-only`, and `mixed`. The configuration files 
-specify which caches to create. Additional specifications such as cache size and location are set inside `portal.properties` (more information [here](portal.properties-Reference.md#ehcache-settings)).
+specified inside an xml file under `persistence/persistence-api/src/main/resources`. The default configuration is mixed (disk + heap); however, EHCache supports both a disk-only and heap-only mode. Refer to comments in `ehcache.xml` to switch between cache configurations. The configuration files also specify which caches to create. Additional specifications such as cache size and location are set inside `portal.properties` (more information [here](portal.properties-Reference.md#ehcache-settings)).
  
  ## Creating additional caches
 The default configuration initializes two separate caches. However, you may wish to introduce new caches with different policies (e.g expiration policy) for different datatypes. To create additional caches (e.g creating a cache specifically for clinical data), a new cache must be added to the ehcache.xml_configuration file. The `@Cacheable` annotation must also be added (or adjusted) to function declarations to indicate which functions are to be cached. Those might look like this example:

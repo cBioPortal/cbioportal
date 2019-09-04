@@ -284,9 +284,9 @@ This gene set will add the following in the query box:
 # Ehcache Settings
 cBioPortal is supported on the backend with Ehcache. The configuration, size, and location of these caches are configurable from within portal.properties through the following properties.
 
-First, select a cache configuration using `ehcache.xml_configuration`. This specifies whether to use a disk-only, heap-only, or hybrid (disk + heap) cache. The default value is `ehcache-mixed.xml` which initializes a hybrid caching system.
+First, select a cache configuration using `ehcache.xml_configuration`. This should be the name of an ehcache xml configuration file; the default provided is `ehcache.xml` which configures a hybrid (disk + heap) cache. To change caching configuration, either directly edit `/ehcache.xml`. Alternatively, you can create your own ehcache xml configuraiton file, place it under `/persistence/persistence-api/src/main/resources/` and set `ehcache.xml_configuration` to `/<ehcache xml configuration filename>`.  
 ```
-ehcache.xml_configuration=[ehcache-heap-only.xml OR ehcache-mixed.xml OR ehcache-disk-only.xml]
+ehcache.xml_configuration=
 ```
 
 If the cache is configured to use disk resources, users must make a directory available and set it with the `ehcache.persistence_path` property. Ehcache will create seperate directories under the provided path for each cache defined in the ehcache.xml_configuration file. 
@@ -294,20 +294,16 @@ If the cache is configured to use disk resources, users must make a directory av
 ehcache.persistence_path=[location on the disk filesystem where Ehcache can write the cache to /tmp/]
 ```
 
-Cache size must be set for both heap and disk; Ehcache requires disk size to be greater than heap size. Default values are provided. The general repository cache is specified to use 1021MB for heap and 4GB for disk. The static repository cache is specified to use 30MB for heap and 32MB for disk. For installations with increased traffic or data, cache sizes can be increased to further improve performance. 
+Cache size must be set for both heap and disk; Ehcache requires disk size to be greater than heap size. 0 is not a supported size and will cause an exception. Units are in megabytes. Default values are provided. The general repository cache is specified to use 1021MB for heap and 4096MB for disk. The static repository cache is specified to use 30MB for heap and 32MB for disk. For installations with increased traffic or data, cache sizes can be increased to further improve performance. 
 ```
-ehcache.general_repository_cache.max_bytes_heap=
-ehcache.general_repository_cache.max_bytes_heap_units=[size unit e.g MB, GB, entries]
-ehcache.general_repository_cache.max_bytes_local_disk=
-ehcache.general_repository_cache.max_bytes_local_disk_units=[size unit e.g MB, GB, entries]
+ehcache.general_repository_cache.max_mega_bytes_heap=
+ehcache.general_repository_cache.max_mega_bytes_local_disk=
 
-ehcache.static_repository_cache_one.max_bytes_heap=
-ehcache.static_repository_cache_one.max_bytes_heap_units=[size unit e.g MB, GB, entries]
-ehcache.static_repository_cache_one.max_bytes_local_disk=
-ehcache.static_repository_cache_one.max_bytes_local_disk_units[size unit e.g MB, GB, entries]
+ehcache.static_repository_cache_one.max_mega_bytes_heap=
+ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
 ```
 
-To configure a system where no caching occurs, use ehache-heap-only.xml with minimal heap sizes (0 is not supported, so set max_bytes_heap=1 and max_bytes_heap_units=B for all caches) and set
+To configure a system where no caching occurs, set `ehcache.cache_enabled` to false. 
 ```
 ehcache.cache_enabled=false
 ```

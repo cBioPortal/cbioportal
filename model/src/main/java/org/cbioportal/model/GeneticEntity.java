@@ -30,6 +30,10 @@ public class GeneticEntity implements Serializable {
         this.stableId = stableId;
     }
 
+    public GeneticEntity(String entityType) {
+        this.entityType = entityType;
+    }
+
     /**
      * @return the id
      */

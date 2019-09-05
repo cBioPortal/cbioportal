@@ -101,4 +101,12 @@ public class ClinicalAttributeServiceImpl implements ClinicalAttributeService {
 
         return clinicalAttributeRepository.getClinicalAttributeCountsBySampleListId(sampleListId);
     }
+
+    @Override
+    public List<ClinicalAttribute> getClinicalAttributesByStudyIdsAndAttributeIds(List<String> studyIds,
+            List<String> attributeIds) {
+
+        return clinicalAttributeRepository
+                .getClinicalAttributesByStudyIdsAndAttributeIds(studyIds, attributeIds);
+    }
 }

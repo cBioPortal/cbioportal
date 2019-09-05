@@ -18,4 +18,6 @@ public interface ClinicalAttributeMapper {
     List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleIds(List<String> studyIds, List<String> sampleIds);
 
     List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleListId(String sampleListId);
+    
+    List<ClinicalAttribute> getClinicalAttributesByStudyIdsAndAttributeIds(List<String> studyIds, List<String> attributeIds);
 }

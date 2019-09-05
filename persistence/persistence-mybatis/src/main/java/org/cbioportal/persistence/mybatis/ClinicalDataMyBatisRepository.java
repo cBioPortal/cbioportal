@@ -154,7 +154,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
 	@Override
 	public List<ClinicalDataCount> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds,
-			List<String> attributeIds, String clinicalDataType) {
+			List<String> attributeIds, String clinicalDataType, String projection) {
 
         if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
             return clinicalDataMapper.fetchSampleClinicalDataCounts(studyIds, sampleIds, attributeIds);
@@ -163,7 +163,15 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
             List<String> patientStudyIds = new ArrayList<>();
             patients.forEach(p -> patientStudyIds.add(p.getCancerStudyIdentifier()));
             return clinicalDataMapper.fetchPatientClinicalDataCounts(patientStudyIds, 
-                patients.stream().map(Patient::getStableId).collect(Collectors.toList()), attributeIds);
+                patients.stream().map(Patient::getStableId).collect(Collectors.toList()), attributeIds, projection);
         }
 	}
+	
+    @Override
+    public List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
+            List<String> attributeIds) {
+
+        return clinicalDataMapper.getPatientClinicalDataDetailedToSample(studyIds, patientIds, attributeIds, "SUMMARY",
+                0, 0, null, null);
+    }
 }

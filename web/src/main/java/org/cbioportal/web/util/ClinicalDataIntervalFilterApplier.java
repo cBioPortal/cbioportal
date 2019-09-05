@@ -5,7 +5,6 @@ import com.google.common.collect.Range;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.PatientService;
-import org.cbioportal.service.SampleService;
 import org.cbioportal.web.parameter.ClinicalDataIntervalFilter;
 import org.cbioportal.web.parameter.ClinicalDataIntervalFilterValue;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +21,8 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
     @Autowired
     public ClinicalDataIntervalFilterApplier(PatientService patientService,
                                              ClinicalDataService clinicalDataService,
-                                             SampleService sampleService,
                                              StudyViewFilterUtil studyViewFilterUtil) {
-        super(patientService, clinicalDataService, sampleService, studyViewFilterUtil);
+        super(patientService, clinicalDataService, studyViewFilterUtil);
     }
 
     @Override

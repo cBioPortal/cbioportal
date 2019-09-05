@@ -42,6 +42,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.cbioportal.model.EntityType;
+import org.cbioportal.model.GeneticEntity;
 import org.mskcc.cbio.portal.model.Treatment;
 
 public class DaoTreatment {
@@ -57,7 +58,8 @@ public class DaoTreatment {
     public static Treatment addTreatment(Treatment treatment) throws DaoException {
 
         // new treatment requires a genetic entity to be added first
-        int geneticEntityId = DaoGeneticEntity.addNewGeneticEntity(EntityType.TREATMENT);
+        GeneticEntity geneticEntity = DaoGeneticEntity.addNewGeneticEntity(new GeneticEntity(EntityType.TREATMENT.name()));
+        int geneticEntityId = geneticEntity.getId();
         treatment.setGeneticEntityId(geneticEntityId);
 
         DbContainer container = executeSQLstatment(

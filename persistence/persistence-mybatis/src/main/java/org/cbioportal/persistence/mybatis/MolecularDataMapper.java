@@ -6,7 +6,6 @@ import org.cbioportal.model.GenesetMolecularAlteration;
 import org.cbioportal.model.TreatmentMolecularAlteration;
 
 import java.util.List;
-import org.apache.ibatis.cursor.Cursor;
 
 public interface MolecularDataMapper {
 
@@ -14,9 +13,6 @@ public interface MolecularDataMapper {
 
     List<GeneMolecularAlteration> getGeneMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds,
                                                               String projection);
-
-    Cursor<GeneMolecularAlteration> getGeneMolecularAlterationsIter(String molecularProfileId, List<Integer> entrezGeneIds,
-                                                                    String projection);
 
     List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
                                                                                          List<Integer> entrezGeneIds, String projection);

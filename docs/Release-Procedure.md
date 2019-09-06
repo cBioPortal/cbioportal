@@ -71,3 +71,24 @@ version as well.
 PATCH
 : Backwards compatible fixes. Can be e.g. frontend only changes or fixes to
 backend.
+
+## User announcements
+The following is a provisional system of alerting user to new features and announcements. It would probably be better for these messages to be configurable on an instance level by installers.  For now, the following suffices.
+
+Top banner: see sample configuration in src/shared/components/userMessager/UserMessage.tsx
+
+For a beacon and associated dialog message, use this as a model, where child of InfoBeacon component is any component that will be shown when InfoBeacon is moused over and conditions are met
+
+```
+<If condition={!isWebdriver()}>
+  <InfoBeacon
+      top={-15}
+      right={45}
+      interaction={'mouseover'}
+      color={'green'}
+      id={'groupComparison1'}
+ >
+ <WrappedTour/>
+ </InfoBeacon>
+</If>
+```

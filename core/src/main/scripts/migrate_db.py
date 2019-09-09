@@ -165,7 +165,6 @@ def check_reference_genome(portal_properties, cursor, force_migration):
                            join mutation on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID 
                            join genetic_profile on genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID
                            join cancer_study on cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
-                           where NCBI_BUILD not in ('NA','')
                            group by CANCER_STUDY_IDENTIFIER
                        """
         cursor.execute(sql_statement)
@@ -183,9 +182,9 @@ def check_reference_genome(portal_properties, cursor, force_migration):
                         sys.exit(1)
                 elif int(ref_count) > 1:
                     msg = """
-                            WARNING: %s contains %s reference genomes. Please clean up the mutation_event table and ensure it only contains one valid reference genome (%s).
+                            WARNING: %s contains %s reference genomes (%s). Please clean up the mutation_event table and ensure it only contains one valid reference genome (%s).
                             OR use the "--force" option to surpress the warning, then the default reference genome (%s) listed in the portal.properties file will be used.
-                        """%(study, ref_count, ','.join(ALLOWABLE_GENOME_REFERENCES), default_genome_build)
+                        """%(study, ref_count, retrieved_ncbi_build,','.join(ALLOWABLE_GENOME_REFERENCES), default_genome_build)
                     print(msg, file=ERROR_FILE)
                     sys.exit(1)
     except MySQLdb.Error as msg:

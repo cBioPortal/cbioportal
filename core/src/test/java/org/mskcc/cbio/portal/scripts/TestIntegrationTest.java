@@ -362,11 +362,11 @@ public class TestIntegrationTest {
                     .getGenericAssayData("study_es_0_mutational_signature", "study_es_0_all", Arrays.asList(testMutationalSignature), PersistenceConstants.SUMMARY_PROJECTION);
             assertEquals(8, mutationalSignatureData.size());
 
-            mutationalSignatureData = genericAssayService.fetchGenericAssayData("study_es_0_treatment_ic50",
+            mutationalSignatureData = genericAssayService.fetchGenericAssayData("study_es_0_mutational_signature",
                     Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SH-01"), Arrays.asList(testMutationalSignature), PersistenceConstants.SUMMARY_PROJECTION);
             assertEquals(2, mutationalSignatureData.size());
-            assertEquals(18, mutationalSignatureData.get(0).getValue());
-            assertEquals(3, mutationalSignatureData.get(1).getValue());
+            assertEquals("18", mutationalSignatureData.get(0).getValue());
+            assertEquals("13", mutationalSignatureData.get(1).getValue());
 
             // ===== check GSVA data
             // ...

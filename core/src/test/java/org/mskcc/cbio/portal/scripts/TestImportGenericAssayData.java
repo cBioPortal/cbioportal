@@ -72,7 +72,7 @@ public class TestImportGenericAssayData {
         
         // import data and test all treatments were added
         ImportGenericAssayEntity.importData(file, GeneticAlterationType.TREATMENT, null);
-        assertEquals(10, getNumRecords());
+        assertEquals(10, getNumRecordsForTreatment());
  
         // test wether a record can be retrieved via stable id 
         Treatment treatment1 = DaoTreatment.getTreatmentByStableId("Irinotecan");
@@ -101,7 +101,7 @@ public class TestImportGenericAssayData {
         
         // import data and test all mutational signatures were added
         ImportGenericAssayEntity.importData(file, GeneticAlterationType.MUTATIONAL_SIGNATURE, "name,description");
-        assertEquals(61, getNumRecordsForGenericAssay());
+        assertEquals(61, getNumRecordsForMutationalSignature());
  
         // test wether a record can be retrieved via stable id 
         GenericAssayMeta genericAssayMeta1 = DaoGenericAssay.getGenericAssayMetaByStableId("mean_1");
@@ -118,7 +118,7 @@ public class TestImportGenericAssayData {
         assertEquals("new mean_1", genericAssayMeta2.getGenericEntityMetaProperties().get("description"));
     }
 
-    private int getNumRecords() {
+    private int getNumRecordsForTreatment() {
 
 		Connection con = null;
 		PreparedStatement stat = null;
@@ -140,14 +140,14 @@ public class TestImportGenericAssayData {
         return 0;
     }
 
-    private int getNumRecordsForGenericAssay() {
+    private int getNumRecordsForMutationalSignature() {
 
 		Connection con = null;
 		PreparedStatement stat = null;
 		ResultSet rs = null;
 		try {
             con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
-            stat = con.prepareStatement("SELECT COUNT(*) FROM genetic_entity");
+            stat = con.prepareStatement("SELECT COUNT(*) FROM genetic_entity WHERE ENTITY_TYPE = 'MUTATIONAL_SIGNATURE'");
             rs = stat.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);

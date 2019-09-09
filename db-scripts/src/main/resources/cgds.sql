@@ -99,6 +99,7 @@ DROP TABLE IF EXISTS `geneset_hierarchy_leaf`;
 DROP TABLE IF EXISTS `geneset_hierarchy_node`;
 DROP TABLE IF EXISTS `geneset`;
 DROP TABLE IF EXISTS `treatment`;
+DROP TABLE IF EXISTS `generic_entity_properties`;
 DROP TABLE IF EXISTS `genetic_entity`;
 DROP TABLE IF EXISTS `reference_genome`;
 

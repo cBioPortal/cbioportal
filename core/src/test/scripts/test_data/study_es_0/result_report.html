@@ -36,7 +36,7 @@
   <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
   <![endif]-->
-  <title>cBioPortal validation report: study in 'test_data/study_es_0/'</title>
+  <title>cBioPortal validation report: study in '../../../test/scripts/test_data/study_es_0/'</title>
 </head>
 
 <body>
@@ -46,31 +46,31 @@
     <div class="header">
       <div class="jumbotron">
         <h1>cBioPortal validation report</h1>
-        <p>Study directory:<br />test_data/study_es_0/</p>
+        <p>Study directory:<br />../../../test/scripts/test_data/study_es_0/</p>
         <p>For details, please see <a href='https://github.com/cbioportal/cbioportal/blob/master/docs/File-Formats.md'>the documentation on file formats supported by cBioPortal</a></p>
-        <p>cBioPortal version unknown -- offline instance</p>
+        <p>cBioPortal version 0-unknown-version-SNAPSHOT</p>
       </div>
     </div>
 
 
     <div class="panel panel-default">
     <div class="panel-body">
-    <div class="alert alert-success">
+    <div class="alert alert-warning">
       Validation status:
       <strong>
-        Success
+        Please check
       </strong>
     </div>
 
     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-      <div class="panel panel-success">
+      <div class="panel panel-warning">
         <div class="panel-heading" role="tab"
              id="heading_R2VuZXJhbA">
-          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <span class="header-icon"><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></span>
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_R2VuZXJhbA",
              aria-controls="collapse_R2VuZXJhbA">
-            <span class="badge">12</span>
+            <span class="badge">7</span>
             <h4 class="panel-title">General</h4>
           </a>
         </div>
@@ -89,74 +89,39 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+              <tr class="warning">
+                <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
-                <td>Reading portal information from test_data/api_json_system_tests/cancertypes.json</td>
-                <td>&ndash;</td>
-              </tr>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Reading portal information from test_data/api_json_system_tests/genes.json</td>
+                <td>Skipping validations relating to cancer types defined in the portal</td>
                 <td>&ndash;</td>
               </tr>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+              <tr class="warning">
+                <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
-                <td>Reading portal information from test_data/api_json_system_tests/genesaliases.json</td>
-                <td>&ndash;</td>
-              </tr>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Reading portal information from test_data/api_json_system_tests/treatments.json</td>
+                <td>Skipping validations relating to gene identifiers and aliases defined in the portal</td>
                 <td>&ndash;</td>
               </tr>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+              <tr class="warning">
+                <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
-                <td>Reading portal information from test_data/api_json_system_tests/genesets.json</td>
-                <td>&ndash;</td>
-              </tr>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Reading portal information from test_data/api_json_system_tests/gene-panels.json</td>
+                <td>Skipping validations relating to gene set identifiers</td>
                 <td>&ndash;</td>
               </tr>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+              <tr class="warning">
+                <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
-                <td>Retrieving chromosome lengths from &#39;http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes&#39;</td>
-                <td>&ndash;</td>
-              </tr>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Retrieving chromosome lengths from &#39;http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes&#39;</td>
+                <td>Skipping validations relating to gene panel identifiers</td>
                 <td>&ndash;</td>
               </tr>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+              <tr class="warning">
+                <td><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span><span class="sr-only">Warning</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
-                <td>Study Tag file found. It will be validated.</td>
-                <td>&ndash;</td>
-              </tr>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Validating case lists</td>
+                <td>Skipping validations relating to treatment identifiers</td>
                 <td>&ndash;</td>
               </tr>
               <tr class="success">
@@ -187,7 +152,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_Y2FzZV9saXN0cy9jYXNlc19jbmEudHh0",
              aria-controls="collapse_Y2FzZV9saXN0cy9jYXNlc19jbmEudHh0">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">case_lists/cases_cna.txt</h4>
           </a>
         </div>
@@ -206,13 +171,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -233,7 +191,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_Y2FzZV9saXN0cy9jYXNlc19jbmFzZXEudHh0",
              aria-controls="collapse_Y2FzZV9saXN0cy9jYXNlc19jbmFzZXEudHh0">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">case_lists/cases_cnaseq.txt</h4>
           </a>
         </div>
@@ -252,13 +210,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -279,7 +230,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_Y2FzZV9saXN0cy9jYXNlc19jdXN0b20udHh0",
              aria-controls="collapse_Y2FzZV9saXN0cy9jYXNlc19jdXN0b20udHh0">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">case_lists/cases_custom.txt</h4>
           </a>
         </div>
@@ -298,13 +249,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -325,7 +269,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_Y2FzZV9saXN0cy9jYXNlc19zZXF1ZW5jZWQudHh0",
              aria-controls="collapse_Y2FzZV9saXN0cy9jYXNlc19zZXF1ZW5jZWQudHh0">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">case_lists/cases_sequenced.txt</h4>
           </a>
         </div>
@@ -344,13 +288,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -371,7 +308,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_Y2FzZV9saXN0cy9jYXNlc190ZXN0LnR4dA",
              aria-controls="collapse_Y2FzZV9saXN0cy9jYXNlc190ZXN0LnR4dA">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">case_lists/cases_test.txt</h4>
           </a>
         </div>
@@ -390,13 +327,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -417,7 +347,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9jYW5jZXJfdHlwZS50eHQ",
              aria-controls="collapse_ZGF0YV9jYW5jZXJfdHlwZS50eHQ">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_cancer_type.txt</h4>
           </a>
         </div>
@@ -436,13 +366,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -470,7 +393,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9jbGluaWNhbF9wYXRpZW50cy50eHQ",
              aria-controls="collapse_ZGF0YV9jbGluaWNhbF9wYXRpZW50cy50eHQ">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_clinical_patients.txt</h4>
           </a>
         </div>
@@ -489,13 +412,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -523,7 +439,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9jbGluaWNhbF9zYW1wbGVzLnR4dA",
              aria-controls="collapse_ZGF0YV9jbGluaWNhbF9zYW1wbGVzLnR4dA">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_clinical_samples.txt</h4>
           </a>
         </div>
@@ -542,13 +458,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -576,7 +485,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9jbmFfZGlzY3JldGUudHh0",
              aria-controls="collapse_ZGF0YV9jbmFfZGlzY3JldGUudHh0">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_cna_discrete.txt</h4>
           </a>
         </div>
@@ -595,13 +504,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -629,7 +531,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9jbmFfaGcxOS5zZWc",
              aria-controls="collapse_ZGF0YV9jbmFfaGcxOS5zZWc">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_cna_hg19.seg</h4>
           </a>
         </div>
@@ -648,13 +550,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -682,7 +577,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9jbmFfbG9nMi50eHQ",
              aria-controls="collapse_ZGF0YV9jbmFfbG9nMi50eHQ">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_cna_log2.txt</h4>
           </a>
         </div>
@@ -701,13 +596,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -735,7 +623,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9leHByZXNzaW9uX21lZGlhbi50eHQ",
              aria-controls="collapse_ZGF0YV9leHByZXNzaW9uX21lZGlhbi50eHQ">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_expression_median.txt</h4>
           </a>
         </div>
@@ -754,13 +642,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -788,7 +669,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9leHByZXNzaW9uX21lZGlhbl9ac2NvcmVzLnR4dA",
              aria-controls="collapse_ZGF0YV9leHByZXNzaW9uX21lZGlhbl9ac2NvcmVzLnR4dA">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_expression_median_Zscores.txt</h4>
           </a>
         </div>
@@ -807,13 +688,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -841,7 +715,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9mdXNpb25zLnR4dA",
              aria-controls="collapse_ZGF0YV9mdXNpb25zLnR4dA">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_fusions.txt</h4>
           </a>
         </div>
@@ -860,13 +734,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -894,7 +761,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9nZW5lX3BhbmVsX21hdHJpeC50eHQ",
              aria-controls="collapse_ZGF0YV9nZW5lX3BhbmVsX21hdHJpeC50eHQ">
-            <span class="badge">4</span>
+            <span class="badge">3</span>
             <h4 class="panel-title">data_gene_panel_matrix.txt</h4>
           </a>
         </div>
@@ -913,13 +780,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>1</td>
@@ -954,7 +814,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9naXN0aWNfZ2VuZXNfYW1wLnR4dA",
              aria-controls="collapse_ZGF0YV9naXN0aWNfZ2VuZXNfYW1wLnR4dA">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_gistic_genes_amp.txt</h4>
           </a>
         </div>
@@ -973,13 +833,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1007,7 +860,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9nc3ZhX3B2YWx1ZXMudHh0",
              aria-controls="collapse_ZGF0YV9nc3ZhX3B2YWx1ZXMudHh0">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_gsva_pvalues.txt</h4>
           </a>
         </div>
@@ -1026,13 +879,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1060,7 +906,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9nc3ZhX3Njb3Jlcy50eHQ",
              aria-controls="collapse_ZGF0YV9nc3ZhX3Njb3Jlcy50eHQ">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_gsva_scores.txt</h4>
           </a>
         </div>
@@ -1079,13 +925,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1113,7 +952,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9tZXRoeWxhdGlvbl9obTI3LnR4dA",
              aria-controls="collapse_ZGF0YV9tZXRoeWxhdGlvbl9obTI3LnR4dA">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_methylation_hm27.txt</h4>
           </a>
         </div>
@@ -1132,13 +971,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1161,12 +993,58 @@
 
       <div class="panel panel-success">
         <div class="panel-heading" role="tab"
+             id="heading_ZGF0YV9tdXRhdGlvbmFsX3NpZ25hdHVyZS50eHQ">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+             href="#collapse_ZGF0YV9tdXRhdGlvbmFsX3NpZ25hdHVyZS50eHQ",
+             aria-controls="collapse_ZGF0YV9tdXRhdGlvbmFsX3NpZ25hdHVyZS50eHQ">
+            <span class="badge">2</span>
+            <h4 class="panel-title">data_mutational_signature.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+             id="collapse_ZGF0YV9tdXRhdGlvbmFsX3NpZ25hdHVyZS50eHQ"
+             aria-labelledby="heading_ZGF0YV9tdXRhdGlvbmFsX3NpZ25hdHVyZS50eHQ">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Validation of file complete</td>
+                <td>&ndash;</td>
+              </tr>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
+                <td>&ndash;</td>
+                <td>&ndash;</td>
+                <td>Read 62 lines. Lines with warning: 0. Lines with error: 0</td>
+                <td>&ndash;</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
              id="heading_ZGF0YV9tdXRhdGlvbnNfZXh0ZW5kZWQubWFm">
           <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9tdXRhdGlvbnNfZXh0ZW5kZWQubWFm",
              aria-controls="collapse_ZGF0YV9tdXRhdGlvbnNfZXh0ZW5kZWQubWFm">
-            <span class="badge">5</span>
+            <span class="badge">4</span>
             <h4 class="panel-title">data_mutations_extended.maf</h4>
           </a>
         </div>
@@ -1185,13 +1063,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>4, 5, 6, (5 more)</td>
@@ -1233,7 +1104,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV9zdHJ1Y3R1cmFsX3ZhcmlhbnRzLnR4dA",
              aria-controls="collapse_ZGF0YV9zdHJ1Y3R1cmFsX3ZhcmlhbnRzLnR4dA">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_structural_variants.txt</h4>
           </a>
         </div>
@@ -1252,13 +1123,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1286,7 +1150,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV90cmVhdG1lbnRfZWM1MC50eHQ",
              aria-controls="collapse_ZGF0YV90cmVhdG1lbnRfZWM1MC50eHQ">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_treatment_ec50.txt</h4>
           </a>
         </div>
@@ -1305,13 +1169,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1339,7 +1196,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_ZGF0YV90cmVhdG1lbnRfaWM1MC50eHQ",
              aria-controls="collapse_ZGF0YV90cmVhdG1lbnRfaWM1MC50eHQ">
-            <span class="badge">3</span>
+            <span class="badge">2</span>
             <h4 class="panel-title">data_treatment_ic50.txt</h4>
           </a>
         </div>
@@ -1358,13 +1215,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1392,7 +1242,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9jYW5jZXJfdHlwZS50eHQ",
              aria-controls="collapse_bWV0YV9jYW5jZXJfdHlwZS50eHQ">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_cancer_type.txt</h4>
           </a>
         </div>
@@ -1411,13 +1261,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1438,7 +1281,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9jbGluaWNhbF9wYXRpZW50cy50eHQ",
              aria-controls="collapse_bWV0YV9jbGluaWNhbF9wYXRpZW50cy50eHQ">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_clinical_patients.txt</h4>
           </a>
         </div>
@@ -1457,13 +1300,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1484,7 +1320,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9jbGluaWNhbF9zYW1wbGVzLnR4dA",
              aria-controls="collapse_bWV0YV9jbGluaWNhbF9zYW1wbGVzLnR4dA">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_clinical_samples.txt</h4>
           </a>
         </div>
@@ -1503,13 +1339,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1530,7 +1359,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9jbmFfZGlzY3JldGUudHh0",
              aria-controls="collapse_bWV0YV9jbmFfZGlzY3JldGUudHh0">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_cna_discrete.txt</h4>
           </a>
         </div>
@@ -1549,13 +1378,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1576,7 +1398,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9jbmFfaGcxOV9zZWcudHh0",
              aria-controls="collapse_bWV0YV9jbmFfaGcxOV9zZWcudHh0">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_cna_hg19_seg.txt</h4>
           </a>
         </div>
@@ -1595,13 +1417,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1622,7 +1437,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9jbmFfbG9nMi50eHQ",
              aria-controls="collapse_bWV0YV9jbmFfbG9nMi50eHQ">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_cna_log2.txt</h4>
           </a>
         </div>
@@ -1641,13 +1456,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1668,7 +1476,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9leHByZXNzaW9uX21lZGlhbi50eHQ",
              aria-controls="collapse_bWV0YV9leHByZXNzaW9uX21lZGlhbi50eHQ">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_expression_median.txt</h4>
           </a>
         </div>
@@ -1687,13 +1495,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1714,7 +1515,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9leHByZXNzaW9uX21lZGlhbl9ac2NvcmVzLnR4dA",
              aria-controls="collapse_bWV0YV9leHByZXNzaW9uX21lZGlhbl9ac2NvcmVzLnR4dA">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_expression_median_Zscores.txt</h4>
           </a>
         </div>
@@ -1733,13 +1534,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1760,7 +1554,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9mdXNpb25zLnR4dA",
              aria-controls="collapse_bWV0YV9mdXNpb25zLnR4dA">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_fusions.txt</h4>
           </a>
         </div>
@@ -1779,13 +1573,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1806,7 +1593,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9nZW5lX3BhbmVsX21hdHJpeC50eHQ",
              aria-controls="collapse_bWV0YV9nZW5lX3BhbmVsX21hdHJpeC50eHQ">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_gene_panel_matrix.txt</h4>
           </a>
         </div>
@@ -1825,13 +1612,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1852,7 +1632,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9naXN0aWNfZ2VuZXNfYW1wLnR4dA",
              aria-controls="collapse_bWV0YV9naXN0aWNfZ2VuZXNfYW1wLnR4dA">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_gistic_genes_amp.txt</h4>
           </a>
         </div>
@@ -1871,13 +1651,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1898,7 +1671,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9nc3ZhX3B2YWx1ZXMudHh0",
              aria-controls="collapse_bWV0YV9nc3ZhX3B2YWx1ZXMudHh0">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_gsva_pvalues.txt</h4>
           </a>
         </div>
@@ -1917,13 +1690,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1944,7 +1710,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9nc3ZhX3Njb3Jlcy50eHQ",
              aria-controls="collapse_bWV0YV9nc3ZhX3Njb3Jlcy50eHQ">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_gsva_scores.txt</h4>
           </a>
         </div>
@@ -1963,13 +1729,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -1990,7 +1749,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9tZXRoeWxhdGlvbl9obTI3LnR4dA",
              aria-controls="collapse_bWV0YV9tZXRoeWxhdGlvbl9obTI3LnR4dA">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_methylation_hm27.txt</h4>
           </a>
         </div>
@@ -2009,13 +1768,45 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
+              <tr class="success">
+                <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
                 <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
+                <td>Validation of meta file complete</td>
                 <td>&ndash;</td>
               </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-success">
+        <div class="panel-heading" role="tab"
+             id="heading_bWV0YV9tdXRhdGlvbmFsX3NpZ25hdHVyZS50eHQ">
+          <span class="header-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></span>
+          <a role="button" data-toggle="collapse" aria-expanded="true"
+             href="#collapse_bWV0YV9tdXRhdGlvbmFsX3NpZ25hdHVyZS50eHQ",
+             aria-controls="collapse_bWV0YV9tdXRhdGlvbmFsX3NpZ25hdHVyZS50eHQ">
+            <span class="badge">1</span>
+            <h4 class="panel-title">meta_mutational_signature.txt</h4>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" role="tabpanel"
+             id="collapse_bWV0YV9tdXRhdGlvbmFsX3NpZ25hdHVyZS50eHQ"
+             aria-labelledby="heading_bWV0YV9tdXRhdGlvbmFsX3NpZ25hdHVyZS50eHQ">
+          <div class="panel-body">
+            <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Line Number</th>
+                <th>Column Number</th>
+                <th>Message</th>
+                <th>Value Encountered</th>
+              </tr>
+            </thead>
+            <tbody>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -2036,7 +1827,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9tdXRhdGlvbnNfZXh0ZW5kZWQudHh0",
              aria-controls="collapse_bWV0YV9tdXRhdGlvbnNfZXh0ZW5kZWQudHh0">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_mutations_extended.txt</h4>
           </a>
         </div>
@@ -2055,13 +1846,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -2082,7 +1866,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9zdHJ1Y3R1cmFsX3ZhcmlhbnRzLnR4dA",
              aria-controls="collapse_bWV0YV9zdHJ1Y3R1cmFsX3ZhcmlhbnRzLnR4dA">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_structural_variants.txt</h4>
           </a>
         </div>
@@ -2101,13 +1885,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -2128,7 +1905,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV9zdHVkeS50eHQ",
              aria-controls="collapse_bWV0YV9zdHVkeS50eHQ">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_study.txt</h4>
           </a>
         </div>
@@ -2147,13 +1924,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -2174,7 +1944,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV90cmVhdG1lbnRfZWM1MC50eHQ",
              aria-controls="collapse_bWV0YV90cmVhdG1lbnRfZWM1MC50eHQ">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_treatment_ec50.txt</h4>
           </a>
         </div>
@@ -2193,13 +1963,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -2220,7 +1983,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_bWV0YV90cmVhdG1lbnRfaWM1MC50eHQ",
              aria-controls="collapse_bWV0YV90cmVhdG1lbnRfaWM1MC50eHQ">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">meta_treatment_ic50.txt</h4>
           </a>
         </div>
@@ -2239,13 +2002,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of meta file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>
@@ -2266,7 +2022,7 @@
           <a role="button" data-toggle="collapse" aria-expanded="true"
              href="#collapse_c3R1ZHlfdGFncy55bWw",
              aria-controls="collapse_c3R1ZHlfdGFncy55bWw">
-            <span class="badge">2</span>
+            <span class="badge">1</span>
             <h4 class="panel-title">study_tags.yml</h4>
           </a>
         </div>
@@ -2285,13 +2041,6 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="info">
-                <td><span class="glyphicon glyphicon-cog" aria-hidden="true"></span><span class="sr-only">Debug</span></td>
-                <td>&ndash;</td>
-                <td>&ndash;</td>
-                <td>Starting validation of study tags file</td>
-                <td>&ndash;</td>
-              </tr>
               <tr class="success">
                 <td><span class="glyphicon glyphicon-ok" aria-hidden="true"></span><span class="sr-only">Info</span></td>
                 <td>&ndash;</td>

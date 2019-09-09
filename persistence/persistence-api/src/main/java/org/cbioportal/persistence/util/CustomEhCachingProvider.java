@@ -53,7 +53,7 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
     @Value("${ehcache.xml_configuration:/ehcache.xml}")
     private String xmlConfiguration;
 
-    @Value("${ehcache.cache_enabled}")
+    @Value("${ehcache.cache_enabled:false}")
     private Boolean cacheEnabled;
 
     @Override

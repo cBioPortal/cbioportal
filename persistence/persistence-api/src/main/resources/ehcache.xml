@@ -9,12 +9,10 @@
     http://www.ehcache.org/v3/jsr107 http://www.ehcache.org/schema/ehcache-107-ext-3.0.xsd">
 
     <ehcache:service>
-      <jcache:defaults enable-management="true" enable-statistics="${ehcache.statistics_enabled}"/>
+      <jcache:defaults enable-management="true" enable-statistics="${ehcache.statistics_enabled:false}"/>
     </ehcache:service>
 
-    <!--
-    <ehcache:persistence directory="${ehcache.persistence_path}"/>
-    --> <!-- uncomment if using disk-only/hybrid cache -->
+    <ehcache:persistence directory="${ehcache.persistence_path:/tmp}"/>
 
     <ehcache:heap-store>
       <ehcache:max-object-graph-size>9223372036854775807</ehcache:max-object-graph-size><!-- using Long.MAX_VALUE -->
@@ -38,10 +36,8 @@
         </ehcache:listener>
       </ehcache:listeners>
       <ehcache:resources>
-        <ehcache:heap unit="MB">${ehcache.general_repository_cache.max_mega_bytes_heap}</ehcache:heap><!-- remove if using a disk-only cache -->
-        <!--
-        <ehcache:disk unit="MB" persistent="false">${ehcache.general_repository_cache.max_mega_bytes_local_disk}</ehcache:disk>
-        --> <!-- uncomment if using disk-only/hybrid cache -->
+        <ehcache:heap unit="MB">${ehcache.general_repository_cache.max_mega_bytes_heap:1024}</ehcache:heap><!-- remove if using a disk-only cache -->
+        <ehcache:disk unit="MB" persistent="false">${ehcache.general_repository_cache.max_mega_bytes_local_disk:4096}</ehcache:disk><!-- remove if using a heap-only cache -->
       </ehcache:resources>
     </ehcache:cache>
 
@@ -62,10 +58,8 @@
         </ehcache:listener>
       </ehcache:listeners>
       <ehcache:resources>
-        <ehcache:heap unit="MB">${ehcache.static_repository_cache_one.max_mega_bytes_heap}</ehcache:heap><!-- remove if using a disk-only cache -->
-        <!--
-        <ehcache:disk unit="MB" persistent="false">${ehcache.static_repository_cache_one.max_mega_bytes_local_disk}</ehcache:disk>
-        --> <!-- uncomment if using disk-only/hybrid cache -->
+        <ehcache:heap unit="MB">${ehcache.static_repository_cache_one.max_mega_bytes_heap:30}</ehcache:heap><!-- remove if using a disk-only cache -->
+        <ehcache:disk unit="MB" persistent="false">${ehcache.static_repository_cache_one.max_mega_bytes_local_disk:32}</ehcache:disk><!-- remove if using a heap-only cache -->
       </ehcache:resources>
     </ehcache:cache>
 

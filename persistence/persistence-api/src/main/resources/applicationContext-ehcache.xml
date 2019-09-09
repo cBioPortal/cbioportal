@@ -12,7 +12,7 @@
     <cache:annotation-driven cache-manager="cacheManager" key-generator="customKeyGenerator"/>
 
     <bean id="cacheEnabledConfig" class="org.cbioportal.persistence.CacheEnabledConfig">
-        <constructor-arg value="${ehcache.cache_enabled}"/>
+        <constructor-arg value="${ehcache.cache_enabled:false}"/>
     </bean>
 
     <bean id="customEhCacheProvider" class="org.cbioportal.persistence.util.CustomEhCachingProvider"/>

@@ -231,24 +231,23 @@ oncoprint.hotspots.default=true
 # Custom gene sets
 # querypage.setsofgenes.location=file:/<path>
 
-# to disable use of Ehcache, set ehcache.cache.enabled to false
-ehcache.cache_enabled=true
-ehcache.xml_configuration=/ehcache.xml
-ehcache.statistics_enabled=true
+# to enable use of Ehcache, set ehcache.cache_enabled to true and uncomment all Ehcache properties
+ehcache.cache_enabled=false
+#ehcache.xml_configuration=/ehcache.xml
+#ehcache.statistics_enabled=true
 # Enable cache statistics endpoint for Ehcache monitoring
-cache.statistics_endpoint_enabled=false
+#cache.statistics_endpoint_enabled=false
 
 # Properties for specifying cache size constraints
 # - Zero is not an accepted value, will break deployment
 # - disk size (if used) must be greater than heap size
 
-ehcache.general_repository_cache.max_mega_bytes_heap=5120
-ehcache.static_repository_cache_one.max_mega_bytes_heap=30
+#ehcache.general_repository_cache.max_mega_bytes_heap=4096
+#ehcache.static_repository_cache_one.max_mega_bytes_heap=30
 
-# To enable disk cache, edit ehcache.xml (see comments within) and uncomment and set properties below
 #ehcache.persistence_path=/tmp
-#ehcache.general_repository_cache.max_mega_bytes_local_disk=
-#ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
+#ehcache.general_repository_cache.max_mega_bytes_local_disk=1024
+#ehcache.static_repository_cache_one.max_mega_bytes_local_disk=32
 
 # Default cross cancer study query
 # query this session id when not specifying a study for

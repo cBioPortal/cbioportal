@@ -161,8 +161,25 @@ virtual machine in which all Docker processes are running.
 cBioPortal can now be reached at <http://localhost:8081/>
 
 Activity of Docker containers can be seen with:
+
 ```
 docker ps -a
+```
+
+## A note on versioning ##
+
+For production you might want to deploy a specific docker image tag, instead of
+the `latest` image. The version can be seen in the footer of the home page. The
+various image versions can be found here:
+https://hub.docker.com/r/cbioportal/cbioportal/tags. You can also get the
+latest version programmatically like this:
+
+```
+LATEST_VERSION=$(curl --silent "https://api.github.com/repos/cBioPortal/cbioportal/releases/latest" \
+    | grep "tag_name" \
+    | cut -d'"' -f4 \
+    | cut -dv -f2)
+echo $LATEST_VERSION
 ```
 
 ## Data loading & more commands ##

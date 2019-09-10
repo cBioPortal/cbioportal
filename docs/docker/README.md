@@ -93,21 +93,6 @@ db.use_ssl=true
 
 ### Step 4 - Migrate database to latest version ###
 
-First check what the latest release is of cBioPortal
-[here](https://github.com/cBioPortal/cbioportal/releases/latest). You can
-programmatically get the latest version like this:
-
-```
-LATEST_VERSION=$(curl --silent "https://api.github.com/repos/cBioPortal/cbioportal/releases/latest" \
-    | grep "tag_name" \
-    | cut -d'"' -f4 \
-    | cut -dv -f2)
-echo $LATEST_VERSION
-```
-
-Make note of what version you aim to deploy. Once you finish step 6 you can
-also see in the footer of the homepage what version was deployed.
-
 Update the seeded database schema to match the cBioPortal version in the image,
 by running the following command. Note that this will most likely make your
 database irreversibly incompatible with older versions of the portal code.
@@ -115,7 +100,7 @@ database irreversibly incompatible with older versions of the portal code.
 ```
 docker run --rm -it --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
-    cbioportal/cbioportal:${LATEST_VERSION} \
+    cbioportal/cbioportal:latest \
     migrate_db.py -p /cbioportal/portal.properties -s /cbioportal/db-scripts/src/main/resources/migration.sql
 ```
 
@@ -158,7 +143,7 @@ docker run -d --restart=always \
         -Dsession.service.url=http://cbio-session-service:5000/api/sessions/my_portal/
     ' \
     -p 8081:8080 \
-    cbioportal/cbioportal:${LATEST_VERSION} \
+    cbioportal/cbioportal:latest \
     /bin/sh -c 'java ${JAVA_OPTS} -jar webapp-runner.jar /cbioportal-webapp'
 ```
 

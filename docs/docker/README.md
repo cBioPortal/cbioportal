@@ -101,7 +101,7 @@ versions of the portal code.
 ```
 docker run --rm -it --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
-    cbioportal/cbioportal:3.0.1 \
+    cbioportal/cbioportal:3.0.6 \
     migrate_db.py -p /cbioportal/portal.properties -s /cbioportal/db-scripts/src/main/resources/migration.sql
 ```
 
@@ -144,7 +144,7 @@ docker run -d --restart=always \
         -Dsession.service.url=http://cbio-session-service:5000/api/sessions/my_portal/
     ' \
     -p 8081:8080 \
-    cbioportal/cbioportal:3.0.1 \
+    cbioportal/cbioportal:3.0.6 \
     /bin/sh -c 'java ${JAVA_OPTS} -jar webapp-runner.jar /cbioportal-webapp'
 ```
 

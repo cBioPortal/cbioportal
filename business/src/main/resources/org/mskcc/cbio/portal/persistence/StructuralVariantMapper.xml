@@ -32,7 +32,6 @@
 -->
 
 <mapper namespace="org.mskcc.cbio.portal.persistence.StructuralVariantMapper">
-    <cache/>
 
     <select id="getStructuralVariant" resultType="org.mskcc.cbio.portal.model.StructuralVariant">
         select

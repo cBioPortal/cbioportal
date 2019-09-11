@@ -97,9 +97,8 @@ DROP TABLE IF EXISTS `type_of_cancer`;
 DROP TABLE IF EXISTS `geneset_hierarchy_leaf`;
 DROP TABLE IF EXISTS `geneset_hierarchy_node`;
 DROP TABLE IF EXISTS `geneset`;
-DROP TABLE IF EXISTS `genetic_entity`;
-DROP TABLE IF EXISTS `reference_genome_gene`;
 DROP TABLE IF EXISTS `reference_genome`;
+DROP TABLE IF EXISTS `genetic_entity`;
 
 -- --------------------------------------------------------
 CREATE TABLE `type_of_cancer` (

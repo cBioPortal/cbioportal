@@ -713,5 +713,10 @@ UPDATE `cancer_study`
     INNER JOIN `genetic_profile` ON `cancer_study`.CANCER_STUDY_ID = `genetic_profile`.CANCER_STUDY_ID
     INNER JOIN `mutation` ON `mutation`.GENETIC_PROFILE_ID = `genetic_profile`.GENETIC_PROFILE_ID
     INNER JOIN `mutation_event` ON `mutation`.MUTATION_EVENT_ID = `mutation_event`.MUTATION_EVENT_ID
-SET `cancer_study`.REFERENCE_GENOME_ID = IF(`mutation_event`.NCBI_BUILD in ('38', 'hg38','GRCh38'), 2, 1);
+SET `cancer_study`.REFERENCE_GENOME_ID =
+CASE
+    WHEN `mutation_event`.NCBI_BUILD in ('mm10', 'GRCm38') THEN 3
+    WHEN `mutation_event`.NCBI_BUILD in ('38', 'hg38', 'GRCh38') THEN 2
+    ELSE 1
+END;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.11.0";

@@ -19,7 +19,7 @@
     * [Gene Panel Data](#gene-panel-data)
     * [Gene Set Data](#gene-set-data)
     * [Study Tags file](#study-tags-file)
-    * [Treatment Data](#treatment-data)
+    * [Treatment Response Data](#treatment-response-data)
 
 # Introduction
 
@@ -1349,7 +1349,7 @@ The cells contain the p-value for the GSVA score: A real number, between 0.0 and
 ## Study Tags file
 YAML or JSON file which contains extra information about the cancer study. No compulsory fields are required for this file (free-form). To enable this feature, you need to add a line in the cancer study meta file with `tags_file:` followed the YAML/JSON file name. The information on the YAML or JSON file will be displayed in a table when mousing over a tag logo in the studies on the query page.
 
-## Treatment Data
+## Treatment Response Data
 Treatment response data relate to outcome variables of treatments (compounds or combinations thereof) on samples (e.g., cell lines). cBioPortal supports any number of response data types imported from separate data files. Meta information on treatments (`entity_stable_id`, `name`, `description` and `url`) are not part of the cBioPortal seed database, but are imported automatically from treatment response data files. For treatments already present in the database the `name`, `description` and `url` fields are overwitten by subsequent imports of treatment response data files. The corresponding `META:name`, `META:description` and `META:url` columns in treatment data files are optional. The `entity_stable_id` and `META:name` fields must be unique within a data file. When the `META:name`, `META:description` and `META:url` fields are not defined in a data file, these fields will receive the value of the `entity_stable_id` field. When multiple treatment data files are loaded as part of study, the `entity_stable_id`, `META:name`, `META:description` and `META:url` columns must be identical is all data files.
 
 ### Treatment response meta file

@@ -22,11 +22,13 @@ DATABASE_USER = 'db.user'
 DATABASE_PW = 'db.password'
 VERSION_TABLE = 'info'
 VERSION_FIELD = 'DB_SCHEMA_VERSION'
+GENOME_BUILD = 'ucsc.build'
+ALLOWABLE_GENOME_REFERENCES = ['37', 'hg19', 'GRCh37', '38', 'hg38', 'GRCh38','mm9','GRCm37','mm10','GRCm38']
 
 class PortalProperties(object):
     """ Properties object class, just has fields for db conn """
 
-    def __init__(self, database_host, database_name, database_user, database_pw):
+    def __init__(self, database_host, database_name, database_user, database_pw, genome_build):
         # default port:
         self.database_port = 3306
         # if there is a port added to the host name, split and use this one:
@@ -41,9 +43,10 @@ class PortalProperties(object):
             self.database_port = int(host_and_port[1])
         else:
             self.database_host = database_host
-        self.database_name = database_name
-        self.database_user = database_user
-        self.database_pw = database_pw
+            self.database_name = database_name
+            self.database_user = database_user
+            self.database_pw = database_pw
+            self.genome_build = genome_build
 
 def get_db_cursor(portal_properties):
     """ Establishes a MySQL connection """
@@ -95,7 +98,8 @@ def get_portal_properties(properties_filename):
     if (DATABASE_HOST not in properties or len(properties[DATABASE_HOST]) == 0 or
         DATABASE_NAME not in properties or len(properties[DATABASE_NAME]) == 0 or
         DATABASE_USER not in properties or len(properties[DATABASE_USER]) == 0 or
-        DATABASE_PW not in properties or len(properties[DATABASE_PW]) == 0):
+        DATABASE_PW not in properties or len(properties[DATABASE_PW]) == 0 or 
+        GENOME_BUILD not in properties or len(properties[GENOME_BUILD]) == 0):
         print(
             'Missing one or more required properties, please check property file',
             file=ERROR_FILE)
@@ -105,7 +109,8 @@ def get_portal_properties(properties_filename):
     return PortalProperties(properties[DATABASE_HOST],
                             properties[DATABASE_NAME],
                             properties[DATABASE_USER],
-                            properties[DATABASE_PW])
+                            properties[DATABASE_PW],
+                            properties[GENOME_BUILD])
 
 def get_db_version(cursor):
     """ gets the version number of the database """
@@ -149,6 +154,42 @@ def is_version_larger(version1, version2):
     if version1[2] > version2[2]:
         return True
     return False
+
+def check_reference_genome(portal_properties, cursor, force_migration):
+    """ Retrieve reference genomes from database """
+    try:
+        default_genome_build = portal_properties.genome_build
+        sql_statement = """
+                           select GROUP_CONCAT(distinct NCBI_BUILD), count(distinct NCBI_BUILD), CANCER_STUDY_IDENTIFIER
+                           from mutation_event 
+                           join mutation on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID 
+                           join genetic_profile on genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID
+                           join cancer_study on cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
+                           group by CANCER_STUDY_IDENTIFIER
+                       """
+        cursor.execute(sql_statement)
+        for row in cursor.fetchall():
+            retrieved_ncbi_build, ref_count, study = row
+            if not force_migration:
+                if int(ref_count) == 1:
+                    retrieved_ncbi_build = list(set(retrieved_ncbi_build.split(',')))[0]
+                    if retrieved_ncbi_build.upper() not in [x.upper() for x in ALLOWABLE_GENOME_REFERENCES]:
+                        msg = """
+                            WARNING: Unsupported reference genome %s in study %s. Please clean up the mutation_event table and ensure it only contains those valid reference genomes (%s).
+                            OR use the "--force" option to surpress the warning, then the default reference genome (%s) listed in the portal.properties file will be used.
+                        """%(retrieved_ncbi_build, study, ','.join(ALLOWABLE_GENOME_REFERENCES), default_genome_build)
+                        print(msg, file=ERROR_FILE)
+                        sys.exit(1)
+                elif int(ref_count) > 1:
+                    msg = """
+                            WARNING: %s contains %s reference genomes (%s). Please clean up the mutation_event table and ensure it only contains one valid reference genome (%s).
+                            OR use the "--force" option to surpress the warning, then the default reference genome (%s) listed in the portal.properties file will be used.
+                        """%(study, ref_count, retrieved_ncbi_build,','.join(ALLOWABLE_GENOME_REFERENCES), default_genome_build)
+                    print(msg, file=ERROR_FILE)
+                    sys.exit(1)
+    except MySQLdb.Error as msg:
+        print(msg, file=ERROR_FILE)
+        sys.exit(1)
 
 def run_migration(db_version, sql_filename, connection, cursor):
     """
@@ -246,6 +287,7 @@ def main():
                         help='Path to portal.properties file')
     parser.add_argument('-s', '--sql', type=str, required=True,
                         help='Path to official migration.sql script.')
+    parser.add_argument('-f', '--force', default=False, action='store_true', help='Force to run database migration')
     parser = parser.parse_args()
 
     properties_filename = parser.properties_file
@@ -277,6 +319,8 @@ def main():
     # execute - get the database version and run the migration
     with contextlib.closing(connection):
         db_version = get_db_version(cursor)
+        #retrieve reference genomes from database
+        check_reference_genome(portal_properties, cursor, parser.force)
         run_migration(db_version, sql_filename, connection, cursor)
     print('Finished.')
     

@@ -2,10 +2,10 @@
 app.name=cbioportal
 
 # database
-db.user=cgds_admin
-db.password=rye678bob
+db.user=cbio_user
+db.password=somepassword
 db.host=localhost:3306
-db.portal_db_name=cgds_gdac
+db.portal_db_name=cbioportal
 db.driver=com.mysql.jdbc.Driver
 db.connection_string=jdbc:mysql://localhost:3306/
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
@@ -14,7 +14,7 @@ db.connection_string=jdbc:mysql://localhost:3306/
 # from the properties file
 # (https://github.com/cBioPortal/cbioportal/issues/6148).
 #
-db.tomcat_resource_name=jdbc/cbioportal
+# db.tomcat_resource_name=jdbc/cbioportal
 
 # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
 db.suppress_schema_version_mismatch_errors=false
@@ -79,7 +79,6 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 
 ## change the `-Dauthenticate=` JVM argument to configure
 ## which method of authentication to use (false, googleplus, social_auth_google, social_auth_microsoft, saml, openid, ad, ldap, noauthsessionservice)
-authenticate=false
 
 ## Should the permissions for groups and users be filtered by this instance's app.name?
 ## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)

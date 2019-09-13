@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.CopyNumberSegmentMapper">
-    <cache readOnly="true" size="20000"/>
+    
     
     <sql id="select">
         copy_number_seg.SEG_ID AS segId,

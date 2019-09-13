@@ -24,7 +24,7 @@ MULTI_REFERENCE_GENOME_SUPPORT_MIGRATION_STEP = (2,11,0)
 class PortalProperties(object):
     """ Properties object class, just has fields for db conn """
 
-    def __init__(self, database_host, database_name, database_user, database_pw, genome_build):
+    def __init__(self, database_host, database_name, database_user, database_pw):
         # default port:
         self.database_port = 3306
         # if there is a port added to the host name, split and use this one:
@@ -96,8 +96,7 @@ def get_portal_properties(properties_filename):
     return PortalProperties(properties[DATABASE_HOST],
                             properties[DATABASE_NAME],
                             properties[DATABASE_USER],
-                            properties[DATABASE_PW],
-                            properties[GENOME_BUILD])
+                            properties[DATABASE_PW])
 
 def get_db_version(cursor):
     """ gets the version number of the database """

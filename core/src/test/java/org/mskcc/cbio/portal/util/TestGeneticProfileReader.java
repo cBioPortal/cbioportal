@@ -60,12 +60,12 @@ import java.util.ArrayList;
 @Transactional
 public class TestGeneticProfileReader {
 
-	@Test
+    @Test
     public void testGeneticProfileReader() throws Exception {
         // load cancers
-		// TBD: change this to use getResourceAsStream()
-		// TBD: change this to use getResourceAsStream()
-		
+        // TBD: change this to use getResourceAsStream()
+        // TBD: change this to use getResourceAsStream()
+
         File file = new File("target/test-classes/genetic_profile_test.txt");
         GeneticProfile geneticProfile = GeneticProfileReader.loadGeneticProfile(file);
         assertEquals("Barry", geneticProfile.getTargetLine());

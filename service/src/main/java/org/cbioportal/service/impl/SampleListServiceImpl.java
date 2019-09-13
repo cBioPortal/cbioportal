@@ -35,7 +35,7 @@ public class SampleListServiceImpl implements SampleListService {
         
         List<SampleList> sampleListsFromRepo = sampleListRepository.getAllSampleLists(projection, pageSize, pageNumber, sortBy,
                                                                                       direction);
-        // copy the list before returning so @PostFilter doesn't taint the list stored in the mybatis second-level cache
+        // copy the list before returning so @PostFilter doesn't taint the list stored in the persistence layer cache
         List<SampleList> sampleLists = (AUTHENTICATE.equals("false")) ? sampleListsFromRepo : new ArrayList<SampleList>(sampleListsFromRepo);
         
         if(projection.equals("DETAILED")) {

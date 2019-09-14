@@ -18,3 +18,9 @@ The hardware requirements are much lower when one has only a few users a day.
 Minimally, 2GB of RAM is needed to run a cBioPortal instance. If you do not
 plan to import public studies, depending on the size of your private data, 10GB
 of disk space may be sufficient.
+
+Another possible consideration is caching. The portal can cache responses to
+requests so that repeated database queries are avoided. On the public cBioPortal
+deployment we enable this cache and allocate 1GB of additional RAM and 4GB of
+additional disk space for caching. For directions on configuring caching, see
+[Ehcache Settings](portal.properties-Reference.md#ehcache-settings)

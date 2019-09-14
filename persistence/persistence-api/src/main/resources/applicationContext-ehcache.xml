@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:cache="http://www.springframework.org/schema/cache"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+    http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+    <cache:annotation-driven cache-manager="cacheManager" key-generator="customKeyGenerator"/>
+
+    <bean id="cacheEnabledConfig" class="org.cbioportal.persistence.CacheEnabledConfig">
+        <constructor-arg value="${ehcache.cache_enabled:false}"/>
+    </bean>
+
+    <bean id="customEhCacheProvider" class="org.cbioportal.persistence.util.CustomEhCachingProvider"/>
+
+    <bean id="getCacheManager" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="customEhCacheProvider" />
+        <property name="targetMethod" value="getCacheManager" />
+    </bean>
+
+    <bean id="cacheManager" class="org.springframework.cache.jcache.JCacheCacheManager">
+        <property name="cacheManager" ref="getCacheManager"/>
+    </bean>
+
+    <bean id="customKeyGenerator" class="org.cbioportal.persistence.util.CustomKeyGenerator"/>
+
+    <bean id="ehCacheStatistics" class="org.cbioportal.persistence.util.EhCacheStatistics">
+        <constructor-arg ref="getCacheManager"/>
+    </bean>
+
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod" value="org.cbioportal.persistence.util.CacheEventLogger.setCacheStatistics" />
+        <property name="arguments">
+            <list><ref bean="ehCacheStatistics"/></list>
+        </property>
+    </bean>
+    
+</beans>

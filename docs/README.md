@@ -41,6 +41,7 @@ We also maintain an active [list of RFCs (Requests for Comments)](RFC-List.md) w
 ### 2.3 Customization 
 * [Customizing your cBioPortal Instance via portal.properties](Customizing-your-instance-of-cBioPortal.md)
 * [More portal.properties Settings](portal.properties-Reference.md)
+* [Configuring Caching Behavior](Caching.md)
 
 ## 3. cBioPortal Maintenance
 * [Updating your cBioPortal Database Scheme](Updating-your-cBioPortal-installation.md)

@@ -3,8 +3,6 @@
 
 <mapper namespace="org.mskcc.cbio.portal.persistence.GeneAliasMapper">
     
-<cache/>
-
 <select id="getGenesAliasesByEntrez" resultType="DBGeneAlias" parameterType="list">
     select
         GENE_ALIAS as gene_alias,

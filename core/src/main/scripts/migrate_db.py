@@ -137,11 +137,12 @@ def is_version_larger(version1, version2):
     return False
 
 def print_all_check_reference_genome_warnings(warnings, force_migration):
+    """ Format warnings for output according to mode, and print to ERROR_FILE """
     space =  ' '
     indent = 28 * space
     allowable_reference_genome_string = ','.join(ALLOWABLE_GENOME_REFERENCES)
     clean_up_string = ' Please clean up the mutation_event table and ensure it only contains references to one of the valid reference genomes (%s).' % (allowable_reference_genome_string)
-    use_default_string = 'the default reference genome (%s) will be used.' % (DEFAULT_GENOME_REFERENCE)
+    use_default_string = 'the default reference genome (%s) will be used in place of invalid reference genomes and the first encountered reference genome will be used.' % (DEFAULT_GENOME_REFERENCE)
     use_force_string = 'OR use the "--force" option to override this warning, then %s' % (use_default_string)
     forcing_string = '--force option in effect : %s' % (use_default_string)
     for warning in warnings:
@@ -150,30 +151,41 @@ def print_all_check_reference_genome_warnings(warnings, force_migration):
         else:
             print('%s%s%s\n%s%s\n' % (indent, warning, clean_up_string, indent, use_force_string), file=ERROR_FILE)
 
+def validate_reference_genome_values_for_study(warnings, ncbi_to_count, study):
+    """ check if there are unrecognized or varied ncbi_build values for the study, add to warnings if problems are found """
+    if len(ncbi_to_count) == 1:
+        for retrieved_ncbi_build in ncbi_to_count: # single iteration
+            if retrieved_ncbi_build.upper() not in [x.upper() for x in ALLOWABLE_GENOME_REFERENCES]:
+                msg = 'WARNING: Study %s contains mutation_event records with unsupported NCBI_BUILD value %s.'%(study, retrieved_ncbi_build)
+                warnings.append(msg)
+    elif len(ncbi_to_count) > 1:
+        msg = 'WARNING: Study %s contains mutation_event records with %s NCBI_BUILD values {ncbi_build:record_count,...} %s.'%(study, len(ncbi_to_count), ncbi_to_count)
+        warnings.append(msg)
+
 def check_reference_genome(portal_properties, cursor, force_migration):
+    """ query database for ncbi_build values, aggregate per study, then validate and report problems """
     print('Checking database contents for reference genome information', file=OUTPUT_FILE)
     """ Retrieve reference genomes from database """
     warnings = []
     try:
         sql_statement = """
-                           select GROUP_CONCAT(distinct NCBI_BUILD), count(distinct NCBI_BUILD), CANCER_STUDY_IDENTIFIER
+                           select NCBI_BUILD, count(NCBI_BUILD), CANCER_STUDY_IDENTIFIER
                            from mutation_event
                            join mutation on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
                            join genetic_profile on genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID
                            join cancer_study on cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID
-                           group by CANCER_STUDY_IDENTIFIER
+                           group by CANCER_STUDY_IDENTIFIER, NCBI_BUILD
                        """
         cursor.execute(sql_statement)
+        study_to_ncbi_to_count = {} # {cancer_study_identifier : {ncbi_build  : record_count}}
         for row in cursor.fetchall():
             retrieved_ncbi_build, ref_count, study = row
-            if int(ref_count) == 1:
-                retrieved_ncbi_build = list(set(retrieved_ncbi_build.split(',')))[0]
-                if retrieved_ncbi_build.upper() not in [x.upper() for x in ALLOWABLE_GENOME_REFERENCES]:
-                    msg = 'WARNING: Study %s contains mutation_event records with unsupported NCBI_BUILD value %s.'%(study, retrieved_ncbi_build)
-                    warnings.append(msg)
-            elif int(ref_count) > 1:
-                msg = 'WARNING: Study %s contains mutation_event records with %s NCBI_BUILD values (%s).'%(study, ref_count, retrieved_ncbi_build)
-                warnings.append(msg)
+            if study in study_to_ncbi_to_count:
+                study_to_ncbi_to_count[study][retrieved_ncbi_build] = ref_count
+            else:
+                study_to_ncbi_to_count[study] = {retrieved_ncbi_build : ref_count}
+        for study in study_to_ncbi_to_count:
+            validate_reference_genome_values_for_study(warnings, study_to_ncbi_to_count[study], study)
     except MySQLdb.Error as msg:
         print(msg, file=ERROR_FILE)
         sys.exit(1)
@@ -181,7 +193,7 @@ def check_reference_genome(portal_properties, cursor, force_migration):
         print_all_check_reference_genome_warnings(warnings, force_migration)
         if not force_migration:
             sys.exit(1)
-            
+
 def run_migration(db_version, sql_filename, connection, cursor):
     """
         Goes through the sql and runs lines based on the version numbers. SQL version should be stated as follows:

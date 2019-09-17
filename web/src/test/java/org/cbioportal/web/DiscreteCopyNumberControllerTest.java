@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.CopyNumberCount;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.Gene;
+import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.web.parameter.CopyNumberCountIdentifier;
@@ -44,7 +45,6 @@ public class DiscreteCopyNumberControllerTest {
     private static final String TEST_HUGO_GENE_SYMBOL_1 = "test_hugo_gene_symbol_1";
     private static final String TEST_TYPE_1 = "test_type_1";
     private static final String TEST_CYTOBAND_1 = "test_cytoband_1";
-    private static final int TEST_LENGTH_1 = 100;
     private static final String TEST_CHROMOSOME_1 = "test_chromosome_1";
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_2 = "test_molecular_profile_stable_id_2";
     private static final String TEST_SAMPLE_STABLE_ID_2 = "test_sample_stable_id_2";
@@ -53,7 +53,6 @@ public class DiscreteCopyNumberControllerTest {
     private static final String TEST_HUGO_GENE_SYMBOL_2 = "test_hugo_gene_symbol_2";
     private static final String TEST_TYPE_2 = "test_type_2";
     private static final String TEST_CYTOBAND_2 = "test_cytoband_2";
-    private static final int TEST_LENGTH_2 = 200;
     private static final String TEST_CHROMOSOME_2 = "test_chromosome_2";
     private static final String TEST_SAMPLE_LIST_ID = "test_sample_list_id";
     private static final int TEST_NUMBER_OF_SAMPLES_1 = 6;
@@ -138,9 +137,6 @@ public class DiscreteCopyNumberControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.type").value(TEST_TYPE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.cytoband").value(TEST_CYTOBAND_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.length").value(TEST_LENGTH_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.chromosome").value(TEST_CHROMOSOME_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
@@ -148,10 +144,7 @@ public class DiscreteCopyNumberControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].alteration").value(TEST_ALTERATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.cytoband").value(TEST_CYTOBAND_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.length").value(TEST_LENGTH_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.chromosome").value(TEST_CHROMOSOME_2));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2));
     }
 
     @Test
@@ -234,9 +227,6 @@ public class DiscreteCopyNumberControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.type").value(TEST_TYPE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.cytoband").value(TEST_CYTOBAND_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.length").value(TEST_LENGTH_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.chromosome").value(TEST_CHROMOSOME_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
@@ -244,10 +234,7 @@ public class DiscreteCopyNumberControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].alteration").value(TEST_ALTERATION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.cytoband").value(TEST_CYTOBAND_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.length").value(TEST_LENGTH_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.chromosome").value(TEST_CHROMOSOME_2));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2));
     }
 
     @Test
@@ -369,17 +356,11 @@ public class DiscreteCopyNumberControllerTest {
         gene1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
         gene1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
         gene1.setType(TEST_TYPE_1);
-        gene1.setCytoband(TEST_CYTOBAND_1);
-        gene1.setLength(TEST_LENGTH_1);
-        gene1.setChromosome(TEST_CHROMOSOME_1);
         discreteCopyNumberDataList.get(0).setGene(gene1);
         Gene gene2 = new Gene();
         gene2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         gene2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
         gene2.setType(TEST_TYPE_2);
-        gene2.setCytoband(TEST_CYTOBAND_2);
-        gene2.setLength(TEST_LENGTH_2);
-        gene2.setChromosome(TEST_CHROMOSOME_2);
         discreteCopyNumberDataList.get(1).setGene(gene2);
         return discreteCopyNumberDataList;
     }

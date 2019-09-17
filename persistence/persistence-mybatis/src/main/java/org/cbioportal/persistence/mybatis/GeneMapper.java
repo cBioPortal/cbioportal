@@ -13,6 +13,8 @@ public interface GeneMapper {
 
     BaseMeta getMetaGenes(String keyword, String alias);
 
+    Gene getGeneByGeneticEntityId(Integer geneticEntityId, String projection);
+
     Gene getGeneByEntrezGeneId(Integer entrezGeneId, String projection);
 
     Gene getGeneByHugoGeneSymbol(String hugoGeneSymbol, String projection);

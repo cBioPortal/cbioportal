@@ -41,8 +41,7 @@ public class MutationServiceImpl implements MutationService {
 
         List<Mutation> mutationList = mutationRepository.getMutationsInMolecularProfileBySampleListId(molecularProfileId,
             sampleListId, entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction);
-
-        mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
+        
         return mutationList;
     }
 
@@ -65,8 +64,7 @@ public class MutationServiceImpl implements MutationService {
 
         List<Mutation> mutationList = mutationRepository.getMutationsInMultipleMolecularProfiles(molecularProfileIds,
             sampleIds, entrezGeneIds, projection, pageSize, pageNumber, sortBy, direction);
-
-        mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
+        
         return mutationList;
     }
 
@@ -90,8 +88,7 @@ public class MutationServiceImpl implements MutationService {
 
         List<Mutation> mutationList = mutationRepository.fetchMutationsInMolecularProfile(molecularProfileId, sampleIds,
             entrezGeneIds, snpOnly, projection, pageSize, pageNumber, sortBy, direction);
-
-        mutationList.forEach(mutation -> chromosomeCalculator.setChromosome(mutation.getGene()));
+        
         return mutationList;
     }
 
@@ -138,14 +135,12 @@ public class MutationServiceImpl implements MutationService {
 	}
 
     @Override
-    public List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
+    public List<MutationCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                                 List<String> patientIds,
-                                                                                List<Integer> entrezGeneIds)
-        throws MolecularProfileNotFoundException {
+                                                                                List<Integer> entrezGeneIds) {
 
-        validateMolecularProfile(molecularProfileId);
 
-        return mutationRepository.getPatientCountByEntrezGeneIdsAndSampleIds(molecularProfileId, patientIds, 
+        return mutationRepository.getPatientCountInMultipleMolecularProfiles(molecularProfileIds, patientIds, 
             entrezGeneIds);
     }
 

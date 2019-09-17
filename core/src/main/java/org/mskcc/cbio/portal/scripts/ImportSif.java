@@ -86,8 +86,8 @@ public class ImportSif {
                 String interactionType = parts[1];
                 String geneBId = parts[2];
 
-                CanonicalGene geneA = daoGeneOptimized.getNonAmbiguousGene(geneAId, null);
-                CanonicalGene geneB = daoGeneOptimized.getNonAmbiguousGene(geneBId, null);
+                CanonicalGene geneA = daoGeneOptimized.getNonAmbiguousGene(geneAId, true);
+                CanonicalGene geneB = daoGeneOptimized.getNonAmbiguousGene(geneBId, true);
 
                 //  Log genes that we cannot identify.
                 if (geneA == null) {

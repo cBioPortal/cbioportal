@@ -51,7 +51,7 @@ public interface DiscreteCopyNumberService {
         List<Integer> alterations,
         boolean includeFrequency);
 
-    List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId,
+    List<CopyNumberCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                                 List<String> patientIds,
                                                                                 List<Integer> entrezGeneIds,
                                                                                 List<Integer> alterations);

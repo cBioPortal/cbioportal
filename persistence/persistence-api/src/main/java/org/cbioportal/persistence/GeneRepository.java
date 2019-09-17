@@ -47,6 +47,8 @@ public interface GeneRepository {
 
     @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     BaseMeta getMetaGenes(String keyword, String alias);
+    
+    Gene getGeneByGeneticEntityId(Integer geneticEntityId);
 
     @Cacheable(cacheNames = "StaticRepositoryCacheOne", condition = "@cacheEnabledConfig.getEnabled()")
     Gene getGeneByEntrezGeneId(Integer entrezGeneId);

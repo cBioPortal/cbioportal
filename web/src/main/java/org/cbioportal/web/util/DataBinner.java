@@ -9,6 +9,7 @@ import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -58,11 +59,11 @@ public class DataBinner
                                         ClinicalDataType clinicalDataType,
                                         List<String> ids) 
     {
-        List<Double> numericalValues = clinicalData == null ? 
+        List<BigDecimal> numericalValues = clinicalData == null ? 
             Collections.emptyList() : filterNumericalValues(clinicalData);
         List<String> nonNumericalValues = clinicalData == null ?
             Collections.emptyList() : filterNonNumericalValues(clinicalData);
-        List<Range<Double>> ranges = clinicalData == null ?
+        List<Range<BigDecimal>> ranges = clinicalData == null ?
             Collections.emptyList() : filterSpecialRanges(clinicalData);
         
         for (DataBin dataBin : clinicalDataBins) {
@@ -70,16 +71,16 @@ public class DataBinner
             dataBin.setCount(0);
             
             // calculate range
-            Range<Double> range = dataBinHelper.calcRange(dataBin);
+            Range<BigDecimal> range = dataBinHelper.calcRange(dataBin);
             
             if (range != null) {
-                for (Double value: numericalValues) {
+                for (BigDecimal value: numericalValues) {
                     if (range.contains(value)) {
                         dataBin.setCount(dataBin.getCount() + 1);
                     }
                 }
                 
-                for (Range<Double> r: ranges) {
+                for (Range<BigDecimal> r: ranges) {
                     if (range.encloses(r)) {
                         dataBin.setCount(dataBin.getCount() + 1);
                     }
@@ -109,7 +110,7 @@ public class DataBinner
         String attributeId = clinicalDataBinFilter.getAttributeId();
         boolean numericalOnly = false;
       
-        Range<Double> range = clinicalDataBinFilter.getStart() == null && clinicalDataBinFilter.getEnd() == null ? 
+        Range<BigDecimal> range = clinicalDataBinFilter.getStart() == null && clinicalDataBinFilter.getEnd() == null ? 
             Range.all() : studyViewFilterUtil.calcRange(clinicalDataBinFilter.getStart(), true, clinicalDataBinFilter.getEnd(), true);
 
         if (range.hasUpperBound()) {
@@ -157,7 +158,7 @@ public class DataBinner
         return dataBins;
     }
 
-    public List<Range<Double>> filterSpecialRanges(List<ClinicalData> clinicalData) {
+    public List<Range<BigDecimal>> filterSpecialRanges(List<ClinicalData> clinicalData) {
         return clinicalData.stream()
             .map(ClinicalData::getAttrValue)
             .filter(s -> (s.contains(">") || s.contains("<")) &&
@@ -166,7 +167,7 @@ public class DataBinner
             .map(v -> dataBinHelper.calcRange(
                 // only use "<" or ">" to make sure that we only generate open ranges
                 dataBinHelper.extractOperator(v).substring(0,1), 
-                Double.parseDouble(dataBinHelper.stripOperator(v))))
+                new BigDecimal(dataBinHelper.stripOperator(v))))
             .collect(Collectors.toList());
     } 
     
@@ -207,7 +208,7 @@ public class DataBinner
 
     public Collection<DataBin> calcNumericalClinicalDataBins(String attributeId, 
                                                              List<ClinicalData> clinicalData, 
-                                                             List<Double> customBins,
+                                                             List<BigDecimal> customBins,
                                                              DataBin lowerOutlierBin, 
                                                              DataBin upperOutlierBin, 
                                                              Boolean disableLogScale)
@@ -220,79 +221,79 @@ public class DataBinner
             disableLogScale);
     }
     
-    public List<Double> filterNumericalValues(List<ClinicalData> clinicalData)
+    public List<BigDecimal> filterNumericalValues(List<ClinicalData> clinicalData)
     {
         // filter out invalid values
         return clinicalData.stream()
             .filter(c -> NumberUtils.isCreatable(c.getAttrValue()))
-            .map(c -> Double.parseDouble(c.getAttrValue()))
+            .map(c -> new BigDecimal(c.getAttrValue()))
             .collect(Collectors.toList());
     }
     
     public Collection<DataBin> calcNumericalDataBins(String attributeId,
-                                                     List<Double> numericalValues, 
-                                                     List<Double> customBins,
+                                                     List<BigDecimal> numericalValues, 
+                                                     List<BigDecimal> customBins,
                                                      DataBin lowerOutlierBin, 
                                                      DataBin upperOutlierBin,
                                                      Boolean disableLogScale) {
-        Predicate<Double> isLowerOutlier = new Predicate<Double>() {
+        Predicate<BigDecimal> isLowerOutlier = new Predicate<BigDecimal>() {
             @Override
-            public boolean test(Double d) {
+            public boolean test(BigDecimal d) {
                 return (
                     lowerOutlierBin != null &&
                         lowerOutlierBin.getEnd() != null &&
                         (lowerOutlierBin.getSpecialValue() != null && lowerOutlierBin.getSpecialValue().contains("=") ?
-                            d <= lowerOutlierBin.getEnd() : d < lowerOutlierBin.getEnd())
+                            d.compareTo(lowerOutlierBin.getEnd()) != 1  : d.compareTo(lowerOutlierBin.getEnd()) == -1)
                 );
             }
         };
 
-        Predicate<Double> isUpperOutlier = new Predicate<Double>() {
+        Predicate<BigDecimal> isUpperOutlier = new Predicate<BigDecimal>() {
             @Override
-            public boolean test(Double d) {
+            public boolean test(BigDecimal d) {
                 return (
                     upperOutlierBin != null &&
                         upperOutlierBin.getStart() != null &&
                         (upperOutlierBin.getSpecialValue() != null && upperOutlierBin.getSpecialValue().contains("=") ?
-                            d >= upperOutlierBin.getStart() : d > upperOutlierBin.getStart())
+                            d.compareTo(upperOutlierBin.getStart()) != -1 : d.compareTo(upperOutlierBin.getStart()) == 1)
                 );
             }
         };
 
-        Predicate<Double> isNotOutlier = new Predicate<Double>() {
+        Predicate<BigDecimal> isNotOutlier = new Predicate<BigDecimal>() {
             @Override
-            public boolean test(Double d) {
+            public boolean test(BigDecimal d) {
                 return !isUpperOutlier.test(d) && !isLowerOutlier.test(d);
             }
         };
 
 
-        List<Double> sortedNumericalValues = new ArrayList<>(numericalValues);
+        List<BigDecimal> sortedNumericalValues = new ArrayList<>(numericalValues);
         Collections.sort(sortedNumericalValues);
 
-        Range<Double> boxRange = dataBinHelper.calcBoxRange(sortedNumericalValues);
+        Range<BigDecimal> boxRange = dataBinHelper.calcBoxRange(sortedNumericalValues);
 
         // remove initial outliers
-        List<Double> withoutOutliers = sortedNumericalValues.stream().filter(isNotOutlier).collect(Collectors.toList());
+        List<BigDecimal> withoutOutliers = sortedNumericalValues.stream().filter(isNotOutlier).collect(Collectors.toList());
 
         // calculate data bins for the rest of the values
         List<DataBin> dataBins = null;
 
-        Set<Double> uniqueValues = new LinkedHashSet<>(withoutOutliers);
+        Set<BigDecimal> uniqueValues = new LinkedHashSet<>(withoutOutliers);
 
         if (0 < uniqueValues.size() && uniqueValues.size() <= 5) {
             // No data intervals when the number of distinct values less than or equal to 5.
             // In this case, number of bins = number of distinct data values
             dataBins = discreteDataBinner.calculateDataBins(attributeId, withoutOutliers, uniqueValues);
         } else if (withoutOutliers.size() > 0) {
-            Double lowerOutlier = lowerOutlierBin.getEnd() == null ?
-                boxRange.lowerEndpoint() : Math.max(boxRange.lowerEndpoint(), lowerOutlierBin.getEnd());
-            Double upperOutlier = upperOutlierBin.getStart() == null ?
-                boxRange.upperEndpoint() : Math.min(boxRange.upperEndpoint(), upperOutlierBin.getStart());
+            BigDecimal lowerOutlier = lowerOutlierBin.getEnd() == null ?
+                boxRange.lowerEndpoint() : boxRange.lowerEndpoint().max(lowerOutlierBin.getEnd());
+            BigDecimal upperOutlier = upperOutlierBin.getStart() == null ?
+                boxRange.upperEndpoint() : boxRange.upperEndpoint().min(upperOutlierBin.getStart());
 
             if (customBins != null) {
                 dataBins = linearDataBinner.calculateDataBins(attributeId, customBins, numericalValues);
-            } else if (boxRange.upperEndpoint() - boxRange.lowerEndpoint() > 1000 &&
+            } else if (boxRange.upperEndpoint().subtract(boxRange.lowerEndpoint()).intValue() > 1000 &&
                 (disableLogScale == null || !disableLogScale)) {
                 dataBins = logScaleDataBinner.calculateDataBins(attributeId,
                     boxRange,
@@ -329,12 +330,12 @@ public class DataBinner
 
             if (lowerOutlierBin.getEnd() == null) {
 
-                Double end = dataBins != null && dataBins.size() > 0 ? dataBins.get(0).getStart() :
+                BigDecimal end = dataBins != null && dataBins.size() > 0 ? dataBins.get(0).getStart() :
                     boxRange.lowerEndpoint();
 
                 lowerOutlierBin.setEnd(end);
             } else if (dataBins != null && dataBins.size() > 0) {
-                if (dataBins.get(0).getStart() > lowerOutlierBin.getEnd()) {
+                if (dataBins.get(0).getStart().compareTo(lowerOutlierBin.getEnd()) == 1) {
                     lowerOutlierBin.setEnd(dataBins.get(0).getStart());
                 } else {
                     dataBins.get(0).setStart(lowerOutlierBin.getEnd());
@@ -342,12 +343,12 @@ public class DataBinner
             }
 
             if (upperOutlierBin.getStart() == null) {
-                Double start = dataBins != null && dataBins.size() > 0 ? dataBins.get(dataBins.size() - 1).getEnd() :
+                BigDecimal start = dataBins != null && dataBins.size() > 0 ? dataBins.get(dataBins.size() - 1).getEnd() :
                     boxRange.upperEndpoint();
 
                 upperOutlierBin.setStart(start);
             } else if (dataBins != null && dataBins.size() > 0) {
-                if (dataBins.get(dataBins.size() - 1).getEnd() < upperOutlierBin.getStart()) {
+                if (dataBins.get(dataBins.size() - 1).getEnd().compareTo(upperOutlierBin.getStart()) == -1) {
                     upperOutlierBin.setStart(dataBins.get(dataBins.size() - 1).getStart());
                 } else {
                     dataBins.get(dataBins.size() - 1).setEnd(upperOutlierBin.getStart());
@@ -356,8 +357,8 @@ public class DataBinner
         }
         
         // update upper and lower outlier counts
-        List<Double> upperOutliers = sortedNumericalValues.stream().filter(isUpperOutlier).collect(Collectors.toList());
-        List<Double> lowerOutliers = sortedNumericalValues.stream().filter(isLowerOutlier).collect(Collectors.toList());
+        List<BigDecimal> upperOutliers = sortedNumericalValues.stream().filter(isUpperOutlier).collect(Collectors.toList());
+        List<BigDecimal> lowerOutliers = sortedNumericalValues.stream().filter(isLowerOutlier).collect(Collectors.toList());
         
         if (upperOutliers.size() > 0) {
             upperOutlierBin.setCount(upperOutlierBin.getCount() + upperOutliers.size());
@@ -374,7 +375,7 @@ public class DataBinner
         return dataBins;
     }
     
-    public List<Double> doubleValuesForSpecialOutliers(List<ClinicalData> clinicalData, String operator) 
+    public List<BigDecimal> doubleValuesForSpecialOutliers(List<ClinicalData> clinicalData, String operator) 
     {
         return (
             // find the ones starting with the operator
@@ -383,27 +384,27 @@ public class DataBinner
             .map(c -> c.getAttrValue().trim().substring(operator.length()))
             // filter out invalid values
             .filter(NumberUtils::isCreatable)
-            // parse the numerical value as a Double instance
-            .map(Double::parseDouble)
+            // parse the numerical value as a BigDecimal instance
+            .map(integer -> new BigDecimal(integer))
             // collect as list
             .collect(Collectors.toList())
         );
     }
 
-    public List<ClinicalData> filterSmallerThanUpperBound(List<ClinicalData> clinicalData, Double value)
+    public List<ClinicalData> filterSmallerThanUpperBound(List<ClinicalData> clinicalData, BigDecimal value)
     {
         return (
             clinicalData.stream()
-                .filter(c -> NumberUtils.isCreatable(c.getAttrValue()) && Double.parseDouble(c.getAttrValue()) <= value)
+                .filter(c -> NumberUtils.isCreatable(c.getAttrValue()) && new BigDecimal(c.getAttrValue()).compareTo(value) != 1)
                 .collect(Collectors.toList())
         );
     }
 
-    public List<ClinicalData> filterBiggerThanLowerBound(List<ClinicalData> clinicalData, Double value)
+    public List<ClinicalData> filterBiggerThanLowerBound(List<ClinicalData> clinicalData, BigDecimal value)
     {
         return (
             clinicalData.stream()
-                .filter(c -> NumberUtils.isCreatable(c.getAttrValue()) && Double.parseDouble(c.getAttrValue()) >= value)
+                .filter(c -> NumberUtils.isCreatable(c.getAttrValue()) && new BigDecimal(c.getAttrValue()).compareTo(value) != -1)
                 // collect as list
                 .collect(Collectors.toList())
         );

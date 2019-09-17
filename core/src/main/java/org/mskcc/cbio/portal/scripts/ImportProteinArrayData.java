@@ -162,7 +162,7 @@ public class ImportProteinArrayData {
                             StringUtils.join(genes, "/"), residue, null);
             daoPAI.addProteinArrayInfo(pai);
             for (String symbol : genes) {
-                CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, null);
+                CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, true);
                 if (gene==null) {
                     System.err.println(symbol+" not exist");
                     continue;

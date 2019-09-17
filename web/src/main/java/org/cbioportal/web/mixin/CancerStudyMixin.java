@@ -19,4 +19,6 @@ public class CancerStudyMixin {
     private String typeOfCancerId;
     @JsonProperty("cancerType")
     private TypeOfCancer typeOfCancer;
+    @JsonProperty("referenceGenome")
+    private String referenceGenome;
 }

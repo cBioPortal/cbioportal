@@ -39,27 +39,32 @@ ALTER TABLE `geneset` AUTO_INCREMENT = 1;
 
 4- Restart cBioPortal (restart webserver) to clean-up any cached gene lists.
 
-5- You probably also want to update the gene lengths. To do so, download .annotation.gtf.gz of the [latest GENCODE release for hg19 / GRCh37](http://www.gencodegenes.org/releases/26lift37.html) for human and [mm10 / GRCm38](http://www.gencodegenes.org/mouse_releases/current.html) for mouse.
-
-After downloading, go to your downloads directory, decompress the file and add it as an argument (--gtf) in the next step.
-
-6- To import gene data type the following commands when in the folder `<cbioportal_source_folder>/core/src/main/scripts`:
+5- To import gene data type the following commands when in the folder `<cbioportal_source_folder>/core/src/main/scripts`:
 ```
 export PORTAL_HOME=<cbioportal_configuration_folder>
-./importGenes.pl --genes <ncbi_species.gene_info> --gtf <gencode.v25.annotation.gtf>
+export JAVA_HOME=<jre_installation_folder>
+./importGenes.pl --genes <ncbi_species.gene_info> --gtf <gencode.v25.annotation.gtf> --genome-build <GRCh37>
 ```
-
-7- :warning: Check the `gene` and `gene_alias` tables to verify that they are filled correctly.
+**IMPORTANT NOTE**: 
+1. The **reference_genome** table needs to be populated before updating the **gene** table. Further details can be found in [this document](import-reference-genome.md). 
+2. Use **--species** option when importing genes for a species other than human
+3. Use the **gene** table if you query information such as hugo symbols, types of the gene 
+4. Use **reference_genome_gene** table if you query information such as chromosome, cytoband, exonic length, or the start or end of the gene
+5. Load genes only to the **reference_genome_gene** table without updating the **gene** table, please use the following command:
+```
+./importGenes.pl --gtf <gencode.v27.annotation.gtf> --genome-build <GRCh38>
+```
+6- :warning: Check the `gene` and `gene_alias` tables to verify that they are filled correctly.
 ```sql
 SELECT count(*) FROM cbioportal.gene;
 SELECT count(*) FROM cbioportal.gene_alias;
 ```
 
-8- Additionally, there are other tables you may want to update now (only in human).
+7- Additionally, there are other tables you may want to update now (only in human).
 
 * Updating the COSMIC coding mutations, can be downloaded from [here](http://cancer.sanger.ac.uk/cosmic/download) and require the script `importCosmicData.pl`
 
-9- Clean-up old data:
+8- Clean-up old data:
 ```sql
 SET SQL_SAFE_UPDATES = 0;
 DELETE FROM cosmic_mutation where ENTREZ_GENE_ID not in (SELECT ENTREZ_GENE_ID from gene);
@@ -71,7 +76,7 @@ SET SQL_SAFE_UPDATES = 1;
 commit;
 ```
 
-10- If DB engine supports FK constraints, e.g. InnoDB, restore constraints:
+9- If DB engine supports FK constraints, e.g. InnoDB, restore constraints:
 ```sql
 ALTER TABLE cosmic_mutation
   ADD CONSTRAINT cosmic_mutation_ibfk_1 FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`);
@@ -80,7 +85,7 @@ ALTER TABLE uniprot_id_mapping
   ADD CONSTRAINT uniprot_id_mapping_ibfk_1 FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`);
 ```
 
-11- You can import new gene sets using the gene set importer. These gene sets are currently only used for gene set scoring. See [Import-Gene-Sets.md](Import-Gene-Sets.md) and [File-Formats.md#gene-set-data](File-Formats.md#gene-set-data).
+10- You can import new gene sets using the gene set importer. These gene sets are currently only used for gene set scoring. See [Import-Gene-Sets.md](Import-Gene-Sets.md) and [File-Formats.md#gene-set-data](File-Formats.md#gene-set-data).
 
 For example, run in folder `<cbioportal_source_folder>/core/src/main/scripts`:
 ```bash

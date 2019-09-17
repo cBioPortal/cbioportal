@@ -101,6 +101,16 @@
     </filter-mapping>
 
     <filter>
+        <filter-name>DebugHrrsFilter</filter-name>
+        <filter-class>org.mskcc.cbio.portal.util.DebugHrrsFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>DebugHrrsFilter</filter-name>
+        <url-pattern>*</url-pattern>
+    </filter-mapping>
+
+    <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
@@ -363,15 +373,6 @@
     </servlet-mapping>
 
 	<servlet>
-		<servlet-name>pfam_sequence_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.PfamSequenceServlet</servlet-class>
-	</servlet>
-    <servlet-mapping>
-        <servlet-name>pfam_sequence_json</servlet-name>
-        <url-pattern>/getPfamSequence.json</url-pattern>
-    </servlet-mapping>
-
-	<servlet>
 		<servlet-name>mutation_aligner_json</servlet-name>
 		<servlet-class>org.mskcc.cbio.portal.servlet.MutationAlignerServlet</servlet-class>
 	</servlet>
@@ -379,15 +380,6 @@
 		<servlet-name>mutation_aligner_json</servlet-name>
 		<url-pattern>/getMutationAligner.json</url-pattern>
 	</servlet-mapping>
-
-	<servlet>
-		<servlet-name>mutation_3d_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.PdbDataServlet</servlet-class>
-	</servlet>
-    <servlet-mapping>
-        <servlet-name>mutation_3d_json</servlet-name>
-        <url-pattern>/get3dPdb.json</url-pattern>
-    </servlet-mapping>
 
 	<servlet>
 		<servlet-name>mutation_data_json</servlet-name>

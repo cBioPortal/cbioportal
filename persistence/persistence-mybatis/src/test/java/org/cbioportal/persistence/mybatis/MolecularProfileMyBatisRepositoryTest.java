@@ -28,7 +28,7 @@ public class MolecularProfileMyBatisRepositoryTest {
         List<MolecularProfile> result = molecularProfileMyBatisRepository.getAllMolecularProfiles("ID", null, null, 
             null, null);
 
-        Assert.assertEquals(9, result.size());
+        Assert.assertEquals(10, result.size());
         MolecularProfile molecularProfile = result.get(0);
         Assert.assertEquals((Integer) 8, molecularProfile.getMolecularProfileId());
         Assert.assertEquals("acc_tcga_mutations", molecularProfile.getStableId());
@@ -41,7 +41,7 @@ public class MolecularProfileMyBatisRepositoryTest {
         List<MolecularProfile> result = molecularProfileMyBatisRepository.getAllMolecularProfiles("SUMMARY", null, null, 
             null, null);
 
-        Assert.assertEquals(9, result.size());
+        Assert.assertEquals(10, result.size());
         MolecularProfile molecularProfile = result.get(0);
         Assert.assertEquals((Integer) 2, molecularProfile.getMolecularProfileId());
         Assert.assertEquals("study_tcga_pub_gistic", molecularProfile.getStableId());
@@ -64,7 +64,7 @@ public class MolecularProfileMyBatisRepositoryTest {
         List<MolecularProfile> result = molecularProfileMyBatisRepository.getAllMolecularProfiles("DETAILED", null, 
             null, null, null);
 
-        Assert.assertEquals(9, result.size());
+        Assert.assertEquals(10, result.size());
         MolecularProfile molecularProfile = result.get(0);
         Assert.assertEquals((Integer) 2, molecularProfile.getMolecularProfileId());
         Assert.assertEquals("study_tcga_pub_gistic", molecularProfile.getStableId());
@@ -109,7 +109,7 @@ public class MolecularProfileMyBatisRepositoryTest {
         List<MolecularProfile> result = molecularProfileMyBatisRepository.getAllMolecularProfiles("SUMMARY", null, null,
                 "stableId", "ASC");
 
-        Assert.assertEquals(9, result.size());
+        Assert.assertEquals(10, result.size());
         Assert.assertEquals("acc_tcga_mutations", result.get(0).getStableId());
         Assert.assertEquals("study_tcga_pub_gistic", result.get(1).getStableId());
         Assert.assertEquals("study_tcga_pub_gsva_scores", result.get(2).getStableId());
@@ -118,6 +118,7 @@ public class MolecularProfileMyBatisRepositoryTest {
         Assert.assertEquals("study_tcga_pub_mrna", result.get(6).getStableId());
         Assert.assertEquals("study_tcga_pub_mutations", result.get(7).getStableId());
         Assert.assertEquals("study_tcga_pub_sv", result.get(8).getStableId());
+        Assert.assertEquals("study_tcga_pub_treatment_ic50", result.get(9).getStableId());
     }
 
     @Test
@@ -125,7 +126,7 @@ public class MolecularProfileMyBatisRepositoryTest {
 
         BaseMeta result = molecularProfileMyBatisRepository.getMetaMolecularProfiles();
 
-        Assert.assertEquals((Integer) 9, result.getTotalCount());
+        Assert.assertEquals((Integer) 10, result.getTotalCount());
     }
 
     @Test
@@ -197,7 +198,7 @@ public class MolecularProfileMyBatisRepositoryTest {
         List<MolecularProfile> result = molecularProfileMyBatisRepository
             .getAllMolecularProfilesInStudy("study_tcga_pub", "SUMMARY", null, null, null, null);
 
-        Assert.assertEquals(8, result.size());
+        Assert.assertEquals(9, result.size());
         MolecularProfile molecularProfile = result.get(0);
         Assert.assertEquals((Integer) 2, molecularProfile.getMolecularProfileId());
         Assert.assertEquals("study_tcga_pub_gistic", molecularProfile.getStableId());
@@ -219,7 +220,7 @@ public class MolecularProfileMyBatisRepositoryTest {
 
         BaseMeta result = molecularProfileMyBatisRepository.getMetaMolecularProfilesInStudy("study_tcga_pub");
 
-        Assert.assertEquals((Integer) 8, result.getTotalCount());
+        Assert.assertEquals((Integer) 9, result.getTotalCount());
     }
 
     @Test
@@ -228,7 +229,7 @@ public class MolecularProfileMyBatisRepositoryTest {
         List<MolecularProfile> result = molecularProfileMyBatisRepository
             .getMolecularProfilesInStudies(Arrays.asList("study_tcga_pub", "acc_tcga"), "SUMMARY");
 
-        Assert.assertEquals(9, result.size());
+        Assert.assertEquals(10, result.size());
         MolecularProfile molecularProfile = result.get(0);
         Assert.assertEquals((Integer) 8, molecularProfile.getMolecularProfileId());
         Assert.assertEquals("acc_tcga_mutations", molecularProfile.getStableId());
@@ -250,6 +251,6 @@ public class MolecularProfileMyBatisRepositoryTest {
         BaseMeta result = molecularProfileMyBatisRepository.getMetaMolecularProfilesInStudies(
             Arrays.asList("study_tcga_pub", "acc_tcga"));
 
-        Assert.assertEquals((Integer) 9, result.getTotalCount());
+        Assert.assertEquals((Integer) 10, result.getTotalCount());
     }
 }

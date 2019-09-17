@@ -87,12 +87,12 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
 	}
 
     @Override
-    public List<CopyNumberCountByGene> getPatientCountByGeneAndAlterationAndPatientIds(String molecularProfileId, 
+    public List<CopyNumberCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                                        List<String> patientIds, 
                                                                                        List<Integer> entrezGeneIds, 
                                                                                        List<Integer> alterations) {
         
-        return discreteCopyNumberMapper.getPatientCountByGeneAndAlterationAndPatientIds(molecularProfileId, patientIds, 
+        return discreteCopyNumberMapper.getPatientCountInMultipleMolecularProfiles(molecularProfileIds, patientIds, 
             entrezGeneIds, alterations);
     }
 }

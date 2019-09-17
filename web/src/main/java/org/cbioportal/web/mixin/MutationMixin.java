@@ -12,4 +12,6 @@ public class MutationMixin {
     private Integer oncotatorProteinPosStart;
     @JsonProperty("proteinPosEnd")
     private Integer oncotatorProteinPosEnd;
+    @JsonProperty("chr")
+    private String chr;
 }

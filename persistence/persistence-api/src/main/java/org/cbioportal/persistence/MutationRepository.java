@@ -53,7 +53,7 @@ public interface MutationRepository {
                                                                         List<Integer> entrezGeneIds);
 
     @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
-    List<MutationCountByGene> getPatientCountByEntrezGeneIdsAndSampleIds(String molecularProfileId,
+    List<MutationCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                          List<String> patientIds,
                                                                          List<Integer> entrezGeneIds);
 

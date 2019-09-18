@@ -23,7 +23,7 @@ public class ClinicalDataEqualityFilterApplier extends ClinicalDataFilterApplier
     {
         super(patientService, clinicalDataService, sampleService, studyViewFilterUtil);
     }
-    
+
     @Override
     public Integer apply(List<ClinicalDataEqualityFilter> attributes,
                          MultiKeyMap clinicalDataMap,
@@ -32,18 +32,19 @@ public class ClinicalDataEqualityFilterApplier extends ClinicalDataFilterApplier
                          Boolean negateFilters)
     {
         Integer count = 0;
-
         for (ClinicalDataEqualityFilter s : attributes) {
             List<ClinicalData> entityClinicalData = (List<ClinicalData>)clinicalDataMap.get(entityId, studyId);
+            List<String> clinicalAttrs = s.getValues();
+            s.getValues().replaceAll(String::toUpperCase);
             if (entityClinicalData != null) {
-                Optional<ClinicalData> clinicalData = entityClinicalData.stream().filter(c -> c.getAttrId()
-                    .equals(s.getAttributeId())).findFirst();
-                if (clinicalData.isPresent() && (negateFilters ^ s.getValues().contains(clinicalData.get().getAttrValue()))) {
+                Optional<ClinicalData> clinicalData = entityClinicalData.stream().filter(c -> c.getAttrId().toUpperCase()
+                    .equals(s.getAttributeId().toUpperCase())).findFirst();
+                if (clinicalData.isPresent() && (negateFilters ^ clinicalAttrs.contains(clinicalData.get().getAttrValue()))) {
                     count++;
-                } else if (!clinicalData.isPresent() && (negateFilters ^ s.getValues().contains("NA"))) {
+                } else if (!clinicalData.isPresent() && (negateFilters ^ clinicalAttrs.contains("NA"))) {
                     count++;
                 }
-            } else if (negateFilters ^ s.getValues().contains("NA")) {
+            } else if (negateFilters ^ clinicalAttrs.contains("NA")) {
                 count++;
             }
         }

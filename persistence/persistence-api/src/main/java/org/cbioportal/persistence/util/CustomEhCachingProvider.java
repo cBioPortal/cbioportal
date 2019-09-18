@@ -61,7 +61,7 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
 
         CacheManager toReturn = null;
          try {
-            if (cacheEnabled) {
+            if (cacheEnabled != null && cacheEnabled) {
                 LOG.info("Caching is enabled, using '" + xmlConfiguration + "' for configuration");
                 toReturn = this.getCacheManager(getClass().getResource(xmlConfiguration).toURI(),
                                             getClass().getClassLoader());

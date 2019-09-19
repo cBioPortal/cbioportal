@@ -1,7 +1,5 @@
 ## September 18, 2019
-* **New Feature**: *Save your chart display preferences* on the study view, which includes the order of the charts as well as which ones to show by default. see [example](https://www.cbioportal.org/study/summary?id=msk_impact_2017):
-    
-    ![chart_pref_feature_320px](https://user-images.githubusercontent.com/1334004/65269603-85498800-dae7-11e9-8386-07a689632ecb.gif))
+* **New Feature**: The list and order of charts of a study will be automatically saved now as a user preference on the _study view_ page.
 
 ## September 6, 2019
 *   **Added data** consisting of 1216 samples from 3 studies:

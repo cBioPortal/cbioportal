@@ -1,11 +1,20 @@
+## September 18, 2019
+* **New Feature**: *Save your chart display preferences* on the study view, which includes the order of the charts as well as which ones to show by default. see [example](https://www.cbioportal.org/study/summary?id=msk_impact_2017):
+    
+    ![chart_pref_feature_320px](https://user-images.githubusercontent.com/1334004/65269603-85498800-dae7-11e9-8386-07a689632ecb.gif))
+
+## September 6, 2019
+*   **Added data** consisting of 1216 samples from 3 studies:
+    * [Breast Cancer (MSKCC, 2019)](https://www.cbioportal.org/study/summary?id=brca_mskcc_2019) *70 samples* 
+    * [Brain Tumor PDXs (Mayo Clinic, 2019)](https://www.cbioportal.org/study/summary?id=gbm_mayo_pdx_sarkaria_2019)*97 samples*
+    * [Adenoid Cystic Carcinoma Project (2019)](https://www.cbioportal.org/study/summary?id=acc_2019) *1049 samples* 
+
 ## September 6, 2019
 *   **Added data** consisting of 1216 samples from 3 studies:
     * [Breast Cancer (MSKCC, 2019)](https://www.cbioportal.org/study/summary?id=brca_mskcc_2019) *70 samples* 
     * [Brain Tumor PDXs (Mayo Clinic, 2019)](https://www.cbioportal.org/study/summary?id=gbm_mayo_pdx_sarkaria_2019)*97 samples*
     * [Adenoid Cystic Carcinoma Project (2019)](https://www.cbioportal.org/study/summary?id=acc_2019) *1049 samples* 
      
-
-
 ## August 13, 2019
 *   **Added data** consisting of 295 samples from 3 studies:
     *  [Pediatric Preclinical Testing Consortium (PPTC, 2019)](https://www.cbioportal.org/study/summary?id=pptc_2019) *261 samples*

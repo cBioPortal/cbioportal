@@ -239,29 +239,24 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
                     }
                 }
 
-                if (genericAssayMeta == null) {
-                
-                    // create a new generic assay meta and add to the database
-                    GeneticEntity newGeneticEntity = new GeneticEntity(geneticAlterationType.name(), stableId);
-                    ProgressMonitor.setCurrentMessage("Adding generic assay: " + newGeneticEntity.getStableId());
-                    DaoGeneticEntity.addNewGeneticEntity(newGeneticEntity);
-                    propertiesMap.forEach((k, v) -> {
-                        try {
-                            DaoGenericAssay.setGenericEntityProperty(newGeneticEntity.getStableId(), k, v);
-                        } catch (DaoException e) {
-                            e.printStackTrace();
-                        }
-                    });
-
-                }
                 // update the meta-information fields of the generic assay
-                else {
-
-                    ProgressMonitor.setCurrentMessage("Updating generic assay: " + genericAssayMeta.getStableId());
+                if (genericAssayMeta != null && genericAssayMeta.getEntityType().equals(geneticAlterationType.name())) {
                     DaoGenericAssay.deleteGenericEntityPropertiesByStableId(genericAssayMeta.getStableId());
                     propertiesMap.forEach((k, v) -> {
                         try {
                             DaoGenericAssay.setGenericEntityProperty(genericAssayMeta.getStableId(), k, v);
+                        } catch (DaoException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                // create a new generic assay meta and add to the database
+                else {
+                    GeneticEntity newGeneticEntity = new GeneticEntity(geneticAlterationType.name(), stableId);
+                    GeneticEntity createdGeneticEntity = DaoGeneticEntity.addNewGeneticEntity(newGeneticEntity);
+                    propertiesMap.forEach((k, v) -> {
+                        try {
+                            DaoGenericAssay.setGenericEntityProperty(createdGeneticEntity.getId(), k, v);
                         } catch (DaoException e) {
                             e.printStackTrace();
                         }
@@ -274,7 +269,7 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
         
         reader.close();
         
-        ProgressMonitor.setCurrentMessage("Finished loading treatments.\n");
+        ProgressMonitor.setCurrentMessage("Finished loading generic assay.\n");
         
         return;
     }

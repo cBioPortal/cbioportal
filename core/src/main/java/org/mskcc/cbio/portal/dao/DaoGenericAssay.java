@@ -12,6 +12,30 @@ import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 public class DaoGenericAssay {
 
+    public static void setGenericEntityProperty(int id, String name, String value) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
+            pstmt = con.prepareStatement("INSERT INTO generic_entity_properties (`GENETIC_ENTITY_ID`, `NAME`, `VALUE`) "
+            + "VALUES(?,?,?)");
+            GeneticEntity entity = DaoGeneticEntity.getGeneticEntityById(id);
+            if (entity == null) {
+                return;
+            }
+            pstmt.setInt(1, entity.getId());
+            pstmt.setString(2, name);
+            pstmt.setString(3, value);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            JdbcUtil.closeAll(DaoGeneticEntity.class, con, pstmt, rs);
+        }
+    }
+
     public static void setGenericEntityProperty(String stableId, String name, String value) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

@@ -19,6 +19,7 @@
     * [Gene Set Data](#gene-set-data)
     * [Study Tags file](#study-tags-file)
     * [Treatment Response Data](#treatment-response-data)
+    * [Generic Assay](#generic-assay)
 
 # Introduction
 
@@ -1340,4 +1341,55 @@ The cells contain treatment response values that can be postive and negative rea
 <tr><td>17-AAG</td><td>Tanespimycin</td><td>Hsp90 inhibitor</td><td>https://en.wikipedia.org/wiki/Tanespimycin</td><td>0.228</td><td>0.330</td><td>0.0530</td></tr>
 <tr><td>AEW541</td><td>Larotrectinib</td><td>TrkA/B/C inhibitor</td><td>https://en.wikipedia.org/wiki/Larotrectinib</td><td>>8</td><td>2.33</td><td>2.68</td></tr>
 <tr><td>AZD0530</td><td>Saracatinib</td><td>Src/Bcr-Abl inhibitor</td><td>https://en.wikipedia.org/wiki/Saracatinib</td><td>NA</td><td>>8</td><td>4.60</td></tr>
+</table>
+
+## Generic Assay
+Generic assay is a generic data type, which can holds different types of data on samples. [Add-New-Generic-Assay](Add-New-Generic-Assay.md) cBioPortal supports any number of response data types imported from separate data files. Any meta information on generic assay are not part of the cBioPortal seed database, but are imported automatically from generic assay data files. For meta information already present in the database, all the fields are overwitten by subsequent imports of new generic assay data files. The `entity_stable_id` field must be unique within a data file.
+
+### Generic Assay meta file
+The meta file will be similar to meta files of other genetic profiles, such as mRNA expression. For generic assay data `LIMIT-VALUE` is used as `datatype`. The `LIMIT-VALUE` is validated to contain any continuous number optionally prefixed with a '>' or '<' threshold symbol (e.g., '>8.00'). For generic assay meta files values for `stable_id` are not pre-registered in the cBioPortal implementation, but can be freely chosen by the user. Requirement is that each generic assay meta file is assigned an unique `stable_id` by the user. This requirement is validated by the data validation scripts. 
+
+Required fields: 
+```
+cancer_study_identifier: Same value as specified in meta file of the study
+genetic_alteration_type: <type of the generic assay data>
+datatype: LIMIT-VALUE
+stable_id: Any unique identifier using a combination of alphanumeric characters, _ and -
+profile_name: A name describing the analysis.
+profile_description: A description of the data processing done.
+data_filename: <name of generic assay data file>
+show_profile_in_analysis_tab: true
+generic_entity_meta_properties: The meta properties you want to have in your meta data, you need to specify them here, properties must seperated by column (e.g., 'name,description')
+```
+
+Example:
+```
+cancer_study_identifier: study_es_0
+genetic_alteration_type: MUTATIONAL_SIGNATURE
+datatype: LIMIT-VALUE
+stable_id: mutational_signature
+profile_name: data of mutational signature
+profile_description: Description of data of mutational signature
+data_filename: data_mutational_signature.txt
+show_profile_in_analysis_tab: true
+generic_entity_meta_properties: name,description
+```
+
+#### Note on `generic_entity_meta_properties`
+All meta properties must be specified in `generic_entity_meta_properties`. Also, all meta properties specified in `generic_entity_meta_properties` are required to be shown in the data file as a same name column.
+
+#### Note on `Generic Assay` genetic_alteration_type and `LIMIT-VALUE` datatype
+all generic assay data is registered to be of the type of `genetic_alteration_type` and data type `LIMIT-VALUE`. This alteration and data type is intended to be used for any numerical data set with similar structure (entities measured in samples).
+
+### Generic Assay data file
+The data file will be a simple tab separated format, similar to the expression data file: each sample is a column, each generic assay is a row, each cell contains values for that generic_assay x sample combination.
+
+The first column must be named `entity_stable_id` and contains unique identifiers for the generic assay. The `entity_stable_id` column can be followed by optional columns specified in `generic_entity_meta_properties`.
+
+The cells contain values that can be postive and negative real numbers including 0. When no response value, it should be "NA". Empty cell are not allowed. Numerical values van have a "<" or ">" prefix to indicate that the real value is smaller or larger than the stated response value, respectively. Example with 3 generic assays and 3 samples:
+
+<table>
+<thead><tr><th>entity_stable_id</th><th>name</th><th>description</th><th>TCGA-AO-A0J</th><th>TCGA-A2-A0Y</th><th>TCGA-A2-A0S</th></tr></thead>
+<tr><td>mut_sig_mean</td><td>name of mean</td><td>description of mean</td><td>0.370</td><td>0.010</td><td>0.005</td></tr>
+<tr><td>mut_sig_confidence</td><td>name of confidence</td><td>description of confidence</td><td>0.653</td><td>0.066</td><td>0.050</td></tr>
 </table>

@@ -61,7 +61,7 @@ class MetaFileTypes(object):
     GSVA_SCORES = 'meta_gsva_scores'
     GSVA_PVALUES = 'meta_gsva_pvalues'
     TREATMENT = 'meta_treatment'
-    MUTATIONAL_SIGNATURE = 'meta_mutational_signature'
+    GENERIC_ASSAY = 'meta_generic_assay'
     STRUCTURAL_VARIANT = 'meta_structural_variants'
 
 
@@ -265,7 +265,7 @@ META_FIELD_MAP = {
         'pivot_threshold_value': True,
         'value_sort_order': True
     },
-    MetaFileTypes.MUTATIONAL_SIGNATURE: {
+    MetaFileTypes.GENERIC_ASSAY: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -311,7 +311,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.GSVA_SCORES: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.GSVA_PVALUES: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.TREATMENT: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    MetaFileTypes.MUTATIONAL_SIGNATURE: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.GENERIC_ASSAY: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.STRUCTURAL_VARIANT: "org.mskcc.cbio.portal.scripts.ImportProfileData"
 }
 
@@ -575,7 +575,7 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("GENESET_SCORE", "GSVA-SCORE"): MetaFileTypes.GSVA_SCORES,
         ("GENESET_SCORE", "P-VALUE"): MetaFileTypes.GSVA_PVALUES,
         ("TREATMENT", "LIMIT-VALUE"): MetaFileTypes.TREATMENT,
-        ("MUTATIONAL_SIGNATURE", "LIMIT-VALUE"): MetaFileTypes.MUTATIONAL_SIGNATURE
+        ("MUTATIONAL_SIGNATURE", "LIMIT-VALUE"): MetaFileTypes.GENERIC_ASSAY
     }
     result = None
     if 'genetic_alteration_type' in meta_dictionary and 'datatype' in meta_dictionary:

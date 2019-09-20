@@ -103,7 +103,7 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.GSVA_SCORES:'GsvaScoreValidator',
     cbioportal_common.MetaFileTypes.GSVA_PVALUES:'GsvaPvalueValidator',
     cbioportal_common.MetaFileTypes.TREATMENT:'TreatmentValidator',
-    cbioportal_common.MetaFileTypes.MUTATIONAL_SIGNATURE:'MutationalSignatureValidator',
+    cbioportal_common.MetaFileTypes.GENERIC_ASSAY:'GenericAssayValidator',
     cbioportal_common.MetaFileTypes.STRUCTURAL_VARIANT:'StructuralVariantValidator'
 }
 
@@ -4071,18 +4071,15 @@ class TreatmentValidator(TreatmentWiseFileValidator):
 
         return
 
-class MutationalSignatureWiseFileValidator(FeaturewiseFileValidator):
-    """Groups multiple treatment response files from a study to ensure consistency.
-
-    All Validator classes that check validity of different treatment response data
-    types in a study should inherit from this class.
+class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
+    """ Generic assay file base validator
     """
     prior_validated_sample_ids = None
     prior_validated_feature_ids = None
     prior_validated_header = None
     def __init__(self, *args, **kwargs):
         """Initialize the instance attributes of the data file validator."""
-        super(MutationalSignatureWiseFileValidator, self).__init__(*args, **kwargs)
+        super(GenericAssayWiseFileValidator, self).__init__(*args, **kwargs)
         self.REQUIRED_HEADERS.extend(self.meta_dict['generic_entity_meta_properties'].split(','))
 
     REQUIRED_HEADERS = ['entity_stable_id']
@@ -4108,15 +4105,15 @@ class MutationalSignatureWiseFileValidator(FeaturewiseFileValidator):
                                      'column_number': col_index + 1,
                                      'cause': value})
 
-class MutationalSignatureValidator(MutationalSignatureWiseFileValidator):
+class GenericAssayValidator(GenericAssayWiseFileValidator):
 
-    """ Validator for files containing treatment response values.
+    """ Validator for files containing generic assay values.
     """
 
     # (1) Natural positive number (not 0)
-    # (2) Number may be prefixed by ">" or "<"; f.i. ">n" means that the treatment was ineffective at the highest tested concentration of n.
-    # (3) NA cell value is allowed; means treatment was not tested on a sample
-    # (4) Is an empty cell value allowed? (meaning treatment was not tested on a sample)
+    # (2) Number may be prefixed by ">" or "<"; f.i. ">n" means that the data was ineffective at the highest tested concentration of n.
+    # (3) NA cell value is allowed; means value was not tested on a sample
+    # (4) Is an empty cell value allowed? (meaning data was not tested on a sample)
     #
     # Warnings for values:
     # (1) Cell contains a value without decimals and is not prependend by ">"; value appears to be truncated but lacks ">" truncation indicator

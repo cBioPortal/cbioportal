@@ -1344,7 +1344,7 @@ The cells contain treatment response values that can be postive and negative rea
 </table>
 
 ## Generic Assay
-Generic assay is a generic data type, which can holds different types of data on samples. [Add-New-Generic-Assay](Add-New-Generic-Assay.md) cBioPortal supports any number of response data types imported from separate data files. Any meta information on generic assay are not part of the cBioPortal seed database, but are imported automatically from generic assay data files. For meta information already present in the database, all the fields are overwitten by subsequent imports of new generic assay data files. The `entity_stable_id` field must be unique within a data file.
+Generic assay is a generic data type, which can holds different types of data on samples. cBioPortal supports any number of response data types imported from separate data files. Any meta information on generic assay are not part of the cBioPortal seed database, but are imported automatically from generic assay data files. For meta information already present in the database, all the fields are overwitten by subsequent imports of new generic assay data files. The `entity_stable_id` field must be unique within a data file.
 
 ### Generic Assay meta file
 The meta file will be similar to meta files of other genetic profiles, such as mRNA expression. For generic assay data `LIMIT-VALUE` is used as `datatype`. The `LIMIT-VALUE` is validated to contain any continuous number optionally prefixed with a '>' or '<' threshold symbol (e.g., '>8.00'). For generic assay meta files values for `stable_id` are not pre-registered in the cBioPortal implementation, but can be freely chosen by the user. Requirement is that each generic assay meta file is assigned an unique `stable_id` by the user. This requirement is validated by the data validation scripts. 
@@ -1352,7 +1352,7 @@ The meta file will be similar to meta files of other genetic profiles, such as m
 Required fields: 
 ```
 cancer_study_identifier: Same value as specified in meta file of the study
-genetic_alteration_type: <type of the generic assay data>
+genetic_alteration_type: GENERIC_ASSAY
 datatype: LIMIT-VALUE
 stable_id: Any unique identifier using a combination of alphanumeric characters, _ and -
 profile_name: A name describing the analysis.
@@ -1365,7 +1365,7 @@ generic_entity_meta_properties: The meta properties you want to have in your met
 Example:
 ```
 cancer_study_identifier: study_es_0
-genetic_alteration_type: MUTATIONAL_SIGNATURE
+genetic_alteration_type: GENERIC_ASSAY
 datatype: LIMIT-VALUE
 stable_id: mutational_signature
 profile_name: data of mutational signature

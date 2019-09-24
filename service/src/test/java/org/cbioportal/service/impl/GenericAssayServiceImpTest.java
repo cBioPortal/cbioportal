@@ -35,7 +35,7 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
     public static final String GENERIC_ASSAY_ID_2 = "generic_assay_id_2";
     public static final String STUDY_ID_2 = "study_id_2";
     private static final int INTERNAL_ID_2 = 2;
-    public static final String ENTITY_TYPE = "MUTATIONAL_SIGNATURE";
+    public static final String ENTITY_TYPE = "GENERIC_ASSAY";
 
     private static final List<String> idList = Arrays.asList(GENERIC_ASSAY_ID_1, GENERIC_ASSAY_ID_2);
     private static final  List<GenericAssayMeta> mockGenericAssayMetaList = createGenericAssayMetaList();

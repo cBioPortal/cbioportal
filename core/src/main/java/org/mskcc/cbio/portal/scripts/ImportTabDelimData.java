@@ -150,7 +150,7 @@ public class ImportTabDelimData {
                                 && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.TREATMENT
                                 && parts[0].equalsIgnoreCase("entity_stable_id");
         boolean genericAssayProfile = geneticProfile!=null
-                                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATIONAL_SIGNATURE
+                                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY
                                 && parts[0].equalsIgnoreCase("entity_stable_id");
         
         int numRecordsToAdd = 0;
@@ -766,7 +766,7 @@ public class ImportTabDelimData {
                     ProgressMonitor.logWarning("Mutational Signature " + parts[genericAssayIdIndex] + " not found in DB. Record will be skipped.");
                 }
                 recordIsStored = storeGeneticEntityGeneticAlterations(values, daoGeneticAlteration, geneticEntity.getId(), 
-                                    EntityType.MUTATIONAL_SIGNATURE, genericAssayMeta.getStableId());
+                                    EntityType.GENERIC_ASSAY, genericAssayMeta.getStableId());
             }
 
             return recordIsStored;

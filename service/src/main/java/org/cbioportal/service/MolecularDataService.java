@@ -23,8 +23,8 @@ public interface MolecularDataService {
     BaseMeta fetchMetaMolecularData(String molecularProfileId, List<String> sampleIds, List<Integer> entrezGeneIds) 
         throws MolecularProfileNotFoundException;
 
-   Iterable<GeneMolecularAlteration> getMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds, 
-                                                              String projection) throws MolecularProfileNotFoundException;
+   List<GeneMolecularAlteration> getMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds, 
+                                                         String projection) throws MolecularProfileNotFoundException;
     
     Integer getNumberOfSamplesInMolecularProfile(String molecularProfileId);
 

@@ -1,5 +1,6 @@
 package org.cbioportal.web.util;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -461,8 +462,8 @@ public class StudyViewFilterApplierTest {
         clinicalDataIntervalFilter1.setAttributeId(CLINICAL_ATTRIBUTE_ID_3);
         clinicalDataIntervalFilter1.setClinicalDataType(ClinicalDataType.SAMPLE);
         ClinicalDataIntervalFilterValue filterValue1 = new ClinicalDataIntervalFilterValue();
-        filterValue1.setStart(66.6);
-        filterValue1.setEnd(666.0);
+        filterValue1.setStart(new BigDecimal("66.6"));
+        filterValue1.setEnd(new BigDecimal("666"));
         clinicalDataIntervalFilter1.setValues(Collections.singletonList(filterValue1));
         clinicalDataIntervalFilters.add(clinicalDataIntervalFilter1);
         studyViewFilter.setClinicalDataIntervalFilters(clinicalDataIntervalFilters);
@@ -471,16 +472,16 @@ public class StudyViewFilterApplierTest {
         Assert.assertEquals(1, result1.size());
 
         ClinicalDataIntervalFilterValue filterValue2 = new ClinicalDataIntervalFilterValue();
-        filterValue2.setStart(6.66);
-        filterValue2.setEnd(66.6);
+        filterValue2.setStart(new BigDecimal("6.66"));
+        filterValue2.setEnd(new BigDecimal("66.6"));
         clinicalDataIntervalFilter1.setValues(Arrays.asList(filterValue1, filterValue2));
         
         List<SampleIdentifier> result2 = studyViewFilterApplier.apply(studyViewFilter);
         Assert.assertEquals(2, result2.size());
 
         ClinicalDataIntervalFilterValue filterValue3 = new ClinicalDataIntervalFilterValue();
-        filterValue3.setStart(6.66);
-        filterValue3.setEnd(666.0);
+        filterValue3.setStart(new BigDecimal("6.66"));
+        filterValue3.setEnd(new BigDecimal("666"));
         clinicalDataIntervalFilter1.setValues(Arrays.asList(filterValue1, filterValue2, filterValue3));
 
         List<SampleIdentifier> result3 = studyViewFilterApplier.apply(studyViewFilter);

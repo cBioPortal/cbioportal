@@ -153,7 +153,16 @@ public class ImportCopyNumberSegmentData extends ConsoleRunnable {
     private static void importCopyNumberSegmentFileMetadata(CancerStudy cancerStudy, Properties properties) throws DaoException {
         CopyNumberSegmentFile copyNumSegFile = new CopyNumberSegmentFile();
         copyNumSegFile.cancerStudyId = cancerStudy.getInternalId();
-        copyNumSegFile.referenceGenomeId = getRefGenId(properties.getProperty("reference_genome_id").trim()); 
+        String referenceGenomeId = properties.getProperty("reference_genome_id").trim();
+        String referenceGenome = cancerStudy.getReferenceGenome();
+        if (referenceGenome == null) {
+            referenceGenome = ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME;
+        }
+        if (!referenceGenomeId.equalsIgnoreCase(referenceGenome)) {
+            ProgressMonitor.setCurrentMessage(" Genome Build Name does not match, expecting " 
+                    + cancerStudy.getReferenceGenome());
+        }
+        copyNumSegFile.referenceGenomeId = getRefGenId(referenceGenomeId); 
         copyNumSegFile.description = properties.getProperty("description").trim();
         copyNumSegFile.filename = properties.getProperty("data_filename").trim();
         DaoCopyNumberSegmentFile.addCopyNumberSegmentFile(copyNumSegFile);

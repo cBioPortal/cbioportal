@@ -66,6 +66,7 @@ public class CancerStudy {
     private Set<String> groups;
     private String shortName;
     private Date importDate;
+    private String referenceGenome;
     
 
     /**
@@ -190,6 +191,12 @@ public class CancerStudy {
 
     public void setCitation(String citation) {
         this.citation = citation;
+    }
+    
+    public String getReferenceGenome() { return referenceGenome; }
+    
+    public void setReferenceGenome(String referenceGenome) {
+        this.referenceGenome = referenceGenome;
     }
 
     /**
@@ -438,6 +445,23 @@ public class CancerStudy {
         Set<String> attrs = DaoClinicalData.getDistinctParameters(studyID);
         return attrs.contains(ClinicalAttribute.OS_STATUS) ||
                     attrs.contains(ClinicalAttribute.DFS_STATUS);
+    }
+
+    /**
+     * Check if study has fusion data 
+     * @return true if has fusion data, false when it's not
+     */
+    public boolean hasFusionData() {
+        ArrayList<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(studyID);
+        boolean hasFusionData = false;
+        for (GeneticProfile geneticProfile : geneticProfiles) {
+            if (geneticProfile.getDatatype().equals("SV")) { // check if genetic profiles contains Structural Variant
+                                                             // data type
+                hasFusionData = true;
+                break;
+            }
+        }
+        return hasFusionData;
     }
 
     public String getShortName() {

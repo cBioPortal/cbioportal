@@ -12,6 +12,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -157,8 +158,6 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 207, gene.getEntrezGeneId());
         Assert.assertEquals("AKT1", gene.getHugoGeneSymbol());
         Assert.assertEquals("protein-coding", gene.getType());
-        Assert.assertEquals("14q32.32", gene.getCytoband());
-        Assert.assertEquals((Integer) 10838, gene.getLength());
     }
 
     @Test
@@ -303,8 +302,8 @@ public class MutationMyBatisRepositoryTest {
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(208);
         
-        List<MutationCountByGene> result = mutationMyBatisRepository.getPatientCountByEntrezGeneIdsAndSampleIds(
-            "acc_tcga_mutations", null, entrezGeneIds);
+        List<MutationCountByGene> result = mutationMyBatisRepository.getPatientCountInMultipleMolecularProfiles(
+            Arrays.asList("acc_tcga_mutations"), null, entrezGeneIds);
         
         Assert.assertEquals(1, result.size());
         Assert.assertEquals((Integer) 1, result.get(0).getNumberOfAlteredCases());

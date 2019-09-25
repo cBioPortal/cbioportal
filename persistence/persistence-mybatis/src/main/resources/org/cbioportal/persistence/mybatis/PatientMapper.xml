@@ -20,6 +20,7 @@
     <sql id="from">
         FROM patient
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
     </sql>
 
     <sql id="where">
@@ -87,6 +88,7 @@
         FROM sample 
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID 
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         WHERE
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
             cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND

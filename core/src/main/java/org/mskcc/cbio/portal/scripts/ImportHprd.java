@@ -83,8 +83,8 @@ public class ImportHprd {
                 String expTypes = parts[6];
                 String pmids = parts[7];
 
-                CanonicalGene geneA = daoGene.getNonAmbiguousGene(geneAId, null);
-                CanonicalGene geneB = daoGene.getNonAmbiguousGene(geneBId, null);
+                CanonicalGene geneA = daoGene.getNonAmbiguousGene(geneAId, true);
+                CanonicalGene geneB = daoGene.getNonAmbiguousGene(geneBId, true);
 
                 //  Log genes that we cannot identify.
                 if (geneA == null) {

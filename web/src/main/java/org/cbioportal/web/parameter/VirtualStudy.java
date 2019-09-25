@@ -1,44 +1,34 @@
 package org.cbioportal.web.parameter;
 
-public class VirtualStudy {
+import java.io.IOException;
 
-    private String id;
-    private String source;
-    private String type;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.cbioportal.session_service.domain.Session;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class VirtualStudy extends Session {
+
+    private final Log LOG = LogFactory.getLog(VirtualStudy.class);
+
     private VirtualStudyData data;
 
-    public String getId() {
-        return id;
+    @Override
+    public void setData(Object data) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            this.data = mapper.readValue(mapper.writeValueAsString(data), VirtualStudyData.class);
+        } catch (IOException e) {
+            LOG.error(e);
+        }
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
+    @Override
     public VirtualStudyData getData() {
         return data;
     }
 
-    public void setData(VirtualStudyData data) {
-        this.data = data;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-    
 }
-
-

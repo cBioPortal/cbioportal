@@ -14,6 +14,7 @@ public class BaseServiceImplTest {
     public static final String SAMPLE_ID1 = "sample_id1";
     public static final String SAMPLE_ID2 = "sample_id2";
     public static final String SAMPLE_ID3 = "sample_id3";
+    public static final String SAMPLE_ID4 = "sample_id4";
     public static final String PATIENT_ID_1 = "patient_id1";
     public static final String PATIENT_ID_2 = "patient_id2";
     public static final String PATIENT_ID_3 = "patient_id3";
@@ -24,6 +25,13 @@ public class BaseServiceImplTest {
     public static final String CLINICAL_DATA_TYPE = "clinical_data_type";
     public static final Integer ENTREZ_GENE_ID_1 = 1;
     public static final Integer ENTREZ_GENE_ID_2 = 2;
+    public static final Integer ENTREZ_GENE_ID_3 = 3;
+    public static final Integer ENTREZ_GENE_ID_4 = 4;
+    public static final Integer GENETIC_ENTITY_ID_1 = 1;
+    public static final Integer GENETIC_ENTITY_ID_2 = 2;
+    public static final Integer GENETIC_ENTITY_ID_3 = 3;
+    public static final Integer GENETIC_ENTITY_ID_4 = 4;
+    public static final Integer REFERENCE_GENOME_ID = 1;
     public static final String GENESET_ID1 = "geneset_id1";
     public static final String GENESET_ID2 = "geneset_id2";
     public static final String HUGO_GENE_SYMBOL = "hugo_gene_symbol";
@@ -39,4 +47,11 @@ public class BaseServiceImplTest {
     public static final Integer SAMPLE_INTERNAL_ID = 1;
     public static final Integer SAMPLE_INTERNAL_ID2 = 2;
     public static final String SEQUENCED_LIST_SUFFIX = "_sequenced";
+    public static final String SORT_ORDER1 = "ASC";
+    public static final String SORT_ORDER2 = "DESC";
+    public static final Float PIVOT_POINT1 = 1f;
+    public static final Float PIVOT_POINT2 = 2f;
+    public static final String HUGO_GENE_SYMBOL_1 = "HUGO1";
+    public static final String HUGO_GENE_SYMBOL_2 = "HUGO2";
+    public static final String HUGO_GENE_SYMBOL_3 = "HUGO3";
 }

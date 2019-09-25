@@ -117,12 +117,12 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     }
 
     @Override
-    public Iterable<GeneMolecularAlteration> getMolecularAlterations(String molecularProfileId, 
-                                                                     List<Integer> entrezGeneIds, String projection)
+    public List<GeneMolecularAlteration> getMolecularAlterations(String molecularProfileId, 
+                                                                 List<Integer> entrezGeneIds, String projection)
         throws MolecularProfileNotFoundException {
 
         validateMolecularProfile(molecularProfileId);
-        return molecularDataRepository.getGeneMolecularAlterationsIterable(molecularProfileId, entrezGeneIds, projection);
+        return molecularDataRepository.getGeneMolecularAlterations(molecularProfileId, entrezGeneIds, projection);
     }
 
     @Override
@@ -201,7 +201,11 @@ public class MolecularDataServiceImpl implements MolecularDataService {
                         molecularData.setPatientId(sample.getPatientStableId());
                         molecularData.setStudyId(sample.getCancerStudyIdentifier());
                         molecularData.setEntrezGeneId(molecularAlteration.getEntrezGeneId());
-                        molecularData.setValue(molecularAlteration.getSplitValues()[indexOfSampleId]);
+                        try {
+                            molecularData.setValue(molecularAlteration.getSplitValues()[indexOfSampleId]);
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            molecularData.setValue(null);
+                        }
                         molecularData.setGene(molecularAlteration.getGene());
                         molecularDataList.add(molecularData);
                     }

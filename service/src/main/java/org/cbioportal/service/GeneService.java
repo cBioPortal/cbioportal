@@ -14,6 +14,8 @@ public interface GeneService {
     BaseMeta getMetaGenes(String keyword, String alias);
 
     Gene getGene(String geneId) throws GeneNotFoundException;
+    
+    Gene getGeneByGeneticEntityId(Integer geneticEntityId) throws  GeneNotFoundException;
 
     List<String> getAliasesOfGene(String geneId) throws GeneNotFoundException;
 

@@ -3,8 +3,10 @@ package org.cbioportal.web.util;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.cbioportal.model.*;
 import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.service.*;
@@ -26,6 +28,7 @@ public class StudyViewFilterApplier {
     private StudyViewFilterUtil studyViewFilterUtil;
     private GeneService geneService;
     private ClinicalAttributeService clinicalAttributeService;
+    private MolecularDataService molecularDataService;
 
     @Autowired
     public StudyViewFilterApplier(SampleService sampleService,
@@ -38,7 +41,8 @@ public class StudyViewFilterApplier {
                                   ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier,
                                   StudyViewFilterUtil studyViewFilterUtil,
                                   GeneService geneService,
-                                  ClinicalAttributeService clinicalAttributeService) {
+                                  ClinicalAttributeService clinicalAttributeService,
+                                  MolecularDataService molecularDataService) {
         this.sampleService = sampleService;
         this.mutationService = mutationService;
         this.discreteCopyNumberService = discreteCopyNumberService;
@@ -49,6 +53,7 @@ public class StudyViewFilterApplier {
         this.studyViewFilterUtil = studyViewFilterUtil;
         this.geneService = geneService;
         this.clinicalAttributeService = clinicalAttributeService;
+        this.molecularDataService = molecularDataService;
     }
 
     Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
@@ -125,9 +130,15 @@ public class StudyViewFilterApplier {
         List<MolecularProfile> molecularProfiles = null;
 
         if (!CollectionUtils.isEmpty(studyViewFilter.getGeneFilters())
+                || !CollectionUtils.isEmpty(studyViewFilter.getGenomicDataFilters())
                 || !CollectionUtils.isEmpty(studyViewFilter.getGenomicProfiles())) {
-            molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(new ArrayList<String>(studyIds),
-                    "SUMMARY");
+
+            molecularProfiles = molecularProfileService.getMolecularProfilesInStudies(studyIds, "SUMMARY");
+        }
+
+        List<GenomicDataFilter> genomicDataIntervalFilters = studyViewFilter.getGenomicDataFilters();
+        if (genomicDataIntervalFilters != null) {
+            sampleIdentifiers = intervalFilterGenomicData(sampleIdentifiers, molecularProfiles, genomicDataIntervalFilters, negateFilters);
         }
 
         if (!CollectionUtils.isEmpty(studyViewFilter.getGeneFilters())) {
@@ -211,6 +222,122 @@ public class StudyViewFilterApplier {
                                                               List<ClinicalDataFilter> clinicalDataIntervalFilters,
                                                               Boolean negateFilters) {
         return clinicalDataIntervalFilterApplier.apply(sampleIdentifiers, clinicalDataIntervalFilters, negateFilters);
+    }
+    
+    private List<SampleIdentifier> intervalFilterGenomicData(List<SampleIdentifier> sampleIdentifiers,
+            List<MolecularProfile> molecularProfiles,
+            List<GenomicDataFilter> genomicDataIntervalFilters, Boolean negateFilters) {
+
+        if (!genomicDataIntervalFilters.isEmpty() && !sampleIdentifiers.isEmpty()) {
+
+            Map<String, List<MolecularProfile>> molecularProfileMap = studyViewFilterUtil
+                    .categorizeMolecularPorfiles(molecularProfiles);
+
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+
+            Set<String> hugoGeneSymbols = genomicDataIntervalFilters.stream()
+                    .map(GenomicDataFilter::getHugoGeneSymbol).collect(Collectors.toSet());
+
+            Map<String, Integer> geneNameIdMap = geneService
+                    .fetchGenes(new ArrayList<>(hugoGeneSymbols), GeneIdType.HUGO_GENE_SYMBOL.name(),
+                            Projection.SUMMARY.name())
+                    .stream().collect(Collectors.toMap(Gene::getHugoGeneSymbol, Gene::getEntrezGeneId));
+
+            List<ClinicalData> clinicalDatas = genomicDataIntervalFilters.stream()
+                    .flatMap(genomicDataIntervalFilter -> {
+                        
+                        Map<String, String> studyIdToMolecularProfileIdMap = molecularProfileMap.getOrDefault(genomicDataIntervalFilter
+                                .getProfileType(), new ArrayList<MolecularProfile>())
+                                .stream()
+                                .collect(Collectors.toMap(MolecularProfile::getCancerStudyIdentifier,
+                                        MolecularProfile::getStableId));
+
+                        List<String> mappedSampleIds = new ArrayList<>();
+                        List<String> mappedProfileIds = new ArrayList<>();
+
+                        for (int i = 0; i < sampleIds.size(); i++) {
+                            String studyId = studyIds.get(i);
+                            if (studyIdToMolecularProfileIdMap.containsKey(studyId)) {
+                                mappedSampleIds.add(sampleIds.get(i));
+                                mappedProfileIds.add(studyIdToMolecularProfileIdMap.get(studyId));
+                            }
+                        }
+
+                        if (mappedSampleIds.isEmpty()) {
+                            return Stream.of();
+                        }
+
+                        String attributeId = studyViewFilterUtil.getGenomicDataFilterUniqueKey(genomicDataIntervalFilter.getHugoGeneSymbol(), genomicDataIntervalFilter.getProfileType());
+                        return molecularDataService
+                                .getMolecularDataInMultipleMolecularProfiles(mappedProfileIds, mappedSampleIds,
+                                        Arrays.asList(geneNameIdMap.get(genomicDataIntervalFilter.getHugoGeneSymbol())),
+                                        Projection.SUMMARY.name())
+                                .stream().map(geneMolecularData -> {
+                                    ClinicalData clinicalData = new ClinicalData();
+                                    clinicalData.setAttrId(attributeId);
+                                    clinicalData.setAttrValue(geneMolecularData.getValue());
+                                    clinicalData.setPatientId(geneMolecularData.getPatientId());
+                                    clinicalData.setSampleId(geneMolecularData.getSampleId());
+                                    clinicalData.setStudyId(geneMolecularData.getStudyId());
+                                    return clinicalData;
+                                });
+
+                    }).collect(Collectors.toList());
+
+            MultiKeyMap clinicalDataMap = new MultiKeyMap();
+
+            clinicalDatas.forEach(clinicalData -> {
+                if (clinicalDataMap.containsKey(clinicalData.getSampleId(), clinicalData.getStudyId())) {
+                    ((List<ClinicalData>) clinicalDataMap.get(clinicalData.getSampleId(), clinicalData.getStudyId()))
+                            .add(clinicalData);
+                } else {
+                    List<ClinicalData> clinicalDatasTemp = new ArrayList<>();
+                    clinicalDatasTemp.add(clinicalData);
+                    clinicalDataMap.put(clinicalData.getSampleId(), clinicalData.getStudyId(), clinicalDatasTemp);
+                }
+            });
+
+            List<ClinicalDataFilter> attributes = genomicDataIntervalFilters.stream()
+                    .map(genomicDataIntervalFilter -> {
+                        String attributeId = studyViewFilterUtil.getGenomicDataFilterUniqueKey(genomicDataIntervalFilter.getHugoGeneSymbol(), genomicDataIntervalFilter.getProfileType());
+                        ClinicalDataFilter clinicalDataIntervalFilter = new ClinicalDataFilter();
+                        clinicalDataIntervalFilter.setAttributeId(attributeId);
+                        clinicalDataIntervalFilter.setValues(genomicDataIntervalFilter.getValues());
+                        return clinicalDataIntervalFilter;
+                    }).collect(Collectors.toList());
+
+            List<String> ids = new ArrayList<>();
+            List<String> studyIdsOfIds = new ArrayList<>();
+            int index = 0;
+            for (String entityId : sampleIds) {
+                String studyId = studyIds.get(index);
+
+                int count = clinicalDataIntervalFilterApplier.apply(attributes, clinicalDataMap, entityId, studyId,
+                        negateFilters);
+
+                if (count == attributes.size()) {
+                    ids.add(entityId);
+                    studyIdsOfIds.add(studyId);
+                }
+                index++;
+            }
+
+            Set<String> idsSet = new HashSet<>(ids);
+            idsSet.retainAll(new HashSet<>(sampleIds));
+            List<SampleIdentifier> newSampleIdentifiers = new ArrayList<>();
+            for (int i = 0; i < ids.size(); i++) {
+                SampleIdentifier sampleIdentifier = new SampleIdentifier();
+                sampleIdentifier.setSampleId(ids.get(i));
+                sampleIdentifier.setStudyId(studyIdsOfIds.get(i));
+                newSampleIdentifiers.add(sampleIdentifier);
+            }
+
+            return newSampleIdentifiers;
+        }
+
+        return sampleIdentifiers;
     }
 
     private List<SampleIdentifier> equalityFilterClinicalData(List<SampleIdentifier> sampleIdentifiers,
@@ -392,5 +519,4 @@ public class StudyViewFilterApplier {
             }
         }
     }
-
 }

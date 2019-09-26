@@ -19,8 +19,7 @@ public class LogScaleDataBinner {
         this.dataBinHelper = dataBinHelper;
     }
 
-    public List<DataBin> calculateDataBins(String attributeId,
-                                           Range<BigDecimal> boxRange,
+    public List<DataBin> calculateDataBins(Range<BigDecimal> boxRange,
                                            List<BigDecimal> values,
                                            BigDecimal lowerOutlier,
                                            BigDecimal upperOutlier) {
@@ -57,7 +56,7 @@ public class LogScaleDataBinner {
             }
         }
 
-        return dataBinHelper.initDataBins(attributeId, values, intervals);
+        return dataBinHelper.initDataBins(values, intervals);
     }
 
     public BigDecimal calcIntervalValue(BigDecimal exponent) {

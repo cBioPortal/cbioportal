@@ -6,6 +6,7 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.DataBin;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
 import org.cbioportal.web.parameter.ClinicalDataType;
+import org.cbioportal.web.parameter.DataBinFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,20 +39,21 @@ public class DataBinner {
         this.logScaleDataBinner = logScaleDataBinner;
     }
 
-    public List<DataBin> calculateClinicalDataBins(ClinicalDataBinFilter clinicalDataBinFilter,
+    public <T extends DataBinFilter> List<DataBin> calculateClinicalDataBins(T dataBinFilter,
                                                    ClinicalDataType clinicalDataType,
                                                    List<ClinicalData> filteredClinicalData,
                                                    List<ClinicalData> unfilteredClinicalData,
                                                    List<String> filteredIds,
                                                    List<String> unfilteredIds) {
         // calculate data bins for unfiltered clinical data
-        List<DataBin> clinicalDataBins = calculateClinicalDataBins(
-            clinicalDataBinFilter, clinicalDataType, unfilteredClinicalData, unfilteredIds);
+        List<DataBin> dataBins = calculateDataBins(
+            dataBinFilter, clinicalDataType, unfilteredClinicalData, unfilteredIds);
+        
         // recount
-        return recalcBinCount(clinicalDataBins, clinicalDataType, filteredClinicalData, filteredIds);
+        return recalcBinCount(dataBins, clinicalDataType, filteredClinicalData, filteredIds);
     }
 
-    public List<DataBin> recalcBinCount(List<DataBin> clinicalDataBins,
+    public List<DataBin> recalcBinCount(List<DataBin> dataBins,
                                         ClinicalDataType clinicalDataType,
                                         List<ClinicalData> clinicalData,
                                         List<String> ids) {
@@ -62,7 +64,7 @@ public class DataBinner {
         List<Range<BigDecimal>> ranges = clinicalData == null ?
             Collections.emptyList() : filterSpecialRanges(clinicalData);
 
-        for (DataBin dataBin : clinicalDataBins) {
+        for (DataBin dataBin : dataBins) {
             // reset count
             dataBin.setCount(0);
 
@@ -93,18 +95,18 @@ public class DataBinner {
             }
         }
 
-        return clinicalDataBins;
+        return dataBins;
     }
 
-    public List<DataBin> calculateClinicalDataBins(ClinicalDataBinFilter clinicalDataBinFilter,
+    public <T extends DataBinFilter> List<DataBin> calculateDataBins(T dataBinFilter,
                                                    ClinicalDataType clinicalDataType,
                                                    List<ClinicalData> clinicalData,
                                                    List<String> ids) {
-        String attributeId = clinicalDataBinFilter.getAttributeId();
+
         boolean numericalOnly = false;
 
-        Range<BigDecimal> range = clinicalDataBinFilter.getStart() == null && clinicalDataBinFilter.getEnd() == null ?
-            Range.all() : studyViewFilterUtil.calcRange(clinicalDataBinFilter.getStart(), true, clinicalDataBinFilter.getEnd(), true);
+        Range<BigDecimal> range = dataBinFilter.getStart() == null && dataBinFilter.getEnd() == null ?
+            Range.all() : studyViewFilterUtil.calcRange(dataBinFilter.getStart(), true, dataBinFilter.getEnd(), true);
 
         if (range.hasUpperBound()) {
             clinicalData = filterSmallerThanUpperBound(clinicalData, range.upperEndpoint());
@@ -116,11 +118,11 @@ public class DataBinner {
             numericalOnly = true;
         }
 
-        DataBin upperOutlierBin = calcUpperOutlierBin(attributeId, clinicalData);
-        DataBin lowerOutlierBin = calcLowerOutlierBin(attributeId, clinicalData);
+        DataBin upperOutlierBin = calcUpperOutlierBin(clinicalData);
+        DataBin lowerOutlierBin = calcLowerOutlierBin(clinicalData);
         Collection<DataBin> numericalBins = calcNumericalClinicalDataBins(
-            attributeId, clinicalData, clinicalDataBinFilter.getCustomBins(), lowerOutlierBin, upperOutlierBin,
-            clinicalDataBinFilter.getDisableLogScale());
+                dataBinFilter, clinicalData, dataBinFilter.getCustomBins(), lowerOutlierBin, upperOutlierBin,
+            dataBinFilter.getDisableLogScale());
 
         List<DataBin> dataBins = new ArrayList<>();
 
@@ -140,9 +142,9 @@ public class DataBinner {
         if(!numericalOnly) {
             // add non numerical and NA data bins
 
-            dataBins.addAll(calcNonNumericalClinicalDataBins(attributeId, clinicalData));
+            dataBins.addAll(calcNonNumericalClinicalDataBins(clinicalData));
 
-            DataBin naDataBin = calcNaDataBin(attributeId, clinicalData, clinicalDataType ,ids);
+            DataBin naDataBin = calcNaDataBin(clinicalData, clinicalDataType, ids);
             if (!naDataBin.getCount().equals(0)) {
                 dataBins.add(naDataBin);
             }
@@ -164,9 +166,8 @@ public class DataBinner {
             .collect(Collectors.toList());
     }
 
-    public Collection<DataBin> calcNonNumericalClinicalDataBins(String attributeId,
-                                                                List<ClinicalData> clinicalData) {
-        return calcNonNumericalDataBins(attributeId, filterNonNumericalValues(clinicalData));
+    public Collection<DataBin> calcNonNumericalClinicalDataBins(List<ClinicalData> clinicalData) {
+        return calcNonNumericalDataBins(filterNonNumericalValues(clinicalData));
     }
 
     public List<String> filterNonNumericalValues(List<ClinicalData> clinicalData) {
@@ -177,14 +178,12 @@ public class DataBinner {
                 .collect(Collectors.toList());
     }
 
-    public Collection<DataBin> calcNonNumericalDataBins(String attributeId,
-                                                        List<String> nonNumericalValues) {
+    public Collection<DataBin> calcNonNumericalDataBins(List<String> nonNumericalValues) {
         Map<String, DataBin> map = new LinkedHashMap<>();
 
         for (String value : nonNumericalValues) {
             DataBin dataBin = map.computeIfAbsent(value.trim().toUpperCase(), key -> {
                 DataBin bin = new DataBin();
-                bin.setAttributeId(attributeId);
                 bin.setSpecialValue(value.trim());
                 bin.setCount(0);
                 return bin;
@@ -196,13 +195,13 @@ public class DataBinner {
         return map.values();
     }
 
-    public Collection<DataBin> calcNumericalClinicalDataBins(String attributeId,
+    public <T extends DataBinFilter> Collection<DataBin> calcNumericalClinicalDataBins(DataBinFilter dataBinFilter,
                                                              List<ClinicalData> clinicalData,
                                                              List<BigDecimal> customBins,
                                                              DataBin lowerOutlierBin,
                                                              DataBin upperOutlierBin,
                                                              Boolean disableLogScale) {
-        return calcNumericalDataBins(attributeId,
+        return calcNumericalDataBins(dataBinFilter,
             filterNumericalValues(clinicalData),
             customBins,
             lowerOutlierBin,
@@ -218,7 +217,7 @@ public class DataBinner {
             .collect(Collectors.toList());
     }
 
-    public Collection<DataBin> calcNumericalDataBins(String attributeId,
+    public <T extends DataBinFilter> Collection<DataBin> calcNumericalDataBins(DataBinFilter dataBinFilter,
                                                      List<BigDecimal> numericalValues,
                                                      List<BigDecimal> customBins,
                                                      DataBin lowerOutlierBin,
@@ -272,20 +271,20 @@ public class DataBinner {
         if (0 < uniqueValues.size() && uniqueValues.size() <= 5) {
             // No data intervals when the number of distinct values less than or equal to 5.
             // In this case, number of bins = number of distinct data values
-            dataBins = discreteDataBinner.calculateDataBins(attributeId, withoutOutliers, uniqueValues);
+            dataBins = discreteDataBinner.calculateDataBins(withoutOutliers, uniqueValues);
         } else if (withoutOutliers.size() > 0) {
 
             if (customBins != null) {
-                dataBins = linearDataBinner.calculateDataBins(attributeId, customBins, numericalValues);
+                dataBins = linearDataBinner.calculateDataBins(customBins, numericalValues);
             } else if (boxRange.upperEndpoint().subtract(boxRange.lowerEndpoint()).intValue() > 1000 &&
                 (disableLogScale == null || !disableLogScale)) {
-                dataBins = logScaleDataBinner.calculateDataBins(attributeId,
+                dataBins = logScaleDataBinner.calculateDataBins(
                     boxRange,
                     withoutOutliers,
                     lowerOutlierBin.getEnd(),
                     upperOutlierBin.getStart());
             } else if (dataBinHelper.isSmallData(sortedNumericalValues)) {
-                dataBins = scientificSmallDataBinner.calculateDataBins(attributeId,
+                dataBins = scientificSmallDataBinner.calculateDataBins(
                     sortedNumericalValues,
                     withoutOutliers,
                     lowerOutlierBin.getEnd(),
@@ -312,12 +311,12 @@ public class DataBinner {
                 BigDecimal upperOutlier = upperOutlierBin.getStart() == null ? boxRange.upperEndpoint()
                         : boxRange.upperEndpoint().min(upperOutlierBin.getStart());
 
-                dataBins = linearDataBinner.calculateDataBins(attributeId,
-                    areAllIntegers,
-                    boxRange,
-                    withoutOutliers,
-                    lowerOutlier,
-                    upperOutlier);
+                Optional<String> attributeId = dataBinFilter instanceof ClinicalDataBinFilter
+                        ? Optional.of(((ClinicalDataBinFilter) dataBinFilter).getAttributeId())
+                        : Optional.empty();
+
+                dataBins = linearDataBinner.calculateDataBins(areAllIntegers, boxRange, withoutOutliers, lowerOutlier,
+                        upperOutlier, attributeId);
             }
 
 
@@ -408,8 +407,8 @@ public class DataBinner {
         );
     }
 
-    public DataBin calcUpperOutlierBin(String attributeId, List<ClinicalData> clinicalData) {
-        DataBin dataBin = dataBinHelper.calcUpperOutlierBin(attributeId,
+    public DataBin calcUpperOutlierBin(List<ClinicalData> clinicalData) {
+        DataBin dataBin = dataBinHelper.calcUpperOutlierBin(
             doubleValuesForSpecialOutliers(clinicalData, ">="),
             doubleValuesForSpecialOutliers(clinicalData, ">"));
 
@@ -419,8 +418,8 @@ public class DataBinner {
         return dataBin;
     }
 
-    public DataBin calcLowerOutlierBin(String attributeId, List<ClinicalData> clinicalData) {
-        DataBin dataBin = dataBinHelper.calcLowerOutlierBin(attributeId,
+    public DataBin calcLowerOutlierBin(List<ClinicalData> clinicalData) {
+        DataBin dataBin = dataBinHelper.calcLowerOutlierBin(
             doubleValuesForSpecialOutliers(clinicalData, "<="),
             doubleValuesForSpecialOutliers(clinicalData, "<"));
 
@@ -440,13 +439,11 @@ public class DataBinner {
      *
      * @return 'NA' clinical data count as a DataBin instance
      */
-    public DataBin calcNaDataBin(String attributeId,
-                                 List<ClinicalData> clinicalData,
+    public DataBin calcNaDataBin(List<ClinicalData> clinicalData,
                                  ClinicalDataType clinicalDataType,
                                  List<String> ids) {
         DataBin bin = new DataBin();
 
-        bin.setAttributeId(attributeId);
         bin.setSpecialValue("NA");
 
         Long count = countNAs(clinicalData, clinicalDataType, ids);

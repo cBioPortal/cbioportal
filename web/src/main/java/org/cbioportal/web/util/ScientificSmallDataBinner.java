@@ -19,8 +19,7 @@ public class ScientificSmallDataBinner {
         this.dataBinHelper = dataBinHelper;
     }
 
-    public List<DataBin> calculateDataBins(String attributeId,
-                                           List<BigDecimal> sortedNumericalValues,
+    public List<DataBin> calculateDataBins(List<BigDecimal> sortedNumericalValues,
                                            List<BigDecimal> valuesWithoutOutliers,
                                            BigDecimal lowerOutlier,
                                            BigDecimal upperOutlier) {
@@ -73,7 +72,6 @@ public class ScientificSmallDataBinner {
             }
         }
 
-        return dataBinHelper.initDataBins(
-            attributeId, valuesWithoutOutliers, intervals, lowerOutlier, upperOutlier);
+        return dataBinHelper.initDataBins(valuesWithoutOutliers, intervals, lowerOutlier, upperOutlier);
     }
 }

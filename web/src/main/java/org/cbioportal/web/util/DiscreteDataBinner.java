@@ -18,23 +18,20 @@ public class DiscreteDataBinner {
         this.dataBinHelper = dataBinHelper;
     }
 
-    public List<DataBin> calculateDataBins(String attributeId,
-                                           List<BigDecimal> values,
+    public List<DataBin> calculateDataBins(List<BigDecimal> values,
                                            Set<BigDecimal> uniqueValues) {
-        List<DataBin> dataBins = initDataBins(attributeId, uniqueValues);
+        List<DataBin> dataBins = initDataBins(uniqueValues);
 
         dataBinHelper.calcCounts(dataBins, values);
 
         return dataBins;
     }
 
-    public List<DataBin> initDataBins(String attributeId,
-                                      Set<BigDecimal> uniqueValues) {
+    public List<DataBin> initDataBins(Set<BigDecimal> uniqueValues) {
         return uniqueValues.stream()
             .map(d -> {
                 DataBin dataBin = new DataBin();
 
-                dataBin.setAttributeId(attributeId);
                 dataBin.setCount(0);
 
                 // set both start and end to the same value

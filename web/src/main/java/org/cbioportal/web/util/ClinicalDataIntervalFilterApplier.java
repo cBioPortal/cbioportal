@@ -1,12 +1,13 @@
 package org.cbioportal.web.util;
 
 import org.apache.commons.collections.map.MultiKeyMap;
+
 import com.google.common.collect.Range;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.web.parameter.ClinicalDataFilter;
-import org.cbioportal.web.parameter.ClinicalDataFilterValue;
+import org.cbioportal.web.parameter.DataFilterValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -118,7 +119,7 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
         return studyViewFilterUtil.calcRange(min, startInclusive, max, endInclusive);
     }
 
-    private Range<BigDecimal> calculateRangeValueForFilter(ClinicalDataFilterValue filterValue) {
+    private Range<BigDecimal> calculateRangeValueForFilter(DataFilterValue filterValue) {
         BigDecimal start = filterValue.getStart();
         BigDecimal end = filterValue.getEnd();
 

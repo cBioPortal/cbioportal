@@ -66,8 +66,8 @@ public class DiscreteCopyNumberController {
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(molecularProfileId, 
-                    sampleListId, null, discreteCopyNumberEventType.getAlterationTypes(), projection.name()), 
+                discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(molecularProfileId,
+                    sampleListId, null, discreteCopyNumberEventType.getAlterationTypes(), projection.name()),
                 HttpStatus.OK);
         }
     }
@@ -94,11 +94,11 @@ public class DiscreteCopyNumberController {
 
             if (discreteCopyNumberFilter.getSampleListId() != null) {
                 baseMeta = discreteCopyNumberService.getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(
-                    molecularProfileId, discreteCopyNumberFilter.getSampleListId(), 
+                    molecularProfileId, discreteCopyNumberFilter.getSampleListId(),
                     discreteCopyNumberFilter.getEntrezGeneIds(), discreteCopyNumberEventType.getAlterationTypes());
             } else {
-                baseMeta = discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInMolecularProfile(molecularProfileId, 
-                    discreteCopyNumberFilter.getSampleIds(), discreteCopyNumberFilter.getEntrezGeneIds(), 
+                baseMeta = discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInMolecularProfile(molecularProfileId,
+                    discreteCopyNumberFilter.getSampleIds(), discreteCopyNumberFilter.getEntrezGeneIds(),
                     discreteCopyNumberEventType.getAlterationTypes());
             }
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, baseMeta.getTotalCount().toString());
@@ -107,16 +107,16 @@ public class DiscreteCopyNumberController {
             List<DiscreteCopyNumberData> discreteCopyNumberDataList;
             if (discreteCopyNumberFilter.getSampleListId() != null) {
                 discreteCopyNumberDataList = discreteCopyNumberService
-                    .getDiscreteCopyNumbersInMolecularProfileBySampleListId(molecularProfileId, 
-                        discreteCopyNumberFilter.getSampleListId(), discreteCopyNumberFilter.getEntrezGeneIds(), 
+                    .getDiscreteCopyNumbersInMolecularProfileBySampleListId(molecularProfileId,
+                        discreteCopyNumberFilter.getSampleListId(), discreteCopyNumberFilter.getEntrezGeneIds(),
                         discreteCopyNumberEventType.getAlterationTypes(), projection.name());
             } else {
                 discreteCopyNumberDataList = discreteCopyNumberService.fetchDiscreteCopyNumbersInMolecularProfile(
-                    molecularProfileId, discreteCopyNumberFilter.getSampleIds(), 
-                    discreteCopyNumberFilter.getEntrezGeneIds(), discreteCopyNumberEventType.getAlterationTypes(), 
+                    molecularProfileId, discreteCopyNumberFilter.getSampleIds(),
+                    discreteCopyNumberFilter.getEntrezGeneIds(), discreteCopyNumberEventType.getAlterationTypes(),
                     projection.name());
             }
-            
+
             return new ResponseEntity<>(discreteCopyNumberDataList, HttpStatus.OK);
         }
     }

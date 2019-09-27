@@ -13,8 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class LinearDataBinner 
-{
+public class LinearDataBinner {
     public static final Double[] POSSIBLE_INTERVALS = {
         0.001, 0.002, 0.0025, 0.005, 0.01,
         0.02, 0.025, 0.05, 0.1,
@@ -26,9 +25,9 @@ public class LinearDataBinner
     };
 
     public static final Integer DEFAULT_INTERVAL_COUNT = 20;
-    
+
     private DataBinHelper dataBinHelper;
-    
+
     @Autowired
     public LinearDataBinner(DataBinHelper dataBinHelper) {
         this.dataBinHelper = dataBinHelper;
@@ -44,15 +43,15 @@ public class LinearDataBinner
 
         List<DataBin> dataBins = initDataBins(attributeId, min, max, lowerOutlier, upperOutlier);
 
-        // special case for "AGE" attributes	
+        // special case for "AGE" attributes
         if (dataBinHelper.isAgeAttribute(attributeId) &&
             min.doubleValue() < 18 &&
             boxRange.upperEndpoint().subtract(boxRange.lowerEndpoint()).divide(BigDecimal.valueOf(2)).compareTo(BigDecimal.valueOf(18)) == 1 &&
             dataBins.get(0).getEnd().compareTo(BigDecimal.valueOf(18)) == 1) {
-            // force first bin to start from 18	
+            // force first bin to start from 18
             dataBins.get(0).setStart(BigDecimal.valueOf(18));
         }
-        
+
         dataBinHelper.calcCounts(dataBins, values);
 
         return dataBins;
@@ -83,11 +82,10 @@ public class LinearDataBinner
                                       BigDecimal min,
                                       BigDecimal max,
                                       BigDecimal lowerOutlier,
-                                      BigDecimal upperOutlier)
-    {
+                                      BigDecimal upperOutlier) {
         List<DataBin> dataBins = new ArrayList<>();
 
-        BigDecimal interval = calcBinInterval(Arrays.asList(POSSIBLE_INTERVALS).stream().map(val -> BigDecimal.valueOf(val)).collect(Collectors.toList()), 
+        BigDecimal interval = calcBinInterval(Arrays.asList(POSSIBLE_INTERVALS).stream().map(val -> BigDecimal.valueOf(val)).collect(Collectors.toList()),
             max.subtract(min),
             DEFAULT_INTERVAL_COUNT);
 
@@ -118,12 +116,10 @@ public class LinearDataBinner
         return dataBins;
     }
 
-    public BigDecimal calcBinInterval(List<BigDecimal> possibleIntervals, BigDecimal totalRange, Integer maxIntervalCount)
-    {
+    public BigDecimal calcBinInterval(List<BigDecimal> possibleIntervals, BigDecimal totalRange, Integer maxIntervalCount) {
         BigDecimal interval = new BigDecimal("-1.0");
 
-        for (int i = 0; i < possibleIntervals.size(); i++)
-        {
+        for (int i = 0; i < possibleIntervals.size(); i++) {
             interval = possibleIntervals.get(i);
             BigDecimal count = totalRange.divide(interval);
 

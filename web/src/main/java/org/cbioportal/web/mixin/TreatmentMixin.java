@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class TreatmentMixin {
-	
-	@JsonIgnore
+
+    @JsonIgnore
     private Integer id;
     @JsonProperty("treatmentId")
     private String stableId;

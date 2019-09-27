@@ -48,7 +48,7 @@ public class SignificantlyMutatedGenesControllerTest {
     private static final int TEST_NUMMUTATIONS_2 = 2;
     private static final BigDecimal TEST_P_VALUE_2 = new BigDecimal(0.2);
     private static final BigDecimal TEST_Q_VALUE_2 = new BigDecimal(0.2);
-    
+
     @Autowired
     private WebApplicationContext wac;
 
@@ -68,7 +68,7 @@ public class SignificantlyMutatedGenesControllerTest {
         Mockito.reset(significantlyMutatedGeneService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void getSignificantlyMutatedGenesDefaultProjection() throws Exception {
 
@@ -96,7 +96,7 @@ public class SignificantlyMutatedGenesControllerTest {
         mutSig2.setqValue(TEST_Q_VALUE_2);
         mutSigList.add(mutSig2);
 
-        Mockito.when(significantlyMutatedGeneService.getSignificantlyMutatedGenes(Mockito.anyString(), 
+        Mockito.when(significantlyMutatedGeneService.getSignificantlyMutatedGenes(Mockito.anyString(),
             Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
             .thenReturn(mutSigList);
 

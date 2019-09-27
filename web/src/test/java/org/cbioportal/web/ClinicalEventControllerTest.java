@@ -216,6 +216,6 @@ public class ClinicalEventControllerTest {
         clinicalEventDataList2.add(clinicalEventData4);
         clinicalEvent2.setAttributes(clinicalEventDataList2);
         clinicalEventList.add(clinicalEvent2);
-        return clinicalEventList;  
+        return clinicalEventList;
     }
 }

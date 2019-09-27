@@ -35,17 +35,17 @@ public class CacheStatsControllerTest {
 
     @Autowired
     private WebApplicationContext wac;
-    
+
     private MockMvc mockMvc;
 
     @Autowired
     public CacheStatisticsService cacheStatisticsService;
-    
+
     @Before
     public void setUp() throws Exception {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Bean
     public static CacheStatisticsService cacheStatisticsService() throws CacheNotFoundException {
         CacheStatisticsService cacheStatisticsServiceMock = Mockito.mock(CacheStatisticsService.class);
@@ -55,7 +55,7 @@ public class CacheStatsControllerTest {
                 String cacheAlias = (String)args[0];
                 if (VALID_CACHE_ALIAS.equals(cacheAlias)) {
                     return new ArrayList<String>();
-                } 
+                }
                 throw new CacheNotFoundException(cacheAlias);
             }
         });
@@ -65,7 +65,7 @@ public class CacheStatsControllerTest {
                 String cacheAlias = (String)args[0];
                 if (VALID_CACHE_ALIAS.equals(cacheAlias)) {
                     return new ArrayList<String>();
-                } 
+                }
                 throw new CacheNotFoundException(cacheAlias);
             }
         });

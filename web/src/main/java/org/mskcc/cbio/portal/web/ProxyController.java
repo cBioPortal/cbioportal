@@ -57,22 +57,27 @@ import org.springframework.web.client.RestTemplate;
 
 @Controller
 @RequestMapping("/proxy")
-public class ProxyController
-{
-	
-  private String hotspotsURL;
-  @Value("${hotspots.url:https://www.cancerhotspots.org/api/}")
-  public void setHotspotsURL(String property) { this.hotspotsURL = property; }
-  
-  private String bitlyURL;
-  @Value("${bitly.url:''}")
-  public void setBitlyURL(String property) { this.bitlyURL = property; }
+public class ProxyController {
 
-  private String sessionServiceURL;
-  @Value("${session.service.url:''}") // default is empty string
-  public void setSessionServiceURL(String property) { this.sessionServiceURL = property; }
-    
+    private String hotspotsURL;
+    private String bitlyURL;
+    private String sessionServiceURL;
     private Boolean enableOncokb;
+
+    @Value("${hotspots.url:https://www.cancerhotspots.org/api/}")
+    public void setHotspotsURL(String property) {
+        this.hotspotsURL = property;
+    }
+
+    @Value("${bitly.url:''}")
+    public void setBitlyURL(String property) {
+        this.bitlyURL = property;
+    }
+
+    @Value("${session.service.url:''}") // default is empty string
+    public void setSessionServiceURL(String property) {
+        this.sessionServiceURL = property;
+    }
 
     @Value("${show.oncokb:true}")
     public void setEnableOncokb(Boolean property) {
@@ -81,55 +86,51 @@ public class ProxyController
         }
         this.enableOncokb = property;
     }
-  // This is a general proxy for future use.
-  // Please modify and improve it as needed with your best expertise. The author does not have fully understanding
-  // of JAVA proxy when creating this proxy.
-  // Created by Hongxin
-  @RequestMapping(value="/{path}")
-  public @ResponseBody String getProxyURL(@PathVariable String path,
-                                          @RequestBody(required = false) String body, HttpMethod method,
-                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException
-  {
-      Map<String, String> pathToUrl = new HashMap<>();
-      
-      pathToUrl.put("bitly", bitlyURL);
-      pathToUrl.put("cancerHotSpots", hotspotsURL + "hotspots/single/");
-      pathToUrl.put("3dHotspots", "https://www.3dhotspots.org/api/hotspots/3d/");
 
-      String URL = pathToUrl.get(path) == null ? "" : pathToUrl.get(path);
-        
-        if(path != null && StringUtils.startsWithIgnoreCase(path, "oncokb") && !enableOncokb) {
+    // This is a general proxy for future use.
+    // Please modify and improve it as needed with your best expertise. The author does not have fully understanding
+    // of JAVA proxy when creating this proxy.
+    // Created by Hongxin
+    @RequestMapping(value="/{path}")
+    public @ResponseBody String getProxyURL(@PathVariable String path,
+            @RequestBody(required = false) String body, HttpMethod method,
+            HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
+        Map<String, String> pathToUrl = new HashMap<>();
+
+        pathToUrl.put("bitly", bitlyURL);
+        pathToUrl.put("cancerHotSpots", hotspotsURL + "hotspots/single/");
+        pathToUrl.put("3dHotspots", "https://www.3dhotspots.org/api/hotspots/3d/");
+
+        String URL = pathToUrl.get(path) == null ? "" : pathToUrl.get(path);
+
+        if (path != null && StringUtils.startsWithIgnoreCase(path, "oncokb") && !enableOncokb) {
             response.sendError(403, "OncoKB service is disabled.");
             return "";
         }
-        
+
         //If request method is GET, include query string
         if (method.equals(HttpMethod.GET) && request.getQueryString() != null){
-          URL += "?" + request.getQueryString();
+            URL += "?" + request.getQueryString();
         }
         return respProxy(URL, method, body, response);
-  }
-  
-     private String respProxy(String url, HttpMethod method, Object body, HttpServletResponse response) throws IOException {
+    }
+
+    private String respProxy(String url, HttpMethod method, Object body, HttpServletResponse response) throws IOException {
         try {
             RestTemplate restTemplate = new RestTemplate();
             URI uri = new URI(url);
-
-            ResponseEntity<String> responseEntity =
-                restTemplate.exchange(uri, method, new HttpEntity<>(body), String.class);
-
+            ResponseEntity<String> responseEntity = restTemplate.exchange(uri, method, new HttpEntity<>(body), String.class);
             return responseEntity.getBody();
-        }catch (Exception exception) {
+        } catch (Exception exception) {
             String errorMessage = "Unexpected error: " + exception.getLocalizedMessage();
             response.sendError(503, errorMessage);
             return errorMessage;
         }
      }
 
-  @RequestMapping(value="/bitly", method = RequestMethod.GET)
-  public @ResponseBody String getBitlyURL(HttpMethod method, HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException
-  {
-      return respProxy(bitlyURL + request.getQueryString(), method, null, response);
-  }
+    @RequestMapping(value="/bitly", method = RequestMethod.GET)
+    public @ResponseBody String getBitlyURL(HttpMethod method, HttpServletRequest request, HttpServletResponse response) throws URISyntaxException, IOException {
+        return respProxy(bitlyURL + request.getQueryString(), method, null, response);
+    }
 
 }

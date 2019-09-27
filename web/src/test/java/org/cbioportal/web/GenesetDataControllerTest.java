@@ -55,14 +55,14 @@ public class GenesetDataControllerTest {
     public GenesetDataService genesetDataService() {
         return Mockito.mock(GenesetDataService.class);
     }
-    
+
     @Before
     public void setUp() throws Exception {
 
         Mockito.reset(genesetDataService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void fetchGeneticDataItems() throws Exception {
 

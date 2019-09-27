@@ -116,7 +116,7 @@ public class SampleController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException, 
+        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException,
         StudyNotFoundException {
 
         if (projection == Projection.META) {
@@ -169,7 +169,7 @@ public class SampleController {
 
             if (interceptedSampleFilter.getSampleListIds() != null) {
                 samples = sampleService.fetchSamples(interceptedSampleFilter.getSampleListIds(), projection.name());
-            } else { 
+            } else {
                 if (interceptedSampleFilter.getSampleIdentifiers() != null) {
                     extractStudyAndSampleIds(interceptedSampleFilter, studyIds, sampleIds);
                 } else {
@@ -183,7 +183,7 @@ public class SampleController {
     }
 
     private void extractStudyAndSampleIds(SampleFilter sampleFilter, List<String> studyIds, List<String> sampleIds) {
-        
+
         for (SampleIdentifier sampleIdentifier : sampleFilter.getSampleIdentifiers()) {
             studyIds.add(sampleIdentifier.getStudyId());
             sampleIds.add(sampleIdentifier.getSampleId());

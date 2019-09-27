@@ -66,7 +66,7 @@ public class ClinicalDataEnrichmentUtil {
                     }
                 }
             }
-            
+
             Double totalCount = transposeDataCollection
                     .values()
                     .stream()
@@ -154,7 +154,7 @@ public class ClinicalDataEnrichmentUtil {
 
     /**
      * get data for all NUMBER datatype attributes for given samples
-     * 
+     *
      * @param attributes
      * @param samples
      * @return
@@ -212,7 +212,7 @@ public class ClinicalDataEnrichmentUtil {
 
     /**
      * get data category counts for all STRING datatype attributes for given samples
-     * 
+     *
      * @param attributes
      * @param samples
      * @return

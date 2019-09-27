@@ -127,7 +127,7 @@ public class SampleListController {
     }
 
     @PreAuthorize("hasPermission(#sampleListIds, 'Collection<SampleListId>', 'read')")
-    @RequestMapping(value = "/sample-lists/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
+    @RequestMapping(value = "/sample-lists/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample lists by ID")
     public ResponseEntity<List<SampleList>> fetchSampleLists(

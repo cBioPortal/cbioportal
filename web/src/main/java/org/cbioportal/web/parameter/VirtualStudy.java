@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class VirtualStudy extends Session {
 
     private final Log LOG = LogFactory.getLog(VirtualStudy.class);
-
     private VirtualStudyData data;
 
     @Override

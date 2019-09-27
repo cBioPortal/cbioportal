@@ -1,7 +1,7 @@
 package org.cbioportal.web.parameter;
 
 public class CopyNumberCountIdentifier {
-    
+
     private Integer entrezGeneId;
     private Integer alteration;
 

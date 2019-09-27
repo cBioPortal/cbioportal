@@ -11,9 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PageSettings extends Session {
-    
-    private final Log LOG = LogFactory.getLog(PageSettings.class);
 
+    private final Log LOG = LogFactory.getLog(PageSettings.class);
     private PageSettingsData data;
 
     @Override
@@ -25,7 +24,7 @@ public class PageSettings extends Session {
             LOG.error(e);
         }
     }
-    
+
     @Override
     public PageSettingsData getData() {
         return data;

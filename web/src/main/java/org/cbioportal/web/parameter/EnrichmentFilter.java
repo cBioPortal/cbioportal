@@ -5,7 +5,7 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 public class EnrichmentFilter {
-    
+
     @NotNull
     @Size(min = 1)
     private List<String> alteredIds;

@@ -6,12 +6,12 @@ import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 
 public class PatientFilter implements Serializable {
-    
+
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<PatientIdentifier> patientIdentifiers;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> uniquePatientKeys;
-    
+
     @AssertTrue
     private boolean isEitherPatientIdentifiersOrUniquePatientKeysPresent() {
         return patientIdentifiers != null ^ uniquePatientKeys != null;

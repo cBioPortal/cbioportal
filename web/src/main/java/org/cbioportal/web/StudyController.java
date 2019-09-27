@@ -93,7 +93,7 @@ public class StudyController {
     }
 
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/studies/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
+    @RequestMapping(value = "/studies/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch studies by IDs")
     public ResponseEntity<List<CancerStudy>> fetchStudies(
@@ -112,7 +112,7 @@ public class StudyController {
             return new ResponseEntity<>(
                 studyService.fetchStudies(studyIds, projection.name()), HttpStatus.OK);
         }
-    
+
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
@@ -123,14 +123,14 @@ public class StudyController {
         @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
         @PathVariable String studyId) throws JsonParseException, JsonMappingException,
         IOException {
-        
-    	Map<String,Object> map = new HashMap<String,Object>();
+
+        Map<String,Object> map = new HashMap<String,Object>();
         ObjectMapper mapper = new ObjectMapper();
         CancerStudyTags cancerStudyTags = studyService.getTags(studyId);
         if (cancerStudyTags != null) { //If tags is null an empty map is returned
-    		map = mapper.readValue(cancerStudyTags.getTags(), Map.class);
+            map = mapper.readValue(cancerStudyTags.getTags(), Map.class);
         }
-        
+
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
@@ -141,9 +141,9 @@ public class StudyController {
     public ResponseEntity<List<CancerStudyTags>> getTagsForMultipleStudies(
         @ApiParam(required = true, value = "List of Study IDs")
         @RequestBody List<String> studyIds) {
-        
+
         List<CancerStudyTags> cancerStudyTags = studyService.getTagsForMultipleStudies(studyIds);
-        
+
         return new ResponseEntity<>(cancerStudyTags, HttpStatus.OK);
     }
 }

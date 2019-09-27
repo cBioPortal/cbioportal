@@ -34,7 +34,7 @@ public class StructuralVariantFilter {
     private List<Integer> entrezGeneIds;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<SampleMolecularIdentifier> sampleMolecularIdentifiers;
-    
+
     @AssertTrue
     private boolean isEitherMolecularProfileIdsOrSampleMolecularIdentifiersPresent() {
         return molecularProfileIds != null ^ sampleMolecularIdentifiers != null;

@@ -65,7 +65,7 @@ public class CoExpressionControllerTest {
         Mockito.reset(coExpressionService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void fetchMolecularProfileCoExpressions() throws Exception {
 
@@ -87,7 +87,7 @@ public class CoExpressionControllerTest {
 
 
         Mockito.when(coExpressionService.fetchCoExpressions(Mockito.anyString(),
-        Mockito.any(CoExpression.GeneticEntityType.class), Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString(), 
+        Mockito.any(CoExpression.GeneticEntityType.class), Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString(),
         Mockito.anyDouble()))
             .thenReturn(coExpressionList);
 

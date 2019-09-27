@@ -10,7 +10,6 @@ public class MolecularProfileCasesGroupFilter {
 
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<MolecularProfileCaseIdentifier> MolecularProfileCaseIdentifiers;
-
     private String name;
 
     public String getName() {

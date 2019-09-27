@@ -73,7 +73,7 @@ public class GenePanelControllerLegacyTest {
     private GenePanel genePanel2;
     private Gene egfr;
     private Gene braf;
-    
+
     @Before
     public void setup() {
         Mockito.reset(genePanelServiceLegacyMock);
@@ -124,7 +124,7 @@ public class GenePanelControllerLegacyTest {
     public void genePanelsByProfilesNoIntersection() throws Exception {
         List<GenePanelWithSamples> mockResponse = new ArrayList<>();
         GenePanelWithSamples gpq1 = new GenePanelWithSamples();
-        List<String> samples = new ArrayList<>(); 
+        List<String> samples = new ArrayList<>();
         samples.add("SAMPLEID1");
         samples.add("SAMPLEID2");
         gpq1.setSamples(samples);
@@ -145,14 +145,14 @@ public class GenePanelControllerLegacyTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples", Matchers.hasSize(2)))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples[0]").value("SAMPLEID1"));
     }
-    
+
     @Test
     public void genePanelsByProfilesPartialIntersection() throws Exception {
         List<GenePanelWithSamples> mockResponse = new ArrayList<>();
         GenePanelWithSamples gpq1 = new GenePanelWithSamples();
         List<Gene> panelGenes = new ArrayList<>();
         panelGenes.add(braf);
-        List<String> samples = new ArrayList<>(); 
+        List<String> samples = new ArrayList<>();
         samples.add("SAMPLEID1");
         gpq1.setSamples(samples);
         gpq1.setStableId("GENEPANEL2");
@@ -174,7 +174,7 @@ public class GenePanelControllerLegacyTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples", Matchers.hasSize(1)))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples[0]").value("SAMPLEID1"));
     }
-    
+
     @Test
     public void genePanelsByProfilesFullIntersection() throws Exception {
         List<GenePanelWithSamples> mockResponse = new ArrayList<>();
@@ -182,7 +182,7 @@ public class GenePanelControllerLegacyTest {
         List<Gene> panelGenes = new ArrayList<>();
         panelGenes.add(braf);
         panelGenes.add(egfr);
-        List<String> samples = new ArrayList<>(); 
+        List<String> samples = new ArrayList<>();
         samples.add("SAMPLEID1");
         gpq1.setSamples(samples);
         gpq1.setStableId("GENEPANEL2");
@@ -203,7 +203,7 @@ public class GenePanelControllerLegacyTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].genes[0].hugoGeneSymbol").value("BRAF"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples", Matchers.hasSize(1)))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples[0]").value("SAMPLEID1"));
-    }    
+    }
 
     @Test
     public void genePanel() throws Exception {

@@ -53,14 +53,14 @@ import java.util.ArrayList;
 public class StructuralVariantController {
     @Autowired
     private StructuralVariantService structuralVariantService;
-    
-    @RequestMapping(value = "/structuralvariant/fetch", method = RequestMethod.POST, 
+
+    @RequestMapping(value = "/structuralvariant/fetch", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch structural variants for entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers")
     public ResponseEntity<List<StructuralVariant>> fetchStructuralVariants(
             @ApiParam(required = true, value = "List of entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers")
             @Valid @RequestBody StructuralVariantFilter structuralVariantFilter) {
-        
+
         List<StructuralVariant> structuralVariantList;
 
         if (structuralVariantFilter.getSampleMolecularIdentifiers() != null) {
@@ -73,12 +73,12 @@ public class StructuralVariantController {
                 sampleIds.add(sampleMolecularIdentifier.getSampleId());
             }
             structuralVariantList = structuralVariantService.fetchStructuralVariants(molecularProfileIds, structuralVariantFilter.getEntrezGeneIds(), sampleIds);
-            
+
         } else {
             List<String> sampleIds = new ArrayList<>();
             structuralVariantList = structuralVariantService.fetchStructuralVariants(structuralVariantFilter.getMolecularProfileIds(), structuralVariantFilter.getEntrezGeneIds(), sampleIds);
         }
-        
+
         return new ResponseEntity<>(structuralVariantList, HttpStatus.OK);
 
     }

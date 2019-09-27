@@ -1,7 +1,7 @@
 package org.cbioportal.web.parameter;
 
-public enum DataBinMethod
-{
+public enum DataBinMethod {
+
     STATIC,
     DYNAMIC
 }

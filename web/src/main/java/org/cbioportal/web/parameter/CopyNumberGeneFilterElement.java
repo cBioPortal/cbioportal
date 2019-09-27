@@ -13,18 +13,18 @@ public class CopyNumberGeneFilterElement {
     }
 
     public Integer getEntrezGeneId() {
-		return entrezGeneId;
-	}
+        return entrezGeneId;
+    }
 
-	public void setEntrezGeneId(Integer entrezGeneId) {
-		this.entrezGeneId = entrezGeneId;
-	}
+    public void setEntrezGeneId(Integer entrezGeneId) {
+        this.entrezGeneId = entrezGeneId;
+    }
 
-	public Integer getAlteration() {
-		return alteration;
-	}
+    public Integer getAlteration() {
+        return alteration;
+    }
 
-	public void setAlteration(Integer alteration) {
-		this.alteration = alteration;
-	}
+    public void setAlteration(Integer alteration) {
+        this.alteration = alteration;
+    }
 }

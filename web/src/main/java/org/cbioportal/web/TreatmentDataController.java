@@ -29,6 +29,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 package org.cbioportal.web;
 
 import java.util.List;
@@ -61,8 +62,7 @@ import io.swagger.annotations.ApiParam;
 @Api(tags = "Treatment response values", description = " ")
 public class TreatmentDataController {
 
-
-	@Autowired
+    @Autowired
     private TreatmentDataService treatmentDataService;
 
     @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfileId', 'read')")
@@ -73,21 +73,20 @@ public class TreatmentDataController {
             @ApiParam(required = true, value = "Genetic profile ID, e.g. study_es_0_treatment_ic50")
             @PathVariable String geneticProfileId,
             @ApiParam(required = true, value = "Search parameters to return the values for a given set of samples and treatment items. "
-            		+ "treatmentIds: The list of identifiers (STABLE_ID) for the treatments of interest, e.g. 17-AAG. "
-            		+ "Use one of these if you want to specify a subset of samples:"
-            		+ "(1) sampleListId: Identifier of pre-defined sample list with samples to query, e.g. brca_tcga_all " 
-            		+ "or (2) sampleIds: custom list of samples or patients to query, e.g. TCGA-BH-A1EO-01, TCGA-AR-A1AR-01")
+                    + "treatmentIds: The list of identifiers (STABLE_ID) for the treatments of interest, e.g. 17-AAG. "
+                    + "Use one of these if you want to specify a subset of samples:"
+                    + "(1) sampleListId: Identifier of pre-defined sample list with samples to query, e.g. brca_tcga_all "
+                    + "or (2) sampleIds: custom list of samples or patients to query, e.g. TCGA-BH-A1EO-01, TCGA-AR-A1AR-01")
             @RequestBody TreatmentDataFilterCriteria treatmentDataFilterCriteria) throws MolecularProfileNotFoundException, SampleListNotFoundException {
-
-				if (treatmentDataFilterCriteria.getSampleListId() != null && treatmentDataFilterCriteria.getSampleListId().trim().length() > 0) {
-					return new ResponseEntity<>(
-							treatmentDataService.fetchTreatmentData(geneticProfileId, treatmentDataFilterCriteria.getSampleListId(), 
-									treatmentDataFilterCriteria.getTreatmentIds()), HttpStatus.OK);
-				} else {
-					return new ResponseEntity<>(
-							treatmentDataService.fetchTreatmentData(geneticProfileId, treatmentDataFilterCriteria.getSampleIds(), 
-									treatmentDataFilterCriteria.getTreatmentIds()), HttpStatus.OK);
-				}
-			}
+        if (treatmentDataFilterCriteria.getSampleListId() != null && treatmentDataFilterCriteria.getSampleListId().trim().length() > 0) {
+            return new ResponseEntity<>(
+                    treatmentDataService.fetchTreatmentData(geneticProfileId, treatmentDataFilterCriteria.getSampleListId(),
+                    treatmentDataFilterCriteria.getTreatmentIds()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(
+                    treatmentDataService.fetchTreatmentData(geneticProfileId, treatmentDataFilterCriteria.getSampleIds(),
+                    treatmentDataFilterCriteria.getTreatmentIds()), HttpStatus.OK);
+        }
+    }
 
 }

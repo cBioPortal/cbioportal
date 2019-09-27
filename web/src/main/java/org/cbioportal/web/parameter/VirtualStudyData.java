@@ -9,25 +9,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VirtualStudyData implements Serializable {
-    
-	private String name;
 
-	private String description;
-
-	private Set<VirtualStudySamples> studies;
-
-	private StudyViewFilter studyViewFilter;
-
-	private Float version = 1.0f;
-	
-	private String owner = "anonymous";
-
+    private String name;
+    private String description;
+    private Set<VirtualStudySamples> studies;
+    private StudyViewFilter studyViewFilter;
+    private Float version = 1.0f;
+    private String owner = "anonymous";
     private Set<String> origin = new HashSet<>();
-
     private Long created = System.currentTimeMillis();
-    
     private Long lastUpdated = System.currentTimeMillis();
-    
     private Set<String> users = new HashSet<>();
 
     public String getOwner() {
@@ -65,53 +56,52 @@ public class VirtualStudyData implements Serializable {
     public void setUsers(Set<String> users) {
         this.users = users;
     }
-    
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public Set<VirtualStudySamples> getStudies() {
-		return studies;
-	}
+    public Set<VirtualStudySamples> getStudies() {
+        return studies;
+    }
 
-	public void setStudies(Set<VirtualStudySamples> studies) {
-		this.studies = studies;
-	}
+    public void setStudies(Set<VirtualStudySamples> studies) {
+        this.studies = studies;
+    }
 
-	public Set<String> getOrigin() {
-		if (this.origin == null || this.origin.size() == 0) {
-			return studies.stream().map(map -> map.getId()).collect(Collectors.toSet());
-		}
-		return this.origin;
-	}
+    public Set<String> getOrigin() {
+        if (this.origin == null || this.origin.size() == 0) {
+            return studies.stream().map(map -> map.getId()).collect(Collectors.toSet());
+        }
+        return this.origin;
+    }
 
-	public Float getVersion() {
-		return version;
-	}
+    public Float getVersion() {
+        return version;
+    }
 
-	public void setVersion(Float version) {
-		this.version = version;
-	}
+    public void setVersion(Float version) {
+        this.version = version;
+    }
 
-	public StudyViewFilter getStudyViewFilter() {
-		return studyViewFilter;
-	}
+    public StudyViewFilter getStudyViewFilter() {
+        return studyViewFilter;
+    }
 
-	public void setStudyViewFilter(StudyViewFilter studyViewFilter) {
-		this.studyViewFilter = studyViewFilter;
-	}
-	
+    public void setStudyViewFilter(StudyViewFilter studyViewFilter) {
+        this.studyViewFilter = studyViewFilter;
+    }
+
 }

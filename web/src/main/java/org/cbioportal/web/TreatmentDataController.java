@@ -65,7 +65,7 @@ public class TreatmentDataController {
 	@Autowired
     private TreatmentDataService treatmentDataService;
 
-    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfile', 'read')")    
+    @PreAuthorize("hasPermission(#geneticProfileId, 'GeneticProfileId', 'read')")
     @RequestMapping(value = "/genetic-profiles/{geneticProfileId}/treatment-genetic-data/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch treatment \"genetic data\" items (treatment response values) by profile Id, treatment Ids and sample Ids")

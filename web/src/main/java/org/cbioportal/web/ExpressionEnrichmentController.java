@@ -1,8 +1,6 @@
 package org.cbioportal.web;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -47,6 +45,8 @@ public class ExpressionEnrichmentController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch expression enrichments in a molecular profile")
     public ResponseEntity<List<ExpressionEnrichment>> fetchExpressionEnrichments(
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
         @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
         @ApiParam(required = true, value = "List of groups containing sample and molecular profile identifiers")

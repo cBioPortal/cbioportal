@@ -1,3 +1,8 @@
+MRNA_EXPRESSION	CONTINUOUS	mrna_seq_fpkm_capture
+MRNA_EXPRESSION	Z-SCORE	mrna_seq_fpkm_capture_Zscores
+MRNA_EXPRESSION	CONTINUOUS	mrna_seq_fpkm_polya
+MRNA_EXPRESSION	Z-SCORE	mrna_seq_fpkm_polya_Zscores
+
 # Users, admins: DO NOT CHANGE THIS FILE! 
 # These are the combinations of GENETIC_ALTERATION_TYPE, DATATYPE and STABLE_ID that will
 # be allowed by the validator. Changing this file is not recommended by end users as parts of the 
@@ -26,8 +31,8 @@ MRNA_EXPRESSION	CONTINUOUS	mrna
 MRNA_EXPRESSION	DISCRETE	mrna_outliers
 MRNA_EXPRESSION	Z-SCORE	mrna_zbynorm
 MRNA_EXPRESSION	CONTINUOUS	rna_seq_mrna_capture
-MRNA_EXPRESSION	CONTINUOUS	mrna_seq_cpm
-MRNA_EXPRESSION	CONTINUOUS	mrna_seq_tpm
+MRNA_EXPRESSION	CONTINUOUS	rna_seq_cpm
+MRNA_EXPRESSION	CONTINUOUS	rna_seq_tpm
 MRNA_EXPRESSION	Z-SCORE	rna_seq_mrna_capture_Zscores
 METHYLATION	CONTINUOUS	methylation_hm27
 METHYLATION	CONTINUOUS	methylation_hm450
@@ -40,3 +45,7 @@ GENESET_SCORE	GSVA-SCORE	gsva_scores
 GENESET_SCORE	P-VALUE	gsva_pvalues
 GENERIC_ASSAY	LIMIT-VALUE	*
 STRUCTURAL_VARIANT	SV	structural_variants
+MRNA_EXPRESSION	CONTINUOUS	rna_seq_fpkm_capture
+MRNA_EXPRESSION	Z-SCORE	rna_seq_fpkm_capture_Zscores
+MRNA_EXPRESSION	CONTINUOUS	rna_seq_fpkm_polya
+MRNA_EXPRESSION	Z-SCORE	rna_seq_fpkm_polya_Zscores

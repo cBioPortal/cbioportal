@@ -89,6 +89,7 @@
             "skin.show_tutorials_tab",
             "skin.show_web_api_tab",
             "skin.show_tweet_button",
+            "skin.patientview.filter_genes_profiled_all_samples",
             "quick_search.enabled",
             "default_cross_cancer_study_session_id",
             "default_cross_cancer_study_list",

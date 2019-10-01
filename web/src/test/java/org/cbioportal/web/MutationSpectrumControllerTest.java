@@ -69,10 +69,10 @@ public class MutationSpectrumControllerTest {
         Mockito.reset(mutationSpectrumService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void fetchMutationSpectrums() throws Exception {
-        
+
         List<MutationSpectrum> mutationSpectrumList = new ArrayList<>();
         MutationSpectrum mutationSpectrum1 = new MutationSpectrum();
         mutationSpectrum1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_ID);

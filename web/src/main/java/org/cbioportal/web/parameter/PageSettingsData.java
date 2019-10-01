@@ -19,14 +19,10 @@ public abstract class PageSettingsData implements Serializable {
 
     @NotNull
     private SessionPage page;
-
     private String owner = "anonymous";
-
     @NotNull
     private Set<String> origin;
-
     private Long created = System.currentTimeMillis();
-
     private Long lastUpdated = System.currentTimeMillis();
 
     public SessionPage getPage() {

@@ -113,7 +113,7 @@ public class GeneController {
                 .getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(geneService.fetchGenes(geneIds, geneIdType.name(), projection.name()), 
+            return new ResponseEntity<>(geneService.fetchGenes(geneIds, geneIdType.name(), projection.name()),
                 HttpStatus.OK);
         }
     }

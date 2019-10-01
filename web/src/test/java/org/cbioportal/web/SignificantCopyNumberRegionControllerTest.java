@@ -76,7 +76,7 @@ public class SignificantCopyNumberRegionControllerTest {
         Mockito.reset(significantCopyNumberRegionService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void getSignificantCopyNumberRegions() throws Exception {
 

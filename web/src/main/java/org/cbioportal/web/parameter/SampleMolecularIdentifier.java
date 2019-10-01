@@ -3,7 +3,7 @@ package org.cbioportal.web.parameter;
 import java.io.Serializable;
 
 public class SampleMolecularIdentifier implements Serializable {
-    
+
     private String sampleId;
     private String molecularProfileId;
 

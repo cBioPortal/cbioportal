@@ -15,10 +15,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DataBinnerTest
-{
+public class DataBinnerTest {
     private Map<String, String[]> mockData;
-    
+
     private DataBinner dataBinner;
 
     @Before
@@ -29,15 +28,14 @@ public class DataBinnerTest
         LinearDataBinner linearDataBinner = new LinearDataBinner(dataBinHelper);
         ScientificSmallDataBinner scientificSmallDataBinner = new ScientificSmallDataBinner(dataBinHelper);
         LogScaleDataBinner logScaleDataBinner = new LogScaleDataBinner(dataBinHelper);
-        
+
         dataBinner = new DataBinner(
             dataBinHelper, discreteDataBinner, linearDataBinner, scientificSmallDataBinner, studyViewFilterUtil, logScaleDataBinner);
-        
+
         mockData = initMockData();
     }
-    
-    public Map<String, String[]> initMockData()
-    {
+
+    public Map<String, String[]> initMockData() {
         Map<String, String[]> mockData = new LinkedHashMap<>();
 
         mockData.put("blca_tcga_AGE", new String[] {
@@ -471,13 +469,12 @@ public class DataBinnerTest
         mockData.put("linear_integer_continue", new String[]{
             "1.0", "2.0", "3.0", "4.0", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0", "13.0", "14.0", "15.0", "16.0", "17.0", "18.0", "19.0", "20.0", "21.0", "22.0", "23.0", "24.0", "25.0", "26.0", "27.0", "28.0", "29.0", "30.0", "31.0", "32.0", "33.0", "34.0", "35.0", "36.0", "37.0", "38.0", "39.0", "40.0", "41.0", "42.0", "43.0", "44.0", "45.0", "46.0", "47.0", "48.0", "49.0", "50.0", "51.0", "52.0", "53.0", "54.0", "55.0", "56.0", "57.0", "58.0", "59.0", "60.0", "61.0", "62.0", "63.0", "64.0", "65.0", "66.0", "67.0", "68.0", "69.0", "70.0", "71.0", "72.0", "73.0", "74.0", "75.0", "76.0", "77.0", "78.0", "79.0", "80.0", "81.0", "82.0", "83.0", "84.0", "85.0", "86.0", "87.0", "88.0", "89.0", "90.0", "91.0", "92.0", "93.0", "94.0", "95.0", "96.0", "97.0", "98.0", "99.0", "100.0"
         });
-        
+
         return mockData;
     }
-    
+
     @Test
-    public void testLinearDataBinner()
-    {
+    public void testLinearDataBinner() {
         String studyId = "blca_tcga";
         String attributeId = "AGE";
         String[] values = mockData.get("blca_tcga_AGE");
@@ -487,11 +484,11 @@ public class DataBinnerTest
 
         List<ClinicalData> clinicalData = mockClinicalData(attributeId, studyId, values);
         List<String> patientIds = clinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
-        
+
         List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, patientIds);
 
         Assert.assertEquals(11, dataBins.size());
-        
+
         Assert.assertEquals("<=", dataBins.get(0).getSpecialValue());
         Assert.assertEquals(new BigDecimal("40.0"), dataBins.get(0).getEnd());
         Assert.assertEquals(2, dataBins.get(0).getCount().intValue());
@@ -539,8 +536,7 @@ public class DataBinnerTest
 
 
     @Test
-    public void testLinearDataBinnerWithRange()
-    {
+    public void testLinearDataBinnerWithRange() {
         String studyId = "random";
         String attributeId = "random";
         String[] values = mockData.get("linear_integer_continue");
@@ -575,8 +571,7 @@ public class DataBinnerTest
 
 
     @Test
-    public void testLinearDataBinnerWithRangeOne()
-    {
+    public void testLinearDataBinnerWithRangeOne() {
         String studyId = "random";
         String attributeId = "random";
         String[] values = mockData.get("linear_integer_continue");
@@ -610,8 +605,7 @@ public class DataBinnerTest
     }
 
     @Test
-    public void testLinearDataBinnerWithRangeTwo()
-    {
+    public void testLinearDataBinnerWithRangeTwo() {
         String studyId = "random";
         String attributeId = "random";
         String[] values = mockData.get("linear_integer_continue");
@@ -642,15 +636,14 @@ public class DataBinnerTest
         Assert.assertEquals(new BigDecimal("75.0"), dataBins.get(7).getStart());
         Assert.assertEquals(new BigDecimal("80.0"), dataBins.get(7).getEnd());
         Assert.assertEquals(5, dataBins.get(7).getCount().intValue());
-        
+
         Assert.assertEquals(new BigDecimal("80.0"), dataBins.get(8).getStart());
         Assert.assertEquals(">", dataBins.get(8).getSpecialValue());
         Assert.assertEquals(1, dataBins.get(8).getCount().intValue());
     }
 
     @Test
-    public void testLinearDataBinnerWithRangeAndCustomrBins()
-    {
+    public void testLinearDataBinnerWithRangeAndCustomrBins() {
         String studyId = "random";
         String attributeId = "random";
         String[] values = mockData.get("linear_integer_continue");
@@ -685,34 +678,33 @@ public class DataBinnerTest
     }
 
     @Test
-    public void testStaticDataBinnerFilter()
-    {
+    public void testStaticDataBinnerFilter() {
         String studyId = "blca_tcga";
         String attributeId = "AGE";
         String[] values = mockData.get("blca_tcga_AGE");
-        
+
         ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
         clinicalDataBinFilter.setAttributeId(attributeId);
         clinicalDataBinFilter.setClinicalDataType(ClinicalDataType.PATIENT);
 
         List<ClinicalData> unfilteredClinicalData = mockClinicalData(attributeId, studyId, values);
-        List<String> unfilteredPatientIds = 
+        List<String> unfilteredPatientIds =
             unfilteredClinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
         List<DataBin> unfilteredDataBins = dataBinner.calculateClinicalDataBins(
             clinicalDataBinFilter, unfilteredClinicalData, unfilteredPatientIds);
-        
+
         List<ClinicalData> filteredClinicalData = unfilteredClinicalData.subList(0, 108); // (0, 60] interval
         List<String> filteredPatientIds =
             filteredClinicalData.stream().map(ClinicalData::getPatientId).collect(Collectors.toList());
         List<DataBin> filteredDataBins = dataBinner.calculateClinicalDataBins(
             clinicalDataBinFilter, filteredClinicalData, unfilteredClinicalData, filteredPatientIds, unfilteredPatientIds);
-        
+
         // same number of bins for both
         Assert.assertEquals(11, unfilteredDataBins.size());
         Assert.assertEquals(11, filteredDataBins.size());
 
         // same start/end/special values for all bins
-        
+
         Assert.assertEquals("<=", filteredDataBins.get(0).getSpecialValue());
         Assert.assertEquals("<=", unfilteredDataBins.get(0).getSpecialValue());
         Assert.assertEquals(new BigDecimal("40.0"), filteredDataBins.get(0).getEnd());
@@ -747,9 +739,9 @@ public class DataBinnerTest
         Assert.assertEquals(new BigDecimal("85.0"), unfilteredDataBins.get(10).getStart());
         Assert.assertEquals(new BigDecimal("90.0"), filteredDataBins.get(10).getEnd());
         Assert.assertEquals(new BigDecimal("90.0"), unfilteredDataBins.get(10).getEnd());
-        
+
         // same counts until the bin (60-65]
-        
+
         Assert.assertEquals(2, filteredDataBins.get(0).getCount().intValue());
         Assert.assertEquals(2, unfilteredDataBins.get(0).getCount().intValue());
 
@@ -776,8 +768,7 @@ public class DataBinnerTest
     }
 
     @Test
-    public void testLinearDataBinnerWithPediatricAge()
-    {
+    public void testLinearDataBinnerWithPediatricAge() {
         String studyId = "skcm_broad";
         String attributeId = "AGE_AT_PROCUREMENT";
         String[] values = mockData.get("skcm_broad_AGE_AT_PROCUREMENT");
@@ -838,8 +829,7 @@ public class DataBinnerTest
     }
 
     @Test
-    public void testLinearDataBinnerWithPediatricAgeCustomBinsTest1()
-    {
+    public void testLinearDataBinnerWithPediatricAgeCustomBinsTest1() {
         String studyId = "skcm_broad";
         String attributeId = "AGE_AT_PROCUREMENT";
         String[] values = mockData.get("skcm_broad_AGE_AT_PROCUREMENT");
@@ -900,8 +890,7 @@ public class DataBinnerTest
     }
 
     @Test
-    public void testLinearDataBinnerWithPediatricAgeCustomBinsTest2()
-    {
+    public void testLinearDataBinnerWithPediatricAgeCustomBinsTest2() {
         String studyId = "skcm_broad";
         String attributeId = "AGE_AT_PROCUREMENT";
         String[] values = mockData.get("skcm_broad_AGE_AT_PROCUREMENT");
@@ -944,10 +933,9 @@ public class DataBinnerTest
         Assert.assertEquals("NA", dataBins.get(5).getSpecialValue());
         Assert.assertEquals(4, dataBins.get(5).getCount().intValue());
     }
-    
+
     @Test
-    public void testLinearDataBinnerWithPredefinedAttribute() 
-    {
+    public void testLinearDataBinnerWithPredefinedAttribute() {
         String studyId = "crc_msk_2018";
         String attributeId = "MSI_SCORE";
         String[] values = mockData.get("crc_msk_2018_MSI_SCORE");
@@ -993,8 +981,7 @@ public class DataBinnerTest
     }
 
     @Test
-    public void testLinearDataBinnerWithNA()
-    {
+    public void testLinearDataBinnerWithNA() {
         String studyId = "blca_tcga";
         String attributeId = "LYMPH_NODE_EXAMINED_COUNT";
         String[] values = mockData.get("blca_tcga_LYMPH_NODE_EXAMINED_COUNT");
@@ -1064,14 +1051,13 @@ public class DataBinnerTest
         Assert.assertEquals(new BigDecimal("65.0"), dataBins.get(13).getStart());
         Assert.assertEquals(">", dataBins.get(13).getSpecialValue());
         Assert.assertEquals(28, dataBins.get(13).getCount().intValue());
-        
+
         Assert.assertEquals("NA", dataBins.get(14).getSpecialValue());
         Assert.assertEquals(109, dataBins.get(14).getCount().intValue());
     }
 
     @Test
-    public void testLinearDataBinnerWithZeroIQR()
-    {
+    public void testLinearDataBinnerWithZeroIQR() {
         String studyId = "impact";
         String attributeId = "DNA_INPUT";
         String[] values = mockData.get("impact_DNA_INPUT");
@@ -1091,14 +1077,13 @@ public class DataBinnerTest
 
         Assert.assertEquals(new BigDecimal("60.0"), dataBins.get(1).getStart());
         Assert.assertEquals(new BigDecimal("70.0"), dataBins.get(1).getEnd());
-        
+
         Assert.assertEquals(new BigDecimal("230.0"), dataBins.get(18).getStart());
         Assert.assertEquals(new BigDecimal("240.0"), dataBins.get(18).getEnd());
     }
 
     @Test
-    public void testLinearDataBinnerWithAlwaysZeroIQR()
-    {
+    public void testLinearDataBinnerWithAlwaysZeroIQR() {
         String studyId = "unknown";
         String attributeId = "DNA_INPUT";
         String[] values = mockData.get("recursively_always_zero_IQR");
@@ -1118,10 +1103,9 @@ public class DataBinnerTest
         Assert.assertEquals("all values should be included in a single bin",
             values.length, dataBins.get(0).getCount().intValue());
     }
-    
+
     @Test
-    public void testDiscreteDataBinner()
-    {
+    public void testDiscreteDataBinner() {
         String studyId = "acyc_fmi_2014";
         String attributeId = "ACTIONABLE_ALTERATIONS";
         String[] values = mockData.get("acyc_fmi_2014_ACTIONABLE_ALTERATIONS");
@@ -1135,7 +1119,7 @@ public class DataBinnerTest
         List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(clinicalDataBinFilter, clinicalData, sampleIds);
 
         Assert.assertEquals(5, dataBins.size());
-        
+
         Assert.assertEquals(new BigDecimal("0.0"), dataBins.get(0).getStart());
         Assert.assertEquals(new BigDecimal("0.0"), dataBins.get(0).getEnd());
         Assert.assertEquals(16, dataBins.get(0).getCount().intValue());
@@ -1158,8 +1142,7 @@ public class DataBinnerTest
     }
 
     @Test
-    public void testScientificDataBinner()
-    {
+    public void testScientificDataBinner() {
         String studyId = "blca_dfarber_mskcc_2014";
         String attributeId = "SILENT_RATE";
         String[] values = mockData.get("blca_dfarber_mskcc_2014_SILENT_RATE");
@@ -1197,10 +1180,9 @@ public class DataBinnerTest
         Assert.assertEquals("NA", dataBins.get(4).getSpecialValue());
         Assert.assertEquals(3 + 6, dataBins.get(4).getCount().intValue());
     }
-    
+
     @Test
-    public void testLogScaleDataBinner()
-    {
+    public void testLogScaleDataBinner() {
         String studyId = "ampca_bcm_2016";
         String attributeId = "DAYS_TO_LAST_FOLLOWUP";
         String[] values = mockData.get("ampca_bcm_2016_DAYS_TO_LAST_FOLLOWUP");
@@ -1222,7 +1204,7 @@ public class DataBinnerTest
         Assert.assertEquals(new BigDecimal("10.0"), dataBins.get(1).getStart());
         Assert.assertEquals(new BigDecimal("31.0"), dataBins.get(1).getEnd());
         Assert.assertEquals(3, dataBins.get(1).getCount().intValue());
-        
+
         Assert.assertEquals(new BigDecimal("31.0"), dataBins.get(2).getStart());
         Assert.assertEquals(new BigDecimal("100.0"), dataBins.get(2).getEnd());
         Assert.assertEquals(5, dataBins.get(2).getCount().intValue());
@@ -1245,8 +1227,7 @@ public class DataBinnerTest
     }
 
     @Test
-    public void testLogScaleDisabledDataBinner()
-    {
+    public void testLogScaleDisabledDataBinner() {
         String studyId = "ampca_bcm_2016";
         String attributeId = "DAYS_TO_LAST_FOLLOWUP";
         String[] values = mockData.get("ampca_bcm_2016_DAYS_TO_LAST_FOLLOWUP");
@@ -1276,8 +1257,7 @@ public class DataBinnerTest
     }
 
     @Test
-    public void testNegativeLogScaleDataBinner()
-    {
+    public void testNegativeLogScaleDataBinner() {
         String studyId = "acc_tcga";
         String attributeId = "DAYS_TO_BIRTH";
         String[] values = mockData.get("acc_tcga_DAYS_TO_BIRTH");
@@ -1295,15 +1275,14 @@ public class DataBinnerTest
         Assert.assertEquals(new BigDecimal("-31622.0"), dataBins.get(0).getStart());
         Assert.assertEquals(new BigDecimal("-10000.0"), dataBins.get(0).getEnd());
         Assert.assertEquals(78, dataBins.get(0).getCount().intValue());
-        
+
         Assert.assertEquals(new BigDecimal("-10000.0"), dataBins.get(1).getStart());
         Assert.assertEquals(new BigDecimal("-3162.0"), dataBins.get(1).getEnd());
         Assert.assertEquals(14, dataBins.get(1).getCount().intValue());
     }
 
     @Test
-    public void testLogScaleDataBinnerWithSpecialOutliers()
-    {
+    public void testLogScaleDataBinnerWithSpecialOutliers() {
         String studyId = "genie";
         String attributeId = "INT_DOD";
         String[] values = mockData.get("genie_INT_DOD");
@@ -1330,15 +1309,14 @@ public class DataBinnerTest
 
         Assert.assertEquals(new BigDecimal("31622.0"), dataBins.get(3).getStart());
         Assert.assertEquals(new BigDecimal("32485.0"), dataBins.get(3).getEnd());
-        
+
         Assert.assertEquals(new BigDecimal("32485.0"), dataBins.get(4).getStart());
         Assert.assertEquals(">", dataBins.get(4).getSpecialValue());
         Assert.assertEquals(5, dataBins.get(4).getCount().intValue());
     }
-    
+
     @Test
-    public void testNegativeLogScaleDisabledDataBinner()
-    {
+    public void testNegativeLogScaleDisabledDataBinner() {
         String studyId = "acc_tcga";
         String attributeId = "DAYS_TO_BIRTH";
         String[] values = mockData.get("acc_tcga_DAYS_TO_BIRTH");
@@ -1360,24 +1338,23 @@ public class DataBinnerTest
         Assert.assertEquals(new BigDecimal("-6000.0"), dataBins.get(13).getStart());
         Assert.assertEquals(">", dataBins.get(13).getSpecialValue());
     }
-    
-    private List<ClinicalData> mockClinicalData(String attributeId, String studyId, String[] values)
-    {
+
+    private List<ClinicalData> mockClinicalData(String attributeId, String studyId, String[] values) {
         List<ClinicalData> clinicalDataList =  new ArrayList<>();
-        
-        for (int index = 0; index < values.length; index++) 
+
+        for (int index = 0; index < values.length; index++)
         {
             ClinicalData clinicalData = new ClinicalData();
-            
+
             clinicalData.setAttrId(attributeId);
             clinicalData.setStudyId(studyId);
             clinicalData.setSampleId(studyId + "_sample_" + index);
             clinicalData.setPatientId(studyId + "_patient_" + index);
             clinicalData.setAttrValue(values[index]);
-            
+
             clinicalDataList.add(clinicalData);
         }
-        
+
         return clinicalDataList;
     }
 }

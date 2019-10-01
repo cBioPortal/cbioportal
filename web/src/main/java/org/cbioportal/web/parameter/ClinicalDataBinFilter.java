@@ -7,12 +7,10 @@ import java.util.List;
 import javax.validation.constraints.AssertTrue;
 
 public class ClinicalDataBinFilter extends ClinicalDataFilter implements Serializable {
+
     private Boolean disableLogScale = false;
-
     private List<BigDecimal> customBins;
-
     private BigDecimal start;
-    
     private BigDecimal end;
 
     public Boolean getDisableLogScale() {

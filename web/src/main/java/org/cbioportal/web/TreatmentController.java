@@ -31,8 +31,7 @@
 */
 package org.cbioportal.web;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -55,6 +54,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -64,6 +64,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import springfox.documentation.annotations.ApiIgnore;
 
 @InternalApi
 @RestController
@@ -98,39 +99,43 @@ public class TreatmentController {
         }
     }
 
-    @PreAuthorize("hasPermission(#treatmentFilter, 'TreatmentFilter', 'read')")
-    @RequestMapping(value = "/treatments/fetch", method = RequestMethod.POST, 
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    @RequestMapping(value = "/treatments/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch treatments")
     public ResponseEntity<List<Treatment>> fetchTreatments(
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @Valid @RequestAttribute(required = false, value = "interceptedTreatmentFilter") TreatmentFilter interceptedTreatmentFilter,
         @ApiParam(required = true, value = "List of Treatment IDs or List of Study IDs (mutually exclusive)")
-        @Valid @RequestBody TreatmentFilter treatmentFilter,
+        @Valid @RequestBody(required = false) TreatmentFilter treatmentFilter,
         @ApiParam("Level of detail of the response")
         @RequestParam(defaultValue = "SUMMARY") Projection projection) {
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
             BaseMeta baseMeta;
-            if (treatmentFilter.getStudyIds() != null) {
+
+            if (interceptedTreatmentFilter.getStudyIds() != null) {
                 baseMeta = treatmentService.getMetaTreatmentsInStudies(
-                    treatmentFilter.getStudyIds());
+                    interceptedTreatmentFilter.getStudyIds());
             } else {
                 baseMeta = treatmentService.getMetaTreatments(
-                    treatmentFilter.getTreatmentIds());
+                    interceptedTreatmentFilter.getTreatmentIds());
             }
 
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(baseMeta.getTotalCount()));
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-
             List<Treatment> treatments = new ArrayList<Treatment>();
 
-            if (treatmentFilter.getStudyIds() != null) {
+            if (interceptedTreatmentFilter.getStudyIds() != null) {
                 treatments = treatmentService.getTreatmentsInStudies(
-                    treatmentFilter.getStudyIds(), projection.name());
+                    interceptedTreatmentFilter.getStudyIds(), projection.name());
             } else {
                 treatments = treatmentService.getTreatments(
-                    treatmentFilter.getTreatmentIds(), projection.name());
+                    interceptedTreatmentFilter.getTreatmentIds(), projection.name());
             }
 
             return new ResponseEntity<>(treatments, HttpStatus.OK);

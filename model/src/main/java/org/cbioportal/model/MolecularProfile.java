@@ -37,6 +37,7 @@ public class MolecularProfile implements Serializable {
     @NotNull
     private String cancerStudyIdentifier;
     private MolecularAlterationType molecularAlterationType;
+    private String genericAssayType;
     private String datatype;
     private String name;
     private String description;
@@ -139,6 +140,14 @@ public class MolecularProfile implements Serializable {
 
     public void setSortOrder(String sortOrder) {
         this.sortOrder = sortOrder;
+    }
+
+    public String getGenericAssayType() {
+        return genericAssayType;
+    }
+
+    public void setGenericAssayType(String genericAssayType) {
+        this.genericAssayType = genericAssayType;
     }
     
 }

@@ -1,7 +1,4 @@
 cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: CLINICAL
-datatype: FREE-FORM
-show_profile_in_analysis_tab: false
-profile_description: Sample clinical data for this study. 
-profile_name: Sample clinical data for brca_tcga_pub.
+datatype: SAMPLE_ATTRIBUTES
 data_filename: data_samples.txt

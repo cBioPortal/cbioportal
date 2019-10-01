@@ -161,7 +161,7 @@ public class PatientController {
     }
 
     private void extractStudyAndPatientIds(PatientFilter patientFilter, List<String> studyIds, List<String> patientIds) {
-        
+
         for (PatientIdentifier patientIdentifier : patientFilter.getPatientIdentifiers()) {
             studyIds.add(patientIdentifier.getStudyId());
             patientIds.add(patientIdentifier.getPatientId());

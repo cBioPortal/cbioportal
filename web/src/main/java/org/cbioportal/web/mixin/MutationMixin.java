@@ -3,7 +3,7 @@ package org.cbioportal.web.mixin;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MutationMixin {
-    
+
     @JsonProperty("variantAllele")
     private String tumorSeqAllele;
     @JsonProperty("refseqMrnaId")

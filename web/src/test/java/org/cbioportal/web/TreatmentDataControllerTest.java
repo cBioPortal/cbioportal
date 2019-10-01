@@ -85,14 +85,14 @@ public class TreatmentDataControllerTest {
     public TreatmentDataService treatmentDataService() {
         return Mockito.mock(TreatmentDataService.class);
     }
-    
+
     @Before
     public void setUp() throws Exception {
 
         Mockito.reset(treatmentDataService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void fetchTreatmentGeneticDataItems() throws Exception {
 

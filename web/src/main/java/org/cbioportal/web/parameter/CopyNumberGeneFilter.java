@@ -7,11 +7,11 @@ public class CopyNumberGeneFilter implements Serializable {
 
     private List<CopyNumberGeneFilterElement> alterations;
 
-	public List<CopyNumberGeneFilterElement> getAlterations() {
-		return alterations;
-	}
+    public List<CopyNumberGeneFilterElement> getAlterations() {
+        return alterations;
+    }
 
-	public void setAlterations(List<CopyNumberGeneFilterElement> alterations) {
-		this.alterations = alterations;
-	}
+    public void setAlterations(List<CopyNumberGeneFilterElement> alterations) {
+        this.alterations = alterations;
+    }
 }

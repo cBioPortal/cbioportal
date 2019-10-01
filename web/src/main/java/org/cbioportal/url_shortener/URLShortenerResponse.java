@@ -1,7 +1,7 @@
 package org.cbioportal.url_shortener;
 
 public class URLShortenerResponse {
-    
+
     private String shortURL;
     private String error;
 

@@ -52,7 +52,7 @@ public class MolecularProfileControllerTest {
     private static final String TEST_STUDY_DESCRIPTION_1 = "test_study_description_1";
     private static final Float TEST_STUDY_PIVOT_THRESHOLD_1 = 0.1f;
     private static final String TEST_STUDY_SORTORDER_1 = "ASC";
-    
+
     private static final int TEST_MOLECULAR_PROFILE_ID_2 = 2;
     private static final String TEST_STABLE_ID_2 = "test_stable_id_2";
     private static final int TEST_CANCER_STUDY_ID_2 = 2;
@@ -125,8 +125,8 @@ public class MolecularProfileControllerTest {
                 .value(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].sortOrder").value(TEST_STUDY_SORTORDER_2));
-                
-                
+
+
     }
 
     @Test
@@ -197,7 +197,7 @@ public class MolecularProfileControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.showProfileInAnalysisTab")
                         .value(TEST_SHOW_PROFILE_IN_ANALYSIS_TAB_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.pivotThreshold").value(TEST_STUDY_PIVOT_THRESHOLD_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.sortOrder").value(TEST_STUDY_SORTORDER_1))                
+                .andExpect(MockMvcResultMatchers.jsonPath("$.sortOrder").value(TEST_STUDY_SORTORDER_1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.study.cancerStudyId").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.study.studyId")
                         .value(TEST_CANCER_STUDY_IDENTIFIER_1))
@@ -267,12 +267,12 @@ public class MolecularProfileControllerTest {
 
         List<MolecularProfile> molecularProfileList = createExampleMolecularProfiles();
 
-        Mockito.when(molecularProfileService.getMolecularProfilesInStudies(Mockito.anyListOf(String.class), 
+        Mockito.when(molecularProfileService.getMolecularProfilesInStudies(Mockito.anyListOf(String.class),
             Mockito.anyString())).thenReturn(molecularProfileList);
-        
+
         MolecularProfileFilter molecularProfileFilter = new MolecularProfileFilter();
         molecularProfileFilter.setStudyIds(Arrays.asList(TEST_STUDY_IDENTIFIER_1, TEST_STUDY_IDENTIFIER_2));
-        
+
         mockMvc.perform(MockMvcRequestBuilders
                 .post("/molecular-profiles/fetch")
                 .accept(MediaType.APPLICATION_JSON)

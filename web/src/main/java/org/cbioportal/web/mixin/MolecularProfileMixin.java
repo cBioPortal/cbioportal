@@ -16,5 +16,5 @@ public class MolecularProfileMixin {
     private String cancerStudyIdentifier;
     @JsonProperty("study")
     private CancerStudy cancerStudy;
-    
+
 }

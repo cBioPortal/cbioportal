@@ -36,8 +36,8 @@ public class VariantCountController {
     private VariantCountService variantCountService;
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/variant-counts/fetch", 
-        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/variant-counts/fetch",
+        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get counts of specific variants within a mutation molecular profile")
     public ResponseEntity<List<VariantCount>> fetchVariantCounts(
@@ -48,15 +48,15 @@ public class VariantCountController {
         @RequestBody List<VariantCountIdentifier> variantCountIdentifiers) throws MolecularProfileNotFoundException {
 
         List<Integer> entrezGeneIds = new ArrayList<>();
-        List<String> keywords = new ArrayList<>(); 
-        
+        List<String> keywords = new ArrayList<>();
+
         for (VariantCountIdentifier variantCountIdentifier : variantCountIdentifiers) {
-         
+
             entrezGeneIds.add(variantCountIdentifier.getEntrezGeneId());
             keywords.add(variantCountIdentifier.getKeyword());
         }
 
-        return new ResponseEntity<>(variantCountService.fetchVariantCounts(molecularProfileId, entrezGeneIds, keywords), 
+        return new ResponseEntity<>(variantCountService.fetchVariantCounts(molecularProfileId, entrezGeneIds, keywords),
             HttpStatus.OK);
     }
 }

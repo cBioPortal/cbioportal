@@ -5,7 +5,6 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 public class GenePanelDataFilter {
-
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> sampleIds;
     private String sampleListId;

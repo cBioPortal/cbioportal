@@ -747,6 +747,7 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.0";
 ##version: 2.12.1
 -- update genetic_entity table
 ALTER TABLE `genetic_entity` ADD COLUMN `STABLE_ID` varchar(45) DEFAULT NULL;
+ALTER TABLE `genetic_profile` ADD COLUMN `GENERIC_ASSAY_TYPE` varchar(255) DEFAULT NULL;
 
 CREATE TABLE `generic_entity_properties` (
   `ID` INT(11) NOT NULL auto_increment,

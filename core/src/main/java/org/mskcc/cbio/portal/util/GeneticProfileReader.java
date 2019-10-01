@@ -124,6 +124,11 @@ public class GeneticProfileReader {
             geneticProfile.setSortOrder( geneticProfile.getOtherMetaDataField("value_sort_order") );
         }
 
+        if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY) {
+            validateGenericAssay(geneticProfile, file);
+            geneticProfile.setGenericAssayType(geneticProfile.getOtherMetaDataField("generic_assay_type"));
+        }
+
         // add new genetic profile
         DaoGeneticProfile.addGeneticProfile(geneticProfile);
 
@@ -208,6 +213,14 @@ public class GeneticProfileReader {
             throw new RuntimeException("Missing `value_sort_order` property in '" + file.getPath() + "' meta data file.");
     }
 
+    /**
+     * Check whether required columns for assay response data were defined in the meta file
+     */
+    private static void validateGenericAssay(GeneticProfile geneticProfile, File file) {
+        if (geneticProfile.getOtherMetaDataField("generic_assay_type") == null)
+            throw new RuntimeException("Missing `generic_assay_type` property in '" + file.getPath() + "' meta data file.");
+    }
+    
 	/**
      * Load a GeneticProfile from a description file.
      *

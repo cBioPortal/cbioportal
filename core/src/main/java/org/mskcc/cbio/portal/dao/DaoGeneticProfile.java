@@ -102,8 +102,8 @@ public final class DaoGeneticProfile {
             pstmt = con.prepareStatement
                     ("INSERT INTO genetic_profile (`STABLE_ID`, `CANCER_STUDY_ID`, "+
                             "`GENETIC_ALTERATION_TYPE`, `DATATYPE`, `NAME`, `DESCRIPTION`, "+
-                            "`SHOW_PROFILE_IN_ANALYSIS_TAB`, `PIVOT_THRESHOLD`, `SORT_ORDER`) " +
-                            "VALUES (?,?,?,?,?,?,?,?,?)");
+                            "`SHOW_PROFILE_IN_ANALYSIS_TAB`, `PIVOT_THRESHOLD`, `SORT_ORDER`, `GENERIC_ASSAY_TYPE`) " +
+                            "VALUES (?,?,?,?,?,?,?,?,?,?)");
             pstmt.setString(1, profile.getStableId());
             pstmt.setInt(2, profile.getCancerStudyId());
             pstmt.setString(3, profile.getGeneticAlterationType().name());
@@ -120,6 +120,13 @@ public final class DaoGeneticProfile {
             } else {
                 pstmt.setFloat(8, profile.getPivotThreshold());
                 pstmt.setString(9, profile.getSortOrder());
+            }
+
+            // `GENERIC_ASSAY_TYPE` is for Generic Assay, this field is set to null when not present in profile object.
+            if (profile.getGenericAssayType() == null) {
+                pstmt.setNull(10, java.sql.Types.VARCHAR);
+            } else {
+                pstmt.setString(10, profile.getGenericAssayType());
             }
             
             rows = pstmt.executeUpdate();

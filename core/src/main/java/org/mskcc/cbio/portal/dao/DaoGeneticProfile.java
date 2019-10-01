@@ -243,6 +243,9 @@ public final class DaoGeneticProfile {
         if (rs.getString("SORT_ORDER") != null && ! rs.getString("SORT_ORDER").equals("") ) {
             profileType.setSortOrder(rs.getString("SORT_ORDER"));
         }
+        if (rs.getString("GENERIC_ASSAY_TYPE") != null && ! rs.getString("GENERIC_ASSAY_TYPE").equals("") ) {
+            profileType.setGenericAssayType(rs.getString("GENERIC_ASSAY_TYPE"));
+        }
         return profileType;
     }
 

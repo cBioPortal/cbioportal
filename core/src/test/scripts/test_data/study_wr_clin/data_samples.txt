@@ -1,5 +1,3 @@
-##
-##
 #Patient Identifier	Sample Identifier	Subtype
 #Patient identifier	Sample identifier	Subtype description
 #STRING	STRING	STRING

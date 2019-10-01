@@ -241,7 +241,7 @@ public class StudyViewController {
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
             result = mutationService.getSampleCountInMultipleMolecularProfilesForFusions(molecularProfileService
-                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, false);
+                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, true);
             result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1 && !result.isEmpty()) {

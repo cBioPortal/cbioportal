@@ -1353,6 +1353,7 @@ Required fields:
 ```
 cancer_study_identifier: Same value as specified in meta file of the study
 genetic_alteration_type: GENERIC_ASSAY
+generic_assay_type: the actual data type
 datatype: LIMIT-VALUE
 stable_id: Any unique identifier using a combination of alphanumeric characters, _ and -
 profile_name: A name describing the analysis.
@@ -1366,6 +1367,7 @@ Example:
 ```
 cancer_study_identifier: study_es_0
 genetic_alteration_type: GENERIC_ASSAY
+generic_assay_type: MUTATIONAL_SIGNATURE
 datatype: LIMIT-VALUE
 stable_id: mutational_signature
 profile_name: data of mutational signature

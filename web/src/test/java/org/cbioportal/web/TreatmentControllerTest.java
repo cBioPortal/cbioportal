@@ -263,7 +263,7 @@ public class TreatmentControllerTest {
         List<Treatment> treatmentList = new ArrayList<>();
 
         Treatment treatment1 = new Treatment();
-        treatment1.setInternalId(INTERNAL_ID_1);
+        treatment1.setId(INTERNAL_ID_1);
         treatment1.setStableId(TREATMENT_ID_1);
         treatment1.setName(TREATMENT_ID_1);
         treatment1.setDescription(DESCRIPTION_1);
@@ -271,7 +271,7 @@ public class TreatmentControllerTest {
         treatmentList.add(treatment1);
 
         Treatment treatment2 = new Treatment();
-        treatment2.setInternalId(INTERNAL_ID_2);
+        treatment2.setId(INTERNAL_ID_2);
         treatment2.setStableId(TREATMENT_ID_2);
         treatment2.setName(TREATMENT_ID_2);
         treatment2.setDescription(DESCRIPTION_2);
@@ -286,7 +286,7 @@ public class TreatmentControllerTest {
         List<Treatment> treatmentList = new ArrayList<>();
 
         Treatment treatment3 = new Treatment();
-        treatment3.setInternalId(INTERNAL_ID_3);
+        treatment3.setId(INTERNAL_ID_3);
         treatment3.setStableId(TREATMENT_ID_3);
         treatment3.setName(TREATMENT_ID_3);
         treatment3.setDescription(DESCRIPTION_3);

@@ -143,12 +143,12 @@ public class TreatmentServiceImplTest extends BaseServiceImplTest {
         List<Treatment> treatmentList = new ArrayList<>();
 
         Treatment treatment1 = new Treatment();
-        treatment1.setInternalId(INTERNAL_ID_1);
+        treatment1.setId(INTERNAL_ID_1);
         treatment1.setStableId(TREATMENT_ID_1);
         treatmentList.add(treatment1);
 
         Treatment treatment2 = new Treatment();
-        treatment2.setInternalId(INTERNAL_ID_2);
+        treatment2.setId(INTERNAL_ID_2);
         treatment2.setStableId(TREATMENT_ID_2);
         treatmentList.add(treatment2);
         return treatmentList;

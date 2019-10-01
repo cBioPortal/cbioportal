@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -118,6 +119,39 @@ public class SampleControllerTest {
             .andExpect(MockMvcResultMatchers.status().isNotFound())
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                 .value("Sample not found in study test_study_id: test_sample_id"));
+    }
+
+    @Test
+    public void getAllSamples() throws Exception {
+        List<Sample> samples = createExampleSamples();
+        
+        Mockito
+            .when(sampleService.getAllSamples(
+                Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(),
+                Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()
+            )).thenReturn(samples);
+        
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/samples").accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_STABLE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientStableId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleType")
+                .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").value(TEST_PATIENT_STABLE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientStableId").doesNotExist())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleType")
+                .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist());
     }
 
     @Test

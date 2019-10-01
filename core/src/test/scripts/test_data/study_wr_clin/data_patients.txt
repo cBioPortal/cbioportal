@@ -2,7 +2,7 @@
 #Patient identifier	Overall survival status	Overall survival in months since diagnosis	Disease free status	Disease free in months since treatment
 #STRING	STRING	NUMBER	STRING	NUMBER
 #1	1	1	1	1
-PATIENT_ID	OS_STATUS	OS_MONTHS	DFS_STATUS	spam
+PATIENT_ID	OS_STATUS	OS_MONTHS	DFS_STATUS	DFS_MONTHS
 TCGA-A2-A04P	DECEASED	17.97	Recurred/Progressed	NA
 TCGA-A1-A0SK	DECEASED	31.77	NA	NA
 TCGA-A2-A0CM	DECEASED	24.77	Recurred/Progressed	NA
@@ -827,3 +827,4 @@ TCGA-AC-A2FB	NA	NA	NA	NA
 TCGA-AC-A2FG	NA	NA	NA	NA
 TCGA-GI-A2C8	NA	NA	NA	NA
 TCGA-E9-A295	NA	NA	NA	NA
+TEST2-A1-A0SD	NA	NA	NA	NA

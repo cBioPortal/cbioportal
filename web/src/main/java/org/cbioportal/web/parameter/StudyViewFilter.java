@@ -13,24 +13,24 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class StudyViewFilter implements Serializable {
 
-	@Size(min = 1)
-	private List<SampleIdentifier> sampleIdentifiers;
-	@Size(min = 1)
-	private List<String> studyIds;
+    @Size(min = 1)
+    private List<SampleIdentifier> sampleIdentifiers;
+    @Size(min = 1)
+    private List<String> studyIds;
     private List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters;
     private List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters;
-	private List<MutationGeneFilter> mutatedGenes;
-	private List<CopyNumberGeneFilter> cnaGenes;
-	private Boolean withMutationData;
-	private Boolean withCNAData;
-	private RectangleBounds mutationCountVsCNASelection;
+    private List<MutationGeneFilter> mutatedGenes;
+    private List<CopyNumberGeneFilter> cnaGenes;
+    private Boolean withMutationData;
+    private Boolean withCNAData;
+    private RectangleBounds mutationCountVsCNASelection;
 
-	@AssertTrue
+    @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
         return sampleIdentifiers != null ^ studyIds != null;
     }
 
-	@AssertTrue
+    @AssertTrue
     private boolean isEitherValueOrRangePresentInClinicalDataIntervalFilters() {
         long invalidCount = 0;
 
@@ -44,30 +44,30 @@ public class StudyViewFilter implements Serializable {
 
         return invalidCount == 0;
     }
-	
-	public List<SampleIdentifier> getSampleIdentifiers() {
-		return sampleIdentifiers;
-	}
 
-	public void setSampleIdentifiers(List<SampleIdentifier> sampleIdentifiers) {
-		this.sampleIdentifiers = sampleIdentifiers;
-	}
+    public List<SampleIdentifier> getSampleIdentifiers() {
+        return sampleIdentifiers;
+    }
 
-	public List<String> getStudyIds() {
-		return studyIds;
-	}
+    public void setSampleIdentifiers(List<SampleIdentifier> sampleIdentifiers) {
+        this.sampleIdentifiers = sampleIdentifiers;
+    }
 
-	public void setStudyIds(List<String> studyIds) {
-		this.studyIds = studyIds;
-	}
+    public List<String> getStudyIds() {
+        return studyIds;
+    }
 
-	public List<ClinicalDataEqualityFilter> getClinicalDataEqualityFilters() {
-		return clinicalDataEqualityFilters;
-	}
+    public void setStudyIds(List<String> studyIds) {
+        this.studyIds = studyIds;
+    }
 
-	public void setClinicalDataEqualityFilters(List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters) {
-		this.clinicalDataEqualityFilters = clinicalDataEqualityFilters;
-	}
+    public List<ClinicalDataEqualityFilter> getClinicalDataEqualityFilters() {
+        return clinicalDataEqualityFilters;
+    }
+
+    public void setClinicalDataEqualityFilters(List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters) {
+        this.clinicalDataEqualityFilters = clinicalDataEqualityFilters;
+    }
 
     public List<ClinicalDataIntervalFilter> getClinicalDataIntervalFilters() {
         return clinicalDataIntervalFilters;
@@ -78,42 +78,42 @@ public class StudyViewFilter implements Serializable {
     }
 
     public List<MutationGeneFilter> getMutatedGenes() {
-		return mutatedGenes;
-	}
+        return mutatedGenes;
+    }
 
-	public void setMutatedGenes(List<MutationGeneFilter> mutatedGenes) {
-		this.mutatedGenes = mutatedGenes;
-	}
+    public void setMutatedGenes(List<MutationGeneFilter> mutatedGenes) {
+        this.mutatedGenes = mutatedGenes;
+    }
 
-	public List<CopyNumberGeneFilter> getCnaGenes() {
-		return cnaGenes;
-	}
+    public List<CopyNumberGeneFilter> getCnaGenes() {
+        return cnaGenes;
+    }
 
-	public void setCnaGenes(List<CopyNumberGeneFilter> cnaGenes) {
-		this.cnaGenes = cnaGenes;
-	}
+    public void setCnaGenes(List<CopyNumberGeneFilter> cnaGenes) {
+        this.cnaGenes = cnaGenes;
+    }
 
-	public Boolean getWithMutationData() {
-		return withMutationData;
-	}
+    public Boolean getWithMutationData() {
+        return withMutationData;
+    }
 
-	public void setWithMutationData(Boolean withMutationData) {
-		this.withMutationData = withMutationData;
-	}
+    public void setWithMutationData(Boolean withMutationData) {
+        this.withMutationData = withMutationData;
+    }
 
-	public Boolean getWithCNAData() {
-		return withCNAData;
-	}
+    public Boolean getWithCNAData() {
+        return withCNAData;
+    }
 
-	public void setWithCNAData(Boolean withCNAData) {
-		this.withCNAData = withCNAData;
-	}
+    public void setWithCNAData(Boolean withCNAData) {
+        this.withCNAData = withCNAData;
+    }
 
-	public RectangleBounds getMutationCountVsCNASelection() {
-		return mutationCountVsCNASelection;
-	}
+    public RectangleBounds getMutationCountVsCNASelection() {
+        return mutationCountVsCNASelection;
+    }
 
-	public void setMutationCountVsCNASelection(RectangleBounds mutationCountVsCNASelection) {
-		this.mutationCountVsCNASelection = mutationCountVsCNASelection;
-	}
+    public void setMutationCountVsCNASelection(RectangleBounds mutationCountVsCNASelection) {
+        this.mutationCountVsCNASelection = mutationCountVsCNASelection;
+    }
 }

@@ -81,23 +81,23 @@ public class GenesetHierarchyController {
         @ApiParam(required = false, value = "Identifier of pre-defined sample list with samples to query, e.g. brca_tcga_all")
         @RequestParam(required = false) String sampleListId,
         @ApiParam(required = false, value = "Fill this one if you want to specify a subset of samples:"
-        		+ " sampleIds: custom list of samples or patients to query, e.g. [\"TCGA-A1-A0SD-01\", \"TCGA-A1-A0SE-01\"]")
+                + " sampleIds: custom list of samples or patients to query, e.g. [\"TCGA-A1-A0SD-01\", \"TCGA-A1-A0SE-01\"]")
         @RequestBody(required = false) List<String> sampleIds)
         throws MolecularProfileNotFoundException, SampleListNotFoundException {
 
-	        if (sampleListId != null && sampleListId.trim().length() > 0) {
-	    		return new ResponseEntity<>(
-	    				genesetHierarchyService.fetchGenesetHierarchyInfo(geneticProfileId, percentile, scoreThreshold, pvalueThreshold, sampleListId)
-		        		, HttpStatus.OK);
-	    	} else if (sampleIds != null && sampleIds.size() > 0){
-		        return new ResponseEntity<>(
-		        		genesetHierarchyService.fetchGenesetHierarchyInfo(geneticProfileId, percentile, scoreThreshold, pvalueThreshold, sampleIds)
-		        		, HttpStatus.OK);
-	    	} else {
-		        return new ResponseEntity<>(
-		        		genesetHierarchyService.fetchGenesetHierarchyInfo(geneticProfileId, percentile, scoreThreshold, pvalueThreshold)
-		        		, HttpStatus.OK);
-	    	}
-        
+        if (sampleListId != null && sampleListId.trim().length() > 0) {
+            return new ResponseEntity<>(
+                    genesetHierarchyService.fetchGenesetHierarchyInfo(geneticProfileId, percentile, scoreThreshold, pvalueThreshold, sampleListId),
+                    HttpStatus.OK);
+        } else if (sampleIds != null && sampleIds.size() > 0){
+            return new ResponseEntity<>(
+                    genesetHierarchyService.fetchGenesetHierarchyInfo(geneticProfileId, percentile, scoreThreshold, pvalueThreshold, sampleIds),
+                    HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(
+                    genesetHierarchyService.fetchGenesetHierarchyInfo(geneticProfileId, percentile, scoreThreshold, pvalueThreshold),
+                    HttpStatus.OK);
+        }
+
     }
 }

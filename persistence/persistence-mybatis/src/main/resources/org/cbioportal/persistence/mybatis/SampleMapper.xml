@@ -31,7 +31,7 @@
 
     <sql id="where">
         <where>
-            <if test="sampleIds == null">
+            <if test="sampleIds == null and studyIds != null">
                 cancer_study.CANCER_STUDY_IDENTIFIER IN
                 <foreach item="item" collection="studyIds" open="(" separator="," close=")">
                     #{item}
@@ -55,6 +55,11 @@
             <if test="patientId != null">
                 AND patient.STABLE_ID = #{patientId}
             </if>
+            <if test="keyword != null">
+                <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
+                    sample.STABLE_ID like CONCAT('%', #{item}, '%')
+                </foreach>
+            </if>
         </where>
     </sql>
 
@@ -68,8 +73,11 @@
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
-        <if test="projection == 'ID'">
+        <if test="projection == 'ID' and keyword == null">
             ORDER BY sample.STABLE_ID ASC
+        </if>
+        <if test="keyword != null">
+            ORDER BY CASE WHEN sample.STABLE_ID LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, sample.STABLE_ID
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}

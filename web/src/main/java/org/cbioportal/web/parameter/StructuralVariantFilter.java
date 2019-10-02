@@ -25,16 +25,17 @@ package org.cbioportal.web.parameter;
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.util.List;
 
-public class StructuralVariantFilter {
+public class StructuralVariantFilter implements Serializable {
 
     @Size(min=1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> molecularProfileIds;
     private List<Integer> entrezGeneIds;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<SampleMolecularIdentifier> sampleMolecularIdentifiers;
-    
+
     @AssertTrue
     private boolean isEitherMolecularProfileIdsOrSampleMolecularIdentifiersPresent() {
         return molecularProfileIds != null ^ sampleMolecularIdentifiers != null;

@@ -56,14 +56,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableWebMvc
 @ComponentScan(basePackages = {"org.mskcc.cbio.portal.web.api", "org.mskcc.cbio.portal.persistence", "org.mskcc.cbio.portal.service"})
 public class ApiControllerConfig extends WebMvcConfigurerAdapter {
-    
+
     @Bean
     public CosmicCountService cosmicCountService() {
-	return Mockito.mock(CosmicCountService.class);
+        return Mockito.mock(CosmicCountService.class);
     }
     @Bean
     public CosmicCountMapperLegacy cosmicCountMapper() {
-	return Mockito.mock(CosmicCountMapperLegacy.class);
+        return Mockito.mock(CosmicCountMapperLegacy.class);
     }
     @Bean
     public MutationMapperLegacy mutationMapper() {

@@ -70,7 +70,7 @@ public class CopyNumberSegmentController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) CopyNumberSegmentSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) throws SampleNotFoundException, 
+        @RequestParam(defaultValue = "ASC") Direction direction) throws SampleNotFoundException,
         StudyNotFoundException {
 
         if (projection == Projection.META) {
@@ -118,7 +118,7 @@ public class CopyNumberSegmentController {
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                copyNumberSegmentService.fetchCopyNumberSegments(studyIds, sampleIds, chromosome, projection.name()), 
+                copyNumberSegmentService.fetchCopyNumberSegments(studyIds, sampleIds, chromosome, projection.name()),
                 HttpStatus.OK);
         }
     }

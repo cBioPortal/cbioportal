@@ -82,7 +82,7 @@ public class TreatmentControllerTest {
     public static final String STUDY_ID_2 = "study_id_2";
 
     private ObjectMapper objectMapper = new ObjectMapper();
-    
+
     @Autowired
     private WebApplicationContext wac;
 
@@ -124,7 +124,7 @@ public class TreatmentControllerTest {
         .thenReturn(treatmentListForStudy);
         Mockito.when(treatmentService.getTreatments(Mockito.anyList(), Mockito.anyString()))
         .thenReturn(treatmentList);
-        
+
     }
 
     @Test

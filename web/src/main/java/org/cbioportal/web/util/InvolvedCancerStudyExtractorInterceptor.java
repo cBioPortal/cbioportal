@@ -58,6 +58,7 @@ import org.cbioportal.web.parameter.PatientIdentifier;
 import org.cbioportal.web.parameter.SampleFilter;
 import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
+import org.cbioportal.web.parameter.StructuralVariantFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
 import org.cbioportal.web.parameter.TreatmentFilter;
 import org.slf4j.Logger;
@@ -99,6 +100,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
     public static final String COPY_NUMBER_ENRICHMENT_FETCH_PATH = "/copy-number-enrichments/fetch";
     public static final String EXPRESSION_ENRICHMENT_FETCH_PATH = "/expression-enrichments/fetch";
     public static final String TREATMENT_FETCH_PATH = "/treatments/fetch";
+    public static final String STRUCTURAL_VARIANT_FETCH_PATH = "/structuralvariant/fetch";
+
 
     @Override public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!request.getMethod().equals("POST")) {
@@ -138,6 +141,8 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             return extractAttributesFromMolecularProfileCasesGroups(wrappedRequest);
         } else if (requestPathInfo.equals(TREATMENT_FETCH_PATH)) {
             return extractAttributesFromTreatmentFilter(wrappedRequest);
+        } else if (requestPathInfo.equals(STRUCTURAL_VARIANT_FETCH_PATH)) {
+            return extractAttributesFromStructuralVariantFilter(wrappedRequest);
         }
         return true;
     }
@@ -518,6 +523,40 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
         Set<String> studyIdSet = new HashSet<String>();
         if (treatmentFilter.getStudyIds() != null) {
             studyIdSet.addAll(treatmentFilter.getStudyIds());
+        }
+        return studyIdSet;
+    }
+
+    private boolean extractAttributesFromStructuralVariantFilter(HttpServletRequest request) {
+        try {
+            StructuralVariantFilter structuralVariantFilter = objectMapper.readValue(request.getReader(),
+                    StructuralVariantFilter.class);
+            LOG.debug("extracted structuralVariantFilter: " + structuralVariantFilter.toString());
+            LOG.debug("setting interceptedStructuralVariantFilter to " + structuralVariantFilter);
+            request.setAttribute("interceptedStructuralVariantFilter", structuralVariantFilter);
+            if (cacheMapUtil.hasCacheEnabled()) {
+                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromStructuralVariantFilter(
+                        structuralVariantFilter);
+                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
+                request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+            }
+        } catch (Exception e) {
+            LOG.error("exception thrown during extraction of structuralVariantFilter: " + e);
+            return false;
+        }
+        return true;
+    }
+
+    private Collection<String> extractCancerStudyIdsFromStructuralVariantFilter(StructuralVariantFilter structuralVariantFilter) {
+        Set<String> studyIdSet = new HashSet<String>();
+        if (structuralVariantFilter.getSampleMolecularIdentifiers() != null) {
+            // controller handler will preferentially use SampleMolecularIdentifiers if they are present in the filter
+            extractCancerStudyIdsFromSampleMolecularIdentifiers(structuralVariantFilter.getSampleMolecularIdentifiers(), studyIdSet);
+        } else {
+            // otherwise, handler will use the list of MolecularProfileIds in the filter
+            if (structuralVariantFilter.getMolecularProfileIds() != null) {
+                extractCancerStudyIdsFromMolecularProfileIds(structuralVariantFilter.getMolecularProfileIds(), studyIdSet);
+            }
         }
         return studyIdSet;
     }

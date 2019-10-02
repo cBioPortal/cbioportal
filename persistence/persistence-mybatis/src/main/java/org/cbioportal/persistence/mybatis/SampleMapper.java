@@ -7,12 +7,12 @@ import java.util.List;
 
 public interface SampleMapper {
 
-    List<Sample> getSamples(List<String> studyIds, String patientId, List<String> sampleIds, String projection, 
-                            Integer limit, Integer offset, String sortBy, String direction);
+    List<Sample> getSamples(List<String> studyIds, String patientId, List<String> sampleIds, String keyword, 
+                            String projection, Integer limit, Integer offset, String sortBy, String direction);
 
     List<Sample> getSamplesBySampleListIds(List<String> sampleListIds, String projection);
 
-    BaseMeta getMetaSamples(List<String> studyIds, String patientId, List<String> sampleIds);
+    BaseMeta getMetaSamples(List<String> studyIds, String patientId, List<String> sampleIds, String keyword);
 
     BaseMeta getMetaSamplesBySampleListIds(List<String> sampleListIds);
 

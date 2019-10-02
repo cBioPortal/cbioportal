@@ -23,14 +23,14 @@ public class InfoControllerTest {
 
     @Autowired
     private WebApplicationContext wac;
-    
+
     private MockMvc mockMvc;
-    
+
     @Before
     public void setUp() throws Exception {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void getInfo() throws Exception {
 

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 public class ClinicalDataIntervalFilter extends ClinicalDataFilter implements Serializable {
+
     private List<ClinicalDataIntervalFilterValue> values;
 
     public List<ClinicalDataIntervalFilterValue> getValues() {

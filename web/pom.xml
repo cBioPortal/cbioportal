@@ -19,7 +19,7 @@
       <url>https://jitpack.io</url>
     </repository>
   </repositories>
-  
+
   <dependencies>
     <dependency>
       <groupId>org.mskcc.cbio</groupId>
@@ -81,9 +81,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-autoconfigure</artifactId>
-        <version>2.1.6.RELEASE</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure</artifactId>
+      <version>2.1.6.RELEASE</version>
     </dependency>
     <dependency>
       <groupId>com.jayway.jsonpath</groupId>
@@ -116,47 +116,47 @@
       <artifactId>aspectjweaver</artifactId>
       <version>1.8.12</version>
     </dependency>
-	<dependency>
-        <groupId>com.datumbox</groupId>
-        <artifactId>datumbox-framework-lib</artifactId>
-        <version>0.8.1</version>
+    <dependency>
+      <groupId>com.datumbox</groupId>
+      <artifactId>datumbox-framework-lib</artifactId>
+      <version>0.8.1</version>
     </dependency>
-	<dependency>
-		<groupId>com.github.cbioportal</groupId>
-        <artifactId>session-service</artifactId>
-        <version>master-SNAPSHOT</version>
-		<classifier>model</classifier>
-		<exclusions>
-			<exclusion>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter</artifactId>
-			</exclusion>
-			<exclusion>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-annotations</artifactId>
-			</exclusion>
-			<exclusion>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter-web</artifactId>
-			</exclusion>
-			<exclusion>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter-security</artifactId>
-			</exclusion>
-			<exclusion>
-				<groupId>io.springfox</groupId>
-				<artifactId>springfox-swagger2</artifactId>
-			</exclusion>
-			<exclusion>
-				<groupId>io.springfox</groupId>
-				<artifactId>springfox-swagger-ui</artifactId>
-			</exclusion>
-			<exclusion>
-				<groupId>io.sentry</groupId>
-				<artifactId>sentry</artifactId>
-			</exclusion>
-		</exclusions>
-	</dependency>
+    <dependency>
+      <groupId>com.github.cbioportal</groupId>
+      <artifactId>session-service</artifactId>
+      <version>master-SNAPSHOT</version>
+      <classifier>model</classifier>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-annotations</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-security</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>io.springfox</groupId>
+          <artifactId>springfox-swagger2</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>io.springfox</groupId>
+          <artifactId>springfox-swagger-ui</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>io.sentry</groupId>
+          <artifactId>sentry</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
 
 </project>

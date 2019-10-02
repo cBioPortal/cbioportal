@@ -59,7 +59,7 @@ public class CosmicCountControllerTest {
         Mockito.reset(cosmicCountService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void fetchCosmicCounts() throws Exception {
 

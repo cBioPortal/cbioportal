@@ -67,7 +67,7 @@ public class ExpressionEnrichmentControllerTest {
         Mockito.reset(expressionEnrichmentService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void fetchExpressionEnrichments() throws Exception {
 
@@ -90,8 +90,8 @@ public class ExpressionEnrichmentControllerTest {
         expressionEnrichment1.setpValue(TEST_P_VALUE_1);
         expressionEnrichments.add(expressionEnrichment1);
         expressionEnrichment1.setGroupsStatistics(groupStatistics1);
-        
-        
+
+
         ExpressionEnrichment expressionEnrichment2 = new ExpressionEnrichment();
         expressionEnrichment2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         expressionEnrichment2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
@@ -113,14 +113,14 @@ public class ExpressionEnrichmentControllerTest {
 
         Mockito.when(expressionEnrichmentService.getExpressionEnrichments( Mockito.anyString(), Mockito.anyMap(), Mockito.anyString()))
             .thenReturn(expressionEnrichments);
-        
+
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/expression-enrichments/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .content("[{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5JH-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5K2-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"altered\"},"
                     + "{\"molecularProfileCaseIdentifiers\":[{\"caseId\":\"TCGA-OR-A5LN-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"},{\"caseId\":\"TCGA-OR-A5LS-01\",\"molecularProfileId\":\"acc_tcga_pan_can_atlas_2018_rna_seq_v2_mrna\"}],\"name\":\"unaltered\"}]"))
-            .andExpect(MockMvcResultMatchers.status().isOk())        
+            .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))

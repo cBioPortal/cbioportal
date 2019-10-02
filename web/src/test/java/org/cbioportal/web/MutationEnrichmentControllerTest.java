@@ -116,15 +116,15 @@ public class MutationEnrichmentControllerTest {
         MolecularProfileCaseIdentifier entity2 = new MolecularProfileCaseIdentifier();
         entity2.setCaseId("test_sample_id_2");
         entity2.setMolecularProfileId("test_2_mutations");
-        
+
         MolecularProfileCasesGroupFilter casesGroup1 = new MolecularProfileCasesGroupFilter();
         casesGroup1.setName("altered group");
         casesGroup1.setMolecularProfileCaseIdentifiers(Arrays.asList(entity1));
-        
+
         MolecularProfileCasesGroupFilter casesGroup2 = new MolecularProfileCasesGroupFilter();
         casesGroup2.setName("unaltered group");
         casesGroup2.setMolecularProfileCaseIdentifiers(Arrays.asList(entity2));
-        
+
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/mutation-enrichments/fetch")
             .accept(MediaType.APPLICATION_JSON)

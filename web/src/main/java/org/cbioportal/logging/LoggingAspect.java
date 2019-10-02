@@ -14,14 +14,14 @@ public class LoggingAspect {
 
     private static final Logger logger = LogManager.getLogger("LoggingAspect");
 
-    @Before("execution(* org.cbioportal.web..*(..)) || execution(* org.cbioportal.service.impl..*(..)) || " + 
+    @Before("execution(* org.cbioportal.web..*(..)) || execution(* org.cbioportal.service.impl..*(..)) || " +
     "execution(* org.cbioportal.persistence.mybatis..*(..))")
     public void logBefore(JoinPoint joinPoint) {
         logger.debug("Entered: " + joinPoint.getTarget().getClass().getName() + "." +
             joinPoint.getSignature().getName());
     }
 
-    @After("execution(* org.cbioportal.web..*(..)) || execution(* org.cbioportal.service.impl..*(..)) || " + 
+    @After("execution(* org.cbioportal.web..*(..)) || execution(* org.cbioportal.service.impl..*(..)) || " +
     "execution(* org.cbioportal.persistence.mybatis..*(..))")
     public void logAfter(JoinPoint joinPoint) {
         logger.debug("Exited: " + joinPoint.getTarget().getClass().getName() + "." +

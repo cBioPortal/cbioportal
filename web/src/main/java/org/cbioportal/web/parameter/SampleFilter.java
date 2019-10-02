@@ -8,14 +8,14 @@ import java.util.List;
 import java.io.Serializable;
 
 public class SampleFilter implements Serializable {
-    
+
     @Size(min = 1, max = SampleController.SAMPLE_MAX_PAGE_SIZE)
     private List<SampleIdentifier> sampleIdentifiers;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> sampleListIds;
     @Size(min = 1, max = SampleController.SAMPLE_MAX_PAGE_SIZE)
     private List<String> uniqueSampleKeys;
-    
+
     @AssertTrue
     private boolean isOnlyOneTypeOfFilterPresent() {
         return sampleIdentifiers != null ^ sampleListIds != null ^ uniqueSampleKeys != null;

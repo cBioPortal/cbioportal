@@ -13,24 +13,21 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class ClinicalDataEqualityFilterApplier extends ClinicalDataFilterApplier<ClinicalDataEqualityFilter>
-{
+public class ClinicalDataEqualityFilterApplier extends ClinicalDataFilterApplier<ClinicalDataEqualityFilter> {
     @Autowired
-    public ClinicalDataEqualityFilterApplier(PatientService patientService, 
-                                             ClinicalDataService clinicalDataService, 
+    public ClinicalDataEqualityFilterApplier(PatientService patientService,
+                                             ClinicalDataService clinicalDataService,
                                              SampleService sampleService,
-                                             StudyViewFilterUtil studyViewFilterUtil) 
-    {
+                                             StudyViewFilterUtil studyViewFilterUtil) {
         super(patientService, clinicalDataService, sampleService, studyViewFilterUtil);
     }
-    
+
     @Override
     public Integer apply(List<ClinicalDataEqualityFilter> attributes,
                          MultiKeyMap clinicalDataMap,
                          String entityId,
                          String studyId,
-                         Boolean negateFilters)
-    {
+                         Boolean negateFilters) {
         Integer count = 0;
 
         for (ClinicalDataEqualityFilter s : attributes) {

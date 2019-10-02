@@ -30,7 +30,7 @@ public class ReferenceGenomeGeneController {
 
     private static final int GENE_MAX_PAGE_SIZE = 100000;
     private static final String GENE_DEFAULT_PAGE_SIZE = "100000";
-    
+
     @Autowired
     private ReferenceGenomeGeneService referenceGenomeGeneService;
 
@@ -39,7 +39,7 @@ public class ReferenceGenomeGeneController {
     public ResponseEntity<List<ReferenceGenomeGene>> getAllReferenceGenomeGenes(
         @ApiParam(required = true, value = "Name of Reference Genome hg19")
         @PathVariable String genomeName)  {
-        
+
         return new ResponseEntity<>(
                 referenceGenomeGeneService.fetchAllReferenceGenomeGenes(genomeName), HttpStatus.OK);
     }
@@ -51,10 +51,10 @@ public class ReferenceGenomeGeneController {
         @PathVariable String genomeName,
         @ApiParam(required = true, value = "Entrez Gene ID 207")
         @PathVariable Integer geneId) throws GeneNotFoundException {
-    
+
         return new ResponseEntity<>(referenceGenomeGeneService.getReferenceGenomeGene(geneId, genomeName), HttpStatus.OK);
     }
-    
+
     @RequestMapping(value = "/reference-genome-genes/{genomeName}/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch genes of reference genome of interest")
@@ -64,7 +64,7 @@ public class ReferenceGenomeGeneController {
         @ApiParam(required = true, value = "List of Entrez Gene IDs")
         @Size(min = 1, max = GENE_MAX_PAGE_SIZE)
         @RequestBody List<String> geneIds) {
-        
+
         if (isInteger(geneIds.get(0))) {
             List<Integer> newIds = geneIds.stream().map(s -> Integer.parseInt(s)).collect(Collectors.toList());
             return new ResponseEntity<>(referenceGenomeGeneService.fetchGenesByGenomeName(newIds, genomeName), HttpStatus.OK);
@@ -73,7 +73,7 @@ public class ReferenceGenomeGeneController {
                     geneIds, genomeName), HttpStatus.OK);
         }
     }
-    
+
     private boolean isInteger(String s) {
         try {
             Integer.parseInt(s);

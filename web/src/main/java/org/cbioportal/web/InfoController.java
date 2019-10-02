@@ -21,7 +21,7 @@ public class InfoController {
 
     @Value("${portal.version}")
     private String portalVersion;
-    
+
     @Value("${db.version}")
     private String dbVersion;
 
@@ -58,7 +58,7 @@ public class InfoController {
     @RequestMapping(value = "/info", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get information about the running instance")
     public ResponseEntity<Info> getInfo() {
-        
+
         Info info = new Info();
         info.setPortalVersion(portalVersion);
         info.setDbVersion(dbVersion);

@@ -40,4 +40,9 @@ public interface SampleService {
     BaseMeta fetchMetaSamples(List<String> sampleListIds);
 
     List<Sample> getSamplesByInternalIds(List<Integer> internalIds);
+
+    List<Sample> getAllSamples(String keyword, String projection, Integer pageSize,
+                               Integer pageNumber, String sort, String direction);
+
+    BaseMeta getMetaSamples(String keyword);
 }

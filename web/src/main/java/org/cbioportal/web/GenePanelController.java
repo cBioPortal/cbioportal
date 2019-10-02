@@ -101,7 +101,7 @@ public class GenePanelController {
     }
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/gene-panel-data/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/gene-panel-data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get gene panel data")
     public ResponseEntity<List<GenePanelData>> getGenePanelData(
@@ -124,7 +124,7 @@ public class GenePanelController {
 
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/gene-panel-data/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/gene-panel-data/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch gene panel data")
     public ResponseEntity<List<GenePanelData>> fetchGenePanelDataInMultipleMolecularProfiles(
@@ -135,7 +135,7 @@ public class GenePanelController {
         @ApiParam(required = true, value = "List of Molecular Profile ID and Sample ID pairs")
         @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
         @RequestBody(required = false) List<SampleMolecularIdentifier> sampleMolecularIdentifiers) {
-        
+
         List<String> molecularProfileIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
 

@@ -12,6 +12,7 @@ public enum ChartType {
     TABLE,
     SCATTER,
     MUTATED_GENES_TABLE,
+    FUSION_GENES_TABLE,
     CNA_GENES_TABLE,
     NONE;
 }

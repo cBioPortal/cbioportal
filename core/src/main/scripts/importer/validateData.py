@@ -4080,7 +4080,7 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
     def __init__(self, *args, **kwargs):
         """Initialize the instance attributes of the data file validator."""
         super(GenericAssayWiseFileValidator, self).__init__(*args, **kwargs)
-        self.REQUIRED_HEADERS.extend(self.meta_dict['generic_entity_meta_properties'].split(','))
+        self.REQUIRED_HEADERS.extend([x.strip() for x in self.meta_dict['generic_entity_meta_properties'].split(',')])
 
     REQUIRED_HEADERS = ['entity_stable_id']
     OPTIONAL_HEADERS = []

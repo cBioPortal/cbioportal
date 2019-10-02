@@ -268,6 +268,7 @@ META_FIELD_MAP = {
     MetaFileTypes.GENERIC_ASSAY: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
+        'generic_assay_type': True,
         'datatype': True,
         'stable_id': True,
         'profile_name': True,

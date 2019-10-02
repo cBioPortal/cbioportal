@@ -80,6 +80,7 @@ public class ImportTabDelimData {
      * @param targetLine       The line we want to import.
      *                         If null, all lines are imported.
      * @param geneticProfileId GeneticProfile ID.
+     * @param genePanel        GenePanel
      * @param genericEntityProperties GeneticProfile ID.
      * 
      * @deprecated : TODO shall we deprecate this feature (i.e. the targetLine)? 

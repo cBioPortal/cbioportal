@@ -40,9 +40,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 
 @Component
 public class EhCacheStatistics {
+
+    @Value("${ehcache.cache_type:none}")
+    private String cacheType;
 
     private static String TIER_NOT_IN_USE = "Tier not in use";
 
@@ -53,7 +57,7 @@ public class EhCacheStatistics {
     private DefaultStatisticsService statisticsService;
 
     public EhCacheStatistics(javax.cache.CacheManager cacheManager) {
-        if (cacheManager == null) {
+        if (isCacheEnabled() && cacheManager == null) {
             throw new RuntimeException("A CacheManager needs to be set before calling this method.");
         }
         this.cacheManager = cacheManager;
@@ -144,4 +148,9 @@ public class EhCacheStatistics {
         }
 
     }
+
+    private boolean isCacheEnabled() {
+        return (cacheType != null && !cacheType.equalsIgnoreCase("none"));
+    }
+
 }

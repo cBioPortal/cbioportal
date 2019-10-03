@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 @PublicApi
 @RestController
 @Validated
-@Api(tags = "P. Generic Assay")
+@Api(tags = "P. Generic Assay", description = " ")
 public class GenericAssayController {
     
     @Autowired

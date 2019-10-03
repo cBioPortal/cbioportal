@@ -33,6 +33,7 @@ MRNA_EXPRESSION	CONTINUOUS	mrna_seq_fpkm_capture
 MRNA_EXPRESSION	Z-SCORE	mrna_seq_fpkm_capture_Zscores
 MRNA_EXPRESSION	CONTINUOUS	mrna_seq_fpkm_polya
 MRNA_EXPRESSION	Z-SCORE	mrna_seq_fpkm_polya_Zscores
+MRNA_EXPRESSION	Z-SCORE	mrna_seq_cpm_Zscores
 METHYLATION	CONTINUOUS	methylation_hm27
 METHYLATION	CONTINUOUS	methylation_hm450
 FUSION	FUSION	fusion

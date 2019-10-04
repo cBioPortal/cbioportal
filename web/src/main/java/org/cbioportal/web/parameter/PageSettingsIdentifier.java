@@ -10,7 +10,6 @@ public class PageSettingsIdentifier implements Serializable {
 
     @NotNull
     private SessionPage page;
-
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     List<String> origin;
 

@@ -29,40 +29,29 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class StudyViewFilterApplier {
-    
+
     private static final String MUTATION_COUNT = "MUTATION_COUNT";
-
     private static final String FRACTION_GENOME_ALTERED = "FRACTION_GENOME_ALTERED";
-
     private SampleService sampleService;
-    
     private MutationService mutationService;
-    
     private DiscreteCopyNumberService discreteCopyNumberService;
-    
     private MolecularProfileService molecularProfileService;
-
     private GenePanelService genePanelService;
-
     private ClinicalDataService clinicalDataService;
-    
     private ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier;
-    
     private ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier;
-    
     private StudyViewFilterUtil studyViewFilterUtil;
 
     @Autowired
-    public StudyViewFilterApplier(SampleService sampleService, 
-                                  MutationService mutationService, 
-                                  DiscreteCopyNumberService discreteCopyNumberService, 
-                                  MolecularProfileService molecularProfileService, 
+    public StudyViewFilterApplier(SampleService sampleService,
+                                  MutationService mutationService,
+                                  DiscreteCopyNumberService discreteCopyNumberService,
+                                  MolecularProfileService molecularProfileService,
                                   GenePanelService genePanelService,
                                   ClinicalDataService clinicalDataService,
-                                  ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier, 
-                                  ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier, 
-                                  StudyViewFilterUtil studyViewFilterUtil) 
-    {
+                                  ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier,
+                                  ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier,
+                                  StudyViewFilterUtil studyViewFilterUtil) {
         this.sampleService = sampleService;
         this.mutationService = mutationService;
         this.discreteCopyNumberService = discreteCopyNumberService;
@@ -75,7 +64,7 @@ public class StudyViewFilterApplier {
     }
 
     Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
-        
+
         public SampleIdentifier apply(Sample sample) {
             SampleIdentifier sampleIdentifier = new SampleIdentifier();
             sampleIdentifier.setSampleId(sample.getStableId());
@@ -87,7 +76,7 @@ public class StudyViewFilterApplier {
     public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter) {
         return this.apply(studyViewFilter, false);
     }
-    
+
     public List<SampleIdentifier> apply(StudyViewFilter studyViewFilter, Boolean negateFilters) {
 
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
@@ -102,10 +91,10 @@ public class StudyViewFilterApplier {
             sampleIdentifiers = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name()).stream()
                 .map(sampleToSampleIdentifier).collect(Collectors.toList());
         } else {
-            sampleIdentifiers = sampleService.getAllSamplesInStudies(studyViewFilter.getStudyIds(), Projection.ID.name(), 
+            sampleIdentifiers = sampleService.getAllSamplesInStudies(studyViewFilter.getStudyIds(), Projection.ID.name(),
                 null, null, null, null).stream().map(sampleToSampleIdentifier).collect(Collectors.toList());
         }
-        
+
         List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters = studyViewFilter.getClinicalDataEqualityFilters();
         if (clinicalDataEqualityFilters != null) {
             sampleIdentifiers = equalityFilterClinicalData(sampleIdentifiers, clinicalDataEqualityFilters, ClinicalDataType.PATIENT, negateFilters);
@@ -150,23 +139,21 @@ public class StudyViewFilterApplier {
 
         return sampleIdentifiers;
     }
-    
+
     private List<SampleIdentifier> intervalFilterClinicalData(List<SampleIdentifier> sampleIdentifiers,
-                                                              List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters, 
+                                                              List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters,
                                                               ClinicalDataType filterClinicalDataType,
-                                                              Boolean negateFilters)
-    {
+                                                              Boolean negateFilters) {
         List<ClinicalDataIntervalFilter> attributes = clinicalDataIntervalFilters.stream()
             .filter(c-> c.getClinicalDataType().equals(filterClinicalDataType)).collect(Collectors.toList());
-        
+
         return clinicalDataIntervalFilterApplier.apply(sampleIdentifiers, attributes, filterClinicalDataType, negateFilters);
     }
 
-    private List<SampleIdentifier> equalityFilterClinicalData(List<SampleIdentifier> sampleIdentifiers, 
-                                                              List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters, 
+    private List<SampleIdentifier> equalityFilterClinicalData(List<SampleIdentifier> sampleIdentifiers,
+                                                              List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters,
                                                               ClinicalDataType filterClinicalDataType,
-                                                              Boolean negateFilters) 
-    {
+                                                              Boolean negateFilters) {
         List<ClinicalDataEqualityFilter> attributes = clinicalDataEqualityFilters.stream()
             .filter(c-> c.getClinicalDataType().equals(filterClinicalDataType)).collect(Collectors.toList());
 
@@ -180,7 +167,7 @@ public class StudyViewFilterApplier {
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
         List<String> firstMutationProfileIds = molecularProfileGetter.apply(studyIds, sampleIds);
-        List<GenePanelData> genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(firstMutationProfileIds, 
+        List<GenePanelData> genePanelDataList = genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(firstMutationProfileIds,
             sampleIds).stream().filter(g -> g.getProfiled() == criteria).collect(Collectors.toList());
         return genePanelDataList.stream().map(d -> {
             SampleIdentifier sampleIdentifier = new SampleIdentifier();
@@ -228,11 +215,11 @@ public class StudyViewFilterApplier {
     
     private List<SampleIdentifier> filterCNAGenes(List<CopyNumberGeneFilter> cnaGenes, List<SampleIdentifier> sampleIdentifiers) {
         for (CopyNumberGeneFilter copyNumberGeneFilter : cnaGenes) {
-                
+
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
-            List<Integer> ampEntrezGeneIds = copyNumberGeneFilter.getAlterations().stream().filter(a -> 
+            List<Integer> ampEntrezGeneIds = copyNumberGeneFilter.getAlterations().stream().filter(a ->
                 a.getAlteration() == 2).map(CopyNumberGeneFilterElement::getEntrezGeneId).collect(Collectors.toList());
             List<DiscreteCopyNumberData> ampCNAList = new ArrayList<>();
             if (!ampEntrezGeneIds.isEmpty()) {
@@ -241,7 +228,7 @@ public class StudyViewFilterApplier {
                         studyIds, sampleIds), sampleIds, ampEntrezGeneIds, Arrays.asList(2), Projection.ID.name());
             }
 
-            List<Integer> delEntrezGeneIds = copyNumberGeneFilter.getAlterations().stream().filter(a -> 
+            List<Integer> delEntrezGeneIds = copyNumberGeneFilter.getAlterations().stream().filter(a ->
                 a.getAlteration() == -2).map(CopyNumberGeneFilterElement::getEntrezGeneId).collect(Collectors.toList());
             List<DiscreteCopyNumberData> delCNAList = new ArrayList<>();
             if (!delEntrezGeneIds.isEmpty()) {
@@ -268,7 +255,7 @@ public class StudyViewFilterApplier {
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
-        List<ClinicalData> clinicalDataList = clinicalDataService.fetchClinicalData(studyIds, sampleIds, 
+        List<ClinicalData> clinicalDataList = clinicalDataService.fetchClinicalData(studyIds, sampleIds,
             Arrays.asList(MUTATION_COUNT, FRACTION_GENOME_ALTERED), ClinicalDataType.SAMPLE.name(), Projection.SUMMARY.name());
         MultiKeyMap clinicalDataMap = new MultiKeyMap();
         for (ClinicalData clinicalData : clinicalDataList) {

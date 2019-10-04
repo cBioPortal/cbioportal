@@ -55,16 +55,17 @@ public class MutationalSignatureController {
     @Transactional
     @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, value = "/mutational-signature")
     public ResponseEntity<List<MutationalSignature>> getMutationalSignatures(@ApiParam(required = true, value = "Study id")
-            @RequestParam(required = true) String study_id,
-	    @ApiParam(required = false, value="List of sample ids. If provided, will return mutational signatures for the given samples. /"
-		    + "Otherwise, will return mutational signatures for all samples in the study.")
-	    @RequestParam(required = false) List<String> sample_ids) {
-	List<MutationalSignature> result;
-	if (sample_ids != null) {
-		result = mutationalSignatureService.getMutationalSignaturesBySampleIds(study_id, sample_ids);
-	} else {
-		result = mutationalSignatureService.getMutationalSignatures(study_id);
-	}
-	return new ResponseEntity(result, HttpStatus.OK);
+            @RequestParam(required = true)
+            String study_id,
+            @ApiParam(required = false, value="List of sample ids. If provided, will return mutational signatures for the given samples. /"
+            + "Otherwise, will return mutational signatures for all samples in the study.")
+            @RequestParam(required = false) List<String> sample_ids) {
+            List<MutationalSignature> result;
+        if (sample_ids != null) {
+            result = mutationalSignatureService.getMutationalSignaturesBySampleIds(study_id, sample_ids);
+        } else {
+            result = mutationalSignatureService.getMutationalSignatures(study_id);
+        }
+        return new ResponseEntity(result, HttpStatus.OK);
     }
 }

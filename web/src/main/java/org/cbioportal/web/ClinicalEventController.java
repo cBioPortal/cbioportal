@@ -60,7 +60,7 @@ public class ClinicalEventController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) ClinicalEventSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException, 
+        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException,
         StudyNotFoundException {
 
         if (projection == Projection.META) {
@@ -95,7 +95,7 @@ public class ClinicalEventController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) ClinicalEventSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException, 
+        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException,
         StudyNotFoundException {
 
         if (projection == Projection.META) {

@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 
-public class ClinicalDataFilter  implements Serializable
-{
+public class ClinicalDataFilter implements Serializable {
+
     private String attributeId;
     private ClinicalDataType clinicalDataType;
 

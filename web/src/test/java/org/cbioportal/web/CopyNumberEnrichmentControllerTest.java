@@ -109,7 +109,7 @@ public class CopyNumberEnrichmentControllerTest {
         alterationEnrichment2.setCounts(Arrays.asList(alterationEnrichment2Set1Count,alterationEnrichment2Set2Count));
 
         alterationEnrichments.add(alterationEnrichment2);
-        
+
         Mockito.when(copyNumberEnrichmentService.getCopyNumberEnrichments(
                 Mockito.anyMap(),
                 Mockito.anyListOf(Integer.class),
@@ -125,11 +125,11 @@ public class CopyNumberEnrichmentControllerTest {
         MolecularProfileCasesGroupFilter casesGroup1 = new MolecularProfileCasesGroupFilter();
         casesGroup1.setName("altered group");
         casesGroup1.setMolecularProfileCaseIdentifiers(Arrays.asList(entity1));
-        
+
         MolecularProfileCasesGroupFilter casesGroup2 = new MolecularProfileCasesGroupFilter();
         casesGroup2.setName("unaltered group");
         casesGroup2.setMolecularProfileCaseIdentifiers(Arrays.asList(entity2));
-        
+
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/copy-number-enrichments/fetch")
             .accept(MediaType.APPLICATION_JSON)

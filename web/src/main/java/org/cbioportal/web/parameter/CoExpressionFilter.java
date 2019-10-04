@@ -37,7 +37,7 @@ public class CoExpressionFilter {
     public void setSampleListId(String sampleListId) {
         this.sampleListId = sampleListId;
     }
-    
+
     public Integer getEntrezGeneId() {
         return entrezGeneId;
     }

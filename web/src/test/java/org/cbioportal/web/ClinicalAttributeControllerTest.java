@@ -34,7 +34,7 @@ import java.util.List;
 @ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class ClinicalAttributeControllerTest {
-    
+
     private static final String TEST_ATTR_ID_1 = "test_attr_id_1";
     private static final int TEST_CANCER_STUDY_ID_1 = 1;
     private static final String TEST_CANCER_STUDY_IDENTIFIER_1 = "test_study_1";
@@ -77,12 +77,12 @@ public class ClinicalAttributeControllerTest {
         Mockito.reset(clinicalAttributeService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void getAllClinicalAttributesDefaultProjection() throws Exception {
-        
+
         List<ClinicalAttribute> clinicalAttributes = createExampleClinicalAttributes();
-        
+
         Mockito.when(clinicalAttributeService.getAllClinicalAttributes(Mockito.anyString(), Mockito.anyInt(),
             Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(clinicalAttributes);
 
@@ -128,7 +128,7 @@ public class ClinicalAttributeControllerTest {
 
         List<ClinicalAttribute> clinicalAttributes = createExampleClinicalAttributes();
 
-        Mockito.when(clinicalAttributeService.getAllClinicalAttributesInStudy(Mockito.anyString(), Mockito.anyString(), 
+        Mockito.when(clinicalAttributeService.getAllClinicalAttributesInStudy(Mockito.anyString(), Mockito.anyString(),
             Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
             .thenReturn(clinicalAttributes);
 
@@ -196,7 +196,7 @@ public class ClinicalAttributeControllerTest {
         clinicalAttribute.setDisplayName(TEST_DISPLAY_NAME_1);
         clinicalAttribute.setPatientAttribute(TEST_PATIENT_ATTRIBUTE_1);
         clinicalAttribute.setPriority(TEST_PRIORITY_1);
-        
+
         Mockito.when(clinicalAttributeService.getClinicalAttribute(Mockito.anyString(), Mockito.anyString()))
             .thenReturn(clinicalAttribute);
 
@@ -226,7 +226,7 @@ public class ClinicalAttributeControllerTest {
         List<String> studyIds = new ArrayList<>();
         studyIds.add("study_id_1");
         studyIds.add("study_id_2");
-        
+
         mockMvc.perform(MockMvcRequestBuilders.post("/clinical-attributes/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
@@ -251,11 +251,11 @@ public class ClinicalAttributeControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].priority").value(TEST_PRIORITY_2));
     }
-    
-    
+
+
     @Test
     public void getClinicalAttributeCountsBySampleIds() throws Exception {
-        
+
         List<ClinicalAttributeCount> clinicalAttributes = new ArrayList<>();
         ClinicalAttributeCount clinicalAttributeCount1 = new ClinicalAttributeCount();
         clinicalAttributeCount1.setAttrId(TEST_ATTR_ID_1);
@@ -265,10 +265,10 @@ public class ClinicalAttributeControllerTest {
         clinicalAttributeCount2.setAttrId(TEST_ATTR_ID_2);
         clinicalAttributeCount2.setCount(TEST_ATTRIBUTE_COUNT_2);
         clinicalAttributes.add(clinicalAttributeCount2);
-        
-        Mockito.when(clinicalAttributeService.getClinicalAttributeCountsBySampleIds(Mockito.anyListOf(String.class), 
+
+        Mockito.when(clinicalAttributeService.getClinicalAttributeCountsBySampleIds(Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class))).thenReturn(clinicalAttributes);
-        
+
         ClinicalAttributeCountFilter clinicalAttributeCountFilter = new ClinicalAttributeCountFilter();
         List<SampleIdentifier> sampleIdentifierList = new ArrayList<>();
         SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
@@ -280,7 +280,7 @@ public class ClinicalAttributeControllerTest {
         sampleIdentifier2.setStudyId(TEST_CANCER_STUDY_IDENTIFIER_1);
         sampleIdentifierList.add(sampleIdentifier2);
         clinicalAttributeCountFilter.setSampleIdentifiers(sampleIdentifierList);
-        
+
         mockMvc.perform(MockMvcRequestBuilders.post("/clinical-attributes/counts/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
@@ -293,10 +293,10 @@ public class ClinicalAttributeControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(TEST_ATTRIBUTE_COUNT_2));
     }
-    
+
     @Test
     public void getClinicalAttributeCountsBySampleListId() throws Exception {
-        
+
         List<ClinicalAttributeCount> clinicalAttributes = new ArrayList<>();
         ClinicalAttributeCount clinicalAttributeCount1 = new ClinicalAttributeCount();
         clinicalAttributeCount1.setAttrId(TEST_ATTR_ID_1);
@@ -306,12 +306,12 @@ public class ClinicalAttributeControllerTest {
         clinicalAttributeCount2.setAttrId(TEST_ATTR_ID_2);
         clinicalAttributeCount2.setCount(TEST_ATTRIBUTE_COUNT_2);
         clinicalAttributes.add(clinicalAttributeCount2);
-        
+
         Mockito.when(clinicalAttributeService.getClinicalAttributeCountsBySampleListId(Mockito.anyString())).thenReturn(clinicalAttributes);
-        
+
         ClinicalAttributeCountFilter clinicalAttributeCountFilter = new ClinicalAttributeCountFilter();
         clinicalAttributeCountFilter.setSampleListId("test_sample_list_id");
-        
+
         mockMvc.perform(MockMvcRequestBuilders.post("/clinical-attributes/counts/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
@@ -325,7 +325,7 @@ public class ClinicalAttributeControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttributeId").value(TEST_ATTR_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(TEST_ATTRIBUTE_COUNT_2));
     }
- 
+
     private List<ClinicalAttribute> createExampleClinicalAttributes() {
 
         List<ClinicalAttribute> clinicalAttributeList = new ArrayList<>();

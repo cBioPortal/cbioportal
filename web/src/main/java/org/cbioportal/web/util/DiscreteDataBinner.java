@@ -10,8 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-public class DiscreteDataBinner
-{
+public class DiscreteDataBinner {
     private DataBinHelper dataBinHelper;
 
     @Autowired
@@ -21,18 +20,16 @@ public class DiscreteDataBinner
 
     public List<DataBin> calculateDataBins(String attributeId,
                                            List<BigDecimal> values,
-                                           Set<BigDecimal> uniqueValues)
-    {
+                                           Set<BigDecimal> uniqueValues) {
         List<DataBin> dataBins = initDataBins(attributeId, uniqueValues);
 
         dataBinHelper.calcCounts(dataBins, values);
 
         return dataBins;
     }
-    
+
     public List<DataBin> initDataBins(String attributeId,
-                                      Set<BigDecimal> uniqueValues)
-    {
+                                      Set<BigDecimal> uniqueValues) {
         return uniqueValues.stream()
             .map(d -> {
                 DataBin dataBin = new DataBin();

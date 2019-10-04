@@ -118,7 +118,7 @@ public class ClinicalAttributeController {
             @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
             @PathVariable String studyId,
             @ApiParam(required = true, value= "Clinical Attribute ID e.g. CANCER_TYPE")
-            @PathVariable String clinicalAttributeId) 
+            @PathVariable String clinicalAttributeId)
         throws ClinicalAttributeNotFoundException, StudyNotFoundException {
 
         return new ResponseEntity<>(clinicalAttributeService.getClinicalAttribute(studyId, clinicalAttributeId),
@@ -126,7 +126,7 @@ public class ClinicalAttributeController {
     }
 
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/clinical-attributes/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/clinical-attributes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical attributes")
     public ResponseEntity<List<ClinicalAttribute>> fetchClinicalAttributes(
@@ -142,7 +142,7 @@ public class ClinicalAttributeController {
                 studyIds).getTotalCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(clinicalAttributeService.fetchClinicalAttributes(studyIds, projection.name()), 
+            return new ResponseEntity<>(clinicalAttributeService.fetchClinicalAttributes(studyIds, projection.name()),
                 HttpStatus.OK);
         }
     }

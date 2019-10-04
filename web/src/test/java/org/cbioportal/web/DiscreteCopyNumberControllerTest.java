@@ -37,7 +37,7 @@ import java.util.List;
 @ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class DiscreteCopyNumberControllerTest {
-    
+
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_1 = "test_molecular_profile_stable_id_1";
     private static final String TEST_SAMPLE_STABLE_ID_1 = "test_sample_stable_id_1";
     private static final int TEST_ENTREZ_GENE_ID_1 = 1;
@@ -81,14 +81,14 @@ public class DiscreteCopyNumberControllerTest {
         Mockito.reset(discreteCopyNumberService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdDefaultProjection() throws Exception {
 
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberData();
 
         Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(Integer.class), 
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(Integer.class),
             Mockito.anyListOf(Integer.class), Mockito.anyString())).thenReturn(discreteCopyNumberDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
@@ -118,7 +118,7 @@ public class DiscreteCopyNumberControllerTest {
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberDataWithGenes();
 
         Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(Integer.class), 
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(Integer.class),
             Mockito.anyListOf(Integer.class), Mockito.anyString())).thenReturn(discreteCopyNumberDataList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
@@ -154,7 +154,7 @@ public class DiscreteCopyNumberControllerTest {
         baseMeta.setTotalCount(2);
 
         Mockito.when(discreteCopyNumberService.getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(
-            Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(Integer.class), 
+            Mockito.anyString(), Mockito.anyString(), Mockito.anyListOf(Integer.class),
             Mockito.anyListOf(Integer.class))).thenReturn(baseMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
@@ -208,7 +208,7 @@ public class DiscreteCopyNumberControllerTest {
             .thenReturn(discreteCopyNumberDataList);
 
         DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
-        
+
         mockMvc.perform(MockMvcRequestBuilders
             .post("/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
             .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
@@ -248,7 +248,7 @@ public class DiscreteCopyNumberControllerTest {
             .thenReturn(baseMeta);
 
         DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
-        
+
         mockMvc.perform(MockMvcRequestBuilders.
             post("/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
             .contentType(MediaType.APPLICATION_JSON)
@@ -258,7 +258,7 @@ public class DiscreteCopyNumberControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
-    
+
     @Test
     public void fetchCopyNumberCounts() throws Exception {
 
@@ -278,7 +278,7 @@ public class DiscreteCopyNumberControllerTest {
         copyNumberCount2.setNumberOfSamplesWithAlterationInGene(TEST_NUMBER_OF_SAMPLES_WITH_ALTERATION_IN_GENE_2);
         copyNumberCountList.add(copyNumberCount2);
 
-        Mockito.when(discreteCopyNumberService.fetchCopyNumberCounts(Mockito.anyString(), 
+        Mockito.when(discreteCopyNumberService.fetchCopyNumberCounts(Mockito.anyString(),
             Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class))).thenReturn(copyNumberCountList);
 
         List<CopyNumberCountIdentifier> copyNumberCountIdentifiers = new ArrayList<>();
@@ -316,7 +316,7 @@ public class DiscreteCopyNumberControllerTest {
     }
 
     private DiscreteCopyNumberFilter createDiscreteCopyNumberFilter() {
-        
+
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
         sampleIds.add(TEST_SAMPLE_STABLE_ID_2);
@@ -332,7 +332,7 @@ public class DiscreteCopyNumberControllerTest {
     }
 
     private List<DiscreteCopyNumberData> createExampleDiscreteCopyNumberData() {
-        
+
         List<DiscreteCopyNumberData> discreteCopyNumberDataList = new ArrayList<>();
         DiscreteCopyNumberData discreteCopyNumberData1 = new DiscreteCopyNumberData();
         discreteCopyNumberData1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_1);
@@ -346,7 +346,7 @@ public class DiscreteCopyNumberControllerTest {
         discreteCopyNumberData2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         discreteCopyNumberData2.setAlteration(TEST_ALTERATION_2);
         discreteCopyNumberDataList.add(discreteCopyNumberData2);
-        return discreteCopyNumberDataList;        
+        return discreteCopyNumberDataList;
     }
 
     private List<DiscreteCopyNumberData> createExampleDiscreteCopyNumberDataWithGenes() {

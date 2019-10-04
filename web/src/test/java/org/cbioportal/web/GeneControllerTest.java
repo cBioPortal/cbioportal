@@ -73,7 +73,7 @@ public class GeneControllerTest {
 
         List<Gene> geneList = createGeneList();
 
-        Mockito.when(geneService.getAllGenes(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), 
+        Mockito.when(geneService.getAllGenes(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(),
             Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(geneList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/genes")

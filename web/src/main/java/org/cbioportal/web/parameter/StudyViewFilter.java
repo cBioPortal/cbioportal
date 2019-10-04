@@ -19,7 +19,7 @@ public class StudyViewFilter implements Serializable {
     private List<String> studyIds;
     private List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters;
     private List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters;
-	private List<MutationGeneFilter> mutatedGenes;
+    private List<MutationGeneFilter> mutatedGenes;
     private List<FusionGeneFilter> fusionGenes;
 	private List<CopyNumberGeneFilter> cnaGenes;
 	private Boolean withMutationData;

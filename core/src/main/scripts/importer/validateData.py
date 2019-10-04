@@ -3258,7 +3258,7 @@ class TimelineValidator(Validator):
             if col_index < len(data):
                 value = data[col_index].strip()
             if col_name == 'START_DATE':
-                if not value.strip().isdigit():
+                if not value.strip().lstrip('-').isdigit():
                     self.logger.error(
                         'Invalid START_DATE',
                         extra={'line_number': self.line_number,

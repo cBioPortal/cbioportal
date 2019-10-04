@@ -1,27 +1,21 @@
 package org.cbioportal.service.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.GenePanel;
-import org.cbioportal.model.GenePanelData;
-import org.cbioportal.model.GenePanelToGene;
+import org.cbioportal.model.*;
 import org.cbioportal.service.GenePanelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProfiledSamplesCounter {
+public class ProfiledCasesCounter {
 
     @Autowired
     private GenePanelService genePanelService;
 
     public void calculate(List<String> molecularProfileIds, List<String> sampleIds,
-            List<? extends AlterationCountByGene> alterationCounts) {
+            List<? extends AlterationCountByGene> alterationCounts, boolean countByPatients) {
 
         List<GenePanelData> genePanelDataList = genePanelService
                 .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileIds, sampleIds);
@@ -46,28 +40,47 @@ public class ProfiledSamplesCounter {
             }
         }
 
-        List<GenePanelData> profiled = genePanelDataList.stream().filter(g -> g.getProfiled()).collect(Collectors.toList());
-        long samplesWithoutPanelCount = profiled.stream().filter(g -> g.getGenePanelId() == null).count();
-        int profiledSize = profiled.size();
+        List<GenePanelData> profiled = genePanelDataList
+                .stream()
+                .filter(GenePanelData::getProfiled)
+                .collect(Collectors.toList());
+
+        Set<String> profiledCases = profiled
+                .stream()
+                .map(x -> countByPatients ? x.getPatientId() : x.getSampleId())
+                .collect(Collectors.toSet());
+
+        Set<String> casesWithoutPanelData = profiled
+                .stream()
+                .filter(g -> g.getGenePanelId() == null)
+                .map(x -> countByPatients ? x.getPatientId() : x.getSampleId())
+                .collect(Collectors.toSet());
 
         for (AlterationCountByGene alterationCountByGene : alterationCounts) {
-
-            int numberOfSamplesProfiled = 0;
+            final Set<String> profiledCasesForGene = new HashSet<String>();
             Integer entrezGeneId = alterationCountByGene.getEntrezGeneId();
             List<GenePanel> allPanels = new ArrayList<>();
+            
             if (geneGenePanelMap.containsKey(entrezGeneId)) {
-                List<GenePanel> matchingGenePanels = geneGenePanelMap.get(entrezGeneId);
-                for (GenePanel genePanel : matchingGenePanels) {
-                    numberOfSamplesProfiled += genePanelDataMap.get(genePanel.getStableId()).size();
+                geneGenePanelMap.get(entrezGeneId).forEach(genePanel -> {
+                    Set<String> casesWithPanelData = genePanelDataMap
+                            .get(genePanel.getStableId())
+                            .stream()
+                            .map(x -> countByPatients ? x.getPatientId() : x.getSampleId())
+                            .collect(Collectors.toSet());
+                    profiledCasesForGene.addAll(casesWithPanelData);
                     allPanels.add(genePanel);
-                }
+                });
                 
-                numberOfSamplesProfiled += samplesWithoutPanelCount;
+                profiledCasesForGene.addAll(casesWithoutPanelData);
             } else {
-                numberOfSamplesProfiled = profiledSize;
+                
+                profiledCasesForGene.addAll(profiledCases);
             }
-            alterationCountByGene.setMatchingGenePanelIds(allPanels.stream().map(panel -> panel.getStableId()).collect(Collectors.toSet()));
-            alterationCountByGene.setNumberOfSamplesProfiled(numberOfSamplesProfiled);
+            
+            alterationCountByGene.setMatchingGenePanelIds(
+                    allPanels.stream().map(panel -> panel.getStableId()).collect(Collectors.toSet()));
+            alterationCountByGene.setNumberOfProfiledCases(profiledCasesForGene.size());
         }
     }
 }

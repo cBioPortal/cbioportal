@@ -39,9 +39,9 @@ class PortalProperties(object):
             self.database_port = int(host_and_port[1])
         else:
             self.database_host = database_host
-            self.database_name = database_name
-            self.database_user = database_user
-            self.database_pw = database_pw
+        self.database_name = database_name
+        self.database_user = database_user
+        self.database_pw = database_pw
 
 def get_db_cursor(portal_properties):
     """ Establishes a MySQL connection """

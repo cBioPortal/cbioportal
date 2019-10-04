@@ -288,7 +288,7 @@ class PortalInstance(object):
                 for entrez_list in list(entrez_map.values()):
                     for entrez_id in entrez_list:
                         self.entrez_set.add(entrez_id)
-                        
+
         #Set defaults for genome version and species
         self.__species = 'human'
         self.__ncbi_build = '37'
@@ -301,7 +301,7 @@ class PortalInstance(object):
     @species.setter
     def species(self, species):
        self.__species= species
-       
+
     @property
     def genome_build(self):
         return self.__genome_build
@@ -885,9 +885,9 @@ class Validator(object):
                 extra={'line_number': self.line_number,
                        'cause': driver_annotation})
         return None
-    
+
     def checkDriverTiersColumnsValues(self, driver_tiers_value=None, driver_tiers_annotation=None):
-        """Ensures that there are no mutations with one multiclass column filled and 
+        """Ensures that there are no mutations with one multiclass column filled and
         the other empty.
         """
         if driver_tiers_value is None and driver_tiers_annotation is not None:
@@ -1349,7 +1349,7 @@ class MutationsExtendedValidator(Validator):
                               'Amino_Acid_Change needs to be present.',
                               extra={'line_number': self.line_number})
             num_errors += 1
-        
+
         # raise errors if the filter_annotations are found without the "filter" columns
         if 'cbp_driver_annotation' in self.cols and 'cbp_driver' not in self.cols:
             self.logger.error('Column cbp_driver_annotation '
@@ -1359,7 +1359,7 @@ class MutationsExtendedValidator(Validator):
             self.logger.error('Column cbp_driver_tiers_annotation '
                               'found without any cbp_driver_tiers '
                               'column.', extra={'column_number': self.cols.index('cbp_driver_tiers_annotation')})
-            
+
         # raise errors if the "filter" columns are found without the filter_annotations
         if 'cbp_driver' in self.cols and 'cbp_driver_annotation' not in self.cols:
             self.logger.error('Column cbp_driver '
@@ -1369,7 +1369,7 @@ class MutationsExtendedValidator(Validator):
             self.logger.error('Column cbp_driver_tiers '
                               'found without any cbp_driver_tiers_annotation '
                               'column.', extra={'column_number': self.cols.index('cbp_driver_tiers')})
-            
+
         return num_errors
 
     def checkLine(self, data):
@@ -1432,7 +1432,7 @@ class MutationsExtendedValidator(Validator):
                 entrez_id = None
         # validate hugo and entrez together:
         self.checkGeneIdentification(hugo_symbol, entrez_id)
-        
+
         # parse custom driver annotation values to validate them together
         driver_value = None
         driver_annotation = None
@@ -1577,7 +1577,7 @@ class MutationsExtendedValidator(Validator):
                         extra_dict = {'line_number': self.line_number,
                                       'cause': '(%s, %s, %s)' % (start_pos, end_pos, ref_allele)}
                         self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
-                        
+
                 # The length of the Reference_Allele should be bigger than of the Tumor_Seq_Alleles for a DEL
                 if len(ref_allele) < len(tumor_seq_allele1) or len(ref_allele) < len(tumor_seq_allele2):
                     log_message = "Variant_Type indicates deletion, but length of Reference_Allele is smaller than " \
@@ -1749,7 +1749,7 @@ class MutationsExtendedValidator(Validator):
                                   'cause': '(%s, %s, %s, %s)' % (tumor_allele1, tumor_allele2,
                                                                  norm_allele1, norm_allele2)}
                     self.send_log_message(self.strict_maf_checks, log_message, extra_dict)
-                        
+
             # When Mutation_Status is Somatic and Validation_Status is valid the Norm_Validation Alleles should be equal
             # to the reference alleles and the Tumor_Validation_Alleles should be different from the Reference_Allele
             elif mutation_status == "somatic" and validation_status == "valid":
@@ -1892,10 +1892,10 @@ class MutationsExtendedValidator(Validator):
         is_silent = False
         variant_classification = data[self.cols.index('Variant_Classification')]
         if 'variant_classification_filter' in self.meta_dict:
-            self.SKIP_VARIANT_TYPES = [x.strip() 
-                                       for x 
+            self.SKIP_VARIANT_TYPES = [x.strip()
+                                       for x
                                        in self.meta_dict['variant_classification_filter'].split(',')]
-        
+
         hugo_symbol = data[self.cols.index('Hugo_Symbol')]
         entrez_id = '0'
         if 'Entrez_Gene_Id' in self.cols:
@@ -1997,7 +1997,7 @@ class MutationsExtendedValidator(Validator):
                 return True
         # if no reasons to return with a message were found, return valid
         return True
-    
+
     def checkStartPosition(self, value):
         """Check that the Start_Position value is an integer."""
         if value == 'NA':
@@ -2017,7 +2017,7 @@ class MutationsExtendedValidator(Validator):
                        'cause': value})
         # if no reasons to return with a message were found, return valid
         return True
-    
+
     def checkEndPosition(self, value):
         """Check that the End_Position value is an integer."""
         if value == 'NA':
@@ -2045,7 +2045,7 @@ class MutationsExtendedValidator(Validator):
             self.extra_exists = True
             return False
         return True
-    
+
     def checkDriverTiers(self, value):
         """Report the tiers in the cbp_driver_tiers column (skipping the empty values)."""
         if value not in self.NULL_DRIVER_TIERS_VALUES:
@@ -2062,7 +2062,7 @@ class MutationsExtendedValidator(Validator):
             self.extra_exists = True
             return False
         return True
-    
+
     def checkFilterAnnotation(self, value):
         """Check if the annotation values are smaller than 80 characters."""
         if len(value) > 80:
@@ -2876,7 +2876,7 @@ class StructuralVariantValidator(Validator):
 
     def checkLine(self, data):
         super(StructuralVariantValidator, self).checkLine(data)
-        
+
         self.structural_variant_entries[self.line_number] = {}
 
         # Check whether a value is present or not available
@@ -2965,7 +2965,7 @@ class StructuralVariantValidator(Validator):
         site1_hugo_symbol = checkPresenceValue('Site1_Hugo_Symbol', self, data)
         site1_entrez_gene_id = checkPresenceValue('Site1_Entrez_Gene_Id', self, data)
         self.checkGeneIdentification(site1_hugo_symbol, site1_entrez_gene_id)
-        
+
         # Parse Hugo Symbol and Entrez Gene Id and check them for Site 2
         site2_hugo_symbol = checkPresenceValue('Site2_Hugo_Symbol', self, data)
         site2_entrez_gene_id = checkPresenceValue('Site2_Entrez_Gene_Id', self, data)
@@ -2992,7 +2992,7 @@ class StructuralVariantValidator(Validator):
 
         def retrieveTranscriptsAndExons(self):
             """Retrieve transcript and exons information from Genome Nexus."""
-            request_url = "http://genomenexus.org/ensembl/transcript"
+            request_url = "http://v1.genomenexus.org/ensembl/transcript"
             request_headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
             request_data = '{ "transcriptIds" : ["%s"] }' % ('", "'.join(self.transcript_set))
             request = requests.post(url=request_url, headers=request_headers, data=request_data)
@@ -3684,10 +3684,10 @@ class GisticGenesValidator(Validator):
 class MultipleDataFileValidator(FeaturewiseFileValidator, metaclass=ABCMeta):
 
     """Ensures that multiple files that contain feature x sample data are consistent.
-    
+
     MultipleDataFileValidator ensures that multiple files that contain feature x sample
     data have consistent headers (containing sample id's) and feature columns (containing feature
-    id's). Errors messages are issued when samples or features are missing or when samples or features 
+    id's). Errors messages are issued when samples or features are missing or when samples or features
     are present in one but not the other file.
     ."""
 
@@ -3732,7 +3732,7 @@ class MultipleDataFileValidator(FeaturewiseFileValidator, metaclass=ABCMeta):
 
         An error will be raised when features are not constent between
         files loaded within the context of a MultipleFileValidator.
-        Classes that extend MultipleDataFileValidator must implement 
+        Classes that extend MultipleDataFileValidator must implement
         the get_message_features_do_not_match() method. The expected
         return value is a string describing the type of error.
         """
@@ -3786,7 +3786,7 @@ class MultipleDataFileValidator(FeaturewiseFileValidator, metaclass=ABCMeta):
     def onComplete(self):
 
         def checkConsistencyFeatures(self):
-            """This function validates whether the treatments in the treatment response files (IC50, EC50, 
+            """This function validates whether the treatments in the treatment response files (IC50, EC50,
             GI50, AUC, ...) are the same"""
 
             # If the prior_validated_features_ids is not filled yet, fill it with the first file.
@@ -3986,7 +3986,7 @@ class TreatmentValidator(TreatmentWiseFileValidator):
         # prior to evaluation of the numeric value
         hasTruncSymbol = re.match("^[><]", stripped_value)
         stripped_value = re.sub(r"^[><]\s*","", stripped_value)
-        
+
         try:
             numeric_value = float(stripped_value)
         except ValueError:
@@ -4015,7 +4015,7 @@ class TreatmentValidator(TreatmentWiseFileValidator):
                 extra={'line_number': self.line_number,
                 'column_number': col_index + 1,
                 'cause': value})
-                
+
         return
 
 
@@ -4644,10 +4644,10 @@ def interface(args=None):
                         required=False)
     parser.add_argument('-ucsc', '--ucsc_build_name', type=str, default='hg19',
                         help='UCSC reference genome assembly name(default: assumed hg19)',
-                        required=False)   
+                        required=False)
     parser.add_argument('-ncbi', '--ncbi_build_number', type=str, default='37',
                          help='NCBI reference genome build number (default: assumed 37 for UCSC reference genome build hg19)',
-                         required=False)    
+                         required=False)
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
     parser.add_argument('-e', '--error_file', type=str, required=False,
@@ -4956,7 +4956,7 @@ def main_validate(args):
     portal_instance.species = args.species
     portal_instance.genome_build = args.ucsc_build_name
     portal_instance.ncbi_build = args.ncbi_build_number
-       
+
     validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_checks)
 
     if html_handler is not None:

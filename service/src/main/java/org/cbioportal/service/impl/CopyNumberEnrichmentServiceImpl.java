@@ -51,13 +51,14 @@ public class CopyNumberEnrichmentServiceImpl implements CopyNumberEnrichmentServ
                                                 sampleIds,
                                                 null,
                                                 alterationTypes,
-                                                false);
+                                                true);
                             } else {
                                 return discreteCopyNumberService
                                         .getPatientCountInMultipleMolecularProfiles(molecularProfileIds,
                                                 sampleIds,
                                                 null,
-                                                alterationTypes);
+                                                alterationTypes,
+                                                true);
                             }
                         }));
 

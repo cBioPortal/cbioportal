@@ -16,18 +16,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class ClinicalDataFilterApplier<T extends ClinicalDataFilter>
-{
+public abstract class ClinicalDataFilterApplier<T extends ClinicalDataFilter> {
     private PatientService patientService;
     private ClinicalDataService clinicalDataService;
     private SampleService sampleService;
     protected StudyViewFilterUtil studyViewFilterUtil;
 
-    public ClinicalDataFilterApplier(PatientService patientService, 
-                                     ClinicalDataService clinicalDataService, 
+    public ClinicalDataFilterApplier(PatientService patientService,
+                                     ClinicalDataService clinicalDataService,
                                      SampleService sampleService,
-                                     StudyViewFilterUtil studyViewFilterUtil) 
-    {
+                                     StudyViewFilterUtil studyViewFilterUtil) {
         this.patientService = patientService;
         this.clinicalDataService = clinicalDataService;
         this.sampleService = sampleService;
@@ -116,7 +114,7 @@ public abstract class ClinicalDataFilterApplier<T extends ClinicalDataFilter>
 
         return sampleIdentifiers;
     }
-    
+
     // Must be overridden by child classes
     protected abstract Integer apply(List<T> attributes, MultiKeyMap clinicalDataMap, String entityId, String studyId, Boolean negateFilters);
 }

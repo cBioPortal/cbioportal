@@ -47,17 +47,16 @@ public class GenesetHierarchyControllerTest {
     public GenesetHierarchyService genesetHierarchyService() {
         return Mockito.mock(GenesetHierarchyService.class);
     }
-    
+
     @Before
     public void setUp() throws Exception {
 
         Mockito.reset(genesetHierarchyService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void fetchGenesetHierarchyInfo() throws Exception {
-
         List<GenesetHierarchyInfo> genesetHierarchyInfoList = createGenesetHierarchyInfoList();
         Mockito.when(genesetHierarchyService.fetchGenesetHierarchyInfo(Mockito.anyString(), Mockito.anyInt(),
             Mockito.anyDouble(), Mockito.anyDouble())).thenReturn(genesetHierarchyInfoList);

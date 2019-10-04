@@ -65,33 +65,34 @@ public class GenesetCorrelationController {
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the genes in a gene set that have expression correlated to the gene set scores (calculated using Spearman's correlation)")
     public ResponseEntity<List<GenesetCorrelation>> fetchCorrelatedGenes(
-    	@ApiParam(required = true, value = "Gene set ID, e.g. HINATA_NFKB_MATRIX.")
+        @ApiParam(required = true, value = "Gene set ID, e.g. HINATA_NFKB_MATRIX.")
         @PathVariable String genesetId,
         @ApiParam(required = true, value = "Genetic Profile ID e.g. gbm_tcga_gsva_scores")
-    	@RequestParam String geneticProfileId,
-    	@ApiParam("Correlation threshold (for absolute correlation value, Spearman correlation)")
+        @RequestParam String geneticProfileId,
+        @ApiParam("Correlation threshold (for absolute correlation value, Spearman correlation)")
         @Max(1)
         @Min(0)
         @RequestParam(defaultValue = "0.3") Double correlationThreshold,
         @ApiParam(required = false, value = "Identifier of pre-defined sample list with samples to query, e.g. brca_tcga_all")
-    	@RequestParam(required = false) String sampleListId,
+        @RequestParam(required = false) String sampleListId,
         @ApiParam(required = false, value = "Fill this one if you want to specify a subset of samples:"
-        		+ " sampleIds: custom list of samples or patients to query, e.g. [\"TCGA-A1-A0SD-01\", \"TCGA-A1-A0SE-01\"]")
+                + " sampleIds: custom list of samples or patients to query, e.g. [\"TCGA-A1-A0SD-01\", \"TCGA-A1-A0SE-01\"]")
         @RequestBody(required = false) List<String> sampleIds)
         throws MolecularProfileNotFoundException, SampleListNotFoundException, GenesetNotFoundException {
 
-    	if (sampleListId != null && sampleListId.trim().length() > 0) {
-    		return new ResponseEntity<>(
-	        		genesetCorrelationService.fetchCorrelatedGenes(genesetId, geneticProfileId, sampleListId, correlationThreshold.doubleValue())
-	        		, HttpStatus.OK);
-    	} else if (sampleIds != null && sampleIds.size() > 0){
-	        return new ResponseEntity<>(
-	        		genesetCorrelationService.fetchCorrelatedGenes(genesetId, geneticProfileId, sampleIds, correlationThreshold.doubleValue())
-	        		, HttpStatus.OK);
-    	} else {
-	        return new ResponseEntity<>(
-	        		genesetCorrelationService.fetchCorrelatedGenes(genesetId, geneticProfileId, correlationThreshold.doubleValue())
-	        		, HttpStatus.OK);
-    	}
+        if (sampleListId != null && sampleListId.trim().length() > 0) {
+            return new ResponseEntity<>(
+                    genesetCorrelationService.fetchCorrelatedGenes(genesetId, geneticProfileId, sampleListId, correlationThreshold.doubleValue()),
+                    HttpStatus.OK);
+        }
+        if (sampleIds != null && sampleIds.size() > 0) {
+            return new ResponseEntity<>(
+                    genesetCorrelationService.fetchCorrelatedGenes(genesetId, geneticProfileId, sampleIds, correlationThreshold.doubleValue()),
+                    HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(
+                    genesetCorrelationService.fetchCorrelatedGenes(genesetId, geneticProfileId, correlationThreshold.doubleValue()),
+                    HttpStatus.OK);
+        }
     }
 }

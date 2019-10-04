@@ -68,7 +68,7 @@ public class StudyViewController {
     private StudyViewFilterUtil studyViewFilterUtil;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/clinical-data-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data counts by study view filter")
     public ResponseEntity<List<ClinicalDataCountItem>> fetchClinicalDataCounts(
@@ -96,7 +96,7 @@ public class StudyViewController {
         List<ClinicalDataCountItem> resultForSampleAttributes = clinicalDataService.fetchClinicalDataCounts(
             studyIds, sampleIds, attributes.stream().filter(a -> a.getClinicalDataType().equals(ClinicalDataType.SAMPLE))
             .map(a -> a.getAttributeId()).collect(Collectors.toList()), ClinicalDataType.SAMPLE);
-        List<ClinicalDataCountItem> resultForPatientAttributes = clinicalDataService.fetchClinicalDataCounts(studyIds, sampleIds, 
+        List<ClinicalDataCountItem> resultForPatientAttributes = clinicalDataService.fetchClinicalDataCounts(studyIds, sampleIds,
         attributes.stream().filter(a -> a.getClinicalDataType().equals(ClinicalDataType.PATIENT))
             .map(a -> a.getAttributeId()).collect(Collectors.toList()), ClinicalDataType.PATIENT);
         combinedResult.addAll(resultForSampleAttributes);
@@ -120,27 +120,27 @@ public class StudyViewController {
 
         List<ClinicalDataBinFilter> attributes = interceptedClinicalDataBinCountFilter.getAttributes();
         StudyViewFilter studyViewFilter = interceptedClinicalDataBinCountFilter.getStudyViewFilter();
-        
+
         if (attributes.size() == 1) {
             studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
         }
-        
+
         List<DataBin> clinicalDataBins = null;
         List<String> filteredSampleIds = new ArrayList<>();
         List<String> filteredPatientIds = new ArrayList<>();
         List<ClinicalData> filteredClinicalData = fetchClinicalData(attributes, studyViewFilter, filteredSampleIds, filteredPatientIds);
-        Map<String, List<ClinicalData>> filteredClinicalDataByAttributeId = 
+        Map<String, List<ClinicalData>> filteredClinicalDataByAttributeId =
             filteredClinicalData.stream().collect(Collectors.groupingBy(ClinicalData::getAttrId));
-        
-        if (dataBinMethod == DataBinMethod.STATIC) 
+
+        if (dataBinMethod == DataBinMethod.STATIC)
         {
             StudyViewFilter filter = studyViewFilter == null ? null : new StudyViewFilter();
-            
+
             if (filter != null) {
                 filter.setStudyIds(studyViewFilter.getStudyIds());
                 filter.setSampleIdentifiers(studyViewFilter.getSampleIdentifiers());
             }
-            
+
             List<String> unfilteredSampleIds = new ArrayList<>();
             List<String> unfilteredPatientIds = new ArrayList<>();
             List<ClinicalData> unfilteredClinicalData = fetchClinicalData(attributes, filter, unfilteredSampleIds, unfilteredPatientIds);
@@ -152,9 +152,9 @@ public class StudyViewController {
                 for (ClinicalDataBinFilter attribute: attributes) {
                     List<String> filteredIds = attribute.getClinicalDataType() == ClinicalDataType.PATIENT ?
                         filteredPatientIds : filteredSampleIds;
-                    List<String> unfilteredIds = attribute.getClinicalDataType() == ClinicalDataType.PATIENT ? 
+                    List<String> unfilteredIds = attribute.getClinicalDataType() == ClinicalDataType.PATIENT ?
                         unfilteredPatientIds : unfilteredSampleIds;
-                    
+
                     List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(
                         attribute,
                         filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(), Collections.emptyList()),
@@ -172,7 +172,7 @@ public class StudyViewController {
                 for (ClinicalDataBinFilter attribute: attributes) {
                     List<String> filteredIds = attribute.getClinicalDataType() == ClinicalDataType.PATIENT ?
                         filteredPatientIds : filteredSampleIds;
-                    
+
                     List<DataBin> dataBins = dataBinner.calculateClinicalDataBins(
                         attribute,
                         filteredClinicalDataByAttributeId.getOrDefault(attribute.getAttributeId(), Collections.emptyList()),
@@ -182,12 +182,12 @@ public class StudyViewController {
                 }
             }
         }
-        
+
         return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/mutated-genes/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/mutated-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch mutated genes by study view filter")
     public ResponseEntity<List<MutationCountByGene>> fetchMutatedGenes(
@@ -219,7 +219,7 @@ public class StudyViewController {
                 });
             }
         }
-        
+
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
@@ -241,7 +241,7 @@ public class StudyViewController {
             List<String> sampleIds = new ArrayList<>();
             studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
             result = mutationService.getSampleCountInMultipleMolecularProfilesForFusions(molecularProfileService
-                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, false);
+                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, true);
             result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
             List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
             if (distinctStudyIds.size() == 1 && !result.isEmpty()) {
@@ -261,7 +261,7 @@ public class StudyViewController {
 
     
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/cna-genes/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/cna-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch CNA genes by study view filter")
     public ResponseEntity<List<CopyNumberCountByGene>> fetchCNAGenes(
@@ -299,12 +299,12 @@ public class StudyViewController {
                 });
             }
         }
-        
+
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/filtered-samples/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/filtered-samples/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample IDs by study view filter")
     public ResponseEntity<List<Sample>> fetchFilteredSamples(
@@ -316,13 +316,13 @@ public class StudyViewController {
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
-        
+
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
-        
+
         studyViewFilterUtil.extractStudyAndSampleIds(
             studyViewFilterApplier.apply(interceptedStudyViewFilter, negateFilters), studyIds, sampleIds);
-        
+
         List<Sample> result = new ArrayList<>();
         if (!sampleIds.isEmpty()) {
             result = sampleService.fetchSamples(studyIds, sampleIds, Projection.ID.name());
@@ -331,7 +331,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/sample-counts/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/sample-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch sample counts by study view filter")
     public ResponseEntity<MolecularProfileSampleCount> fetchMolecularProfileSampleCounts(
@@ -341,7 +341,7 @@ public class StudyViewController {
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) {
-        
+
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(interceptedStudyViewFilter), studyIds, sampleIds);
@@ -359,7 +359,7 @@ public class StudyViewController {
                 molecularProfileSampleCount.setNumberOfMutationProfiledSamples(Math.toIntExact(genePanelService
                     .fetchGenePanelDataInMultipleMolecularProfiles(firstMutationProfileIds, mutationSampleIds).stream().filter(
                         g -> g.getProfiled()).count()));
-                molecularProfileSampleCount.setNumberOfMutationUnprofiledSamples(sampleCount - 
+                molecularProfileSampleCount.setNumberOfMutationUnprofiledSamples(sampleCount -
                     molecularProfileSampleCount.getNumberOfMutationProfiledSamples());
             }
             List<String> cnaSampleIds = new ArrayList<>(sampleIds);
@@ -368,7 +368,7 @@ public class StudyViewController {
                 molecularProfileSampleCount.setNumberOfCNAProfiledSamples(Math.toIntExact(genePanelService
                     .fetchGenePanelDataInMultipleMolecularProfiles(firstDiscreteCNAProfileIds, cnaSampleIds).stream().filter(
                         g -> g.getProfiled()).count()));
-                molecularProfileSampleCount.setNumberOfCNAUnprofiledSamples(sampleCount - 
+                molecularProfileSampleCount.setNumberOfCNAUnprofiledSamples(sampleCount -
                     molecularProfileSampleCount.getNumberOfCNAProfiledSamples());
             }
             molecularProfileSampleCount.setNumberOfCNSegmentSamples(Math.toIntExact(sampleService
@@ -379,7 +379,7 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/clinical-data-density-plot/fetch", method = RequestMethod.POST, 
+    @RequestMapping(value = "/clinical-data-density-plot/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch clinical data density plot bins by study view filter")
     public ResponseEntity<List<DensityPlotBin>> fetchClinicalDataDensityPlot(
@@ -407,7 +407,7 @@ public class StudyViewController {
         @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter,
         @ApiParam(required = true, value = "Study view filter")
         @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter) {
-        
+
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         studyViewFilterUtil.extractStudyAndSampleIds(studyViewFilterApplier.apply(interceptedStudyViewFilter), studyIds, sampleIds);
@@ -415,16 +415,16 @@ public class StudyViewController {
         if (sampleIds.isEmpty()) {
             return new ResponseEntity<>(result, HttpStatus.OK);
         }
-        
-        List<ClinicalData> clinicalDataList = clinicalDataService.fetchClinicalData(studyIds, sampleIds, 
+
+        List<ClinicalData> clinicalDataList = clinicalDataService.fetchClinicalData(studyIds, sampleIds,
             Arrays.asList(xAxisAttributeId, yAxisAttributeId), clinicalDataType.name(), Projection.SUMMARY.name());
 
         Map<String, Map<String, List<ClinicalData>>> clinicalDataMap;
         if (clinicalDataType == ClinicalDataType.SAMPLE) {
-            clinicalDataMap = clinicalDataList.stream().collect(Collectors.groupingBy(ClinicalData::getSampleId, 
+            clinicalDataMap = clinicalDataList.stream().collect(Collectors.groupingBy(ClinicalData::getSampleId,
                 Collectors.groupingBy(ClinicalData::getStudyId)));
         } else {
-            clinicalDataMap = clinicalDataList.stream().collect(Collectors.groupingBy(ClinicalData::getPatientId, 
+            clinicalDataMap = clinicalDataList.stream().collect(Collectors.groupingBy(ClinicalData::getPatientId,
                 Collectors.groupingBy(ClinicalData::getStudyId)));
         }
         List<ClinicalData> filteredClinicalDataList = new ArrayList<>();
@@ -505,12 +505,11 @@ public class StudyViewController {
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
-    
-    private List<ClinicalData> fetchClinicalData(List<String> attributeIds, 
-                                                 ClinicalDataType clinicalDataType, 
+
+    private List<ClinicalData> fetchClinicalData(List<String> attributeIds,
+                                                 ClinicalDataType clinicalDataType,
                                                  StudyViewFilter studyViewFilter,
-                                                 List<String> ids)
-    {
+                                                 List<String> ids) {
         List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(studyViewFilter);
 
         if (filteredSampleIdentifiers.isEmpty()) {
@@ -519,7 +518,7 @@ public class StudyViewController {
 
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
-        
+
         ids.clear();
 
         studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
@@ -531,33 +530,32 @@ public class StudyViewController {
             List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);
             ids.addAll(patients.stream().map(Patient::getStableId).collect(Collectors.toList()));
 
-            // we need to regenerate study ids for the patients	
+            // we need to regenerate study ids for the patients
             studyIds.clear();
             patients.forEach(p -> studyIds.add(p.getCancerStudyIdentifier()));
         }
-        
+
         return clinicalDataService.fetchClinicalData(
             studyIds, ids, attributeIds, clinicalDataType.name(), Projection.SUMMARY.name());
     }
-    
-    private List<ClinicalData> fetchClinicalData(List<ClinicalDataBinFilter> attributes, 
+
+    private List<ClinicalData> fetchClinicalData(List<ClinicalDataBinFilter> attributes,
                                                  StudyViewFilter studyViewFilter,
                                                  List<String> sampleIds,
-                                                 List<String> patientIds)
-    {
+                                                 List<String> patientIds) {
         List<String> filteredIds = new ArrayList<>();
-        
+
         List<String> sampleAttributes = attributes.stream()
             .filter(a -> a.getClinicalDataType().equals(ClinicalDataType.SAMPLE))
             .map(ClinicalDataBinFilter::getAttributeId)
             .collect(Collectors.toList());
         List<ClinicalData> filteredClinicalDataForSamples = null;
-        
+
         if (sampleAttributes.size() > 0) {
             filteredClinicalDataForSamples = fetchClinicalData(sampleAttributes, ClinicalDataType.SAMPLE, studyViewFilter, filteredIds);
             sampleIds.addAll(filteredIds);
         }
-        
+
         List<String> patientAttributes = attributes.stream()
             .filter(a -> a.getClinicalDataType().equals(ClinicalDataType.PATIENT))
             .map(ClinicalDataBinFilter::getAttributeId)
@@ -568,17 +566,17 @@ public class StudyViewController {
             filteredClinicalDataForPatients = fetchClinicalData(patientAttributes, ClinicalDataType.PATIENT, studyViewFilter, filteredIds);
             patientIds.addAll(filteredIds);
         }
-        
+
         List<ClinicalData> combinedResult = new ArrayList<>();
-        
+
         if (filteredClinicalDataForSamples != null) {
             combinedResult.addAll(filteredClinicalDataForSamples);
         }
-        
+
         if (filteredClinicalDataForPatients != null) {
             combinedResult.addAll(filteredClinicalDataForPatients);
         }
-        
+
         return combinedResult;
     }
 }

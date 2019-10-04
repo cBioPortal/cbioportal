@@ -50,6 +50,44 @@ public class SampleController {
     private UniqueKeyExtractor uniqueKeyExtractor;
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
+    @RequestMapping(value = "/samples", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get all samples")
+    public ResponseEntity<List<Sample>> getAllSamples (
+        @ApiParam("Search keyword that applies to the study ID")
+        @RequestParam(required = false) String keyword,
+        
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection,
+        
+        @ApiParam("Page size of the result list")
+        @Max(PagingConstants.MAX_PAGE_SIZE)
+        @Min(PagingConstants.MIN_PAGE_SIZE)
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
+        
+        @ApiParam("Page number of the result list")
+        @Min(PagingConstants.MIN_PAGE_NUMBER)
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
+        
+        @ApiParam("Name of the property that the result list is sorted by")
+        @RequestParam(required = false) SampleSortBy sortBy,
+        
+        @ApiParam("Direction of the sort")
+        @RequestParam(defaultValue = "ASC") Direction direction
+    ) {
+        String sort = sortBy == null ? null : sortBy.getOriginalValue();
+        
+        if (projection == Projection.META) {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add(HeaderKeyConstants.TOTAL_COUNT, sampleService.getMetaSamples(keyword).getTotalCount().toString());
+            return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(
+            sampleService.getAllSamples(keyword, projection.name(), pageSize, pageNumber, sort, direction.name()),
+            HttpStatus.OK
+        );
+    }
+
+    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
     @RequestMapping(value = "/studies/{studyId}/samples", method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all samples in a study")
@@ -116,7 +154,7 @@ public class SampleController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException, 
+        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException,
         StudyNotFoundException {
 
         if (projection == Projection.META) {
@@ -169,7 +207,7 @@ public class SampleController {
 
             if (interceptedSampleFilter.getSampleListIds() != null) {
                 samples = sampleService.fetchSamples(interceptedSampleFilter.getSampleListIds(), projection.name());
-            } else { 
+            } else {
                 if (interceptedSampleFilter.getSampleIdentifiers() != null) {
                     extractStudyAndSampleIds(interceptedSampleFilter, studyIds, sampleIds);
                 } else {
@@ -183,7 +221,7 @@ public class SampleController {
     }
 
     private void extractStudyAndSampleIds(SampleFilter sampleFilter, List<String> studyIds, List<String> sampleIds) {
-        
+
         for (SampleIdentifier sampleIdentifier : sampleFilter.getSampleIdentifiers()) {
             studyIds.add(sampleIdentifier.getStudyId());
             sampleIds.add(sampleIdentifier.getSampleId());

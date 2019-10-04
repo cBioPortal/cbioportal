@@ -80,10 +80,10 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
                 } else if (object instanceof Sample) {
                     Sample sample = (Sample) object;
                     sample.setUniqueSampleKey(calculateBase64(sample.getStableId(), sample.getCancerStudyIdentifier()));
-                    sample.setUniquePatientKey(calculateBase64(sample.getPatientStableId(), 
+                    sample.setUniquePatientKey(calculateBase64(sample.getPatientStableId(),
                         sample.getCancerStudyIdentifier()));
                 } else if (object instanceof StructuralVariant) {
-                    
+
                     StructuralVariant structuralVariant = (StructuralVariant) object;
                     structuralVariant.setUniqueSampleKey(calculateBase64(structuralVariant.getSampleId(), structuralVariant.getStudyId()));
                     structuralVariant.setUniquePatientKey(calculateBase64(structuralVariant.getPatientId(), structuralVariant.getStudyId()));

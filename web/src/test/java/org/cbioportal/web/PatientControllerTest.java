@@ -109,7 +109,7 @@ public class PatientControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
     }
-    
+
     @Test
     public void getAllPatientsInStudyDefaultProjection() throws Exception {
 

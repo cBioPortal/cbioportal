@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.cbioportal.weblegacy;
 
 import java.util.ArrayList;
@@ -58,41 +53,51 @@ public class ApiController {
         } else {
             return service.getCancerTypes(cancer_type_ids);
         }
-    }    
-    
+    }
+
     @ApiOperation(value = "Get COSMIC counts for given keywords.", nickname = "getCOSMICCounts", notes="")
     @Transactional
     @RequestMapping(value = "/cosmic_count", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<CosmicCount> getCosmicCounts(@ApiParam(required = true, value = "COSMIC event keywords, the keyword in a mutation object")
-							  @RequestParam(required = true)
-							  List<String> keywords) {
-	    return service.getCOSMICCountsByKeywords(keywords);
+    public @ResponseBody List<CosmicCount> getCosmicCounts(
+            @ApiParam(required = true, value = "COSMIC event keywords, the keyword in a mutation object")
+            @RequestParam(required = true)
+            List<String> keywords) {
+        return service.getCOSMICCountsByKeywords(keywords);
     }
-    
+
     @ApiOperation(value = "Get mutation count for certain gene. If per_study is true will return count for each study, if false will return the total count. User can specify specifc study set to look for.",
             nickname = "getMutationCount",
             notes = "")
     @Transactional
     @RequestMapping(value = "/mutation_count", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody List<Map<String, String>> getMutationsCounts(
-        HttpServletRequest request,
-        @ApiParam(required = true, value = "\"count\" or \"frequency\"")
-        @RequestParam(required = true) String type, @RequestParam(required = true) Boolean per_study, @RequestParam(required = false) List<String> studyId, @RequestParam(required = true) List<String> gene, @RequestParam(required = false) List<Integer> start, @RequestParam(required = false) List<Integer> end, @RequestParam(required = false) List<String> echo) {
-        Enumeration<String> parameterNames = request.getParameterNames();
+            HttpServletRequest request,
+            @ApiParam(required = true, value = "\"count\" or \"frequency\"")
+            @RequestParam(required = true)
+            String type,
+            @RequestParam(required = true)
+            Boolean per_study,
+            @RequestParam(required = false)
+            List<String> studyId,
+            @RequestParam(required = true)
+            List<String> gene,
+            @RequestParam(required = false)
+            List<Integer> start,
+            @RequestParam(required = false)
+            List<Integer> end,
+            @RequestParam(required = false) List<String> echo) {
+            Enumeration<String> parameterNames = request.getParameterNames();
         String[] fixedInput = {"type", "per_study", "gene", "start", "end", "echo"};
         Map<String,String[]> customizedAttrs = new HashMap<String,String[]>();
         while (parameterNames.hasMoreElements()) {
             String paramName = parameterNames.nextElement();
-            if(!Arrays.asList(fixedInput).contains(paramName)){
-                
+            if (!Arrays.asList(fixedInput).contains(paramName)) {
                 String[] paramValues = request.getParameterValues(paramName);
                 customizedAttrs.put(paramName, paramValues[0].split(","));
             }
         }
         return service.getMutationsCounts(customizedAttrs, type, per_study, studyId, gene, start, end, echo);
-                
     }
-
 
     @ApiOperation(value = "Get clinical data records, filtered by sample ids",
             nickname = "getSampleClinicalData",
@@ -137,30 +142,29 @@ public class ApiController {
             return service.getPatientClinicalData(study_id, attribute_ids, patient_ids);
         }
     }
-    
+
     @ApiOperation(value = "Get clinical attribute identifiers, filtered by identifier",
             nickname = "getClinicalAttributes",
             notes = "")
     @Transactional
     @RequestMapping(value = "/clinicalattributes", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody List<DBClinicalField> getClinicalAttributes(
-		@ApiParam(value = "List of attribute ids. If provided, returned clinical attributes will be the ones with matching attribute ids. Empty string returns all clinical attributes if study_id is not present.")
-		@RequestParam(required = false) 
-		List<String> attr_ids, 
-       @ApiParam(value = "Study id. If provided, return clinical attributes will be the ones that this study contains.")
-       @RequestParam(required = false)
-       String study_id) {
-       if (study_id != null) {
+            @ApiParam(value = "List of attribute ids. If provided, returned clinical attributes will be the ones with matching attribute ids. Empty string returns all clinical attributes if study_id is not present.")
+            @RequestParam(required = false)
+            List<String> attr_ids,
+            @ApiParam(value = "Study id. If provided, return clinical attributes will be the ones that this study contains.")
+            @RequestParam(required = false)
+            String study_id) {
+        if (study_id != null) {
            return service.getClinicalAttributes(study_id);
-       }
-       else if (attr_ids == null) {
-		    return service.getClinicalAttributes();
-	    } else {
-		    return service.getClinicalAttributes(attr_ids);
-	    }
+        }
+        if (attr_ids == null) {
+            return service.getClinicalAttributes();
+        } else {
+            return service.getClinicalAttributes(attr_ids);
+        }
     }
-    
-    
+
     @ApiOperation(value = "Get clinical attribute identifiers, filtered by sample",
             nickname = "getSampleClinicalAttributes",
             notes = "")
@@ -175,10 +179,12 @@ public class ApiController {
             List<String> sample_ids) {
         if (sample_ids == null && study_id == null) {
             return service.getSampleClinicalAttributes();
-        } else if (study_id != null && sample_ids != null) {
+        }
+        if (study_id != null && sample_ids != null) {
             return service.getSampleClinicalAttributes(study_id, sample_ids);
-        } else if (sample_ids == null) {
-		return service.getSampleClinicalAttributes(study_id);
+        }
+        if (sample_ids == null) {
+            return service.getSampleClinicalAttributes(study_id);
         } else {
             return new ArrayList<>();
         }
@@ -198,15 +204,17 @@ public class ApiController {
             List<String> patient_ids) {
         if (patient_ids == null && study_id == null) {
             return service.getPatientClinicalAttributes();
-        } else if (study_id != null && patient_ids != null) {
+        }
+        if (study_id != null && patient_ids != null) {
             return service.getPatientClinicalAttributes(study_id, patient_ids);
-        } else if (patient_ids == null) {
+        }
+        if (patient_ids == null) {
             return service.getPatientClinicalAttributes(study_id);
         } else {
             return new ArrayList<>();
         }
     }
-    
+
     @ApiOperation(value = "Get gene meta data by hugo gene symbol lookup",
             nickname = "getGenes",
             notes = "")
@@ -232,11 +240,11 @@ public class ApiController {
             @ApiParam(required = false, value = "List of Entrez gene ids. Unrecognized IDs are silently ignored. Empty list returns all genes.")
             @RequestParam(required = false)
             List<Long> entrez_gene_ids) {
-            if (entrez_gene_ids == null) {
-                    return service.getGenesAliases();
-            } else {
-                    return service.getGenesAliases(entrez_gene_ids);
-            }
+        if (entrez_gene_ids == null) {
+            return service.getGenesAliases();
+        } else {
+            return service.getGenesAliases(entrez_gene_ids);
+        }
     }
 
     @ApiOperation(value = "Get list of genetic profile identifiers by study",
@@ -253,13 +261,14 @@ public class ApiController {
             List<String> genetic_profile_ids) {
         if (study_id != null) {
             return service.getGeneticProfiles(study_id);
-        } else if (genetic_profile_ids != null) {
+        }
+        if (genetic_profile_ids != null) {
             return service.getGeneticProfiles(genetic_profile_ids);
         } else {
             return service.getGeneticProfiles();
         }
     }
-    
+
     @ApiOperation(value = "Get list of sample lists (list name and sample id list) by study",
             nickname = "getSampleLists",
             notes = "")
@@ -274,13 +283,14 @@ public class ApiController {
             List<String> sample_list_ids) {
         if (study_id != null) {
             return service.getSampleLists(study_id);
-        } else if (sample_list_ids != null) {
+        }
+        if (sample_list_ids != null) {
             return service.getSampleLists(sample_list_ids);
         } else {
             return service.getSampleLists();
         }
     }
-    
+
     @ApiOperation(value = "Get patient id list by study or by sample id",
             nickname = "getPatients",
             notes = "")
@@ -298,13 +308,14 @@ public class ApiController {
             List<String> sample_ids) {
         if (patient_ids != null) {
             return service.getPatientsByPatient(study_id, patient_ids);
-        } else if (sample_ids != null) {
+        }
+        if (sample_ids != null) {
             return service.getPatientsBySample(study_id, sample_ids);
         } else {
             return service.getPatients(study_id);
         }
     }
-    
+
     @ApiOperation(value = "Get genetic profile data across samples for given genes, and filtered by sample id or sample list id",
             nickname = "getGeneticProfileData",
             notes = "")
@@ -326,13 +337,14 @@ public class ApiController {
 
         if (sample_ids == null && sample_list_id == null) {
             return service.getGeneticProfileData(genetic_profile_ids, genes);
-        } else if (sample_ids != null) {
+        }
+        if (sample_ids != null) {
             return service.getGeneticProfileDataBySample(genetic_profile_ids, genes, sample_ids);
         } else {
             return service.getGeneticProfileDataBySampleList(genetic_profile_ids, genes, sample_list_id);
         }
     }
-    
+
     @ApiOperation(value = "Get list of samples ids with meta data by study, filtered by sample ids or patient ids",
             nickname = "getSamples",
             notes = "")
@@ -350,14 +362,15 @@ public class ApiController {
             List<String> patient_ids) {
         if (sample_ids != null) {
             return service.getSamplesBySample(study_id, sample_ids);
-        } else if (patient_ids != null) {
-                    return service.getSamplesByPatient(study_id, patient_ids);
+        }
+        if (patient_ids != null) {
+            return service.getSamplesByPatient(study_id, patient_ids);
         } else {
-                return service.getSamples(study_id);
-            }
-            
+            return service.getSamples(study_id);
+        }
+
     }
-     
+
     @ApiOperation(value = "Get studies",
             nickname = "getStudies",
             notes = "")

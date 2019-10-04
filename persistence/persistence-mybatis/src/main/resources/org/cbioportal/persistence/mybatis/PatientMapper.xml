@@ -39,6 +39,8 @@
             <if test="keyword != null">
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
                     patient.STABLE_ID like CONCAT('%', #{item}, '%')
+                    OR
+                    sample.STABLE_ID like CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
@@ -50,6 +52,9 @@
             <property name="prefix" value=""/>
         </include>
         <include refid="from"/>
+        <if test="keyword != null">
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+        </if>
         <include refid="where"/>
         <if test="sortBy != null and projection != 'ID' and keyword == null">
             ORDER BY ${sortBy} ${direction}
@@ -69,6 +74,9 @@
         SELECT
         COUNT(*) AS totalCount
         <include refid="from"/>
+        <if test="keyword != null">
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+        </if>
         <include refid="where"/>
     </select>
 

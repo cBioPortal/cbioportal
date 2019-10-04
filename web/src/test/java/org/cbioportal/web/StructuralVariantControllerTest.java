@@ -113,7 +113,7 @@ public class StructuralVariantControllerTest {
     @Autowired
     private StructuralVariantService structuralVariantService;
     private MockMvc mockMvc;
-    
+
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Bean
@@ -133,7 +133,7 @@ public class StructuralVariantControllerTest {
 
         List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
 
-        Mockito.when(structuralVariantService.fetchStructuralVariants(Mockito.anyList(), 
+        Mockito.when(structuralVariantService.fetchStructuralVariants(Mockito.anyList(),
                 Mockito.anyList(), Mockito.anyList())).thenReturn(structuralVariant);
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterMolecularProfileId();
@@ -199,7 +199,7 @@ public class StructuralVariantControllerTest {
 
         List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
 
-        Mockito.when(structuralVariantService.fetchStructuralVariants(Mockito.anyList(), 
+        Mockito.when(structuralVariantService.fetchStructuralVariants(Mockito.anyList(),
                 Mockito.anyList(), Mockito.anyList())).thenReturn(structuralVariant);
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterSampleMolecularIdentifier();
@@ -265,7 +265,7 @@ public class StructuralVariantControllerTest {
 
         List<StructuralVariant> structuralVariant = createExampleStructuralVariant();
 
-        Mockito.when(structuralVariantService.fetchStructuralVariants(Mockito.anyList(), 
+        Mockito.when(structuralVariantService.fetchStructuralVariants(Mockito.anyList(),
                 Mockito.anyList(), Mockito.anyList())).thenReturn(structuralVariant);
 
         StructuralVariantFilter structuralVariantFilter = createStructuralVariantFilterMolecularProfileIdAndSampleMolecularIdentifier();

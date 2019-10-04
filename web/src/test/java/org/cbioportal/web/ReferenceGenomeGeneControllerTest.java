@@ -30,7 +30,7 @@ import java.util.List;
 @ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class ReferenceGenomeGeneControllerTest {
-    
+
     public static final String CYTOBAND_1 = "cytoband_1";
     public static final int LENGTH_1 = 100;
     public static final String CHROMOSOME_1 = "chromosome_1";
@@ -40,13 +40,13 @@ public class ReferenceGenomeGeneControllerTest {
     public static final int REFERENCE_GENOME_ID = 1;
     public static final int ENTREZ_GENE_ID_1 = 1;
     public static final int ENTREZ_GENE_ID_2 = 2;
-    
+
     @Autowired
     private WebApplicationContext wac;
 
     @Autowired
     private ReferenceGenomeGeneService referenceGenomeGeneService;
-    
+
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
@@ -65,7 +65,7 @@ public class ReferenceGenomeGeneControllerTest {
 
     @Test
     public void getGene() throws Exception {
-        
+
         ReferenceGenomeGene gene = new ReferenceGenomeGene();
         gene.setEntrezGeneId(ENTREZ_GENE_ID_1);
         gene.setReferenceGenomeId(REFERENCE_GENOME_ID);
@@ -85,7 +85,7 @@ public class ReferenceGenomeGeneControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.length").value(LENGTH_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$.chromosome").value(CHROMOSOME_1));
     }
-    
+
 
     @Test
     public void fetchGenesDefaultProjection() throws Exception {
@@ -117,7 +117,7 @@ public class ReferenceGenomeGeneControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].length").value(LENGTH_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].chromosome").value(CHROMOSOME_2));
     }
-    
+
 
     private List<ReferenceGenomeGene> createGeneList() {
         List<ReferenceGenomeGene> geneList = new ArrayList<>();

@@ -53,22 +53,22 @@ public class ExpressionEnrichmentController {
         @Valid @RequestBody(required = false) List<MolecularProfileCasesGroupFilter> groups,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedMolecularProfileCasesGroupFilters") List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters) throws MolecularProfileNotFoundException {
-        
+
         Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = interceptedMolecularProfileCasesGroupFilters.stream()
                 .collect(Collectors.toMap(MolecularProfileCasesGroupFilter::getName,
                         MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers));
-        
+
         Set<String> molecularProfileIds = groupCaseIdentifierSet
                 .values()
                 .stream()
                 .flatMap(molecularProfileCaseSet -> molecularProfileCaseSet.stream()
                         .map(MolecularProfileCaseIdentifier::getMolecularProfileId))
                 .collect(Collectors.toSet());
-        
+
         if(molecularProfileIds.size()> 1) {
             throw new UnsupportedOperationException("Multi-study expression enrichments is not yet implemented");
         }
-        
+
 
         return new ResponseEntity<>(expressionEnrichmentService.getExpressionEnrichments(molecularProfileIds.iterator().next(), groupCaseIdentifierSet, enrichmentType.name()), HttpStatus.OK);
     }

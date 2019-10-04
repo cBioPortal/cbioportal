@@ -28,8 +28,8 @@ MRNA_EXPRESSION	Z-SCORE	mrna_zbynorm
 MRNA_EXPRESSION	CONTINUOUS	rna_seq_mrna_capture
 MRNA_EXPRESSION	CONTINUOUS	mrna_seq_cpm
 MRNA_EXPRESSION	CONTINUOUS	mrna_seq_tpm
-MRNA_EXPRESSION	Z-SCORE	mrna_seq_cpm_Zscores
 MRNA_EXPRESSION	Z-SCORE	mrna_seq_tpm_Zscores
+MRNA_EXPRESSION	Z-SCORE	mrna_seq_cpm_Zscores
 MRNA_EXPRESSION	Z-SCORE	rna_seq_mrna_capture_Zscores
 MRNA_EXPRESSION	CONTINUOUS	mrna_seq_fpkm_capture
 MRNA_EXPRESSION	Z-SCORE	mrna_seq_fpkm_capture_Zscores

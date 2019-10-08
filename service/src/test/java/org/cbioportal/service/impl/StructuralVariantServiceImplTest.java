@@ -23,8 +23,12 @@
 
 package org.cbioportal.service.impl;
 
+import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MutationCountByGene;
 import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.model.StructuralVariantCountByGene;
 import org.cbioportal.persistence.StructuralVariantRepository;
+import org.cbioportal.service.MolecularProfileService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +38,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -44,6 +49,9 @@ public class StructuralVariantServiceImplTest extends BaseServiceImplTest {
     
     @Mock
     private StructuralVariantRepository structuralVariantRepository;
+
+    @Mock
+    private MolecularProfileService molecularProfileService;
     
     @Test
     public void getStructuralVariants() throws Exception {
@@ -65,5 +73,25 @@ public class StructuralVariantServiceImplTest extends BaseServiceImplTest {
                 entrezGeneIds, null);
 
         Assert.assertEquals(expectedStructuralVariantList, result);
+    }
+
+    @Test
+    public void getPatientCountInMultipleMolecularProfiles() throws Exception {
+
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
+        Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID)).thenReturn(molecularProfile);
+
+        List<StructuralVariantCountByGene> expectedSVSampleCountByGeneList = new ArrayList<>();
+        StructuralVariantCountByGene svSampleCountByGene = new StructuralVariantCountByGene();
+        expectedSVSampleCountByGeneList.add(svSampleCountByGene);
+
+        Mockito.when(structuralVariantRepository.getSampleCountInMultipleMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID), null,
+            Arrays.asList(ENTREZ_GENE_ID_1))).thenReturn(expectedSVSampleCountByGeneList);
+
+        List<StructuralVariantCountByGene> result = structuralVariantService.getSampleCountInMultipleMolecularProfiles(
+            Arrays.asList(MOLECULAR_PROFILE_ID), null, Arrays.asList(ENTREZ_GENE_ID_1), false);
+
+        Assert.assertEquals(expectedSVSampleCountByGeneList, result);
     }
 }

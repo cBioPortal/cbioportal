@@ -49,6 +49,8 @@ public class StudyViewController {
     @Autowired
     private MutationService mutationService;
     @Autowired
+    private StructuralVariantService structuralVariantService;
+    @Autowired
     private MolecularProfileService molecularProfileService;
     @Autowired
     private DiscreteCopyNumberService discreteCopyNumberService;
@@ -298,6 +300,31 @@ public class StudyViewController {
                     }
                 });
             }
+        }
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    @RequestMapping(value = "/sv-genes/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch mutated genes by study view filter")
+    public ResponseEntity<List<StructuralVariantCountByGene>> fetchSVGenes(
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. This attribute is needed for the @PreAuthorize tag above.
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface.
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
+
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        List<StructuralVariantCountByGene> result = new ArrayList<>();
+        if (!filteredSampleIdentifiers.isEmpty()) {
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+            result = structuralVariantService.getSampleCountInMultipleMolecularProfiles(molecularProfileService
+                .getFirstStructuralVariantProfileIds(studyIds, sampleIds), sampleIds, null, true);
         }
 
         return new ResponseEntity<>(result, HttpStatus.OK);

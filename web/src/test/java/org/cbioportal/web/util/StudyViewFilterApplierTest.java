@@ -9,6 +9,7 @@ import java.util.List;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.Mutation;
+import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
@@ -19,6 +20,7 @@ import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.service.PatientService;
 import org.cbioportal.service.SampleService;
+import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.web.parameter.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -62,6 +64,8 @@ public class StudyViewFilterApplierTest {
     @Mock
     private DiscreteCopyNumberService discreteCopyNumberService;
     @Mock
+    private StructuralVariantService svService;
+    @Mock
     private MolecularProfileService molecularProfileService;
     @Mock
     private GenePanelService genePanelService;
@@ -83,7 +87,7 @@ public class StudyViewFilterApplierTest {
         MockitoAnnotations.initMocks(this);
 
         studyViewFilterApplier = new StudyViewFilterApplier(
-            sampleService, mutationService, discreteCopyNumberService,
+            sampleService, mutationService, discreteCopyNumberService, svService,
             molecularProfileService, genePanelService, clinicalDataService, clinicalDataEqualityFilterApplier,
             clinicalDataIntervalFilterApplier, studyViewFilterUtil);
     }
@@ -155,6 +159,11 @@ public class StudyViewFilterApplierTest {
         copyNumberGeneFilter.setAlterations(copyNumberGeneFilterElements);
         cnaGenes.add(copyNumberGeneFilter);
         studyViewFilter.setCnaGenes(cnaGenes);
+        List<StructuralVariantGeneFilter> svGenes = new ArrayList<>();
+        StructuralVariantGeneFilter structuralVariantGeneFilter = new StructuralVariantGeneFilter();
+        structuralVariantGeneFilter.setEntrezGeneIds(Arrays.asList(ENTREZ_GENE_ID_1));
+        svGenes.add(structuralVariantGeneFilter);
+        studyViewFilter.setSVGenes(svGenes);
 
         List<Sample> samples = new ArrayList<>();
         Sample sample1 = new Sample();
@@ -328,6 +337,28 @@ public class StudyViewFilterApplierTest {
         updatedSampleIds = new ArrayList<>();
         updatedSampleIds.add(SAMPLE_ID1);
         updatedSampleIds.add(SAMPLE_ID2);
+
+        Mockito.when(molecularProfileService.getFirstStructuralVariantProfileIds(Arrays.asList(STUDY_ID, STUDY_ID),
+            updatedSampleIds)).thenReturn(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1));
+
+        List<StructuralVariant> structuralVariants = new ArrayList<>();
+        StructuralVariant structuralVariant1 = new StructuralVariant();
+        structuralVariant1.setSite1EntrezGeneId(ENTREZ_GENE_ID_1);
+        structuralVariant1.setSampleId(SAMPLE_ID1);
+        structuralVariant1.setStudyId(STUDY_ID);
+        structuralVariants.add(structuralVariant1);
+        StructuralVariant structuralVariant2 = new StructuralVariant();
+        structuralVariant2.setSite1EntrezGeneId(ENTREZ_GENE_ID_1);
+        structuralVariant2.setSampleId(SAMPLE_ID2);
+        structuralVariant2.setStudyId(STUDY_ID);
+        structuralVariants.add(structuralVariant2);
+
+        Mockito.when(svService.fetchStructuralVariants(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1),
+            Arrays.asList(ENTREZ_GENE_ID_1), updatedSampleIds)).thenReturn(structuralVariants);
+
+        updatedSampleIds = new ArrayList<>();
+        updatedSampleIds.add(SAMPLE_ID1);
+        updatedSampleIds.add(SAMPLE_ID2);
         updatedSampleIds.add(SAMPLE_ID4);
 
         Mockito.when(molecularProfileService.getFirstDiscreteCNAProfileIds(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID),
@@ -350,6 +381,7 @@ public class StudyViewFilterApplierTest {
         Mockito.when(discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(Arrays.asList(
             MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_2), updatedSampleIds,
             Arrays.asList(ENTREZ_GENE_ID_2), Arrays.asList(-2), "ID")).thenReturn(discreteCopyNumberDataList);
+
 
         List<SampleIdentifier> result = studyViewFilterApplier.apply(studyViewFilter);
         Assert.assertEquals(2, result.size());

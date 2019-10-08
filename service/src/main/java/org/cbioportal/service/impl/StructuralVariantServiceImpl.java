@@ -24,10 +24,13 @@
 package org.cbioportal.service.impl;
 
 import java.util.List;
+import java.util.Collections;
 
 import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.model.StructuralVariantCountByGene;
 import org.cbioportal.persistence.StructuralVariantRepository;
 import org.cbioportal.service.StructuralVariantService;
+import org.cbioportal.service.util.AlterationEnrichmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +39,10 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
 
     @Autowired
     private StructuralVariantRepository structuralVariantRepository;
-    
+
+    @Autowired
+    private AlterationEnrichmentUtil alterationEnrichmentUtil;
+
     @Override
     public List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds, 
             List<Integer> entrezGeneIds,  List<String> sampleIds) {
@@ -44,4 +50,21 @@ public class StructuralVariantServiceImpl implements StructuralVariantService {
         return structuralVariantRepository.fetchStructuralVariants(molecularProfileIds, entrezGeneIds, sampleIds);
     }
 
+    @Override
+    public List<StructuralVariantCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
+                                                                               List<String> sampleIds, List<Integer> entrezGeneIds, boolean includeFrequency) {
+
+        List<StructuralVariantCountByGene> alterationCountByGenes;
+        if (molecularProfileIds.isEmpty()) {
+            alterationCountByGenes = Collections.emptyList();
+        } else {
+            alterationCountByGenes = structuralVariantRepository.getSampleCountInMultipleMolecularProfiles(
+                molecularProfileIds, sampleIds, entrezGeneIds);
+            if (includeFrequency) {
+                alterationEnrichmentUtil.includeFrequencyForSamples(molecularProfileIds, sampleIds, alterationCountByGenes);
+            }
+        }
+        alterationCountByGenes.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
+        return alterationCountByGenes;
+    }
 }

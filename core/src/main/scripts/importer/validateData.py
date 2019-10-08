@@ -2986,12 +2986,11 @@ class StructuralVariantValidator(Validator):
         self.checkGeneIdentification(site2_hugo_symbol, site2_entrez_gene_id)
 
         # Validate fusion events
-        if data[self.cols.index('Event_Info')] == 'Fusion':
-            checkFusionValues(self, data)
-        else:
-            self.logger.error('Validation and functionality for other structural variant events are not implemented '
-                              'yet. Event_Info must be "Fusion"',
+        if data[self.cols.index('Event_Info')] != 'Fusion':
+            self.logger.warning('Validation and functionality for other structural variant events are not implemented '
+                              'yet. Event_Info is not "Fusion"',
                               extra={'cause': self.cols.index('Event_Info')})
+        checkFusionValues(self, data)
 
     def onComplete(self):
         """Perform final validations based on the data parsed."""

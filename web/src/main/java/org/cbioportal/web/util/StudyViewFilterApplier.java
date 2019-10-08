@@ -15,6 +15,7 @@ import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.DiscreteCopyNumberData;
 import org.cbioportal.model.GenePanelData;
 import org.cbioportal.model.Mutation;
+import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.service.ClinicalDataService;
@@ -22,6 +23,7 @@ import org.cbioportal.service.DiscreteCopyNumberService;
 import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.MutationService;
+import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.service.SampleService;
 import org.cbioportal.web.parameter.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,7 @@ public class StudyViewFilterApplier {
     private SampleService sampleService;
     private MutationService mutationService;
     private DiscreteCopyNumberService discreteCopyNumberService;
+    private StructuralVariantService svService;
     private MolecularProfileService molecularProfileService;
     private GenePanelService genePanelService;
     private ClinicalDataService clinicalDataService;
@@ -46,6 +49,7 @@ public class StudyViewFilterApplier {
     public StudyViewFilterApplier(SampleService sampleService,
                                   MutationService mutationService,
                                   DiscreteCopyNumberService discreteCopyNumberService,
+                                  StructuralVariantService svService,
                                   MolecularProfileService molecularProfileService,
                                   GenePanelService genePanelService,
                                   ClinicalDataService clinicalDataService,
@@ -55,6 +59,7 @@ public class StudyViewFilterApplier {
         this.sampleService = sampleService;
         this.mutationService = mutationService;
         this.discreteCopyNumberService = discreteCopyNumberService;
+        this.svService = svService;
         this.molecularProfileService = molecularProfileService;
         this.genePanelService = genePanelService;
         this.clinicalDataService = clinicalDataService;
@@ -120,6 +125,11 @@ public class StudyViewFilterApplier {
         List<FusionGeneFilter> fusionGenes = studyViewFilter.getFusionGenes();
         if (fusionGenes != null && !sampleIdentifiers.isEmpty()) {
             sampleIdentifiers = filterFusionGenes(fusionGenes, sampleIdentifiers);
+        }
+
+        List<StructuralVariantGeneFilter> svGenes = studyViewFilter.getSVGenes();
+        if (svGenes != null && !sampleIdentifiers.isEmpty()) {
+            sampleIdentifiers = filterSVGenes(svGenes, sampleIdentifiers);
         }
 
         Boolean withMutationData = studyViewFilter.getWithMutationData();
@@ -212,7 +222,7 @@ public class StudyViewFilterApplier {
 
         return sampleIdentifiers;
     }
-    
+
     private List<SampleIdentifier> filterCNAGenes(List<CopyNumberGeneFilter> cnaGenes, List<SampleIdentifier> sampleIdentifiers) {
         for (CopyNumberGeneFilter copyNumberGeneFilter : cnaGenes) {
 
@@ -244,6 +254,25 @@ public class StudyViewFilterApplier {
                 SampleIdentifier sampleIdentifier = new SampleIdentifier();
                 sampleIdentifier.setSampleId(d.getSampleId());
                 sampleIdentifier.setStudyId(d.getStudyId());
+                return sampleIdentifier;
+            }).distinct().collect(Collectors.toList());
+        }
+
+        return sampleIdentifiers;
+    }
+
+    private List<SampleIdentifier> filterSVGenes(List<StructuralVariantGeneFilter> svGenes, List<SampleIdentifier> sampleIdentifiers) {
+        for (StructuralVariantGeneFilter svGeneFilter : svGenes) {
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
+            List<StructuralVariant> structuralVariants = svService.fetchStructuralVariants(molecularProfileService
+                .getFirstStructuralVariantProfileIds(studyIds, sampleIds), svGeneFilter.getEntrezGeneIds(), sampleIds);
+
+            sampleIdentifiers = structuralVariants.stream().map(sv -> {
+                SampleIdentifier sampleIdentifier = new SampleIdentifier();
+                sampleIdentifier.setSampleId(sv.getSampleId());
+                sampleIdentifier.setStudyId(sv.getStudyId());
                 return sampleIdentifier;
             }).distinct().collect(Collectors.toList());
         }

@@ -38,4 +38,5 @@ public interface MolecularProfileService {
 
     List<String> getFirstMutationProfileIds(List<String> studyIds, List<String> sampleIds);
     List<String> getFirstDiscreteCNAProfileIds(List<String> studyIds, List<String> sampleIds);
+    List<String> getFirstStructuralVariantProfileIds(List<String> studyIds, List<String> sampleIds);
 }

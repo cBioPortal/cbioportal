@@ -25,6 +25,11 @@ public class StudyViewFilter implements Serializable {
 	private Boolean withMutationData;
 	private Boolean withCNAData;
 	private RectangleBounds mutationCountVsCNASelection;
+    private List<CopyNumberGeneFilter> cnaGenes;
+    private List<StructuralVariantGeneFilter> svGenes;
+    private Boolean withMutationData;
+    private Boolean withCNAData;
+    private RectangleBounds mutationCountVsCNASelection;
 
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
@@ -98,6 +103,14 @@ public class StudyViewFilter implements Serializable {
 
     public void setCnaGenes(List<CopyNumberGeneFilter> cnaGenes) {
         this.cnaGenes = cnaGenes;
+    }
+
+    public List<StructuralVariantGeneFilter> getSVGenes() {
+        return svGenes;
+    }
+
+    public void setSVGenes(List<StructuralVariantGeneFilter> svGenes) {
+        this.svGenes = svGenes;
     }
 
     public Boolean getWithMutationData() {

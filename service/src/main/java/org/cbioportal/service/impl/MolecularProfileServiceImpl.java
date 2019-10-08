@@ -115,12 +115,11 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
         return molecularProfileRepository.getMolecularProfilesReferringTo(referredMolecularProfileId);
 	}
 
-	@Override
-	public List<String> getFirstMutationProfileIds(List<String> studyIds, List<String> sampleIds) {
-        
+    private List<String> getFirstMolecularProfileIds(List<String> studyIds, List<String> sampleIds,
+                                                     MolecularProfile.MolecularAlterationType alterationType) {
         List<String> molecularProfileIds = new ArrayList<>();
         Map<String, List<MolecularProfile>> mapByStudyId = getMolecularProfilesInStudies(studyIds, "SUMMARY")
-            .stream().filter(m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED))
+            .stream().filter(m -> m.getMolecularAlterationType().equals(alterationType))
             .collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
         int removedSampleCount = 0;
         for (int i = 0; i < studyIds.size(); i++) {
@@ -133,25 +132,23 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
             }
         }
         return molecularProfileIds;
-	}
+    }
 
-	@Override
-	public List<String> getFirstDiscreteCNAProfileIds(List<String> studyIds, List<String> sampleIds) {
+    @Override
+    public List<String> getFirstMutationProfileIds(List<String> studyIds, List<String> sampleIds) {
+        return this.getFirstMolecularProfileIds(studyIds, sampleIds,
+            MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
+    }
 
-        List<String> molecularProfileIds = new ArrayList<>();
-        Map<String, List<MolecularProfile>> mapByStudyId = getMolecularProfilesInStudies(studyIds, "SUMMARY")
-            .stream().filter(m -> m.getMolecularAlterationType().equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION) && 
-            m.getDatatype().equals("DISCRETE")).collect(Collectors.groupingBy(MolecularProfile::getCancerStudyIdentifier));
-        int removedSampleCount = 0;
-        for (int i = 0; i < studyIds.size(); i++) {
-            String studyId = studyIds.get(i);
-            if (mapByStudyId.containsKey(studyId)) {
-                molecularProfileIds.add(mapByStudyId.get(studyId).get(0).getStableId());
-            } else {
-                sampleIds.remove(i - removedSampleCount);
-                removedSampleCount++;
-            }
-        }
-        return molecularProfileIds;
-	}
+    @Override
+    public List<String> getFirstDiscreteCNAProfileIds(List<String> studyIds, List<String> sampleIds) {
+        return this.getFirstMolecularProfileIds(studyIds, sampleIds,
+            MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+    }
+
+    @Override
+    public List<String> getFirstStructuralVariantProfileIds(List<String> studyIds, List<String> sampleIds) {
+        return this.getFirstMolecularProfileIds(studyIds, sampleIds,
+            MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
+    }
 }

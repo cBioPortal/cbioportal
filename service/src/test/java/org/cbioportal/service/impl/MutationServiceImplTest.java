@@ -228,7 +228,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
             Arrays.asList(ENTREZ_GENE_ID_1))).thenReturn(expectedMutationPatientCountByGeneList);
         
         List<MutationCountByGene> result = mutationService.getPatientCountInMultipleMolecularProfiles(
-                Arrays.asList(MOLECULAR_PROFILE_ID), null, Arrays.asList(ENTREZ_GENE_ID_1));
+                Arrays.asList(MOLECULAR_PROFILE_ID), null, Arrays.asList(ENTREZ_GENE_ID_1), false);
         
         Assert.assertEquals(expectedMutationPatientCountByGeneList, result);
     }

@@ -19,6 +19,11 @@ public class GenericAssayMeta implements Serializable {
      *                                    additional properties, may differ between
      *                                    different generic assay data
      */
+
+    public GenericAssayMeta(String stableId) {
+        this.stableId = stableId;
+    }
+
     public GenericAssayMeta(String entityType, String stableId) {
         this.entityType = entityType;
         this.stableId = stableId;

@@ -12,7 +12,7 @@ public interface GenericAssayService {
     GenericAssayMeta getGenericAssayMetaByStableId(String stableId) 
         throws GenericAssayNotFoundException;
 
-    List<GenericAssayMeta> getGenericAssayMetaByStableIds(List<String> stableIds)
+    List<GenericAssayMeta> getGenericAssayMetaByStableIdsAndMolecularIds(List<String> stableIds, List<String> molecularProfileIds, String projection)
         throws GenericAssayNotFoundException;
 
     List<GenericAssayData> getGenericAssayData(String molecularProfileId, String sampleListId, 

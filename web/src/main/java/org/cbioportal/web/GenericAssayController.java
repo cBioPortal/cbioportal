@@ -22,6 +22,7 @@ import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.GenericAssayDataMultipleStudyFilter;
+import org.cbioportal.web.parameter.GenericAssayMetaFilter;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -47,81 +48,25 @@ public class GenericAssayController {
     @Autowired
     private GenericAssayService genericAssayService;
 
-    @RequestMapping(value = "/generic_assay_meta/{stableId}", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all meta data in generic-assay by stable id")
-    public ResponseEntity<GenericAssayMeta> getAllGenericAssayMetaData(
-        @ApiParam(required = true, value = "Generic Assay Stable ID")
-        @PathVariable String stableId) throws GenericAssayNotFoundException {
-            GenericAssayMeta result = genericAssayService.getGenericAssayMetaByStableId(stableId);
-            return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
     @RequestMapping(value = "/generic_assay_meta/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch meta data for generic-assay by ID")
     public ResponseEntity<List<GenericAssayMeta>> fetchAllGenericAssayMetaData(
-        @RequestBody List<String> stableIds) throws GenericAssayNotFoundException {
-            List<GenericAssayMeta> result = genericAssayService.getGenericAssayMetaByStableIds(stableIds);
-            return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/generic_assay_data/{molecularProfileId}", method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all generic_assay_id in a molecular profile")
-    public ResponseEntity<List<GenericAssayData>> getAllGenericAssayDataInMolecularProfile(
-        @ApiParam(required = true, value = "Molecular Profile ID")
-        @PathVariable String molecularProfileId,
-        @ApiParam(required = true, value = "Sample List ID")
-        @RequestParam String sampleListId,
-        @ApiParam(required = true, value = "Generic Assay Stable ID")
-        @RequestParam String genericAssayStableId,
+        @ApiParam(required = true, value = "List of Molecular Profile ID or List of Stable ID")
+        @Valid @RequestBody(required = false) GenericAssayMetaFilter genericAssayMetaFilter,
         @ApiParam("Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws GenericAssayNotFoundException {
+            List<GenericAssayMeta> result;
 
-        List<GenericAssayData> result = genericAssayService.getGenericAssayData(
-            molecularProfileId, sampleListId, Arrays.asList(genericAssayStableId), projection.name());
-
-        if (projection == Projection.META) {
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
-            return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
-        } else {
+            if (genericAssayMetaFilter.getGenericAssayStableIds() == null) {
+                result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(null, genericAssayMetaFilter.getMolecularProfileIds(), projection.name());
+            } else if (genericAssayMetaFilter.getMolecularProfileIds() == null) {
+                result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(genericAssayMetaFilter.getGenericAssayStableIds(), null, projection.name());
+            } else {
+                result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(genericAssayMetaFilter.getGenericAssayStableIds(), genericAssayMetaFilter.getMolecularProfileIds(), projection.name());
+            }
             return new ResponseEntity<>(result, HttpStatus.OK);
-        }
-    }
-
-    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/generic_assay_data/{molecularProfileId}/fetch",
-        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("fetch all generic_assay_data in a molecular profile")
-    public ResponseEntity<List<GenericAssayData>> fetchAllGenericAssayDataInMolecularProfile(
-        @ApiParam(required = true, value = "Molecular Profile ID")
-        @PathVariable String molecularProfileId,
-        @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Entrez Gene IDs")
-        @Valid @RequestBody GenericAssayDataFilter genericAssayDataFilter, 
-        @ApiParam("Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
-
-        List<GenericAssayData> result;
-        if (genericAssayDataFilter.getSampleListId() != null) {
-            result = genericAssayService.getGenericAssayData(molecularProfileId,
-                genericAssayDataFilter.getSampleListId(), genericAssayDataFilter.getGenericAssayStableIds(), projection.name());
-        } else {
-            result = genericAssayService.fetchGenericAssayData(molecularProfileId,
-                genericAssayDataFilter.getSampleIds(), genericAssayDataFilter.getGenericAssayStableIds(), projection.name());
-        }
-
-        if (projection == Projection.META) {
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
-            return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        }
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")

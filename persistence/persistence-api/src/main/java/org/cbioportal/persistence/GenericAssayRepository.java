@@ -9,6 +9,8 @@ public interface GenericAssayRepository {
 
     List<GenericAssayMeta> getGenericAssayMeta(List<String> stableIds);
 
+    List<String> getGenericAssayStableIdsByMolecularIds(List<String> molecularProfileIds);
+
     int getGeneticEntityIdByStableId(String stableId);
 
     List<HashMap<String, String>> getGenericAssayMetaPropertiesMap(int geneticEntityId);

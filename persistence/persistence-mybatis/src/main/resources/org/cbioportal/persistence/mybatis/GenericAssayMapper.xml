@@ -38,4 +38,37 @@
         </where>
     </select>
 
+    <select id="getMolecularProfileInternalIdsByMolecularProfileIds" resultType="int">
+        SELECT genetic_profile.GENETIC_PROFILE_ID
+        FROM genetic_profile
+        <where>
+            genetic_profile.STABLE_ID IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+        </where>
+    </select>
+
+    <select id="getGeneticEntityIdsByMolecularProfileInternalIds" resultType="int">
+        SELECT genetic_alteration.GENETIC_ENTITY_ID
+        FROM genetic_alteration
+        <where>
+            genetic_alteration.GENETIC_PROFILE_ID IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+        </where>
+    </select>
+
+    <select id="getGenericAssayStableIdsByGeneticEntityIds" resultType="string">
+        SELECT genetic_entity.STABLE_ID
+        FROM genetic_entity
+        <where>
+            genetic_entity.ID IN
+                <foreach item="item" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+        </where>
+    </select>
+
 </mapper>

@@ -8,9 +8,9 @@
 #
 # docker build -f docker/web-and-data/Dockerfile -t cbioportal-container:tag-name .
 #
-# WARNING: Be careful about publishing images generated like this publicly
-# because your .git folder is exposed in the build step. We are not sure if
-# this is a security risk: stackoverflow.com/questions/56278325
+# NOTE: the .git folder is included in the build stage, but excluded 
+# from the final image. No confidential information is exposed.
+# (see: stackoverflow.com/questions/56278325)
 FROM maven:3.5.4 as build
 
 # download maven dependencies first to take advantage of docker caching

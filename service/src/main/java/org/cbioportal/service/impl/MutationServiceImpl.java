@@ -137,7 +137,7 @@ public class MutationServiceImpl implements MutationService {
             result = mutationRepository.getSampleCountInMultipleMolecularProfilesForFusions(
                 molecularProfileIds, sampleIds, entrezGeneIds);
             if (includeFrequency) {
-                profiledSamplesCounter.calculate(molecularProfileIds, sampleIds, result);
+                alterationEnrichmentUtil.includeFrequencyForSamples(molecularProfileIds, sampleIds, result);
             }
         }
         return result;

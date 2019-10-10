@@ -24,6 +24,14 @@ public class GenericAssayMyBatisRepository implements GenericAssayRepository {
     }
 
     @Override
+    public List<String> getGenericAssayStableIdsByMolecularIds(List<String> molecularProfileIds) {
+        
+        List<Integer> molecularProfileInternalIds = genericAssayMapper.getMolecularProfileInternalIdsByMolecularProfileIds(molecularProfileIds);
+        List<Integer> geneticEntityIds = genericAssayMapper.getGeneticEntityIdsByMolecularProfileInternalIds(molecularProfileInternalIds);
+        return genericAssayMapper.getGenericAssayStableIdsByGeneticEntityIds(geneticEntityIds);
+    }
+
+    @Override
     public int getGeneticEntityIdByStableId(String stableId) {
 
         return genericAssayMapper.getGeneticEntityIdByStableId(stableId);

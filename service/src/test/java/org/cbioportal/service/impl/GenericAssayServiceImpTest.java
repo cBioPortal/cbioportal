@@ -37,7 +37,9 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
     private static final int INTERNAL_ID_2 = 2;
     public static final String ENTITY_TYPE = "GENERIC_ASSAY";
 
-    private static final List<String> idList = Arrays.asList(GENERIC_ASSAY_ID_1, GENERIC_ASSAY_ID_2);
+    private static final String PROFILE_ID = "test_profile_id";
+    private static final List<String> PROFILE_ID_LIST = Arrays.asList(PROFILE_ID);
+    private static final List<String> idList = Arrays.asList(GENERIC_ASSAY_ID_1);
     private static final  List<GenericAssayMeta> mockGenericAssayMetaList = createGenericAssayMetaList();
 
     @InjectMocks
@@ -166,6 +168,9 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
         Mockito.when(genericAssayRepository.getGenericAssayMeta(idList))
         .thenReturn(mockGenericAssayMetaList);
 
+        Mockito.when(genericAssayRepository.getGenericAssayStableIdsByMolecularIds(PROFILE_ID_LIST))
+        .thenReturn(idList);
+
         Mockito.when(genericAssayRepository.getGeneticEntityIdByStableId(GENERIC_ASSAY_ID_1))
         .thenReturn(INTERNAL_ID_1);
         Mockito.when(genericAssayRepository.getGeneticEntityIdByStableId(GENERIC_ASSAY_ID_2))
@@ -176,7 +181,7 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
         Mockito.when(genericAssayRepository.getGenericAssayMetaPropertiesMap(INTERNAL_ID_2))
         .thenReturn(new ArrayList<HashMap<String,String>>());
 
-        List<GenericAssayMeta> result = genericAssayService.getGenericAssayMetaByStableIds(idList);
+        List<GenericAssayMeta> result = genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(idList, PROFILE_ID_LIST, PersistenceConstants.SUMMARY_PROJECTION);
         GenericAssayMeta meta1 = result.get(0);
         GenericAssayMeta meta2 = result.get(1);
         Assert.assertEquals(mockGenericAssayMetaList.get(0).getEntityType(), meta1.getEntityType());

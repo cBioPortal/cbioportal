@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.function.Function;
 
@@ -66,17 +68,36 @@ public class GenericAssayServiceImpl implements GenericAssayService {
     }
 
     @Override
-    public List<GenericAssayMeta> getGenericAssayMetaByStableIds(List<String> stableIds)
+    public List<GenericAssayMeta> getGenericAssayMetaByStableIdsAndMolecularIds(List<String> stableIds, List<String> molecularProfileIds, String projection)
         throws GenericAssayNotFoundException {
+        Set<String> allStableIds = new HashSet<String>();
+        // extract genericAssayStableIds from the GENERIC_ASSAY profiles
+        if (molecularProfileIds != null) {
+            List<String> distinctMolecularProfileIds = molecularProfileIds.stream().distinct().sorted().collect(Collectors.toList());
+            List<String> stableIdsInMolecularProfiles = genericAssayRepository.getGenericAssayStableIdsByMolecularIds(distinctMolecularProfileIds);
+            allStableIds.addAll(stableIdsInMolecularProfiles);
+        } 
+        if (stableIds != null) {
+            allStableIds.addAll(stableIds);
+        }
+        List<String> distinctStableIds = new ArrayList<String>(allStableIds);
         List<GenericAssayMeta> metaResults = new ArrayList<GenericAssayMeta>();
-        List<GenericAssayMeta> metaData = genericAssayRepository.getGenericAssayMeta(stableIds);
-        for (GenericAssayMeta meta : metaData) {
-            int geneticEntityId = genericAssayRepository.getGeneticEntityIdByStableId(meta.getStableId());
-            HashMap<String, String> map = new HashMap<>();
-            for (HashMap<String, String> data : genericAssayRepository.getGenericAssayMetaPropertiesMap(geneticEntityId)) {
-                map.put(data.get("key"), data.get("value"));
+        List<GenericAssayMeta> metaData = genericAssayRepository.getGenericAssayMeta(distinctStableIds);
+        // just return stable_id if projection is ID
+        if (projection == "ID") {
+            for (GenericAssayMeta meta : metaData) {
+                metaResults.add(new GenericAssayMeta(meta.getStableId()));
             }
-            metaResults.add(new GenericAssayMeta(meta.getEntityType(), meta.getStableId(), map));
+        } else {
+            // get additional properties for each meta data
+            for (GenericAssayMeta meta : metaData) {
+                int geneticEntityId = genericAssayRepository.getGeneticEntityIdByStableId(meta.getStableId());
+                HashMap<String, String> map = new HashMap<>();
+                for (HashMap<String, String> data : genericAssayRepository.getGenericAssayMetaPropertiesMap(geneticEntityId)) {
+                    map.put(data.get("key"), data.get("value"));
+                }
+                metaResults.add(new GenericAssayMeta(meta.getEntityType(), meta.getStableId(), map));
+            }
         }
         return metaResults;
     }

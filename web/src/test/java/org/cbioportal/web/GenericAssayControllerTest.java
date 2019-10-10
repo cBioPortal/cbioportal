@@ -135,7 +135,7 @@ public class GenericAssayControllerTest {
         List<GenericAssayMeta> genericAssayMetaItems = createGenericAssayMetaItemsList();
         List<String> genericAssayStableIds = Arrays.asList(GENERIC_ASSAY_STABLE_ID_1, GENERIC_ASSAY_STABLE_ID_2);
         
-        Mockito.when(genericAssayService.getGenericAssayMetaByStableIds(Mockito.anyListOf(String.class))).thenReturn(genericAssayMetaItems);
+        Mockito.when(genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(genericAssayMetaItems);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_meta/fetch")
                 .accept(MediaType.APPLICATION_JSON)

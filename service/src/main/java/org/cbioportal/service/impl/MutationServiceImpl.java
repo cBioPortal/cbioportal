@@ -126,6 +126,24 @@ public class MutationServiceImpl implements MutationService {
 	}
 
     @Override
+    public List<MutationCountByGene> getSampleCountInMultipleMolecularProfilesForFusions(List<String> molecularProfileIds,
+                                                                                        List<String> sampleIds,
+                                                                                        List<Integer> entrezGeneIds,
+                                                                                        boolean includeFrequency) {
+        List<MutationCountByGene> result;
+        if (molecularProfileIds.isEmpty()) {
+            result = Collections.emptyList();
+        } else {
+            result = mutationRepository.getSampleCountInMultipleMolecularProfilesForFusions(
+                molecularProfileIds, sampleIds, entrezGeneIds);
+            if (includeFrequency) {
+                alterationEnrichmentUtil.includeFrequencyForSamples(molecularProfileIds, sampleIds, result);
+            }
+        }
+        return result;
+    }
+    
+    @Override
     public List<MutationCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                                 List<String> patientIds,
                                                                                 List<Integer> entrezGeneIds,

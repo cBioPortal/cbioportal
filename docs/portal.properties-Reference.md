@@ -284,12 +284,12 @@ This gene set will add the following in the query box:
 # Ehcache Settings
 cBioPortal is supported on the backend with Ehcache. The configuration, size, and location of these caches are configurable from within portal.properties through the following properties.
 
-Caching is disabled by default. When caching is disabled, no respones will be stored in cache. To turn on caching set `ehcache.cache_enabled` to true.  
+The cache type is set using `ehcache.cache_type`. Valid values are `none`, `heap` (heap-only), `disk` (disk-only), and `hybrid` (disk + heap). By default, `ehcache.cache_type` is set to `none` which disables the cache. When the cache is disabled, no responses will be stored in the cache. 
 ```
-ehcache.cache_enabled=true
+ehcache.cache_type=[none or heap or disk or hybrid]
 ```
 
-When caching is enabled, set a cache configuration using `ehcache.xml_configuration`. This should be the name of an Ehcache xml configuration file; the default provided is `ehcache.xml` which configures a hybrid (disk + heap) cache. To change caching configuration, directly edit `/ehcache.xml`. Alternatively, you can create your own Ehcache xml configuration file, place it under `/persistence/persistence-api/src/main/resources/` and set `ehcache.xml_configuration` to `/[Ehcache xml configuration filename]`.  
+Ehcache initializes caches using a template found in an Ehcache xml configuration file. When caching is enabled, set `ehcache.xml_configuration` to the name of the Ehcache xml configuration file. The default provided is `ehcache.xml`; to change the cache template, directly edit this file. Alternatively, you can create your own Ehcache xml configuration file, place it under `/persistence/persistence-api/src/main/resources/` and set `ehcache.xml_configuration` to `/[Ehcache xml configuration filename]`.  
 ```
 ehcache.xml_configuration=
 ```
@@ -308,9 +308,8 @@ ehcache.static_repository_cache_one.max_mega_bytes_heap=
 ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
 ```
 
-Additional properties can be specified for cache statistics monitoring. To log metrics regarding memory usage, set `ehcache.statistics_enabled` to true. Logged metrics and additional information such as cache size and cached keys are available through an optional endpoint. The optional endpoint is turned off by default but can be turned on by setting `cache.statistics_endpoint_enabled` to true. 
+Logged metrics and additional information such as cache size and cached keys are available through an optional endpoint. The optional endpoint is turned off by default but can be turned on by setting `cache.statistics_endpoint_enabled` to true.
 ```
-ehcache.statistics_enabled=true[true or false]
 cache.statistics_endpoint_enabled=false[true or false]
 ```
 The cache statistics endpoint is hidden on the api page; users must directly access the URL to view the response. The cache statistics endpoint can be accessed in the following ways.

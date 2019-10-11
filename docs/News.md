@@ -1,3 +1,6 @@
+## October 11, 2019
+* **Enhancement**: The Download interface has been removed. Enhanced download functionality is now available through the Query interface.
+
 ## September 18, 2019
 * **New Feature**: The list and order of charts of a study will be automatically saved now as a user preference on the _study view_ page.
 

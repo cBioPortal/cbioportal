@@ -69,7 +69,7 @@ public class AlterationEnrichmentUtil {
                                 .getOrDefault(group, new HashMap<Integer, AlterationCountByGene>()).get(gene.getEntrezGeneId());
                       
                         Integer alteredCount = mutationCountByGene != null ? mutationCountByGene.getNumberOfAlteredCases() : 0;
-                        Integer profiledCount = mutationCountByGene != null ? mutationCountByGene.getNumberOfProfiledCases() : 0;
+                        Integer profiledCount = mutationCountByGene != null ? mutationCountByGene.getNumberOfProfiledCases() : molecularProfileCaseSets.get(group).size();
                         groupCasesCount.setName(group);
                         groupCasesCount.setAlteredCount(alteredCount);
                         groupCasesCount.setProfiledCount(profiledCount);

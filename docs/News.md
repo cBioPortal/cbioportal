@@ -1,7 +1,7 @@
 ## October 11, 2019
 * **Enhancement**: The Download interface on the homepage has been removed. Enhanced download functionality is now available after querying on the results page.
 
-    _Homepage_:
+    _Home page_:
     
     ![homepage download tab removed](https://user-images.githubusercontent.com/1334004/66735303-48627e00-ee66-11e9-863f-5ec713ea444a.png)
     

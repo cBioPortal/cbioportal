@@ -61,10 +61,13 @@ The following properties must be present in portal.properties in order to allow 
 - **Default Value**: true
 
 ## [Using Data Access Tokens](using-data-access-tokens)
-To directly access the web service of a cBioPortal instance which requires user login, clients will need to obtain a data access token and present this token with each web service request.  To obtain a data access token, login to the cBioPortal and then choose “Download token” from the “Logged in as…” dropdown menu located on the top-right section of the webpage (**note this menu option will not be present if the instance of the cBioPortal has not be configured to support data access tokens**):
+To directly access the web service of a cBioPortal instance which requires user login, clients will need to obtain a data access token and present this token with each web service request.  To obtain a data access token, login to the cBioPortal and then choose “Data Access Token” from the “Logged in as…” dropdown menu located on the top-right section of the webpage (**note this menu option will not be present if the instance of the cBioPortal has not be configured to support data access tokens**):
 
 ![](images/previews/dat-download-menu.png)
 
+This will bring you to a section of the Web API page where you can download your token using the "Download Token" button.
+
+![](images/previews/download-dat-button.png)
 
 The downloaded data access token file will contain the token, a creation date, and an expiration date:
 

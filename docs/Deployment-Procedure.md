@@ -163,9 +163,9 @@ Then update the url like:
 ./updatefrontendurl.sh "https://cbioportal-frontend.netlify.com"
 ```
 
-Do the same thing on dashi2. Then log in to pipelines machine, log in as
-triage-tomcat user: `sudo su - triage-tomcat`, and update the frontend url file
-there:
+Do the same thing on dashi2. 
+
+The last step is to modify the frontend url file for the triage portal. Log in to the pipelines machine, log in as triage-tomcat user: `sudo su - triage-tomcat`, and update the frontend url file there:
 
 ```
 echo 'https://cbioportal-frontend.netlify.com' > /srv/www/triage-tomcat/frontend_url_version_2_1_0.txt

@@ -22,14 +22,10 @@ public class StudyViewFilter implements Serializable {
     private List<MutationGeneFilter> mutatedGenes;
     private List<FusionGeneFilter> fusionGenes;
 	private List<CopyNumberGeneFilter> cnaGenes;
-	private Boolean withMutationData;
-	private Boolean withCNAData;
-	private RectangleBounds mutationCountVsCNASelection;
-    private List<CopyNumberGeneFilter> cnaGenes;
     private List<StructuralVariantGeneFilter> svGenes;
+	private RectangleBounds mutationCountVsCNASelection;
     private Boolean withMutationData;
     private Boolean withCNAData;
-    private RectangleBounds mutationCountVsCNASelection;
 
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {

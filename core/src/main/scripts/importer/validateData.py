@@ -169,11 +169,10 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
 
     """Logging handler that formats aggregated HTML reports using Jinja2."""
 
-    def __init__(self, study_dir, output_filename, cbio_version, max_reported_values, *args, **kwargs):
+    def __init__(self, study_dir, output_filename, max_reported_values, *args, **kwargs):
         """Set study directory name, output filename and buffer size."""
         self.study_dir = study_dir
         self.output_filename = output_filename
-        self.cbio_version = cbio_version
         self.max_reported_values = max_reported_values
         self.max_level = logging.NOTSET
         self.closed = False
@@ -196,8 +195,11 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         """Never flush; emit() caps the buffer and close() renders output."""
         return False
 
-    def generateHtml(self):
-        """Render the HTML page for the current content in self.buffer """
+    def generateHtml(self, **kwargs):
+        """Render the HTML page for the current content in self.buffer
+        
+        **kwargs allows to override logger variables to display.
+        """
         # require Jinja2 only if it is actually used
         import jinja2
         j_env = jinja2.Environment(
@@ -216,10 +218,10 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         template = j_env.get_template('validation_report_template.html.jinja')
         doc = template.render(
             study_dir=self.study_dir,
-            cbio_version=self.cbio_version,
             max_reported_values=self.max_reported_values,
             record_list=self.buffer,
-            max_level=logging.getLevelName(self.max_level))
+            max_level=logging.getLevelName(self.max_level),
+            **kwargs)
         with open(self.output_filename, 'w') as f:
             f.write(doc)
 
@@ -274,8 +276,9 @@ class PortalInstance(object):
     if the checks are to be skipped.
     """
 
-    def __init__(self, cancer_type_dict, hugo_entrez_map, alias_entrez_map, gene_set_list, gene_panel_list, treatment_map):
+    def __init__(self, portal_info_dict, cancer_type_dict, hugo_entrez_map, alias_entrez_map, gene_set_list, gene_panel_list, treatment_map, offline=False):
         """Represent a portal instance with the given dictionaries."""
+        self.portal_info_dict = portal_info_dict
         self.cancer_type_dict = cancer_type_dict
         self.hugo_entrez_map = hugo_entrez_map
         self.alias_entrez_map = alias_entrez_map
@@ -293,6 +296,17 @@ class PortalInstance(object):
         self.__species = 'human'
         self.__ncbi_build = '37'
         self.__genome_build = 'hg19'
+
+        # determine version, and the reason why it might be unknown
+        if portal_info_dict is None:
+            reason = 'offline instance' if offline else 'skipped checks'
+            self.portal_version = 'unknown -- ' + reason
+        else:
+            # if field is not present in dict, there was an error in the json
+            if 'portalVersion' not in portal_info_dict:
+                self.portal_version = 'unknown -- invalid JSON'
+            else:
+                self.portal_version = portal_info_dict['portalVersion']
 
     @property
     def species(self):
@@ -4462,7 +4476,7 @@ def validate_data_relations(validators_by_meta_type, logger):
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""
 
-    if api_name in ['genesets', 'gene-panels', 'treatments']:
+    if api_name in ['info', 'genesets', 'gene-panels', 'treatments']:
         service_url = server_url + '/api/' + api_name + "?pageSize=9999999"
 
     # TODO: change API for genes, gene aliases and cancer types to non-legacy
@@ -4576,6 +4590,9 @@ def index_treatment_data(json_data,
         result_dict[entity_stable_id] = data_item
     return result_dict
 
+# there is no dump function implemented for the /info API. Unable to retrieve version.
+def load_portal_metadata(json_data):
+    return json_data
 
 def load_portal_info(path, logger, offline=False):
     """Create a PortalInstance object based on a server API or offline dir.
@@ -4586,6 +4603,8 @@ def load_portal_info(path, logger, offline=False):
     """
     portal_dict = {}
     for api_name, transform_function in (
+            ('info',
+                lambda json_data: load_portal_metadata(json_data)),
             ('cancertypes',
                 lambda json_data: index_api_data(json_data, 'id')),
             ('genes',
@@ -4610,12 +4629,14 @@ def load_portal_info(path, logger, offline=False):
         portal_dict[api_name] = parsed_json
     if all(d is None for d in list(portal_dict.values())):
         raise LookupError('No portal information found at {}'.format(path))
-    return PortalInstance(cancer_type_dict=portal_dict['cancertypes'],
+    return PortalInstance(portal_info_dict=portal_dict['info'],
+                          cancer_type_dict=portal_dict['cancertypes'],
                           hugo_entrez_map=portal_dict['genes'],
                           alias_entrez_map=portal_dict['genesaliases'],
                           gene_set_list=portal_dict['genesets'],
                           gene_panel_list=portal_dict['gene-panels'],
-                          treatment_map = portal_dict['treatments'])
+                          treatment_map = portal_dict['treatments'],
+                          offline=offline)
 
 
 # ------------------------------------------------------------------------------
@@ -4833,15 +4854,6 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
 
     logger.info('Validation complete')
 
-
-def get_pom_path():
-    """
-    Get location of pom.xml. In system and integration test this is mocked.
-    """
-    pom_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))) + "/pom.xml"
-    return pom_path
-
-
 def main_validate(args):
 
     """Main function: process parsed arguments and validate the study."""
@@ -4882,27 +4894,6 @@ def main_validate(args):
     collapsing_text_handler.setLevel(output_loglevel)
     logger.addHandler(collapsing_text_handler)
 
-    # set default to unknown because validator can be run independently from cBioPortal
-    cbio_version = "unknown"
-
-    # get pom path to retrieve cBioPortal version
-    pom_path = get_pom_path()
-
-    try:
-        # parse xml
-        xml_root = ET.parse(pom_path).getroot()
-    except OSError:
-        logger.info('Unable to read xml containing cBioPortal version.')
-    else:
-        for xml_child in xml_root:
-
-            # to circumvent the default namespace (possibly varying apache url) split on '}'
-            if xml_child.tag.split("}")[1] == "version":
-                cbio_version = xml_child.text
-
-                # output cBioPortal version
-                logger.info("Running validation from cBioPortal version %s" % cbio_version)
-
     collapsing_html_handler = None
     html_handler = None
     # add html table handler if applicable
@@ -4913,7 +4904,6 @@ def main_validate(args):
         html_handler = Jinja2HtmlHandler(
             study_dir,
             html_output_filename,
-            cbio_version=cbio_version,
             max_reported_values=max_reported_values,
             capacity=1e5)
         # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
@@ -4940,7 +4930,8 @@ def main_validate(args):
 
     # load portal-specific information
     if args.no_portal_checks:
-        portal_instance = PortalInstance(cancer_type_dict=None,
+        portal_instance = PortalInstance(portal_info_dict=None,
+                                         cancer_type_dict=None,
                                          hugo_entrez_map=None,
                                          alias_entrez_map=None,
                                          gene_set_list=None,
@@ -4952,16 +4943,19 @@ def main_validate(args):
     else:
         portal_instance = load_portal_info(server_url, logger)
 
+    # set portal version
+    cbio_version = portal_instance.portal_version
+
     # specify species and genomic information
     portal_instance.species = args.species
     portal_instance.genome_build = args.ucsc_build_name
     portal_instance.ncbi_build = args.ncbi_build_number
-
     validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_checks)
 
     if html_handler is not None:
+        # flush logger and generate HTML while overriding cbio_version after retrieving it from the API
         collapsing_html_handler.flush()
-        html_handler.generateHtml()
+        html_handler.generateHtml(cbio_version=cbio_version)
 
     return exit_status_handler.get_exit_status()
 

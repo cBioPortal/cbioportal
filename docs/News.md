@@ -1,9 +1,10 @@
 ## October 9, 2019
-*  **Added data** consisting of  2615 samples from 3 studies:
+*  **Added data** consisting of  2725 samples from 3 studies:
    
      * [Cancer Cell Line Encyclopedia (Broad, 2019)](https://www.cbioportal.org/study/summary?id=ccle_broad_2019) *1739 samples*
     * [Chronic Lymphocytic Leukemia (Broad, Nature 2015)](https://www.cbioportal.org/study/summary?id=cll_broad_2015#summary) *537 samples* 
     * [Rectal Cancer (MSK,Nature Medicine 2019)](https://www.cbioportal.org/study/summary?id=rectal_msk_2019) *339 samples* 
+    * [Colon Cancer (CPTAC-2 Prospective, Cell 2019)](https://www.cbioportal.org/study/summary?id=coad_cptac_2019) *110 samples*
 
   *  **Updated**  [Esophageal Carcinoma (TCGA, Nature 2017)](https://www.cbioportal.org/study/summary?id=stes_tcga_pub#summary) with addition of CNA data for Esophageal Squamous Cell Carcinoma cases *90 samples*. 
 

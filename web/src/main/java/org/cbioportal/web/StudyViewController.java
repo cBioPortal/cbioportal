@@ -224,6 +224,43 @@ public class StudyViewController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
+    @RequestMapping(value = "/fusion-genes/fetch", method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Fetch fusion genes by study view filter")
+    public ResponseEntity<List<MutationCountByGene>> fetchFusionGenes(
+        @ApiParam(required = true, value = "Study view filter")
+        @Valid @RequestBody(required = false) StudyViewFilter studyViewFilter,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. This attribute is needed for the @PreAuthorize tag above.
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface.
+        @Valid @RequestAttribute(required = false, value = "interceptedStudyViewFilter") StudyViewFilter interceptedStudyViewFilter) throws StudyNotFoundException {
+        List<SampleIdentifier> filteredSampleIdentifiers = studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        List<MutationCountByGene> result = new ArrayList<>();
+        if (!filteredSampleIdentifiers.isEmpty()) {
+            List<String> studyIds = new ArrayList<>();
+            List<String> sampleIds = new ArrayList<>();
+            studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
+            result = mutationService.getSampleCountInMultipleMolecularProfilesForFusions(molecularProfileService
+                .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, null, true);
+            result.sort((a, b) -> b.getNumberOfAlteredCases() - a.getNumberOfAlteredCases());
+            List<String> distinctStudyIds = studyIds.stream().distinct().collect(Collectors.toList());
+            if (distinctStudyIds.size() == 1 && !result.isEmpty()) {
+                Map<Integer, MutSig> mutSigMap = significantlyMutatedGeneService.getSignificantlyMutatedGenes(
+                    distinctStudyIds.get(0), Projection.SUMMARY.name(), null, null, null, null).stream().collect(
+                    Collectors.toMap(MutSig::getEntrezGeneId, Function.identity()));
+                result.forEach(r -> {
+                    if (mutSigMap.containsKey(r.getEntrezGeneId())) {
+                        r.setqValue(mutSigMap.get(r.getEntrezGeneId()).getqValue());
+                    }
+                });
+            }
+        }
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    
+    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/cna-genes/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch CNA genes by study view filter")

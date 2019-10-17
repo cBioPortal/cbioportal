@@ -35,6 +35,7 @@ skin.documentation.faq=FAQ.md
 skin.documentation.about=About-Us.md
 skin.documentation.news=News.md
 skin.documentation.oql=Onco-Query-Language.md
+skin.documentation.dat=Authenticating-Users-via-Tokens.md
 
 # setting controlling the logos
 skin.right_logo=

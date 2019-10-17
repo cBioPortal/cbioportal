@@ -1,3 +1,16 @@
+## October 11, 2019
+* **Enhancement**: The Download interface on the homepage has been removed. Enhanced download functionality is now available after querying on the results page.
+
+    _Home page_:
+    
+    ![homepage download tab removed](https://user-images.githubusercontent.com/1334004/66735303-48627e00-ee66-11e9-863f-5ec713ea444a.png)
+    
+    _Results page_:
+    
+    ![results page download tab](https://user-images.githubusercontent.com/1334004/66736057-7ea0fd00-ee68-11e9-942b-e123b9659126.png)
+    
+    Note that as before one can always download the full raw data on the [Data Sets page](https://www.cbioportal.org/datasets) or from [Datahub](https://github.com/cBioPortal/datahub/).
+ 
 ## October 9, 2019
 *  **Added data** consisting of  2725 samples from 4 studies:
    

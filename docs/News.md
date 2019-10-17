@@ -1,5 +1,5 @@
 ## October 9, 2019
-*  **Added data** consisting of  2725 samples from 3 studies:
+*  **Added data** consisting of  2725 samples from 4 studies:
    
      * [Cancer Cell Line Encyclopedia (Broad, 2019)](https://www.cbioportal.org/study/summary?id=ccle_broad_2019) *1739 samples*
     * [Chronic Lymphocytic Leukemia (Broad, Nature 2015)](https://www.cbioportal.org/study/summary?id=cll_broad_2015#summary) *537 samples* 

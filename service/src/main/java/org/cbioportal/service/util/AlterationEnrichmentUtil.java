@@ -77,30 +77,41 @@ public class AlterationEnrichmentUtil {
                     })
                     .collect(Collectors.toList());
 
-            double pValue;
-            // if groups size is two do Fisher Exact test else do Chi-Square test
-            if (groups.size() == 2) {
-                
-                int alteredInNoneCount = counts.get(1).getProfiledCount() - counts.get(1).getAlteredCount();
-                int alteredOnlyInQueryGenesCount = counts.get(0).getProfiledCount() - counts.get(0).getAlteredCount();
+            List<CountSummary> filteredCounts = counts.stream()
+                    .filter(groupCasesCount -> groupCasesCount.getProfiledCount() > 0).collect(Collectors.toList());
 
-                pValue = fisherExactTestCalculator.getCumulativePValue(alteredInNoneCount,
-                        counts.get(1).getAlteredCount(), alteredOnlyInQueryGenesCount, counts.get(0).getAlteredCount()); 
-            } else {
+            // calculate p-value only if more than one group have profile cases count
+            // greater than 0
+            if (filteredCounts.size() > 1) {
+                double pValue;
+                // if groups size is two do Fisher Exact test else do Chi-Square test
+                if (groups.size() == 2) {
 
-                long[][] array = counts.stream().map(count -> {
-                    return new long[] { count.getAlteredCount(), count.getProfiledCount() - count.getAlteredCount() };
-                }).toArray(long[][]::new);
+                    int alteredInNoneCount = counts.get(1).getProfiledCount() - counts.get(1).getAlteredCount();
+                    int alteredOnlyInQueryGenesCount = counts.get(0).getProfiledCount()
+                            - counts.get(0).getAlteredCount();
 
-                ChiSquareTest chiSquareTest = new ChiSquareTest();
-                pValue = chiSquareTest.chiSquareTest(array);
-                
-                // set p-value to 1 when the cases in all groups are altered
-                if (Double.isNaN(pValue)) {
-                    pValue = 1;
+                    pValue = fisherExactTestCalculator.getCumulativePValue(alteredInNoneCount,
+                            counts.get(1).getAlteredCount(), alteredOnlyInQueryGenesCount,
+                            counts.get(0).getAlteredCount());
+                } else {
+
+                    long[][] array = counts.stream().map(count -> {
+                        return new long[] { count.getAlteredCount(),
+                                count.getProfiledCount() - count.getAlteredCount() };
+                    }).toArray(long[][]::new);
+
+                    ChiSquareTest chiSquareTest = new ChiSquareTest();
+                    pValue = chiSquareTest.chiSquareTest(array);
+
+                    // set p-value to 1 when the cases in all groups are altered
+                    if (Double.isNaN(pValue)) {
+                        pValue = 1;
+                    }
                 }
+                alterationEnrichment.setpValue(BigDecimal.valueOf(pValue));
             }
-            alterationEnrichment.setpValue(BigDecimal.valueOf(pValue));
+            
             alterationEnrichment.setCounts(counts);
             return alterationEnrichment;
         }).collect(Collectors.toList());

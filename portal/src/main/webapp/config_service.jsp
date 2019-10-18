@@ -1,3 +1,4 @@
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.CheckDarwinAccessServlet" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="org.json.simple.JSONArray" %>
@@ -150,7 +151,7 @@
              
         obj.put("oncoprintOncoKbHotspotsDefault",enableOncoKBandHotspots);    
         
-        obj.put("sessionServiceEnabled",GlobalProperties.getSessionServiceUrl()!= "");        
+        obj.put("sessionServiceEnabled", !StringUtils.isEmpty(GlobalProperties.getSessionServiceUrl()));        
                 
         out.println(obj.toJSONString());       
                       

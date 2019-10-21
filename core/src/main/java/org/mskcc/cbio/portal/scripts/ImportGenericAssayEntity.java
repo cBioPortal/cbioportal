@@ -239,16 +239,9 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
                     }
                 }
 
-                // update the meta-information fields of the generic assay
-                if (genericAssayMeta != null && genericAssayMeta.getEntityType().equals(geneticAlterationType.name())) {
-                    DaoGenericAssay.deleteGenericEntityPropertiesByStableId(genericAssayMeta.getStableId());
-                    propertiesMap.forEach((k, v) -> {
-                        try {
-                            DaoGenericAssay.setGenericEntityProperty(genericAssayMeta.getStableId(), k, v);
-                        } catch (DaoException e) {
-                            e.printStackTrace();
-                        }
-                    });
+                // log for the existing entities
+                if (genericAssayMeta != null) {
+                    ProgressMonitor.setCurrentMessage("Cannot add new entity, entity exists: " + genericAssayMetaStableId);
                 }
                 // create a new generic assay meta and add to the database
                 else {

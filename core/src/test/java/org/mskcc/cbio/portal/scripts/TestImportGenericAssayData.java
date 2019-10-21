@@ -111,11 +111,11 @@ public class TestImportGenericAssayData {
         assertEquals("mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("name"));
         assertEquals("mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("description"));
 
-        // // test fields are updated after loading new generic assay meta file
+        // // test fields should not updated after loading new generic assay meta file
         File fileNewDesc = new File("core/src/test/resources/data_mutational_signature_new.txt");
         ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.GENERIC_ASSAY, "name,description,additional_properties");
         GenericAssayMeta genericAssayMeta2 = DaoGenericAssay.getGenericAssayMetaByStableId("mean_1");
-        assertEquals("new mean_1", genericAssayMeta2.getGenericEntityMetaProperties().get("description"));
+        assertEquals("mean_1", genericAssayMeta2.getGenericEntityMetaProperties().get("description"));
     }
 
     private int getNumRecordsForTreatment() {

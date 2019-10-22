@@ -7,4 +7,4 @@ profile_name: generic assay test profile
 profile_description: test profile for generic assay
 data_filename: data_mutational_signature.txt
 show_profile_in_analysis_tab: true
-generic_entity_meta_properties: name,description
+generic_entity_meta_properties: name,description,confidenceStatement

@@ -748,6 +748,8 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.0";
 -- update genetic_entity table
 ALTER TABLE `genetic_entity` ADD COLUMN `STABLE_ID` varchar(45) DEFAULT NULL;
 ALTER TABLE `genetic_profile` ADD COLUMN `GENERIC_ASSAY_TYPE` varchar(255) DEFAULT NULL;
+ALTER TABLE `genetic_alteration` DROP FOREIGN KEY genetic_alteration_ibfk_2;
+ALTER TABLE `genetic_alteration` ADD CONSTRAINT `genetic_alteration_ibfk_2` FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE;
 
 CREATE TABLE `generic_entity_properties` (
   `ID` INT(11) NOT NULL auto_increment,

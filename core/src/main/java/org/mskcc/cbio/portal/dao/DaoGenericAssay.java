@@ -36,30 +36,6 @@ public class DaoGenericAssay {
         }
     }
 
-    public static void setGenericEntityProperty(String stableId, String name, String value) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
-        try {
-            con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
-            pstmt = con.prepareStatement("INSERT INTO generic_entity_properties (`GENETIC_ENTITY_ID`, `NAME`, `VALUE`) "
-            + "VALUES(?,?,?)");
-            GeneticEntity entity = DaoGeneticEntity.getGeneticEntityByStableId(stableId);
-            if (entity == null) {
-                return;
-            }
-            pstmt.setInt(1, entity.getId());
-            pstmt.setString(2, name);
-            pstmt.setString(3, value);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            JdbcUtil.closeAll(DaoGeneticEntity.class, con, pstmt, rs);
-        }
-    }
-
     public static GenericAssayMeta getGenericAssayMetaByStableId(String stableId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -87,26 +63,5 @@ public class DaoGenericAssay {
             JdbcUtil.closeAll(DaoGeneticEntity.class, con, pstmt, rs);
         }
         return null;
-    }
-
-    public static void deleteGenericEntityPropertiesByStableId(String stableId) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;     
-
-        try {
-            con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
-            pstmt = con.prepareStatement("DELETE FROM generic_entity_properties WHERE GENETIC_ENTITY_ID=?");
-            GeneticEntity entity = DaoGeneticEntity.getGeneticEntityByStableId(stableId);
-            if (entity == null) {
-                return;
-            }
-            pstmt.setInt(1, entity.getId());
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            JdbcUtil.closeAll(DaoGeneticEntity.class, con, pstmt, rs);
-        }
     }
 }

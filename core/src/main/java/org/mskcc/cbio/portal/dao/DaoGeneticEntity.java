@@ -71,21 +71,6 @@ public class DaoGeneticEntity {
     }
 
     /**
-     * Update GeneticEntity record.
-     * @param geneticEntity GeneticEntity
-     */
-    public static void updateGeneticEntity(GeneticEntity geneticEntity) throws DaoException {
-
-        executeSQLstatment(
-            SqlAction.UPDATE,
-            "UPDATE genetic_entity SET `ENTITY_TYPE` = ? WHERE `STABLE_ID` = ?", 
-            geneticEntity.getEntityType(),
-            geneticEntity.getStableId()
-        );
-
-    }
-
-    /**
      * Extracts Geneset record from ResultSet.
      * @param rs
      * @return Geneset record

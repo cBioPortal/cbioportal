@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class SampleServiceImpl implements SampleService {
 
     private static final String SEQUENCED = "_sequenced";
+    private static final String STRUCTURAL_VARIANT = "_sv";
 
     @Autowired
     private SampleRepository sampleRepository;
@@ -173,11 +174,15 @@ public class SampleServiceImpl implements SampleService {
 
         if (projection.equals("DETAILED")) {
             Map<String, Set<String>> sequencedSampleIdsMap = new HashMap<>();
+            Map<String, Set<String>> structuralVariantSampleIdsMap = new HashMap<>();
             List<String> distinctStudyIds = samples.stream().map(Sample::getCancerStudyIdentifier).distinct()
                 .collect(Collectors.toList());
+            
             for (String studyId : distinctStudyIds) {
                 sequencedSampleIdsMap.put(studyId,
                                           new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
+                structuralVariantSampleIdsMap.put(studyId,
+                                       new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + STRUCTURAL_VARIANT)));
             }
 
             List<Integer> samplesWithCopyNumberSeg = copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
@@ -193,6 +198,9 @@ public class SampleServiceImpl implements SampleService {
                 sample.setSequenced(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier())
                     .contains(sample.getStableId()));
                 sample.setCopyNumberSegmentPresent(samplesWithCopyNumberSegMap.contains(sample.getInternalId()));
+                if (!structuralVariantSampleIdsMap.isEmpty()) {
+                    sample.setProfiledForFusions(structuralVariantSampleIdsMap.get(sample.getCancerStudyIdentifier()).contains(sample.getStableId()));
+                }
             });
         }
     }

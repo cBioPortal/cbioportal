@@ -720,3 +720,22 @@ CASE
     ELSE 1
 END;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.11.0";
+
+##version 2.11.1
+REPLACE INTO sample_list(STABLE_ID, CATEGORY, CANCER_STUDY_ID, NAME, DESCRIPTION)
+    SELECT DISTINCT CONCAT(CANCER_STUDY_IDENTIFIER, '_fusion'), 'all_cases_with_mutation_data', `cancer_study`.CANCER_STUDY_ID, 'Samples with fusion data','Samples with fusion data'
+        FROM `mutation_event`
+            JOIN `mutation` ON `mutation`.MUTATION_EVENT_ID = `mutation_event`.MUTATION_EVENT_ID
+            JOIN `genetic_profile` ON `genetic_profile`.GENETIC_PROFILE_ID = `mutation`.GENETIC_PROFILE_ID
+            JOIN `cancer_study` ON `cancer_study`.CANCER_STUDY_ID = `genetic_profile`.CANCER_STUDY_ID
+        WHERE MUTATION_TYPE = 'fusion';
+REPLACE INTO sample_list_list(list_id, sample_id)
+    SELECT DISTINCT list_id, SAMPLE_ID
+        FROM `mutation_event`
+            JOIN `mutation` ON `mutation`.MUTATION_EVENT_ID = `mutation_event`.MUTATION_EVENT_ID
+            JOIN `genetic_profile` ON `genetic_profile`.GENETIC_PROFILE_ID = `mutation`.GENETIC_PROFILE_ID
+            JOIN `cancer_study` ON `cancer_study`.CANCER_STUDY_ID = `genetic_profile`.CANCER_STUDY_ID
+            JOIN `sample_list` ON `sample_list`.CANCER_STUDY_ID = `cancer_study`.CANCER_STUDY_ID AND `sample_list`.STABLE_ID LIKE '%fusion%'
+        WHERE MUTATION_TYPE = 'fusion';
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.11.1";
+

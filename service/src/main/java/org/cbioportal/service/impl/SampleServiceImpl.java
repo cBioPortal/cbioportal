@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class SampleServiceImpl implements SampleService {
 
     private static final String SEQUENCED = "_sequenced";
+    private static final String FUSION = "_fusion";
 
     @Autowired
     private SampleRepository sampleRepository;
@@ -180,6 +181,12 @@ public class SampleServiceImpl implements SampleService {
                                           new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + SEQUENCED)));
             }
 
+            Map<String, Set<String>> fusionSampleIdsMap = new HashMap<>();
+            distinctStudyIds.forEach( studyId -> {
+                fusionSampleIdsMap.put(studyId,
+                    new HashSet<String>(sampleListRepository.getAllSampleIdsInSampleList(studyId + FUSION)));
+            });
+
             List<Integer> samplesWithCopyNumberSeg = copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(
                 samples.stream().map(Sample::getCancerStudyIdentifier).collect(Collectors.toList()), 
                 samples.stream().map(Sample::getStableId).collect(Collectors.toList()),
@@ -193,6 +200,7 @@ public class SampleServiceImpl implements SampleService {
                 sample.setSequenced(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier())
                     .contains(sample.getStableId()));
                 sample.setCopyNumberSegmentPresent(samplesWithCopyNumberSegMap.contains(sample.getInternalId()));
+                sample.setFusionPresent(fusionSampleIdsMap.get(sample.getCancerStudyIdentifier()).contains(sample.getStableId()));
             });
         }
     }

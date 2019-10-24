@@ -1,3 +1,6 @@
+## October 23, 2019
+* **Enhancement**: Quick example links in Plots tab. [example](https://www.cbioportal.org/results/plots?session_id=5ba11ce6498eb8b3d567e7ed)
+
 ## October 11, 2019
 * **Enhancement**: The Download interface on the homepage has been removed. Enhanced download functionality is now available after querying on the results page.
 

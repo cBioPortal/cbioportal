@@ -1344,23 +1344,21 @@ The cells contain treatment response values that can be postive and negative rea
 </table>
 
 ## Generic Assay
-Generic assay is a generic data type, which can holds different types of data on samples. cBioPortal supports any number of response data types imported from separate data files. Any meta information on generic assay are not part of the cBioPortal seed database, but are imported automatically from generic assay data files. For meta information already present in the database, all the fields are overwitten by subsequent imports of new generic assay data files. The `entity_stable_id` field must be unique within a data file.
+Generic Assay is a two dimensional matrix generalized to capture non-genetic measurements per sample. Instead of a gene per row and a sample per column, a Generic Assay file contains a generic entity per row and a sample per column. A generic entity is defined by the data curator and generally means something other than a gene. Some examples include, treatment response or mutational signatures. For each generic entity - sample pair, a real number represents a captured measurement.
 
 ### Generic Assay meta file
-The meta file will be similar to meta files of other genetic profiles, such as mRNA expression. For generic assay data `LIMIT-VALUE` is used as `datatype`. The `LIMIT-VALUE` is validated to contain any continuous number optionally prefixed with a '>' or '<' threshold symbol (e.g., '>8.00'). For generic assay meta files values for `stable_id` are not pre-registered in the cBioPortal implementation, but can be freely chosen by the user. Requirement is that each generic assay meta file is assigned an unique `stable_id` by the user. This requirement is validated by the data validation scripts. 
-
-Required fields: 
+The generic assay metadata file should contain the following fields:
 ```
 cancer_study_identifier: Same value as specified in meta file of the study
 genetic_alteration_type: GENERIC_ASSAY
-generic_assay_type: the actual data type
+generic_assay_type: <GENERIC_ASSAY_TYPE>, e.g., "TREATMENT" or "MUTATIONAL_SIGNATURE"
 datatype: LIMIT-VALUE
 stable_id: Any unique identifier using a combination of alphanumeric characters, _ and -
 profile_name: A name describing the analysis.
 profile_description: A description of the data processing done.
 data_filename: <name of generic assay data file>
 show_profile_in_analysis_tab: true
-generic_entity_meta_properties: The meta properties you want to have in your meta data, you need to specify them here, properties must seperated by column (e.g., 'name,description')
+generic_entity_meta_properties: A comma separate list of generic entity properties, e.g., "name,description"
 ```
 
 Example:
@@ -1377,18 +1375,27 @@ show_profile_in_analysis_tab: true
 generic_entity_meta_properties: name,description
 ```
 
+#### Note on `stable_id`
+For generic assay, meta files values for `stable_id` are not pre-registered in the cBioPortal implementation, but can be freely chosen by the user. Requirement is that each generic assay meta file is assigned a unique `stable_id` by the user. This requirement is validated by the data validation scripts.
+
 #### Note on `generic_entity_meta_properties`
-All meta properties must be specified in `generic_entity_meta_properties`. Also, all meta properties specified in `generic_entity_meta_properties` are required to be shown in the data file as a same name column.
+All meta properties must be specified in `generic_entity_meta_properties`. Also, all meta properties specified in `generic_entity_meta_properties` are required to be shown in the data file as same name columns. These fields are free text (e.g., 'name of genetic entity').
 
 #### Note on `Generic Assay` genetic_alteration_type and `LIMIT-VALUE` datatype
-all generic assay data is registered to be of the type of `genetic_alteration_type` and data type `LIMIT-VALUE`. This alteration and data type is intended to be used for any numerical data set with similar structure (entities measured in samples).
+All generic assay data is registered to be of the type of `genetic_alteration_type` and data type `LIMIT-VALUE`. This alteration and data type is intended to be used for any numerical data set with similar structure (entities measured in samples). The `LIMIT-VALUE` is validated to contain any continuous number optionally prefixed with a '>' or '<' threshold symbol (e.g., '>8.00'). If the value for the generic entity in the respective sample could not (or was not) be measured (or detected), the value should be 'NA'.
 
 ### Generic Assay data file
-The data file will be a simple tab separated format, similar to the expression data file: each sample is a column, each generic assay is a row, each cell contains values for that generic_assay x sample combination.
+The data file will be a simple tab separated format, similar to the expression data file: each sample is a column, each generic entity is a row, each cell contains values for that generic entity x sample combination.
 
-The first column must be named `entity_stable_id` and contains unique identifiers for the generic assay. The `entity_stable_id` column can be followed by optional columns specified in `generic_entity_meta_properties`.
+For each generic entity (row) in the data file, the following columns are required in the order specified:
 
-The cells contain values that can be postive and negative real numbers including 0. When no response value, it should be "NA". Empty cell are not allowed. Numerical values van have a "<" or ">" prefix to indicate that the real value is smaller or larger than the stated response value, respectively. Example with 3 generic assays and 3 samples:
+- ***entity_stable_id***: Any unique identifier using a combination of alphanumeric characters, _ and -.
+
+And:
+- An additional column for each `generic_entity_meta_properties` in the metafile, using the property name as the column header (e.g., 'name').
+- An additional column for each sample in the dataset using the sample id as the column header.
+
+Example with 3 generic entities and 3 samples:
 
 <table>
 <thead><tr><th>entity_stable_id</th><th>name</th><th>description</th><th>TCGA-AO-A0J</th><th>TCGA-A2-A0Y</th><th>TCGA-A2-A0S</th></tr></thead>

@@ -33,9 +33,14 @@
         <where>
             <if test="sampleIds == null and studyIds != null">
                 cancer_study.CANCER_STUDY_IDENTIFIER IN
-                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                <if test="studyIds.isEmpty()">
+                    (NULL)
+                </if>
+                <if test="!studyIds.isEmpty()">
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
@@ -56,6 +61,7 @@
                 AND patient.STABLE_ID = #{patientId}
             </if>
             <if test="keyword != null">
+                AND
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
                     sample.STABLE_ID like CONCAT('%', #{item}, '%')
                 </foreach>

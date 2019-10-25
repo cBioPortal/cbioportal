@@ -13,7 +13,9 @@ import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -36,16 +38,16 @@ public class SampleServiceImpl implements SampleService {
     private CopyNumberSegmentRepository copyNumberSegmentRepository;
     
     @Override
-    public List<Sample> getAllSamples(String keyword, String projection, Integer pageSize,
-                                      Integer pageNumber, String sort, String direction) {
-        List<Sample> samples = sampleRepository.getAllSamples(keyword, projection, pageSize, pageNumber, sort, direction);
+    public List<Sample> getAllSamples(String keyword, List<String> studyIds, String projection,
+                                      Integer pageSize, Integer pageNumber, String sort, String direction) {
+        List<Sample> samples = sampleRepository.getAllSamples(keyword, studyIds, projection, pageSize, pageNumber, sort, direction);
         processSamples(samples, projection);
         return samples;
     }
 
     @Override
-    public BaseMeta getMetaSamples(String keyword) {
-        return sampleRepository.getMetaSamples(keyword);
+    public BaseMeta getMetaSamples(String keyword, List<String> studyIds) {
+        return sampleRepository.getMetaSamples(keyword, studyIds);
     }
     
     @Override

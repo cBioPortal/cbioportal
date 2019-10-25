@@ -20,15 +20,19 @@ public class SampleMyBatisRepository implements SampleRepository {
     private OffsetCalculator offsetCalculator;
 
     @Override
-    public List<Sample> getAllSamples(String keyword, String projection, Integer pageSize, Integer pageNumber, String sort, String direction) {
-        
-        return sampleMapper.getSamples(null, null, null, keyword, projection, pageSize,
-            offsetCalculator.calculate(pageSize, pageNumber), sort, direction);
+    public List<Sample> getAllSamples(
+        String keyword, List<String> studyIds, String projection,
+        Integer pageSize, Integer pageNumber, String sort, String direction
+    ) {
+        return sampleMapper.getSamples(
+            studyIds, null, null, keyword, projection, pageSize,
+            offsetCalculator.calculate(pageSize, pageNumber), sort, direction
+        );
     }
 
     @Override
-    public BaseMeta getMetaSamples(String keyword) {
-        return sampleMapper.getMetaSamples(null, null, null, keyword);
+    public BaseMeta getMetaSamples(String keyword, List<String> studyIds) {
+        return sampleMapper.getMetaSamples(studyIds, null, null, keyword);
     }
 
     @Override

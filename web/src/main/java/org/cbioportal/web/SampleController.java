@@ -3,8 +3,10 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.model.Sample;
+import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -14,6 +16,7 @@ import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.SampleSortBy;
 import org.cbioportal.web.util.UniqueKeyExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,6 +36,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.Valid;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @PublicApi
 @RestController
@@ -45,14 +49,25 @@ public class SampleController {
 
     @Autowired
     private SampleService sampleService;
+    
+    @Autowired
+    private StudyService studyService;
 
     @Autowired
     private UniqueKeyExtractor uniqueKeyExtractor;
 
-    @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
+    @Value("${authenticate:false}")
+    private String authenticate;
+    
+    private boolean usingAuth() {
+        return !authenticate.isEmpty()
+            && !authenticate.equals("false")
+            && !authenticate.contains("social_auth");
+    }
+    
     @RequestMapping(value = "/samples", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get all samples")
-    public ResponseEntity<List<Sample>> getAllSamples (
+    @ApiOperation("Get all samples matching keyword")
+    public ResponseEntity<List<Sample>> getSamplesByKeyword(
         @ApiParam("Search keyword that applies to the study ID")
         @RequestParam(required = false) String keyword,
         
@@ -75,14 +90,37 @@ public class SampleController {
         @RequestParam(defaultValue = "ASC") Direction direction
     ) {
         String sort = sortBy == null ? null : sortBy.getOriginalValue();
-        
+        List<String> studyIds = null;
+        if (usingAuth()) {
+            /*
+             If using auth, filter the list of samples returned using the list of study ids the
+             user has access to. If the user has access to no studies, the endpoint should not 403,
+             but instead return an empty list.
+            */
+            studyIds = studyService
+                .getAllStudies(
+                    null,
+                    projection.name(),
+                    PagingConstants.MAX_PAGE_SIZE,
+                    0,
+                    null,
+                    direction.name()
+                )
+                .stream()
+                .map(CancerStudy::getCancerStudyIdentifier)
+                .collect(Collectors.toList());
+        }
+
         if (projection == Projection.META) {
             HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.add(HeaderKeyConstants.TOTAL_COUNT, sampleService.getMetaSamples(keyword).getTotalCount().toString());
+            httpHeaders.add(
+                HeaderKeyConstants.TOTAL_COUNT,
+                sampleService.getMetaSamples(keyword, studyIds).getTotalCount().toString()
+            );
             return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
         }
         return new ResponseEntity<>(
-            sampleService.getAllSamples(keyword, projection.name(), pageSize, pageNumber, sort, direction.name()),
+            sampleService.getAllSamples(keyword, studyIds, projection.name(), pageSize, pageNumber, sort, direction.name()),
             HttpStatus.OK
         );
     }

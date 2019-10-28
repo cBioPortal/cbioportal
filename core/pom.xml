@@ -343,7 +343,7 @@
                       <goal>unpack-dependencies</goal>
                   </goals>
                   <configuration>
-                      <includes>cgds.sql</includes>
+                      <includes>cgds-test.sql</includes>
                       <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
                       <includeArtifactIds>db-scripts</includeArtifactIds>
                   </configuration>
@@ -378,7 +378,7 @@
               <sqlCommand>SET storage_engine=INNODB</sqlCommand>
               <sqlCommand>SET SESSION sql_mode = 'ANSI_QUOTES'</sqlCommand>
               <srcFiles>
-                <srcFile>${project.build.testOutputDirectory}/cgds.sql</srcFile>
+                <srcFile>${project.build.testOutputDirectory}/cgds-test.sql</srcFile>
                 <srcFile>src/test/resources/seed_mini.sql</srcFile>
               </srcFiles>
               <!-- added encoding to prevent Unknown initial character set index '192' received from server error -->

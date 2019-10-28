@@ -197,70 +197,70 @@ public class TestImportExtendedMutationData {
 
     }
 
-	/**
-	 * Check that import of oncotated data works
-	 * @throws IOException
-	 * @throws DaoException
-	 */
-	@Test
+    /**
+     * Check that import of oncotated data works
+     * @throws IOException
+     * @throws DaoException
+     */
+    @Test
     public void testImportExtendedMutationDataOncotated() throws IOException, DaoException {
         File file = new File("src/test/resources/data_mutations_oncotated.txt");
         ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null);
         parser.importData();
         MySQLbulkLoader.flushAll();
         
-		ArrayList<ExtendedMutation> mutationList = DaoMutation.getAllMutations(geneticProfileId);
+        ArrayList<ExtendedMutation> mutationList = DaoMutation.getAllMutations(geneticProfileId);
 
-		// assert table size; 3 silent mutations should be rejected
-		assertEquals(17, mutationList.size());
+        // assert table size; 3 silent mutations should be rejected
+        assertEquals(17, mutationList.size());
 
-		// assert data for oncotator columns
-		//assertEquals("FAM90A1", mutationList.get(0).getGeneSymbol());
-		//assertEquals("Missense_Mutation", mutationList.get(1).getOncotatorVariantClassification());
-		//assertEquals("p.R131H", mutationList.get(4).getOncotatorProteinChange());
-		//assertEquals("rs76360727;rs33980232", mutationList.get(9).getOncotatorDbSnpRs());
-//		assertEquals("p.E366_Q409del(13)|p.Q367R(1)|p.E366_K477del(1)",
-//		             mutationList.get(15).getOncotatorCosmicOverlapping());
-}
-	       /**
-	        * Tests custom filtering mutation types option (filtering for missense and nonsensemutations).
-	        * @throws IOException
-	        * @throws DaoException
-	        */
-	       @Test
-	       public void testImportExtendedMutationDataExtendedCustomFiltering() throws IOException, DaoException {
-	                   
-	           MySQLbulkLoader.bulkLoadOn();
-	           
-	           File file = new File("src/test/resources/data_mutations_extended.txt");
-	           Set<String> customFiltering = new HashSet<String>(Arrays.asList("Missense_Mutation", "Nonsense_Mutation"));
-	           ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null, customFiltering);
-	           parser.importData();
-	           MySQLbulkLoader.flushAll();
-	           ConsoleUtil.showMessages();
-	           
-	           rejectMissenseAndNonsenseMutations();
-	       }
+        // assert data for oncotator columns
+        //assertEquals("FAM90A1", mutationList.get(0).getGeneSymbol());
+        //assertEquals("Missense_Mutation", mutationList.get(1).getOncotatorVariantClassification());
+        //assertEquals("p.R131H", mutationList.get(4).getOncotatorProteinChange());
+        //assertEquals("rs76360727;rs33980232", mutationList.get(9).getOncotatorDbSnpRs());
+        //assertEquals("p.E366_Q409del(13)|p.Q367R(1)|p.E366_K477del(1)",
+        //mutationList.get(15).getOncotatorCosmicOverlapping());
+    }
+   /**
+    * Tests custom filtering mutation types option (filtering for missense and nonsensemutations).
+    * @throws IOException
+    * @throws DaoException
+    */
+   @Test
+   public void testImportExtendedMutationDataExtendedCustomFiltering() throws IOException, DaoException {
+
+       MySQLbulkLoader.bulkLoadOn();
+
+       File file = new File("src/test/resources/data_mutations_extended.txt");
+       Set<String> customFiltering = new HashSet<String>(Arrays.asList("Missense_Mutation", "Nonsense_Mutation"));
+       ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null, customFiltering, null);
+       parser.importData();
+       MySQLbulkLoader.flushAll();
+       ConsoleUtil.showMessages();
+
+       rejectMissenseAndNonsenseMutations();
+   }
 	       
-	       /**
-                * Tests custom filtering mutation types option (no filtering at all).
-                * @throws IOException
-                * @throws DaoException
-                */
-               @Test
-               public void testImportExtendedMutationDataExtendedNoFiltering() throws IOException, DaoException {
-                           
-                   MySQLbulkLoader.bulkLoadOn();
-                   
-                   File file = new File("src/test/resources/data_mutations_extended.txt");
-                   Set<String> customFiltering = new HashSet<String>(Arrays.asList(""));
-                   ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null, customFiltering);
-                   parser.importData();
-                   MySQLbulkLoader.flushAll();
-                   ConsoleUtil.showMessages();
-                   
-                   acceptAllMutationTypes();
-               }
+   /**
+    * Tests custom filtering mutation types option (no filtering at all).
+    * @throws IOException
+    * @throws DaoException
+    */
+   @Test
+   public void testImportExtendedMutationDataExtendedNoFiltering() throws IOException, DaoException {
+
+       MySQLbulkLoader.bulkLoadOn();
+
+       File file = new File("src/test/resources/data_mutations_extended.txt");
+       Set<String> customFiltering = new HashSet<String>(Arrays.asList(""));
+       ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, null, customFiltering, null);
+       parser.importData();
+       MySQLbulkLoader.flushAll();
+       ConsoleUtil.showMessages();
+
+       acceptAllMutationTypes();
+   }
 
    private void checkBasicFilteringRules() throws DaoException {
         rejectSilentLOHIntronWildtype();

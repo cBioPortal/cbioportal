@@ -390,6 +390,7 @@ public final class ExtendedMutation
     private String driverFilterAnn;
     private String driverTiersFilter;
     private String driverTiersFilterAnn;
+    private String annotationJson;
 
     public ExtendedMutation() {
         this(new MutationEvent());
@@ -950,37 +951,45 @@ public final class ExtendedMutation
     }
     
     public void setDriverFilter(String driverFilter) {
-    		this.driverFilter = driverFilter;
+        this.driverFilter = driverFilter;
     }
 	
-	public String getDriverFilter() {
-		return driverFilter;
-	}
-	
-	public void setDriverFilterAnn(String driverFilterAnn) {
-		this.driverFilterAnn = driverFilterAnn;
-	}
-	
-	public String getDriverFilterAnn() {
-			return driverFilterAnn;
-	}
-	
-	public void setDriverTiersFilter(String driverTiersFilter) {
-		this.driverTiersFilter = driverTiersFilter;
-	}
-	
-	public String getDriverTiersFilter() {
-			return driverTiersFilter;
-	}
-	
-	public void setDriverTiersFilterAnn(String driverTiersFilterAnn) {
-		this.driverTiersFilterAnn = driverTiersFilterAnn;
-	}
-	
-	public String getDriverTiersFilterAnn() {
-			return driverTiersFilterAnn;
-	}
-    
+    public String getDriverFilter() {
+        return driverFilter;
+    }
+
+    public void setDriverFilterAnn(String driverFilterAnn) {
+        this.driverFilterAnn = driverFilterAnn;
+    }
+
+    public String getDriverFilterAnn() {
+        return driverFilterAnn;
+    }
+
+    public void setDriverTiersFilter(String driverTiersFilter) {
+        this.driverTiersFilter = driverTiersFilter;
+    }
+
+    public String getDriverTiersFilter() {
+        return driverTiersFilter;
+    }
+
+    public void setDriverTiersFilterAnn(String driverTiersFilterAnn) {
+        this.driverTiersFilterAnn = driverTiersFilterAnn;
+    }
+
+    public String getDriverTiersFilterAnn() {
+        return driverTiersFilterAnn;
+    }
+
+    public String getAnnotationJson() {
+        return annotationJson;
+    }
+
+    public void setAnnotationJson(String annotationJson) {
+        this.annotationJson = annotationJson;
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);

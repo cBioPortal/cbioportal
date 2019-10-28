@@ -557,6 +557,7 @@ The mutation metadata file should contain the following fields:
 9. **gene_panel (optional)**: gene panel stable id. See [Gene panels for mutation data](#gene-panels-for-mutation-data).
 10. **swissprot_identifier (optional)**: `accession` or `name`, indicating the type of identifier in the `SWISSPROT` column
 11. **variant_classification_filter (optional)**: List of `Variant_Classifications` values to be filtered out.
+12. **namespaces (optional)**: Comma-delimited list of `namespaces` to import. 
 
 #### Gene panels for mutation data
 Using the `gene_panel` property it is possible to annotate **all samples in the MAF file** as being profiled on the **same** specified gene panel. 
@@ -575,6 +576,9 @@ For example, given `Reference_Allele` = "G", `Tumor_Seq_Allele` = "-", and `Tumo
 
 When curating MAF data, it is best practice to leave `Tumor_Seq_Allele1` empty if this information is not provided in your data source to avoid this ambiguity.
 
+#### Namespaces
+The `namespaces` field can be used to specify additional MAF columns for import. This field should contain a comma seperated list of namespaces. Namespaces can be identified as prefixes to an arbitrary set of additional MAF columns (seperated with a period e.g `ASCN.total_copy_number`, `ASCN.minor_copy_number`). All columns with a prefix matching a namespace specified in the metafile will be imported; columns with an unspecified namespace will be ignored. If no additional columns beyond the required set need to be imported, the field should be left blank. 
+
 #### Example
 An example metadata file would be:
 ```
@@ -586,6 +590,7 @@ show_profile_in_analysis_tab: true
 profile_description: Mutation data from whole exome sequencing.
 profile_name: Mutations
 data_filename: brca_tcga_pub.maf
+namespaces: ASCN
 ```
 
 ### Data file
@@ -673,6 +678,32 @@ You can learn more about configuring these annotations in the [portal.properties
 
 #### Adding your own mutation annotation columns
 Adding additional mutation annotation columns to the extended MAF rows can also be done. In this way, the portal will parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](http://mutationassessor.org/), which leads to a "Mutation Assessor" column in the [mutation table](https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
+
+#### Adding mutation annotation columns through namespaces
+Additional columns may also be added into the MAF and imported through the namespace mechanism. Any columns starting with a prefix specified in the `namespaces` field in the metafile will be imported into the database. Namespace columns should be formatted as the namespace and namespace attribute seperated with a period (e.g ASCN.total_copy_number where ASCN is the namespace and total_copy_number is the attribute). 
+
+An example MAF with the following **additional** columns:
+```
+ASCN.total_copy_number    ASCN.clonal     MUTATION.name    MUTATION.type
+```
+imported with the following `namepsaces` field in the metafile:
+```
+namespaces: ascn
+```
+will import the `ASCN.total_copy_number` and `ASCN.clonal` column into the database. `MUTATION.name` and `MUTATION.type` will be ignored because `mutation` is not specified in the `namespaces` field. 
+
+#### Allele specific copy number (ASCN) annotations
+Allele specific copy number (ASCN) annotation is also supported and may be added using namespaces, described [here](#adding-mutation-annotation-columns-through-namespaces). If ASCN data is present in the MAF, the deployed cBioPortal instance will display additional columns in the mutation table showing ASCN data.
+
+**The ASCN columns below are optional by default. If `ascn` is a defined namespace in `meta_mutations_extended.txt`, then these columns are ALL required. **
+42. **ASCN.ASCN_METHOD (Optional)**: Method used to obtain ASCN data e.g "FACETS"
+43. **ASCN.CCF_M_COPIES (Optional)**: Cancer-cell fraction if mutation exists on major allele. 
+44. **ASCN.CCF_M_COPIES_UPPER (Optional)**: Upper error for CCF estimate.
+45. **ASCN.MUTANT_COPIES (Optional)**:i Estimated number of copies harboring mutant allele.
+46. **ASCN.CLONAL (Optional)**: "True" or "False" whether mutation is clonal.
+47. **ASCN.TOTAL_COPY_NUMBER (Optional)**: Total copy number of the gene
+48. **ASCN.MINOR_COPY_NUMBER (Optional)**: Copy number of the minor allele
+49. **ASCN.ASCN_INTEGER_COPY_NUMER (Optional)**: Absolute integer copy-number estimate.
 
 #### Example MAF
 An example MAF can be found in the cBioPortal test study [study_es_0](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/core/src/test/scripts/test_data/study_es_0/brca_tcga_pub.maf).

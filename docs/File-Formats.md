@@ -1358,7 +1358,7 @@ profile_name: A name describing the analysis.
 profile_description: A description of the data processing done.
 data_filename: <name of generic assay data file>
 show_profile_in_analysis_tab: true
-generic_entity_meta_properties: A comma separate list of generic entity properties, e.g., "name,description"
+generic_entity_meta_properties: A comma separate list of generic entity properties, e.g., "NAME,DESCRIPTION"
 ```
 
 Example:
@@ -1372,14 +1372,14 @@ profile_name: data of mutational signature
 profile_description: Description of data of mutational signature
 data_filename: data_mutational_signature.txt
 show_profile_in_analysis_tab: true
-generic_entity_meta_properties: name,description
+generic_entity_meta_properties: NAME,DESCRIPTION
 ```
 
 #### Note on `stable_id`
-For generic assay, meta files values for `stable_id` are not pre-registered in the cBioPortal implementation, but can be freely chosen by the user. Requirement is that each generic assay meta file is assigned a unique `stable_id` by the user. This requirement is validated by the data validation scripts.
+The `stable_id` for the generic assay datatype is a user defined field. The only requirement is that the `stable_id` is unique across all metafiles in the study.
 
 #### Note on `generic_entity_meta_properties`
-All meta properties must be specified in `generic_entity_meta_properties`. Also, all meta properties specified in `generic_entity_meta_properties` are required to be shown in the data file as same name columns. These fields are free text (e.g., 'name of genetic entity').
+All meta properties must be specified in the `generic_entity_meta_properties` field. Every meta property listed here must appear as a column header in the corresponding data file.
 
 #### Note on `Generic Assay` genetic_alteration_type and `LIMIT-VALUE` datatype
 All generic assay data is registered to be of the type of `genetic_alteration_type` and data type `LIMIT-VALUE`. This alteration and data type is intended to be used for any numerical data set with similar structure (entities measured in samples). The `LIMIT-VALUE` is validated to contain any continuous number optionally prefixed with a '>' or '<' threshold symbol (e.g., '>8.00'). If the value for the generic entity in the respective sample could not (or was not) be measured (or detected), the value should be 'NA'.
@@ -1389,16 +1389,16 @@ The data file will be a simple tab separated format, similar to the expression d
 
 For each generic entity (row) in the data file, the following columns are required in the order specified:
 
-- ***entity_stable_id***: Any unique identifier using a combination of alphanumeric characters, _ and -.
+- ***ENTITY_STABLE_ID***: Any unique identifier using a combination of alphanumeric characters, _ and -.
 
 And:
-- An additional column for each `generic_entity_meta_properties` in the metafile, using the property name as the column header (e.g., 'name').
+- An additional column for each `generic_entity_meta_properties` in the metafile, using the property name as the column header (e.g., 'NAME').
 - An additional column for each sample in the dataset using the sample id as the column header.
 
-Example with 3 generic entities and 3 samples:
+Example with 2 generic entities and 3 samples:
 
 <table>
-<thead><tr><th>entity_stable_id</th><th>name</th><th>description</th><th>TCGA-AO-A0J</th><th>TCGA-A2-A0Y</th><th>TCGA-A2-A0S</th></tr></thead>
+<thead><tr><th>ENTITY_STABLE_ID</th><th>NAME</th><th>DESCRIPTION</th><th>TCGA-AO-A0J</th><th>TCGA-A2-A0Y</th><th>TCGA-A2-A0S</th></tr></thead>
 <tr><td>mut_sig_mean</td><td>name of mean</td><td>description of mean</td><td>0.370</td><td>0.010</td><td>0.005</td></tr>
 <tr><td>mut_sig_confidence</td><td>name of confidence</td><td>description of confidence</td><td>0.653</td><td>0.066</td><td>0.050</td></tr>
 </table>

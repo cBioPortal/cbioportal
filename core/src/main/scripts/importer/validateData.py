@@ -4082,9 +4082,9 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
         super(GenericAssayWiseFileValidator, self).__init__(*args, **kwargs)
         self.REQUIRED_HEADERS.extend([x.strip() for x in self.meta_dict['generic_entity_meta_properties'].split(',')])
 
-    REQUIRED_HEADERS = ['entity_stable_id']
+    REQUIRED_HEADERS = ['ENTITY_STABLE_ID']
     OPTIONAL_HEADERS = []
-    UNIQUE_COLUMNS = ['entity_stable_id']
+    UNIQUE_COLUMNS = ['ENTITY_STABLE_ID']
 
     def parseFeatureColumns(self, nonsample_col_vals):
         """Check the IDs in the first column."""

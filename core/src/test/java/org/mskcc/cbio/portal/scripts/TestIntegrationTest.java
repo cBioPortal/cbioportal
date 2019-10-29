@@ -354,7 +354,7 @@ public class TestIntegrationTest {
             String testMutationalSignatureStableIds = "Nmut";
             String testMutationalSignatureMolecularProfileIds = "study_es_0_mutational_signature";
             assertNotNull(DaoGeneticEntity.getGeneticEntityByStableId(testMutationalSignatureStableIds));
-            // entity_stable_id name description TCGA-A1-A0SB-01 TCGA-A1-A0SD-01
+            // ENTITY_STABLE_ID name description TCGA-A1-A0SB-01 TCGA-A1-A0SD-01
             // TCGA-A1-A0SE-01 TCGA-A1-A0SH-01 TCGA-A2-A04U-01 TCGA-B6-A0RS-01
             // TCGA-BH-A0HP-01 TCGA-BH-A18P-01
             // Nmut ... ... ... 18	3	32	13	3	4	1	7

@@ -1,3 +1,9 @@
+## Oct 30, 2019
+
+*   **Added data** consisting of 178 samples from 2 studies:
+     * [Intrahepatic Cholangiocarcinoma (Shanghai, Nat Commun 2014)](https://www.cbioportal.org/study/summary?id=ihch_smmu_2014) *103 samples* 
+     * [Non-Small Cell Lung Cancer (MSK, Cancer Cell 2018)](https://www.cbioportal.org/study/summary?id=nsclc_mskcc_2018) *75 samples* 
+
 ## October 23, 2019
 * **Enhancement**: Quick example links in Plots tab. [example](https://www.cbioportal.org/results/plots?session_id=5ba11ce6498eb8b3d567e7ed)
 

@@ -96,12 +96,22 @@ public class ImportGeneData extends ConsoleRunnable {
                     String strAliases = parts[4];
                     String strXrefs = parts[5];
                     String cytoband = parts[7];
-                    String chr = cytoband.split("p|q")[0];
+                    String chr = cytoband.split("p|q|;|c")[0]; // various strange characters were found in this column
                     int referenceGenomeId = DaoReferenceGenome.getReferenceGenomeByBuildName(genomeBuild).getReferenceGenomeId();
                     String desc = parts[8];
                     String type = parts[9];
                     String mainSymbol = parts[10]; // use 10 instead of 2 since column 2 may have duplication
                     Set<String> aliases = new HashSet<String>();
+
+                    // try to get chr from other column if needed
+                    if (chr.equals("-")) {
+                        if (!parts[6].equals("-")) {
+                            chr = parts[6];
+                        } else {
+                            // skip line if still unable to parse chr
+                            continue;
+                        }
+                    }
 
                     if (!locusTag.equals("-")) {
                         aliases.add(locusTag);
@@ -504,6 +514,12 @@ public class ImportGeneData extends ConsoleRunnable {
     public static boolean updateLength(String symbol, String chromosome, List<long[]> loci, int refreneceGenomeId) throws IOException, DaoException {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(symbol);
+        
+        if (gene==null) {
+            ProgressMonitor.logWarning("Unable to retrieve gene by symbol: " +symbol);
+            return false;
+        }
+
         System.out.println(" --> update reference genome gene:  " + gene.getHugoGeneSymbolAllCaps());
         DaoReferenceGenomeGene daoReferenceGenomeGene = DaoReferenceGenomeGene.getInstance();
         boolean lengthUpdated = false;

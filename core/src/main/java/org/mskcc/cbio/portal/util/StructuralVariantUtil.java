@@ -150,11 +150,49 @@ public class StructuralVariantUtil {
         return index;
     }
 
+    /**
+     * Determines whether the structural variant record meets the minimal requirements for import.
+     *
+     * Structural variant records are valid if:
+     *   (1) Neither Site 1 or Site 2 Ensembl transcript IDs and exons are defined in the record.
+     *   (2) Both Site 1 and Site 2 Ensmebl transcript IDs and exons are defined in the record.
+     *
+     * If a structural variant record has a mix of defined and missing values for Site 1 or Site 2
+     * Ensembl transcript IDs and/or exons then the structural variant record will not be imported.
+     *
+     * Example (assuming that site 1 and site 2 hugo symbol and/or entrez id are present):
+     *
+     * Valid Record:
+     *     Site 1 Transcript: EST0000024958
+     *     Site 1 Exon: 4
+     *     Site 2 Transcript: EST0001651651
+     *     Site 1 Exon: 2
+     *
+     * Valid Record:
+     *     Site 1 Transcript: NA
+     *     Site 1 Exon: -1
+     *     Site 2 Transcript: NA
+     *     Site 1 Exon: -1
+     *
+     * INVALID Record:
+     *     Site 1 Transcript: EST0000024958
+     *     Site 1 Exon: -1
+     *     Site 2 Transcript: EST0001651651
+     *     Site 1 Exon: -1
+     *
+     * @param record
+     * @return
+     */
     public Boolean hasRequiredStructuralVariantFields(StructuralVariant record) {
-        return !record.getSite1EnsemblTranscriptId().equalsIgnoreCase(TabDelimitedFileUtil.NA_STRING) &&
+        Boolean hasNoEnsemblExonValues = (record.getSite1EnsemblTranscriptId().equalsIgnoreCase(TabDelimitedFileUtil.NA_STRING) &&
+                record.getSite2EnsemblTranscriptId().equalsIgnoreCase(TabDelimitedFileUtil.NA_STRING) &&
+                record.getSite1Exon() == -1 &&
+                record.getSite2Exon() == -1);
+        Boolean hasAllEnsemblExonValues = (!record.getSite1EnsemblTranscriptId().equalsIgnoreCase(TabDelimitedFileUtil.NA_STRING) &&
                 !record.getSite2EnsemblTranscriptId().equalsIgnoreCase(TabDelimitedFileUtil.NA_STRING) &&
                 record.getSite1Exon() != -1 &&
-                record.getSite2Exon() != -1 &&
+                record.getSite2Exon() != -1);
+        return ( hasNoEnsemblExonValues || hasAllEnsemblExonValues ) &&
                 (record.getSite1EntrezGeneId() != Long.MIN_VALUE || !record.getSite1HugoSymbol().equalsIgnoreCase(TabDelimitedFileUtil.NA_STRING)) &&
                 (record.getSite2EntrezGeneId() != Long.MIN_VALUE || !record.getSite2HugoSymbol().equalsIgnoreCase(TabDelimitedFileUtil.NA_STRING));
     }

@@ -164,7 +164,7 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
         
         if (geneticAlterationType == GeneticAlterationType.TREATMENT) {
             // read treatment data
-            int indexStableIdField = getStableIdIndex(headerNames);
+            int indexStableIdField = getTreatmentStableIdIndex(headerNames);
             int indexNameField = getNameIndex(headerNames);
             int indexDescField = getDescIndex(headerNames);
             int indexUrlField = getTreatmentUrlIndex(headerNames);
@@ -267,8 +267,12 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
         return;
     }
     
-    // returns index for entity_stable_id column
+    // returns index for ENTITY_STABLE_ID column
     private static int getStableIdIndex(String[] headers) {
+        return getColIndexByName(headers, "ENTITY_STABLE_ID");
+    }
+    
+    private static int getTreatmentStableIdIndex(String[] headers) {
         return getColIndexByName(headers, "entity_stable_id");
     }
     

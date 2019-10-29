@@ -152,7 +152,7 @@ public class ImportTabDelimData {
                                 && parts[0].equalsIgnoreCase("entity_stable_id");
         boolean genericAssayProfile = geneticProfile!=null
                                 && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY
-                                && parts[0].equalsIgnoreCase("entity_stable_id");
+                                && parts[0].equalsIgnoreCase("ENTITY_STABLE_ID");
         
         int numRecordsToAdd = 0;
         int samplesSkipped = 0;
@@ -178,7 +178,7 @@ public class ImportTabDelimData {
                 }
             } else if (genericAssayProfile) {
                 if (genericAssayIdIndex == -1) {
-                    throw new RuntimeException("Error: the following column should be present for this type of data: entity_stable_id");
+                    throw new RuntimeException("Error: the following column should be present for this type of data: ENTITY_STABLE_ID");
                 }
             } else if (hugoSymbolIndex == -1 && entrezGeneIdIndex == -1) {
                 throw new RuntimeException("Error: at least one of the following columns should be present: Hugo_Symbol or Entrez_Gene_Id");
@@ -926,7 +926,7 @@ public class ImportTabDelimData {
     }
 
     private int getGenericAssayIdIndex(String[] headers) {
-        return getColIndexByName(headers, "entity_stable_id");
+        return getColIndexByName(headers, "ENTITY_STABLE_ID");
     }
     
     private int getHugoSymbolIndex(String[] headers) {
@@ -966,6 +966,7 @@ public class ImportTabDelimData {
         featureColNames.add("Composite.Element.Ref");
         featureColNames.add("geneset_id");
         featureColNames.add("entity_stable_id");
+        featureColNames.add("ENTITY_STABLE_ID");
 
         // Find column relating to meta infomation names via
         // the 'META:'-tag and add to the feature col names

@@ -104,13 +104,13 @@ public class ImportGeneData extends ConsoleRunnable {
                     Set<String> aliases = new HashSet<String>();
 
                     // try to get chr from other column if needed
-                    if (chr.equals("-") && !parts[6].equals("-")) {
-                        chr = parts[6];
-                     } else {
-                        // skip line if still unable to parse chr
-                        continue;
+                    if (chr.equals("-")) {
+                        if (!parts[6].equals("-")) {
+                            chr = parts[6];
+                        } else { 
+                            continue; // skip if both columns are absent
+                        }
                     }
-
                     if (!locusTag.equals("-")) {
                         aliases.add(locusTag);
                     }

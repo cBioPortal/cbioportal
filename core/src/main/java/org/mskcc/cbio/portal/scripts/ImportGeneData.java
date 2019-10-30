@@ -104,13 +104,11 @@ public class ImportGeneData extends ConsoleRunnable {
                     Set<String> aliases = new HashSet<String>();
 
                     // try to get chr from other column if needed
-                    if (chr.equals("-")) {
-                        if (!parts[6].equals("-")) {
-                            chr = parts[6];
-                        } else {
-                            // skip line if still unable to parse chr
-                            continue;
-                        }
+                    if (chr.equals("-") && !parts[6].equals("-")) {
+                        chr = parts[6];
+                     } else {
+                        // skip line if still unable to parse chr
+                        continue;
                     }
 
                     if (!locusTag.equals("-")) {
@@ -515,14 +513,16 @@ public class ImportGeneData extends ConsoleRunnable {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(symbol);
         
-        if (gene==null) {
+        boolean lengthUpdated = false;
+
+        if (gene == null) {
             ProgressMonitor.logWarning("Unable to retrieve gene by symbol: " +symbol);
-            return false;
+            return lengthUpdated;
         }
 
         System.out.println(" --> update reference genome gene:  " + gene.getHugoGeneSymbolAllCaps());
         DaoReferenceGenomeGene daoReferenceGenomeGene = DaoReferenceGenomeGene.getInstance();
-        boolean lengthUpdated = false;
+
         /// Check if the gene is in the database
         ReferenceGenomeGene refGene = daoReferenceGenomeGene.getGene(gene.getEntrezGeneId(), refreneceGenomeId);
         /// If it's not in the database, don't add it

@@ -32,17 +32,12 @@
 
 package org.cbioportal.persistence.util;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 import javax.cache.CacheManager;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.config.Configuration;
 import org.ehcache.config.units.MemoryUnit;
@@ -52,7 +47,6 @@ import org.ehcache.jsr107.EhcacheCachingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.ehcache.impl.config.persistence.DefaultPersistenceConfiguration;
 import org.cbioportal.persistence.CacheEnabledConfig;
 
@@ -182,7 +176,9 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
                 usesDisk = true;
                 break;
             default:
-                messages.append("\n  property ehcache.cache_type has value (" + cacheType + ") which is not a recognized value");
+                messages.append("\n  property ehcache.cache_type has value (")
+                        .append(cacheType)
+                        .append(") which is not a recognized value");
         }
         if (usesDisk || usesHeap) {
             if (xmlConfigurationFile == null || xmlConfigurationFile.trim().length() == 0) {
@@ -190,7 +186,9 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
             } else {
                 URL configFileURL = getClass().getResource(xmlConfigurationFile);
                 if (configFileURL == null) {
-                    messages.append("\n  property ehcache.xml_configuration has value (" + xmlConfigurationFile + ") but this resource is not available to the classloader");
+                    messages.append("\n  property ehcache.xml_configuration has value (")
+                            .append(xmlConfigurationFile)
+                            .append(") but this resource is not available to the classloader");
                 } else {
                     boolean readable = false;
                     try {
@@ -201,7 +199,9 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
                     } catch (IOException e) {
                     }
                     if (!readable) {
-                        messages.append("\n  property ehcache.xml_configuration has value (" + xmlConfigurationFile + ") but an attempt to read from this resource failed");
+                        messages.append("\n  property ehcache.xml_configuration has value (")
+                                .append(xmlConfigurationFile)
+                                .append(") but an attempt to read from this resource failed");
                     }
                 }
             }
@@ -227,13 +227,15 @@ public class CustomEhCachingProvider extends EhcacheCachingProvider {
                 File persistenceDirectory = new File(persistencePath);
                 boolean accessible = false;
                 try {
-                    if (persistenceDirectory.isDirectory()) {
+                    if (persistenceDirectory.isDirectory() && persistenceDirectory.canWrite()) {
                         accessible = true;
                     }
                 } catch (SecurityException e) {
                 }
                 if (!accessible) {
-                    messages.append("\n  property ehcache.persistence_path has value (" + persistencePath + ") but this path does not exist or is not an accessible directory");
+                    messages.append("\n  property ehcache.persistence_path has value (")
+                            .append(persistencePath)
+                            .append(") but this path does not exist or is not an accessible directory");
                 }
             }
         }

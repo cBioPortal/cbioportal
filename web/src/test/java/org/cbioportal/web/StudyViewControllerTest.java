@@ -301,6 +301,56 @@ public class StudyViewControllerTest {
     }
 
     @Test
+    public void fetchFusionGenes() throws Exception {
+
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setCancerStudyIdentifier(TEST_STUDY_ID);
+        Mockito.when(molecularProfileService.getMolecularProfile(Mockito.anyString())).thenReturn(molecularProfile);
+
+        List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
+        SampleIdentifier sampleIdentifier = new SampleIdentifier();
+        sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
+        sampleIdentifier.setStudyId(TEST_STUDY_ID);
+        filteredSampleIdentifiers.add(sampleIdentifier);
+        Mockito.when(studyViewFilterApplier.apply(Mockito.anyObject())).thenReturn(filteredSampleIdentifiers);
+
+        List<MutationCountByGene> fusionCounts = new ArrayList<>();
+        MutationCountByGene fusionCount1 = new MutationCountByGene();
+        fusionCount1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
+        fusionCount1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
+        fusionCount1.setNumberOfAlteredCases(1);
+        fusionCount1.setTotalCount(1);
+        fusionCounts.add(fusionCount1);
+        MutationCountByGene fusionCount2 = new MutationCountByGene();
+        fusionCount2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
+        fusionCount2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
+        fusionCount2.setNumberOfAlteredCases(2);
+        fusionCount2.setTotalCount(2);
+        fusionCounts.add(fusionCount2);
+
+        Mockito.when(mutationService.getSampleCountInMultipleMolecularProfilesForFusions(Mockito.anyListOf(String.class),
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean())).thenReturn(fusionCounts);
+
+        StudyViewFilter studyViewFilter = new StudyViewFilter();
+        studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/fusion-genes/fetch")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(studyViewFilter)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].numberOfAlteredCases").value(2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].totalCount").value(2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].numberOfAlteredCases").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].totalCount").value(1));
+    }
+
+    @Test
     public void fetchCNAGenes() throws Exception {
 
         MolecularProfile molecularProfile = new MolecularProfile();

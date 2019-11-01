@@ -35,6 +35,7 @@ skin.documentation.faq=FAQ.md
 skin.documentation.about=About-Us.md
 skin.documentation.news=News.md
 skin.documentation.oql=Onco-Query-Language.md
+skin.documentation.dat=Authenticating-Users-via-Tokens.md
 
 # setting controlling the logos
 skin.right_logo=
@@ -231,10 +232,9 @@ oncoprint.hotspots.default=true
 # Custom gene sets
 # querypage.setsofgenes.location=file:/<path>
 
-# to enable use of Ehcache, set ehcache.cache_enabled to true and uncomment all Ehcache properties
-ehcache.cache_enabled=false
+# valid cache types are (heap, disk, hybrid), or use 'none' to disable use of Ehcache
+ehcache.cache_type=none
 #ehcache.xml_configuration=/ehcache.xml
-#ehcache.statistics_enabled=true
 # Enable cache statistics endpoint for Ehcache monitoring
 #cache.statistics_endpoint_enabled=false
 

@@ -8,18 +8,7 @@
     http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd
     http://www.ehcache.org/v3/jsr107 http://www.ehcache.org/schema/ehcache-107-ext-3.0.xsd">
 
-    <ehcache:service>
-      <jcache:defaults enable-management="true" enable-statistics="${ehcache.statistics_enabled}"/>
-    </ehcache:service>
-
-    <ehcache:persistence directory="${ehcache.persistence_path}"/><!-- remove if using a heap-only cache -->
-
-    <ehcache:heap-store>
-      <ehcache:max-object-graph-size>9223372036854775807</ehcache:max-object-graph-size><!-- using Long.MAX_VALUE -->
-      <ehcache:max-object-size>9223372036854775807</ehcache:max-object-size><!-- using Long.MAX_VALUE -->
-    </ehcache:heap-store>
-
-    <ehcache:cache alias="GeneralRepositoryCache">
+    <ehcache:cache-template name="RepositoryCacheTemplate">
       <ehcache:expiry>
         <ehcache:none></ehcache:none>
       </ehcache:expiry>
@@ -35,32 +24,6 @@
           <ehcache:events-to-fire-on>UPDATED</ehcache:events-to-fire-on>
         </ehcache:listener>
       </ehcache:listeners>
-      <ehcache:resources>
-        <ehcache:heap unit="MB">${ehcache.general_repository_cache.max_mega_bytes_heap}</ehcache:heap><!-- remove if using a disk-only cache -->
-        <ehcache:disk unit="MB" persistent="false">${ehcache.general_repository_cache.max_mega_bytes_local_disk}</ehcache:disk><!-- remove if using a heap-only cache -->
-      </ehcache:resources>
-    </ehcache:cache>
-
-    <ehcache:cache alias="StaticRepositoryCacheOne">
-      <ehcache:expiry>
-        <ehcache:none></ehcache:none>
-      </ehcache:expiry>
-      <ehcache:listeners>
-        <ehcache:listener>
-          <ehcache:class>org.cbioportal.persistence.util.CacheEventLogger</ehcache:class>
-          <ehcache:event-firing-mode>ASYNCHRONOUS</ehcache:event-firing-mode>
-          <ehcache:event-ordering-mode>UNORDERED</ehcache:event-ordering-mode>
-          <ehcache:events-to-fire-on>CREATED</ehcache:events-to-fire-on>
-          <ehcache:events-to-fire-on>REMOVED</ehcache:events-to-fire-on>
-          <ehcache:events-to-fire-on>EXPIRED</ehcache:events-to-fire-on>
-          <ehcache:events-to-fire-on>EVICTED</ehcache:events-to-fire-on>
-          <ehcache:events-to-fire-on>UPDATED</ehcache:events-to-fire-on>
-        </ehcache:listener>
-      </ehcache:listeners>
-      <ehcache:resources>
-        <ehcache:heap unit="MB">${ehcache.static_repository_cache_one.max_mega_bytes_heap}</ehcache:heap><!-- remove if using a disk-only cache -->
-        <ehcache:disk unit="MB" persistent="false">${ehcache.static_repository_cache_one.max_mega_bytes_local_disk}</ehcache:disk><!-- remove if using a heap-only cache -->
-      </ehcache:resources>
-    </ehcache:cache>
+    </ehcache:cache-template>
 
 </ehcache:config>

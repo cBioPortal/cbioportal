@@ -3,9 +3,9 @@ package org.cbioportal.web.util;
 import com.google.common.collect.Range;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.model.DataBin;
 import org.cbioportal.web.parameter.ClinicalDataBinFilter;
+import org.cbioportal.web.parameter.ClinicalDataType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,21 +39,21 @@ public class DataBinner {
     }
 
     public List<DataBin> calculateClinicalDataBins(ClinicalDataBinFilter clinicalDataBinFilter,
+                                                   ClinicalDataType clinicalDataType,
                                                    List<ClinicalData> filteredClinicalData,
                                                    List<ClinicalData> unfilteredClinicalData,
                                                    List<String> filteredIds,
                                                    List<String> unfilteredIds) {
         // calculate data bins for unfiltered clinical data
         List<DataBin> clinicalDataBins = calculateClinicalDataBins(
-            clinicalDataBinFilter, unfilteredClinicalData, unfilteredIds);
-
+            clinicalDataBinFilter, clinicalDataType, unfilteredClinicalData, unfilteredIds);
         // recount
-        return recalcBinCount(clinicalDataBins, filteredClinicalData, clinicalDataBinFilter.getClinicalDataType(), filteredIds);
+        return recalcBinCount(clinicalDataBins, clinicalDataType, filteredClinicalData, filteredIds);
     }
 
     public List<DataBin> recalcBinCount(List<DataBin> clinicalDataBins,
-                                        List<ClinicalData> clinicalData,
                                         ClinicalDataType clinicalDataType,
+                                        List<ClinicalData> clinicalData,
                                         List<String> ids) {
         List<BigDecimal> numericalValues = clinicalData == null ?
             Collections.emptyList() : filterNumericalValues(clinicalData);
@@ -97,6 +97,7 @@ public class DataBinner {
     }
 
     public List<DataBin> calculateClinicalDataBins(ClinicalDataBinFilter clinicalDataBinFilter,
+                                                   ClinicalDataType clinicalDataType,
                                                    List<ClinicalData> clinicalData,
                                                    List<String> ids) {
         String attributeId = clinicalDataBinFilter.getAttributeId();
@@ -141,7 +142,7 @@ public class DataBinner {
 
             dataBins.addAll(calcNonNumericalClinicalDataBins(attributeId, clinicalData));
 
-            DataBin naDataBin = calcNaDataBin(attributeId, clinicalData, clinicalDataBinFilter.getClinicalDataType() ,ids);
+            DataBin naDataBin = calcNaDataBin(attributeId, clinicalData, clinicalDataType ,ids);
             if (!naDataBin.getCount().equals(0)) {
                 dataBins.add(naDataBin);
             }

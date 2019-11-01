@@ -2,8 +2,6 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 
-import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
-
 public class ClinicalAttributeCount implements Serializable {
 
     private String attrId;

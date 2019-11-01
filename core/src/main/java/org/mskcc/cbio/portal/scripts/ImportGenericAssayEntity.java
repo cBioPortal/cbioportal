@@ -70,9 +70,9 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
         super(args);
     }
 
-    public ImportGenericAssayEntity(File dataFile, EntityType entityType, String columnNames, boolean updateInfo) {
+    public ImportGenericAssayEntity(File dataFile, EntityType entityType, String additionalProperties, boolean updateInfo) {
         // fake the console arguments required by the ConsoleRunnable class
-        super( new String[]{"--data", dataFile.getAbsolutePath(), "--entity-type", entityType.name(), "--column-names", columnNames, "--update-info", updateInfo?"1":"0"});
+        super( new String[]{"--data", dataFile.getAbsolutePath(), "--entity-type", entityType.name(), "--additional-properties", additionalProperties, "--update-info", updateInfo?"1":"0"});
 	}
 
 	@Override
@@ -89,8 +89,8 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
             OptionSpec<String> entityType = parser.accepts("entity-type", "Entity type")
             .withRequiredArg().ofType(String.class);
 
-            // don't require column names
-            OptionSpec<String> columnNames = parser.accepts("column-names", "Column names")
+            // don't require additional properties
+            OptionSpec<String> additionalProperties = parser.accepts("additional-properties", "Additional properties need to be imported")
             .withOptionalArg().ofType(String.class);
             
             OptionSet options = null;
@@ -121,7 +121,7 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
             boolean updateInfo = options.has("update-info");
             
             ProgressMonitor.setCurrentMessage("Adding new generic assay to the database\n");
-            startImport(options, data, entityType, columnNames, updateInfo);
+            startImport(options, data, entityType, additionalProperties, updateInfo);
             
         } catch (RuntimeException e) {
             throw e;
@@ -135,12 +135,12 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
     *
     * @param updateInfo
     */
-    public static void startImport(OptionSet options, OptionSpec<String> data, OptionSpec<String> geneticAlterationType, OptionSpec<String> columnNames, boolean updateInfo) throws Exception {
+    public static void startImport(OptionSet options, OptionSpec<String> data, OptionSpec<String> geneticAlterationType, OptionSpec<String> additionalProperties, boolean updateInfo) throws Exception {
         if (options.hasArgument(data) && options.hasArgument(geneticAlterationType)) {
             File genericAssayFile = new File(options.valueOf(data));
             GeneticAlterationType geneticAlterationTypeArg = GeneticAlterationType.valueOf(options.valueOf(geneticAlterationType));
-            String columnNamesArg = options.valueOf(columnNames);
-            importData(genericAssayFile, geneticAlterationTypeArg, columnNamesArg);
+            String additionalPropertiesArg = options.valueOf(additionalProperties);
+            importData(genericAssayFile, geneticAlterationTypeArg, additionalPropertiesArg);
         }
     }
     
@@ -149,14 +149,14 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
     *
     * @param dataFile
     * @param geneticAlterationType
-    * @param columnNames
+    * @param additionalProperties
     * @throws Exception
     */
-    public static void importData(File dataFile, GeneticAlterationType geneticAlterationType, String columnNames) throws Exception {
+    public static void importData(File dataFile, GeneticAlterationType geneticAlterationType, String additionalProperties) throws Exception {
         
         ProgressMonitor.setCurrentMessage("Reading data from: " + dataFile.getCanonicalPath());
         
-        // read gene set data file - note: this file does not contain headers
+        // read generic assay data file
         FileReader reader = new FileReader(dataFile);
         BufferedReader buf = new BufferedReader(reader);
         String currentLine = buf.readLine();
@@ -167,7 +167,7 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
             int indexStableIdField = getTreatmentStableIdIndex(headerNames);
             int indexNameField = getNameIndex(headerNames);
             int indexDescField = getDescIndex(headerNames);
-            int indexUrlField = getTreatmentUrlIndex(headerNames);
+            int indexUrlField = getUrlIndex(headerNames);
             
             currentLine = buf.readLine();
             
@@ -229,8 +229,8 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
                 // extract fields; replace optional fields with the Stable ID when not set
                 String stableId = parts[indexStableIdField];
                 HashMap<String, String> propertiesMap = new HashMap<>();
-                if (columnNames != null) {
-                    String[] columnNameList = columnNames.trim().split(",");
+                if (additionalProperties != null) {
+                    String[] columnNameList = additionalProperties.trim().split(",");
                     for (String columnName : columnNameList) {
                         int indexAdditionalField = getColIndexByName(headerNames, columnName);
                         if (indexAdditionalField != -1) {
@@ -287,7 +287,7 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
     }
     
     // returns index for treatment linkout url column
-    private static  int getTreatmentUrlIndex(String[] headers) {
+    private static  int getUrlIndex(String[] headers) {
         return getColIndexByName(headers, ImportUtils.metaFieldTag+"url");
     }
     

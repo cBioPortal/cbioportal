@@ -5,13 +5,14 @@ import java.util.List;
 
 public class FusionGeneFilter implements Serializable {
 
-    private List<Integer> entrezGeneIds;
+    private List<String> hugoGeneSymbols;
 
-    public List<Integer> getEntrezGeneIds() {
-        return entrezGeneIds;
+    public List<String> getHugoGeneSymbols() {
+        return hugoGeneSymbols;
     }
 
-    public void setEntrezGeneIds(List<Integer> entrezGeneIds) {
-        this.entrezGeneIds = entrezGeneIds;
+    public void setHugoGeneSymbols(List<String> hugoGeneSymbols) {
+        this.hugoGeneSymbols = hugoGeneSymbols;
     }
+
 }

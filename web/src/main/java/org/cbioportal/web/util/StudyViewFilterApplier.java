@@ -185,9 +185,15 @@ public class StudyViewFilterApplier {
         for (FusionGeneFilter molecularProfileGeneFilter : fusionGenes) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
+            List<Integer> entrezGeneIds = geneService
+                    .fetchGenes(molecularProfileGeneFilter.getHugoGeneSymbols(), GeneIdType.HUGO_GENE_SYMBOL.name(), Projection.SUMMARY.name())
+                    .stream()
+                    .map(gene -> gene.getEntrezGeneId())
+                    .collect(Collectors.toList());
+            
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
             List<Mutation> fusions = mutationService.getMutationsInMultipleMolecularProfiles(molecularProfileService
-                    .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, molecularProfileGeneFilter.getEntrezGeneIds(), Projection.ID.name(), null, null, null, null);
+                    .getFirstMutationProfileIds(studyIds, sampleIds), sampleIds, entrezGeneIds, Projection.ID.name(), null, null, null, null);
             sampleIdentifiers = fusions.stream().map(m -> {
                 SampleIdentifier sampleIdentifier = new SampleIdentifier();
                 sampleIdentifier.setSampleId(m.getSampleId());

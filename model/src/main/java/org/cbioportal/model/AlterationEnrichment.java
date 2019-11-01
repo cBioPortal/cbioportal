@@ -13,7 +13,6 @@ public class AlterationEnrichment implements Serializable {
     @NotNull
     private String hugoGeneSymbol;
     private String cytoband;
-    @NotNull
     private BigDecimal pValue;
     @NotNull
     private List<CountSummary> counts;

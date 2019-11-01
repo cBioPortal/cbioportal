@@ -1,3 +1,35 @@
+## Oct 30, 2019
+
+*   **Added data** consisting of 178 samples from 2 studies:
+     * [Intrahepatic Cholangiocarcinoma (Shanghai, Nat Commun 2014)](https://www.cbioportal.org/study/summary?id=ihch_smmu_2014) *103 samples* 
+     * [Non-Small Cell Lung Cancer (MSK, Cancer Cell 2018)](https://www.cbioportal.org/study/summary?id=nsclc_mskcc_2018) *75 samples* 
+
+## October 23, 2019
+* **Enhancement**: Quick example links in Plots tab. [example](https://www.cbioportal.org/results/plots?session_id=5ba11ce6498eb8b3d567e7ed)
+
+## October 11, 2019
+* **Enhancement**: The Download interface on the homepage has been removed. Enhanced download functionality is now available after querying on the results page.
+
+    _Home page_:
+    
+    ![homepage download tab removed](https://user-images.githubusercontent.com/1334004/66735303-48627e00-ee66-11e9-863f-5ec713ea444a.png)
+    
+    _Results page_:
+    
+    ![results page download tab](https://user-images.githubusercontent.com/1334004/66736057-7ea0fd00-ee68-11e9-942b-e123b9659126.png)
+    
+    Note that as before one can always download the full raw data on the [Data Sets page](https://www.cbioportal.org/datasets) or from [Datahub](https://github.com/cBioPortal/datahub/).
+ 
+## October 9, 2019
+*  **Added data** consisting of  2725 samples from 4 studies:
+   
+     * [Cancer Cell Line Encyclopedia (Broad, 2019)](https://www.cbioportal.org/study/summary?id=ccle_broad_2019) *1739 samples*
+    * [Chronic Lymphocytic Leukemia (Broad, Nature 2015)](https://www.cbioportal.org/study/summary?id=cll_broad_2015#summary) *537 samples* 
+    * [Rectal Cancer (MSK,Nature Medicine 2019)](https://www.cbioportal.org/study/summary?id=rectal_msk_2019) *339 samples* 
+    * [Colon Cancer (CPTAC-2 Prospective, Cell 2019)](https://www.cbioportal.org/study/summary?id=coad_cptac_2019) *110 samples*
+
+  *  **Updated**  [Esophageal Carcinoma (TCGA, Nature 2017)](https://www.cbioportal.org/study/summary?id=stes_tcga_pub#summary) with addition of CNA data for Esophageal Squamous Cell Carcinoma cases *90 samples*. 
+
 ## September 18, 2019
 * **New Feature**: The list and order of charts of a study will be automatically saved now as a user preference on the _study view_ page.
 

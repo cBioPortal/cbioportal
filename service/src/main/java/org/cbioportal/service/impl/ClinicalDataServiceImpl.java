@@ -1,26 +1,16 @@
 package org.cbioportal.service.impl;
 
-import org.cbioportal.model.ClinicalData;
-import org.cbioportal.model.Patient;
-import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
-import org.cbioportal.model.ClinicalDataCount;
-import org.cbioportal.model.ClinicalDataCountItem;
+import org.cbioportal.model.*;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.ClinicalDataRepository;
-import org.cbioportal.service.ClinicalDataService;
-import org.cbioportal.service.PatientService;
-import org.cbioportal.service.SampleService;
-import org.cbioportal.service.StudyService;
-import org.cbioportal.service.exception.PatientNotFoundException;
-import org.cbioportal.service.exception.SampleNotFoundException;
-import org.cbioportal.service.exception.StudyNotFoundException;
+import org.cbioportal.service.*;
+import org.cbioportal.service.exception.*;
+import org.cbioportal.service.util.ClinicalAttributeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +24,10 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     private PatientService patientService;
     @Autowired
     private SampleService sampleService;
+    @Autowired
+    private ClinicalAttributeService clinicalAttributeService;
+    @Autowired
+    private ClinicalAttributeUtil clinicalAttributeUtil ;
 
     @Override
     public List<ClinicalData> getAllClinicalDataOfSampleInStudy(String studyId, String sampleId, String attributeId, 
@@ -133,53 +127,100 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
 
 	@Override
 	public List<ClinicalDataCountItem> fetchClinicalDataCounts(List<String> studyIds, List<String> sampleIds,
-			List<String> attributeIds, ClinicalDataType clinicalDataType) {
+            List<String> attributeIds) {
 
         if (attributeIds.isEmpty()) {
             return new ArrayList<>();
         }
-        List<ClinicalDataCount> clinicalDataCounts = clinicalDataRepository.fetchClinicalDataCounts(studyIds, sampleIds,
-            attributeIds, clinicalDataType.name()).stream().filter(c -> !c.getValue().toUpperCase().equals("NA") && 
-            !c.getValue().toUpperCase().equals("NAN") && !c.getValue().toUpperCase().equals("N/A")).collect(Collectors.toList());
 
-        Map<String, List<ClinicalDataCount>> clinicalDataCountMap = clinicalDataCounts.stream().collect(
-            Collectors.groupingBy(ClinicalDataCount::getAttributeId));
+        List<ClinicalAttribute> clinicalAttributes = clinicalAttributeService
+                .getClinicalAttributesByStudyIdsAndAttributeIds(studyIds, attributeIds);
 
-        List<ClinicalDataCountItem> result = new ArrayList<>();
-        attributeIds.forEach(a -> {
+        List<String> sampleAttributeIds = new ArrayList<>();
+        List<String> patientAttributeIds = new ArrayList<>();
+        // patient attributes which are also sample attributes in other studies
+        List<String> conflictingPatientAttributeIds = new ArrayList<>();
+
+        clinicalAttributeUtil.extractCategorizedClinicalAttributes(clinicalAttributes, sampleAttributeIds,
+                patientAttributeIds, conflictingPatientAttributeIds);
+
+        List<ClinicalDataCount> clinicalDataCounts = new ArrayList<ClinicalDataCount>();
+        if (!sampleAttributeIds.isEmpty()) {
+            clinicalDataCounts.addAll(clinicalDataRepository.fetchClinicalDataCounts(studyIds, sampleIds,
+                    sampleAttributeIds, "SAMPLE", "SUMMARY"));
+        }
+
+        if (!patientAttributeIds.isEmpty()) {
+            clinicalDataCounts.addAll(clinicalDataRepository.fetchClinicalDataCounts(studyIds, sampleIds,
+                    patientAttributeIds, "PATIENT", "SUMMARY"));
+        }
+
+        if (!conflictingPatientAttributeIds.isEmpty()) {
+            clinicalDataCounts.addAll(clinicalDataRepository.fetchClinicalDataCounts(studyIds, sampleIds,
+                    conflictingPatientAttributeIds, "PATIENT", "DETAILED"));
+        }
+
+        sampleAttributeIds.addAll(conflictingPatientAttributeIds);
+
+        clinicalDataCounts = clinicalDataCounts
+                .stream().filter(c -> !c.getValue().toUpperCase().equals("NA")
+                        && !c.getValue().toUpperCase().equals("NAN") && !c.getValue().toUpperCase().equals("N/A"))
+                .collect(Collectors.toList());
+
+        Map<String, List<ClinicalDataCount>> clinicalDataCountMap = clinicalDataCounts.stream()
+                .collect(Collectors.groupingBy(ClinicalDataCount::getAttributeId));
+
+        List<Patient> patients = new ArrayList<Patient>();
+        if (!patientAttributeIds.isEmpty()) {
+            patients.addAll(patientService.getPatientsOfSamples(studyIds, sampleIds));
+        }
+
+        HashSet<String> uniqueAttributeIds = new HashSet<>(attributeIds);
+
+        return uniqueAttributeIds.stream().map(attributeId -> {
 
             int naCount = 0;
-            int totalCount = 0; 
-            List<ClinicalDataCount> counts = clinicalDataCountMap.get(a);
-            if (counts != null) {
-                totalCount = counts.stream().mapToInt(ClinicalDataCount::getCount).sum();
-            } else {
-                counts = new ArrayList<>();
-                clinicalDataCountMap.put(a, counts);
+            int totalCount = 0;
+            List<ClinicalDataCount> counts = clinicalDataCountMap.getOrDefault(attributeId, new ArrayList<>());
+
+            if (conflictingPatientAttributeIds.contains(attributeId)) {
+                // if its a conflicting attribute then sum all counts
+                counts = counts.stream().collect(Collectors.toMap(ClinicalDataCount::getValue, Function.identity(),
+                        (clinicalDataCount1, clinicalDataCount2) -> {
+                            clinicalDataCount1.setCount(clinicalDataCount1.getCount() + clinicalDataCount2.getCount());
+                            return clinicalDataCount1;
+                        })).values().stream().collect(Collectors.toList());
             }
 
-            if (clinicalDataType == ClinicalDataType.SAMPLE) {
+            if (!counts.isEmpty()) {
+                totalCount = counts.stream().mapToInt(ClinicalDataCount::getCount).sum();
+            }
+
+            if (sampleAttributeIds.contains(attributeId)) {
                 naCount = sampleIds.size() - totalCount;
             } else {
-                List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);
                 naCount = patients.size() - totalCount;
             }
-            
+
             if (naCount > 0) {
                 ClinicalDataCount clinicalDataCount = new ClinicalDataCount();
-                clinicalDataCount.setAttributeId(a);
+                clinicalDataCount.setAttributeId(attributeId);
                 clinicalDataCount.setValue("NA");
                 clinicalDataCount.setCount(naCount);
                 counts.add(clinicalDataCount);
             }
 
             ClinicalDataCountItem clinicalDataCountItem = new ClinicalDataCountItem();
-            clinicalDataCountItem.setAttributeId(a);
-            clinicalDataCountItem.setClinicalDataType(clinicalDataType);
-            clinicalDataCountItem.setCounts(clinicalDataCountMap.get(a));
-            result.add(clinicalDataCountItem);
-        });
-        
-        return result;
-	}
+            clinicalDataCountItem.setAttributeId(attributeId);
+            clinicalDataCountItem.setCounts(counts);
+            return clinicalDataCountItem;
+
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ClinicalData> getPatientClinicalDataDetailedToSample(List<String> studyIds, List<String> patientIds,
+            List<String> attributeIds) {
+        return clinicalDataRepository.getPatientClinicalDataDetailedToSample(studyIds, patientIds, attributeIds);
+    }
 }

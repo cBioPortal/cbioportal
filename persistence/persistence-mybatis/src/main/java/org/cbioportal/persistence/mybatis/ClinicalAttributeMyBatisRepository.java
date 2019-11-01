@@ -79,4 +79,10 @@ public class ClinicalAttributeMyBatisRepository implements ClinicalAttributeRepo
 
         return clinicalAttributeMapper.getClinicalAttributeCountsBySampleListId(sampleListId);
     }
+
+    @Override
+    public List<ClinicalAttribute> getClinicalAttributesByStudyIdsAndAttributeIds(List<String> studyIds,
+            List<String> attributeIds) {
+        return clinicalAttributeMapper.getClinicalAttributesByStudyIdsAndAttributeIds(studyIds, attributeIds);
+    }
 }

@@ -4,7 +4,6 @@ import org.apache.commons.collections.map.MultiKeyMap;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.PatientService;
-import org.cbioportal.service.SampleService;
 import org.cbioportal.web.parameter.ClinicalDataEqualityFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,9 +16,8 @@ public class ClinicalDataEqualityFilterApplier extends ClinicalDataFilterApplier
     @Autowired
     public ClinicalDataEqualityFilterApplier(PatientService patientService,
                                              ClinicalDataService clinicalDataService,
-                                             SampleService sampleService,
                                              StudyViewFilterUtil studyViewFilterUtil) {
-        super(patientService, clinicalDataService, sampleService, studyViewFilterUtil);
+        super(patientService, clinicalDataService, studyViewFilterUtil);
     }
 
     @Override

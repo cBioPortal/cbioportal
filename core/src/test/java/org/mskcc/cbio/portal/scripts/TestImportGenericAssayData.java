@@ -68,7 +68,7 @@ public class TestImportGenericAssayData {
         ProgressMonitor.setConsoleMode(false);
         
         // Open genesets test data file
-        File file = new File("core/src/test/resources/treatments/data_treatment_ic50.txt");
+        File file = new File("src/test/resources/treatments/data_treatment_ic50.txt");
         
         // import data and test all treatments were added
         ImportGenericAssayEntity.importData(file, GeneticAlterationType.TREATMENT, null);
@@ -84,7 +84,7 @@ public class TestImportGenericAssayData {
         assertEquals("Url of Irinotecan", treatment1.getRefLink());
 
         // test fields are updated after loading new treatment file
-        File fileNewDesc = new File("core/src/test/resources/treatments/data_treatment_ic50_newdesc.txt");
+        File fileNewDesc = new File("src/test/resources/treatments/data_treatment_ic50_newdesc.txt");
         ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.TREATMENT, null);
         Treatment treatment3 = DaoTreatment.getTreatmentByStableId("Irinotecan");
         assertEquals("New desc of Irinotecan", treatment3.getDescription());
@@ -97,7 +97,7 @@ public class TestImportGenericAssayData {
         ProgressMonitor.setConsoleMode(false);
         
         // Open mutational signature test data file
-        File file = new File("core/src/test/resources/data_mutational_signature.txt");
+        File file = new File("src/test/resources/data_mutational_signature.txt");
         
         // import data and test all mutational signatures were added
         ImportGenericAssayEntity.importData(file, GeneticAlterationType.GENERIC_ASSAY, "name,description");
@@ -111,8 +111,8 @@ public class TestImportGenericAssayData {
         assertEquals("mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("name"));
         assertEquals("mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("description"));
 
-        // // test fields should not updated after loading new generic assay meta file
-        File fileNewDesc = new File("core/src/test/resources/data_mutational_signature_new.txt");
+        // // test fields are updated after loading new generic assay meta file
+        File fileNewDesc = new File("src/test/resources/data_mutational_signature_new.txt");
         ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.GENERIC_ASSAY, "name,description,additional_properties");
         GenericAssayMeta genericAssayMeta2 = DaoGenericAssay.getGenericAssayMetaByStableId("mean_1");
         assertEquals("mean_1", genericAssayMeta2.getGenericEntityMetaProperties().get("description"));

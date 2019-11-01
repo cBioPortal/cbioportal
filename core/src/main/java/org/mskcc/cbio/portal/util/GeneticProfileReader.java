@@ -119,7 +119,7 @@ public class GeneticProfileReader {
         }
         
         if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.TREATMENT) {
-            validateTreatment(geneticProfile, file);
+            validateTreatmentResponse(geneticProfile, file);
             geneticProfile.setPivotThreshold( Float.parseFloat( geneticProfile.getOtherMetaDataField("pivot_threshold_value") ) );
             geneticProfile.setSortOrder( geneticProfile.getOtherMetaDataField("value_sort_order") );
         }
@@ -205,7 +205,7 @@ public class GeneticProfileReader {
     /**
      * Check whether required columns for assay response data were defined in the meta file
      */
-    private static void validateTreatment(GeneticProfile geneticProfile, File file) {
+    private static void validateTreatmentResponse(GeneticProfile geneticProfile, File file) {
         if (geneticProfile.getOtherMetaDataField("pivot_threshold_value") == null)
             throw new RuntimeException("Missing `pivot_threshold_value` property in '" + file.getPath() + "' meta data file.");
 

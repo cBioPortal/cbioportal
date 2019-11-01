@@ -138,19 +138,19 @@ public class ImportTabDelimData {
         String parts[] = headerLine.split("\t");
         
         //Whether data regards CNA or RPPA:
-        boolean discretizedCnaProfile = geneticProfile!=null
+        boolean isDiscretizedCnaProfile = geneticProfile!=null
                                         && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
                                         && geneticProfile.showProfileInAnalysisTab();
-        boolean rppaProfile = geneticProfile!=null
+        boolean isRppaProfile = geneticProfile!=null
                                 && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_LEVEL
                                 && "Composite.Element.Ref".equalsIgnoreCase(parts[0]);
-        boolean gsvaProfile = geneticProfile!=null
+        boolean isGsvaProfile = geneticProfile!=null
                                 && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE
                                 && parts[0].equalsIgnoreCase("geneset_id");
-        boolean treatmentProfile = geneticProfile!=null
+        boolean isTreatmentProfile = geneticProfile!=null
                                 && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.TREATMENT
                                 && parts[0].equalsIgnoreCase("entity_stable_id");
-        boolean genericAssayProfile = geneticProfile!=null
+        boolean isGenericAssayProfile = geneticProfile!=null
                                 && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY
                                 && parts[0].equalsIgnoreCase("ENTITY_STABLE_ID");
         
@@ -164,19 +164,19 @@ public class ImportTabDelimData {
             int sampleStartIndex = getStartIndex(parts, hugoSymbolIndex, entrezGeneIdIndex, rppaGeneRefIndex, genesetIdIndex);
             int treatmentIdIndex = getTreatmentIdIndex(parts);
             int genericAssayIdIndex = getGenericAssayIdIndex(parts);
-            if (rppaProfile) {
+            if (isRppaProfile) {
                 if (rppaGeneRefIndex == -1) {
                     throw new RuntimeException("Error: the following column should be present for RPPA data: Composite.Element.Ref");
                 }
-            } else if (gsvaProfile) {
+            } else if (isGsvaProfile) {
                 if (genesetIdIndex == -1) {
                     throw new RuntimeException("Error: the following column should be present for gene set score data: geneset_id");
                 }
-            } else if (treatmentProfile) {
+            } else if (isTreatmentProfile) {
                 if (treatmentIdIndex == -1) {
                     throw new RuntimeException("Error: the following column should be present for this type of data: entity_stable_id");
                 }
-            } else if (genericAssayProfile) {
+            } else if (isGenericAssayProfile) {
                 if (genericAssayIdIndex == -1) {
                     throw new RuntimeException("Error: the following column should be present for this type of data: ENTITY_STABLE_ID");
                 }
@@ -232,7 +232,7 @@ public class ImportTabDelimData {
     
             //cache for data found in  cna_event' table:
             Map<CnaEvent.Event, CnaEvent.Event> existingCnaEvents = null;            
-            if (discretizedCnaProfile) {
+            if (isDiscretizedCnaProfile) {
                 existingCnaEvents = new HashMap<CnaEvent.Event, CnaEvent.Event>();
                 for (CnaEvent.Event event : DaoCnaEvent.getAllCnaEvents()) {
                     existingCnaEvents.put(event, event);
@@ -249,19 +249,19 @@ public class ImportTabDelimData {
                 boolean recordAdded = false;
                 
                 // either parse line as geneset or gene for importing into 'genetic_alteration' table
-                if (gsvaProfile) {
+                if (isGsvaProfile) {
                     recordAdded = parseGenesetLine(line, lenParts, sampleStartIndex, genesetIdIndex, 
                             filteredSampleIndices, daoGeneticAlteration);
-                } else if (treatmentProfile) {
+                } else if (isTreatmentProfile) {
                     recordAdded = parseTreatmentLine(line, lenParts, sampleStartIndex, treatmentIdIndex, 
                             filteredSampleIndices, daoGeneticAlteration);
-                } else if (genericAssayProfile) {
+                } else if (isGenericAssayProfile) {
                     recordAdded = parseGenericAssayLine(line, lenParts, sampleStartIndex, genericAssayIdIndex, 
                             filteredSampleIndices, daoGeneticAlteration);
                 } else {
                     recordAdded = parseLine(line, lenParts, sampleStartIndex, 
                             hugoSymbolIndex, entrezGeneIdIndex, rppaGeneRefIndex, 
-                            rppaProfile, discretizedCnaProfile,
+                            isRppaProfile, isDiscretizedCnaProfile,
                             daoGene, 
                             filteredSampleIndices, orderedSampleList, 
                             existingCnaEvents, daoGeneticAlteration);
@@ -281,7 +281,7 @@ public class ImportTabDelimData {
                MySQLbulkLoader.flushAll();
             }
             
-            if (rppaProfile) {
+            if (isRppaProfile) {
                 ProgressMonitor.setCurrentMessage(" --> total number of extra records added because of multiple genes in one line:  " + nrExtraRecords);
             }
             if (entriesSkipped > 0) {
@@ -396,8 +396,8 @@ public class ImportTabDelimData {
     * @param  hugoSymbolIndex           the index of the column Hugo_Symbol
     * @param  entrezGeneIdIndex         the index of the column Entrez_Gene_Id
     * @param  rppaGeneRefIndex          the index of the column Composite.Element.Ref
-    * @param  rppaProfile               true if this is an rppa profile (i.e. alteration type is PROTEIN_LEVEL and the first column is Composite.Element.Ref)
-    * @param  discretizedCnaProfile     true if this is a discretized CNA profile (i.e. alteration type COPY_NUMBER_ALTERATION and showProfileInAnalysisTab is true)
+    * @param  isRppaProfile               true if this is an rppa profile (i.e. alteration type is PROTEIN_LEVEL and the first column is Composite.Element.Ref)
+    * @param  isDiscretizedCnaProfile     true if this is a discretized CNA profile (i.e. alteration type COPY_NUMBER_ALTERATION and showProfileInAnalysisTab is true)
     * @param  daoGene                   an instance of DaoGeneOptimized ... for use in resolving gene symbols
     * @param  filteredSampleIndicesList not used (dead code)
     * @param  orderedSampleList         a list of the internal sample ids corresponding to the sample names in the header line
@@ -408,7 +408,7 @@ public class ImportTabDelimData {
     */
     private boolean parseLine(String line, int nrColumns, int sampleStartIndex, 
             int hugoSymbolIndex, int entrezGeneIdIndex, int rppaGeneRefIndex,
-            boolean rppaProfile, boolean discretizedCnaProfile,
+            boolean isRppaProfile, boolean isDiscretizedCnaProfile,
             DaoGeneOptimized daoGene,
             List <Integer> filteredSampleIndices, List <Integer> orderedSampleList,
             Map<CnaEvent.Event, CnaEvent.Event> existingCnaEvents, DaoGeneticAlteration daoGeneticAlteration
@@ -443,7 +443,7 @@ public class ImportTabDelimData {
             if (geneSymbol!=null && geneSymbol.isEmpty()) {
                 geneSymbol = null;
             }
-            if (rppaProfile && geneSymbol == null) {
+            if (isRppaProfile && geneSymbol == null) {
                 ProgressMonitor.logWarning("Ignoring line with no Composite.Element.REF value");
                 return false;
             }
@@ -480,7 +480,7 @@ public class ImportTabDelimData {
                 } else {
                     List<CanonicalGene> genes = null;
                     //If rppa, parse genes from "Composite.Element.REF" column:
-                    if (rppaProfile) {
+                    if (isRppaProfile) {
                         genes = parseRPPAGenes(geneSymbol);
                         if (genes == null) {
                             //will be null when there is a parse error in this case, so we
@@ -564,7 +564,7 @@ public class ImportTabDelimData {
                         if (genes.size() == 1) {
                             List<CnaEvent> cnaEventsToAdd = new ArrayList<CnaEvent>();
                         
-                            if (discretizedCnaProfile) {
+                            if (isDiscretizedCnaProfile) {
                                 long entrezGeneId = genes.get(0).getEntrezGeneId();
                                 for (int i = 0; i < values.length; i++) {
                                  
@@ -598,7 +598,7 @@ public class ImportTabDelimData {
                                 }
                             }                            
                         } else {
-                            if (rppaProfile) { // for protein data, duplicate the data
+                            if (isRppaProfile) { // for protein data, duplicate the data
                                 for (CanonicalGene gene : genes) {
                                     boolean result = storeGeneticAlterations(values, daoGeneticAlteration, gene, geneSymbol);
                                     if (result == true) {

@@ -130,6 +130,8 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
         private Layout layout;
         private Boolean patientAttribute;
         private Boolean filterByCancerGenes;
+        private List<Integer> customBins;
+        private Boolean disableLogScale;
 
         public String getId() {
             return id;
@@ -185,6 +187,22 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
 
         public void setFilterByCancerGenes(Boolean filterByCancerGenes) {
             this.filterByCancerGenes = filterByCancerGenes;
+        }
+
+        public List<Integer> getCustomBins() {
+            return customBins;
+        }
+
+        public void setCustomBins(List<Integer> customBins) {
+            this.customBins = customBins;
+        }
+
+        public Boolean getDisableLogScale() {
+            return disableLogScale;
+        }
+
+        public void setDisableLogScale(Boolean disableLogScale) {
+            this.disableLogScale = disableLogScale;
         }
 
     }

@@ -41,9 +41,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.GenesetMolecularData;
+import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.model.TreatmentMolecularData;
+import org.cbioportal.persistence.PersistenceConstants;
+import org.cbioportal.service.GenericAssayService;
 import org.cbioportal.service.GenesetDataService;
+import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.service.TreatmentDataService;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -57,6 +62,7 @@ import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneset;
+import org.mskcc.cbio.portal.dao.DaoGeneticEntity;
 import org.mskcc.cbio.portal.dao.DaoGistic;
 import org.mskcc.cbio.portal.dao.DaoTreatment;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
@@ -84,8 +90,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-import org.cbioportal.model.StructuralVariant;
-import org.cbioportal.service.StructuralVariantService;
 
 /**
  * Integration test using the same data that is used by validation system test
@@ -346,8 +350,20 @@ public class TestIntegrationTest {
             assertEquals(1, sampleLists.size());
             assertEquals("this is an optional custom case list", sampleLists.get(0).name);
 
-            // ===== check mutsig
-            // TODO
+            // ===== check mutational signature
+            String testMutationalSignatureStableIds = "Nmut";
+            String testMutationalSignatureMolecularProfileIds = "study_es_0_mutational_signature";
+            assertNotNull(DaoGeneticEntity.getGeneticEntityByStableId(testMutationalSignatureStableIds));
+            // ENTITY_STABLE_ID name description TCGA-A1-A0SB-01 TCGA-A1-A0SD-01
+            // TCGA-A1-A0SE-01 TCGA-A1-A0SH-01 TCGA-A2-A04U-01 TCGA-B6-A0RS-01
+            // TCGA-BH-A0HP-01 TCGA-BH-A18P-01
+            // Nmut ... ... ... 18	3	32	13	3	4	1	7
+            GenericAssayService genericAssayService = applicationContext.getBean(GenericAssayService.class);
+            List<GenericAssayData> mutationalSignatureData = genericAssayService.getGenericAssayDataInMultipleMolecularProfiles(Arrays.asList(testMutationalSignatureMolecularProfileIds),
+                    Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SH-01"), Arrays.asList(testMutationalSignatureStableIds), PersistenceConstants.SUMMARY_PROJECTION);
+            assertEquals(2, mutationalSignatureData.size());
+            assertEquals("18", mutationalSignatureData.get(0).getValue());
+            assertEquals("13", mutationalSignatureData.get(1).getValue());
 
             // ===== check GSVA data
             // ...

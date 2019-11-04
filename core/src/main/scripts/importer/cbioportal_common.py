@@ -60,6 +60,7 @@ class MetaFileTypes(object):
     GENE_PANEL_MATRIX = 'meta_gene_panel_matrix'
     GSVA_SCORES = 'meta_gsva_scores'
     GSVA_PVALUES = 'meta_gsva_pvalues'
+    TREATMENT = 'meta_treatment'
     GENERIC_ASSAY = 'meta_generic_assay'
     STRUCTURAL_VARIANT = 'meta_structural_variants'
 
@@ -252,7 +253,7 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'geneset_def_version': True
     },
-    MetaFileTypes.GENERIC_ASSAY: {
+    MetaFileTypes.TREATMENT: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -263,6 +264,18 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'pivot_threshold_value': True,
         'value_sort_order': True
+    },
+    MetaFileTypes.GENERIC_ASSAY: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'generic_assay_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+        'show_profile_in_analysis_tab': True,
+        'generic_entity_meta_properties': False
     },
     MetaFileTypes.STRUCTURAL_VARIANT: {
         'cancer_study_identifier': True,
@@ -298,6 +311,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.GENE_PANEL_MATRIX: "org.mskcc.cbio.portal.scripts.ImportGenePanelProfileMap",
     MetaFileTypes.GSVA_SCORES: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.GSVA_PVALUES: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.TREATMENT: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.GENERIC_ASSAY: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.STRUCTURAL_VARIANT: "org.mskcc.cbio.portal.scripts.ImportProfileData"
 }
@@ -561,6 +575,7 @@ def get_meta_file_type(meta_dictionary, logger, filename):
         ("MUTSIG", "Q-VALUE"): MetaFileTypes.MUTATION_SIGNIFICANCE,
         ("GENESET_SCORE", "GSVA-SCORE"): MetaFileTypes.GSVA_SCORES,
         ("GENESET_SCORE", "P-VALUE"): MetaFileTypes.GSVA_PVALUES,
+        ("TREATMENT", "LIMIT-VALUE"): MetaFileTypes.TREATMENT,
         ("GENERIC_ASSAY", "LIMIT-VALUE"): MetaFileTypes.GENERIC_ASSAY
     }
     result = None

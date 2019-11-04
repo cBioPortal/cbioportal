@@ -6,18 +6,12 @@ import javax.validation.constraints.NotNull;
 
 public class CoExpression implements Serializable {
 
-    public enum GeneticEntityType {
-
-        GENE,
-        GENESET
-    }
-
     @NotNull
     private String geneticEntityId;
     @NotNull
     private String geneticEntityName;
     @NotNull
-    private GeneticEntityType geneticEntityType;
+    private EntityType geneticEntityType;
     @NotNull
     private String cytoband;
     @NotNull
@@ -41,11 +35,11 @@ public class CoExpression implements Serializable {
         this.geneticEntityName = geneticEntityName;
     }
     
-    public GeneticEntityType getGeneticEntityType() {
+    public EntityType getGeneticEntityType() {
         return geneticEntityType;
     }
 
-    public void setGeneticEntityType(GeneticEntityType geneticEntityType) {
+    public void setGeneticEntityType(EntityType geneticEntityType) {
         this.geneticEntityType = geneticEntityType;
     }
 

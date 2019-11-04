@@ -117,11 +117,16 @@ public class GeneticProfileReader {
     	if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE) {
             validateGenesetProfile(geneticProfile, file);
         }
+        
+        if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.TREATMENT) {
+            validateTreatmentResponse(geneticProfile, file);
+            geneticProfile.setPivotThreshold( Float.parseFloat( geneticProfile.getOtherMetaDataField("pivot_threshold_value") ) );
+            geneticProfile.setSortOrder( geneticProfile.getOtherMetaDataField("value_sort_order") );
+        }
 
         if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY) {
             validateGenericAssay(geneticProfile, file);
-            geneticProfile.setPivotThreshold( Float.parseFloat( geneticProfile.getOtherMetaDataField("pivot_threshold_value") ) );
-            geneticProfile.setSortOrder( geneticProfile.getOtherMetaDataField("value_sort_order") );
+            geneticProfile.setGenericAssayType(geneticProfile.getOtherMetaDataField("generic_assay_type"));
         }
 
         // add new genetic profile
@@ -200,7 +205,7 @@ public class GeneticProfileReader {
     /**
      * Check whether required columns for assay response data were defined in the meta file
      */
-    private static void validateGenericAssay(GeneticProfile geneticProfile, File file) {
+    private static void validateTreatmentResponse(GeneticProfile geneticProfile, File file) {
         if (geneticProfile.getOtherMetaDataField("pivot_threshold_value") == null)
             throw new RuntimeException("Missing `pivot_threshold_value` property in '" + file.getPath() + "' meta data file.");
 
@@ -208,6 +213,14 @@ public class GeneticProfileReader {
             throw new RuntimeException("Missing `value_sort_order` property in '" + file.getPath() + "' meta data file.");
     }
 
+    /**
+     * Check whether required columns for assay response data were defined in the meta file
+     */
+    private static void validateGenericAssay(GeneticProfile geneticProfile, File file) {
+        if (geneticProfile.getOtherMetaDataField("generic_assay_type") == null)
+            throw new RuntimeException("Missing `generic_assay_type` property in '" + file.getPath() + "' meta data file.");
+    }
+    
 	/**
      * Load a GeneticProfile from a description file.
      *

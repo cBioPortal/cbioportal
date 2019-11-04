@@ -102,7 +102,8 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX:'GenePanelMatrixValidator',
     cbioportal_common.MetaFileTypes.GSVA_SCORES:'GsvaScoreValidator',
     cbioportal_common.MetaFileTypes.GSVA_PVALUES:'GsvaPvalueValidator',
-    cbioportal_common.MetaFileTypes.GENERIC_ASSAY:'TreatmentValidator',
+    cbioportal_common.MetaFileTypes.TREATMENT:'TreatmentValidator',
+    cbioportal_common.MetaFileTypes.GENERIC_ASSAY:'GenericAssayValidator',
     cbioportal_common.MetaFileTypes.STRUCTURAL_VARIANT:'StructuralVariantValidator'
 }
 
@@ -4070,6 +4071,103 @@ class TreatmentValidator(TreatmentWiseFileValidator):
 
         return
 
+class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
+    """ Generic assay file base validator
+    """
+    prior_validated_sample_ids = None
+    prior_validated_feature_ids = None
+    prior_validated_header = None
+    def __init__(self, *args, **kwargs):
+        """Initialize the instance attributes of the data file validator."""
+        super(GenericAssayWiseFileValidator, self).__init__(*args, **kwargs)
+        self.REQUIRED_HEADERS.extend([x.strip() for x in self.meta_dict['generic_entity_meta_properties'].split(',')])
+
+    REQUIRED_HEADERS = ['ENTITY_STABLE_ID']
+    OPTIONAL_HEADERS = []
+    UNIQUE_COLUMNS = ['ENTITY_STABLE_ID']
+
+    def parseFeatureColumns(self, nonsample_col_vals):
+        """Check the IDs in the first column."""
+        value = nonsample_col_vals[0].strip()
+        if ' ' in value:
+            self.logger.error('Do not use space in the stable id',
+                              extra={'line_number': self.line_number,
+                                     'column_number': 1,
+                                     'cause': nonsample_col_vals[0]})
+            return None
+
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+        stripped_value = value.strip()
+        if stripped_value not in self.NULL_VALUES and not self.checkFloat(stripped_value):
+            self.logger.error("Value is neither a real number nor " + ', '.join(self.NULL_VALUES),
+                              extra={'line_number': self.line_number,
+                                     'column_number': col_index + 1,
+                                     'cause': value})
+
+class GenericAssayValidator(GenericAssayWiseFileValidator):
+
+    """ Validator for files containing generic assay values.
+    """
+
+    # (1) Natural positive number (not 0)
+    # (2) Number may be prefixed by ">" or "<"; f.i. ">n" means that the data was ineffective at the highest tested concentration of n.
+    # (3) NA cell value is allowed; means value was not tested on a sample
+    # (4) Is an empty cell value allowed? (meaning data was not tested on a sample)
+    #
+    # Warnings for values:
+    # (1) Cell contains a value without decimals and is not prependend by ">"; value appears to be truncated but lacks ">" truncation indicator
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+
+        # value is not defined (empty cell)
+        stripped_value = value.strip()
+        if stripped_value == "":
+            self.logger.error("Cell is empty. A response value value is expected. Use 'NA' to indicate missing values.",
+                extra={'line_number': self.line_number,
+                'column_number': col_index + 1,
+                'cause': value})
+            return
+
+        # 'NA' is an allowed value. No further validations apply.
+        if stripped_value == 'NA':
+            return
+
+        # if the value is prefixed with '>' or '<' remove this prefix
+        # prior to evaluation of the numeric value
+        hasTruncSymbol = re.match("^[><]", stripped_value)
+        stripped_value = re.sub(r"^[><]\s*","", stripped_value)
+        
+        try:
+            numeric_value = float(stripped_value)
+        except ValueError:
+            self.logger.error("Value cannot be interpreted as a floating point number and is not valid response value.",
+                extra={'line_number': self.line_number,
+                'column_number': col_index + 1,
+                'cause': value})
+            return
+
+        if math.isnan(numeric_value):
+            self.logger.error("Value is NaN, therefore, not a valid response value.",
+                extra={'line_number': self.line_number,
+                'column_number': col_index + 1,
+                'cause': value})
+            return
+
+        if math.isinf(numeric_value):
+            self.logger.error("Value is infinite and, therefore, not a valid response value.",
+                extra={'line_number': self.line_number,
+                'column_number': col_index + 1,
+                'cause': value})
+            return
+
+        if numeric_value % 1 == 0 and not hasTruncSymbol:
+            self.logger.warning("Value has no decimals and may represent an invalid response value.",
+                extra={'line_number': self.line_number,
+                'column_number': col_index + 1,
+                'cause': value})
+                
+        return
 
 # ------------------------------------------------------------------------------
 # Functions

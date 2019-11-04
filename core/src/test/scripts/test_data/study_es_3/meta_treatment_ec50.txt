@@ -1,5 +1,5 @@
 cancer_study_identifier: brca_tcga_pub
-genetic_alteration_type: GENERIC_ASSAY
+genetic_alteration_type: TREATMENT
 datatype: LIMIT-VALUE
 stable_id: treatment_ec50
 profile_name: EC50 values of compounds on cellular phenotype readout

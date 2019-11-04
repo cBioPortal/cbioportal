@@ -19,6 +19,7 @@
     * [Gene Set Data](#gene-set-data)
     * [Study Tags file](#study-tags-file)
     * [Treatment Response Data](#treatment-response-data)
+    * [Generic Assay](#generic-assay)
 
 # Introduction
 
@@ -1297,7 +1298,7 @@ The meta file will be similar to meta files of other genetic profiles, such as m
 Required fields: 
 ```
 cancer_study_identifier: Same value as specified in meta file of the study
-genetic_alteration_type: GENERIC_ASSAY
+genetic_alteration_type: TREATMENT
 datatype: LIMIT-VALUE
 stable_id: Any unique identifier using a combination of alphanumeric characters, _ and -
 profile_name: A name describing the analysis.
@@ -1311,7 +1312,7 @@ value_sort_order: A flag that determines whether samples with small treatment re
 Example:
 ```
 cancer_study_identifier: study_es_0
-genetic_alteration_type: GENERIC_ASSAY
+genetic_alteration_type: TREATMENT
 datatype: LIMIT-VALUE
 stable_id: treatment_ic50
 profile_name: IC50 values of compounds on cellular phenotype readout
@@ -1325,8 +1326,8 @@ value_sort_order: ASC
 #### Note on `value_sort_order`
 When values are sorted based on the `value_sort_order`, data points at the start of the sequence are considered more significant than data points at the end. This concept is used by the oncoprint when aggregating treatment response data from multiple samples from a single patient. When `value_sort_order` is `ASC` the sample with the smallest response value will be shown for that patient. When `value_sort_order` is `DESC` the sample with the largest response value will be shown for that patient.
 
-#### Note on `GENERIC_ASSAY` genetic_alteration_type and `LIMIT-VALUE` datatype
-Treatment response data is registered to be of the `GENERIC_ASSAY` genetic_alteration_type and data type `LIMIT-VALUE`. This alteration and data type is intended to be used for any numerical data set with similar structure (entities measured in samples).
+#### Note on `TREATMENT` genetic_alteration_type and `LIMIT-VALUE` datatype
+Treatment response data is registered to be of the `TREATMENT` genetic_alteration_type and data type `LIMIT-VALUE`. This alteration and data type is intended to be used for any numerical data set with similar structure (entities measured in samples).
 
 ### Treatment response data file
 The data file will be a simple tab separated format, similar to the expression data file: each sample is a column, each tested treatment (a compound or combination thereof) is a row, each cell contains treatment response values for that treatment x sample combination.
@@ -1340,4 +1341,64 @@ The cells contain treatment response values that can be postive and negative rea
 <tr><td>17-AAG</td><td>Tanespimycin</td><td>Hsp90 inhibitor</td><td>https://en.wikipedia.org/wiki/Tanespimycin</td><td>0.228</td><td>0.330</td><td>0.0530</td></tr>
 <tr><td>AEW541</td><td>Larotrectinib</td><td>TrkA/B/C inhibitor</td><td>https://en.wikipedia.org/wiki/Larotrectinib</td><td>>8</td><td>2.33</td><td>2.68</td></tr>
 <tr><td>AZD0530</td><td>Saracatinib</td><td>Src/Bcr-Abl inhibitor</td><td>https://en.wikipedia.org/wiki/Saracatinib</td><td>NA</td><td>>8</td><td>4.60</td></tr>
+</table>
+
+## Generic Assay
+Generic Assay is a two dimensional matrix generalized to capture non-genetic measurements per sample. Instead of a gene per row and a sample per column, a Generic Assay file contains a generic entity per row and a sample per column. A generic entity is defined by the data curator and generally means something other than a gene. Some examples include, treatment response or mutational signatures. For each generic entity - sample pair, a real number represents a captured measurement.
+
+### Generic Assay meta file
+The generic assay metadata file should contain the following fields:
+```
+cancer_study_identifier: Same value as specified in meta file of the study
+genetic_alteration_type: GENERIC_ASSAY
+generic_assay_type: <GENERIC_ASSAY_TYPE>, e.g., "TREATMENT" or "MUTATIONAL_SIGNATURE"
+datatype: LIMIT-VALUE
+stable_id: Any unique identifier using a combination of alphanumeric characters, _ and -
+profile_name: A name describing the analysis.
+profile_description: A description of the data processing done.
+data_filename: <name of generic assay data file>
+show_profile_in_analysis_tab: true
+generic_entity_meta_properties: A comma separate list of generic entity properties, e.g., "NAME,DESCRIPTION"
+```
+
+Example:
+```
+cancer_study_identifier: study_es_0
+genetic_alteration_type: GENERIC_ASSAY
+generic_assay_type: MUTATIONAL_SIGNATURE
+datatype: LIMIT-VALUE
+stable_id: mutational_signature
+profile_name: data of mutational signature
+profile_description: Description of data of mutational signature
+data_filename: data_mutational_signature.txt
+show_profile_in_analysis_tab: true
+generic_entity_meta_properties: NAME,DESCRIPTION
+```
+
+#### Note on `stable_id`
+The `stable_id` for the generic assay datatype is a user defined field. The only requirement is that the `stable_id` is unique across all metafiles in the study.
+
+#### Note on `generic_entity_meta_properties`
+All meta properties must be specified in the `generic_entity_meta_properties` field. Every meta property listed here must appear as a column header in the corresponding data file.
+
+#### Note on `Generic Assay` genetic_alteration_type and `LIMIT-VALUE` datatype
+All generic assay data is registered to be of the type of `genetic_alteration_type` and data type `LIMIT-VALUE`. This alteration and data type is intended to be used for any numerical data set with similar structure (entities measured in samples). The `LIMIT-VALUE` is validated to contain any continuous number optionally prefixed with a '>' or '<' threshold symbol (e.g., '>8.00'). If the value for the generic entity in the respective sample could not (or was not) be measured (or detected), the value should be 'NA'.
+
+### Generic Assay data file
+The data file will be a simple tab separated format, similar to the expression data file: each sample is a column, each generic entity is a row, each cell contains values for that generic entity x sample combination.
+
+For each generic entity (row) in the data file, the following columns are required in the order specified:
+
+- ***ENTITY_STABLE_ID***: Any unique identifier using a combination of alphanumeric characters, _ and -.
+
+And:
+- An additional column for each `generic_entity_meta_properties` in the metafile, using the property name as the column header (e.g., 'NAME').
+- An additional column for each sample in the dataset using the sample id as the column header.
+
+Example with 2 generic entities and 3 samples:
+
+<table>
+<thead><tr><th>ENTITY_STABLE_ID</th><th>NAME</th><th>DESCRIPTION</th><th>TCGA-AO-A0J</th><th>TCGA-A2-A0Y</th><th>TCGA-A2-A0S</th></tr></thead>
+<tr><td>mut_sig_mean</td><td>name of mean</td><td>description of mean</td><td>0.370</td><td>0.010</td><td>0.005</td></tr>
+<tr><td>mut_sig_confidence</td><td>name of confidence</td><td>description of confidence</td><td>0.653</td><td>0.066</td><td>0.050</td></tr>
 </table>

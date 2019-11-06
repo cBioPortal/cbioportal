@@ -2949,7 +2949,7 @@ class StructuralVariantValidator(Validator):
             self.structural_variant_entries[self.line_number]['Site1_Exon'] = site1_exon
             self.structural_variant_entries[self.line_number]['Site2_Ensembl_Transcript_Id'] = site2_transcript
             self.structural_variant_entries[self.line_number]['Site2_Exon'] = site2_exon
-            self.structural_variant_entries[self.line_number]['NCBI_Build'] = ncbi_build
+            self.structural_variant_entries[self.line_number]['NCBI_Build'] = self.ncbi_build
             self.structural_variant_entries[self.line_number]['Event_Info'] = 'Fusion'
             return
 

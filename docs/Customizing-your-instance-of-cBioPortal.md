@@ -220,6 +220,9 @@ Below you can find the complete list of all the available skin properties.
    </tbody>
 </table>
 
+# Customization when using Docker
+To add images or other files to the Docker image one can mount them inside the `cbioportal-webapp` folder. For example to use a custom logo for `skin.right_logo`. Mount the image inside the`cbioportal-webapp` folder with `-v /path/to/custom_logo.png:/cbioportal-webapp/images/custom_logo.png` and set `skin.right_logo=custom_logo.png` in your properties file.
+
 # Creating your own local news/about or FAQ page
 
 Creating you own local news/about or FAQ page involves three steps. For example, to create your own news page:

@@ -7,6 +7,12 @@
 ## October 23, 2019
 * **Enhancement**: Quick example links in Plots tab. [example](https://www.cbioportal.org/results/plots?session_id=5ba11ce6498eb8b3d567e7ed)
 
+## October 14, 2019
+
+* **New Feature**: Fusion Genes table in `Study View`. [example](https://www.cbioportal.org/study/summary?id=msk_impact_2017)
+
+![image](https://user-images.githubusercontent.com/840895/68320157-6ef28e00-008d-11ea-8cb3-e4b54aa1d848.png)
+
 ## October 11, 2019
 * **Enhancement**: The Download interface on the homepage has been removed. Enhanced download functionality is now available after querying on the results page.
 

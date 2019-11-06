@@ -1,3 +1,10 @@
+## Nov 7, 2019
+
+*   **Added data** consisting of 212 samples from 3 studies:
+     * [Metastatic Melanoma (DFCI, Science 2015)](https://www.cbioportal.org/study/summary?id=skcm_dfci_2015) *110 samples* 
+     * [Melanoma (MSKCC, NEJM 2014)](https://www.cbioportal.org/study/summary?id=skcm_mskcc_2014) *64 samples* 
+     * [Metastatic Melanoma (UCLA, Cell 2016)](https://www.cbioportal.org/study/summary?id=mel_ucla_2016) *38 samples* 
+     
 ## Oct 30, 2019
 
 *   **Added data** consisting of 178 samples from 2 studies:

@@ -29,6 +29,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.cbioportal.web.config.CustomObjectMapper;
 
 import org.mskcc.cbio.portal.util.SpringUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -66,7 +67,7 @@ public class DumpPortalInfo extends ConsoleRunnable {
     private static void writeJsonFile(
             List<? extends Serializable> objectList,
             File outputFile) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = new CustomObjectMapper();
             try {
                 mapper.writeValue(outputFile, objectList);
             } catch (JsonProcessingException e) {

@@ -6,6 +6,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.cbioportal.model.*;
 import org.cbioportal.service.*;
@@ -28,6 +29,7 @@ public class StudyViewFilterApplier {
     private ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier;
     private StudyViewFilterUtil studyViewFilterUtil;
     private GeneService geneService;
+    private ClinicalAttributeService clinicalAttributeService;
 
     @Autowired
     public StudyViewFilterApplier(SampleService sampleService,
@@ -39,7 +41,8 @@ public class StudyViewFilterApplier {
                                   ClinicalDataEqualityFilterApplier clinicalDataEqualityFilterApplier,
                                   ClinicalDataIntervalFilterApplier clinicalDataIntervalFilterApplier,
                                   StudyViewFilterUtil studyViewFilterUtil,
-                                  GeneService geneService) {
+                                  GeneService geneService,
+                                  ClinicalAttributeService clinicalAttributeService) {
         this.sampleService = sampleService;
         this.mutationService = mutationService;
         this.discreteCopyNumberService = discreteCopyNumberService;
@@ -50,6 +53,7 @@ public class StudyViewFilterApplier {
         this.clinicalDataIntervalFilterApplier = clinicalDataIntervalFilterApplier;
         this.studyViewFilterUtil = studyViewFilterUtil;
         this.geneService = geneService;
+        this.clinicalAttributeService = clinicalAttributeService;
     }
 
     Function<Sample, SampleIdentifier> sampleToSampleIdentifier = new Function<Sample, SampleIdentifier>() {
@@ -84,13 +88,42 @@ public class StudyViewFilterApplier {
                 null, null, null, null).stream().map(sampleToSampleIdentifier).collect(Collectors.toList());
         }
 
-        List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters = studyViewFilter.getClinicalDataEqualityFilters();
-        if (clinicalDataEqualityFilters != null) {
-            sampleIdentifiers = equalityFilterClinicalData(sampleIdentifiers, clinicalDataEqualityFilters, negateFilters);
+        List<String> studyIds = sampleIdentifiers.stream().map(SampleIdentifier::getStudyId).distinct()
+                .collect(Collectors.toList());
+
+        List<ClinicalDataFilter> clinicalDataEqualityFilters = new ArrayList<>();
+        List<ClinicalDataFilter> clinicalDataIntervalFilters = new ArrayList<>();
+
+        List<ClinicalDataFilter> clinicalDataFilters = studyViewFilter.getClinicalDataFilters();
+
+        if (!CollectionUtils.isEmpty(clinicalDataFilters)) {
+            List<String> attributeIds = clinicalDataFilters.stream().map(ClinicalDataFilter::getAttributeId)
+                    .collect(Collectors.toList());
+            List<ClinicalAttribute> clinicalAttributes = clinicalAttributeService
+                    .getClinicalAttributesByStudyIdsAndAttributeIds(studyIds, attributeIds);
+
+            Map<String, ClinicalAttribute> clinicalAttributeMap = clinicalAttributes.stream()
+                    .collect(Collectors.toMap(ClinicalAttribute::getAttrId, Function.identity(), (a, b) -> {
+                        return a.getDatatype().equals("STRING") ? a : b;
+                    }));
+
+            clinicalDataFilters.forEach(clinicalDataFilter -> {
+                String attributeId = clinicalDataFilter.getAttributeId();
+                if (clinicalAttributeMap.containsKey(attributeId)) {
+                    if (clinicalAttributeMap.get(attributeId).getDatatype().equals("STRING")) {
+                        clinicalDataEqualityFilters.add(clinicalDataFilter);
+                    } else {
+                        clinicalDataIntervalFilters.add(clinicalDataFilter);
+                    }
+                }
+            });
         }
 
-        List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters = studyViewFilter.getClinicalDataIntervalFilters();
-        if (clinicalDataIntervalFilters != null) {
+        if (!CollectionUtils.isEmpty(clinicalDataEqualityFilters)) {
+            sampleIdentifiers = equalityFilterClinicalData(sampleIdentifiers, clinicalDataEqualityFilters, negateFilters);
+        }
+        
+        if (!CollectionUtils.isEmpty(clinicalDataIntervalFilters)) {
             sampleIdentifiers = intervalFilterClinicalData(sampleIdentifiers, clinicalDataIntervalFilters, negateFilters);
         }
 
@@ -128,13 +161,13 @@ public class StudyViewFilterApplier {
     }
 
     private List<SampleIdentifier> intervalFilterClinicalData(List<SampleIdentifier> sampleIdentifiers,
-                                                              List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters,
+                                                              List<ClinicalDataFilter> clinicalDataIntervalFilters,
                                                               Boolean negateFilters) {
         return clinicalDataIntervalFilterApplier.apply(sampleIdentifiers, clinicalDataIntervalFilters, negateFilters);
     }
 
     private List<SampleIdentifier> equalityFilterClinicalData(List<SampleIdentifier> sampleIdentifiers,
-                                                              List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters,
+                                                              List<ClinicalDataFilter> clinicalDataEqualityFilters,
                                                               Boolean negateFilters) {
         return clinicalDataEqualityFilterApplier.apply(sampleIdentifiers, clinicalDataEqualityFilters, negateFilters);
     }

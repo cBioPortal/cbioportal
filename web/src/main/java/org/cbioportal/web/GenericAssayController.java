@@ -69,6 +69,37 @@ public class GenericAssayController {
             return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
+    @RequestMapping(value = "/generic_assay_data/{molecularProfileId}/fetch",
+        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("fetch generic_assay_data in a molecular profile")
+    public ResponseEntity<List<GenericAssayData>> fetchAllGenericAssayDataInMolecularProfile(
+        @ApiParam(required = true, value = "Molecular Profile ID")
+        @PathVariable String molecularProfileId,
+        @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Generic Assay IDs")
+        @Valid @RequestBody GenericAssayDataFilter genericAssayDataFilter, 
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection) throws MolecularProfileNotFoundException {
+
+        List<GenericAssayData> result;
+        if (genericAssayDataFilter.getSampleListId() != null) {
+            result = genericAssayService.getGenericAssayData(molecularProfileId,
+                genericAssayDataFilter.getSampleListId(), genericAssayDataFilter.getGenericAssayStableIds(), projection.name());
+        } else {
+            result = genericAssayService.fetchGenericAssayData(molecularProfileId,
+                genericAssayDataFilter.getSampleIds(), genericAssayDataFilter.getGenericAssayStableIds(), projection.name());
+        }
+
+        if (projection == Projection.META) {
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
+            return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        }
+    }
+
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
     @RequestMapping(value = "/generic_assay_data/fetch", method = RequestMethod.POST,
     consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

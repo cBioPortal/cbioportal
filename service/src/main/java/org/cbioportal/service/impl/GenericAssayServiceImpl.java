@@ -45,6 +45,9 @@ public class GenericAssayServiceImpl implements GenericAssayService {
     @Autowired
     private MolecularProfileService molecularProfileService;
 
+    @Autowired
+    private SampleListRepository sampleListRepository;
+
     @Override
     public List<GenericAssayMeta> getGenericAssayMetaByStableIdsAndMolecularIds(List<String> stableIds, List<String> molecularProfileIds, String projection)
         throws GenericAssayNotFoundException {
@@ -154,5 +157,78 @@ public class GenericAssayServiceImpl implements GenericAssayService {
             }
         }
         return result;
+    }
+
+    @Override
+    public List<GenericAssayData> getGenericAssayData(String molecularProfileId, String sampleListId,
+                                                    List<String> genericAssayStableIds, String projection)
+        throws MolecularProfileNotFoundException {
+        
+        validateMolecularProfile(molecularProfileId);
+        List<String> sampleIds = sampleListRepository.getAllSampleIdsInSampleList(sampleListId);
+        if (sampleIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return fetchGenericAssayData(molecularProfileId, sampleIds, genericAssayStableIds, projection);
+    }
+
+    @Override
+    public List<GenericAssayData> fetchGenericAssayData(String molecularProfileId, List<String> sampleIds,
+            List<String> genericAssayStableIds, String projection) throws MolecularProfileNotFoundException {
+
+            List<GenericAssayData> molecularDataList = new ArrayList<>();
+    
+            String commaSeparatedSampleIdsOfMolecularProfile = molecularDataRepository
+                .getCommaSeparatedSampleIdsOfMolecularProfile(molecularProfileId);
+            if (commaSeparatedSampleIdsOfMolecularProfile == null) {
+                return molecularDataList;
+            }
+            List<Integer> internalSampleIds = Arrays.stream(commaSeparatedSampleIdsOfMolecularProfile.split(","))
+                .mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
+            Map<Integer, Integer> internalSampleIdsMap = new HashMap<>();
+            for (int lc = 0; lc < internalSampleIds.size(); lc++) {
+                internalSampleIdsMap.put(internalSampleIds.get(lc), lc);
+            }
+    
+            List<Sample> samples;
+            if (sampleIds == null) {
+                samples = sampleService.getSamplesByInternalIds(internalSampleIds);
+            } else {
+                MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
+                List<String> studyIds = new ArrayList<>();
+                sampleIds.forEach(s -> studyIds.add(molecularProfile.getCancerStudyIdentifier()));
+                samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
+            }
+    
+            List<GenericAssayMolecularAlteration> molecularAlterations = molecularDataRepository.getGenericAssayMolecularAlterations(
+                molecularProfileId, genericAssayStableIds, projection);
+            
+            for (Sample sample : samples) {
+                Integer indexOfSampleId = internalSampleIdsMap.get(sample.getInternalId());
+                if (indexOfSampleId != null) {
+                    for (GenericAssayMolecularAlteration molecularAlteration : molecularAlterations) {
+                        GenericAssayData molecularData = new GenericAssayData();
+                        molecularData.setMolecularProfileId(molecularProfileId);
+                        molecularData.setSampleId(sample.getStableId());
+                        molecularData.setPatientId(sample.getPatientStableId());
+                        molecularData.setStudyId(sample.getCancerStudyIdentifier());
+                        molecularData.setGenericAssayStableId(molecularAlteration.getGenericAssayStableId());
+                        molecularData.setValue(molecularAlteration.getSplitValues()[indexOfSampleId]);
+                        molecularDataList.add(molecularData);
+                    }
+                }
+            }
+            
+            return molecularDataList;
+    }
+
+    private void validateMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException {
+
+        MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
+
+        if (!molecularProfile.getMolecularAlterationType().equals(MolecularAlterationType.GENERIC_ASSAY)) {
+
+            throw new MolecularProfileNotFoundException(molecularProfileId);
+        }
     }
 }

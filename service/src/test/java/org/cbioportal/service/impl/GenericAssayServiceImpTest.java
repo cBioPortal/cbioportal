@@ -183,6 +183,47 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
     }
 
     @Test
+    public void fetchGenericAssayData() throws Exception {
+
+        List<GenericAssayData> result = genericAssayService.fetchGenericAssayData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+                Arrays.asList(GENERIC_ASSAY_ID_1, GENERIC_ASSAY_ID_2), PersistenceConstants.SUMMARY_PROJECTION);
+
+        //what we expect: 2 samples x 2 generic assay items = 4 GenericAssayData items:
+        //SAMPLE_1:
+        //   generic assay1 value: 0.2
+        //   generic assay2 value: 0.89
+        //SAMPLE_2:
+        //   generic assay1 value: 0.499
+        //   generic assay2 value: -0.509
+        Assert.assertEquals(4, result.size());
+        GenericAssayData item1 = result.get(0);
+        Assert.assertEquals(item1.getSampleId(), SAMPLE_ID1);
+        Assert.assertEquals(item1.getStableId(), GENERIC_ASSAY_ID_1);
+        Assert.assertEquals(item1.getValue(), "0.2");
+        Assert.assertEquals(item1.getMolecularProfileId(), MOLECULAR_PROFILE_ID);
+        GenericAssayData item2 = result.get(1);
+        Assert.assertEquals(item2.getSampleId(), SAMPLE_ID1);
+        Assert.assertEquals(item2.getStableId(), GENERIC_ASSAY_ID_2);
+        Assert.assertEquals(item2.getValue(), "0.89");
+        Assert.assertEquals(item2.getMolecularProfileId(), MOLECULAR_PROFILE_ID);
+        GenericAssayData item4 = result.get(3);
+        Assert.assertEquals(item4.getSampleId(), SAMPLE_ID2);
+        Assert.assertEquals(item4.getStableId(), GENERIC_ASSAY_ID_2);
+        Assert.assertEquals(item4.getValue(), "-0.509");
+        Assert.assertEquals(item4.getMolecularProfileId(), MOLECULAR_PROFILE_ID);
+        
+        //check when selecting only 1 sample:
+        result = genericAssayService.fetchGenericAssayData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1),
+        Arrays.asList(GENERIC_ASSAY_ID_1, GENERIC_ASSAY_ID_2),PersistenceConstants.SUMMARY_PROJECTION);
+        Assert.assertEquals(2, result.size());
+        item1 = result.get(0);
+        Assert.assertEquals(item1.getSampleId(), SAMPLE_ID1);
+        Assert.assertEquals(item1.getStableId(), GENERIC_ASSAY_ID_1);
+        Assert.assertEquals(item1.getValue(), "0.2");
+        Assert.assertEquals(item1.getMolecularProfileId(), MOLECULAR_PROFILE_ID);
+    }
+
+    @Test
     public void getGenericAssayMetaByStableIdsAndMolecularIds() throws GenericAssayNotFoundException {
         Mockito.when(genericAssayRepository.getGenericAssayMeta(idList))
         .thenReturn(mockGenericAssayMetaList);

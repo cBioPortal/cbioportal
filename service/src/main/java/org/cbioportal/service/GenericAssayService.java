@@ -15,4 +15,12 @@ public interface GenericAssayService {
     List<GenericAssayData> getGenericAssayDataInMultipleMolecularProfiles(List<String> molecularProfileIds, 
                                                                         List<String> sampleIds, List<String> genericAssayStableIds, String projection)
         throws MolecularProfileNotFoundException;
+
+    List<GenericAssayData> getGenericAssayData(String molecularProfileId, String sampleListId, 
+                                            List<String> genericAssayStableIds, String projection) 
+        throws MolecularProfileNotFoundException;
+
+    List<GenericAssayData> fetchGenericAssayData(String molecularProfileId, List<String> sampleIds, 
+                                            List<String> genericAssayStableIds, String projection) 
+        throws MolecularProfileNotFoundException;  
 }

@@ -200,7 +200,9 @@ public class SampleServiceImpl implements SampleService {
                 sample.setSequenced(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier())
                     .contains(sample.getStableId()));
                 sample.setCopyNumberSegmentPresent(samplesWithCopyNumberSegMap.contains(sample.getInternalId()));
-                sample.setFusionPresent(fusionSampleIdsMap.get(sample.getCancerStudyIdentifier()).contains(sample.getStableId()));
+                if (!fusionSampleIdsMap.isEmpty()) {
+                    sample.setFusionPresent(fusionSampleIdsMap.get(sample.getCancerStudyIdentifier()).contains(sample.getStableId()));
+                }
             });
         }
     }

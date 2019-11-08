@@ -66,6 +66,7 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
     @Before 
     public void setUp() throws Exception {
         //stub for samples
+        Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID_1)).thenReturn("1,2,");
         Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_2))).thenReturn(
                 Arrays.asList("1,2,", "1,2,"));
 
@@ -83,6 +84,8 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
         sample.setInternalId(INTERNAL_ID_2);
         sample.setStableId(SAMPLE_ID2);
         sampleListAll.add(sample);
+        Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), "ID"))
+        .thenReturn(sampleListAll);
         Mockito.when(sampleService.fetchSamples(Arrays.asList(STUDY_ID, STUDY_ID), Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), "ID"))
             .thenReturn(sampleListAll);
 
@@ -97,6 +100,7 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
         geneticProfiles.add(geneticProfile1);
         geneticProfiles.add(geneticProfile2);
 
+        Mockito.when(geneticProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID_1)).thenReturn(geneticProfile1);
         Mockito.when(geneticProfileService.getMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_2), "SUMMARY")).thenReturn(geneticProfiles);
 
         //stub for repository data
@@ -185,8 +189,8 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
     @Test
     public void fetchGenericAssayData() throws Exception {
 
-        List<GenericAssayData> result = genericAssayService.fetchGenericAssayData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
-                Arrays.asList(GENERIC_ASSAY_ID_1, GENERIC_ASSAY_ID_2), PersistenceConstants.SUMMARY_PROJECTION);
+        List<GenericAssayData> result = genericAssayService.fetchGenericAssayData(MOLECULAR_PROFILE_ID_1, Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+                Arrays.asList(STABLE_ID_1, STABLE_ID_2), PersistenceConstants.SUMMARY_PROJECTION);
 
         //what we expect: 2 samples x 2 generic assay items = 4 GenericAssayData items:
         //SAMPLE_1:
@@ -198,29 +202,29 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
         Assert.assertEquals(4, result.size());
         GenericAssayData item1 = result.get(0);
         Assert.assertEquals(item1.getSampleId(), SAMPLE_ID1);
-        Assert.assertEquals(item1.getStableId(), GENERIC_ASSAY_ID_1);
+        Assert.assertEquals(item1.getStableId(), STABLE_ID_1);
         Assert.assertEquals(item1.getValue(), "0.2");
-        Assert.assertEquals(item1.getMolecularProfileId(), MOLECULAR_PROFILE_ID);
+        Assert.assertEquals(item1.getMolecularProfileId(), MOLECULAR_PROFILE_ID_1);
         GenericAssayData item2 = result.get(1);
         Assert.assertEquals(item2.getSampleId(), SAMPLE_ID1);
-        Assert.assertEquals(item2.getStableId(), GENERIC_ASSAY_ID_2);
+        Assert.assertEquals(item2.getStableId(), STABLE_ID_2);
         Assert.assertEquals(item2.getValue(), "0.89");
-        Assert.assertEquals(item2.getMolecularProfileId(), MOLECULAR_PROFILE_ID);
+        Assert.assertEquals(item2.getMolecularProfileId(), MOLECULAR_PROFILE_ID_1);
         GenericAssayData item4 = result.get(3);
         Assert.assertEquals(item4.getSampleId(), SAMPLE_ID2);
-        Assert.assertEquals(item4.getStableId(), GENERIC_ASSAY_ID_2);
+        Assert.assertEquals(item4.getStableId(), STABLE_ID_2);
         Assert.assertEquals(item4.getValue(), "-0.509");
-        Assert.assertEquals(item4.getMolecularProfileId(), MOLECULAR_PROFILE_ID);
+        Assert.assertEquals(item4.getMolecularProfileId(), MOLECULAR_PROFILE_ID_1);
         
         //check when selecting only 1 sample:
-        result = genericAssayService.fetchGenericAssayData(MOLECULAR_PROFILE_ID, Arrays.asList(SAMPLE_ID1),
-        Arrays.asList(GENERIC_ASSAY_ID_1, GENERIC_ASSAY_ID_2),PersistenceConstants.SUMMARY_PROJECTION);
+        result = genericAssayService.fetchGenericAssayData(MOLECULAR_PROFILE_ID_1, Arrays.asList(SAMPLE_ID1),
+        Arrays.asList(STABLE_ID_1, STABLE_ID_2),PersistenceConstants.SUMMARY_PROJECTION);
         Assert.assertEquals(2, result.size());
         item1 = result.get(0);
         Assert.assertEquals(item1.getSampleId(), SAMPLE_ID1);
-        Assert.assertEquals(item1.getStableId(), GENERIC_ASSAY_ID_1);
+        Assert.assertEquals(item1.getStableId(), STABLE_ID_1);
         Assert.assertEquals(item1.getValue(), "0.2");
-        Assert.assertEquals(item1.getMolecularProfileId(), MOLECULAR_PROFILE_ID);
+        Assert.assertEquals(item1.getMolecularProfileId(), MOLECULAR_PROFILE_ID_1);
     }
 
     @Test

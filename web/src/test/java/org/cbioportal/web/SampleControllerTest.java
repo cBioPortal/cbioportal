@@ -127,7 +127,7 @@ public class SampleControllerTest {
         
         Mockito
             .when(sampleService.getAllSamples(
-                Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(),
+                Mockito.anyString(), Mockito.anyObject(), Mockito.anyString(), Mockito.anyInt(),
                 Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()
             )).thenReturn(samples);
         

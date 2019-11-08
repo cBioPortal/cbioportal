@@ -128,7 +128,5 @@ public class Sample extends UniqueKeyBase {
 
     public Boolean getFusionPresent() { return fusionPresent; }
 
-    public void setFusionPresent(Boolean fusionPresent) {
-        this.fusionPresent = fusionPresent;
-    }
+    public void setFusionPresent(Boolean fusionPresent) { this.fusionPresent = fusionPresent; }
 }

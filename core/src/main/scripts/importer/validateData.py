@@ -2971,13 +2971,9 @@ class StructuralVariantValidator(Validator):
         site2_entrez_gene_id = checkPresenceValue('Site2_Entrez_Gene_Id', self, data)
         self.checkGeneIdentification(site2_hugo_symbol, site2_entrez_gene_id)
 
-        # Validate fusion events
+        # Validate fusion events if Event_Info is 'Fusion'
         if data[self.cols.index('Event_Info')] == 'Fusion':
             checkFusionValues(self, data)
-        else:
-            self.logger.error('Validation and functionality for other structural variant events are not implemented '
-                              'yet. Event_Info must be "Fusion"',
-                              extra={'cause': self.cols.index('Event_Info')})
 
     def onComplete(self):
         """Perform final validations based on the data parsed."""
@@ -2985,6 +2981,9 @@ class StructuralVariantValidator(Validator):
         def listAllTranscripts(self):
             """List all transcripts"""
             for line_number in self.structural_variant_entries.keys():
+                # skip non-fusion events
+                if len(self.structural_variant_entries[line_number].keys()) == 0:
+                    continue
                 if self.structural_variant_entries[line_number]['Site1_Ensembl_Transcript_Id'] is not None:
                     self.transcript_set.add(self.structural_variant_entries[line_number]['Site1_Ensembl_Transcript_Id'])
                 if self.structural_variant_entries[line_number]['Site2_Ensembl_Transcript_Id'] is not None:
@@ -3069,10 +3068,10 @@ class StructuralVariantValidator(Validator):
                             site2_transcript in self.transcript_exons_dict):
                         if self.transcript_exons_dict[site2_transcript] is not None:
                             validateExonsInTranscript(self, site2_transcript, site2_exon, line_number)
+
             return
 
         # Start with validation for onComplete(self)
-
         # List all transcripts
         listAllTranscripts(self)
 

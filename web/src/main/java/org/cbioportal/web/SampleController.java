@@ -61,8 +61,8 @@ public class SampleController {
     
     private boolean usingAuth() {
         return !authenticate.isEmpty()
-            && !authenticate.equals("false")
-            && !authenticate.contains("social_auth");
+                && !authenticate.equals("false")
+                && !authenticate.contains("social_auth");
     }
     
     @RequestMapping(value = "/samples", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -114,9 +114,8 @@ public class SampleController {
         if (projection == Projection.META) {
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add(
-                HeaderKeyConstants.TOTAL_COUNT,
-                sampleService.getMetaSamples(keyword, studyIds).getTotalCount().toString()
-            );
+                    HeaderKeyConstants.TOTAL_COUNT,
+                    sampleService.getMetaSamples(keyword, studyIds).getTotalCount().toString());
             return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
         }
         return new ResponseEntity<>(

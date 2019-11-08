@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -346,6 +347,32 @@ public class SampleMyBatisRepositoryTest {
 
          Assert.assertEquals(expected, actual);
      }
+    
+     @Test
+    public void getSamplesByKeywordFilterByStudies() {
+        List<Sample> result = sampleMyBatisRepository.getAllSamples(
+                "TCGA-A1", Collections.singletonList("acc_tcga"),
+                "SUMMARY", 10, 0, null, null);
+        List<String> actual = result.stream().map(Sample::getStableId).collect(Collectors.toList());
+        List<String> expected = Arrays.asList(
+                "TCGA-A1-A0SB-01",
+                "TCGA-A1-B0SO-01",
+                "TCGA-A1-B0SP-01",
+                "TCGA-A1-B0SQ-01");
+        
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getSamplesByKeywordFilterByNoStudies() {
+        List<Sample> result = sampleMyBatisRepository.getAllSamples(
+            "TCGA-A1", new ArrayList<>(),
+            "SUMMARY", 10, 0, null, null);
+        List<String> actual = result.stream().map(Sample::getStableId).collect(Collectors.toList());
+        List<String> expected = Collections.emptyList();
+
+        Assert.assertEquals(expected, actual);
+    }
      
     @Test
     public void getMetaSamplesByKeyword() {

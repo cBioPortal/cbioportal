@@ -10,6 +10,7 @@ import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.GenericAssayMolecularAlteration;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
+import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.persistence.GenericAssayRepository;
 import org.cbioportal.persistence.MolecularDataRepository;
@@ -66,7 +67,7 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
     @Before 
     public void setUp() throws Exception {
         //stub for samples
-        Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID_1)).thenReturn("1,2,");
+        Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID_1))).thenReturn(Arrays.asList("1,2,"));
         Mockito.when(geneticDataRepository.getCommaSeparatedSampleIdsOfMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_2))).thenReturn(
                 Arrays.asList("1,2,", "1,2,"));
 
@@ -93,14 +94,17 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
         MolecularProfile geneticProfile1 = new MolecularProfile();
         geneticProfile1.setCancerStudyIdentifier(STUDY_ID);
         geneticProfile1.setStableId(MOLECULAR_PROFILE_ID_1);
+        geneticProfile1.setMolecularAlterationType(MolecularAlterationType.GENERIC_ASSAY);
         MolecularProfile geneticProfile2 = new MolecularProfile();
         geneticProfile2.setCancerStudyIdentifier(STUDY_ID);
         geneticProfile2.setStableId(MOLECULAR_PROFILE_ID_2);
+        geneticProfile2.setMolecularAlterationType(MolecularAlterationType.GENERIC_ASSAY);
         List<MolecularProfile> geneticProfiles = new ArrayList<MolecularProfile>();
         geneticProfiles.add(geneticProfile1);
         geneticProfiles.add(geneticProfile2);
 
         Mockito.when(geneticProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID_1)).thenReturn(geneticProfile1);
+        Mockito.when(geneticProfileService.getMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID_1), "SUMMARY")).thenReturn(Arrays.asList(geneticProfile1));
         Mockito.when(geneticProfileService.getMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_2), "SUMMARY")).thenReturn(geneticProfiles);
 
         //stub for repository data
@@ -143,9 +147,9 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getGenericAssayDataInMultipleMolecularProfiles() throws Exception {
+    public void fetchGenericAssayDataInMultipleMolecularProfiles() throws Exception {
 
-        List<GenericAssayData> result = genericAssayService.getGenericAssayDataInMultipleMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_2), Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), Arrays.asList(STABLE_ID_1, STABLE_ID_2)
+        List<GenericAssayData> result = genericAssayService.fetchGenericAssayData(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_2), Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), Arrays.asList(STABLE_ID_1, STABLE_ID_2)
                 , PersistenceConstants.SUMMARY_PROJECTION);
 
         //what we expect: 2 molecular profiles x 2 samples x 2 generic assay items = 8 GenericAssayData items:

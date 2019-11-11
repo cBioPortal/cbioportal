@@ -52,7 +52,7 @@ public class GenericAssayController {
     @RequestMapping(value = "/generic_assay_meta/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch meta data for generic-assay by ID")
-    public ResponseEntity<List<GenericAssayMeta>> fetchAllGenericAssayMetaData(
+    public ResponseEntity<List<GenericAssayMeta>> fetchGenericAssayMetaData(
         @ApiParam(required = true, value = "List of Molecular Profile ID or List of Stable ID")
         @Valid @RequestBody(required = false) GenericAssayMetaFilter genericAssayMetaFilter,
         @ApiParam("Level of detail of the response")
@@ -74,7 +74,7 @@ public class GenericAssayController {
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("fetch generic_assay_data in a molecular profile")
-    public ResponseEntity<List<GenericAssayData>> fetchAllGenericAssayDataInMolecularProfile(
+    public ResponseEntity<List<GenericAssayData>> fetchGenericAssayDataInMolecularProfile(
         @ApiParam(required = true, value = "Molecular Profile ID")
         @PathVariable String molecularProfileId,
         @ApiParam(required = true, value = "List of Sample IDs/Sample List ID and Generic Assay IDs")
@@ -117,7 +117,7 @@ public class GenericAssayController {
 
         List<GenericAssayData> result;
         if (interceptedGenericAssayDataMultipleStudyFilter.getMolecularProfileIds() != null) {
-            result = genericAssayService.getGenericAssayDataInMultipleMolecularProfiles(
+            result = genericAssayService.fetchGenericAssayData(
                 interceptedGenericAssayDataMultipleStudyFilter.getMolecularProfileIds(), null,
                 interceptedGenericAssayDataMultipleStudyFilter.getGenericAssayStableIds(), projection.name());
         } else {
@@ -125,7 +125,7 @@ public class GenericAssayController {
             List<String> molecularProfileIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
             extractMolecularProfileAndSampleIds(interceptedGenericAssayDataMultipleStudyFilter, molecularProfileIds, sampleIds);
-            result = genericAssayService.getGenericAssayDataInMultipleMolecularProfiles(molecularProfileIds,
+            result = genericAssayService.fetchGenericAssayData(molecularProfileIds,
                 sampleIds, interceptedGenericAssayDataMultipleStudyFilter.getGenericAssayStableIds(), projection.name());
         }
 

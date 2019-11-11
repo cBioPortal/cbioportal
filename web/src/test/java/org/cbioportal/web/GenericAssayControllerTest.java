@@ -108,7 +108,7 @@ public class GenericAssayControllerTest {
         GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter = new GenericAssayDataMultipleStudyFilter();
         genericAssayDataMultipleStudyFilter.setSampleMolecularIdentifiers(createSampleMolecularIdentifiers());
         
-        Mockito.when(genericAssayService.getGenericAssayDataInMultipleMolecularProfiles(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
+        Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(genericAssayDataItems);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/fetch")

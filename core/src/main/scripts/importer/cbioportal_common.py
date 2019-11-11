@@ -275,7 +275,9 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_filename': True,
         'show_profile_in_analysis_tab': True,
-        'generic_entity_meta_properties': False
+        'generic_entity_meta_properties': False,
+        'pivot_threshold_value': False,
+        'value_sort_order': False
     },
     MetaFileTypes.STRUCTURAL_VARIANT: {
         'cancer_study_identifier': True,

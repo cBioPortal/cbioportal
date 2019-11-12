@@ -70,7 +70,7 @@ To run the script clone the datahub-study-curation-tools from [here](https://git
 python NormalizeExpressionLevels.py -i <expression_file> -o <output_file>
 ```
 
-## Example
+#### Example
 
 ```
 python NormalizeExpressionLevels.py -i path/to/your/study/data_expression_median.txt -o path/to/your/study/data_mRNA_median_Zscores.txt

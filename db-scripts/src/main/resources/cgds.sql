@@ -98,7 +98,6 @@ DROP TABLE IF EXISTS `type_of_cancer`;
 DROP TABLE IF EXISTS `geneset_hierarchy_leaf`;
 DROP TABLE IF EXISTS `geneset_hierarchy_node`;
 DROP TABLE IF EXISTS `geneset`;
-DROP TABLE IF EXISTS `treatment`;
 DROP TABLE IF EXISTS `generic_entity_properties`;
 DROP TABLE IF EXISTS `genetic_entity`;
 DROP TABLE IF EXISTS `reference_genome`;
@@ -281,19 +280,6 @@ CREATE TABLE `geneset_hierarchy_leaf` (
   PRIMARY KEY (`NODE_ID`, `GENESET_ID`),
   FOREIGN KEY (`NODE_ID`) REFERENCES `geneset_hierarchy_node` (`NODE_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`GENESET_ID`) REFERENCES `geneset` (`ID`) ON DELETE CASCADE
-);
-
--- ------------------------------------------------------
-CREATE TABLE `treatment` (
-  `ID` INT(11) NOT NULL auto_increment,
-  `STABLE_ID` VARCHAR(45) NOT NULL UNIQUE,
-  `NAME` VARCHAR(45) NOT NULL,
-  `DESCRIPTION` VARCHAR(200) NOT NULL,
-  `LINKOUT_URL` VARCHAR(400) NOT NULL,
-  `GENETIC_ENTITY_ID` INT NOT NULL UNIQUE,
-  PRIMARY KEY (`ID`),
-  UNIQUE INDEX `TREATMENT_GENETIC_ENTITY_ID_UNIQUE` (`GENETIC_ENTITY_ID` ASC),
-  FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
 );
 
 -- ------------------------------------------------------
@@ -880,4 +866,4 @@ CREATE TABLE `info` (
   `GENESET_VERSION` varchar(24)
 );
 -- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
-INSERT INTO info VALUES ('2.12.1', NULL);
+INSERT INTO info VALUES ('2.12.2', NULL);

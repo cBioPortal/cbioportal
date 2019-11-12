@@ -762,3 +762,34 @@ CREATE TABLE `generic_entity_properties` (
 );
 
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.1";
+
+##version: 2.12.2
+-- treatment to generic_assay migration
+-- insert NAME into generic_entity_properties
+INSERT INTO generic_entity_properties (GENETIC_ENTITY_ID, NAME, VALUE)
+SELECT
+    GENETIC_ENTITY_ID,
+    "NAME",
+    NAME
+FROM `treatment`;
+-- insert DESCRIPTION into generic_entity_properties
+INSERT INTO generic_entity_properties (GENETIC_ENTITY_ID, NAME, VALUE)
+SELECT
+    GENETIC_ENTITY_ID,
+    "DESCRIPTION",
+    DESCRIPTION
+FROM `treatment`;
+-- insert URL into generic_entity_properties
+INSERT INTO generic_entity_properties (GENETIC_ENTITY_ID, NAME, VALUE)
+SELECT
+    GENETIC_ENTITY_ID,
+    "URL",
+    LINKOUT_URL
+FROM `treatment`;
+-- update genetic_entity and genetic_profile
+UPDATE genetic_entity INNER JOIN treatment ON genetic_entity.ID = treatment.GENETIC_ENTITY_ID SET genetic_entity.STABLE_ID = treatment.STABLE_ID, genetic_entity.ENTITY_TYPE = "GENERIC_ASSAY";
+UPDATE genetic_profile SET GENERIC_ASSAY_TYPE = "TREATMENT_RESPONSE" WHERE genetic_profile.GENETIC_ALTERATION_TYPE = "GENERIC_ASSAY";
+-- drop treatment table
+DROP TABLE IF EXISTS `treatment`;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.2";

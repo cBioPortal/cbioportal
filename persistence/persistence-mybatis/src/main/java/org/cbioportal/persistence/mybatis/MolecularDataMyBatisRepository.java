@@ -3,7 +3,6 @@ package org.cbioportal.persistence.mybatis;
 import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GenericAssayMolecularAlteration;
 import org.cbioportal.model.GenesetMolecularAlteration;
-import org.cbioportal.model.TreatmentMolecularAlteration;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.*;
@@ -54,13 +53,6 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
                                                                            List<String> genesetIds, String projection) {
 
 		return molecularDataMapper.getGenesetMolecularAlterations(molecularProfileId, genesetIds, projection);
-    }
-    
-    @Override
-	public List<TreatmentMolecularAlteration> getTreatmentMolecularAlterations(String molecularProfileId, 
-                                                                           List<String> treatmentIds, String projection) {
-
-		return molecularDataMapper.getTreatmentMolecularAlterations(molecularProfileId, treatmentIds, projection);
     }
     
     @Override

@@ -1,4 +1,4 @@
-entity_stable_id	META:name	META:description	META:url
+entity_stable_id	NAME	DESCRIPTION	URL
 17-AAG	Name of 17-AAG	Desc of 17-AAG	Url of 17-AAG
 AEW541	Name of AEW541	Desc of AEW541	Url of AEW541
 AZD0530	Name of AZD0530	Desc of AZD0530	Url of AZD0530

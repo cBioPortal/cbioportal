@@ -4,6 +4,5 @@ public enum EntityType {
     GENE,
     GENESET,
     PHOSPHOPROTEIN,
-    TREATMENT,
     GENERIC_ASSAY
 }

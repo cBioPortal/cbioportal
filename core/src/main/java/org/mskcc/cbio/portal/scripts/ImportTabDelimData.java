@@ -123,7 +123,7 @@ public class ImportTabDelimData {
     }
 
     /**
-     * Import the Copy Number Alteration, mRNA Expression, protein RPPA, GSVA or treatment data
+     * Import the Copy Number Alteration, mRNA Expression, protein RPPA, GSVA or generic_assay data
      *
      * @throws IOException  IO Error.
      * @throws DaoException Database Error.
@@ -147,9 +147,6 @@ public class ImportTabDelimData {
         boolean isGsvaProfile = geneticProfile!=null
                                 && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE
                                 && parts[0].equalsIgnoreCase("geneset_id");
-        boolean isTreatmentProfile = geneticProfile!=null
-                                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.TREATMENT
-                                && parts[0].equalsIgnoreCase("entity_stable_id");
         boolean isGenericAssayProfile = geneticProfile!=null
                                 && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY
                                 && parts[0].equalsIgnoreCase("ENTITY_STABLE_ID");
@@ -162,7 +159,6 @@ public class ImportTabDelimData {
             int rppaGeneRefIndex = getRppaGeneRefIndex(parts);
             int genesetIdIndex = getGenesetIdIndex(parts);
             int sampleStartIndex = getStartIndex(parts, hugoSymbolIndex, entrezGeneIdIndex, rppaGeneRefIndex, genesetIdIndex);
-            int treatmentIdIndex = getTreatmentIdIndex(parts);
             int genericAssayIdIndex = getGenericAssayIdIndex(parts);
             if (isRppaProfile) {
                 if (rppaGeneRefIndex == -1) {
@@ -171,10 +167,6 @@ public class ImportTabDelimData {
             } else if (isGsvaProfile) {
                 if (genesetIdIndex == -1) {
                     throw new RuntimeException("Error: the following column should be present for gene set score data: geneset_id");
-                }
-            } else if (isTreatmentProfile) {
-                if (treatmentIdIndex == -1) {
-                    throw new RuntimeException("Error: the following column should be present for this type of data: entity_stable_id");
                 }
             } else if (isGenericAssayProfile) {
                 if (genericAssayIdIndex == -1) {
@@ -251,9 +243,6 @@ public class ImportTabDelimData {
                 // either parse line as geneset or gene for importing into 'genetic_alteration' table
                 if (isGsvaProfile) {
                     recordAdded = parseGenesetLine(line, lenParts, sampleStartIndex, genesetIdIndex, 
-                            filteredSampleIndices, daoGeneticAlteration);
-                } else if (isTreatmentProfile) {
-                    recordAdded = parseTreatmentLine(line, lenParts, sampleStartIndex, treatmentIdIndex, 
                             filteredSampleIndices, daoGeneticAlteration);
                 } else if (isGenericAssayProfile) {
                     recordAdded = parseGenericAssayLine(line, lenParts, sampleStartIndex, genericAssayIdIndex, 
@@ -673,57 +662,6 @@ public class ImportTabDelimData {
     }
 
     /**
-     * Parses line for treatment profile record and stores record in 'genetic_alteration' table.
-     * @param line  row from the separated-text that contains one or more values on a single sample
-     * @param nrColumns
-     * @param sampleStartIndex  index of the first sample column
-     * @param treatmentIdIndex  index of the column that uniquely identifies a sample
-     * @param filteredSampleIndices
-     * @param daoGeneticAlteration
-     * @return
-     * @throws DaoException 
-     */
-    // TODO: TREATMENT BACKLOG this code is a duplicate of the parseGenesetLine.
-    // consider refactoring do that both functions are covered by a single
-    // base class
-    private boolean parseTreatmentLine(String line, int nrColumns, int sampleStartIndex, int treatmentIdIndex,
-             List<Integer> filteredSampleIndices, DaoGeneticAlteration daoGeneticAlteration) throws DaoException {
-
-        boolean recordIsStored = false;
-        
-        if (!line.startsWith("#") && line.trim().length() > 0) {
-            String[] parts = line.split("\t", -1);
-
-            if (parts.length > nrColumns) {
-                if (line.split("\t").length > nrColumns) {
-                    ProgressMonitor.logWarning("Ignoring line with more fields (" + parts.length
-                                        + ") than specified in the headers(" + nrColumns + "): \n"+parts[0]);
-                    return false;
-                }
-            }
-            
-            String values[] = (String[]) ArrayUtils.subarray(parts, sampleStartIndex, parts.length>nrColumns?nrColumns:parts.length);
-
-            // trim whitespace from values
-            values = Stream.of(values).map(String::trim).toArray(String[]::new);
-            values = filterOutNormalValues(filteredSampleIndices, values);
-            
-            Treatment treatment = DaoTreatment.getTreatmentByStableId(parts[treatmentIdIndex]);
-            
-            if (treatment ==  null) {
-                ProgressMonitor.logWarning("Treatment " + parts[treatmentIdIndex] + " not found in DB. Record will be skipped.");
-            } else {
-                recordIsStored = storeGeneticEntityGeneticAlterations(values, daoGeneticAlteration, treatment.getGeneticEntityId(), 
-                                    EntityType.TREATMENT, treatment.getStableId());
-            }
-
-            return recordIsStored;
-        }
-
-        return recordIsStored;
-    }
-
-    /**
      * Parses line for generic assay profile record and stores record in 'genetic_alteration' table.
      * @param line  row from the separated-text that contains one or more values on a single sample
      * @param nrColumns
@@ -920,11 +858,6 @@ public class ImportTabDelimData {
         return getColIndexByName(headers, "geneset_id");
     }
 
-    // returns index for entity_stable_id column
-    private int getTreatmentIdIndex(String[] headers) {
-        return getColIndexByName(headers, "entity_stable_id");
-    }
-
     private int getGenericAssayIdIndex(String[] headers) {
         return getColIndexByName(headers, "ENTITY_STABLE_ID");
     }
@@ -968,12 +901,6 @@ public class ImportTabDelimData {
         featureColNames.add("entity_stable_id");
         featureColNames.add("ENTITY_STABLE_ID");
 
-        // Find column relating to meta infomation names via
-        // the 'META:'-tag and add to the feature col names
-        List<String> metaColNames = Stream.of(headers)
-            .filter(name -> name.startsWith(ImportUtils.metaFieldTag))
-            .collect(Collectors.toList());
-        featureColNames.addAll(metaColNames);
         // add genericEntityProperties as the feature colum
         if (genericEntityProperties != null && genericEntityProperties.trim().length() != 0) {
             String[] propertyNames = genericEntityProperties.trim().split(",");

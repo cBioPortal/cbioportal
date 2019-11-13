@@ -102,7 +102,6 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.GENE_PANEL_MATRIX:'GenePanelMatrixValidator',
     cbioportal_common.MetaFileTypes.GSVA_SCORES:'GsvaScoreValidator',
     cbioportal_common.MetaFileTypes.GSVA_PVALUES:'GsvaPvalueValidator',
-    cbioportal_common.MetaFileTypes.TREATMENT:'TreatmentValidator',
     cbioportal_common.MetaFileTypes.GENERIC_ASSAY:'GenericAssayValidator',
     cbioportal_common.MetaFileTypes.STRUCTURAL_VARIANT:'StructuralVariantValidator'
 }
@@ -277,7 +276,7 @@ class PortalInstance(object):
     if the checks are to be skipped.
     """
 
-    def __init__(self, portal_info_dict, cancer_type_dict, hugo_entrez_map, alias_entrez_map, gene_set_list, gene_panel_list, treatment_map, geneset_version, offline=False):
+    def __init__(self, portal_info_dict, cancer_type_dict, hugo_entrez_map, alias_entrez_map, gene_set_list, gene_panel_list, geneset_version, offline=False):
         """Represent a portal instance with the given dictionaries."""
         self.portal_info_dict = portal_info_dict
         self.cancer_type_dict = cancer_type_dict
@@ -285,7 +284,6 @@ class PortalInstance(object):
         self.alias_entrez_map = alias_entrez_map
         self.gene_set_list = gene_set_list
         self.gene_panel_list = gene_panel_list
-        self.treatment_map = treatment_map
         self.geneset_version = geneset_version
         self.entrez_set = set()
         for entrez_map in (hugo_entrez_map, alias_entrez_map):
@@ -3816,7 +3814,7 @@ class MultipleDataFileValidator(FeaturewiseFileValidator, metaclass=ABCMeta):
 
         feature_id = nonsample_col_vals[0].strip()
 
-        # Check if treatment is present
+        # Check if feature is present
         if feature_id == '':
             # Validator already gives warning for this in checkLine method
             pass
@@ -3825,14 +3823,14 @@ class MultipleDataFileValidator(FeaturewiseFileValidator, metaclass=ABCMeta):
                                 extra={'line_number': self.line_number,
                                         'cause': 'id was`'+feature_id+'` and only alpha-numeric, _ and - are allowed.'})
         else:
-            # Check if this is the second treatment data file
+            # Check if this is the second data file
             if self.get_prior_validated_feature_ids() is not None:
-                # Check if treatment is in the first treatment data file
+                # Check if feature is in the first data file
                 if feature_id not in self.get_prior_validated_feature_ids():
                     self.logger.error('Feature id cannot be found in other data file',
                                       extra={'line_number': self.line_number,
                                              'cause': feature_id})
-            # Add treatment to list of treatments of current treatment data file
+            # Add feature to list of features of current data file
             self.feature_ids.append(feature_id)
         return feature_id
 

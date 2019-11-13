@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.service.GenericAssayService;
+import org.cbioportal.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.web.parameter.GenericAssayDataMultipleStudyFilter;
 import org.cbioportal.web.parameter.GenericAssayMetaFilter;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
@@ -74,13 +75,40 @@ public class GenericAssayControllerTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
+    @Test	
+    public void testGenericAssayDataFetch() throws Exception {	
+        List<GenericAssayData> genericAssayDataItems = createGenericAssayDataItemsList();	
+        Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyString(), Mockito.anyListOf(String.class),	
+            Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(genericAssayDataItems);	
+
+        GenericAssayDataFilter genericAssayDataFilter = new GenericAssayDataFilter();	
+        genericAssayDataFilter.setSampleIds(Arrays.asList(SAMPLE_ID));	
+        genericAssayDataFilter.setGenericAssayStableIds(Arrays.asList(GENERIC_ASSAY_STABLE_ID_1, GENERIC_ASSAY_STABLE_ID_2));	
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/" + PROF_ID + "/fetch")	
+                .accept(MediaType.APPLICATION_JSON)	
+                .contentType(MediaType.APPLICATION_JSON)	
+                .content(objectMapper.writeValueAsString(genericAssayDataFilter)))	
+                .andExpect(MockMvcResultMatchers.status().isOk())	
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))	
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))	
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(PROF_ID))	
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].genericAssayStableId").value(GENERIC_ASSAY_STABLE_ID_1))	
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(SAMPLE_ID))	
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(VALUE_1))	
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(PROF_ID))	
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].genericAssayStableId").value(GENERIC_ASSAY_STABLE_ID_2))	
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(SAMPLE_ID))	
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(VALUE_2));	
+    }
+
     @Test
     public void testGenericAssayDataFetchInMultipleMolecularProfiles() throws Exception {
         List<GenericAssayData> genericAssayDataItems = createGenericAssayDataItemsList();
         GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter = new GenericAssayDataMultipleStudyFilter();
         genericAssayDataMultipleStudyFilter.setSampleMolecularIdentifiers(createSampleMolecularIdentifiers());
         
-        Mockito.when(genericAssayService.getGenericAssayDataInMultipleMolecularProfiles(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
+        Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(genericAssayDataItems);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/fetch")

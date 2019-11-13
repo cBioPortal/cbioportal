@@ -45,6 +45,9 @@ public class GenericAssayServiceImpl implements GenericAssayService {
     @Autowired
     private MolecularProfileService molecularProfileService;
 
+    @Autowired
+    private SampleListRepository sampleListRepository;
+
     @Override
     public List<GenericAssayMeta> getGenericAssayMetaByStableIdsAndMolecularIds(List<String> stableIds, List<String> molecularProfileIds, String projection)
         throws GenericAssayNotFoundException {
@@ -81,7 +84,7 @@ public class GenericAssayServiceImpl implements GenericAssayService {
     }
 
     @Override
-    public List<GenericAssayData> getGenericAssayDataInMultipleMolecularProfiles(List<String> molecularProfileIds, 
+    public List<GenericAssayData> fetchGenericAssayData(List<String> molecularProfileIds, 
     List<String> sampleIds, List<String> genericAssayStableIds, String projection) throws MolecularProfileNotFoundException {
         List<GenericAssayData> result = new ArrayList<>();
 
@@ -154,5 +157,36 @@ public class GenericAssayServiceImpl implements GenericAssayService {
             }
         }
         return result;
+    }
+
+    @Override
+    public List<GenericAssayData> getGenericAssayData(String molecularProfileId, String sampleListId,
+                                                    List<String> genericAssayStableIds, String projection)
+        throws MolecularProfileNotFoundException {
+        
+        validateMolecularProfile(molecularProfileId);
+        List<String> sampleIds = sampleListRepository.getAllSampleIdsInSampleList(sampleListId);
+        if (sampleIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return fetchGenericAssayData(Arrays.asList(molecularProfileId), sampleIds, genericAssayStableIds, projection);
+    }
+
+    @Override
+    public List<GenericAssayData> fetchGenericAssayData(String molecularProfileId, List<String> sampleIds,
+            List<String> genericAssayStableIds, String projection) throws MolecularProfileNotFoundException {
+
+        validateMolecularProfile(molecularProfileId);
+        return fetchGenericAssayData(Arrays.asList(molecularProfileId), sampleIds, genericAssayStableIds, projection);
+    }
+
+    private void validateMolecularProfile(String molecularProfileId) throws MolecularProfileNotFoundException {
+
+        MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
+
+        if (!molecularProfile.getMolecularAlterationType().equals(MolecularAlterationType.GENERIC_ASSAY)) {
+
+            throw new MolecularProfileNotFoundException(molecularProfileId);
+        }
     }
 }

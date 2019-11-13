@@ -79,6 +79,7 @@
             "skin.right_nav.show_data_sets",
             "skin.right_nav.show_examples",
             "skin.right_nav.show_testimonials",
+            "skin.right_nav.show_whats_new",
             "skin.right_nav.whats_new_blurb",
             "skin.show_about_tab",
             "skin.show_data_tab",

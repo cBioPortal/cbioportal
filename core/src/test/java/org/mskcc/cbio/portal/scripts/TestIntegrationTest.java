@@ -359,7 +359,7 @@ public class TestIntegrationTest {
             // TCGA-BH-A0HP-01 TCGA-BH-A18P-01
             // Nmut ... ... ... 18	3	32	13	3	4	1	7
             GenericAssayService genericAssayService = applicationContext.getBean(GenericAssayService.class);
-            List<GenericAssayData> mutationalSignatureData = genericAssayService.getGenericAssayDataInMultipleMolecularProfiles(Arrays.asList(testMutationalSignatureMolecularProfileIds),
+            List<GenericAssayData> mutationalSignatureData = genericAssayService.fetchGenericAssayData(Arrays.asList(testMutationalSignatureMolecularProfileIds),
                     Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SH-01"), Arrays.asList(testMutationalSignatureStableIds), PersistenceConstants.SUMMARY_PROJECTION);
             assertEquals(2, mutationalSignatureData.size());
             assertEquals("18", mutationalSignatureData.get(0).getValue());

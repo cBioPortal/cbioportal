@@ -47,13 +47,15 @@ public class ProfiledCasesCounter {
 
         Set<String> profiledCases = profiled
                 .stream()
-                .map(x -> countByPatients ? x.getPatientId() : x.getSampleId())
+                // there can be duplicate patient or sample id, append study id
+                .map(x -> x.getStudyId() + (countByPatients ? x.getPatientId() : x.getSampleId()))
                 .collect(Collectors.toSet());
 
         Set<String> casesWithoutPanelData = profiled
                 .stream()
                 .filter(g -> g.getGenePanelId() == null)
-                .map(x -> countByPatients ? x.getPatientId() : x.getSampleId())
+                // there can be duplicate patient or sample id, append study id
+                .map(x -> x.getStudyId() + (countByPatients ? x.getPatientId() : x.getSampleId()))
                 .collect(Collectors.toSet());
 
         for (AlterationCountByGene alterationCountByGene : alterationCounts) {
@@ -66,7 +68,8 @@ public class ProfiledCasesCounter {
                     Set<String> casesWithPanelData = genePanelDataMap
                             .get(genePanel.getStableId())
                             .stream()
-                            .map(x -> countByPatients ? x.getPatientId() : x.getSampleId())
+                            // there can be duplicate patient or sample id, append study id
+                            .map(x -> x.getStudyId() + (countByPatients ? x.getPatientId() : x.getSampleId()))
                             .collect(Collectors.toSet());
                     profiledCasesForGene.addAll(casesWithPanelData);
                     allPanels.add(genePanel);

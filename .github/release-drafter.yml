@@ -27,8 +27,5 @@ template: |
   
   ## 🕵️‍♀️ Full commit logs
   
-  Backend changes:
-  https://github.com/cBioPortal/cbioportal/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION
-  
-  Frontend changes:
-  https://github.com/cBioPortal/cbioportal-frontend/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION
+  - Backend: https://github.com/cBioPortal/cbioportal/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION
+  - Frontend: https://github.com/cBioPortal/cbioportal-frontend/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION

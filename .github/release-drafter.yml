@@ -18,6 +18,7 @@ categories:
       - 'chore'
       - 'devops'
       - 'dependencies'
+      - 'cleanup'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
   ## Changes

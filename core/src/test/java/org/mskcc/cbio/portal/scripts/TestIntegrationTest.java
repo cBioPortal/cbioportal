@@ -386,30 +386,16 @@ public class TestIntegrationTest {
             // ...
             String testTreatment = "Irinotecan";
             assertNotNull(DaoGeneticEntity.getGeneticEntityByStableId(testTreatment));
-            // entity_stable_id NAME DESCRIPTION URL TCGA-A1-A0SB-01 TCGA-A1-A0SD-01
+            // ENTITY_STABLE_ID NAME DESCRIPTION URL TCGA-A1-A0SB-01 TCGA-A1-A0SD-01
             // TCGA-A1-A0SE-01 TCGA-A1-A0SH-01 TCGA-A2-A04U-01 TCGA-B6-A0RS-01
             // TCGA-BH-A0HP-01 TCGA-BH-A18P-01
             // Irinotecan ... ... ... NA 0.080764666 NA 0.06704437 0.069568723 0.034992039
             // 0.740817904 0.209220141
-
-
-            // GenericAssayService treatmentDataService = applicationContext.getBean(GenericAssayService.class);
-            // List<GenericAssayData> treatmentData = genericAssayService.getGenericAssayDataInMultipleMolecularProfiles(Arrays.asList(testMutationalSignatureMolecularProfileIds),
-            //         Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SH-01"), Arrays.asList(testMutationalSignatureStableIds), PersistenceConstants.SUMMARY_PROJECTION);
-            // assertEquals(2, mutationalSignatureData.size());
-            // assertEquals("18", mutationalSignatureData.get(0).getValue());
-            // assertEquals("13", mutationalSignatureData.get(1).getValue());
-
-            // TreatmentDataService treatmentDataService = applicationContext.getBean(TreatmentDataService.class);
-            // List<TreatmentMolecularData> treatmentData = treatmentDataService
-            //         .fetchTreatmentData("study_es_0_treatment_ic50", "study_es_0_all", Arrays.asList(testTreatment));
-            // assertEquals(8, treatmentData.size());
-
-            // treatmentData = treatmentDataService.fetchTreatmentData("study_es_0_treatment_ic50",
-            //         Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SH-01"), Arrays.asList(testTreatment));
-            // assertEquals(2, treatmentData.size());
-            // assertEquals("NA", treatmentData.get(0).getValue());
-            // assertEquals(0.06704437, Double.parseDouble(treatmentData.get(1).getValue()), 0.00001);
+            GenericAssayService treatmentDataService = applicationContext.getBean(GenericAssayService.class);
+            List<GenericAssayData> treatmentData = treatmentDataService.getGenericAssayData("study_es_0_treatment_ic50", "study_es_0_all", Arrays.asList(testTreatment), PersistenceConstants.SUMMARY_PROJECTION);
+            assertEquals(8, treatmentData.size());
+            assertEquals("NA", treatmentData.get(0).getValue());
+            assertEquals(0.080764666, Double.parseDouble(treatmentData.get(1).getValue()), 0.00001);
 
             // ===== check study status
             assertEquals(DaoCancerStudy.Status.AVAILABLE, DaoCancerStudy.getStatus("study_es_0"));

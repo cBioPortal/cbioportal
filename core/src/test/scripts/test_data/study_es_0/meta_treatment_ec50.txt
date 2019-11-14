@@ -9,3 +9,4 @@ data_filename: data_treatment_ec50.txt
 show_profile_in_analysis_tab: true
 pivot_threshold_value: 0.1
 value_sort_order: ASC
+generic_entity_meta_properties: NAME,DESCRIPTION,URL

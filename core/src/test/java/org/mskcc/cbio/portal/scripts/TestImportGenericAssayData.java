@@ -80,8 +80,6 @@ public class TestImportGenericAssayData {
         assertEquals("Name of Irinotecan", treatment1.getGenericEntityMetaProperties().get("NAME"));
         assertEquals("Desc of Irinotecan", treatment1.getGenericEntityMetaProperties().get("DESCRIPTION"));
         assertEquals("Url of Irinotecan", treatment1.getGenericEntityMetaProperties().get("URL"));
-
-        // TODO: test fields are updated after loading new treatment file
     }
 
     @Test
@@ -103,8 +101,6 @@ public class TestImportGenericAssayData {
         // Test whether fields were populated correctly
         assertEquals("mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("name"));
         assertEquals("mean_1", genericAssayMeta1.getGenericEntityMetaProperties().get("description"));
-
-        // TODO: test fields are updated after loading new generic assay meta file
     }
 
     private int getNumRecordsForGenericAssay() {

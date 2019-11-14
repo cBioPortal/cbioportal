@@ -4079,6 +4079,8 @@ class GenericAssayWiseFileValidator(FeaturewiseFileValidator):
     def __init__(self, *args, **kwargs):
         """Initialize the instance attributes of the data file validator."""
         super(GenericAssayWiseFileValidator, self).__init__(*args, **kwargs)
+        # reset REQUIRED_HEADERS for each generic assay meta file, and then add headers defined in generic_entity_meta_properties
+        self.REQUIRED_HEADERS = ['ENTITY_STABLE_ID']
         self.REQUIRED_HEADERS.extend([x.strip() for x in self.meta_dict['generic_entity_meta_properties'].split(',')])
 
     REQUIRED_HEADERS = ['ENTITY_STABLE_ID']

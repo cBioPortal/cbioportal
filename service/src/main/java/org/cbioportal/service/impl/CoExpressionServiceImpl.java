@@ -149,15 +149,16 @@ public class CoExpressionServiceImpl implements CoExpressionService {
         List<String> includedQueryValues = includedIndexes.stream().map(index -> queryValues.get(index))
                 .collect(Collectors.toList());
 
-        Map<String,List<String>> values = new HashMap<String,List<String>>();
-        for (String entityId : molecularDataMap.keySet()) {
-            List<String> internalValues = new ArrayList<>(
-                    Arrays.asList(molecularDataMap.get(entityId).getSplitValues()));
-            List<String> includedInternalValues = includedIndexes.stream().map(index -> internalValues.get(index))
-                    .collect(Collectors.toList());
-            values.put(entityId, includedInternalValues);
-        }
-        coExpressionList = computeCoExpressions(values, includedQueryValues, isMolecularProfileBOfGenesetType, threshold, molecularProfileId);
+        // Map<String,List<String>> values = new HashMap<String,List<String>>();
+        // for (String entityId : molecularDataMap.keySet()) {
+        //     List<String> internalValues = new ArrayList<>(
+        //             Arrays.asList(molecularDataMap.get(entityId).getSplitValues()));
+        //     List<String> includedInternalValues = includedIndexes.stream().map(index -> internalValues.get(index))
+        //             .collect(Collectors.toList());
+        //     values.put(entityId, includedInternalValues);
+        // }
+        coExpressionList = computeCoExpressionsOpt(includedIndexes, includedQueryValues, molecularDataMap, threshold);
+        //coExpressionList = computeCoExpressions(values, includedQueryValues, isMolecularProfileBOfGenesetType, threshold, molecularProfileId);
         return coExpressionList;
     }
 
@@ -230,6 +231,60 @@ public class CoExpressionServiceImpl implements CoExpressionService {
 
         return coExpressionList;
 
+    }
+
+    private List<CoExpression> computeCoExpressionsOpt(Set<Integer> includedIndexes, List<String> valuesB, Map<String, MolecularAlteration> molecularDataMap,
+                                                       Double threshold) throws GenesetNotFoundException, GeneNotFoundException {
+
+        List<CoExpression> coExpressionList = new ArrayList<>();
+        for (String entityId : molecularDataMap.keySet()) {
+            //for (String entityId : valuesA.keySet()) {
+            List<String> internalValues = new ArrayList<>(Arrays.asList(molecularDataMap.get(entityId).getSplitValues()));
+            List<String> values = includedIndexes.stream().map(index -> internalValues.get(index)).collect(Collectors.toList());
+            //List<String> values = valuesA.get(entityId);
+            List<String> valuesBCopy = new ArrayList<>(valuesB);
+
+            List<Integer> valuesToRemove = new ArrayList<>();
+            for (int i = 0; i < valuesBCopy.size(); i++) {
+                if (!NumberUtils.isNumber(valuesBCopy.get(i)) || !NumberUtils.isNumber(values.get(i))) {
+                    valuesToRemove.add(i);
+                }
+            }
+
+            for (int i = 0; i < valuesToRemove.size(); i++) {
+                int valueToRemove = valuesToRemove.get(i) - i;
+                valuesBCopy.remove(valueToRemove);
+                values.remove(valueToRemove);
+            }
+            
+            CoExpression coExpression = new CoExpression();
+            coExpression.setGeneticEntityId(entityId);
+            
+            double[] valuesBNumber = valuesBCopy.stream().mapToDouble(Double::parseDouble).toArray();
+            double[] valuesNumber = values.stream().mapToDouble(Double::parseDouble).toArray();
+
+            if (valuesNumber.length <= 2) {
+                continue;
+            }
+            
+            double[][] arrays = new double[2][valuesNumber.length];
+            arrays[0] = valuesBNumber;
+            arrays[1] = valuesNumber;
+            SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation((new Array2DRowRealMatrix(arrays, false)).transpose());
+
+            double spearmansValue = spearmansCorrelation.correlation(valuesBNumber, valuesNumber);
+            if (Double.isNaN(spearmansValue) || Math.abs(spearmansValue) < threshold) {
+                continue;
+            }
+            coExpression.setSpearmansCorrelation(BigDecimal.valueOf(spearmansValue));
+
+            RealMatrix resultMatrix = spearmansCorrelation.getRankCorrelation().getCorrelationPValues();
+            coExpression.setpValue(BigDecimal.valueOf(resultMatrix.getEntry(0, 1)));
+            
+            coExpressionList.add(coExpression);
+        }
+        
+        return coExpressionList;
     }
 
     private List<CoExpression> computeCoExpressions(Map<String, List<String>> valuesA, List<String> valuesB, 

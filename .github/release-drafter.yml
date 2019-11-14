@@ -24,8 +24,8 @@ template: |
 
   $CHANGES
   
-  Full list of backend changes
-  https://github.com/cBioPortal/cbioportal/compare/$PREVIOUS_TAG...$NEXT_PATCH_VERSION
+  Full list of all backend changes:
+  https://github.com/cBioPortal/cbioportal/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION
   
-  Full list of frontend changes
-  https://github.com/cBioPortal/cbioportal-frontend/compare/$PREVIOUS_TAG...$NEXT_PATCH_VERSION
+  Full list of all frontend changes:
+  https://github.com/cBioPortal/cbioportal-frontend/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION

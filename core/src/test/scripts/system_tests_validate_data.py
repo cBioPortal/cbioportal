@@ -247,13 +247,13 @@ class ValidateDataSystemTester(unittest.TestCase):
 def _resetClassVars():
     """Reset the state of classes that check mulitple files of the same type.
     
-    GsvaWiseFileValidator and TreatmentWiseFileValidator classes check
+    GsvaWiseFileValidator classes check
     consistency between multiple data files by collecting information in class variables.
     This implementation is not consistent with the unit test environment that simulates
     different studies to be loaded. To ensure real-world fucntionality the class variables 
     should be reset before each unit test that tests multi file consistency."""
 
-    for c in [ validateData.TreatmentWiseFileValidator, validateData.GsvaWiseFileValidator ]:
+    for c in [ validateData.GsvaWiseFileValidator ]:
         c.prior_validated_sample_ids = None
         c.prior_validated_feature_ids = None
         c.prior_validated_header = None

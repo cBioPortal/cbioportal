@@ -8,3 +8,4 @@ profile_description: IC50 (compound concentration resulting in half maximal inhi
 data_filename: data_treatment_ic50.txt
 show_profile_in_analysis_tab: true
 value_sort_order: asc
+generic_entity_meta_properties: NAME,DESCRIPTION,URL

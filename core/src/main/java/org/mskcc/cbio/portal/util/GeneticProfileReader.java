@@ -122,7 +122,7 @@ public class GeneticProfileReader {
             validateGenericAssay(geneticProfile, file);
             geneticProfile.setGenericAssayType(geneticProfile.getOtherMetaDataField("generic_assay_type"));
             // if genericAssayType is TREATMENT_RESPONSE, validate and set pivotThreshold and sortOrder
-            if (geneticProfile.getGenericAssayType() == "TREATMENT_RESPONSE") {
+            if (geneticProfile.getGenericAssayType().equals("TREATMENT_RESPONSE")) {
                 validateTreatmentResponse(geneticProfile, file);
                 geneticProfile.setPivotThreshold(Float.parseFloat(geneticProfile.getOtherMetaDataField("pivot_threshold_value")));
                 geneticProfile.setSortOrder(geneticProfile.getOtherMetaDataField("value_sort_order"));

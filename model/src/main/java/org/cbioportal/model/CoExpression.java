@@ -9,11 +9,7 @@ public class CoExpression implements Serializable {
     @NotNull
     private String geneticEntityId;
     @NotNull
-    private String geneticEntityName;
-    @NotNull
     private EntityType geneticEntityType;
-    @NotNull
-    private String cytoband;
     @NotNull
     private BigDecimal spearmansCorrelation;
     @NotNull
@@ -26,14 +22,6 @@ public class CoExpression implements Serializable {
     public void setGeneticEntityId(String geneticEntityId) {
         this.geneticEntityId = geneticEntityId;
     }
-
-    public String getGeneticEntityName() {
-        return geneticEntityName;
-    }
-
-    public void setGeneticEntityName(String geneticEntityName) {
-        this.geneticEntityName = geneticEntityName;
-    }
     
     public EntityType getGeneticEntityType() {
         return geneticEntityType;
@@ -41,14 +29,6 @@ public class CoExpression implements Serializable {
 
     public void setGeneticEntityType(EntityType geneticEntityType) {
         this.geneticEntityType = geneticEntityType;
-    }
-
-    public String getCytoband() {
-        return cytoband;
-    }
-
-    public void setCytoband(String cytoband) {
-        this.cytoband = cytoband;
     }
 
     public BigDecimal getSpearmansCorrelation() {

@@ -1,0 +1,30 @@
+version: 2 # use CircleCI 2.0
+jobs: # a collection of steps
+
+  build: # runs not using Workflows must have a `build` job as entry point
+
+    working_directory: ~/repo # directory where steps will run
+
+    docker: # run the steps with Docker
+
+      - image: maven:3.5.4 # ...with this image as the primary container; this is where all `steps` will run
+      - image: mysql:5.7
+        environment:
+          MYSQL_DATABASE: cgds_test
+          MYSQL_USER: cbio_user
+          MYSQL_PASSWORD: somepassword
+          MYSQL_ROOT_PASSWORD: my-secret-pw
+
+    steps: # a collection of executable commands
+      - checkout # check out source code to working directory
+
+      - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
+          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
+          key: cbioportal-backend-{{ checksum "pom.xml" }}
+      
+      - run: mvn -e -Ppublic -Ddb.user=cbio_user -Ddb.password=somepassword -Ddb.test.username=cbio_user -Dfinal.war.name=cbioportal -Ddb.test.password=somepassword -Ddb.connection_string=jdbc:mysql://127.0.0.1:3306/ -Ddb.host=127.0.0.1 clean install integration-test # run the actual tests
+
+      - save_cache: # saves the project dependencies
+          paths:
+            - ~/.m2
+          key: cbioportal-backend-{{ checksum "pom.xml" }}

@@ -10,7 +10,7 @@ categories:
       - 'fix'
       - 'bugfix'
       - 'bug'
-  - title: '🗄 Migrations'
+  - title: '🗄 Database Migration'
     labels:
       - 'includes db changes'
       - 'migration'

@@ -10,6 +10,10 @@ categories:
       - 'fix'
       - 'bugfix'
       - 'bug'
+  - title: '🗄 Migrations'
+    labels:
+      - 'includes db changes'
+      - 'migration'
   - title: '⚠️ Deprecation'
     labels:
       - 'deprecation'

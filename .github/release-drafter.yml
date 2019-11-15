@@ -10,6 +10,13 @@ categories:
       - 'fix'
       - 'bugfix'
       - 'bug'
+  - title: '🗄 Database Migration'
+    labels:
+      - 'includes db changes'
+      - 'migration'
+  - title: '⚠️ Deprecation'
+    labels:
+      - 'deprecation'
   - title: '📘 Documentation'
     labels:
       - 'documentation'
@@ -18,14 +25,14 @@ categories:
       - 'chore'
       - 'devops'
       - 'dependencies'
+      - 'cleanup'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
   ## Changes
 
   $CHANGES
   
-  Full list of backend changes
-  https://github.com/cBioPortal/cbioportal/compare/$PREVIOUS_TAG...$NEXT_PATCH_VERSION
+  ## 🕵️‍♀️ Full commit logs
   
-  Full list of frontend changes
-  https://github.com/cBioPortal/cbioportal-frontend/compare/$PREVIOUS_TAG...$NEXT_PATCH_VERSION
+  - Backend: https://github.com/cBioPortal/cbioportal/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION
+  - Frontend: https://github.com/cBioPortal/cbioportal-frontend/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION

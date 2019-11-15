@@ -100,7 +100,7 @@ public class SampleController {
             studyIds = studyService
                 .getAllStudies(
                     null,
-                    projection.name(),
+                    Projection.SUMMARY.name(), // force to summary so that post filter doesn't NPE
                     PagingConstants.MAX_PAGE_SIZE,
                     0,
                     null,

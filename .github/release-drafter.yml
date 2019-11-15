@@ -10,6 +10,9 @@ categories:
       - 'fix'
       - 'bugfix'
       - 'bug'
+  - title: '⚠️ Deprecation'
+    labels:
+      - 'deprecation'
   - title: '📘 Documentation'
     labels:
       - 'documentation'

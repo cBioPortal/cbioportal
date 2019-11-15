@@ -1,0 +1,31 @@
+name-template: 'v$NEXT_PATCH_VERSION'
+tag-template: 'v$NEXT_PATCH_VERSION'
+categories:
+  - title: '🧬 Features'
+    labels:
+      - 'feature'
+      - 'enhancement'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'fix'
+      - 'bugfix'
+      - 'bug'
+  - title: '📘 Documentation'
+    labels:
+      - 'documentation'
+  - title: '🧰 Maintenance'
+    labels:
+      - 'chore'
+      - 'devops'
+      - 'dependencies'
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+template: |
+  ## Changes
+
+  $CHANGES
+  
+  Full list of backend changes
+  https://github.com/cBioPortal/cbioportal/compare/$PREVIOUS_TAG...$NEXT_PATCH_VERSION
+  
+  Full list of frontend changes
+  https://github.com/cBioPortal/cbioportal-frontend/compare/$PREVIOUS_TAG...$NEXT_PATCH_VERSION

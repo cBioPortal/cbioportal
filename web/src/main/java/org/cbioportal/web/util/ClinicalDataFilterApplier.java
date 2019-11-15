@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class ClinicalDataFilterApplier<T extends ClinicalDataFilter> {
+public abstract class ClinicalDataFilterApplier {
     private PatientService patientService;
     private ClinicalDataService clinicalDataService;
     protected StudyViewFilterUtil studyViewFilterUtil;
@@ -27,12 +27,12 @@ public abstract class ClinicalDataFilterApplier<T extends ClinicalDataFilter> {
     }
 
     public List<SampleIdentifier> apply(List<SampleIdentifier> sampleIdentifiers,
-                                        List<T> clinicalDataFilters,
+                                        List<ClinicalDataFilter> clinicalDataFilters,
                                         Boolean negateFilters) {
         if (!clinicalDataFilters.isEmpty() && !sampleIdentifiers.isEmpty()) {
             List<String> studyIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
-
+            
             studyViewFilterUtil.extractStudyAndSampleIds(sampleIdentifiers, studyIds, sampleIds);
 
             List<Patient> patients = patientService.getPatientsOfSamples(studyIds, sampleIds);
@@ -99,5 +99,5 @@ public abstract class ClinicalDataFilterApplier<T extends ClinicalDataFilter> {
     }
 
     // Must be overridden by child classes
-    protected abstract Integer apply(List<T> attributes, MultiKeyMap clinicalDataMap, String entityId, String studyId, Boolean negateFilters);
+    protected abstract Integer apply(List<ClinicalDataFilter> attributes, MultiKeyMap clinicalDataMap, String entityId, String studyId, Boolean negateFilters);
 }

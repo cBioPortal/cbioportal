@@ -17,8 +17,7 @@ public class StudyViewFilter implements Serializable {
     private List<SampleIdentifier> sampleIdentifiers;
     @Size(min = 1)
     private List<String> studyIds;
-    private List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters;
-    private List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters;
+    private List<ClinicalDataFilter> clinicalDataFilters;
     private List<MutationGeneFilter> mutatedGenes;
     private List<FusionGeneFilter> fusionGenes;
 	private List<CopyNumberGeneFilter> cnaGenes;
@@ -35,8 +34,8 @@ public class StudyViewFilter implements Serializable {
     private boolean isEitherValueOrRangePresentInClinicalDataIntervalFilters() {
         long invalidCount = 0;
 
-        if (clinicalDataIntervalFilters != null) {
-            invalidCount = clinicalDataIntervalFilters.stream()
+        if (clinicalDataFilters != null) {
+            invalidCount = clinicalDataFilters.stream()
                 .flatMap(f -> f.getValues().stream())
                 .filter(Objects::nonNull)
                 .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
@@ -61,21 +60,13 @@ public class StudyViewFilter implements Serializable {
     public void setStudyIds(List<String> studyIds) {
         this.studyIds = studyIds;
     }
-
-    public List<ClinicalDataEqualityFilter> getClinicalDataEqualityFilters() {
-        return clinicalDataEqualityFilters;
+    
+    public List<ClinicalDataFilter> getClinicalDataFilters() {
+        return clinicalDataFilters;
     }
 
-    public void setClinicalDataEqualityFilters(List<ClinicalDataEqualityFilter> clinicalDataEqualityFilters) {
-        this.clinicalDataEqualityFilters = clinicalDataEqualityFilters;
-    }
-
-    public List<ClinicalDataIntervalFilter> getClinicalDataIntervalFilters() {
-        return clinicalDataIntervalFilters;
-    }
-
-    public void setClinicalDataIntervalFilters(List<ClinicalDataIntervalFilter> clinicalDataIntervalFilters) {
-        this.clinicalDataIntervalFilters = clinicalDataIntervalFilters;
+    public void setClinicalDataFilters(List<ClinicalDataFilter> clinicalDataFilters) {
+        this.clinicalDataFilters = clinicalDataFilters;
     }
 
     public List<MutationGeneFilter> getMutatedGenes() {

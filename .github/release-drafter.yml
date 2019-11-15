@@ -39,6 +39,8 @@ categories:
     labels:
       - 'chore'
       - 'dependencies'
+exclude-labels:
+  - 'skip-changelog'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
   ## Changes

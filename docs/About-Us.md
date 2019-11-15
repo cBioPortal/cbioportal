@@ -23,9 +23,11 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 ## Dana-Farber Cancer Institute
 * Ethan Cerami
 * Tali Mazor
+* Luke Sikina
+* Pieter Lukasse
+* Priti Kumari
 * Augustin Luna
 * James Lindsay
-* Priti Kumari
 * Chris Sander
 
 ## Princess Margaret Cancer Centre, Toronto

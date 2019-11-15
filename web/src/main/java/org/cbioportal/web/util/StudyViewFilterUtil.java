@@ -18,12 +18,8 @@ public class StudyViewFilterUtil {
     }
 
     public void removeSelfFromFilter(String attributeId, StudyViewFilter studyViewFilter) {
-        if (studyViewFilter!= null && studyViewFilter.getClinicalDataEqualityFilters() != null) {
-            studyViewFilter.getClinicalDataEqualityFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
-        }
-
-        if (studyViewFilter!= null && studyViewFilter.getClinicalDataIntervalFilters() != null) {
-            studyViewFilter.getClinicalDataIntervalFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
+        if (studyViewFilter!= null && studyViewFilter.getClinicalDataFilters() != null) {
+            studyViewFilter.getClinicalDataFilters().removeIf(f -> f.getAttributeId().equals(attributeId));
         }
     }
 

@@ -35,8 +35,8 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Trevor Pugh
 
 ## Children's Hospital of Philadelphia
-* Pichai Raman
 * Karthik Kalletla
+* Allison Heath
 * John Maris
 * Adam Resnick
 
@@ -78,6 +78,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Tamba Monrose
 * Peter Kok
 * Irina Pulyakhina
+* Pichai Raman
 * M. Furkan Sahin
 * Kaan Sancak
 * Sander Tan
@@ -95,6 +96,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * American Association for Cancer Research through AACR Project GENIE
 * POETIC Consortium
 * Robertson Foundation
+* Parker Institute for Cancer Immunotherapy
 
 ### Past:
 * Stand Up 2 Cancer

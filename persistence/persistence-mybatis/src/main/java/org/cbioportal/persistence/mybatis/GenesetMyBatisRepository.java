@@ -48,4 +48,10 @@ public class GenesetMyBatisRepository implements GenesetRepository {
 		
 		return genesetMapper.getGenesByGenesetId(genesetId, PersistenceConstants.SUMMARY_PROJECTION);
 	}
+	
+	@Override
+	public String getGenesetVersion() {
+		
+		return genesetMapper.getGenesetVersion();
+	}
 }

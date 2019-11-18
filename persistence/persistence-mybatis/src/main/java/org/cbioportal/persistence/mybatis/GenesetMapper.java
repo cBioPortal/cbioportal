@@ -28,4 +28,6 @@ public interface GenesetMapper {
     List<Geneset> fetchGenesets(List<String> genesetIds);
     
     List<Gene> getGenesByGenesetId(String genesetId, String projection);
+    
+    String getGenesetVersion();
 }

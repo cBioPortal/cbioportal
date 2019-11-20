@@ -3813,7 +3813,7 @@ class MultipleDataFileValidator(FeaturewiseFileValidator, metaclass=ABCMeta):
 
         feature_id = nonsample_col_vals[0].strip()
 
-        # Check if feature is present
+        # Check if genetic entity is present
         if feature_id == '':
             # Validator already gives warning for this in checkLine method
             pass
@@ -3824,12 +3824,12 @@ class MultipleDataFileValidator(FeaturewiseFileValidator, metaclass=ABCMeta):
         else:
             # Check if this is the second data file
             if self.get_prior_validated_feature_ids() is not None:
-                # Check if feature is in the first data file
+                # Check if genetic entity is in the first data file
                 if feature_id not in self.get_prior_validated_feature_ids():
                     self.logger.error('Feature id cannot be found in other data file',
                                       extra={'line_number': self.line_number,
                                              'cause': feature_id})
-            # Add feature to list of features of current data file
+            # Add genetic entity to list of entities of current data file
             self.feature_ids.append(feature_id)
         return feature_id
 
@@ -3969,12 +3969,11 @@ class GenericAssayValidator(GenericAssayWiseFileValidator):
     """
 
     # (1) Natural positive number (not 0)
-    # (2) Number may be prefixed by ">" or "<"; f.i. ">n" means that the data was ineffective at the highest tested concentration of n.
+    # (2) Number may be prefixed by ">" or "<"; f.i. ">n" means that the real value lies beyond value n.
     # (3) NA cell value is allowed; means value was not tested on a sample
-    # (4) Is an empty cell value allowed? (meaning data was not tested on a sample)
     #
     # Warnings for values:
-    # (1) Cell contains a value without decimals and is not prependend by ">"; value appears to be truncated but lacks ">" truncation indicator
+    # (1) Cell contains a value without decimals and is not prefixed by ">"; value appears to be truncated but lacks ">" truncation indicator
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
 

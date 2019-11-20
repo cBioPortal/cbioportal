@@ -20,6 +20,7 @@ import org.cbioportal.model.meta.GenericAssayMeta;
 import org.cbioportal.persistence.GenericAssayRepository;
 import org.cbioportal.persistence.MolecularDataRepository;
 import org.cbioportal.persistence.SampleListRepository;
+import org.cbioportal.persistence.mybatis.util.OffsetCalculator;
 import org.cbioportal.service.GenericAssayService;
 import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.SampleService;
@@ -47,6 +48,26 @@ public class GenericAssayServiceImpl implements GenericAssayService {
 
     @Autowired
     private SampleListRepository sampleListRepository;
+
+    @Autowired	
+    private OffsetCalculator offsetCalculator;
+
+    @Override
+    public List<GenericAssayMeta> getGenericAssayMetaByGenericAssayType(String genericAssayType, String projection,
+            Integer pageSize, Integer pageNumber) throws GenericAssayNotFoundException {
+        List<GenericAssayMeta> metaData = genericAssayRepository.getGenericAssayMetaByGenericAssayType(genericAssayType, projection, pageSize,
+        offsetCalculator.calculate(pageSize, pageNumber), "stableId", "ASC");
+        List<GenericAssayMeta> metaResults = new ArrayList<GenericAssayMeta>();
+        for (GenericAssayMeta meta : metaData) {
+            int geneticEntityId = genericAssayRepository.getGeneticEntityIdByStableId(meta.getStableId());
+            HashMap<String, String> map = new HashMap<>();
+            for (HashMap<String, String> data : genericAssayRepository.getGenericAssayMetaPropertiesMap(geneticEntityId)) {
+                map.put(data.get("key"), data.get("value"));
+            }
+            metaResults.add(new GenericAssayMeta(meta.getEntityType(), meta.getStableId(), map));
+        }
+        return metaResults;
+    }
 
     @Override
     public List<GenericAssayMeta> getGenericAssayMetaByStableIdsAndMolecularIds(List<String> stableIds, List<String> molecularProfileIds, String projection)

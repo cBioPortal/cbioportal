@@ -18,6 +18,13 @@ public class GenericAssayMyBatisRepository implements GenericAssayRepository {
     private GenericAssayMapper genericAssayMapper;
 
     @Override
+    public List<GenericAssayMeta> getGenericAssayMetaByGenericAssayType(String genericAssayType, String projection,
+            Integer limit, Integer offset, String sortBy, String direction) {
+
+        return genericAssayMapper.getGenericAssayMetaByGenericAssayType(genericAssayType, projection, limit, offset, sortBy, direction);
+    }
+
+    @Override
     public List<GenericAssayMeta> getGenericAssayMeta(List<String> stableIds) {
 
         return genericAssayMapper.getGenericAssayMeta(stableIds);

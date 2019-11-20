@@ -23,4 +23,7 @@ public interface GenericAssayService {
     List<GenericAssayData> fetchGenericAssayData(List<String> molecularProfileIds, List<String> sampleIds, 
                                             List<String> genericAssayStableIds, String projection)
         throws MolecularProfileNotFoundException;
+
+    List<GenericAssayMeta> getGenericAssayMetaByGenericAssayType(String genericAssayType, String projection, Integer pageSize, Integer pageNumber)
+        throws GenericAssayNotFoundException;   
 }

@@ -11,6 +11,9 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import org.cbioportal.web.parameter.PagingConstants;
 
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.meta.GenericAssayMeta;
@@ -47,6 +50,25 @@ public class GenericAssayController {
     
     @Autowired
     private GenericAssayService genericAssayService;
+
+    @RequestMapping(value = "/generic_assay_meta/{genericAssayType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)	
+    @ApiOperation("Get all meta data for one generic_assay_type")	
+    public ResponseEntity<List<GenericAssayMeta>> getGenericAssayMetaData(	
+        @ApiParam(required = true, value = "TREATMENT_RESPONSE")	
+        @PathVariable String genericAssayType,
+        @ApiParam("Level of detail of the response")	
+        @RequestParam(defaultValue = "SUMMARY") Projection projection,	
+        @ApiParam("Page size of the result list")	
+        @Max(Integer.MAX_VALUE)	
+        @Min(PagingConstants.MIN_PAGE_SIZE)	
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,	
+        @ApiParam("Page number of the result list")	
+        @Min(PagingConstants.MIN_PAGE_NUMBER)	
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber) throws GenericAssayNotFoundException {	
+
+        return new ResponseEntity<>(	
+            genericAssayService.getGenericAssayMetaByGenericAssayType(genericAssayType, projection.name(), pageSize, pageNumber), HttpStatus.OK);
+    }
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
     @RequestMapping(value = "/generic_assay_meta/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,

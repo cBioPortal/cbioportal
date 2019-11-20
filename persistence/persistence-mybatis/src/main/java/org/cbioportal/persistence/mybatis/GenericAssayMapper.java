@@ -7,6 +7,8 @@ import org.cbioportal.model.meta.GenericAssayMeta;
 
 public interface GenericAssayMapper {
 
+    List<GenericAssayMeta> getGenericAssayMetaByGenericAssayType(String genericAssayType, String projection, Integer limit, Integer offset, String sortBy, String direction);
+
     List<GenericAssayMeta> getGenericAssayMeta(List<String> stableIds);
 
     List<Integer> getMolecularProfileInternalIdsByMolecularProfileIds(List<String> molecularProfileIds);

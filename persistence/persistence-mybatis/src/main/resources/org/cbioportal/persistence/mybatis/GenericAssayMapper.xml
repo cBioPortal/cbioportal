@@ -9,6 +9,28 @@
                 <result property="value" column="VALUE"/> 
     </resultMap>
 
+    <select id="getGenericAssayMetaByGenericAssayType" resultType="org.cbioportal.model.meta.GenericAssayMeta">	
+        SELECT DISTINCT genetic_entity.STABLE_ID as stableId,
+        genetic_entity.ENTITY_TYPE as entityType
+        FROM genetic_entity
+        <if test="genericAssayType != null">	
+                LEFT JOIN	
+            genetic_alteration AS ga ON ga.GENETIC_ENTITY_ID = genetic_entity.ID	
+                LEFT JOIN	
+            genetic_profile AS gp ON gp.GENETIC_PROFILE_ID = ga.GENETIC_PROFILE_ID	
+            WHERE gp.GENERIC_ASSAY_TYPE = #{genericAssayType}	
+        </if>	
+        <if test="sortBy != null and projection != 'ID'">	
+            ORDER BY ${sortBy} ${direction}	
+        </if>	
+        <if test="projection == 'ID'">	
+            ORDER BY stableId ASC	
+        </if>	
+        <if test="limit != null and limit != 0">	
+            LIMIT #{limit} OFFSET #{offset}	
+        </if>	
+    </select>
+
     <select id="getGenericAssayMeta" resultType="org.cbioportal.model.meta.GenericAssayMeta">
         SELECT genetic_entity.STABLE_ID as stableId,
         genetic_entity.ENTITY_TYPE as entityType

@@ -1,0 +1,12 @@
+[
+    {"stableId":"17-AAG","entityType":"GENERIC_ASSAY","genericEntityMetaProperties":{"DESCRIPTION":"Desc of 17-AAG","URL":"Url of 17-AAG","NAME":"Name of 17-AAG"}},
+    {"stableId":"AEW541","entityType":"GENERIC_ASSAY","genericEntityMetaProperties":{"DESCRIPTION":"Desc of AEW541","URL":"Url of AEW541","NAME":"Name of AEW541"}},
+    {"stableId":"AZD0530","entityType":"GENERIC_ASSAY","genericEntityMetaProperties":{"DESCRIPTION":"Desc of AZD0530","URL":"Url of AZD0530","NAME":"Name of AZD0530"}},
+    {"stableId":"AZD6244","entityType":"GENERIC_ASSAY","genericEntityMetaProperties":{"DESCRIPTION":"Desc of AZD6244","URL":"Url of AZD6244","NAME":"Name of AZD6244"}},
+    {"stableId":"Erlotinib","entityType":"GENERIC_ASSAY","genericEntityMetaProperties":{"DESCRIPTION":"Desc of Erlotinib","URL":"Url of Erlotinib","NAME":"Name of Erlotinib"}},
+    {"stableId":"Irinotecan","entityType":"GENERIC_ASSAY","genericEntityMetaProperties":{"DESCRIPTION":"Desc of Irinotecan","URL":"Url of Irinotecan","NAME":"Name of Irinotecan"}},
+    {"stableId":"L-685458","entityType":"GENERIC_ASSAY","genericEntityMetaProperties":{"DESCRIPTION":"Desc of L-685458","URL":"Url of L-685458","NAME":"Name of L-685458"}},
+    {"stableId":"Lapatinib","entityType":"GENERIC_ASSAY","genericEntityMetaProperties":{"DESCRIPTION":"Desc of Lapatinib","URL":"Url of Lapatinib","NAME":"Name of Lapatinib"}},
+    {"stableId":"LBW242","entityType":"GENERIC_ASSAY","genericEntityMetaProperties":{"DESCRIPTION":"Desc of LBW242","URL":"Url of LBW242","NAME":"Name of LBW242"}},
+    {"stableId":"Nilotinib","entityType":"GENERIC_ASSAY","genericEntityMetaProperties":{"DESCRIPTION":"Desc of Nilotinib","URL":"Url of Nilotinib","NAME":"Name of Nilotinib"}}
+]

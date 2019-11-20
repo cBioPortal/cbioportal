@@ -32,7 +32,6 @@ public class WebServletContextListener implements ServletContextListener, Initia
         this.oncokbToken = getProperty("oncokb.token", "");
 
         if (this.showOncokb) {
-            System.out.println(this.properties.toString());
             checkOncokbInfo();
         }
     }

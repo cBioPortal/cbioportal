@@ -340,7 +340,7 @@ public class SampleMyBatisRepositoryTest {
      
     @Test
     public void getSamplesByKeyword() {
-         List<Sample> result = sampleMyBatisRepository.getAllSamples("TCGA-A1-A0SB", "SUMMARY", 10, 0, null, null);
+         List<Sample> result = sampleMyBatisRepository.getAllSamples("TCGA-A1-A0SB", null, "SUMMARY", 10, 0, null, null);
          List<String> actual = result.stream().map((Sample::getStableId)).collect(Collectors.toList());
          List<String> expected = Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SB-01", "TCGA-A1-A0SB-02");
 
@@ -349,7 +349,7 @@ public class SampleMyBatisRepositoryTest {
      
     @Test
     public void getMetaSamplesByKeyword() {
-        BaseMeta actual = sampleMyBatisRepository.getMetaSamples("TCGA-A1-A0SB");
+        BaseMeta actual = sampleMyBatisRepository.getMetaSamples("TCGA-A1-A0SB", null);
         Integer expected = 3;
         
         Assert.assertEquals(expected, actual.getTotalCount());

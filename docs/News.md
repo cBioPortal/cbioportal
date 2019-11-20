@@ -1,3 +1,10 @@
+## Nov 7, 2019
+
+*   **Added data** consisting of 212 samples from 3 studies:
+     * [Metastatic Melanoma (DFCI, Science 2015)](https://www.cbioportal.org/study/summary?id=skcm_dfci_2015) *110 samples* 
+     * [Melanoma (MSKCC, NEJM 2014)](https://www.cbioportal.org/study/summary?id=skcm_mskcc_2014) *64 samples* 
+     * [Metastatic Melanoma (UCLA, Cell 2016)](https://www.cbioportal.org/study/summary?id=mel_ucla_2016) *38 samples* 
+     
 ## Oct 30, 2019
 
 *   **Added data** consisting of 178 samples from 2 studies:
@@ -6,6 +13,12 @@
 
 ## October 23, 2019
 * **Enhancement**: Quick example links in Plots tab. [example](https://www.cbioportal.org/results/plots?session_id=5ba11ce6498eb8b3d567e7ed)
+
+## October 14, 2019
+
+* **New Feature**: Fusion Genes table in `Study View`. [example](https://www.cbioportal.org/study/summary?id=msk_impact_2017)
+
+![image](https://user-images.githubusercontent.com/840895/68320157-6ef28e00-008d-11ea-8cb3-e4b54aa1d848.png)
 
 ## October 11, 2019
 * **Enhancement**: The Download interface on the homepage has been removed. Enhanced download functionality is now available after querying on the results page.

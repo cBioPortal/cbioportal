@@ -217,8 +217,17 @@ Below you can find the complete list of all the available skin properties.
             <td>3</td>
             <td>integer</td>
         </tr>
+		<tr>
+            <td>skin.patientview.filter_genes_profiled_all_samples</td>
+            <td>sets default setting for the genes filter in patient view to only show mutations for genes that were profiled for mutations or CNA's in all samples of that patient. If unset, patient view will show mutations/CNA's for genes that were profiled in any sample.</td>
+            <td>false</td>
+            <td>true / false</td>
+        </tr>
    </tbody>
 </table>
+
+# Customization when using Docker
+To add images or other files to the Docker image one can mount them inside the `cbioportal-webapp` folder. For example to use a custom logo for `skin.right_logo`. Mount the image inside the`cbioportal-webapp` folder with `-v /path/to/custom_logo.png:/cbioportal-webapp/images/custom_logo.png` and set `skin.right_logo=custom_logo.png` in your properties file.
 
 # Creating your own local news/about or FAQ page
 

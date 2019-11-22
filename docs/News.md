@@ -1,3 +1,9 @@
+## Nov 22, 2019
+
+* **New Feature**: Support for Treatment response data in the Oncoprint and Plots tab, including new *Waterfall* plot type. Read more in [The Hyve's blog post](https://blog.thehyve.nl/blog/using-treatment-response-data-to-find-targeted-therapies-in-cbioportal)
+
+![image](https://blog.thehyve.nl/hubfs/Waterfall%20plots%20cbioportal.png)
+
 ## Nov 7, 2019
 
 *   **Added data** consisting of 212 samples from 3 studies:

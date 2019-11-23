@@ -41,6 +41,16 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
     }
 
     @Override
+    // In order to return a cursor/iterator to the service layer, we need a transaction setup in the service
+    // layer. Currently, the bottom stackframe is CoExpressionService:getCoExpressions.  It is there where
+    // you will find the transaction created.
+    public Iterable<GeneMolecularAlteration> getGeneMolecularAlterationsIterable(String molecularProfileId, 
+                                                                                 List<Integer> entrezGeneIds, String projection) {
+
+        return molecularDataMapper.getGeneMolecularAlterationsIter(molecularProfileId, entrezGeneIds, projection);
+    }
+
+    @Override
     public List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(List<String> molecularProfileIds, 
                                                                                                 List<Integer> entrezGeneIds, 
                                                                                                 String projection) {

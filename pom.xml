@@ -270,8 +270,8 @@
   </profiles>
 
   <properties>
-    <frontend.version>2b16f8bdfa6c862add35397ece92141dc6da844d</frontend.version>
-    <frontend.groupId>com.github.inodb</frontend.groupId>
+    <frontend.version>72c9efab37aa5abe1888dd04183842f130b738b3</frontend.version>
+    <frontend.groupId>com.github.cbioportal</frontend.groupId>
     <slf4j.version>1.6.6</slf4j.version>
     <spring.version>4.3.14.RELEASE</spring.version>
     <spring.context.support.version>4.3.14.RELEASE</spring.context.support.version>

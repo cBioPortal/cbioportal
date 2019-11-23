@@ -91,11 +91,18 @@ jobs:
                 command: |
                     pip3 install requests pyyaml
             - run:
+                name: Determine what backend image to run
+                command: |
+                    if [[ -n "${CIRCLE_PR_USERNAME}" ]]; then \
+                        sed -i '/BACKEND.*/d' env/custom.sh && \
+                        echo -e "\nexport BACKEND=$CIRCLE_PR_USERNAME:$CIRCLE_SHA1" >> $PORTAL_SOURCE_DIR/env/custom.sh; \
+                    else \
+                        echo -e "\nexport BACKEND=$CIRCLE_PROJECT_USERNAME:$CIRCLE_SHA1" >> $PORTAL_SOURCE_DIR/env/custom.sh; \
+                    fi
+            - run:
                 name: Setup e2e-environment
                 command: |
-                    sed -i '/BACKEND.*/d' env/custom.sh && \
-                    echo -e "\nexport BACKEND=$CIRCLE_PR_USERNAME:$CIRCLE_SHA1" >> $PORTAL_SOURCE_DIR/env/custom.sh && \
-                    source $PORTAL_SOURCE_DIR/env/custom.sh || true && \
+                    source $PORTAL_SOURCE_DIR/env/custom.sh && \
                     cd $TEST_HOME/local/runtime-config && \
                     ./setup_environment.sh && ./setup_environment.sh >> $BASH_ENV
             - run:

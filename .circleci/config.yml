@@ -13,8 +13,9 @@ jobs:
                 name: Pull frontend code
                 command: |
                     export FRONTEND_VERSION=$(grep 'frontend\.version' pom.xml | sed 's/<frontend\.version>//g' | sed 's|</frontend\.version>||' | tr -d '[:blank:]') && \
+                    export FRONTEND_ORG=$(grep 'frontend\.groupId' pom.xml | sed 's/<frontend\.groupId>//g' | sed 's|</frontend\.groupId>||' | tr -d '[:blank:]' | cut -d. -f3) && \
                     cd .. && \
-                    git clone https://github.com/$CIRCLE_PROJECT_USERNAME/cbioportal-frontend.git && \
+                    git clone https://github.com/$FRONTEND_ORG/cbioportal-frontend.git && \
                     cd cbioportal-frontend && \
                     git fetch --tags && \
                     git checkout ${FRONTEND_VERSION}
@@ -92,6 +93,7 @@ jobs:
             - run:
                 name: Setup e2e-environment
                 command: |
+                    sed -i '/BACKEND.*/d' env/custom.sh && \
                     echo -e "\nexport BACKEND=$CIRCLE_PR_USERNAME:$CIRCLE_SHA1" >> $PORTAL_SOURCE_DIR/env/custom.sh && \
                     source $PORTAL_SOURCE_DIR/env/custom.sh || true && \
                     cd $TEST_HOME/local/runtime-config && \

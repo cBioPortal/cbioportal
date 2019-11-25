@@ -277,7 +277,7 @@ class PortalInstance(object):
     if the checks are to be skipped.
     """
 
-    def __init__(self, portal_info_dict, cancer_type_dict, hugo_entrez_map, alias_entrez_map, gene_set_list, gene_panel_list, treatment_map, offline=False):
+    def __init__(self, portal_info_dict, cancer_type_dict, hugo_entrez_map, alias_entrez_map, gene_set_list, gene_panel_list, treatment_map, geneset_version, offline=False):
         """Represent a portal instance with the given dictionaries."""
         self.portal_info_dict = portal_info_dict
         self.cancer_type_dict = cancer_type_dict
@@ -286,6 +286,7 @@ class PortalInstance(object):
         self.gene_set_list = gene_set_list
         self.gene_panel_list = gene_panel_list
         self.treatment_map = treatment_map
+        self.geneset_version = geneset_version
         self.entrez_set = set()
         for entrez_map in (hugo_entrez_map, alias_entrez_map):
             if entrez_map is not None:
@@ -4213,7 +4214,6 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
     tags_file_path = None
 
     DISALLOWED_CHARACTERS = r'[^A-Za-z0-9_-]'
-
     for filename in filenames:
 
         meta_dictionary = cbioportal_common.parse_metadata_file(
@@ -4221,6 +4221,16 @@ def process_metadata_files(directory, portal_instance, logger, relaxed_mode, str
         meta_file_type = meta_dictionary['meta_file_type']
         if meta_file_type is None:
             continue
+
+        # check if geneset version is the same in database
+        if 'geneset_def_version' in meta_dictionary:
+            geneset_def_version = meta_dictionary['geneset_def_version'].strip()
+            if (geneset_def_version != portal_instance.geneset_version):
+                logger.error(
+                    '`geneset_def_version` is different from the geneset_version in the database',
+                    extra={'filename_': filename,
+                           'cause': geneset_def_version})
+
         # validate stable_id to be unique (check can be removed once we deprecate this field):
         if 'stable_id' in meta_dictionary:
             stable_id = meta_dictionary['stable_id'].strip()
@@ -4617,6 +4627,8 @@ def request_from_portal_api(server_url, api_name, logger):
         service_url = server_url + '/api/' + api_name + "?pageSize=9999999"
 
     # TODO: change API for genes, gene aliases and cancer types to non-legacy
+    elif api_name in ['genesets_version']:
+        service_url = server_url + '/api/genesets/version'
     else:
         service_url = server_url + '/api-legacy/' + api_name
 
@@ -4719,6 +4731,7 @@ def extract_ids(json_data, id_key):
         result_set.add(data_item[id_key])
     return list(result_set)
 
+
 def index_treatment_data(json_data,
                          id_field='treatmentId'):
     result_dict = {}
@@ -4755,6 +4768,8 @@ def load_portal_info(path, logger, offline=False):
                                         json_data, 'treatmentId')),
             ('genesets',
                 lambda json_data: extract_ids(json_data, 'genesetId')),
+            ('genesets_version',
+                lambda json_data: str(json_data).strip(' \'[]')),
             ('gene-panels',
                 lambda json_data: extract_ids(json_data, 'genePanelId'))):
         if offline:
@@ -4764,6 +4779,7 @@ def load_portal_info(path, logger, offline=False):
         if parsed_json is not None and transform_function is not None:
             parsed_json = transform_function(parsed_json)
         portal_dict[api_name] = parsed_json
+    
     if all(d is None for d in list(portal_dict.values())):
         raise LookupError('No portal information found at {}'.format(path))
     return PortalInstance(portal_info_dict=portal_dict['info'],
@@ -4773,6 +4789,7 @@ def load_portal_info(path, logger, offline=False):
                           gene_set_list=portal_dict['genesets'],
                           gene_panel_list=portal_dict['gene-panels'],
                           treatment_map = portal_dict['treatments'],
+                          geneset_version = portal_dict['genesets_version'],
                           offline=offline)
 
 
@@ -4991,10 +5008,17 @@ def validate_study(study_dir, portal_instance, logger, relaxed_mode, strict_maf_
 
     logger.info('Validation complete')
 
+
+def get_pom_path():
+    """
+    Get location of pom.xml. In system and integration test this is mocked.
+    """
+    pom_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))) + "/pom.xml"
+    return pom_path
+
 def main_validate(args):
 
     """Main function: process parsed arguments and validate the study."""
-
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
@@ -5073,7 +5097,8 @@ def main_validate(args):
                                          alias_entrez_map=None,
                                          gene_set_list=None,
                                          gene_panel_list=None,
-                                         treatment_map=None)
+                                         treatment_map=None,
+                                         geneset_version =None)
     elif args.portal_info_dir:
         portal_instance = load_portal_info(args.portal_info_dir, logger,
                                            offline=True)

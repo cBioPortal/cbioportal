@@ -29,7 +29,9 @@ docker network create "cbio-net"
 
 ## 2. Database Setup
 
-As of this writing, the cBioPortal software runs properly on MySQL version 5.0.x. The software can be found and downloaded from the [MySQL website](https://www.mysql.com).
+The cBioPortal software should run properly on MySQL version 5.7.x. Versions higher than 5.7.x can cause an issue
+while loading the database schema. Minor versions lower than 5.7.x will cause issues with persistent cache invalidation.
+The software can be found and downloaded from the [MySQL website](http://www.mysql.com/).
 
 There are two options to set up the cBioPortal Database:    
 2.1 Run MySQL on the host.    

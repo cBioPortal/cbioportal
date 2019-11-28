@@ -20,6 +20,9 @@ specification (https://www.cbioportal.org/api/). Note that the repo where this
 lives in (https://github.com/cBioPortal/cbioportal) also contains Java classes
 to import data as well as the validator.
 
+The backend is organized as a multi-module Maven project.
+See [cBioPortal backend code organization](Backend-Code-Organization.md).
+
 ## Validator
 The
 [validator](https://github.com/cBioPortal/cbioportal/tree/master/core/src/main/scripts/importer)

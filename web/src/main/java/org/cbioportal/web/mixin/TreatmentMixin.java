@@ -7,6 +7,8 @@ public class TreatmentMixin {
 
     @JsonIgnore
     private Integer id;
+    @JsonIgnore
+    private int geneticEntityId;
     @JsonProperty("treatmentId")
     private String stableId;
 }

@@ -1,3 +1,11 @@
+## Nov 29, 2019
+* **Enhancement**: Support group comparison for custom charts in _Study View_ page
+* **Enhancement**: Performance improvement of Co-Expression analysis.
+* **Enhancement**: Kaplan-Meier plots now supports custom time range.
+* See more updates [here](https://github.com/cBioPortal/cbioportal/releases/tag/v3.1.6)
+
+<img src="https://user-images.githubusercontent.com/840895/69887458-02963380-12b5-11ea-8151-4d531db0fcc5.png" width="500">
+
 ## Nov 22, 2019
 
 * **New Feature**: Support for Treatment response data in the Oncoprint and Plots tab, including new *Waterfall* plot type. Read more in [The Hyve's blog post](https://blog.thehyve.nl/blog/using-treatment-response-data-to-find-targeted-therapies-in-cbioportal)

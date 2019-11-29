@@ -2,6 +2,7 @@ This page describes the main properties within portal.properties.
 
 - [Database Settings](#database-settings)
 - [cBioPortal Customization](#cbioportal-customization)
+- [Ensembl transcript lookup URL](#ensembl-transcript-lookup)
 - [Segment File URL](#segment-file-url)
 - [Bitly API Username and Key](#bitly-api-username-and-key)
 - [Google Analytics](#google-analytics)
@@ -147,6 +148,13 @@ Different samples of a patient may have been analyzed with different gene panels
 ```
 skin.patientview.filter_genes_profiled_all_samples=
 ```
+# Ensembl transcript lookup URL
+The Mutations tab contains various links, redirecting the user to external information resources regarding the displayed transcript. The Ensembl template URL can be customized by modifying the property:
+```
+ensembl.transcript_url=
+```
+The default setting is `http://ensembl.org/homo_sapiens/Transcript/Summary?t=<%= transcriptId %>`. The `<%= transcriptId %>` is substituted by the frontend code into respective transcript ID.
+
 
 # Segment File URL
 

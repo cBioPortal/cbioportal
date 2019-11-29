@@ -5,6 +5,7 @@ portal/Portal-Google-Code.ipr
 portal/Portal-Google-Code.iws
 portal/Portal.iml
 portal/portal.log
+portal/common/FreeSans.json
 portal/nbproject
 portal/build
 portal/images

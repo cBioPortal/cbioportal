@@ -64,4 +64,25 @@ public class DaoGenericAssay {
         }
         return null;
     }
+
+    public static void deleteGenericEntityPropertiesByStableId(String stableId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;     
+
+        try {
+            con = JdbcUtil.getDbConnection(DaoGeneticEntity.class);
+            pstmt = con.prepareStatement("DELETE FROM generic_entity_properties WHERE GENETIC_ENTITY_ID=?");
+            GeneticEntity entity = DaoGeneticEntity.getGeneticEntityByStableId(stableId);
+            if (entity == null) {
+                return;
+            }
+            pstmt.setInt(1, entity.getId());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            JdbcUtil.closeAll(DaoGeneticEntity.class, con, pstmt, rs);
+        }
+    }
 }

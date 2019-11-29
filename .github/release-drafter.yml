@@ -10,22 +10,43 @@ categories:
       - 'fix'
       - 'bugfix'
       - 'bug'
+  - title: '🏎 Performance Tweaks'
+    labels:
+      - 'performance'
+  - title: '🎨 Style Tweaks'
+    labels:
+      - 'style tweak'
+  - title: '⚙️ Changes to handle external APIs'
+    labels:
+      - 'external api'
+  - title: '🗄 Database Migration'
+    labels:
+      - 'includes db changes'
+      - 'migration'
+  - title: '⚠️ Deprecation'
+    labels:
+      - 'deprecation'
   - title: '📘 Documentation'
     labels:
       - 'documentation'
+  - title: '🧹 Cleanup'
+    labels:
+      - 'cleanup'
+  - title: '👷‍♀️ Testing, Configuration & Deployment'
+    labels:
+      - 'devops'
   - title: '🧰 Maintenance'
     labels:
       - 'chore'
-      - 'devops'
       - 'dependencies'
+exclude-labels:
+  - 'skip-changelog'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
   ## Changes
-
   $CHANGES
   
-  Full list of backend changes
-  https://github.com/cBioPortal/cbioportal/compare/$PREVIOUS_TAG...$NEXT_PATCH_VERSION
+  ## 🕵️‍♀️ Full commit logs
   
-  Full list of frontend changes
-  https://github.com/cBioPortal/cbioportal-frontend/compare/$PREVIOUS_TAG...$NEXT_PATCH_VERSION
+  - Backend: https://github.com/cBioPortal/cbioportal/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION
+  - Frontend: https://github.com/cBioPortal/cbioportal-frontend/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION

@@ -33,9 +33,9 @@ docker run -d --restart=always \
   mysql:5.7
 ```
 
-Download the seed database from the
+Download the SQL schema (cgds.sql) and the seed database (seed-cbioportal_<genome_build>_<seed_version>.sql.gz) from the
 [cBioPortal Datahub](https://github.com/cBioPortal/datahub/blob/master/seedDB/README.md),
-and use the command below to upload the seed data to the server started above.
+and use the command below to upload both to the server started above.
 
 Make sure to replace
 `/<path_to_seed_database>/seed-cbioportal_<genome_build>_<seed_version>.sql.gz`

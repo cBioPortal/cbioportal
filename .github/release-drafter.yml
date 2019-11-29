@@ -16,6 +16,9 @@ categories:
   - title: '🎨 Style Tweaks'
     labels:
       - 'style tweak'
+  - title: '⚙️ REST API Changes'
+    labels:
+      - 'api'
   - title: '⚙️ Changes to handle external APIs'
     labels:
       - 'external api'

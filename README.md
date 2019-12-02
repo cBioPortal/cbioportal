@@ -6,7 +6,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General
 
 A public instance of cBioPortal (https://www.cbioportal.org) is hosted and maintained by Memorial Sloan Kettering Cancer Center. It provides access to data by The Cancer Genome Atlas as well as many carefully curated published data sets. The cBioPortal software can be used to for local instances that provide access to private data.
 
-If you would like to know how to setup a private instance of the portal and/or get set up for developing, [see the documentation.](https://docs.cbioportal.org)  For details on contributing code changes via pull requests, [see our Contributing document.](CONTRIBUTING.md)
+If you would like to know how to setup a private instance of the portal and/or get set up for developing, see the [documentation](https://docs.cbioportal.org).  For details on contributing code changes via pull requests, see our [Contributing document](CONTRIBUTING.md). Also see this overview of the [backend code organization](docs/Backend-Code-Organization.md).
 
 If you are interested in coordinating the development of new features, please contact cbioportal@cbio.mskcc.org.
 

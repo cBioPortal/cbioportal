@@ -102,7 +102,8 @@
             "bitly.api_key",
             "bitly.user",
             "bitly.access.token",
-            "oncoprint.custom_driver_annotation.tiers.default"
+            "oncoprint.custom_driver_annotation.tiers.default",
+            "ensembl.transcript_url"
            
         }; 
     

@@ -23,6 +23,7 @@ The cBioPortal currently maintains three branches:
  * Make sure you have a [GitHub account](https://github.com/signup/free).
  * Create an issue in our issues tracker, assuming one does not already exist.
  * Fork the cbioportal project on GitHub.  For general instructions on forking a GitHub project, see [Forking a Repo](https://help.github.com/articles/fork-a-repo/) and [Syncing a fork](https://help.github.com/articles/syncing-a-fork/).
+ * Familiarize yourself with the [project documentation](https://docs.cbioportal.org), including [backend code organization](Backend-Code-Organization.md) and [backend development guidelines](Backend-Development-Guidelines.md).
 
 ## Contributing Code Changes via a Pull Request
 

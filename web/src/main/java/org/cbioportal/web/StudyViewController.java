@@ -376,7 +376,7 @@ public class StudyViewController {
                     s -> s.getCopyNumberSegmentPresent()).count()));
             molecularProfileSampleCount.setNumberOfFusionProfiledSamples(Math.toIntExact(sampleService
                 .fetchSamples(studyIds, sampleIds, Projection.DETAILED.name()).stream().filter(
-                    s -> s.getFusionPresent()).count()));
+                    s -> s.getProfiledForFusions()).count()));
             molecularProfileSampleCount.setNumberOfFusionUnprofiledSamples(sampleCount -
                 molecularProfileSampleCount.getNumberOfFusionProfiledSamples());
         }

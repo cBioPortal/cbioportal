@@ -54,7 +54,7 @@ public class Sample extends UniqueKeyBase {
     private String cancerStudyIdentifier;
     private Boolean sequenced;
     private Boolean copyNumberSegmentPresent;
-    private Boolean fusionPresent;
+    private Boolean profiledForFusions;
 
     public Integer getInternalId() {
         return internalId;
@@ -126,7 +126,7 @@ public class Sample extends UniqueKeyBase {
         this.copyNumberSegmentPresent = copyNumberSegmentPresent;
     }
 
-    public Boolean getFusionPresent() { return fusionPresent; }
+    public Boolean getProfiledForFusions() { return profiledForFusions; }
 
-    public void setFusionPresent(Boolean fusionPresent) { this.fusionPresent = fusionPresent; }
+    public void setProfiledForFusions(Boolean profiledForFusions) { this.profiledForFusions = profiledForFusions; }
 }

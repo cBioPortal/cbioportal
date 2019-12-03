@@ -724,7 +724,6 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.11.0";
 ##version 2.11.1
 CREATE TEMPORARY TABLE IF NOT EXISTS
     fusion_studies ( INDEX(CANCER_STUDY_IDENTIFIER) )
-    ENGINE=MyISAM
 AS (
     SELECT DISTINCT CANCER_STUDY_IDENTIFIER, cancer_study.CANCER_STUDY_ID
     FROM `mutation_event`
@@ -738,7 +737,6 @@ SELECT CONCAT(CANCER_STUDY_IDENTIFIER, '_sv'), 'all_cases_with_structural_varian
 FROM `fusion_studies`;
 CREATE TEMPORARY TABLE IF NOT EXISTS
     fusion_samples_by_study ( INDEX(cancer_study_id) )
-    ENGINE=MyISAM
 AS (
     SELECT DISTINCT sv.cancer_study_id, sll.sample_id
     FROM `fusion_studies` sv

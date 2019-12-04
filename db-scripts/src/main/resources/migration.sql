@@ -732,6 +732,11 @@ AS (
              JOIN `cancer_study` ON `cancer_study`.CANCER_STUDY_ID = `genetic_profile`.CANCER_STUDY_ID
     WHERE MUTATION_TYPE = 'fusion'
 );
+INSERT INTO genetic_profile(STABLE_ID, CANCER_STUDY_ID, GENETIC_ALTERATION_TYPE, DATATYPE, NAME, DESCRIPTION, SHOW_PROFILE_IN_ANALYSIS_TAB)
+SELECT CONCAT(CANCER_STUDY_IDENTIFIER, '_structural_variants'), CANCER_STUDY_ID, 'STRUCTURAL_VARIANT','SV','Fusions','Fusions',0
+FROM `fusion_studies`
+WHERE NOT EXISTS (SELECT * FROM genetic_profile WHERE  STABLE_ID=CONCAT(`fusion_studies`.CANCER_STUDY_IDENTIFIER, '_structural_variants')
+    AND CANCER_STUDY_ID = `fusion_studies`.CANCER_STUDY_ID);
 REPLACE INTO sample_list(STABLE_ID, CATEGORY, CANCER_STUDY_ID, NAME, DESCRIPTION)
 SELECT CONCAT(CANCER_STUDY_IDENTIFIER, '_sv'), 'all_cases_with_structural_variant_data', CANCER_STUDY_ID, 'all_cases_with_structural_variant_data','All cases with structural variant data'
 FROM `fusion_studies`;

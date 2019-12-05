@@ -270,8 +270,8 @@
   </profiles>
 
   <properties>
-    <frontend.version>67bb933ba81ccd69dc5728d3d2363c756305c1c1</frontend.version>
-    <frontend.groupId>com.github.cbioportal</frontend.groupId>
+    <frontend.version>0991da55ad7fb7d74c80eaf9ee6f5c3c028be68c</frontend.version>
+    <frontend.groupId>com.github.dippindots</frontend.groupId>
     <slf4j.version>1.6.6</slf4j.version>
     <spring.version>4.3.14.RELEASE</spring.version>
     <spring.context.support.version>4.3.14.RELEASE</spring.context.support.version>

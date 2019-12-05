@@ -30,11 +30,7 @@ public class ProxyController {
     @RequestMapping("/**")
     public String proxy(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
         throws URISyntaxException {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        String contentType = request.getHeader("Content-Type");
-        if (contentType != null) {
-            httpHeaders.setContentType(MediaType.valueOf(contentType));
-        }
+        HttpHeaders httpHeaders = initHeaders(request);
         return exchangeData(body, buildUri(request.getPathInfo(), request.getQueryString(), false), method, httpHeaders).getBody();
     }
 
@@ -45,28 +41,40 @@ public class ProxyController {
             return new ResponseEntity<>("OncoKB service is disabled.", HttpStatus.NOT_FOUND);
         }
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        String contentType = request.getHeader("Content-Type");
-        if (contentType != null) {
-            httpHeaders.setContentType(MediaType.valueOf(contentType));
-        }
+        HttpHeaders httpHeaders = initHeaders(request);
+        
         if (!StringUtils.isEmpty(this.oncokbToken)) {
             httpHeaders.add("Authorization", "Bearer " + this.oncokbToken);
         }
         String oncokbApiUrl = this.oncokbPublicApiUrl;
-        if(StringUtils.isEmpty(oncokbApiUrl)) {
+        if (StringUtils.isEmpty(oncokbApiUrl)) {
             if (StringUtils.isEmpty(oncokbToken)) {
                 // this is a legacy endpoint which does not accept any data updates
-                oncokbApiUrl = "oncokb.org";
+                oncokbApiUrl = "https://oncokb.org/api/v1";
             } else {
-                oncokbApiUrl = "www.oncokb.org";
+                oncokbApiUrl = "https://www.oncokb.org/api/v1";
             }
         }
-        return exchangeData(body, buildUri(oncokbApiUrl, request.getQueryString(), true), method, httpHeaders);
+        return exchangeData(body, buildUri(oncokbApiUrl + request.getPathInfo().replaceFirst("/oncokb", ""), request.getQueryString()), method, httpHeaders);
     }
 
+    private HttpHeaders initHeaders(HttpServletRequest request) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        
+        String contentType = request.getHeader("Content-Type");
+        if (contentType != null) {
+            httpHeaders.setContentType(MediaType.valueOf(contentType));
+        }
+        
+        return httpHeaders;
+    }
+    
     private URI buildUri(String path, String queryString, boolean useSecureProtocol) throws URISyntaxException {
-        return new URI((useSecureProtocol ? "https" : "http") + ":/" + path + (queryString == null ? "" : "?" + queryString));
+        return buildUri((useSecureProtocol ? "https" : "http") + ":/" + path, queryString);
+    }
+
+    private URI buildUri(String path, String queryString) throws URISyntaxException {
+        return new URI(path + (queryString == null ? "" : "?" + queryString));
     }
 
     private ResponseEntity<String> exchangeData(String body, URI uri, HttpMethod method, HttpHeaders httpHeaders) {

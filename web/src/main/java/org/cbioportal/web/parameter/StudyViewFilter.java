@@ -23,7 +23,6 @@ public class StudyViewFilter implements Serializable {
 	private List<CopyNumberGeneFilter> cnaGenes;
 	private Boolean withMutationData;
 	private Boolean withCNAData;
-	private RectangleBounds mutationCountVsCNASelection;
 
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
@@ -105,13 +104,5 @@ public class StudyViewFilter implements Serializable {
 
     public void setWithCNAData(Boolean withCNAData) {
         this.withCNAData = withCNAData;
-    }
-
-    public RectangleBounds getMutationCountVsCNASelection() {
-        return mutationCountVsCNASelection;
-    }
-
-    public void setMutationCountVsCNASelection(RectangleBounds mutationCountVsCNASelection) {
-        this.mutationCountVsCNASelection = mutationCountVsCNASelection;
     }
 }

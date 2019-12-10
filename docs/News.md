@@ -1,3 +1,8 @@
+## Dec 10, 2019
+* **New Feature**: Show gene panel information on the _Patient View_ page. This helps to distinguish between whether a mutation in a particular gene was not present in the sample or not profiled ([example](https://www.cbioportal.org/patient?caseId=P-0001613&studyId=lung_msk_2017)):
+
+    ![gene_panel_news_item4](https://user-images.githubusercontent.com/1334004/70575351-58e85980-1b74-11ea-8c40-0d93ecb810eb.gif)
+
 ## Nov 29, 2019
 * **Enhancement**: Support group comparison for custom charts in _Study View_ page
 * **Enhancement**: Performance improvement of Co-Expression analysis.

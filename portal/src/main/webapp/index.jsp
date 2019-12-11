@@ -94,6 +94,10 @@
             }
         });
     </script>
+
+    <script>
+        loadAppStyles(window.frontendConfig);
+    </script>
     
     <%@include file="./tracking_include.jsp" %>
 

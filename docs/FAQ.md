@@ -74,6 +74,7 @@
         * [Why are some samples “Not profiled” for certain genes?](#why-are-some-samples-not-profiled-for-certain-genes)
     * [Other pages](#other-pages)
         * [Does the Mutual Exclusivity tab calculate its statistics using all samples/alterations or only a specific subset?](#does-the-mutual-exclusivity-tab-calculate-its-statistics-using-all-samplesalterations-or-only-a-specific-subset)
+        * [What are the values of the box and whiskers in a boxplot?](#what-are-the-values-of-the-box-and-whiskers-in-a-boxplot)
 * [What if I have other questions or comments?](#what-if-i-have-other-questions-or-comments)
 
 # General Questions
@@ -265,6 +266,8 @@ Some studies include data from one or more targeted sequencing platforms which d
 ## Other pages
 ### Does the Mutual Exclusivity tab calculate its statistics using all samples/alterations or only a specific subset?
 The calculations on the Mutual Exclusivity tab are performed using all samples included in the query. A sample is defined as altered or unaltered for each gene based on the [OQL](https://www.cbioportal.org/onco_query_lang_desc.jsp) utilized in the query - by default, this will be non-synonymous mutations, fusions, amplifications and deep deletions.
+### What are the values of the box and whiskers in a boxplot?
+In boxplots on cBioPortal, the box is drawn from the 25th percentile (Q1) to the 75th percentile (Q3), with the horizontal line in between representing the median. Whiskers are drawn independently above and below the box, and will extend to the maximum or minimum data values, unless there are outlier values, in which case the whisker will extend to 1.5 * IQR (interquartile range = Q3-Q1). Outliers are defined as values that extend beyond 1.5 * IQR.
 
 # What if I have other questions or comments?
 Please contact us at [cbioportal@googlegroups.com](mailto:cbioportal@googlegroups.com). Previous discussions about cBioPortal are available on the [user discussion mailing list](http://groups.google.com/group/cbioportal).

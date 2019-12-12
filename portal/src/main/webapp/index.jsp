@@ -94,9 +94,9 @@
             }
         });
     </script>
-    
+
     <script>
-            loadReactApp(window.frontendConfig);
+        loadAppStyles(window.frontendConfig);
     </script>
     
     <%@include file="./tracking_include.jsp" %>
@@ -106,9 +106,11 @@
 </head>
 
 <body>
+    <script>
+        loadReactApp(window.frontendConfig);
+    </script>
+
     <div id="reactRoot"></div>
-    
-    
-    
+
 </body>
 </html>

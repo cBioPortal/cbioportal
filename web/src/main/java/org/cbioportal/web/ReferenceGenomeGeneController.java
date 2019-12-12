@@ -4,10 +4,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.ReferenceGenomeGene;
+import org.cbioportal.service.GeneMemoizerService;
 import org.cbioportal.service.ReferenceGenomeGeneService;
+import org.cbioportal.service.StaticDataTimestampService;
 import org.cbioportal.service.exception.GeneNotFoundException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +22,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.Size;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @PublicApi
@@ -27,21 +32,34 @@ import java.util.stream.Collectors;
 @Validated
 @Api(tags = "Reference Genome Genes", description = " ")
 public class ReferenceGenomeGeneController {
-
     private static final int GENE_MAX_PAGE_SIZE = 100000;
     private static final String GENE_DEFAULT_PAGE_SIZE = "100000";
 
     @Autowired
     private ReferenceGenomeGeneService referenceGenomeGeneService;
-
+    
+    @Autowired
+    private GeneMemoizerService geneMemoizerService;
+    
+    /**
+     * The memoization logic in this method is a temporary fix to make this work until
+     * Ehcache is working correctly on cbioportal.org.
+     * This endpoint creates a large response and seems to bloat the webserver's heap
+     * size, leading to poor performance and crashes. The caching seems to improve
+     * processor load, heap size and response time.
+     */
     @RequestMapping(value = "/reference-genome-genes/{genomeName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get all reference genes")
     public ResponseEntity<List<ReferenceGenomeGene>> getAllReferenceGenomeGenes(
         @ApiParam(required = true, value = "Name of Reference Genome hg19")
         @PathVariable String genomeName)  {
 
-        return new ResponseEntity<>(
-                referenceGenomeGeneService.fetchAllReferenceGenomeGenes(genomeName), HttpStatus.OK);
+        List<ReferenceGenomeGene> genes = geneMemoizerService.fetchGenes(genomeName);
+        if (genes == null) {
+            genes = referenceGenomeGeneService.fetchAllReferenceGenomeGenes(genomeName);
+            geneMemoizerService.cacheGenes(genes, genomeName);
+        }
+        return new ResponseEntity<>(genes, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/reference-genome-genes/{genomeName}/{geneId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

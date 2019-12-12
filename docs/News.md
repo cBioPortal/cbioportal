@@ -2,7 +2,6 @@
 * **Enhancement**: Add Count Bubbles to Oncoprint Toolbar
 
     ![Screenshot from 2019-12-06 11-36-21](https://user-images.githubusercontent.com/20069833/70339336-aa16e700-181c-11ea-94ac-c4acff272e4f.png)
-    
 * **Enhancement**: Several enhancements to the display of gene panels on the _Patient View_ page, related to ongoing work on [the Hyve's](https://thehyve.nl/) feature proposal [Request For Comments #45](https://docs.google.com/document/d/1X7dA_wJFtv5xJO1oHCSt8DUdTmk07RexvHUpjCJsSM4/edit#heading=h.t10nr9te3qvu)
 * See more updates [here](https://github.com/cBioPortal/cbioportal/releases/tag/v3.1.7)
 

@@ -268,10 +268,6 @@ ehcache.cache_type=none
 # Enable/Disable quick search (currently in beta, default is false)
 # quick_search.enabled=true
 
-# MatchMiner AWS url
-matchminer.url=
-matchminer.token=
-
 # enable/disable hrrs logging
 # hrrs can be used for debugging - when enabled incoming web requests
 # will be logged into the specified directory

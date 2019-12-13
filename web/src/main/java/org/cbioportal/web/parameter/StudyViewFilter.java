@@ -18,9 +18,7 @@ public class StudyViewFilter implements Serializable {
     @Size(min = 1)
     private List<String> studyIds;
     private List<ClinicalDataFilter> clinicalDataFilters;
-    private List<MutationGeneFilter> mutatedGenes;
-    private List<FusionGeneFilter> fusionGenes;
-	private List<CopyNumberGeneFilter> cnaGenes;
+    private List<GeneFilter> geneFilters;
 	private Boolean withMutationData;
 	private Boolean withCNAData;
 
@@ -68,26 +66,12 @@ public class StudyViewFilter implements Serializable {
         this.clinicalDataFilters = clinicalDataFilters;
     }
 
-    public List<MutationGeneFilter> getMutatedGenes() {
-        return mutatedGenes;
+    public List<GeneFilter> getGeneFilters() {
+        return geneFilters;
     }
 
-	public void setMutatedGenes(List<MutationGeneFilter> mutatedGenes) { this.mutatedGenes = mutatedGenes; }
-
-    public List<FusionGeneFilter> getFusionGenes() {
-        return fusionGenes;
-    }
-
-    public void setFusionGenes(List<FusionGeneFilter> fusionGenes) {
-        this.fusionGenes = fusionGenes;
-    }
-
-    public List<CopyNumberGeneFilter> getCnaGenes() {
-        return cnaGenes;
-    }
-
-    public void setCnaGenes(List<CopyNumberGeneFilter> cnaGenes) {
-        this.cnaGenes = cnaGenes;
+    public void setGeneFilters(List<GeneFilter> geneFilters) {
+        this.geneFilters = geneFilters;
     }
 
     public Boolean getWithMutationData() {

@@ -14,15 +14,15 @@ docker network create kcnet
 
 Run a MySQL database in which Keycloak can store its data. This
 database server will not be addressable from outside the Docker
-network. The database will store its files in a folder named
-`kcdb-files` in the present working directory, unless you specify some
-other (absolute) path before the colon in the `-v` argument.
+network. Replace `<path_to_database>` with the absolute path where
+the folder `kcdb-files` will be placed. This folder is used by the
+database to store its files.
 
 ```shell
 docker run -d --restart=always \
     --name=kcdb \
     --net=kcnet \
-    -v "$PWD/kcdb-files:/var/lib/mysql" \
+    -v "<path_to_database>/kcdb-files:/var/lib/mysql" \
     -e MYSQL_DATABASE=keycloak \
     -e MYSQL_USER=keycloak \
     -e MYSQL_PASSWORD=password \

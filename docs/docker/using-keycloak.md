@@ -56,10 +56,21 @@ documentation](../Authenticating-and-Authorizing-Users-via-keycloak.md#configure
 Remember to specify port 8180 for the Keycloak server, wherever the guide says
 8080.
 
-When starting the cBioPortal web server with the new configuration, instead of
-modifying Tomcat config files, include the `-Dauthenticate=saml` flag in the
-`JAVA_OPTS` argument on the command line:
+After configuring Keycloak, set up cBioPortal containers [as specified in the documentation](README.md). Make sure to replace
+the `JAVA_OPTS` argument in Step 6 to include the `-Dauthenticate=saml` flag:
 
-```
-    -e JAVA_OPTS='-Xms2g -Xmx4g -Dauthenticate=saml' \
-```
+<pre>
+docker run -d --restart=always \
+    --name=cbioportal-container \
+    --net=cbio-net \
+    -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
+    -e JAVA_OPTS='
+        -Xms2g
+        -Xmx4g
+        <b>-Dauthenticate=saml</b>
+        -Dsession.service.url=http://cbio-session-service:5000/api/sessions/my_portal/
+    ' \
+    -p 8081:8080 \
+    cbioportal/cbioportal:latest \
+    /bin/sh -c 'java ${JAVA_OPTS} -jar webapp-runner.jar /cbioportal-webapp'
+<pre>

@@ -3,7 +3,7 @@
 ## Prerequisites
 
 Docker provides a way to run applications securely isolated in a container, packaged with all its dependencies and libraries.
-To learn more on Docker, kindly refer here: [What is Docker?](https://www.docker.com/what-docker).
+To learn more on Docker, kindly refer here: [Docker overview](https://docs.docker.com/engine/docker-overview/).
 
 Make sure that you have the latest version of Docker installed on your machine. [Get latest version](https://www.docker.com/products/overview#/install_the_platform)
 

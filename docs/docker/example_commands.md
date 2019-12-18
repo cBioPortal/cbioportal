@@ -42,38 +42,6 @@ docker run -it --rm --net cbio-net \
     metaImport.py -p /portalinfo -s /study --html=/outdir/report.html
 ```
 
-### Importing data (method 2) ###
-
-Similar to the method above, but here you open a bash shell in an otherwise idle container and run the commands there.
-
-#### Step 1 (one time only for a specific image) ####
-
-Set up the container `importer-container` mapping the input and
-output dirs with `-v` parameters, and keep it running idle in the
-background:
-
-```shell
-docker run -d --name="importer-container" \
-    --restart=always \
-    --net=cbio-net \
-    -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
-    -v "$PWD"/study-dir:/study:ro \
-    -v "$HOME"/Desktop:/outdir \
-    cbioportal/cbioportal:latest tail -f /dev/null
-```
-
-#### Step 2 ####
-
-Run bash in the container and execute the import command.
-
-```shell
-docker exec -it importer-container bash
-```
-The import command:
-```shell
-metaImport.py -u http://cbioportal-container:8080 -s /study --html=/outdir/report.html
-```
-
 ### Inspecting or adjusting the database ###
 
 When creating the database container, you can map a port on the

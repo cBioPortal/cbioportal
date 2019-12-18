@@ -21,18 +21,6 @@ docker network create cbio-net
 Start a MySQL server. The command below stores the database in a folder named
 `/<path_to_save_mysql_db>/db_files/`. This should be an absolute path.
 
-```
-docker run -d --restart=always \
-  --name=cbioDB \
-  --net=cbio-net \
-  -e MYSQL_ROOT_PASSWORD='P@ssword1' \
-  -e MYSQL_USER=cbio \
-  -e MYSQL_PASSWORD='P@ssword1' \
-  -e MYSQL_DATABASE=cbioportal \
-  -v /<path_to_save_mysql_db>/db_files/:/var/lib/mysql/ \
-  mysql:5.7
-```
-
 Download the SQL schema (cgds.sql) and the seed database (seed-cbioportal_<genome_build>_<seed_version>.sql.gz) from the
 [cBioPortal Datahub](https://github.com/cBioPortal/datahub/blob/master/seedDB/README.md),
 and use the command below to upload both to the server started above.
@@ -43,26 +31,22 @@ with the path and name of the downloaded seed database. Again, this should be
 an absolute path.
 
 ```
-docker run \
-  --name=load-seeddb \
+docker run -d --restart=always \
+  --name=cbioDB \
   --net=cbio-net \
+  -e MYSQL_ROOT_PASSWORD='P@ssword1' \
   -e MYSQL_USER=cbio \
   -e MYSQL_PASSWORD='P@ssword1' \
-  -v /<path_to_seed_database>/cgds.sql:/mnt/cgds.sql:ro \
-  -v /<path_to_seed_database>/seed-cbioportal_<genome_build>_<seed_version>.sql.gz:/mnt/seed.sql.gz:ro \
-  mysql:5.7 \
-  sh -c 'cat /mnt/cgds.sql | mysql -hcbioDB -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" cbioportal \
-      && zcat /mnt/seed.sql.gz |  mysql -hcbioDB -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" cbioportal'
+  -e MYSQL_DATABASE=cbioportal \
+  -v /<path_to_save_mysql_db>/db_files/:/var/lib/mysql/ \
+  -v /<path_to_seed_database>/cgds.sql:/docker-entrypoint-initdb.d/cgds.sql:ro \
+  -v /<path_to_seed_database>/seed-cbioportal_<genome_build>_<seed_version>.sql.gz:/docker-entrypoint-initdb.d/seed_part1.sql.gz:ro \
+  mysql:5.7
 ```
 
 Follow the logs of this step to ensure that no errors occur. If any error
 occurs, make sure to check it. A common cause is pointing the `-v` parameters
 above to folders or files that do not exist.
-
-Note that another option would be to use an external database. In that case one
-does not need to run the `cbioDB` container. In the command for the
-`load-seeddb` change the cbioDB host to the host of the external MySQL
-database.
 
 ### Step 3 - Set up a portal.properties file ###
 

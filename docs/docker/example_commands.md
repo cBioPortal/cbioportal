@@ -11,7 +11,7 @@ docker run -it --rm --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
     -v "$PWD/study-dir:/study:ro" \
     -v "$HOME/Desktop:/outdir" \
-    cbioportal-image \
+    cbioportal/cbioportal:latest \
     metaImport.py -u http://cbioportal-container:8080 -s /study --html=/outdir/report.html
 ```
 :warning: after importing a study, remember to restart `cbioportal-container`
@@ -26,7 +26,7 @@ docker run --rm --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
     -v "$PWD/portalinfo:/portalinfo" \
     -w /cbioportal/core/src/main/scripts \
-    cbioportal-image \
+    cbioportal/cbioportal:latest \
     ./dumpPortalInfo.pl /portalinfo
 ```
 
@@ -38,7 +38,7 @@ docker run -it --rm --net cbio-net \
     -v "$PWD/study-dir:/study:ro" \
     -v "$HOME/Desktop:/outdir" \
     -v "$PWD/portalinfo:/portalinfo:ro" \
-    cbioportal-image \
+    cbioportal/cbioportal:latest \
     metaImport.py -p /portalinfo -s /study --html=/outdir/report.html
 ```
 
@@ -59,7 +59,7 @@ docker run -d --name="importer-container" \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
     -v "$PWD"/study-dir:/study:ro \
     -v "$HOME"/Desktop:/outdir \
-    cbioportal-image tail -f /dev/null
+    cbioportal/cbioportal:latest tail -f /dev/null
 ```
 
 #### Step 2 ####

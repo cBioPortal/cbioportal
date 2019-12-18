@@ -237,13 +237,16 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
             currentLine = buf.readLine();
         }
         
-        // show import message
-        if (updateInfo) {
-            ProgressMonitor.setCurrentMessage(updatedEntities.size() + " generic entities existing in the database that were overridden during import.");
-        } else {
-            ProgressMonitor.setCurrentMessage(notUpdatedEntities.size() + " generic entities existing in the database that were not overridden during import.");
+        // show import result message
+        if (updatedEntities.size() > 0) {
+            ProgressMonitor.setCurrentMessage("--> Entities updated: " + updatedEntities.size() + " generic entities existing in the database that were overridden during import.");
         }
-        ProgressMonitor.setCurrentMessage(newEntities.size() + " generic entities have been imported into database during import.");
+        if (notUpdatedEntities.size() > 0) {
+            ProgressMonitor.setCurrentMessage("--> Entities not updated: " + notUpdatedEntities.size() + " generic entities existing in the database that were not overridden during import.");
+        }
+        if (newEntities.size() > 0) {
+            ProgressMonitor.setCurrentMessage("--> New Entities: " + newEntities.size() + " generic entities have been imported into database during import.");
+        }
         
         reader.close();
         

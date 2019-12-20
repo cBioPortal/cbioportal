@@ -44,12 +44,10 @@ import java.util.Set;
 import org.cbioportal.model.GenericAssayData;
 import org.cbioportal.model.GenesetMolecularData;
 import org.cbioportal.model.StructuralVariant;
-import org.cbioportal.model.TreatmentMolecularData;
 import org.cbioportal.persistence.PersistenceConstants;
 import org.cbioportal.service.GenericAssayService;
 import org.cbioportal.service.GenesetDataService;
 import org.cbioportal.service.StructuralVariantService;
-import org.cbioportal.service.TreatmentDataService;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -64,7 +62,6 @@ import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneset;
 import org.mskcc.cbio.portal.dao.DaoGeneticEntity;
 import org.mskcc.cbio.portal.dao.DaoGistic;
-import org.mskcc.cbio.portal.dao.DaoTreatment;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
@@ -388,22 +385,17 @@ public class TestIntegrationTest {
             // ===== check treatment (profile) data
             // ...
             String testTreatment = "Irinotecan";
-            assertNotNull(DaoTreatment.getTreatmentByStableId(testTreatment));
-            // entity_stable_id name description url TCGA-A1-A0SB-01 TCGA-A1-A0SD-01
+            assertNotNull(DaoGeneticEntity.getGeneticEntityByStableId(testTreatment));
+            // ENTITY_STABLE_ID NAME DESCRIPTION URL TCGA-A1-A0SB-01 TCGA-A1-A0SD-01
             // TCGA-A1-A0SE-01 TCGA-A1-A0SH-01 TCGA-A2-A04U-01 TCGA-B6-A0RS-01
             // TCGA-BH-A0HP-01 TCGA-BH-A18P-01
             // Irinotecan ... ... ... NA 0.080764666 NA 0.06704437 0.069568723 0.034992039
             // 0.740817904 0.209220141
-            TreatmentDataService treatmentDataService = applicationContext.getBean(TreatmentDataService.class);
-            List<TreatmentMolecularData> treatmentData = treatmentDataService
-                    .fetchTreatmentData("study_es_0_treatment_ic50", "study_es_0_all", Arrays.asList(testTreatment));
+            GenericAssayService treatmentDataService = applicationContext.getBean(GenericAssayService.class);
+            List<GenericAssayData> treatmentData = treatmentDataService.getGenericAssayData("study_es_0_treatment_ic50", "study_es_0_all", Arrays.asList(testTreatment), PersistenceConstants.SUMMARY_PROJECTION);
             assertEquals(8, treatmentData.size());
-
-            treatmentData = treatmentDataService.fetchTreatmentData("study_es_0_treatment_ic50",
-                    Arrays.asList("TCGA-A1-A0SB-01", "TCGA-A1-A0SH-01"), Arrays.asList(testTreatment));
-            assertEquals(2, treatmentData.size());
             assertEquals("NA", treatmentData.get(0).getValue());
-            assertEquals(0.06704437, Double.parseDouble(treatmentData.get(1).getValue()), 0.00001);
+            assertEquals(0.080764666, Double.parseDouble(treatmentData.get(1).getValue()), 0.00001);
 
             // ===== check study status
             assertEquals(DaoCancerStudy.Status.AVAILABLE, DaoCancerStudy.getStatus("study_es_0"));

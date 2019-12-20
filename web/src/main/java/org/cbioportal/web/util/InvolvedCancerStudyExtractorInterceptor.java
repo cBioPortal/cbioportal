@@ -61,7 +61,6 @@ import org.cbioportal.web.parameter.SampleIdentifier;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.cbioportal.web.parameter.StructuralVariantFilter;
 import org.cbioportal.web.parameter.StudyViewFilter;
-import org.cbioportal.web.parameter.TreatmentFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,8 +140,6 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             return extractAttributesFromGroupFilter(wrappedRequest);
         } else if (requestPathInfo.equals(MUTATION_ENRICHMENT_FETCH_PATH) || requestPathInfo.equals(COPY_NUMBER_ENRICHMENT_FETCH_PATH) || requestPathInfo.equals(EXPRESSION_ENRICHMENT_FETCH_PATH)) {
             return extractAttributesFromMolecularProfileCasesGroups(wrappedRequest);
-        } else if (requestPathInfo.equals(TREATMENT_FETCH_PATH)) {
-            return extractAttributesFromTreatmentFilter(wrappedRequest);
         } else if (requestPathInfo.equals(STRUCTURAL_VARIANT_FETCH_PATH)) {
             return extractAttributesFromStructuralVariantFilter(wrappedRequest);
         } else if (requestPathInfo.equals(GENERIC_ASSAY_DATA_MULTIPLE_STUDY_FETCH_PATH)) {
@@ -521,42 +518,6 @@ public class InvolvedCancerStudyExtractorInterceptor extends HandlerInterceptorA
             return false;
         }
         return true;
-    }
-
-    private boolean extractAttributesFromTreatmentFilter(HttpServletRequest request) {
-        try {
-            TreatmentFilter treatmentFilter = objectMapper.readValue(request.getReader(), TreatmentFilter.class);
-            LOG.debug("extracted treatmentFilter: " + treatmentFilter.toString());
-            LOG.debug("setting interceptedTreatmentFilter to " + treatmentFilter);
-            request.setAttribute("interceptedTreatmentFilter", treatmentFilter);
-            if (cacheMapUtil.hasCacheEnabled()) {
-                Collection<String> cancerStudyIdCollection = extractCancerStudyIdsFromTreatmentFilter(treatmentFilter);
-                LOG.debug("setting involvedCancerStudies to " + cancerStudyIdCollection);
-                request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
-            }
-        } catch (MismatchedInputException e) {
-            if (e.getMessage().startsWith("No content")) {
-                LOG.debug("No body present in request : setting interceptedTreatmentFilter to empty TreatmentFilter (which will be considered invalid)");
-                request.setAttribute("interceptedTreatmentFilter", new TreatmentFilter());
-                return true; // let this empty TreatmentFilter be invalidated/rejected by the controller
-            } else {
-                LOG.error("exception thrown during extraction of treatmentFilter: " + e);
-                return false;
-            }
-        } catch (Exception e) {
-            LOG.error("exception thrown during extraction of treatmentFilter: " + e);
-            return false;
-        }
-        return true;
-    }
-
-    private Collection<String> extractCancerStudyIdsFromTreatmentFilter(TreatmentFilter treatmentFilter) {
-        // use hashset as the study list in the TreatmentFilter may be populated with many duplicate values
-        Set<String> studyIdSet = new HashSet<String>();
-        if (treatmentFilter.getStudyIds() != null) {
-            studyIdSet.addAll(treatmentFilter.getStudyIds());
-        }
-        return studyIdSet;
     }
 
     private boolean extractAttributesFromStructuralVariantFilter(HttpServletRequest request) {

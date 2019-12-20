@@ -98,7 +98,7 @@ public class ImportProfileData extends ConsoleRunnable {
             } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.STRUCTURAL_VARIANT) {
                 ImportStructuralVariantData importer = new ImportStructuralVariantData(dataFile, geneticProfile.getGeneticProfileId(), genePanel);
                 importer.importData();
-            } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.TREATMENT || geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY) {
+            } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY) {
                 // add all missing `genetic_entities` for this assay to the database
                 ImportGenericAssayEntity.importData(dataFile, geneticProfile.getGeneticAlterationType(), geneticProfile.getOtherMetaDataField("generic_entity_meta_properties"));
                 

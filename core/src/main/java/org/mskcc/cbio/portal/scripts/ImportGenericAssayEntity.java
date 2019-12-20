@@ -47,9 +47,7 @@ import org.cbioportal.model.meta.GenericAssayMeta;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGenericAssay;
 import org.mskcc.cbio.portal.dao.DaoGeneticEntity;
-import org.mskcc.cbio.portal.dao.DaoTreatment;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
-import org.mskcc.cbio.portal.model.Treatment;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import joptsimple.OptionParser;
@@ -162,103 +160,54 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
         String currentLine = buf.readLine();
         String[] headerNames = currentLine.split("\t");
         
-        if (geneticAlterationType == GeneticAlterationType.TREATMENT) {
-            // read treatment data
-            int indexStableIdField = getTreatmentStableIdIndex(headerNames);
-            int indexNameField = getNameIndex(headerNames);
-            int indexDescField = getDescIndex(headerNames);
-            int indexUrlField = getUrlIndex(headerNames);
+        // read generic assay data
+        int indexStableIdField = getStableIdIndex(headerNames);
+
+        currentLine = buf.readLine();
+        
+        while (currentLine != null) {
             
-            currentLine = buf.readLine();
+            String[] parts = currentLine.split("\t");
             
-            while (currentLine != null) {
-                
-                String[] parts = currentLine.split("\t");
-                
-                // assumed that fields contain: treat id, name, short name
-                String treatmentStableId = parts[indexStableIdField];
-                Treatment treatment = DaoTreatment.getTreatmentByStableId(treatmentStableId);
-                
-                // treatments are always updated to based on the current import;
-                // also when present in db a new record is created.
-                    
-                // extract fields; replace optional fields with the Stable ID when not set
-                String stableId = parts[indexStableIdField];
-                String name = indexNameField == -1?stableId:parts[indexNameField];
-                String desc = indexNameField == -1?stableId:parts[indexDescField];
-                String url = indexNameField == -1?stableId:parts[indexUrlField];
-
-                if (treatment == null) {
-                
-                    // create a new treatment and add to the database
-                    Treatment newTreatment = new Treatment(stableId, name, desc, url);
-                    ProgressMonitor.setCurrentMessage("Adding treatment: " + newTreatment.getStableId());
-                    DaoTreatment.addTreatment(newTreatment);
-
-                }
-                // update the meta-information fields of the treatment
-                else {
-
-                    ProgressMonitor.setCurrentMessage("Updating treatment: " + treatment.getStableId());
-                    treatment.setName(name);
-                    treatment.setDescription(desc);
-                    treatment.setRefLink(url);
-                    DaoTreatment.updateTreatment(treatment);
-
-                }
-
-                currentLine = buf.readLine();
-            }
-        } else {
-            // read generic assay data
-            int indexStableIdField = getStableIdIndex(headerNames);
-
-            currentLine = buf.readLine();
+            // get stableId and get the meta by the stableId
+            String genericAssayMetaStableId = parts[indexStableIdField];
+            GenericAssayMeta genericAssayMeta = DaoGenericAssay.getGenericAssayMetaByStableId(genericAssayMetaStableId);
             
-            while (currentLine != null) {
+            // generic assay meta are always updated to based on the current import;
+            // also when present in db a new record is created.
                 
-                String[] parts = currentLine.split("\t");
-                
-                // get stableId and get the meta by the stableId
-                String genericAssayMetaStableId = parts[indexStableIdField];
-                GenericAssayMeta genericAssayMeta = DaoGenericAssay.getGenericAssayMetaByStableId(genericAssayMetaStableId);
-                
-                // generic assay meta are always updated to based on the current import;
-                // also when present in db a new record is created.
-                    
-                // extract fields; replace optional fields with the Stable ID when not set
-                String stableId = parts[indexStableIdField];
-                HashMap<String, String> propertiesMap = new HashMap<>();
-                if (additionalProperties != null) {
-                    String[] columnNameList = additionalProperties.trim().split(",");
-                    for (String columnName : columnNameList) {
-                        int indexAdditionalField = getColIndexByName(headerNames, columnName);
-                        if (indexAdditionalField != -1) {
-                            propertiesMap.put(columnName, parts[indexAdditionalField]);
-                        }
+            // extract fields; replace optional fields with the Stable ID when not set
+            String stableId = parts[indexStableIdField];
+            HashMap<String, String> propertiesMap = new HashMap<>();
+            if (additionalProperties != null) {
+                String[] columnNameList = additionalProperties.trim().split(",");
+                for (String columnName : columnNameList) {
+                    int indexAdditionalField = getColIndexByName(headerNames, columnName);
+                    if (indexAdditionalField != -1) {
+                        propertiesMap.put(columnName, parts[indexAdditionalField]);
                     }
                 }
-
-                // log for the existing entities
-                if (genericAssayMeta != null) {
-                    ProgressMonitor.setCurrentMessage("Cannot add new entity, entity exists: " + genericAssayMetaStableId);
-                }
-                // create a new generic assay meta and add to the database
-                else {
-                    GeneticEntity newGeneticEntity = new GeneticEntity(geneticAlterationType.name(), stableId);
-                    GeneticEntity createdGeneticEntity = DaoGeneticEntity.addNewGeneticEntity(newGeneticEntity);
-                    propertiesMap.forEach((k, v) -> {
-                        try {
-                            DaoGenericAssay.setGenericEntityProperty(createdGeneticEntity.getId(), k, v);
-                        } catch (DaoException e) {
-                            e.printStackTrace();
-                        }
-                    });
-                }
-
-                currentLine = buf.readLine();
             }
-        } 
+
+            // log for the existing entities
+            if (genericAssayMeta != null) {
+                ProgressMonitor.setCurrentMessage("Cannot add new entity, entity exists: " + genericAssayMetaStableId);
+            }
+            // create a new generic assay meta and add to the database
+            else {
+                GeneticEntity newGeneticEntity = new GeneticEntity(geneticAlterationType.name(), stableId);
+                GeneticEntity createdGeneticEntity = DaoGeneticEntity.addNewGeneticEntity(newGeneticEntity);
+                propertiesMap.forEach((k, v) -> {
+                    try {
+                        DaoGenericAssay.setGenericEntityProperty(createdGeneticEntity.getId(), k, v);
+                    } catch (DaoException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+
+            currentLine = buf.readLine();
+        }
         
         reader.close();
         
@@ -270,25 +219,6 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
     // returns index for ENTITY_STABLE_ID column
     private static int getStableIdIndex(String[] headers) {
         return getColIndexByName(headers, "ENTITY_STABLE_ID");
-    }
-    
-    private static int getTreatmentStableIdIndex(String[] headers) {
-        return getColIndexByName(headers, "entity_stable_id");
-    }
-    
-    // returns index for name column
-    private static  int getNameIndex(String[] headers) {
-        return getColIndexByName(headers, ImportUtils.metaFieldTag+"name");
-    }
-    
-    // returns index for description column
-    private static  int getDescIndex(String[] headers) {
-        return getColIndexByName(headers, ImportUtils.metaFieldTag+"description");
-    }
-    
-    // returns index for treatment linkout url column
-    private static  int getUrlIndex(String[] headers) {
-        return getColIndexByName(headers, ImportUtils.metaFieldTag+"url");
     }
     
     // helper function for finding the index of a column by name

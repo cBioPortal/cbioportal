@@ -5,7 +5,6 @@ import java.util.List;
 import org.cbioportal.model.GeneMolecularAlteration;
 import org.cbioportal.model.GenericAssayMolecularAlteration;
 import org.cbioportal.model.GenesetMolecularAlteration;
-import org.cbioportal.model.TreatmentMolecularAlteration;
 import org.springframework.cache.annotation.Cacheable;
 
 public interface MolecularDataRepository {
@@ -32,10 +31,6 @@ public interface MolecularDataRepository {
     @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<GenesetMolecularAlteration> getGenesetMolecularAlterations(String molecularProfileId, List<String> genesetIds,
                                                                     String projection);
-
-    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
-    List<TreatmentMolecularAlteration> getTreatmentMolecularAlterations(String molecularProfileId,
-            List<String> treatmentIds, String projection);
 
     @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<GenericAssayMolecularAlteration> getGenericAssayMolecularAlterations(String molecularProfileId, List<String> stableIds,

@@ -117,17 +117,15 @@ public class GeneticProfileReader {
     	if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE) {
             validateGenesetProfile(geneticProfile, file);
         }
-        
-        if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.TREATMENT) {
-            validateTreatmentResponse(geneticProfile, file);
-            geneticProfile.setPivotThreshold( Float.parseFloat( geneticProfile.getOtherMetaDataField("pivot_threshold_value") ) );
-            geneticProfile.setSortOrder( geneticProfile.getOtherMetaDataField("value_sort_order") );
-        }
 
         if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY) {
             validateGenericAssay(geneticProfile, file);
             geneticProfile.setGenericAssayType(geneticProfile.getOtherMetaDataField("generic_assay_type"));
-            // TODO: if genericAssayType is TREATMENT_RESPONSE, validate and set pivotThreshold and sortOrder
+            // if genericAssayType is TREATMENT_RESPONSE, validate if pivotThreshold and sortOrder exist
+            if (geneticProfile.getGenericAssayType().equals("TREATMENT_RESPONSE")) {
+                validateTreatmentResponse(geneticProfile, file);
+            }
+            // add pivotThreshold and sortOrder if exist
             if (geneticProfile.getOtherMetaDataField("pivot_threshold_value") != null) {
                 geneticProfile.setPivotThreshold(Float.parseFloat(geneticProfile.getOtherMetaDataField("pivot_threshold_value")));
             }

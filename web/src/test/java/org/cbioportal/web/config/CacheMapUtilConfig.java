@@ -18,6 +18,7 @@
 package org.cbioportal.web.config;
 
 import org.cbioportal.persistence.CancerTypeRepository;
+import org.cbioportal.persistence.GenericAssayRepository;
 import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.persistence.PatientRepository;
 import org.cbioportal.persistence.SampleListRepository;
@@ -56,5 +57,9 @@ public class CacheMapUtilConfig {
     @Bean
     public SampleListRepository sampleListRepository() {
         return Mockito.mock(SampleListRepository.class);
+    }
+    @Bean
+    public GenericAssayRepository genericAssayRepository() {
+        return Mockito.mock(GenericAssayRepository.class);
     }
 }

@@ -76,7 +76,7 @@ skin.right_nav.show_whats_new=true
 skin.study_view.link_text=To build your own case set, try out our enhanced Study View.
 
 # setting controlling the default setting for filtering genes in patient view
-skin.patientview.filter_genes_profiled_all_samples=true
+# skin.patientview.filter_genes_profiled_all_samples=false
 
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=
@@ -277,3 +277,13 @@ ehcache.cache_type=none
 
 # ensembl URL template for transcript lookup in Mutations tab. Default is http://grch37.ensembl.org/homo_sapiens/Transcript/Summary?t=<%= transcriptId %>
 #ensembl.transcript_url=http://ensembl.org/homo_sapiens/Transcript/Summary?t=<%= transcriptId %>
+
+# Enable/disable Persistent Cache (true, false)
+# The Persistent Cache is a frontend feature that is used to cache semi static
+# data produced by APIs. It uses IndexedDB as a means for persistent storage.
+# This feature is disabled by default.
+# enable_persistent_cache=true
+
+# Limit the size of gene queries (number). gene count * sample count < query_product_limit
+# This limit is enforced on the frontend.
+query_product_limit=1000000

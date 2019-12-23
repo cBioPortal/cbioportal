@@ -49,7 +49,7 @@ public class GenericAssayController {
     private GenericAssayService genericAssayService;
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/generic_assay_meta/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value = "/generic-assay-meta/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch meta data for generic-assay by ID")
     public ResponseEntity<List<GenericAssayMeta>> fetchGenericAssayMetaData(
@@ -74,10 +74,10 @@ public class GenericAssayController {
     }
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/generic_assay_data/{molecularProfileId}/fetch",
+    @RequestMapping(value = "/generic-assay-data/{molecularProfileId}/fetch",
         method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("fetch generic_assay_data in a molecular profile")
+    @ApiOperation("fetch generic assay data in a molecular profile")
     public ResponseEntity<List<GenericAssayData>> fetchGenericAssayDataInMolecularProfile(
         @ApiParam(required = true, value = "Molecular Profile ID")
         @PathVariable String molecularProfileId,
@@ -105,9 +105,9 @@ public class GenericAssayController {
     }
 
     @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/generic_assay_data/fetch", method = RequestMethod.POST,
+    @RequestMapping(value = "/generic-assay-data/fetch", method = RequestMethod.POST,
     consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch generic_assay_data")
+    @ApiOperation("Fetch generic assay data")
     public ResponseEntity<List<GenericAssayData>> fetchGenericAssayDataInMultipleMolecularProfiles(
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
         @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,

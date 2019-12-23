@@ -85,7 +85,7 @@ public class GenericAssayControllerTest {
         genericAssayDataFilter.setSampleIds(Arrays.asList(SAMPLE_ID));	
         genericAssayDataFilter.setGenericAssayStableIds(Arrays.asList(GENERIC_ASSAY_STABLE_ID_1, GENERIC_ASSAY_STABLE_ID_2));	
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/" + PROF_ID + "/fetch")	
+        mockMvc.perform(MockMvcRequestBuilders.post("/generic-assay-data/" + PROF_ID + "/fetch")	
                 .accept(MediaType.APPLICATION_JSON)	
                 .contentType(MediaType.APPLICATION_JSON)	
                 .content(objectMapper.writeValueAsString(genericAssayDataFilter)))	
@@ -111,7 +111,7 @@ public class GenericAssayControllerTest {
         Mockito.when(genericAssayService.fetchGenericAssayData(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(genericAssayDataItems);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_data/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/generic-assay-data/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(genericAssayDataMultipleStudyFilter)))
@@ -137,7 +137,7 @@ public class GenericAssayControllerTest {
         
         Mockito.when(genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(genericAssayMetaItems);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/generic_assay_meta/fetch")
+        mockMvc.perform(MockMvcRequestBuilders.post("/generic-assay-meta/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))

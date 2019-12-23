@@ -793,3 +793,39 @@ UPDATE genetic_profile SET GENERIC_ASSAY_TYPE = "TREATMENT_RESPONSE" WHERE genet
 DROP TABLE IF EXISTS `treatment`;
 
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.2";
+
+##version: 2.12.3
+CREATE TEMPORARY TABLE IF NOT EXISTS
+    fusion_studies ( INDEX(CANCER_STUDY_IDENTIFIER) )
+AS (
+    SELECT DISTINCT CANCER_STUDY_IDENTIFIER, cancer_study.CANCER_STUDY_ID
+    FROM `mutation_event`
+             JOIN `mutation` ON `mutation`.MUTATION_EVENT_ID = `mutation_event`.MUTATION_EVENT_ID
+             JOIN `genetic_profile` ON `genetic_profile`.GENETIC_PROFILE_ID = `mutation`.GENETIC_PROFILE_ID
+             JOIN `cancer_study` ON `cancer_study`.CANCER_STUDY_ID = `genetic_profile`.CANCER_STUDY_ID
+    WHERE MUTATION_TYPE = 'fusion'
+);
+INSERT INTO genetic_profile(STABLE_ID, CANCER_STUDY_ID, GENETIC_ALTERATION_TYPE, DATATYPE, NAME, DESCRIPTION, SHOW_PROFILE_IN_ANALYSIS_TAB)
+SELECT CONCAT(CANCER_STUDY_IDENTIFIER, '_structural_variants'), CANCER_STUDY_ID, 'STRUCTURAL_VARIANT','SV','Fusions','Fusions',0
+FROM `fusion_studies`
+WHERE NOT EXISTS (SELECT * FROM genetic_profile WHERE  STABLE_ID=CONCAT(`fusion_studies`.CANCER_STUDY_IDENTIFIER, '_structural_variants')
+    AND CANCER_STUDY_ID = `fusion_studies`.CANCER_STUDY_ID);
+REPLACE INTO sample_list(STABLE_ID, CATEGORY, CANCER_STUDY_ID, NAME, DESCRIPTION)
+SELECT CONCAT(CANCER_STUDY_IDENTIFIER, '_sv'), 'all_cases_with_structural_variant_data', CANCER_STUDY_ID, 'all_cases_with_structural_variant_data','All cases with structural variant data'
+FROM `fusion_studies`;
+CREATE TEMPORARY TABLE IF NOT EXISTS
+    fusion_samples_by_study ( INDEX(cancer_study_id) )
+AS (
+    SELECT DISTINCT sv.cancer_study_id, sll.sample_id
+    FROM `fusion_studies` sv
+             JOIN `sample_list` sl ON sv.cancer_study_id = sl.cancer_study_id AND sl.STABLE_ID LIKE '%_sequenced%'
+             JOIN `sample_list_list` sll ON sll.list_id = sl.list_id
+);
+REPLACE INTO sample_list_list(list_id, sample_id)
+SELECT DISTINCT sample_list.list_id, fusion_samples_by_study.sample_id
+FROM `fusion_samples_by_study`
+         JOIN `sample_list` ON `sample_list`.cancer_study_id = `fusion_samples_by_study`.cancer_study_id
+        AND `sample_list`.STABLE_ID LIKE '%_sv%';
+DROP TEMPORARY TABLE fusion_studies;
+DROP TEMPORARY TABLE fusion_samples_by_study;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.3";

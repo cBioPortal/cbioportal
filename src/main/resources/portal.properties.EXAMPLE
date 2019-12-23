@@ -286,4 +286,4 @@ ehcache.cache_type=none
 
 # Limit the size of gene queries (number). gene count * sample count < query_product_limit
 # This limit is enforced on the frontend.
-query_product_limit=1000000
+# query_product_limit=1000000

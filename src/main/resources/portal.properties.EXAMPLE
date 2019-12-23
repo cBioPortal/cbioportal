@@ -76,7 +76,7 @@ skin.right_nav.show_whats_new=true
 skin.study_view.link_text=To build your own case set, try out our enhanced Study View.
 
 # setting controlling the default setting for filtering genes in patient view
-skin.patientview.filter_genes_profiled_all_samples=true
+# skin.patientview.filter_genes_profiled_all_samples=false
 
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=

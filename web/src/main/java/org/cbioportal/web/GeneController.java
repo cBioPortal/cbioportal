@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import org.cbioportal.model.Gene;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.exception.GeneNotFoundException;
+import org.cbioportal.service.exception.GeneWithMultipleEntrezIdsException;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.Direction;
 import org.cbioportal.web.parameter.GeneIdType;
@@ -80,7 +81,7 @@ public class GeneController {
     @ApiOperation("Get a gene")
     public ResponseEntity<Gene> getGene(
         @ApiParam(required = true, value = "Entrez Gene ID or Hugo Gene Symbol e.g. 1 or A1BG")
-        @PathVariable String geneId) throws GeneNotFoundException {
+        @PathVariable String geneId) throws GeneNotFoundException, GeneWithMultipleEntrezIdsException {
 
         return new ResponseEntity<>(geneService.getGene(geneId), HttpStatus.OK);
     }
@@ -90,7 +91,7 @@ public class GeneController {
     @ApiOperation("Get aliases of a gene")
     public ResponseEntity<List<String>> getAliasesOfGene(
         @ApiParam(required = true, value = "Entrez Gene ID or Hugo Gene Symbol e.g. 1 or A1BG")
-        @PathVariable String geneId) throws GeneNotFoundException {
+        @PathVariable String geneId) throws GeneNotFoundException, GeneWithMultipleEntrezIdsException {
 
         return new ResponseEntity<>(geneService.getAliasesOfGene(geneId), HttpStatus.OK);
     }

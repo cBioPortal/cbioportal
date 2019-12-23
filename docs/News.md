@@ -1,3 +1,9 @@
+## Dec 19, 2019
+* **Enhancement**: We restored support for submitting large queries from external applications using HTTP POST requests.  Accepted parameters are the same
+as appear in the url of a query submitted from the homepage.
+
+* See more updates [here](https://github.com/cBioPortal/cbioportal/releases/tag/v3.1.8)
+
 ## Dec 12, 2019
 * **Enhancement**: Add Count Bubbles to Oncoprint Toolbar
 

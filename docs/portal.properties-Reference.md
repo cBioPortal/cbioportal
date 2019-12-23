@@ -215,6 +215,13 @@ The CIViC API url is set to https://civic.genome.wustl.edu/api/ by default. It c
 civic.url=
 ```
 
+# MDACC Heatmap Integration
+
+MDACC Heatmap integration (button in OncoPrint heatmap dropdown and tab on Study page can be turned on or off by setting the following property:
+```
+show.mdacc.heatmap=true
+```
+
 # OncoPrint
 
 The default view in OncoPrint ("patient" or "sample") can be set with the following option. The default is "patient".

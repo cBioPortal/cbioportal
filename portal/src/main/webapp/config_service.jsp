@@ -51,6 +51,7 @@
             "mdacc.heatmap.patient.url",
             "mdacc.heatmap.study.meta.url",
             "mdacc.heatmap.study.url",
+            "show.mdacc.heatmap",
             "oncoprint.custom_driver_annotation.tiers.menu_label",
             "priority_studies",
             "show.hotspot",

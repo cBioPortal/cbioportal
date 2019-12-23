@@ -6,7 +6,8 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.GeneRepository;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.exception.GeneNotFoundException;
-import org.cbioportal.service.util.ChromosomeCalculator;
+import org.cbioportal.service.exception.GeneWithMultipleEntrezIdsException;
+import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,8 +27,6 @@ public class GeneServiceImpl implements GeneService {
     
     @Autowired
     private GeneRepository geneRepository;
-    @Autowired
-    private ChromosomeCalculator chromosomeCalculator;
 
     private Map<Integer, List<String>> geneAliasMap = new HashMap<>();
 
@@ -58,8 +58,8 @@ public class GeneServiceImpl implements GeneService {
                 }
             }
         }
-        
-        return geneList;
+
+        return filterGenesWithMultipleEntrezIds(geneList);
     }
 
     @Override
@@ -85,24 +85,27 @@ public class GeneServiceImpl implements GeneService {
     }  
 
     @Override
-    public Gene getGene(String geneId) throws GeneNotFoundException {
+    public Gene getGene(String geneId) throws GeneNotFoundException, GeneWithMultipleEntrezIdsException {
 
         Gene gene;
 
-        if (isInteger(geneId)) {
-            gene = geneRepository.getGeneByEntrezGeneId(Integer.valueOf(geneId));
-        } else {
-            gene = geneRepository.getGeneByHugoGeneSymbol(geneId);
+        try {
+            if (isInteger(geneId)) {
+                gene = geneRepository.getGeneByEntrezGeneId(Integer.valueOf(geneId));
+            } else {
+                gene = geneRepository.getGeneByHugoGeneSymbol(geneId);
+            }
+            if (gene == null) {
+                throw new GeneNotFoundException(geneId);
+            }
+            return gene;
+        } catch (MyBatisSystemException e) {
+            throw new GeneWithMultipleEntrezIdsException(geneId);
         }
-
-        if (gene == null) {
-            throw new GeneNotFoundException(geneId);
-        }
-        return gene;
     }
 
     @Override
-    public List<String> getAliasesOfGene(String geneId) throws GeneNotFoundException {
+    public List<String> getAliasesOfGene(String geneId) throws GeneNotFoundException, GeneWithMultipleEntrezIdsException {
         
         getGene(geneId);
 
@@ -124,7 +127,8 @@ public class GeneServiceImpl implements GeneService {
         } else {
             geneList = geneRepository.fetchGenesByHugoGeneSymbols(geneIds, projection);
         }
-        return geneList;
+
+        return filterGenesWithMultipleEntrezIds(geneList);
     }
 
     @Override
@@ -160,5 +164,24 @@ public class GeneServiceImpl implements GeneService {
             matchingGenes = fetchGenes(matchingEntrezGeneIds, ENTREZ_GENE_ID_GENE_ID_TYPE, "SUMMARY");
         }
         return matchingGenes;
+    }
+    
+    private List<Gene> filterGenesWithMultipleEntrezIds(List<Gene> geneList) {
+
+        Map<String, Long> geneFrequencyMap = geneList
+                .stream()
+                .map(Gene::getHugoGeneSymbol)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        Map<String, Long> genesToRemoveMap = geneFrequencyMap
+                .entrySet()
+                .stream()
+                .filter(record -> record.getValue() > 1)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        return geneList
+                .stream()
+                .filter(gene -> !genesToRemoveMap.containsKey(gene.getHugoGeneSymbol()))
+                .collect(Collectors.toList());
     }
 }

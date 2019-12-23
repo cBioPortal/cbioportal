@@ -63,7 +63,7 @@ the `JAVA_OPTS` argument in Step 6 to include the `-Dauthenticate=saml` flag:
 docker run -d --restart=always \
     --name=cbioportal-container \
     --net=cbio-net \
-    -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
+    -v /&lt;path_to_config_file&gt;/portal.properties:/cbioportal/portal.properties:ro \
     -e JAVA_OPTS='
         -Xms2g
         -Xmx4g

@@ -9,6 +9,7 @@
     String url = request.getRequestURL().toString();
     String baseUrl = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
     baseUrl = baseUrl.replace("https://", "").replace("http://", "");
+    response.setHeader("Referrer-Policy", "origin-when-cross-origin");
     
     // to support posted query data (when data would exceed URL length)
     // write all post params to json on page where it can be consumed

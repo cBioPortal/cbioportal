@@ -811,7 +811,7 @@ FROM `fusion_studies`
 WHERE NOT EXISTS (SELECT * FROM genetic_profile WHERE  STABLE_ID=CONCAT(`fusion_studies`.CANCER_STUDY_IDENTIFIER, '_structural_variants')
     AND CANCER_STUDY_ID = `fusion_studies`.CANCER_STUDY_ID);
 REPLACE INTO sample_list(STABLE_ID, CATEGORY, CANCER_STUDY_ID, NAME, DESCRIPTION)
-SELECT CONCAT(CANCER_STUDY_IDENTIFIER, '_sv'), 'all_cases_with_structural_variant_data', CANCER_STUDY_ID, 'all_cases_with_structural_variant_data','All cases with structural variant data'
+SELECT CONCAT(CANCER_STUDY_IDENTIFIER, '_sv'), 'all_cases_with_sv_data', CANCER_STUDY_ID, 'Samples with Structural Variant data', 'All samples profiled for structural variants'
 FROM `fusion_studies`;
 CREATE TEMPORARY TABLE IF NOT EXISTS
     fusion_samples_by_study ( INDEX(cancer_study_id) )

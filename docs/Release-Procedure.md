@@ -2,7 +2,7 @@
 We have release procedures for the following scenarios:
 
 1. [cBioPortal community release of code already in production](#cbioportal-community-release-of-code-already-in-production)
-2. [New Feature Release](#new-feature-release)
+2. [Release with database migration](#Release-with-database-migration)
 
 ## cBioPortal community release of code already in production
 We often run code in production that is not ready yet for use by the wider

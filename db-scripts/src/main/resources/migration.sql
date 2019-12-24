@@ -748,8 +748,26 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.0";
 -- update genetic_entity table
 ALTER TABLE `genetic_entity` ADD COLUMN `STABLE_ID` varchar(45) DEFAULT NULL;
 ALTER TABLE `genetic_profile` ADD COLUMN `GENERIC_ASSAY_TYPE` varchar(255) DEFAULT NULL;
-ALTER TABLE `genetic_alteration` DROP FOREIGN KEY genetic_alteration_ibfk_2;
-ALTER TABLE `genetic_alteration` ADD CONSTRAINT `genetic_alteration_ibfk_2` FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE;
+
+-- get name of genetic alteration foreign key and recreate it
+-- sometimes the name contains _fk_ sometimes _ibfk_, so determine it
+-- dynamically
+set @genetic_alteration_fk_name:= (
+    select constraint_name from information_schema.key_column_usage
+    where constraint_name like '%genetic_alteration%' and referenced_table_schema=(select database()) and referenced_table_name='genetic_entity'
+);
+
+-- need to use prepare statement when using variable names in alter table
+-- https://stackoverflow.com/questions/23757105/dropping-foreign-key-using-variable-as-name
+SET @runstring = CONCAT('ALTER TABLE `genetic_alteration` DROP FOREIGN KEY ', @genetic_alteration_fk_name);
+PREPARE stmt1 FROM @runstring;
+EXECUTE stmt1;
+DEALLOCATE PREPARE stmt1;
+
+SET @runstring2 = CONCAT('ALTER TABLE `genetic_alteration` ADD CONSTRAINT ', @genetic_alteration_fk_name, ' FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE');
+PREPARE stmt2 FROM @runstring;
+EXECUTE stmt2;
+DEALLOCATE PREPARE stmt2;
 
 CREATE TABLE `generic_entity_properties` (
   `ID` INT(11) NOT NULL auto_increment,
@@ -811,7 +829,7 @@ FROM `fusion_studies`
 WHERE NOT EXISTS (SELECT * FROM genetic_profile WHERE  STABLE_ID=CONCAT(`fusion_studies`.CANCER_STUDY_IDENTIFIER, '_structural_variants')
     AND CANCER_STUDY_ID = `fusion_studies`.CANCER_STUDY_ID);
 REPLACE INTO sample_list(STABLE_ID, CATEGORY, CANCER_STUDY_ID, NAME, DESCRIPTION)
-SELECT CONCAT(CANCER_STUDY_IDENTIFIER, '_sv'), 'all_cases_with_structural_variant_data', CANCER_STUDY_ID, 'all_cases_with_structural_variant_data','All cases with structural variant data'
+SELECT CONCAT(CANCER_STUDY_IDENTIFIER, '_sv'), 'all_cases_with_sv_data', CANCER_STUDY_ID, 'Samples with Structural Variant data', 'All samples profiled for structural variants'
 FROM `fusion_studies`;
 CREATE TEMPORARY TABLE IF NOT EXISTS
     fusion_samples_by_study ( INDEX(cancer_study_id) )

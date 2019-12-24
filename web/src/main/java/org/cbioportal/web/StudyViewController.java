@@ -374,6 +374,11 @@ public class StudyViewController {
             molecularProfileSampleCount.setNumberOfCNSegmentSamples(Math.toIntExact(sampleService
                 .fetchSamples(studyIds, sampleIds, Projection.DETAILED.name()).stream().filter(
                     s -> s.getCopyNumberSegmentPresent()).count()));
+            molecularProfileSampleCount.setNumberOfFusionProfiledSamples(Math.toIntExact(sampleService
+                .fetchSamples(studyIds, sampleIds, Projection.DETAILED.name()).stream().filter(
+                    s -> s.getProfiledForFusions()).count()));
+            molecularProfileSampleCount.setNumberOfFusionUnprofiledSamples(sampleCount -
+                molecularProfileSampleCount.getNumberOfFusionProfiledSamples());
         }
         return new ResponseEntity<>(molecularProfileSampleCount, HttpStatus.OK);
     }

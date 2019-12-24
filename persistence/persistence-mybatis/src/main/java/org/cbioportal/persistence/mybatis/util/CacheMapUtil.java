@@ -54,6 +54,9 @@ public class CacheMapUtil {
     @Autowired
     private SampleListRepository sampleListRepository;
 
+    @Autowired
+    private GenericAssayRepository genericAssayRepository;
+
     @Value("${authenticate:false}")
     private String authenticate;
 
@@ -67,6 +70,7 @@ public class CacheMapUtil {
     private Map<String, MolecularProfile> molecularProfileCache;
     private Map<String, SampleList> sampleListCache;
     private Map<String, CancerStudy> cancerStudyCache;
+    private Map<String, String> genericAssayStableIdToMolecularProfileIdCache;
 
     public Map<String, MolecularProfile> getMolecularProfileMap() {
         return molecularProfileCache;
@@ -80,6 +84,10 @@ public class CacheMapUtil {
         return cancerStudyCache;
     }
 
+    public Map<String, String> getGenericAssayStableIdToMolecularProfileIdMap() {
+        return genericAssayStableIdToMolecularProfileIdCache;
+    }
+
     @PostConstruct
     private void initializeCacheMemory() {
         // CHANGES TO THIS LIST MUST BE PROPAGATED TO 'GlobalProperties'
@@ -91,6 +99,7 @@ public class CacheMapUtil {
             populateMolecularProfileMap();
             populateSampleListMap();
             populateCancerStudyMap();
+            populateGenericAssayStableIdToMolecularProfileIdMap();
         }
     }
 
@@ -138,6 +147,29 @@ public class CacheMapUtil {
             cancerStudyCache.put(cs.getCancerStudyIdentifier(), cs);
         }
         LOG.debug("  cancer study map size: " + cancerStudyCache.size());
+    }
+
+    private void populateGenericAssayStableIdToMolecularProfileIdMap() {
+        if (genericAssayStableIdToMolecularProfileIdCache == null) {
+            genericAssayStableIdToMolecularProfileIdCache = new HashMap<String, String>();
+        }
+        for (MolecularProfile mp : molecularProfileRepository.getAllMolecularProfiles(
+            "SUMMARY",
+            REPOSITORY_RESULT_LIMIT,
+            REPOSITORY_RESULT_OFFSET,
+            null,
+            "ASC")) {
+            // Only select GENERIC_ASSAY profiles
+            if (mp.getMolecularAlterationType().toString() == EntityType.GENERIC_ASSAY.toString()) {
+                List<String> molecularId = new ArrayList<String>();
+                molecularId.add(mp.getStableId());
+                List<String> stableIds = genericAssayRepository.getGenericAssayStableIdsByMolecularIds(molecularId);
+                for (String stableId : stableIds) {
+                    genericAssayStableIdToMolecularProfileIdCache.put(stableId, mp.getStableId());
+                }
+            }
+        }
+        LOG.debug(" generic assay stableId to molecularProfileId map size: " + genericAssayStableIdToMolecularProfileIdCache.size());
     }
 
     /**

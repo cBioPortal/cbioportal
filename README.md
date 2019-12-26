@@ -42,11 +42,14 @@ You can then use a JAVA IDE to connect to that port. E.g. in [VSCode](https://co
 }
 ```
 
-## Test status
+## Branch Information
 | | main branch | upcoming release branch | later release candidate branch |
 | --- | --- | --- | --- |
 | Branch name | [`master`](https://github.com/cBioPortal/cbioportal/tree/master) |  [`release-2.3.0`](https://github.com/cBioPortal/cbioportal/tree/release-2.3.0) |  [`rc`](https://github.com/cBioPortal/cbioportal/tree/rc) |
-| Description | All bug fixes and features not requiring database migrations go here. This code is either already in production on https://www.cbioportal.org (check live version on https://www.cbioportal.org/api/info) or will be released this week | Next release that requires database migrations. Thorough manual product review often takes place for this branch on https://beta.cbioportal.org | Later releases with features that require database migrations. This is useful to allow merging in new features without affecting the upcoming release. Could be seen as a development branch, but note that only high quality pull requests are merged. That is the feature should be pretty much ready for release after merge. A test instance of this branch is live on https://rc.cbioportal.org (check version at https://rc.cbioportal.org/api/info)) |
+| Description | All bug fixes and features not requiring database migrations go here. This code is either already in production or will be released this week | Next release that requires database migrations. Thorough manual product review often takes place for this branch before release | Later releases with features that require database migrations. This is useful to allow merging in new features without affecting the upcoming release. Could be seen as a development branch, but note that only high quality pull requests are merged. That is the feature should be pretty much ready for release after merge. |
+| Live instance | https://www.cbioportal.org / https://master.cbioportal.org | https://beta.cbioportal.org | https://rc.cbioportal.org |
+| Live instance version | https://www.cbioportal.org/api/info / https://master.cbioportal.org/api/info | https://beta.cbioportal.org/api/info | https://rc.cbioportal.org/api/info |
+| Docker Image | cbioportal/cbioportal:master | cbioportal/cbioportal:release-3.2.0 | cbioportal/cbioportal:rc |
 | Status | [![master build status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=master)](https://travis-ci.org/cBioPortal/cbioportal/branches) | [![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=release-3.2.0)](https://travis-ci.org/cBioPortal/cbioportal/branches) | [![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=rc)](https://travis-ci.org/cBioPortal/cbioportal/branches) |
 
 
@@ -55,6 +58,17 @@ Release Notes on GitHub:
 
 https://github.com/cBioPortal/cbioportal/releases
 
+See also the cBioPortal News section for user focused release information:
+
+https://www.cbioportal.org/news
+
 Docker Images are available for each tag and branch:
 
 https://hub.docker.com/repository/docker/cbioportal/cbioportal/tags
+
+## Other Repos
+Read the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview) to see how these relate:
+
+- https://github.com/cBioPortal/cbioportal-frontend
+- https://github.com/cbioportal/session-service
+- https://github.com/cBioPortal/datahub/

@@ -50,6 +50,7 @@ You can then use a JAVA IDE to connect to that port. E.g. in [VSCode](https://co
 | Live instance | https://www.cbioportal.org / https://master.cbioportal.org | https://beta.cbioportal.org | https://rc.cbioportal.org |
 | Live instance version | https://www.cbioportal.org/api/info / https://master.cbioportal.org/api/info | https://beta.cbioportal.org/api/info | https://rc.cbioportal.org/api/info |
 | Docker Image | cbioportal/cbioportal:master | cbioportal/cbioportal:release-3.2.0 | cbioportal/cbioportal:rc |
+| Kubernetes Config | [production](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_spring_boot.yaml) / [master](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_backend_master.yaml) | [beta](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_backend_beta.yaml) | [rc](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_backend_rc.yaml) |
 | Status | [![master build status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=master)](https://travis-ci.org/cBioPortal/cbioportal/branches) | [![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=release-3.2.0)](https://travis-ci.org/cBioPortal/cbioportal/branches) | [![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=rc)](https://travis-ci.org/cBioPortal/cbioportal/branches) |
 
 

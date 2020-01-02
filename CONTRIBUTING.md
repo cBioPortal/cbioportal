@@ -1,8 +1,22 @@
 # How to contribute
 
-Thank you for contributing to cBioPortal!  This document provides a brief set of guidelines for contributing.
+Thank you for your interest in contributing to cBioPortal! This document provides a brief set of guidelines for contributing.
 
-# Background
+# Who are you?
+
+We are curious to learn more about you! We would love to help you get started! The contributors in our community all have different backgrounds. For instance some people have:
+
+1. Engineering experience but no to little knowledge of cancer genomics
+2. Knowledge about cancer genomics but no to little engineering experience
+3. No engineering nor cancer genomics experience but an eagerness to contribute
+
+if you feel like you don't fall into any of these categories, please reach out so you can help us update the above list 🙂! Note that there are many contributions that can be made to an open source commmunity without coding a single line of code. You can reach us through our [public slack channel](https://slack.cbioprtal.org).
+
+# Join the Slack!
+
+Come and chat with us at https://slack.cbioportal.org 👋
+
+# Making a code contribution
 
 The cBioPortal currently uses a "fork and pull" model for collaborative software development.
 
@@ -10,31 +24,26 @@ From the [GitHub Help Page of Using Pull Requests](https://help.github.com/artic
 
 "The fork & pull model lets anyone fork an existing repository and push changes to their personal fork without requiring access be granted to the source repository. The changes must then be pulled into the source repository by the project maintainer. This model reduces the amount of friction for new contributors and is popular with open source projects because it allows people to work independently without upfront coordination."
 
-## Branches within cBioPortal
-
-The cBioPortal currently maintains three branches:
-
- * **master**:  this reflects what is currently running in production on cbioportal.org. Bug fixes and documentation fixes go here.
- * **rc**:  release candidate branch, incorporating all the latest features. You could see our **rc** branch as a development branch where we only accept high quality contributions. Once ready for testing on cbioportal.org/beta a new branch is formed with the name **release-x.y.z**.
- *  **release-x.y.z**: before each release a new branch is created from **rc** that has a name like **release-x.y.z** .This one is usually deployed to www.cbioportal.org/beta. 
-
 ## Getting Started
 
  * Make sure you have a [GitHub account](https://github.com/signup/free).
  * Create an issue in our issues tracker, assuming one does not already exist.
  * Fork the cbioportal project on GitHub.  For general instructions on forking a GitHub project, see [Forking a Repo](https://help.github.com/articles/fork-a-repo/) and [Syncing a fork](https://help.github.com/articles/syncing-a-fork/).
+ * Familiarize yourself with the [project documentation](https://docs.cbioportal.org), including the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview), the [backend code organization](Backend-Code-Organization.md) and [backend development guidelines](Backend-Development-Guidelines.md).
 
 ## Contributing Code Changes via a Pull Request
 
 Once you have forked the repo, you need to create your code contributions within a new branch of your forked repo.  For general background on creating and managing branches within GitHub, see:  [Git Branching and Merging](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging).
 
 * To begin, create a topic branch from where you want to base your work.
- * For a new feature, this is usually the **rc branch**.  For documentation and bug fixes, this is usually the **master branch**.
+ * For any change that requires database migrations, this will be the **rc branch**. For all other changes this will be the **master branch**. Read the next section to get an overview of [the branching model in cBioPortal](Branches-within-cBioPortal).
 
 You usually create a branch like so:
 
-```git checkout master```
-```git checkout -b [name_of_your_new_branch]```
+```
+git checkout master
+git checkout -b [name_of_your_new_branch]
+```
 
 You then usually commit code changes, and push your branch back to GitHub like so:
 
@@ -49,9 +58,17 @@ A few tips:
 When you are ready to submit your pull-request:
 
 * Push your branch to your GitHub project.
-* Open a Pull Request on GitHub to the **rc (release candidate)** branch for a new feature or the **master** branch for a bug fix or documentation fix.
+* Open the pull request to the branch you've based your work on
 
-For instructions on submitting a pull-request, please see:  [Using Pull Requests ](https://help.github.com/articles/using-pull-requests/) and [Sending Pull Requests](http://help.github.com/send-pull-requests/).
+For instructions on submitting a pull-request, please see:  [Using Pull Requests](https://help.github.com/articles/using-pull-requests/) and [Sending Pull Requests](http://help.github.com/send-pull-requests/).
+
+## Branches within cBioPortal
+
+To figure out where your first pull request might go, it helps to have an understanding of cBioPortal's branching model. The cBioPortal currently maintains three branches in both the [frontend](https://github.com/cbioportal/cbioportal-frontend) and [backend repo](https://github.com/cbioportal/cbioportal):
+
+ * **master**:  this reflects what will be released with our next weekly release (https://github.com/cBioPortal/cbioportal/releases). For the [frontend repo](https://github.com/cbioprotal/cbioprtal-frontend) this branch is automatically deployed to production. On the backend it is deployed at least once a week. New features, bug fixes and documentation updates can go here. Only if the feature requires a database migration it should go to **rc**. So frontend only changes can be made directly as a pull request to the 
+  * **rc**:  release candidate branch, this branch contains new changes that require a database migration. It is deployed to https://rc.cbioportal.org. Once its ready for more thorough product review a new branch is created with the name **release-x.y.z**. This way people can still continue to submit new changes to **rc**, while more thorough testing takes place of the **release-x.y.z** branch.
+  *  **release-x.y.z**: this branch contains changes that require a database migration. It will be merged to master after thorough product review on https://beta.cbioportal.org. 
 
 ### Getting your changes reviewed
 
@@ -64,7 +81,7 @@ If you have an idea who might be able to spot such issues
 in the parts of the code and functionality affected by your changes,
 notify them by requesting a review using the **Reviewers** menu
 to the right of the summary you just wrote
-and/or `@`-mentioning them in a comment.
+and/or `@`-mentioning them in a comment. Or reaching out them on [slack](https://slack.cbioportal.org).
 
 Reviewers may request you to rephrase or adjust things
 before they allow the changes to be integrated.
@@ -75,38 +92,6 @@ ones that include additional changes (by `--amend`ing or squashing)
 until the reviewers approve.
 Reviewers may request you to squash such amendment commits afterwards,
 or offer to push rewritten versions of your commits themselves.
-
-## Automated tests on Travis CI
-All Pull Requests are automatically tested on [Travis
-CI](https://travis-ci.org/cBioPortal/cbioportal/pull_requests). Currently there
-is a set of tests for the core module and a visual regression test that makes
-some screenshots and compares them to the ones stored in the repository.
-
-### What to do if the screenshot test fails
-When the screenshot test fails, it means that the screenshot taken from your
-instance of the portal differs from the screenshot stored in the repo.
-Copy+Paste the URL in the Travis CI log to view the image diff online. Further
-instructions are outlined on that page.
-
-If you prefer to compare the images locally, you need to first download the
-failing screenshot. The Travis CI log will show you where the image was
-uploaded on [clbin.com](https://clbin.com). First, download the image and
-replace the screenshot in the repo. For instance run in the root dir of
-cBioPortal:
-
-```bash
-curl 'https://clbin.com/[replace-with-clbin-image-from-log].png' > test/end-to-end/screenshots/[replace-with-image-from-repo].png
-```
-
-Then follow the steps outlined in [this blog post](http://www.akikoskinen.info/image-diffs-with-git/) to compare the 
-images locally. Run `git diff` from your repo to see the ImageMagick diff.
-
-Once you downloaded the images you do the following for each screenshot:
-
-- If the change in the screenshot is **undesired**, i.e. there is regression, you
-  should fix your PR.
-- If the change in the screenshot is **desired**, add the screenshot to the
-  repo, commit it and push it to your PR's branch.
 
 ## Pull Request Reviewers Guide
 If someone requests your review on a pull request,
@@ -157,7 +142,7 @@ New features:
   (Maven) config goes in the appriopriate `pom.xml` (root, `scripts/`, `portal/`, `core/`).
   Runtime (Spring) goes in `portal.properties`. Default values should be in `GlobalProperties.java`.
 - Non-stable configuration should be done through war overlays.
-- Is the configuration tested as part of Travis CI? It's not a necessity but be
+- Is the configuration tested as part of the CI tests? It's not a necessity but be
   aware that untested configuration will be tough to maintain.
 - Is there documentation on the proposed changes?
 

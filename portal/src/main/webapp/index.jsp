@@ -1,10 +1,32 @@
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.Enumeration" %>
+<%@ page import="org.json.simple.JSONObject" %>
+
 <%
     String url = request.getRequestURL().toString();
     String baseUrl = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
     baseUrl = baseUrl.replace("https://", "").replace("http://", "");
+    response.setHeader("Referrer-Policy", "origin-when-cross-origin");
+    
+    // to support posted query data (when data would exceed URL length)
+    // write all post params to json on page where it can be consumed
+    String paramsJsonString = "null";
+    if (request.getMethod().equals("POST")) {
+        Enumeration enumeration = request.getParameterNames();
+        JSONObject paramsJson = new JSONObject();
+        while (enumeration.hasMoreElements()) {
+            String parameterName = (String) enumeration.nextElement();
+            paramsJson.put(parameterName, request.getParameter(parameterName));
+        }
+        paramsJsonString = paramsJson.toString();
+    }
+    
 %>
-<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+
+
 <!DOCTYPE html>
 <html class="cbioportal-frontend">
 <head>
@@ -18,6 +40,9 @@
     <title>cBioPortal for Cancer Genomics</title>
     
     <script>
+        
+        var postData = <%=paramsJsonString%>;
+        
         window.frontendConfig = {
             configurationServiceUrl:"//" + '<%=baseUrl%>' +  "/config_service.jsp",
             appVersion:'<%=GlobalProperties.getAppVersion()%>',
@@ -37,14 +62,10 @@
         }
         window.localdev = localStorage.localdev === 'true';
         window.localdist = localStorage.localdist === 'true';
-        window.heroku = localStorage.heroku;
         window.netlify = localStorage.netlify;
         
         if (window.localdev || window.localdist) {
             window.frontendConfig.frontendUrl = "//localhost:3000/"
-            localStorage.setItem("e2etest", "true");
-        } else if (window.heroku) {
-            window.frontendConfig.frontendUrl = ['//',localStorage.heroku,'.herokuapp.com','/'].join('');
             localStorage.setItem("e2etest", "true");
         } else if (window.netlify) {
             window.frontendConfig.frontendUrl = ['//',localStorage.netlify,'.netlify.com','/'].join('');
@@ -70,9 +91,9 @@
             }
         });
     </script>
-    
+
     <script>
-            loadReactApp(window.frontendConfig);
+        loadAppStyles(window.frontendConfig);
     </script>
     
     <%@include file="./tracking_include.jsp" %>
@@ -82,9 +103,11 @@
 </head>
 
 <body>
+    <script>
+        loadReactApp(window.frontendConfig);
+    </script>
+
     <div id="reactRoot"></div>
-    
-    
-    
+
 </body>
 </html>

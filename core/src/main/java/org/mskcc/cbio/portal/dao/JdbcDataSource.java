@@ -35,5 +35,6 @@ public class JdbcDataSource extends BasicDataSource {
         this.setMinEvictableIdleTimeMillis(30000);
         this.setTestOnBorrow(true);
         this.setValidationQuery("SELECT 1");
+        this.setJmxName("org.cbioportal:DataSource=" + database);
     }
 }

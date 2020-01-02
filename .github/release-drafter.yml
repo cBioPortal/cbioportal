@@ -16,6 +16,9 @@ categories:
   - title: '🎨 Style Tweaks'
     labels:
       - 'style tweak'
+  - title: '⚙️ REST API Changes'
+    labels:
+      - 'api'
   - title: '⚙️ Changes to handle external APIs'
     labels:
       - 'external api'
@@ -50,3 +53,6 @@ template: |
   
   - Backend: https://github.com/cBioPortal/cbioportal/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION
   - Frontend: https://github.com/cBioPortal/cbioportal-frontend/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION
+  
+  ## 🏷Notes on versioning and release procedure
+  https://docs.cbioportal.org/4.-development/release-procedure#a-note-on-versioning

@@ -871,6 +871,7 @@ In order for sample counts to propagate to the data sets widget on the home page
 * **Methylation (HM27)**: `_methylation_hm27`.
 * **RPPA**: `_rppa`. When only a RPPA profile is selected on the query page, this is the default case list.
 * **Sequenced, CNA and mRNA**: `_3way_complete` When a mutation, CNA and mRNA profile are selected on the query page, this is the default case list.
+* **SV**: `_sv` . When a structural variant profile is selected on the query page, this is the default case list. Also used in the Study Summary to calculate the proportion of samples with fusions.
 * **All**: `_all`. If you are not using *add_global_case_list* attribute in [Study metadata](#cancer-study), you need to add this case list.
 
 #### Required case lists
@@ -894,6 +895,7 @@ These are the valid case lists categories for `case_list_category: ` in the meta
 - `all_cases_with_mutation_and_cna_data`
 - `all_cases_with_mutation_and_cna_and_mrna_data`
 - `all_cases_with_gsva_data`
+- `all_cases_with_sv_data`
 - `other`
 
 ## Timeline Data

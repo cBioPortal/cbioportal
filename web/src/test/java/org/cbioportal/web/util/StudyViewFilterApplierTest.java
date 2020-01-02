@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import org.cbioportal.model.*;
+import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.service.*;
 import org.cbioportal.web.parameter.*;
 import org.junit.Assert;
@@ -137,22 +138,18 @@ public class StudyViewFilterApplierTest {
         clinicalDataEqualityFilter2.setValues(Arrays.asList(filterValue1,filterValue2));
         clinicalDataEqualityFilters.add(clinicalDataEqualityFilter2);
         studyViewFilter.setClinicalDataFilters(clinicalDataEqualityFilters);
-        List<MutationGeneFilter> mutatedGenes = new ArrayList<>();
-        MutationGeneFilter mutationGeneFilter = new MutationGeneFilter();
-        mutationGeneFilter.setHugoGeneSymbols(Arrays.asList(HUGO_GENE_SYMBOL_1));
-        mutatedGenes.add(mutationGeneFilter);
-        studyViewFilter.setMutatedGenes(mutatedGenes);
-        List<CopyNumberGeneFilter> cnaGenes = new ArrayList<>();
-        CopyNumberGeneFilter copyNumberGeneFilter = new CopyNumberGeneFilter();
-        List<CopyNumberGeneFilterElement> copyNumberGeneFilterElements = new ArrayList<>();
-        CopyNumberGeneFilterElement copyNumberGeneFilterElement = new CopyNumberGeneFilterElement();
-        copyNumberGeneFilterElement.setAlteration(-2);
-        copyNumberGeneFilterElement.setHugoGeneSymbol(HUGO_GENE_SYMBOL_2);
-        copyNumberGeneFilterElements.add(copyNumberGeneFilterElement);
-        copyNumberGeneFilter.setAlterations(copyNumberGeneFilterElements);
-        cnaGenes.add(copyNumberGeneFilter);
-        studyViewFilter.setCnaGenes(cnaGenes);
-
+        List<GeneFilter> geneFilters = new ArrayList<>();
+        GeneFilter mutationGeneFilter = new GeneFilter();
+        mutationGeneFilter.setGeneQueries(Arrays.asList(Arrays.asList(HUGO_GENE_SYMBOL_1)));
+        mutationGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_1)));
+        geneFilters.add(mutationGeneFilter);
+        
+        GeneFilter copyNumberGeneFilter = new GeneFilter();
+        copyNumberGeneFilter.setGeneQueries(Arrays.asList(Arrays.asList(HUGO_GENE_SYMBOL_2+":HOMDEL")));
+        copyNumberGeneFilter.setMolecularProfileIds(new HashSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_2)));
+        geneFilters.add(copyNumberGeneFilter);
+        studyViewFilter.setGeneFilters(geneFilters);
+        
         List<Sample> samples = new ArrayList<>();
         Sample sample1 = new Sample();
         sample1.setStableId(SAMPLE_ID1);
@@ -307,6 +304,21 @@ public class StudyViewFilterApplierTest {
                 .getFirstMutationProfileIds(Arrays.asList(STUDY_ID, STUDY_ID, STUDY_ID, STUDY_ID), updatedSampleIds))
                 .thenReturn(Arrays.asList(MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1, MOLECULAR_PROFILE_ID_1,
                         MOLECULAR_PROFILE_ID_1));
+        
+        MolecularProfile molecularProfile1 = new MolecularProfile();
+        molecularProfile1.setStableId(MOLECULAR_PROFILE_ID_1);
+        molecularProfile1.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
+        molecularProfile1.setCancerStudyIdentifier(STUDY_ID);
+        
+        MolecularProfile molecularProfile2 = new MolecularProfile();
+        molecularProfile2.setStableId(MOLECULAR_PROFILE_ID_2);
+        molecularProfile2.setCancerStudyIdentifier(STUDY_ID);
+        molecularProfile2.setMolecularAlterationType(MolecularAlterationType.COPY_NUMBER_ALTERATION);
+        molecularProfile2.setDatatype("DISCRETE");
+        
+        Mockito.when(molecularProfileService
+                .getMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID_2, MOLECULAR_PROFILE_ID_1), "SUMMARY"))
+                .thenReturn(Arrays.asList(molecularProfile1, molecularProfile2));
 
         List<Mutation> mutations = new ArrayList<>();
         Mutation mutation1 = new Mutation();

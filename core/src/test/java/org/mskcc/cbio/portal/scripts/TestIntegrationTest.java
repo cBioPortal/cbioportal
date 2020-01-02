@@ -184,7 +184,7 @@ public class TestIntegrationTest {
             geneticProfileStableIds.add("study_es_0_fusion");
             List<DBGeneticProfile> geneticProfiles = geneticProfileMapperLegacy
                     .getGeneticProfiles(geneticProfileStableIds);
-            assertEquals(geneticProfiles.size(), 0);
+            assertEquals(geneticProfiles.size(), 1);
 
             //===== Check STRUCTURAL VARIANT data ========
             // 45 structural variant events are imported, using 31 unique genes, using 39 samples

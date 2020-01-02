@@ -9,6 +9,7 @@
     String url = request.getRequestURL().toString();
     String baseUrl = url.substring(0, url.length() - request.getRequestURI().length()) + request.getContextPath();
     baseUrl = baseUrl.replace("https://", "").replace("http://", "");
+    response.setHeader("Referrer-Policy", "origin-when-cross-origin");
     
     // to support posted query data (when data would exceed URL length)
     // write all post params to json on page where it can be consumed
@@ -61,14 +62,10 @@
         }
         window.localdev = localStorage.localdev === 'true';
         window.localdist = localStorage.localdist === 'true';
-        window.heroku = localStorage.heroku;
         window.netlify = localStorage.netlify;
         
         if (window.localdev || window.localdist) {
             window.frontendConfig.frontendUrl = "//localhost:3000/"
-            localStorage.setItem("e2etest", "true");
-        } else if (window.heroku) {
-            window.frontendConfig.frontendUrl = ['//',localStorage.heroku,'.herokuapp.com','/'].join('');
             localStorage.setItem("e2etest", "true");
         } else if (window.netlify) {
             window.frontendConfig.frontendUrl = ['//',localStorage.netlify,'.netlify.com','/'].join('');

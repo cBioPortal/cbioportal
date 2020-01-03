@@ -1602,4 +1602,58 @@ public final class DaoMutation {
         }
         return !(sqlQueryResult > 0);
     }
+
+    public static void createStructuralVariantData(int cancerStudyId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        String[] statements = {
+            "INSERT INTO genetic_profile (STABLE_ID, CANCER_STUDY_ID, GENETIC_ALTERATION_TYPE, DATATYPE, NAME, DESCRIPTION, SHOW_PROFILE_IN_ANALYSIS_TAB) " +
+            "SELECT DISTINCT CONCAT(CANCER_STUDY_IDENTIFIER, '_structural_variants'), cancer_study.CANCER_STUDY_ID, 'STRUCTURAL_VARIANT','SV','Fusions','Fusions',0 " +
+            "FROM `mutation_event` " +
+            "JOIN `mutation` ON `mutation`.MUTATION_EVENT_ID = `mutation_event`.MUTATION_EVENT_ID " +
+            "JOIN `genetic_profile` ON `genetic_profile`.GENETIC_PROFILE_ID = `mutation`.GENETIC_PROFILE_ID " +
+            "JOIN `cancer_study` ON `cancer_study`.CANCER_STUDY_ID = `genetic_profile`.CANCER_STUDY_ID " +
+            "WHERE MUTATION_TYPE = 'fusion' " +
+            "AND NOT EXISTS (SELECT * FROM genetic_profile WHERE STABLE_ID=CONCAT(CANCER_STUDY_IDENTIFIER, '_structural_variants') AND CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID)" +
+            "AND cancer_study.CANCER_STUDY_ID = ?;",
+
+            "REPLACE INTO sample_list (STABLE_ID, CATEGORY, CANCER_STUDY_ID, NAME, DESCRIPTION) " +
+            "SELECT DISTINCT CONCAT (CANCER_STUDY_IDENTIFIER, '_sv'), 'all_cases_with_sv_data', cancer_study.CANCER_STUDY_ID, 'Samples with Structural Variant data', 'All samples profiled for structural variants' " +
+            "FROM `mutation_event` " +
+            "JOIN `mutation` ON `mutation`.MUTATION_EVENT_ID = `mutation_event`.MUTATION_EVENT_ID " +
+            "JOIN `genetic_profile` ON `genetic_profile`.GENETIC_PROFILE_ID = `mutation`.GENETIC_PROFILE_ID " +
+            "JOIN `cancer_study` ON `cancer_study`.CANCER_STUDY_ID = `genetic_profile`.CANCER_STUDY_ID " +
+            "WHERE MUTATION_TYPE = 'fusion' " +
+            "AND cancer_study.CANCER_STUDY_ID = ?;",
+
+            "REPLACE INTO sample_list_list (list_id, sample_id) " +
+            "SELECT DISTINCT svsl.list_id, sll.sample_id " +
+            "FROM `mutation_event` " +
+            "JOIN `mutation` ON `mutation`.MUTATION_EVENT_ID = `mutation_event`.MUTATION_EVENT_ID " +
+            "JOIN `genetic_profile` ON `genetic_profile`.GENETIC_PROFILE_ID = `mutation`.GENETIC_PROFILE_ID " +
+            "JOIN `cancer_study` ON `cancer_study`.CANCER_STUDY_ID = `genetic_profile`.CANCER_STUDY_ID " +
+            "JOIN `sample_list` sl ON `cancer_study`.CANCER_STUDY_ID = sl.cancer_study_id " +
+            "JOIN `sample_list_list` sll ON sll.list_id = sl.list_id " +
+            "LEFT OUTER JOIN `sample_list` svsl ON `cancer_study`.CANCER_STUDY_ID = svsl.cancer_study_id AND svsl.STABLE_ID LIKE '%_sv%' " +
+            "WHERE sl.STABLE_ID LIKE '%_sequenced%' " +
+            "AND cancer_study.CANCER_STUDY_ID = ?;"
+        };
+        try {
+            con = JdbcUtil.getDbConnection(DaoMutation.class);
+            for (String statementString : statements) {
+                pstmt = con.prepareStatement(statementString);
+                if (statementString.contains("?")) {
+                    pstmt.setInt(1, cancerStudyId);
+                }
+                pstmt.executeUpdate();
+                pstmt.close();
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+        }
+    }
 }

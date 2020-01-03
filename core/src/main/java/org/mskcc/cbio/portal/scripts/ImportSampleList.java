@@ -132,6 +132,11 @@ public class ImportSampleList extends ConsoleRunnable {
 
       sampleList = daoSampleList.getSampleListByStableId(stableId);
 
+      if (stableId.contains("_sequenced")) {
+         // Temporary create new format of SV data from fusion data
+         DaoMutation.createStructuralVariantData(cancerStudyId);
+      }
+
       ProgressMonitor.setCurrentMessage(" --> stable ID:  " + sampleList.getStableId());
       ProgressMonitor.setCurrentMessage(" --> sample list name:  " + sampleList.getName());
       ProgressMonitor.setCurrentMessage(" --> number of samples in file:  " + sampleIds.length);

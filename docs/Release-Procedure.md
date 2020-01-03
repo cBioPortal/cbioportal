@@ -26,7 +26,7 @@ These are the steps we follow:
    same tag as the frontend repo. You should see a draft from release drafter similar to the frontend in the backend repo: https://github.com/cBioPortal/cbioportal/releases. The idea is to create one set of release notes in the backend repo that is a combination of the frontend and backend notes. To make the hyperlinks from the frontend repo work in the backend repo you can copy the frontend release notes raw markdown and run the following one liner to convert the links:
    
    ```
-   pbpaste | sed 's|(#\(....\)|([#\1](https://github.com/cBioPortal/cbioportal-frontend/pull/\1))|g'
+   pbpaste | sed 's|(#\(....\)|([#\1](https://github.com/cBioPortal/cbioportal-frontend/pull/\1)|g'
    ```
    then put them in the right sections following same style as other releases: https://github.com/cBioPortal/cbioportal-frontend/releases.
 4. Create a news item with a link to your carefully crafted release notes. Highlight a few major changes that could be interesting to users of cBioPortal ideally with a screenshot similar to: https://github.com/cBioPortal/cbioportal/pull/6914/files?short_path=6f95322#diff-6f953229832059bab3fe229d4af08b52 (in the files changed section, you can click on view rich diff to see the converted markdown). 

@@ -252,6 +252,85 @@ If all goes well, the following should happen:
 
 If this does not happen, see the Troubleshooting Tips  below.
 
+### Add client for OAuth2 token-based data access
+With cBioPortal instances that require user authentication the API can be queried when including a data access tokens in the request header (see [Authenticating Users via Tokens](Authenticating-Users-via-Tokens.md)). When using the `oauth2` implementation, KeyCloak can be configured as OAuth2 authentication provider that distributes data access tokens to users and validates these tokens when used while querying the API. This feature is enabled by creating a `cbioportal_api` OpenID Connect client that has access to the user roles defined in the `cbioportal` SAML client.
+
+1. Create a client with name `cbioportal_api`. Set _Client Protocol_ to `openid-connect`.
+
+![](images/previews/oauth2_client_1.png)
+
+2. On the configuration page of `cbioportal_api` client apply the following settings:
+
+#### Settings tab
+
+| parameter        | value  | comment  |
+| ------------- |:-------------:| -----:|
+| Access Type      | confidential |  |
+| Standard Flow Enabled      | ON      |   (default value) |
+| Enabled      | ON      |   (default value) |
+| Consent Required      | OFF        |   (default value) |
+| Client Protocol      | openid-connect   |   (default value) |
+| Access Type | confidential      |     (default value) |
+| Standard Flow Enabled | ON      |     (default value) |
+| Implicit Flow Enabled | OFF      |     (default value) |
+| Direct Access Grants Enabled | OFF      |    |
+| Service Accounts Enabled | OFF      |  (default value)   |
+| Authorization Enabled | OFF      |  (default value)  |
+| Valid Redirect URIs | _url_/api/data-access-token/oauth2  |  _url_ refers to base url of cBioPortal instance |
+
+![](images/previews/oauth2_client_3.png)
+
+#### Credentials tab
+Select `Client Id and Secret`. Take notice of the value of _Secret_ the secret field. This secret should be added to `portal.properties` file of the cBioPortal backend.
+
+| parameter        | value  | comment  |
+| ------------- |:-------------:| -----:|
+| Client Authenticator     | Client Id and Secret |   (default value) |
+
+![](images/previews/oauth2_client_6.png)
+
+#### Client Scopes tab
+Keep only scopes `roles` and `offline_access` (remove all others).
+
+![](images/previews/oauth2_client_2.png)
+
+#### Mapper tab
+Create a new _Audience_ mapper with name `cbioportal_api_audience`. This value will be used by the cBioPortal backend during validation of access tokens.
+
+| parameter        | value  | comment  |
+| ------------- |:-------------:| -----:|
+| Name       | cbioportal_api_audience |  |
+| Mapper Type     | Audience      |   |
+| Included Client Audience      | cbioportal_api      |    |
+| Add to ID token      | OFF        |  (default value)  |
+| Add to access token  | ON      |   (default value)  |
+
+![](images/previews/oauth2_client_4.png)
+
+#### Scope tab
+Enable _Full Scope_. This setting will include the user roles defined in the `cbioportal` SAML client in access tokens distributed by the `cbioportal_api` client.
+
+| parameter        | value  | comment  |
+| ------------- |:-------------:| -----:|
+| Full Scope Allowed       | ON | (default value) |
+
+![](images/previews/oauth2_client_5.png)
+
+3. Add these parameters to `portal.properties` of the cBioPortal backend .
+
+| parameter        | value  | comment  |
+| ------------- |:-------------:| -----:|
+| dat.oauth2.clientId       | cbioportal_api |  |
+| dat.oauth2.clientSecret    | ?      | see _Secret_ field in the _Credentials_ tab  |
+| dat.oauth2.accessTokenUri     | _url_/auth/realms/cbio/protocol/openid-connect/token      |   _url_ refers to base url of the KeyCloak server |
+| dat.oauth2.jwkUrl  | _url_/auth/realms/cbio/protocol/openid-connect/certs      |   _url_ refers to base url of the KeyCloak server |
+| dat.oauth2.issuer      | _url_/auth/realms/cbio        |  _url_ refers to base url of the KeyCloak server |
+| dat.oauth2.userAuthorizationUri  | _url_/auth/realms/cbio/protocol/openid-connect/auth      |   _url_ refers to base url of the KeyCloak server |
+
+4. Add the `-Ddat.method=oauth2` Java parameter when starting cBioPortal.
+
+More information on configuration of the cBioPortal backend can be found in [Authenticating Users via Tokens](Authenticating-Users-via-Tokens.md).
+
 ### Troubleshooting
 
 #### Logging

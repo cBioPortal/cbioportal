@@ -138,11 +138,18 @@ ldap.attributes.email=mail
 
 # data access token settings
 dat.unauth_users=
-dat.method=none
 dat.ttl_seconds=2592000
 dat.uuid.max_number_per_user=1
 dat.uuid.revoke_other_tokens=true
 dat.jwt.secret_key=
+
+# OAuth2 token data access settings
+#dat.oauth2.clientId=<client-id>
+#dat.oauth2.clientSecret=<client-secret>
+#dat.oauth2.issuer=<token-issuer>
+#dat.oauth2.accessTokenUri=<authorization-server-url>/token
+#dat.oauth2.userAuthorizationUri=<authorization-server-url>/auth
+#dat.oauth2.jwkUrl=<authorization-server-url>/certs
 
 # study view settings
 # always show studies with this group

@@ -44,9 +44,5 @@
             </user-service>
         </authentication-provider>
     </authentication-manager>
-    
-    <b:bean  id="tokenServiceFactory" class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean">
-        <b:property name="serviceLocatorInterface" value="org.cbioportal.service.DataAccessTokenServiceFactory"/>
-    </b:bean>
 
 </b:beans>

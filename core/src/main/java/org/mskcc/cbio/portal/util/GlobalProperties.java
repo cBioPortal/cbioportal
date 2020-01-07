@@ -281,9 +281,6 @@ public class GlobalProperties {
     @Value("${dat.uuid.revoke_other_tokens:true}") // default is true
     public void setDatRevokeOtherTokens(String property) { datRevokeOtherTokens = Boolean.parseBoolean(property);}
 
-    private static String datMethod;
-    @Value("${dat.method:none}") // default is 'none'
-    public void setDatMethod(String property) { datMethod = property;}
 	/*
      * Trim whitespace of url and append / if it does not exist. Return empty
      * string otherwise.
@@ -1175,10 +1172,6 @@ public class GlobalProperties {
         return datRevokeOtherTokens;
     }
 
-    public static String getDatMethod() {
-        return datMethod;
-    }
-    
     public static String getReferenceGenomeName() {
         return portalProperties.getProperty(UCSC_BUILD, DEFAULT_UCSC_BUILD);
     }

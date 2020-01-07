@@ -31,7 +31,6 @@
         String[] propNameArray = {
             "app.version",
             "app.name",
-            "dat.uuid.revoke_other_tokens",
             "dat.method",
             "oncoprint.custom_driver_annotation.binary.menu_label",
             "disabled_tabs",            

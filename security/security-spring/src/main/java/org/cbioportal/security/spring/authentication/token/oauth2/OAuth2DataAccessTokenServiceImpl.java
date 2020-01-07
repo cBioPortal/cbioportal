@@ -33,21 +33,14 @@
 package org.cbioportal.security.spring.authentication.token.oauth2;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.List;
-
-import com.auth0.jwk.Jwk;
-import com.auth0.jwk.JwkException;
-import com.auth0.jwk.JwkProvider;
-import com.auth0.jwk.UrlJwkProvider;
 
 import org.cbioportal.model.DataAccessToken;
 import org.cbioportal.service.DataAccessTokenService;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpEntity;
@@ -57,7 +50,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
-import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -69,9 +61,6 @@ import org.springframework.web.client.RestTemplate;
 @Component
 @Profile("dat.oauth2")
 public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService {
-
-    @Value("${dat.oauth2.jwkUrl:}")
-    private String jwkUrl;
 
     @Value("${dat.oauth2.issuer:}")
     private String issuer;
@@ -91,6 +80,12 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
     @Value("${dat.oauth2.redirectUri:}")
     private String redirectUri;
 
+    @Autowired
+    private RestTemplate template;
+
+    @Autowired
+    private JwtTokenVerifierBuilder jwtTokenVerifierBuilder;
+
     @Override
     // request offline token from authentication server via back channel
     public DataAccessToken createDataAccessToken(final String accessCode) {
@@ -107,12 +102,13 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
 
         HttpEntity<MultiValueMap<String, String>> offlineRequest = new HttpEntity<>(map, headers);
 
-        ResponseEntity<String> response = new RestTemplate().postForEntity(accessTokenUri, offlineRequest, String.class);
+        ResponseEntity<String> response = template.postForEntity(accessTokenUri, offlineRequest, String.class);
 
         String offlineToken = "";
         try {
-            offlineToken = new ObjectMapper().readTree(response.getBody()).get("refresh_token").asText();
-        } catch (IOException e) {
+            JsonNode json = new ObjectMapper().readTree(response.getBody());
+            offlineToken = json.get("refresh_token").asText();
+        } catch (Exception e) {
             throw new BadCredentialsException("Offline token could not be retrieved using access_code: "+ accessCode );
         }
 
@@ -160,16 +156,15 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
         final String kid = JwtHelper.headers(token).get("kid");
         try {
 
-            final Jwt tokenDecoded = JwtHelper.decodeAndVerify(token, verifier(kid));
+            final Jwt tokenDecoded = JwtHelper.decodeAndVerify(token, jwtTokenVerifierBuilder.build(kid));
             final String claims = tokenDecoded.getClaims();
             final JsonNode claimsMap = new ObjectMapper().readTree(claims);
 
             hasValidIssuer(claimsMap);
             hasValidClientId(claimsMap);
 
-        } catch (JwkException | IOException e) {
-            e.printStackTrace();
-            return false;
+        } catch (Exception e) {
+            throw new BadCredentialsException("Token is not valid (wrong key, issuer, or audience).");
         }
         return true;
     }
@@ -184,29 +179,20 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
         try {
             claimsMap = new ObjectMapper().readTree(claims);
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            throw new BadCredentialsException("User name could not be found in offline token.");
         }
 
-        return extractSubject(claimsMap);
+        if (! claimsMap.has("sub")) {
+            throw new BadCredentialsException("User name could not be found in offline token.");
+        }
+        
+        String userName = claimsMap.get("sub").asText();
+        return userName;
     }
 
     @Override
     public Date getExpiration(final String token) {
         return null;
-    }
-
-    private String extractSubject(final JsonNode claimsMap) {
-        String userName;
-        userName = claimsMap.get("sub").asText();
-        return userName;
-    }
-
-    private RsaVerifier verifier(final String kid) throws MalformedURLException, JwkException {
-        final JwkProvider provider = new UrlJwkProvider(new URL(jwkUrl));
-        final Jwk jwk = provider.get(kid);
-        final RSAPublicKey publicKey = (RSAPublicKey) jwk.getPublicKey();
-        return new RsaVerifier(publicKey, "SHA512withRSA");
     }
 
     private void hasValidIssuer(final JsonNode claimsMap) throws BadCredentialsException {

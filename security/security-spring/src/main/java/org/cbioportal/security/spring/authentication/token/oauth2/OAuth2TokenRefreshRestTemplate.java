@@ -35,6 +35,7 @@ package org.cbioportal.security.spring.authentication.token.oauth2;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -47,7 +48,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Component
-public class OAuth2TokenRefreshRestTemplate extends RestTemplate {
+public class OAuth2TokenRefreshRestTemplate {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -60,6 +61,9 @@ public class OAuth2TokenRefreshRestTemplate extends RestTemplate {
     @Value("${dat.oauth2.accessTokenUri:}")
     private String accessTokenUri;
 
+    @Autowired
+    private RestTemplate template;
+
     public String getAccessToken(String offline_token) throws BadCredentialsException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -71,11 +75,13 @@ public class OAuth2TokenRefreshRestTemplate extends RestTemplate {
         map.add("refresh_token", offline_token);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-        ResponseEntity<String> response = postForEntity(accessTokenUri, request, String.class);
 
+        ResponseEntity<String> response = null;
         try {
+            response = template.postForEntity(accessTokenUri, request, String.class);
+
             String accessToken = new ObjectMapper().readTree(response.getBody()).get("access_token").asText();
-            logger.debug("Received access token from authentication server:\n" + accessToken);
+            logger.debug("Recieved access token from authentication server:\n" + accessToken);
             return accessToken;
         } catch (Exception e) {
             logger.error("Authentication server did not return an access token. Server response:\n" + response);

@@ -142,6 +142,7 @@ Then, modify the section labeled `authentication`. See SAML parameters shown in 
     # global logout (as opposed to local logout):
     saml.logout.local=false
     saml.logout.url=/
+    saml.sp.metadata.wantAssertionSigned=true
 
 Please note that you will have to modify all the above to match your own settings. `saml.idp.comm.binding.type` can be left empty if `saml.idp.comm.binding.settings=defaultBinding`. The `saml.logout.*` settings above reflect the settings of an IDP that supports Single Logout (hopefully the default in most cases - more details in section below).
 

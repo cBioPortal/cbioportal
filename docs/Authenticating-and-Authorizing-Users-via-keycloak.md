@@ -129,6 +129,7 @@ should now see the certificate and no private key.
     # global logout (as opposed to local logout):
     saml.logout.local=false
     saml.logout.url=/
+    saml.sp.metadata.wantAssertionSigned=true
 ```
 
 ## Obtain user identities

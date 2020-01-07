@@ -79,7 +79,6 @@ public class OAuth2TokenRefreshRestTemplate {
         ResponseEntity<String> response = null;
         try {
             response = template.postForEntity(accessTokenUri, request, String.class);
-
             String accessToken = new ObjectMapper().readTree(response.getBody()).get("access_token").asText();
             logger.debug("Recieved access token from authentication server:\n" + accessToken);
             return accessToken;

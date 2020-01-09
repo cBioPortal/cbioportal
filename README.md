@@ -6,7 +6,7 @@ If you would like to know how to setup a private instance of the portal and/or g
 If you are interested in coordinating the development of new features, please contact cbioportal@cbio.mskcc.org or reach out on https://slack.cbioportal.org.
 
 ## Documentation
-See: [https://docs.cbioportal.org](https://docs.cbioportal.org)
+See [https://docs.cbioportal.org](https://docs.cbioportal.org)
 
 ## License
 See [LICENSE](./LICENSE)

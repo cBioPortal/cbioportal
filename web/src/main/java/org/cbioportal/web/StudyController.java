@@ -68,10 +68,12 @@ public class StudyController {
     
     @PostConstruct
     private void warmDefaultResponseCache() {
-        defaultResponse = studyService.getAllStudies(
-            null, Projection.SUMMARY.name(),
-            10000000, 0,
-            null, Direction.ASC.name());
+        if (!usingAuth()) {
+            defaultResponse = studyService.getAllStudies(
+                null, Projection.SUMMARY.name(),
+                10000000, 0,
+                null, Direction.ASC.name());
+        }
     }
 
     @Autowired

@@ -210,6 +210,12 @@ public class SampleServiceImpl implements SampleService {
                     if (!structuralVariantSampleIdsMap.get(sample.getCancerStudyIdentifier()).isEmpty()) {
                         sample.setProfiledForFusions(structuralVariantSampleIdsMap.get(sample.getCancerStudyIdentifier()).contains(sample.getStableId()));
                     } else {
+                        /*
+                         * TODO: Eventually all studies with STRUCTURAL_VARIANT data should have case lists, 
+                         * so there should always be an entry in `structuralVariantSampleIdsMap`. This case is 
+                         * to support old `FUSION` data in the mutations table that don't have case lists. In that 
+                         * case we assume any sample that has been sequenced to have been profiled for fusions as well
+                         */
                         sample.setProfiledForFusions(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier()).contains(sample.getStableId()));
                     }
                 }

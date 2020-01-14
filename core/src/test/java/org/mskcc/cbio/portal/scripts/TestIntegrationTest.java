@@ -178,13 +178,13 @@ public class TestIntegrationTest {
             }
             assertEquals(countFusions, 5);
 
-            // Is there a separate fusion profile? -> false
+            // Is there a separate fusion profile? -> true
             GeneticProfileMapperLegacy geneticProfileMapperLegacy = applicationContext.getBean(GeneticProfileMapperLegacy.class);
             geneticProfileStableIds = new ArrayList<String>();
             geneticProfileStableIds.add("study_es_0_fusion");
             List<DBGeneticProfile> geneticProfiles = geneticProfileMapperLegacy
                     .getGeneticProfiles(geneticProfileStableIds);
-            assertEquals(geneticProfiles.size(), 0);
+            assertEquals(geneticProfiles.size(), 1);
 
             //===== Check STRUCTURAL VARIANT data ========
             // 45 structural variant events are imported, using 31 unique genes, using 39 samples

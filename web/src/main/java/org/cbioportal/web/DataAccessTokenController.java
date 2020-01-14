@@ -76,9 +76,6 @@ public class DataAccessTokenController {
     @RequestMapping(method = RequestMethod.POST, value = "/data-access-tokens", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DataAccessToken> createDataAccessToken(Authentication authentication,
     @RequestParam(required = false) Boolean myAllowRevocationOfOtherTokens) throws HttpClientErrorException {
-        // TODO: front end reads backend config and passes AppConfig.serverConfig.dat_uuid_revoke_other_tokens  
-        // right back to the backend. This makes very little sense. I keep the allowRevocationOfOtherTokens
-        // in the parameter list but no longer use it
         String userName = getAuthenticatedUser(authentication);
         DataAccessToken token = createDataAccessToken(userName, myAllowRevocationOfOtherTokens);
         if (token == null) {

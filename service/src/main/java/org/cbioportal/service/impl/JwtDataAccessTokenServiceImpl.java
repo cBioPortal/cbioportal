@@ -135,9 +135,9 @@ public class JwtDataAccessTokenServiceImpl implements DataAccessTokenService {
         }
         String userName = getUsername(token);
 
-        // when DaoAuthenticationProvider does authentication on user returned by PortalUserDetailsService
+        // When DaoAuthenticationProvider does authentication on user returned by PortalUserDetailsService
         // which has password "unused", this password won't match, and then there is a BadCredentials exception thrown
-        // this is a good way to catch that the wrong authetication provider is being used
+        // this is a good way to catch that the wrong authetication provider is being used.
         return new UsernamePasswordAuthenticationToken(userName, "does not match unused");
 
     }

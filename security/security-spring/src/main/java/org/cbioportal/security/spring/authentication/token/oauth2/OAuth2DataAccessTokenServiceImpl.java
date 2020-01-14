@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 The Hyve B.V.
+ * Copyright (c) 2020 The Hyve B.V.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS

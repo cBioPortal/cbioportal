@@ -1,32 +1,32 @@
 ### Importing data ###
 
-Use this command to validate a dataset in the folder `./study-dir`, connecting
-to the web API of the container `cbioportal-container`, and import it into the
-database configured in the image, saving an html report of the validation to
-`~/Desktop/report.html`. Note that the paths passed to the `-v` option must be
-absolute paths.
+Use this command to validate a dataset. Specify the study directory by replacing 
+`<path_to_study_directory>` with the absolute path to the study folder. The
+command will connect to the web API of the container `cbioportal-container`, and import 
+the study in its associated database. Make sure to replace `<path_to_report_folder>` with 
+the absolute path were the html report of the validation will be saved.
 
 ```shell
 docker run -it --rm --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
-    -v "$PWD/study-dir:/study:ro" \
-    -v "$HOME/Desktop:/outdir" \
-    cbioportal-image \
-    metaImport.py -u http://cbioportal-container:8080 -s /study --html=/outdir/report.html
+    -v "<path_to_study_directory>:/study:ro" \
+    -v "<path_to_report_folder>:/report" \
+    cbioportal/cbioportal:latest \
+    metaImport.py -u http://cbioportal-container:8080 -s /study --html=/report/report.html
 ```
 :warning: after importing a study, remember to restart `cbioportal-container`
 to see the study on the home page. Run `docker restart cbioportal-container`.
 
 #### Using cached portal side-data ####
 
-In some setups the data validation step may not have direct access to the web API, for instance when the web API is only accessible to authenticated browser sessions. You can use this command to generate a cached folder of files that the validation script can use instead:
+In some setups the data validation step may not have direct access to the web API, for instance when the web API is only accessible to authenticated browser sessions. You can use this command to generate a cached folder of files that the validation script can use instead. Make sure to replace `<path_to_portalinfo>` with the absolute path where the cached folder is going to be generated.
 
 ```shell
 docker run --rm --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
-    -v "$PWD/portalinfo:/portalinfo" \
+    -v "<path_to_portalinfo>/portalinfo:/portalinfo" \
     -w /cbioportal/core/src/main/scripts \
-    cbioportal-image \
+    cbioportal/cbioportal:latest \
     ./dumpPortalInfo.pl /portalinfo
 ```
 
@@ -35,43 +35,11 @@ Then, grant the validation/loading command access to this folder and tell the sc
 ```shell
 docker run -it --rm --net cbio-net \
     -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
-    -v "$PWD/study-dir:/study:ro" \
-    -v "$HOME/Desktop:/outdir" \
-    -v "$PWD/portalinfo:/portalinfo:ro" \
-    cbioportal-image \
-    metaImport.py -p /portalinfo -s /study --html=/outdir/report.html
-```
-
-### Importing data (method 2) ###
-
-Similar to the method above, but here you open a bash shell in an otherwise idle container and run the commands there.
-
-#### Step 1 (one time only for a specific image) ####
-
-Set up the container `importer-container` mapping the input and
-output dirs with `-v` parameters, and keep it running idle in the
-background:
-
-```shell
-docker run -d --name="importer-container" \
-    --restart=always \
-    --net=cbio-net \
-    -v /<path_to_config_file>/portal.properties:/cbioportal/portal.properties:ro \
-    -v "$PWD"/study-dir:/study:ro \
-    -v "$HOME"/Desktop:/outdir \
-    cbioportal-image tail -f /dev/null
-```
-
-#### Step 2 ####
-
-Run bash in the container and execute the import command.
-
-```shell
-docker exec -it importer-container bash
-```
-The import command:
-```shell
-metaImport.py -u http://cbioportal-container:8080 -s /study --html=/outdir/report.html
+    -v "<path_to_study_directory>:/study:ro" \
+    -v "<path_to_report_folder>:/report" \
+    -v "<path_to_portalinfo>/portalinfo:/portalinfo:ro" \
+    cbioportal/cbioportal:latest \
+    metaImport.py -p /portalinfo -s /study --html=/report/report.html
 ```
 
 ### Inspecting or adjusting the database ###

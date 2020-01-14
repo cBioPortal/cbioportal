@@ -82,6 +82,12 @@ public class GeneticProfileReader {
                throw new RuntimeException("Error: genetic_profile record found with same Stable ID as the one used in your data:  "
                        + existingGeneticProfile.getStableId() + ". Remove the existing genetic_profile record first.");
             } else if (geneticProfile.getDatatype().equals("FUSION")) {
+                // populate the structural variant genetic profile for fusions
+                GeneticProfile gp = new GeneticProfile(geneticProfile);
+                gp.setGeneticAlterationType(GeneticAlterationType.STRUCTURAL_VARIANT);
+                gp.setStableId(gp.getStableId().replace("mutations","fusion"));
+                DaoGeneticProfile.addGeneticProfile(gp);
+                // return existing mutation genetic profile for fusions that are currently stored in the mutation_event table
                 geneticProfile.setGeneticProfileId(existingGeneticProfile.getGeneticProfileId());
                 return geneticProfile;
             } else {

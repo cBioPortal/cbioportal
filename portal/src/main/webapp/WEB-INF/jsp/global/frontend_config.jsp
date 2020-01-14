@@ -95,9 +95,6 @@ window.localdist = localStorage.getItem("localdist") === "true";
 
 if (window.localdist || window.localdev) {
 	window.frontendConfig.frontendUrl = '//localhost:3000/'
-} else if (localStorage.heroku) {
-	var herokuInstance = '//' + localStorage.getItem('heroku') + '.herokuapp.com/';
-	window.frontendConfig.frontendUrl = herokuInstance;
 } else if (localStorage.netlify) {
 	var netlifyInstance = '//' + localStorage.getItem('netlify') + '.netlify.com/';
 	window.frontendConfig.frontendUrl = netlifyInstance;

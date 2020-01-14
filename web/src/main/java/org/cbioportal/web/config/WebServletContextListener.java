@@ -45,8 +45,8 @@ public class WebServletContextListener implements ServletContextListener, Initia
             System.out.println("----------------------------------------------------------------------------------------------------------------");
             // oncokb.org is deprecated, www.oncokb.org should be used
             System.out.println("-- OncoKB requires a token to access the latest data.");
-            System.out.println("-- Please review oncokb terms(https://www.oncokb.org/terms) and register an account accordingly.");
-            System.out.println("-- For now, we will redirect the requests to a legacy instance which will not accept any new data changes.");
+            System.out.println("-- You will not be able to use OncoKB service within your instance without an access token.");
+            System.out.println("-- Please review OncoKB terms(https://www.oncokb.org/terms) and register an account accordingly.");
             System.out.println("-- Thank you.");
             System.out.println("----------------------------------------------------------------------------------------------------------------");
         }

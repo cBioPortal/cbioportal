@@ -40,6 +40,9 @@ public class ProxyController {
         if (!this.showOncokb) {
             return new ResponseEntity<>("OncoKB service is disabled.", HttpStatus.NOT_FOUND);
         }
+        else if (StringUtils.isEmpty(oncokbToken)) {
+            return new ResponseEntity<>("No OncoKB access token is provided.", HttpStatus.NOT_FOUND);
+        }
 
         HttpHeaders httpHeaders = initHeaders(request);
         
@@ -48,12 +51,7 @@ public class ProxyController {
         }
         String oncokbApiUrl = this.oncokbPublicApiUrl;
         if (StringUtils.isEmpty(oncokbApiUrl)) {
-            if (StringUtils.isEmpty(oncokbToken)) {
-                // this is a legacy endpoint which does not accept any data updates
-                oncokbApiUrl = "https://oncokb.org/api/v1";
-            } else {
-                oncokbApiUrl = "https://www.oncokb.org/api/v1";
-            }
+            oncokbApiUrl = "https://www.oncokb.org/api/v1";
         }
         return exchangeData(body, buildUri(oncokbApiUrl + request.getPathInfo().replaceFirst("/oncokb", ""), request.getQueryString()), method, httpHeaders);
     }

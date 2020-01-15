@@ -218,6 +218,8 @@ public class SampleServiceImpl implements SampleService {
                          */
                         sample.setProfiledForFusions(sequencedSampleIdsMap.get(sample.getCancerStudyIdentifier()).contains(sample.getStableId()));
                     }
+                } else {
+                    sample.setProfiledForFusions(false);
                 }
             });
         }

@@ -21,6 +21,7 @@ public class StudyViewFilter implements Serializable {
     private List<GeneFilter> geneFilters;
 	private Boolean withMutationData;
 	private Boolean withCNAData;
+	private Boolean withFusionData;
 
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
@@ -89,4 +90,13 @@ public class StudyViewFilter implements Serializable {
     public void setWithCNAData(Boolean withCNAData) {
         this.withCNAData = withCNAData;
     }
+
+    public Boolean getWithFusionData() {
+        return withFusionData;
+    }
+
+    public void setWithFusionData(Boolean withFusionData) {
+        this.withFusionData = withFusionData;
+    }
+
 }

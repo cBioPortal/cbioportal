@@ -6,6 +6,6 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>Portal Master</name>
-  <version>1.5.1-SYSTEM-TEST</version>
+  <version>unknown</version>
   <description>master maven module</description>
 </project>

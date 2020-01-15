@@ -62,8 +62,6 @@ import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.model.Patient;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.SampleList;
-import org.cbioportal.model.Treatment;
-import org.cbioportal.model.TreatmentMolecularData;
 import org.cbioportal.model.TypeOfCancer;
 import org.cbioportal.web.mixin.CancerStudyMixin;
 import org.cbioportal.web.mixin.ClinicalAttributeCountMixin;
@@ -88,8 +86,6 @@ import org.cbioportal.web.mixin.MutationSpectrumMixin;
 import org.cbioportal.web.mixin.PatientMixin;
 import org.cbioportal.web.mixin.SampleListMixin;
 import org.cbioportal.web.mixin.SampleMixin;
-import org.cbioportal.web.mixin.TreatmentMixin;
-import org.cbioportal.web.mixin.TreatmentMolecularDataMixin;
 import org.cbioportal.web.mixin.TypeOfCancerMixin;
 
 public class CustomObjectMapper extends ObjectMapper {
@@ -111,9 +107,7 @@ public class CustomObjectMapper extends ObjectMapper {
         mixinMap.put(GenePanel.class, GenePanelMixin.class);
         mixinMap.put(GenePanelToGene.class, GenePanelToGeneMixin.class);
         mixinMap.put(Geneset.class, GenesetMixin.class);
-        mixinMap.put(Treatment.class, TreatmentMixin.class);
         mixinMap.put(GenesetMolecularData.class, GenesetMolecularDataMixin.class);
-        mixinMap.put(TreatmentMolecularData.class, TreatmentMolecularDataMixin.class);
         mixinMap.put(GenesetCorrelation.class, GenesetCorrelationMixin.class);
         mixinMap.put(MolecularProfile.class, MolecularProfileMixin.class);
         mixinMap.put(Gistic.class, GisticMixin.class);

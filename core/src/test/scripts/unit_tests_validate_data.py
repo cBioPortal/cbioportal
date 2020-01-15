@@ -1027,168 +1027,6 @@ class MultipleDataFileValidatorTestCase(unittest.TestCase):
         mockval.logger.error.assert_called()
 
 
-# -------------------- treatment multifile consistency test --------------------
-
-class TreatmentMultiFileTestCase(PostClinicalDataFileTestCase):
-
-    # create a dummy class of that has no value checking
-    class DummyTreatmentValidator(validateData.TreatmentWiseFileValidator):
-        def checkValue(self, value, col_index):
-            return
-
-    def setUp(self):
-        super().setUp()
-        # reset state of the TreatmentWiseFileValidator class 
-        # to prevent carry-over from other tests
-        _resetMultipleFileHandlerClassVars()
-
-    def test_identical_columns_are_accepted(self):
-        # Test if no error is issued when an concentration tables have identical headers
-        self.logger.setLevel(logging.ERROR)
-
-        record_list1 = self.validate('study_es_0/data_treatment_ic50.txt', self.DummyTreatmentValidator)
-        record_list2 = self.validate('study_es_0/data_treatment_ic50.txt', self.DummyTreatmentValidator)
-        self.assertEqual(len(record_list1), 0)
-        self.assertEqual(len(record_list2), 0)
-
-    def test_missing_column_effectiveconcentration(self):
-        # Test if an error is issued when an IC50 and GI50 concentration table do not have same header
-        self.logger.setLevel(logging.ERROR)
-
-        ### Error should appear when the second file is validated
-        record_list1 = self.validate('study_es_0/data_treatment_ic50.txt',
-                                    TreatmentMultiFileTestCase.DummyTreatmentValidator)
-        record_list2 = self.validate('data_treatment_ic50_missing_column.txt',
-                                    TreatmentMultiFileTestCase.DummyTreatmentValidator)
-        
-        self.assertEqual(len(record_list1), 0)
-        self.assertEqual(len(record_list2), 2)
-        for record in record_list2:
-            self.assertEqual(record.levelno, logging.ERROR)
-        record_iterator = iter(record_list2)
-        record = next(record_iterator)
-        self.assertEqual(record.line_number, 1)
-        self.assertIn('headers', record.getMessage().lower())
-        self.assertIn('different', record.getMessage().lower())
-        record = next(record_iterator)
-        self.assertIn('invalid', record.getMessage().lower())
-        self.assertIn('column', record.getMessage().lower())
-        return
-                                    
-    def test_missing_row_effectiveconcentration(self):
-        self.logger.setLevel(logging.ERROR)
-
-        ### Error should appear when the second file is validated
-        record_list1 = self.validate('study_es_0/data_treatment_ic50.txt',
-                                    TreatmentMultiFileTestCase.DummyTreatmentValidator)
-        record_list2 = self.validate('data_treatment_ic50_missing_row.txt',
-                                    TreatmentMultiFileTestCase.DummyTreatmentValidator)
-
-        self.assertEqual(len(record_list1), 0)
-        self.assertEqual(len(record_list2), 1)
-        for record in record_list2:
-            self.assertEqual(record.levelno, logging.ERROR)
-        self.assertEqual("Treatment feature columns (`entity_stable_id`, ...) in treatment profile data files are not identical. The same set of treatments should be used across the different treatment data files for this study. Please ensure that all entity stable id's of one file are present in all other treatment files.", record.getMessage())
-        return
-
-# ------------------ end treatment multifile consistency test ------------------
-
-
-# --------------------------- treatment wise test ------------------------------
-
-class TreatmentWiseTestCase(PostClinicalDataFileTestCase):
-
-    # create a dummy class of that has no value checking
-    class DummyTreatmentValidator(validateData.TreatmentWiseFileValidator):
-        def checkValue(self, value, col_index):
-            return
-
-    def setUp(self):
-        super().setUp()
-        # reset state of the TreatmentWiseFileValidator class 
-        # to prevent carry-over from other tests
-        _resetMultipleFileHandlerClassVars()
-
-    def test_different_name_for_treatment_in_db_method(self):
-
-        self.logger.setLevel(logging.WARNING)
-        self.portal = PORTAL_INSTANCE
-
-        record_list = self.validate('data_treatment_ic50_different_name.txt',
-                            self.DummyTreatmentValidator)
-
-        self.assertEqual(len(record_list), 1)
-
-    def test_that_treatment_db_validation_is_skipped_if_db_unavailable(self):
-        self.logger.setLevel(logging.WARNING)
-        treatmentless_portal_instance = copy.copy(PORTAL_INSTANCE)
-        treatmentless_portal_instance.treatment_map = None
-
-        record_list = self.validate(
-            'data_treatment_ic50_different_name.txt',
-            self.DummyTreatmentValidator,
-            portal_instance=treatmentless_portal_instance)
-
-        self.assertEqual(len(record_list), 0)
-
-# -------------------------- end treatment wise test ----------------------------
-
-# ------------------------- treatment validator test ----------------------------
-
-class TreatmentResponseValidatorTestCase(unittest.TestCase):
-
-    def test_empty_cell_issues_error(self):
-        passConcValue("").error.assert_called()
-
-    def test_NA_value_is_allowed(self):
-        passConcValue("NA").error.assert_not_called()
-
-    def test_NAN_value_issues_error(self):
-        passConcValue("NAN").error.assert_called()
-        passConcValue("nan").error.assert_called()
-        passConcValue("NaN").error.assert_called()
-
-    def test_Inf_value_issues_error(self):
-        passConcValue("Inf").error.assert_called()
-        passConcValue("inf").error.assert_called()
-        passConcValue("Infinite").error.assert_called()
-        passConcValue("infinite").error.assert_called()
-
-    def test_no_decimals_issues_warning(self):
-        passConcValue("10").warning.assert_called()
-        passConcValue("00010").warning.assert_called()
-
-    def test_leadingzeros_are_allowed(self):
-        passConcValue("0000.123").error.assert_not_called()
-    
-    def test_positivenumber_is_allowed(self):
-        passConcValue("234234.234").error.assert_not_called()
-        passConcValue("234234.234").warning.assert_not_called()
-
-    def test_largerthan_notation_is_allowed(self):
-        passConcValue(">10").warning.assert_not_called()
-        passConcValue(">10").error.assert_not_called()
-
-    def test_smallerthan_notation_is_allowed(self):
-        passConcValue("<10").warning.assert_not_called()
-        passConcValue("<10").error.assert_not_called()
-
-    def test_whitespace_after_symbol_is_allowed(self):
-        passConcValue("< 10").warning.assert_not_called()
-        passConcValue("< 10").error.assert_not_called()
-
-    def test_floatnumber_is_allowed(self):
-        passConcValue("10.23234").warning.assert_not_called()
-        passConcValue("10.23234").error.assert_not_called()
-
-# helper function for test 
-def passConcValue(value):
-    mockval = Mock()
-    validateData.TreatmentValidator.checkValue(mockval, value, 1)
-    return mockval.logger
-
-# ------------------------ end treatment validator test -------------------------
-
 class ContinuousValuesTestCase(PostClinicalDataFileTestCase):
 
     """Verify that values are being checked in feature/sample matrix files with float values."""
@@ -2629,6 +2467,21 @@ class MetaFilesTestCase(LogBufferTestCase):
         self.assertEqual('The PMID field in meta_study should not contain any embedded whitespace', record.getMessage())
         self.assertEqual('29625048, 29596782, 29622463A, 29617662 29625055, 29625050', record.cause)
 
+    def test_show_profile_setting_for_cna(self):
+        """Test the `show_profile_in_analysis_tab: false` setting for continuous CNA data"""
+        self.logger.setLevel(logging.ERROR)
+        validateData.process_metadata_files(
+            'test_data/meta_study/invalid_show_profile_setting_cna',
+            PORTAL_INSTANCE,
+            self.logger, False, False)
+        record_list = self.get_log_records()
+        # expecting 1 error:
+        self.assertEqual(len(record_list), 1)
+        
+        # Should raise an error when show_profile_in_analysis_tab is not false for non-discrete CNA metafile
+        record = record_list.pop()
+        self.assertEqual("The 'show_profile_in_analysis_tab' setting must be 'false', as this is only applicable for CNA data of the DISCRETE type.", record.getMessage())
+                
 class HeaderlessClinicalDataValidationTest(PostClinicalDataFileTestCase):
 
     """Tests for validation of clinical data files without metadata headers.
@@ -2702,13 +2555,13 @@ class DataFileIOTestCase(PostClinicalDataFileTestCase):
 def _resetMultipleFileHandlerClassVars():
     """Reset the state of classes that check mulitple files of the same type.
     
-    GsvaWiseFileValidator and TreatmentWiseFileValidator classes check 
+    GsvaWiseFileValidator classes check 
     consistency between multiple data files by collecting information in class variables.
     This implementation is not consistent with the unit test environment that simulates
     different studies to be loaded. To ensure real-world fucntionality the class variables 
     should be reset before each unit test that tests multi file consistency."""
 
-    for c in [ TreatmentWiseTestCase.DummyTreatmentValidator, TreatmentMultiFileTestCase.DummyTreatmentValidator, validateData.TreatmentWiseFileValidator, validateData.GsvaWiseFileValidator ]:
+    for c in [ validateData.GsvaWiseFileValidator ]:
         c.prior_validated_sample_ids = None
         c.prior_validated_feature_ids = None
         c.prior_validated_header = None

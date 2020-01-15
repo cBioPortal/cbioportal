@@ -148,7 +148,8 @@ META_FIELD_MAP = {
         'normal_samples_list': False,
         'swissprot_identifier': False,
         'gene_panel': False,
-        'variant_classification_filter': False
+        'variant_classification_filter': False,
+        'namespaces': False
     },
     MetaFileTypes.EXPRESSION: {
         'cancer_study_identifier': True,
@@ -254,14 +255,16 @@ META_FIELD_MAP = {
     MetaFileTypes.GENERIC_ASSAY: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
+        'generic_assay_type': True,
         'datatype': True,
         'stable_id': True,
         'profile_name': True,
         'profile_description': True,
         'data_filename': True,
         'show_profile_in_analysis_tab': True,
-        'pivot_threshold_value': True,
-        'value_sort_order': True
+        'generic_entity_meta_properties': False,
+        'pivot_threshold_value': False,
+        'value_sort_order': False
     },
     MetaFileTypes.STRUCTURAL_VARIANT: {
         'cancer_study_identifier': True,
@@ -776,6 +779,14 @@ def parse_metadata_file(filename,
                                  extra={'filename_': filename,
                                         'cause': meta_dictionary[attribute] + ' (%s)' % len(meta_dictionary[attribute])}
                                  )
+
+    # Restrict the show_profile_in_analysis_tab value to false (https://github.com/cBioPortal/cbioportal/issues/5023)
+    if meta_file_type in (MetaFileTypes.CNA_CONTINUOUS, MetaFileTypes.CNA_LOG2):
+        if meta_dictionary['show_profile_in_analysis_tab'] != 'false':
+            logger.error("The 'show_profile_in_analysis_tab' setting must be 'false', as this is only applicable for "
+                        "CNA data of the DISCRETE type.",
+                        extra={'filename_': filename,
+                        'cause': 'show_profile_in_analysis_tab: %s' % meta_dictionary['show_profile_in_analysis_tab']})
 
     if meta_file_type in (MetaFileTypes.SEG, MetaFileTypes.GISTIC_GENES):
         # Todo: Restore validation for reference genome in segment files

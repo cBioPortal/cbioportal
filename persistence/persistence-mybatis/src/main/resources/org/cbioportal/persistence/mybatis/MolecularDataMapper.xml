@@ -133,23 +133,24 @@
         </where>
     </select>
 
-     <select id="getTreatmentMolecularAlterations" resultType="org.cbioportal.model.TreatmentMolecularAlteration">
+    <select id="getGenericAssayMolecularAlterations" resultType="org.cbioportal.model.GenericAssayMolecularAlteration">
         SELECT
-        treatment.STABLE_ID AS treatmentId,
+        genetic_entity.STABLE_ID AS genericAssayStableId,
+        genetic_profile.STABLE_ID AS molecularProfileId,
         <if test="projection == 'ID'">
-        NULL AS "values"
+            NULL AS "values"
         </if>
         <if test="projection != 'ID'">
-        genetic_alteration.VALUES AS "values"
+            genetic_alteration.VALUES AS "values"
         </if>
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
-        INNER JOIN treatment ON genetic_alteration.GENETIC_ENTITY_ID = treatment.GENETIC_ENTITY_ID
+        INNER JOIN genetic_entity ON genetic_alteration.GENETIC_ENTITY_ID = genetic_entity.ID
         <where>
             genetic_profile.STABLE_ID = #{molecularProfileId}
-            <if test="treatmentIds != null and treatmentIds">
-                AND treatment.STABLE_ID IN
-                <foreach item="item" collection="treatmentIds" open="(" separator="," close=")">
+            <if test="stableIds != null and stableIds">
+                AND genetic_entity.STABLE_ID IN
+                <foreach item="item" collection="stableIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>

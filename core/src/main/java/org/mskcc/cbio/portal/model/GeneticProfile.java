@@ -38,13 +38,14 @@ import java.util.Properties;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
-* Class for genetic profile
-*/
+ * Class for genetic profile
+ */
 public class GeneticProfile implements Serializable {
     private int geneticProfileId;
     private String stableId;
     private int cancerStudyId;
     private GeneticAlterationType geneticAlterationType;
+    private String genericAssayType;
     private String datatype;
     private String profileName;
     private String profileDescription;
@@ -57,7 +58,7 @@ public class GeneticProfile implements Serializable {
     public GeneticProfile() {
         super();
     }
-    
+
     public GeneticProfile(String stableId, int cancerStudyId, GeneticAlterationType geneticAlterationType,
     String datatype, String profileName, String profileDescription, boolean showProfileInAnalysisTab) {
         this();
@@ -185,6 +186,14 @@ public class GeneticProfile implements Serializable {
 
     public void setSortOrder(String sortOrder) {
         this.sortOrder = sortOrder;
+    }
+
+    public String getGenericAssayType() {
+        return genericAssayType;
+    }
+
+    public void setGenericAssayType(String genericAssayType) {
+        this.genericAssayType = genericAssayType;
     }
     
     

@@ -2,6 +2,7 @@ package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.CoExpression;
+import org.cbioportal.model.EntityType;
 import org.cbioportal.service.CoExpressionService;
 import org.cbioportal.web.parameter.CoExpressionFilter;
 import org.hamcrest.Matchers;
@@ -79,7 +80,7 @@ public class CoExpressionControllerTest {
 
 
         Mockito.when(coExpressionService.fetchCoExpressions(Mockito.anyString(),
-        Mockito.any(CoExpression.GeneticEntityType.class), Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString(),
+        Mockito.any(EntityType.class), Mockito.anyListOf(String.class), Mockito.anyString(), Mockito.anyString(), 
         Mockito.anyDouble()))
             .thenReturn(coExpressionList);
 

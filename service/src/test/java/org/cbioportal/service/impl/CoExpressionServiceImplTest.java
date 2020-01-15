@@ -1,6 +1,7 @@
 package org.cbioportal.service.impl;
 
 import org.cbioportal.model.CoExpression;
+import org.cbioportal.model.EntityType;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Geneset;
 import org.cbioportal.model.GeneMolecularData;
@@ -73,7 +74,7 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID_B))
             .thenReturn(geneMolecularProfile);
         
-        List<CoExpression> result = coExpressionService.getCoExpressions("1", CoExpression.GeneticEntityType.GENE, 
+        List<CoExpression> result = coExpressionService.getCoExpressions("1", EntityType.GENE, 
         SAMPLE_LIST_ID, MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B, THRESHOLD);
 
         Assert.assertEquals(2, result.size());
@@ -114,7 +115,7 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID_B))
             .thenReturn(geneMolecularProfile);
 
-        List<CoExpression> result = coExpressionService.fetchCoExpressions("1", CoExpression.GeneticEntityType.GENE,
+        List<CoExpression> result = coExpressionService.fetchCoExpressions("1", EntityType.GENE,
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B, THRESHOLD);
 
         Assert.assertEquals(2, result.size());
@@ -155,7 +156,7 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Mockito.when(molecularProfileService.getMolecularProfile("profile_id_gsva_scores_b"))
             .thenReturn(genesetMolecularProfile);
 
-        List<CoExpression> result = coExpressionService.getCoExpressions("GENESET_ID_TEST", CoExpression.GeneticEntityType.GENESET, 
+        List<CoExpression> result = coExpressionService.getCoExpressions("GENESET_ID_TEST", EntityType.GENESET, 
         SAMPLE_LIST_ID, "profile_id_gsva_scores_a", "profile_id_gsva_scores_b", THRESHOLD);
 
         Assert.assertEquals(2, result.size());
@@ -199,7 +200,7 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Mockito.when(genesetDataService.fetchGenesetData("profile_id_gsva_scores_b", Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), 
             null)).thenReturn(molecularDataList);
 
-        List<CoExpression> result = coExpressionService.fetchCoExpressions("GENESET_ID_TEST", CoExpression.GeneticEntityType.GENESET,
+        List<CoExpression> result = coExpressionService.fetchCoExpressions("GENESET_ID_TEST", EntityType.GENESET,
             Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), "profile_id_gsva_scores_a", "profile_id_gsva_scores_b", THRESHOLD);
 
         Assert.assertEquals(2, result.size());

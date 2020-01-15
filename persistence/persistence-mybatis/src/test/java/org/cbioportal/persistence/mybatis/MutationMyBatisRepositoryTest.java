@@ -158,6 +158,15 @@ public class MutationMyBatisRepositoryTest {
         Assert.assertEquals((Integer) 207, gene.getEntrezGeneId());
         Assert.assertEquals("AKT1", gene.getHugoGeneSymbol());
         Assert.assertEquals("protein-coding", gene.getType());
+        AlleleSpecificCopyNumber alleleSpecificCopyNumber = mutation.getAlleleSpecificCopyNumber();
+        Assert.assertEquals((Integer) (3), alleleSpecificCopyNumber.getAscnIntegerCopyNumber());
+        Assert.assertEquals("FACETS", alleleSpecificCopyNumber.getAscnMethod());
+        Assert.assertEquals((Float) (1.25f), alleleSpecificCopyNumber.getCcfMCopiesUpper());
+        Assert.assertEquals((Float) (1.75f), alleleSpecificCopyNumber.getCcfMCopies());
+        Assert.assertEquals((Boolean) (true), alleleSpecificCopyNumber.getClonal());
+        Assert.assertEquals((Integer) (2), alleleSpecificCopyNumber.getMinorCopyNumber());
+        Assert.assertEquals((Integer) (1), alleleSpecificCopyNumber.getMutantCopies());
+        Assert.assertEquals((Integer) (4), alleleSpecificCopyNumber.getTotalCopyNumber());
     }
 
     @Test

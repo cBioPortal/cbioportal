@@ -1,8 +1,10 @@
 package org.cbioportal.service.impl;
 
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.persistence.CopyNumberSegmentRepository;
+import org.cbioportal.persistence.MolecularProfileRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.SampleRepository;
 import org.cbioportal.service.PatientService;
@@ -39,6 +41,8 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     private SampleListRepository sampleListRepository;
     @Mock
     private CopyNumberSegmentRepository copyNumberSegmentRepository;
+    @Mock
+    private MolecularProfileRepository molecularProfileRepository;
     
     private Sample createSample(String id) {
         Sample sample = new Sample();
@@ -259,6 +263,15 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
             .thenReturn(new ArrayList<>());
         Mockito.when(copyNumberSegmentRepository.fetchSamplesWithCopyNumberSegments(Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class), Mockito.anyString())).thenReturn(expectedInternalIdList);
+
+        List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
+        MolecularProfile molecularProfile = new MolecularProfile();
+        molecularProfile.setCancerStudyIdentifier(STUDY_ID);
+        molecularProfile.setMolecularAlterationType(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
+        expectedMolecularProfileList.add(molecularProfile);
+
+        Mockito.when(molecularProfileRepository.getMolecularProfilesInStudies(Arrays.asList(STUDY_ID), "DETAILED"))
+            .thenReturn(expectedMolecularProfileList);
         
         List<Sample> result = sampleService.fetchSamples(Arrays.asList(STUDY_ID), Arrays.asList(SAMPLE_ID1), "DETAILED");
         Assert.assertEquals(2, result.size());

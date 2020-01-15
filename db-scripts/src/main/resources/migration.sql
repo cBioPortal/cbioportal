@@ -720,3 +720,95 @@ CASE
     ELSE 1
 END;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.11.0";
+
+##version: 2.12.0
+ALTER TABLE `mutation` ADD COLUMN ANNOTATION_JSON JSON DEFAULT NULL;
+-- ========================== new ascn table =============================================
+CREATE TABLE `allele_specific_copy_number` (
+    `MUTATION_EVENT_ID` int(255) NOT NULL,
+    `GENETIC_PROFILE_ID` int(11) NOT NULL,
+    `SAMPLE_ID` int(11) NOT NULL,
+    `ASCN_INTEGER_COPY_NUMBER` int DEFAULT NULL,
+    `ASCN_METHOD` varchar(24) NOT NULL,
+    `CCF_M_COPIES_UPPER` float DEFAULT NULL,
+    `CCF_M_COPIES` float DEFAULT NULL,
+    `CLONAL` boolean DEFAULT NULL,
+    `MINOR_COPY_NUMBER` int DEFAULT NULL,
+    `MUTANT_COPIES` int DEFAULT NULL,
+    `TOTAL_COPY_NUMBER` int DEFAULT NULL,
+    UNIQUE KEY `UQ_ASCN_MUTATION_EVENT_ID_GENETIC_PROFILE_ID_SAMPLE_ID` (`MUTATION_EVENT_ID`,`GENETIC_PROFILE_ID`,`SAMPLE_ID`),
+    FOREIGN KEY (`MUTATION_EVENT_ID`) REFERENCES `mutation_event` (`MUTATION_EVENT_ID`),
+    FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+);
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.0";
+-- ========================== end of ascn table =============================================
+##version: 2.12.1
+-- update genetic_entity table
+ALTER TABLE `genetic_entity` ADD COLUMN `STABLE_ID` varchar(45) DEFAULT NULL;
+ALTER TABLE `genetic_profile` ADD COLUMN `GENERIC_ASSAY_TYPE` varchar(255) DEFAULT NULL;
+ALTER TABLE `genetic_alteration` DROP FOREIGN KEY genetic_alteration_ibfk_2;
+ALTER TABLE `genetic_alteration` ADD CONSTRAINT `genetic_alteration_ibfk_2` FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE;
+
+CREATE TABLE `generic_entity_properties` (
+  `ID` INT(11) NOT NULL auto_increment,
+  `GENETIC_ENTITY_ID` INT NOT NULL,
+  `NAME` varchar(255) NOT NULL,
+  `VALUE` varchar(5000) NOT NULL,
+  UNIQUE (`GENETIC_ENTITY_ID`, `NAME`),
+  PRIMARY KEY (`ID`),
+  FOREIGN KEY (`GENETIC_ENTITY_ID`) REFERENCES `genetic_entity` (`ID`) ON DELETE CASCADE
+);
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.1";
+
+##version: 2.12.2
+-- treatment to generic_assay migration
+-- insert NAME into generic_entity_properties
+INSERT INTO generic_entity_properties (GENETIC_ENTITY_ID, NAME, VALUE)
+SELECT
+    GENETIC_ENTITY_ID,
+    "NAME",
+    NAME
+FROM `treatment`;
+-- insert DESCRIPTION into generic_entity_properties
+INSERT INTO generic_entity_properties (GENETIC_ENTITY_ID, NAME, VALUE)
+SELECT
+    GENETIC_ENTITY_ID,
+    "DESCRIPTION",
+    DESCRIPTION
+FROM `treatment`;
+-- insert URL into generic_entity_properties
+INSERT INTO generic_entity_properties (GENETIC_ENTITY_ID, NAME, VALUE)
+SELECT
+    GENETIC_ENTITY_ID,
+    "URL",
+    LINKOUT_URL
+FROM `treatment`;
+-- update genetic_entity and genetic_profile
+UPDATE genetic_entity INNER JOIN treatment ON genetic_entity.ID = treatment.GENETIC_ENTITY_ID SET genetic_entity.STABLE_ID = treatment.STABLE_ID, genetic_entity.ENTITY_TYPE = "GENERIC_ASSAY";
+UPDATE genetic_profile SET GENERIC_ASSAY_TYPE = "TREATMENT_RESPONSE" WHERE genetic_profile.GENETIC_ALTERATION_TYPE = "GENERIC_ASSAY";
+-- drop treatment table
+DROP TABLE IF EXISTS `treatment`;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.2";
+
+##version: 2.12.3
+CREATE TEMPORARY TABLE IF NOT EXISTS
+    fusion_studies ( INDEX(CANCER_STUDY_IDENTIFIER) )
+AS (
+    SELECT DISTINCT CANCER_STUDY_IDENTIFIER, cancer_study.CANCER_STUDY_ID
+    FROM `mutation_event`
+             JOIN `mutation` ON `mutation`.MUTATION_EVENT_ID = `mutation_event`.MUTATION_EVENT_ID
+             JOIN `genetic_profile` ON `genetic_profile`.GENETIC_PROFILE_ID = `mutation`.GENETIC_PROFILE_ID
+             JOIN `cancer_study` ON `cancer_study`.CANCER_STUDY_ID = `genetic_profile`.CANCER_STUDY_ID
+    WHERE MUTATION_TYPE = 'fusion'
+);
+INSERT INTO genetic_profile(STABLE_ID, CANCER_STUDY_ID, GENETIC_ALTERATION_TYPE, DATATYPE, NAME, DESCRIPTION, SHOW_PROFILE_IN_ANALYSIS_TAB)
+SELECT CONCAT(CANCER_STUDY_IDENTIFIER, '_fusion'), CANCER_STUDY_ID, 'STRUCTURAL_VARIANT','FUSION','Fusions','Fusions',0
+FROM `fusion_studies`
+WHERE NOT EXISTS (SELECT * FROM genetic_profile WHERE  STABLE_ID=CONCAT(`fusion_studies`.CANCER_STUDY_IDENTIFIER, '_fusion')
+    AND CANCER_STUDY_ID = `fusion_studies`.CANCER_STUDY_ID);
+DROP TEMPORARY TABLE fusion_studies;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.12.3";

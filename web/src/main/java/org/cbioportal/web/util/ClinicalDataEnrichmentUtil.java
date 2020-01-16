@@ -11,12 +11,14 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.model.ClinicalAttribute;
+import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
 import org.cbioportal.model.ClinicalDataCountItem;
-import org.cbioportal.model.ClinicalDataCountItem.ClinicalDataType;
 import org.cbioportal.model.ClinicalDataEnrichment;
 import org.cbioportal.model.Sample;
 import org.cbioportal.service.ClinicalDataService;
+import org.cbioportal.service.util.ClinicalAttributeUtil;
+import org.cbioportal.web.parameter.ClinicalDataType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,31 +37,43 @@ import com.datumbox.framework.core.statistics.nonparametrics.independentsamples.
 @Component
 public class ClinicalDataEnrichmentUtil {
 
-    private ClinicalDataService clinicalDataService;
-
     @Autowired
-    public ClinicalDataEnrichmentUtil(ClinicalDataService clinicalDataService) {
-        this.clinicalDataService = clinicalDataService;
-    }
+    private ClinicalDataService clinicalDataService;
+    @Autowired
+    private ClinicalAttributeUtil clinicalAttributeUtil;
 
     public List<ClinicalDataEnrichment> createEnrichmentsForNumericData(List<ClinicalAttribute> attributes,
             List<List<Sample>> groupedSamples) {
-
         List<ClinicalDataEnrichment> clinicalEnrichments = new ArrayList<ClinicalDataEnrichment>();
+        
+        List<ClinicalAttribute> filteredAttributes = attributes.stream()
+                .filter(attribute -> attribute.getDatatype().equals("NUMBER"))
+                .collect(Collectors.toList());
+        
+        List<String> sampleAttributeIds = new ArrayList<>();
+        List<String> patientAttributeIds = new ArrayList<>();
+        List<String> conflictingPatientAttributeIds = new ArrayList<>();
+        
+        clinicalAttributeUtil.extractCategorizedClinicalAttributes(filteredAttributes,
+                sampleAttributeIds,
+                patientAttributeIds,
+                conflictingPatientAttributeIds);
 
         // list of values for all NUMBER datatype attributes and for all sample groups
         List<Map<String, List<Double>>> dataByGroupAndByAttribute = groupedSamples.stream()
-                .map(groupSamples -> getNumericClinicalData(attributes, groupSamples)).collect(Collectors.toList());
+                .map(groupSamples -> getNumericClinicalData(new ArrayList<>(sampleAttributeIds),
+                        new ArrayList<>(patientAttributeIds), new ArrayList<>(conflictingPatientAttributeIds),
+                        groupSamples))
+                .collect(Collectors.toList());
 
-        attributes.forEach(clinicalAttribute -> {
+        filteredAttributes.forEach(clinicalAttribute -> {
 
-            String attributeKey = getClinicalAttributeKey(clinicalAttribute);
-
+            String attributeId = clinicalAttribute.getAttrId();
             TransposeDataCollection transposeDataCollection = new TransposeDataCollection();
             int index = 0;
             for (Map<String, List<Double>> entry : dataByGroupAndByAttribute) {
-                if (entry.containsKey(attributeKey)) {
-                    Collection<Object> values = entry.get(attributeKey).stream().collect(Collectors.toList());
+                if (entry.containsKey(attributeId)) {
+                    Collection<Object> values = entry.get(attributeId).stream().collect(Collectors.toList());
                     // add only groups having values
                     if (values.size() > 0) {
                         transposeDataCollection.put(index++, new FlatDataCollection(values));
@@ -94,21 +108,26 @@ public class ClinicalDataEnrichmentUtil {
 
     public List<ClinicalDataEnrichment> createEnrichmentsForCategoricalData(List<ClinicalAttribute> attributes,
             List<List<Sample>> groupedSamples) {
-
         List<ClinicalDataEnrichment> clinicalEnrichments = new ArrayList<ClinicalDataEnrichment>();
 
+        List<ClinicalAttribute> filteredAttributes = attributes.stream()
+                .filter(attribute -> attribute.getDatatype().equals("STRING"))
+                .collect(Collectors.toList());
+        
+        List<String> filteredAttributeIds = filteredAttributes.stream().map(ClinicalAttribute::getAttrId).collect(Collectors.toList());
+        
         // ClinicalDataCountItem for all STRING datatype attributes and for all sample groups
         List<Map<String, ClinicalDataCountItem>> dataCountsByGroupAndByAttribute = groupedSamples.stream()
-                .map(groupSamples -> getClinicalDataCounts(attributes, groupSamples)).collect(Collectors.toList());
+                .map(groupSamples -> getClinicalDataCounts(filteredAttributeIds, groupSamples)).collect(Collectors.toList());
 
-        attributes.forEach(clinicalAttribute -> {
+        filteredAttributes.forEach(clinicalAttribute -> {
 
-            String attributeKey = getClinicalAttributeKey(clinicalAttribute);
+            String attributeId = clinicalAttribute.getAttrId();
 
             // get counts for all categories in all group for a given attribute
             List<Map<String, Integer>> categoryCountsByGroup = dataCountsByGroupAndByAttribute.stream().map(e -> {
-                if (e.containsKey(attributeKey)) {
-                    return e.get(attributeKey).getCounts().stream()
+                if (e.containsKey(attributeId)) {
+                    return e.get(attributeId).getCounts().stream()
                             .collect(Collectors.toMap(ClinicalDataCount::getValue, ClinicalDataCount::getCount));
                 }
                 return new HashMap<String, Integer>();
@@ -159,7 +178,10 @@ public class ClinicalDataEnrichmentUtil {
      * @param samples
      * @return
      */
-    private Map<String, List<Double>> getNumericClinicalData(List<ClinicalAttribute> attributes, List<Sample> samples) {
+    private Map<String, List<Double>> getNumericClinicalData(List<String> sampleAttributeIds, 
+            List<String> patientAttributeIds, 
+            List<String> conflictingPatientAttributeIds, 
+            List<Sample> samples) {
 
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
@@ -172,40 +194,28 @@ public class ClinicalDataEnrichmentUtil {
 
         Map<String, List<Double>> dataByAttribute = new HashMap<>();
 
-        List<ClinicalAttribute> sampleAttributes = new ArrayList<ClinicalAttribute>();
-        List<ClinicalAttribute> patientAttributes = new ArrayList<ClinicalAttribute>();
-
-        extractAttributes(attributes, "NUMBER", sampleAttributes, patientAttributes);
-
-        if (!sampleAttributes.isEmpty()) {
-            dataByAttribute
-                    .putAll(clinicalDataService
-                            .fetchClinicalData(studyIds, sampleIds,
-                                    sampleAttributes.stream().map(ClinicalAttribute::getAttrId)
-                                            .collect(Collectors.toList()),
-                                    ClinicalDataType.SAMPLE.name(), "SUMMARY")
-                            .stream()
-                            // filter are non numeric data to fix
-                            // https://github.com/cBioPortal/cbioportal/issues/6228
-                            .filter(x -> NumberUtils.isCreatable(x.getAttrValue()))
-                            .collect(Collectors.groupingBy(x -> x.getAttrId() + "SAMPLE",
-                                    Collectors.mapping(x -> Double.valueOf(x.getAttrValue()), Collectors.toList()))));
+        List<ClinicalData> clinicalDatas = new ArrayList<ClinicalData>();
+        if (!sampleAttributeIds.isEmpty()) {
+            clinicalDatas.addAll(clinicalDataService
+                            .fetchClinicalData(studyIds, sampleIds, sampleAttributeIds, ClinicalDataType.SAMPLE.name(), "SUMMARY"));
         }
 
-        if (!patientAttributes.isEmpty()) {
-            dataByAttribute
-                    .putAll(clinicalDataService
-                            .fetchClinicalData(studyIds, patientIds,
-                                    patientAttributes.stream().map(ClinicalAttribute::getAttrId)
-                                            .collect(Collectors.toList()),
-                                    ClinicalDataType.PATIENT.name(), "SUMMARY")
-                            .stream()
-                            // filter are non numeric data to fix
-                            // https://github.com/cBioPortal/cbioportal/issues/6228
-                            .filter(x -> NumberUtils.isCreatable(x.getAttrValue()))
-                            .collect(Collectors.groupingBy(x -> x.getAttrId() + "PATIENT",
-                                    Collectors.mapping(x -> Double.valueOf(x.getAttrValue()), Collectors.toList()))));
+        if (!patientAttributeIds.isEmpty()) {
+            clinicalDatas.addAll(clinicalDataService
+                    .fetchClinicalData(studyIds, patientIds, patientAttributeIds, ClinicalDataType.PATIENT.name(), "SUMMARY"));
         }
+        
+        if (!conflictingPatientAttributeIds.isEmpty()) {
+            clinicalDatas.addAll(clinicalDataService
+                    .getPatientClinicalDataDetailedToSample(studyIds, patientIds, conflictingPatientAttributeIds));
+        }
+        
+        dataByAttribute = clinicalDatas.stream()
+        // filter are non numeric data to fix
+        // https://github.com/cBioPortal/cbioportal/issues/6228
+        .filter(x -> NumberUtils.isCreatable(x.getAttrValue()))
+        .collect(Collectors.groupingBy(x -> x.getAttrId(),
+                Collectors.mapping(x -> Double.valueOf(x.getAttrValue()), Collectors.toList())));
 
         return dataByAttribute;
     }
@@ -217,8 +227,7 @@ public class ClinicalDataEnrichmentUtil {
      * @param samples
      * @return
      */
-    private Map<String, ClinicalDataCountItem> getClinicalDataCounts(List<ClinicalAttribute> attributes,
-            List<Sample> samples) {
+    private Map<String, ClinicalDataCountItem> getClinicalDataCounts(List<String> attributeIds, List<Sample> samples) {
 
         List<String> studyIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
@@ -227,44 +236,13 @@ public class ClinicalDataEnrichmentUtil {
             sampleIds.add(sample.getStableId());
         }
 
-        List<ClinicalDataCountItem> clinicalDataCountItems = new ArrayList<>();
-
-        List<ClinicalAttribute> sampleAttributes = new ArrayList<ClinicalAttribute>();
-        List<ClinicalAttribute> patientAttributes = new ArrayList<ClinicalAttribute>();
-
-        extractAttributes(attributes, "STRING", sampleAttributes, patientAttributes);
-
-        if (!sampleAttributes.isEmpty()) {
-            clinicalDataCountItems.addAll(clinicalDataService.fetchClinicalDataCounts(studyIds, sampleIds,
-                    sampleAttributes.stream().map(ClinicalAttribute::getAttrId).collect(Collectors.toList()),
-                    ClinicalDataType.SAMPLE));
-        }
-
-        if (!patientAttributes.isEmpty()) {
-            clinicalDataCountItems.addAll(clinicalDataService.fetchClinicalDataCounts(studyIds, sampleIds,
-                    patientAttributes.stream().map(ClinicalAttribute::getAttrId).collect(Collectors.toList()),
-                    ClinicalDataType.PATIENT));
-        }
+        List<ClinicalDataCountItem> clinicalDataCountItems = clinicalDataService.fetchClinicalDataCounts(studyIds,
+                sampleIds, attributeIds);
 
         return clinicalDataCountItems.stream()
-                .collect(Collectors.toMap(
-                        clinicalDataCountItem -> clinicalDataCountItem.getAttributeId()
-                                + clinicalDataCountItem.getClinicalDataType().name(),
+                .collect(Collectors.toMap(clinicalDataCountItem -> clinicalDataCountItem.getAttributeId(),
                         clinicalDataCountItem -> clinicalDataCountItem));
 
-    }
-
-    private String getClinicalAttributeKey(ClinicalAttribute attribute) {
-        return attribute.getAttrId() + (attribute.getPatientAttribute() ? "PATIENT" : "SAMPLE");
-    }
-
-    private void extractAttributes(List<ClinicalAttribute> attributes, String datatype,
-            List<ClinicalAttribute> sampleAttributes, List<ClinicalAttribute> patientAttributes) {
-        attributes.forEach(attribute -> {
-            if (attribute.getDatatype().equals(datatype)) {
-                (attribute.getPatientAttribute() ? patientAttributes : sampleAttributes).add(attribute);
-            }
-        });
     }
 
     // For categorical values, group data is valid if all the values are not 0

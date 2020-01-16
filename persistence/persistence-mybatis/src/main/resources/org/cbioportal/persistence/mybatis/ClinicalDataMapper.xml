@@ -160,6 +160,31 @@
             LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
+    
+    <select id="getPatientClinicalDataDetailedToSample" resultType="org.cbioportal.model.ClinicalData">
+        SELECT
+        <include refid="selectPatient">
+            <property name="prefix" value=""/>
+        </include>
+        , sample.STABLE_ID AS "sampleId"
+        <include refid="fromPatient"/>
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+        <if test="projection == 'DETAILED'">
+            INNER JOIN clinical_attribute_meta ON clinical_patient.ATTR_ID = clinical_attribute_meta.ATTR_ID
+            AND cancer_study.CANCER_STUDY_ID = clinical_attribute_meta.CANCER_STUDY_ID
+            INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
+        </if>
+        <include refid="wherePatient"/>
+        <if test="sortBy != null and projection != 'ID'">
+            ORDER BY ${sortBy} ${direction}
+        </if>
+        <if test="projection == 'ID'">
+            ORDER BY clinical_patient.ATTR_ID ASC
+        </if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
 
     <select id="getMetaPatientClinicalData" resultType="org.cbioportal.model.meta.BaseMeta">
         SELECT
@@ -182,6 +207,9 @@
         clinical_patient.ATTR_ID as attributeId,
         clinical_patient.ATTR_VALUE as value
         <include refid="fromPatient"/>
+        <if test="projection == 'DETAILED'">
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+        </if>
         <include refid="wherePatient"/>
         GROUP BY clinical_patient.ATTR_ID, clinical_patient.ATTR_VALUE
     </select>

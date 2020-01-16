@@ -38,4 +38,7 @@ public interface ClinicalAttributeRepository {
 
     @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<ClinicalAttributeCount> getClinicalAttributeCountsBySampleListId(String sampleListId);
+    
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
+    List<ClinicalAttribute> getClinicalAttributesByStudyIdsAndAttributeIds(List<String> studyIds, List<String> attributeIds);
 }

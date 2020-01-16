@@ -357,7 +357,7 @@ public class ClinicalDataMyBatisRepositoryTest {
 
         List<ClinicalDataCount> result = clinicalDataMyBatisRepository.fetchClinicalDataCounts(Arrays.asList("acc_tcga", "acc_tcga"), 
             Arrays.asList("TCGA-A1-B0SO-01", "TCGA-A1-A0SB-01"), Arrays.asList("OTHER_SAMPLE_ID", 
-            "DAYS_TO_COLLECTION"), "SAMPLE");
+            "DAYS_TO_COLLECTION"), "SAMPLE", "SUMMARY");
         
         Assert.assertEquals(2, result.size());
         ClinicalDataCount clinicalDataCount1 = result.get(0);

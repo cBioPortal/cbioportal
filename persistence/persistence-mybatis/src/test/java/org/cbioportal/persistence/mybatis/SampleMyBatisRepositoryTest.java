@@ -348,7 +348,7 @@ public class SampleMyBatisRepositoryTest {
          Assert.assertEquals(expected, actual);
      }
     
-     @Test
+    @Test
     public void getSamplesByKeywordFilterByStudies() {
         List<Sample> result = sampleMyBatisRepository.getAllSamples(
                 "TCGA-A1", Collections.singletonList("acc_tcga"),

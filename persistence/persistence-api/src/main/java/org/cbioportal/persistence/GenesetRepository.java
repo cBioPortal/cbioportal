@@ -24,4 +24,7 @@ public interface GenesetRepository {
     
     @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<Gene> getGenesByGenesetId(String genesetId);
+    
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
+    String getGenesetVersion();
 }

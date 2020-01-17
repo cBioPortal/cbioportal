@@ -58,7 +58,7 @@ public class CopyNumberEnrichmentController {
         @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
         @ApiParam(required = true, value = "List of groups containing sample identifiers")
         @Valid @RequestBody(required = false) List<MolecularProfileCasesGroupFilter> groups) throws MolecularProfileNotFoundException {
-        
+
         Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = interceptedMolecularProfileCasesGroupFilters.stream()
                 .collect(Collectors.toMap(MolecularProfileCasesGroupFilter::getName,
                         MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers));

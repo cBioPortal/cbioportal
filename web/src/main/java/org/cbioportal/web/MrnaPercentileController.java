@@ -34,8 +34,8 @@ public class MrnaPercentileController {
     private MrnaPercentileService mrnaPercentileService;
 
     @PreAuthorize("hasPermission(#molecularProfileId, 'MolecularProfileId', 'read')")
-    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mrna-percentile/fetch", 
-        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
+    @RequestMapping(value = "/molecular-profiles/{molecularProfileId}/mrna-percentile/fetch",
+        method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get mRNA expression percentiles for list of genes for a sample")
     public ResponseEntity<List<MrnaPercentile>> fetchMrnaPercentile(

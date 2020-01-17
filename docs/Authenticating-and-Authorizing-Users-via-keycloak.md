@@ -70,7 +70,7 @@ instance, and not any other roles tracked in Keycloak.
 ### Export configuration for cBioPortal
 1. Next, navigate to the **Installation** tab for the same client.
 2. Select _SAML Metadata IDPSSODescriptor_ as the Format Option and click the **Download** button.
-4. Move the downloaded XML file to `portal/src/main/resources/`
+4. Move the downloaded XML file to `portal/src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/client-tailored-saml-idp-metadata.xml:/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml`.
 ![](images/previews/download-IDPSSODescriptor-file.png)
 
 ## Create a signing key for cBioPortal
@@ -87,7 +87,7 @@ keytool -genkey -alias secure-key -keyalg RSA -keystore samlKeystore.jks
 value by adding the `-validity` parameter and the number of days (e.g. `-validity 200` 
 for 200 days). If the keystore expires, then **'invalid requester'** errors are thrown.
 
-Install the generated JKS file to `portal/src/main/resources/`
+Install the generated JKS file to `portal/src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/samlKeystore.jks:/cbioportal-webapp/WEB-INF/classes/samlKeystore.jks`.
 
 Import the key's certificate into Keycloak, so that Keycloak knows that it can trust the holder of this
 key. To do that, head to the **SAML Keys** tab in the keycloak admin screen about the `cbioportal` client and:

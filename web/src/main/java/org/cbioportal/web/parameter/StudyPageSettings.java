@@ -130,6 +130,8 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
         private Layout layout;
         private Boolean patientAttribute;
         private Boolean filterByCancerGenes;
+        private List<Integer> customBins;
+        private Boolean disableLogScale;
 
         public String getId() {
             return id;
@@ -187,16 +189,28 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
             this.filterByCancerGenes = filterByCancerGenes;
         }
 
+        public List<Integer> getCustomBins() {
+            return customBins;
+        }
+
+        public void setCustomBins(List<Integer> customBins) {
+            this.customBins = customBins;
+        }
+
+        public Boolean getDisableLogScale() {
+            return disableLogScale;
+        }
+
+        public void setDisableLogScale(Boolean disableLogScale) {
+            this.disableLogScale = disableLogScale;
+        }
+
     }
 
     private List<ChartSetting> chartSettings = new ArrayList<ChartSetting>();
-
     private String owner = "anonymous";
-
     private Set<String> origin = new HashSet<>();
-
     private Long created = System.currentTimeMillis();
-
     private Long lastUpdated = System.currentTimeMillis();
 
     public String getOwner() {

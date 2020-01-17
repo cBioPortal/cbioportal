@@ -17,13 +17,13 @@ public class URLShortenerController {
 
     @Value("${bitly.access.token}")
     private String bitlyAccessToken;
-    
+
     private Bitly bitly ;
     private UrlValidator urlValidator = new UrlValidator();
-    
+
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<URLShortenerResponse> urlShortener(@RequestParam String url) {
-        
+
         if (urlValidator.isValid(url)) {
             if (bitly == null) {
                 bitly = Bit.ly(bitlyAccessToken);

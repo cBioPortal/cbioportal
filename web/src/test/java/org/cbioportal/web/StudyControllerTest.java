@@ -95,7 +95,7 @@ public class StudyControllerTest {
 
     @Test
     public void getAllStudiesDefaultProjection() throws Exception {
-        
+
         List<CancerStudy> cancerStudyList = createExampleStudies();
 
         Mockito.when(studyService.getAllStudies(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
@@ -228,7 +228,7 @@ public class StudyControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/studies/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1, 
+            .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1,
                 TEST_CANCER_STUDY_IDENTIFIER_2))))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -275,11 +275,11 @@ public class StudyControllerTest {
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.content().string(TEST_TAGS_1));
     }
-    
+
     @Test
     public void getEmptyTags() throws Exception {
 
-    	Mockito.when(studyService.getTags(Mockito.anyString())).thenReturn(null);
+        Mockito.when(studyService.getTags(Mockito.anyString())).thenReturn(null);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/tags")
                 .accept(MediaType.APPLICATION_JSON))
@@ -307,7 +307,7 @@ public class StudyControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/studies/tags/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1, 
+            .content(objectMapper.writeValueAsString(Arrays.asList(TEST_CANCER_STUDY_IDENTIFIER_1,
                 TEST_CANCER_STUDY_IDENTIFIER_2))))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -356,5 +356,5 @@ public class StudyControllerTest {
         cancerStudyList.add(cancerStudy2);
         return cancerStudyList;
     }
-    
+
 }

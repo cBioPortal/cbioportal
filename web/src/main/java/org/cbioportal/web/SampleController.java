@@ -3,8 +3,10 @@ package org.cbioportal.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.model.Sample;
+import org.cbioportal.service.StudyService;
 import org.cbioportal.service.exception.PatientNotFoundException;
 import org.cbioportal.service.exception.SampleNotFoundException;
 import org.cbioportal.service.exception.StudyNotFoundException;
@@ -14,6 +16,7 @@ import org.cbioportal.web.parameter.*;
 import org.cbioportal.web.parameter.sort.SampleSortBy;
 import org.cbioportal.web.util.UniqueKeyExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,6 +36,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.Valid;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @PublicApi
 @RestController
@@ -45,9 +49,80 @@ public class SampleController {
 
     @Autowired
     private SampleService sampleService;
+    
+    @Autowired
+    private StudyService studyService;
 
     @Autowired
     private UniqueKeyExtractor uniqueKeyExtractor;
+
+    @Value("${authenticate:false}")
+    private String authenticate;
+    
+    private boolean usingAuth() {
+        return !authenticate.isEmpty()
+                && !authenticate.equals("false")
+                && !authenticate.contains("social_auth");
+    }
+    
+    @RequestMapping(value = "/samples", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get all samples matching keyword")
+    public ResponseEntity<List<Sample>> getSamplesByKeyword(
+        @ApiParam("Search keyword that applies to the study ID")
+        @RequestParam(required = false) String keyword,
+        
+        @ApiParam("Level of detail of the response")
+        @RequestParam(defaultValue = "SUMMARY") Projection projection,
+        
+        @ApiParam("Page size of the result list")
+        @Max(PagingConstants.MAX_PAGE_SIZE)
+        @Min(PagingConstants.MIN_PAGE_SIZE)
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
+        
+        @ApiParam("Page number of the result list")
+        @Min(PagingConstants.MIN_PAGE_NUMBER)
+        @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
+        
+        @ApiParam("Name of the property that the result list is sorted by")
+        @RequestParam(required = false) SampleSortBy sortBy,
+        
+        @ApiParam("Direction of the sort")
+        @RequestParam(defaultValue = "ASC") Direction direction
+    ) {
+        String sort = sortBy == null ? null : sortBy.getOriginalValue();
+        List<String> studyIds = null;
+        if (usingAuth()) {
+            /*
+             If using auth, filter the list of samples returned using the list of study ids the
+             user has access to. If the user has access to no studies, the endpoint should not 403,
+             but instead return an empty list.
+            */
+            studyIds = studyService
+                .getAllStudies(
+                    null,
+                    Projection.SUMMARY.name(), // force to summary so that post filter doesn't NPE
+                    PagingConstants.MAX_PAGE_SIZE,
+                    0,
+                    null,
+                    direction.name()
+                )
+                .stream()
+                .map(CancerStudy::getCancerStudyIdentifier)
+                .collect(Collectors.toList());
+        }
+
+        if (projection == Projection.META) {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add(
+                    HeaderKeyConstants.TOTAL_COUNT,
+                    sampleService.getMetaSamples(keyword, studyIds).getTotalCount().toString());
+            return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(
+            sampleService.getAllSamples(keyword, studyIds, projection.name(), pageSize, pageNumber, sort, direction.name()),
+            HttpStatus.OK
+        );
+    }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
     @RequestMapping(value = "/studies/{studyId}/samples", method = RequestMethod.GET,
@@ -116,7 +191,7 @@ public class SampleController {
         @ApiParam("Name of the property that the result list is sorted by")
         @RequestParam(required = false) SampleSortBy sortBy,
         @ApiParam("Direction of the sort")
-        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException, 
+        @RequestParam(defaultValue = "ASC") Direction direction) throws PatientNotFoundException,
         StudyNotFoundException {
 
         if (projection == Projection.META) {
@@ -169,7 +244,7 @@ public class SampleController {
 
             if (interceptedSampleFilter.getSampleListIds() != null) {
                 samples = sampleService.fetchSamples(interceptedSampleFilter.getSampleListIds(), projection.name());
-            } else { 
+            } else {
                 if (interceptedSampleFilter.getSampleIdentifiers() != null) {
                     extractStudyAndSampleIds(interceptedSampleFilter, studyIds, sampleIds);
                 } else {
@@ -183,7 +258,7 @@ public class SampleController {
     }
 
     private void extractStudyAndSampleIds(SampleFilter sampleFilter, List<String> studyIds, List<String> sampleIds) {
-        
+
         for (SampleIdentifier sampleIdentifier : sampleFilter.getSampleIdentifiers()) {
             studyIds.add(sampleIdentifier.getStudyId());
             sampleIds.add(sampleIdentifier.getSampleId());

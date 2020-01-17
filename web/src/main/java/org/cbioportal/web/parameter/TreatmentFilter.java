@@ -6,12 +6,12 @@ import java.util.List;
 import java.io.Serializable;
 
 public class TreatmentFilter implements Serializable {
-    
+
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> studyIds;
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> treatmentIds;
-    
+
     @AssertTrue
     private boolean isEitherStudyIdsOrTreatmentIdsPresent() {
         return studyIds != null ^ treatmentIds != null;

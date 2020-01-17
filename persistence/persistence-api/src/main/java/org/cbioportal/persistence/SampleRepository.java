@@ -8,6 +8,11 @@ import org.springframework.cache.annotation.Cacheable;
 import java.util.List;
 
 public interface SampleRepository {
+    @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
+    List<Sample> getAllSamples(String keyword, List<String> studyIds, String projection, Integer pageSize,
+                               Integer pageNumber, String sort, String direction);
+
+    BaseMeta getMetaSamples(String keyword, List<String> studyIds);
 
     @Cacheable(cacheNames = "GeneralRepositoryCache", condition = "@cacheEnabledConfig.getEnabled()")
     List<Sample> getAllSamplesInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber,

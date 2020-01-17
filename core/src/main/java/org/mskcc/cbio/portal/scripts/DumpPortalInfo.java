@@ -23,12 +23,14 @@
 package org.mskcc.cbio.portal.scripts;
 
 import java.util.List;
+import java.util.Arrays;
 import java.io.Serializable;
 import java.io.File;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.cbioportal.web.config.CustomObjectMapper;
 
 import org.mskcc.cbio.portal.util.SpringUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -47,6 +49,7 @@ public class DumpPortalInfo extends ConsoleRunnable {
     private static final String API_GENES = "/genes";
     private static final String API_GENE_ALIASES = "/genesaliases";
     private static final String API_GENESETS = "/genesets";
+    private static final String API_GENESET_VERSION = "/genesets/version";
     private static final String API_GENE_PANELS = "/gene-panels";
     private static final int MAX_PAGE_SIZE = 10000000;
     private static final int MIN_PAGE_NUMBER = 0;
@@ -66,7 +69,7 @@ public class DumpPortalInfo extends ConsoleRunnable {
     private static void writeJsonFile(
             List<? extends Serializable> objectList,
             File outputFile) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = new CustomObjectMapper();
             try {
                 mapper.writeValue(outputFile, objectList);
             } catch (JsonProcessingException e) {
@@ -130,6 +133,9 @@ public class DumpPortalInfo extends ConsoleRunnable {
                 writeJsonFile(
                     genesetService.getAllGenesets("SUMMARY", MAX_PAGE_SIZE, MIN_PAGE_NUMBER),
                     nameJsonFile(outputDir, API_GENESETS));
+                writeJsonFile(
+                    Arrays.asList(genesetService.getGenesetVersion()),
+                    nameJsonFile(outputDir, API_GENESET_VERSION));
                 writeJsonFile(
                     genePanelService.getAllGenePanels("SUMMARY", MAX_PAGE_SIZE, MIN_PAGE_NUMBER, null, "ASC"),
                     nameJsonFile(outputDir, API_GENE_PANELS));

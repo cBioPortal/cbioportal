@@ -63,12 +63,20 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(GeneWithMultipleEntrezIdsException.class)
+    public ResponseEntity<ErrorResponse> handleGeneWithMultipleEntrezIdsException(
+            GeneWithMultipleEntrezIdsException ex) {
+        return new ResponseEntity<>(
+                new ErrorResponse("Gene data error: multiple Entrez gene IDs for " + ex.getGeneId()),
+                HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(GenesetNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleGenesetNotFound(GenesetNotFoundException ex) {
         return new ResponseEntity<>(new ErrorResponse("Gene set not found: " + ex.getGenesetId()),
                 HttpStatus.NOT_FOUND);
     }
-    
+
     @ExceptionHandler(SampleListNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleSampleListNotFound(SampleListNotFoundException ex) {
         return new ResponseEntity<>(new ErrorResponse("Sample list not found: " + ex.getSampleListId()),
@@ -77,7 +85,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ClinicalAttributeNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleClinicalAttributeNotFound(ClinicalAttributeNotFoundException ex) {
-        return new ResponseEntity<>(new ErrorResponse("Clinical attribute not found in study " + ex.getStudyId() + 
+        return new ResponseEntity<>(new ErrorResponse("Clinical attribute not found in study " + ex.getStudyId() +
             ": " + ex.getClinicalAttributeId()), HttpStatus.NOT_FOUND);
     }
 
@@ -111,7 +119,7 @@ public class GlobalExceptionHandler {
         ConstraintViolation constraintViolation = ex.getConstraintViolations().iterator().next();
         Iterator<Path.Node> iterator = constraintViolation.getPropertyPath().iterator();
         String parameterName = null;
-        
+
         while (iterator.hasNext()) {
             Path.Node node = iterator.next();
             if (node.getKind() == ElementKind.PARAMETER) {
@@ -125,7 +133,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        
+
         FieldError fieldError = ex.getBindingResult().getFieldError();
         return new ResponseEntity<>(new ErrorResponse(fieldError.getField() + " " + fieldError.getDefaultMessage()),
             HttpStatus.BAD_REQUEST);

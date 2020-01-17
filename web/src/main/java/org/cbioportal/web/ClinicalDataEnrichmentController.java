@@ -100,13 +100,13 @@ public class ClinicalDataEnrichmentController {
 
             List<ClinicalAttribute> clinicalAttributes = clinicalAttributeService
                     .fetchClinicalAttributes(new ArrayList<String>(studyIds), "SUMMARY");
-            
+
             // remove all duplicate attributes
             Map<String, ClinicalAttribute> clinicalAttributesByUniqId = clinicalAttributes.stream()
                     .collect(Collectors.toMap(c -> c.getAttrId() + c.getPatientAttribute(), c -> c, (e1, e2) -> e2));
 
             clinicalAttributes = new ArrayList<>(clinicalAttributesByUniqId.values());
- 
+
             clinicalEnrichments.addAll(
                     clinicalDataEnrichmentUtil.createEnrichmentsForCategoricalData(clinicalAttributes, groupedSamples));
 

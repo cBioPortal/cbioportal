@@ -68,5 +68,10 @@
         WHERE
          geneset.EXTERNAL_ID = #{genesetId}
     </select>
+    
+    <select id="getGenesetVersion" resultType="String">
+        SELECT GENESET_VERSION
+        FROM info
+    </select>
 
 </mapper>

@@ -260,7 +260,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
         
         List<CopyNumberCountByGene> result = discreteCopyNumberService
             .getPatientCountInMultipleMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID), null, Arrays.asList(ENTREZ_GENE_ID_1), 
-                Arrays.asList(-2));
+                Arrays.asList(-2), false);
         
         Assert.assertEquals(expectedCopyNumberSampleCountByGeneList, result);
     }

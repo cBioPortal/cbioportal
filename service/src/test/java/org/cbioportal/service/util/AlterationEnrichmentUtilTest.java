@@ -1,24 +1,14 @@
 package org.cbioportal.service.util;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.cbioportal.model.AlterationCountByGene;
-import org.cbioportal.model.AlterationEnrichment;
-import org.cbioportal.model.Gene;
-import org.cbioportal.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.model.*;
 import org.cbioportal.service.GeneService;
-import org.cbioportal.service.impl.BaseServiceImplTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -73,9 +63,20 @@ public class AlterationEnrichmentUtilTest {
         AlterationCountByGene alterationSampleCountByGene1 = new AlterationCountByGene();
         alterationSampleCountByGene1.setEntrezGeneId(2);
         alterationSampleCountByGene1.setNumberOfAlteredCases(1);
+        alterationSampleCountByGene1.setNumberOfProfiledCases(2);
+        AlterationCountByGene alterationSampleCount1ByGene1 = new AlterationCountByGene();
+        alterationSampleCount1ByGene1.setEntrezGeneId(3);
+        alterationSampleCount1ByGene1.setNumberOfAlteredCases(0);
+        alterationSampleCount1ByGene1.setNumberOfProfiledCases(2);
+
         AlterationCountByGene alterationSampleCountByGene2 = new AlterationCountByGene();
         alterationSampleCountByGene2.setEntrezGeneId(3);
         alterationSampleCountByGene2.setNumberOfAlteredCases(2);
+        alterationSampleCountByGene2.setNumberOfProfiledCases(2);
+        AlterationCountByGene alterationSampleCount1ByGene2 = new AlterationCountByGene();
+        alterationSampleCount1ByGene2.setEntrezGeneId(2);
+        alterationSampleCount1ByGene2.setNumberOfAlteredCases(0);
+        alterationSampleCount1ByGene2.setNumberOfProfiledCases(2);
 
         List<Gene> genes = new ArrayList<>();
         Gene gene1 = new Gene();
@@ -92,8 +93,8 @@ public class AlterationEnrichmentUtilTest {
         Mockito.when(geneService.fetchGenes(Arrays.asList("2", "3"), "ENTREZ_GENE_ID", "SUMMARY")).thenReturn(genes);
 
         Map<String, List<? extends AlterationCountByGene>> mutationCountsbyEntrezGeneIdAndGroup = new HashMap<>();
-        mutationCountsbyEntrezGeneIdAndGroup.put("group1", Arrays.asList(alterationSampleCountByGene1));
-        mutationCountsbyEntrezGeneIdAndGroup.put("group2", Arrays.asList(alterationSampleCountByGene2));
+        mutationCountsbyEntrezGeneIdAndGroup.put("group1", Arrays.asList(alterationSampleCountByGene1, alterationSampleCount1ByGene1));
+        mutationCountsbyEntrezGeneIdAndGroup.put("group2", Arrays.asList(alterationSampleCountByGene2, alterationSampleCount1ByGene2));
 
         // START: for 2 groups
 

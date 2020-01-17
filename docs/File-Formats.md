@@ -9,7 +9,6 @@
     * [Expression Data](#expression-data)
     * [Mutation Data](#mutation-data)
     * [Fusion Data](#fusion-data)
-    * [Structural Variants Data](#structural-variants-data)
     * [Methylation Data](#methylation-data)
     * [Protein level Data](#protein-level-data)
     * [Case Lists](#case-lists)
@@ -672,11 +671,8 @@ The `cbp_driver` column flags the mutation as either driver or passenger. In cBi
 You can learn more about configuring these annotations in the [portal.properties documentation](portal.properties-Reference.md#custom-annotation). When properly configured, the customized annotations appear in the "Mutation Color" menu of the OncoPrint view: \
 ![schreenshot mutation color menu](images/screenshot-mutation-color-menu.png) 
 
-#### Adding your own mutation annotation columns
-Adding additional mutation annotation columns to the extended MAF rows can also be done. In this way, the portal will parse and store your own MAF fields in the database. For example, mutation data that you find on cBioPortal.org comes from MAF files that have been further enriched with information from [mutationassessor.org](http://mutationassessor.org/), which leads to a "Mutation Assessor" column in the [mutation table](https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&cancer_study_id=acc_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=acc_tcga_mutations&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=acc_tcga_sequenced&case_ids=&patient_case_select=sample&gene_set_choice=user-defined-list&gene_list=ZFPM1&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit).
-
 #### Example MAF
-An example MAF can be found in the cBioPortal test study [study_es_0](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/core/src/test/scripts/test_data/study_es_0/brca_tcga_pub.maf).
+An example MAF can be found in the cBioPortal test study [study_es_0](https://github.com/cBioPortal/cbioportal/blob/master/core/src/test/scripts/test_data/study_es_0/data_mutations_extended.maf).
 
 #### Filtered mutations
 A special case for **Entrez_Gene_Id=0** and **Hugo_Symbol=Unknown**: when this combination is given, the record is parsed in the same way as **Variant_Classification=IGR** and therefore filtered out.
@@ -832,97 +828,6 @@ RET<TAB>5979<TAB>center.edu<TAB>SAMPLE_ID_3<TAB>Fusion<TAB>unknown<TAB>yes<TAB>u
 ...
 ...
 ```
-
-## Structural Variants data
-This is the format used for the gene fusions to be displayed in the Fusion tab.
-
-#### Meta file
-The structural variants metadata file should contain the following fields:
-
-1. **cancer_study_identifier**: same value as specified in [study meta file](#cancer-study)
-2. **genetic_alteration_type**: STRUCTURAL_VARIANT
-3. **datatype**: SV
-4. **stable_id**: structural_variants
-5. **show_profile_in_analysis_tab**: true
-6. **profile_name**: Name of the structural variants data set.
-7. **profile_description**: Description of the variants data set.
-8. **data_filename**: Name of datafile
-9. **gene_panel (Optional)**:  gene panel stable id
-
-#### Example
-An example metadata file would be:
-```
-cancer_study_identifier: study_es_0
-genetic_alteration_type: STRUCTURAL_VARIANT
-datatype: SV
-data_filename: data_structural_variants.txt
-stable_id: structural_variants
-profile_name: Targeted Fusion Assay data
-profile_description: Targeted Fusion Assay data sequenced with Ion Torrent.
-show_profile_in_analysis_tab: true
-```
-
-#### Data file
-A structural variants data file is a two dimensional matrix with one structural variant per row.
-
-Please note that for gene fusion events, Ensembl transcript IDs and exon ranks are required. cBioPortal will query [Genome Nexus](http://genomenexus.org/swagger-ui.html) for validating transcripts and exons. Genome Nexus' source of exon data is Homo_sapiens.GRCh37.87.gff3.gz, downloadable from the [Ensembl FTP server](ftp://ftp.ensembl.org/pub/grch37/release-91/gff3/homo_sapiens/). Fusion events will be displayed in the fusion tab. Fused genes will be merged based on exons. The included table will provide other breakpoint information and annotations.
-
-**Note:** If a fusion event includes a gene, e.g., Hugo_Symbol or Entrez_Gene_Id, that is not profiled, the event will be filter out during import into the database.
-
-Required columns for each type of structural variant:
-- **Sample_ID**
-- **Event_Info**
-- **Site1_Entrez_Gene_Id** and/or **Site1_Hugo_Symbol**
-
-Additional required columns for fusion events:
-- **Site2_Entrez_Gene_Id** and/or **Site2_Hugo_Symbol**
-- **Site1_Exon**
-- **Site2_Exon**
-- **Site1_Ensembl_Transcript_Id**
-- **Site2_Ensembl_Transcript_Id**
-
-Description of all allowed columns:
-1. **Sample_ID**: Sample ID, as defined in the clinical sample file.
-2. **Site1_Entrez_Gene_Id**: [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier of gene 1.
-3. **Site1_Hugo_Symbol**: [HUGO](http://www.genenames.org/) gene symbol of gene 1.
-4. **Site1_Ensembl_Transcript_Id**: Ensembl transcript ID of gene 1.
-5. **Site1_Exon**: The exon rank in the provided Ensembl transcript of gene 1.
-6. **Site1_Chromosome**: Chromosome of gene 1.
-7. **Site1_Position**: Genomic position of breakpoint of gene 1.
-8. **Site1_Description**: Description of this event at site 1. This could be the location of 1st breakpoint in case of a fusion event. E.g. `Intron of ADAM9(+): 2Kb before exon 3`.
-9. **Site2_Entrez_Gene_Id**: [Entrez Gene](http://www.ncbi.nlm.nih.gov/gene) identifier of gene 2.
-10. **Site2_Hugo_Symbol**: [HUGO](http://www.genenames.org/) gene symbol of gene 2.
-11. **Site2_Ensembl_Transcript_Id**: Ensembl transcript ID of gene 2. If the transcript is not present, the canonical transcript will be retrieved from GenomeNexus.
-12. **Site2_Exon**: The exon rank in the provided Ensembl transcript of gene 2.
-13. **Site2_Chromosome**: Chromosome of gene 2.
-14. **Site2_Position**: Genomic position of breakpoint of gene 2.
-15. **Site2_Description**: Description of this event at site 2. This could be the location of 2nd breakpoint in case of a fusion event. E.g. `Intron of RNF170(-): 203bp after exon 5`.
-16. **Site2_Effect_On_Frame**: The effect on frame reading in gene 2. `Frame_Shift` or `InFrame`.
-17. **NCBI_Build**: The NCBI assembly. `GRCh37` is currently the only supported reference genome for structural variants.
-18. **DNA_Support**: Whether this observation is based on DNA. `yes`/`no`.
-19. **RNA_Support**: Whether this observation is based on RNA. `yes`/`no`.
-20. **Normal_Read_Count**: The total number of reads of the normal tissue.
-21. **Tumor_Read_Count**: The total number of reads of the tumor tissue.
-22. **Normal_Variant_Count**: The number of reads of the normal tissue that have the variant/allele.
-23. **Tumor_Variant_Count**: The number of reads of the tumor tissue that have the variant/allele.
-24. **Normal_Paired_End_Read_Count**: The number of paired-end reads of the normal tissue that support the call.
-25. **Tumor_Paired_End_Read_Count**: The number of paired-end reads of the tumor tissue that support the call.
-26. **Normal_Split_Read_Count**: The number of split reads of the normal tissue that support the call.
-27. **Tumor_Split_Read_Count**: The number of split reads of the tumor tissue that support the call.
-28. **Annotation**: Free text description of the gene or transcript rearrangement, e.g.:
-```
-PAX8 (NM_003466) rearrangement: c.1088-2028_c.25+11587del;
-TMPRSS2 (NM_001135099) - ERG (NM_182918) fusion: c.56-1943:TMPRSS2_c.18+13593:ERGdel
-```
-29. **Breakpoint_Type**: `PRECISE` or `IMPRECISE` which explain the resolution. Fill in `PRECISE` if the breakpoint resolution is known down to the exact base pair.
-30. **Center**: The sequencing center.
-31. **Connection_Type**: `3to5` or `5to3`. The direction of the second gene.
-32. **Event_Info**: Description of the event. For a fusion event, fill in `Fusion`.
-33. **Class**: [`DELETION`, `DUPLICATION`, `INSERTION`, `INVERSION` or `TRANSLOCATION`]
-34. **Length**: Length of the structural variant in number of bases.
-35. **Comments**: Any comments or free text, e.g. `Protein fusion: in frame (ADAM9-RNF170)`
-36. **External_Annotation**: COSMIC or GENBank ID. Cosmic IDs follow the format `COSMIC:COS1000`.
-
 
 ## Case Lists
 

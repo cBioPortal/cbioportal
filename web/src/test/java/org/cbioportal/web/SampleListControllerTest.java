@@ -78,7 +78,7 @@ public class SampleListControllerTest {
         Mockito.reset(sampleListService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void getAllSampleListsDefaultProjection() throws Exception {
 
@@ -315,7 +315,7 @@ public class SampleListControllerTest {
     }
 
     private SampleList createExampleSampleListWithStudy() {
-        
+
         SampleList sampleList = new SampleList();
         sampleList.setListId(TEST_LIST_ID_1);
         sampleList.setStableId(TEST_STABLE_ID_1);

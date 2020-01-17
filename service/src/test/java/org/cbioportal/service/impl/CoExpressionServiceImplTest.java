@@ -79,14 +79,10 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("2", coExpression1.getGeneticEntityId());
-        Assert.assertEquals("HUGO2", coExpression1.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression1.getCytoband());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getpValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("3", coExpression2.getGeneticEntityId());
-        Assert.assertEquals("HUGO3", coExpression2.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression2.getCytoband());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getpValue());
     }
@@ -124,14 +120,10 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("2", coExpression1.getGeneticEntityId());
-        Assert.assertEquals("HUGO2", coExpression1.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression1.getCytoband());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression1.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression1.getpValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("3", coExpression2.getGeneticEntityId());
-        Assert.assertEquals("HUGO3", coExpression2.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression2.getCytoband());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression2.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression2.getpValue());
     }
@@ -169,14 +161,10 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("KEGG_DNA_REPLICATION", coExpression1.getGeneticEntityId());
-        Assert.assertEquals("KEGG_DNA_REPLICATION", coExpression1.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression1.getCytoband());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression1.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getpValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("BIOCARTA_ASBCELL_PATHWAY", coExpression2.getGeneticEntityId());
-        Assert.assertEquals("BIOCARTA_ASBCELL_PATHWAY", coExpression2.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression2.getCytoband());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression2.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getpValue());
     }
@@ -217,14 +205,10 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(2, result.size());
         CoExpression coExpression1 = result.get(0);
         Assert.assertEquals("KEGG_DNA_REPLICATION", coExpression1.getGeneticEntityId());
-        Assert.assertEquals("KEGG_DNA_REPLICATION", coExpression1.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression1.getCytoband());
         Assert.assertEquals(new BigDecimal("0.8660254037844386"), coExpression1.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.3333333333333333"), coExpression1.getpValue());
         CoExpression coExpression2 = result.get(1);
         Assert.assertEquals("BIOCARTA_ASBCELL_PATHWAY", coExpression2.getGeneticEntityId());
-        Assert.assertEquals("BIOCARTA_ASBCELL_PATHWAY", coExpression2.getGeneticEntityName());
-        Assert.assertEquals("-", coExpression2.getCytoband());
         Assert.assertEquals(new BigDecimal("0.5"), coExpression2.getSpearmansCorrelation());
         Assert.assertEquals(new BigDecimal("0.6666666666666667"), coExpression2.getpValue());
     }

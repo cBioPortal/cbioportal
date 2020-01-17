@@ -1,8 +1,6 @@
 package org.cbioportal.web;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -47,28 +45,30 @@ public class ExpressionEnrichmentController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch expression enrichments in a molecular profile")
     public ResponseEntity<List<ExpressionEnrichment>> fetchExpressionEnrichments(
+        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
+        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
         @ApiParam("Type of the enrichment e.g. SAMPLE or PATIENT")
         @RequestParam(defaultValue = "SAMPLE") EnrichmentType enrichmentType,
         @ApiParam(required = true, value = "List of groups containing sample and molecular profile identifiers")
         @Valid @RequestBody(required = false) List<MolecularProfileCasesGroupFilter> groups,
         @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
         @Valid @RequestAttribute(required = false, value = "interceptedMolecularProfileCasesGroupFilters") List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters) throws MolecularProfileNotFoundException {
-        
+
         Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet = interceptedMolecularProfileCasesGroupFilters.stream()
                 .collect(Collectors.toMap(MolecularProfileCasesGroupFilter::getName,
                         MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers));
-        
+
         Set<String> molecularProfileIds = groupCaseIdentifierSet
                 .values()
                 .stream()
                 .flatMap(molecularProfileCaseSet -> molecularProfileCaseSet.stream()
                         .map(MolecularProfileCaseIdentifier::getMolecularProfileId))
                 .collect(Collectors.toSet());
-        
+
         if(molecularProfileIds.size()> 1) {
             throw new UnsupportedOperationException("Multi-study expression enrichments is not yet implemented");
         }
-        
+
 
         return new ResponseEntity<>(expressionEnrichmentService.getExpressionEnrichments(molecularProfileIds.iterator().next(), groupCaseIdentifierSet, enrichmentType.name()), HttpStatus.OK);
     }

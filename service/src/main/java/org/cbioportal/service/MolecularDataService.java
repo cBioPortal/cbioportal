@@ -9,27 +9,27 @@ import java.util.List;
 
 public interface MolecularDataService {
 
-    List<GeneMolecularData> getMolecularData(String molecularProfileId, String sampleListId, 
-                                             List<Integer> entrezGeneIds, String projection) 
+    List<GeneMolecularData> getMolecularData(String molecularProfileId, String sampleListId,
+                                             List<Integer> entrezGeneIds, String projection)
         throws MolecularProfileNotFoundException;
 
-    BaseMeta getMetaMolecularData(String molecularProfileId, String sampleListId, List<Integer> entrezGeneIds) 
-        throws MolecularProfileNotFoundException;
-    
-    List<GeneMolecularData> fetchMolecularData(String molecularProfileId, List<String> sampleIds, 
-                                               List<Integer> entrezGeneIds, String projection) 
+    BaseMeta getMetaMolecularData(String molecularProfileId, String sampleListId, List<Integer> entrezGeneIds)
         throws MolecularProfileNotFoundException;
 
-    BaseMeta fetchMetaMolecularData(String molecularProfileId, List<String> sampleIds, List<Integer> entrezGeneIds) 
+    List<GeneMolecularData> fetchMolecularData(String molecularProfileId, List<String> sampleIds,
+                                               List<Integer> entrezGeneIds, String projection)
         throws MolecularProfileNotFoundException;
 
-   Iterable<GeneMolecularAlteration> getMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds, 
+    BaseMeta fetchMetaMolecularData(String molecularProfileId, List<String> sampleIds, List<Integer> entrezGeneIds)
+        throws MolecularProfileNotFoundException;
+
+    Iterable<GeneMolecularAlteration> getMolecularAlterations(String molecularProfileId, List<Integer> entrezGeneIds,
                                                               String projection) throws MolecularProfileNotFoundException;
-    
+
     Integer getNumberOfSamplesInMolecularProfile(String molecularProfileId);
 
-    List<GeneMolecularData> getMolecularDataInMultipleMolecularProfiles(List<String> molecularProfileIds, 
-                                                                        List<String> sampleIds, List<Integer> entrezGeneIds, 
+    List<GeneMolecularData> getMolecularDataInMultipleMolecularProfiles(List<String> molecularProfileIds,
+                                                                        List<String> sampleIds, List<Integer> entrezGeneIds,
                                                                         String projection);
 
 	BaseMeta getMetaMolecularDataInMultipleMolecularProfiles(List<String> molecularProfileIds, List<String> sampleIds,

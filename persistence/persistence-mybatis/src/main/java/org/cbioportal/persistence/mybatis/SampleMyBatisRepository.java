@@ -38,7 +38,7 @@ public class SampleMyBatisRepository implements SampleRepository {
     public List<Sample> getAllSamplesInStudy(String studyId, String projection, Integer pageSize, Integer pageNumber,
                                              String sortBy, String direction) {
 
-        return sampleMapper.getSamples(Arrays.asList(studyId), null, null, null, projection, pageSize, 
+        return sampleMapper.getSamples(Arrays.asList(studyId), null, null, null, projection, pageSize,
                 offsetCalculator.calculate(pageSize, pageNumber), sortBy, direction);
     }
 

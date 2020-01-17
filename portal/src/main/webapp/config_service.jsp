@@ -154,7 +154,9 @@
                 enableOncoKBandHotspots = "\"custom\"";
         }
              
-        obj.put("oncoprintOncoKbHotspotsDefault",enableOncoKBandHotspots);    
+        obj.put("oncoprintOncoKbHotspotsDefault",enableOncoKBandHotspots);
+        
+        obj.put("oncoKbTokenDefined", !StringUtils.isEmpty(GlobalProperties.getOncoKbToken()));
         
         obj.put("sessionServiceEnabled", !StringUtils.isEmpty(GlobalProperties.getSessionServiceUrl()));        
                 

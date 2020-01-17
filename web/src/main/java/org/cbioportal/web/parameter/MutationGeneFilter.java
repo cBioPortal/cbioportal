@@ -7,11 +7,11 @@ public class MutationGeneFilter implements Serializable {
 
     private List<Integer> entrezGeneIds;
 
-	public List<Integer> getEntrezGeneIds() {
-		return entrezGeneIds;
-	}
+    public List<Integer> getEntrezGeneIds() {
+        return entrezGeneIds;
+    }
 
-	public void setEntrezGeneIds(List<Integer> entrezGeneIds) {
-		this.entrezGeneIds = entrezGeneIds;
-	}
+    public void setEntrezGeneIds(List<Integer> entrezGeneIds) {
+        this.entrezGeneIds = entrezGeneIds;
+    }
 }

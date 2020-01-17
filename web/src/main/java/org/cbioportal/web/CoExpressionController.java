@@ -27,7 +27,7 @@ import java.util.List;
 @Validated
 @Api(tags = "Co-Expressions", description = " ")
 public class CoExpressionController {
-    
+
     @Autowired
     private CoExpressionService coExpressionService;
 

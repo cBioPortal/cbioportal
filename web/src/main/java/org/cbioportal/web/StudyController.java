@@ -14,6 +14,7 @@ import org.cbioportal.web.parameter.PagingConstants;
 import org.cbioportal.web.parameter.Projection;
 import org.cbioportal.web.parameter.sort.StudySortBy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
@@ -46,6 +48,33 @@ import java.util.Map;
 @Validated
 @Api(tags = "B. Studies", description = " ")
 public class StudyController {
+    @Value("${authenticate:false}")
+    private String authenticate;
+
+    @Value("${app.name:unknown")
+    private String appName;
+    
+    private boolean usingAuth() {
+        return !authenticate.isEmpty()
+            && !authenticate.equals("false")
+            && !authenticate.contains("social_auth");
+    }
+    
+    // This is a stop-gap solution because this endpoint needs caching
+    // Right now this method has spontaneous performance problems
+    // for the default query. We felt the best stop gap would be
+    // to just manually cache that one response.
+    private static List<CancerStudy> defaultResponse;
+    
+    @PostConstruct
+    private void warmDefaultResponseCache() {
+        if (!usingAuth()) {
+            defaultResponse = studyService.getAllStudies(
+                null, Projection.SUMMARY.name(),
+                10000000, 0,
+                null, Direction.ASC.name());
+        }
+    }
 
     @Autowired
     private StudyService studyService;
@@ -68,6 +97,20 @@ public class StudyController {
         @RequestParam(required = false) StudySortBy sortBy,
         @ApiParam("Direction of the sort")
         @RequestParam(defaultValue = "ASC") Direction direction) {
+        
+        // Only use this feature on the public portal and make sure it is never used
+        // on portals using auth, as in auth setting, different users will have different
+        // results.
+        if (!usingAuth()
+                && appName.equals("public-portal")
+                && keyword == null
+                && projection == Projection.SUMMARY
+                && pageSize == 10000000
+                && pageNumber == 0
+                && sortBy == null
+                && direction == Direction.ASC) {
+            return new ResponseEntity<>(defaultResponse, HttpStatus.OK);
+        }
 
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -93,7 +136,7 @@ public class StudyController {
     }
 
     @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/studies/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, 
+    @RequestMapping(value = "/studies/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Fetch studies by IDs")
     public ResponseEntity<List<CancerStudy>> fetchStudies(
@@ -112,7 +155,7 @@ public class StudyController {
             return new ResponseEntity<>(
                 studyService.fetchStudies(studyIds, projection.name()), HttpStatus.OK);
         }
-    
+
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
@@ -123,14 +166,14 @@ public class StudyController {
         @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
         @PathVariable String studyId) throws JsonParseException, JsonMappingException,
         IOException {
-        
-    	Map<String,Object> map = new HashMap<String,Object>();
+
+        Map<String,Object> map = new HashMap<String,Object>();
         ObjectMapper mapper = new ObjectMapper();
         CancerStudyTags cancerStudyTags = studyService.getTags(studyId);
         if (cancerStudyTags != null) { //If tags is null an empty map is returned
-    		map = mapper.readValue(cancerStudyTags.getTags(), Map.class);
+            map = mapper.readValue(cancerStudyTags.getTags(), Map.class);
         }
-        
+
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
@@ -141,9 +184,9 @@ public class StudyController {
     public ResponseEntity<List<CancerStudyTags>> getTagsForMultipleStudies(
         @ApiParam(required = true, value = "List of Study IDs")
         @RequestBody List<String> studyIds) {
-        
+
         List<CancerStudyTags> cancerStudyTags = studyService.getTagsForMultipleStudies(studyIds);
-        
+
         return new ResponseEntity<>(cancerStudyTags, HttpStatus.OK);
     }
 }

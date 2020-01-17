@@ -249,18 +249,18 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
     }
 
     @Test
-    public void getPatientCountByGeneAndAlterationAndPatientIds() throws Exception {
+    public void getPatientCountInMultipleMolecularProfiles() throws Exception {
         
         List<CopyNumberCountByGene> expectedCopyNumberSampleCountByGeneList = new ArrayList<>();
         expectedCopyNumberSampleCountByGeneList.add(new CopyNumberCountByGene());
 
-        Mockito.when(discreteCopyNumberRepository.getPatientCountByGeneAndAlterationAndPatientIds(MOLECULAR_PROFILE_ID, 
+        Mockito.when(discreteCopyNumberRepository.getPatientCountInMultipleMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID), 
             null, Arrays.asList(ENTREZ_GENE_ID_1), Arrays.asList(-2)))
             .thenReturn(expectedCopyNumberSampleCountByGeneList);
         
         List<CopyNumberCountByGene> result = discreteCopyNumberService
-            .getPatientCountByGeneAndAlterationAndPatientIds(MOLECULAR_PROFILE_ID, null, Arrays.asList(ENTREZ_GENE_ID_1), 
-                Arrays.asList(-2));
+            .getPatientCountInMultipleMolecularProfiles(Arrays.asList(MOLECULAR_PROFILE_ID), null, Arrays.asList(ENTREZ_GENE_ID_1), 
+                Arrays.asList(-2), false);
         
         Assert.assertEquals(expectedCopyNumberSampleCountByGeneList, result);
     }

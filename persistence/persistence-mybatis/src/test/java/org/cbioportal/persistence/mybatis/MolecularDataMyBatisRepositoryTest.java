@@ -19,10 +19,10 @@ import java.util.List;
 @ContextConfiguration("/testContextDatabase.xml")
 @Configurable
 public class MolecularDataMyBatisRepositoryTest {
-    
+
     @Autowired
     private MolecularDataMyBatisRepository molecularDataMyBatisRepository;
-    
+
     @Test
     public void getCommaSeparatedSampleIdsOfMolecularProfile() throws Exception {
 
@@ -44,26 +44,48 @@ public class MolecularDataMyBatisRepositoryTest {
     }
 
     @Test
-    @Transactional(readOnly=true)
     public void getGeneMolecularAlterations() throws Exception {
 
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(207);
         entrezGeneIds.add(208);
-        
+
         List<GeneMolecularAlteration> result = molecularDataMyBatisRepository.getGeneMolecularAlterations("study_tcga_pub_gistic",
             entrezGeneIds, "SUMMARY");
-        
+
+        getGeneMolecularAlterationsCommonTest(result);
+    }
+
+    @Test
+    @Transactional(readOnly=true)
+    public void getGeneMolecularAlterationsIterable() throws Exception {
+
+        List<Integer> entrezGeneIds = new ArrayList<>();
+        entrezGeneIds.add(207);
+        entrezGeneIds.add(208);
+
+        List<GeneMolecularAlteration> result = new ArrayList<>();
+        Iterable<GeneMolecularAlteration> gmaItr = molecularDataMyBatisRepository.getGeneMolecularAlterationsIterable("study_tcga_pub_gistic",
+                                                                                                                      entrezGeneIds, "SUMMARY");
+        for (GeneMolecularAlteration gma : gmaItr) {
+            result.add(gma);
+        }
+
+        getGeneMolecularAlterationsCommonTest(result);
+    }
+
+    private void getGeneMolecularAlterationsCommonTest(List<GeneMolecularAlteration> result) {
+
         Assert.assertEquals(2, result.size());
         GeneMolecularAlteration molecularAlteration1 = result.get(0);
         Assert.assertEquals((Integer) 207, molecularAlteration1.getEntrezGeneId());
         String[] expected = {"-0.4674","-0.6270","-1.2266","-1.2479","-1.2262","0.6962","-0.3338","-0.1264","0.7559","-1.1267","-0.5893",
-        "-1.1546","-1.0027","-1.3157",""};
+                             "-1.1546","-1.0027","-1.3157",""};
         Assert.assertArrayEquals(expected, molecularAlteration1.getSplitValues());
         GeneMolecularAlteration molecularAlteration2 = result.get(1);
         Assert.assertEquals((Integer) 208, molecularAlteration2.getEntrezGeneId());
         String[] expected2 = {"1.4146","-0.0662","-0.8585","-1.6576","-0.3552","-0.8306","0.8102","0.1146","0.3498","0.0349","0.4927",
-                "-0.8665","-0.4754","-0.7221",""};
+                              "-0.8665","-0.4754","-0.7221",""};
         Assert.assertArrayEquals(expected2, molecularAlteration2.getSplitValues());
     }
 
@@ -73,11 +95,11 @@ public class MolecularDataMyBatisRepositoryTest {
         List<Integer> entrezGeneIds = new ArrayList<>();
         entrezGeneIds.add(207);
         entrezGeneIds.add(208);
-        
+
         List<GeneMolecularAlteration> result = molecularDataMyBatisRepository
             .getGeneMolecularAlterationsInMultipleMolecularProfiles(Arrays.asList("study_tcga_pub_gistic", "study_tcga_pub_mrna"),
             entrezGeneIds, "SUMMARY");
-        
+
         Assert.assertEquals(3, result.size());
         GeneMolecularAlteration molecularAlteration1 = result.get(0);
         Assert.assertEquals((Integer) 207, molecularAlteration1.getEntrezGeneId());

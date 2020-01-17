@@ -35,9 +35,7 @@
         <groupId>org.mskcc.cbio</groupId>
         <artifactId>service</artifactId>
         <version>${project.version}</version>
-        <scope>test</scope>
     </dependency>
-
     <!-- antisamy -->
     <dependency>
       <groupId>org.owasp</groupId>
@@ -133,7 +131,7 @@
     <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>2.9.7</version>
+        <version>2.9.10.1</version>
     </dependency>
 
     <dependency>
@@ -239,6 +237,12 @@
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-codec</artifactId>
       <version>1.7</version>
+      <exclusions>
+        <exclusion>
+          <groupId>xalan</groupId>
+          <artifactId>xalan</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
@@ -284,6 +288,11 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.mskcc.cbio</groupId>
+      <artifactId>web</artifactId>
+      <version>${project.version}</version>
+   </dependency>
   </dependencies>
 
   <build>

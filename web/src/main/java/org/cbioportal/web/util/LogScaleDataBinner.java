@@ -5,12 +5,13 @@ import org.cbioportal.model.DataBin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class LogScaleDataBinner 
-{
+public class LogScaleDataBinner {
     private DataBinHelper dataBinHelper;
 
     @Autowired
@@ -19,52 +20,47 @@ public class LogScaleDataBinner
     }
 
     public List<DataBin> calculateDataBins(String attributeId,
-                                           Range<Double> boxRange,
-                                           List<Double> values,
-                                           Double lowerOutlier,
-                                           Double upperOutlier)
-    {
-        List<Double> intervals = new ArrayList<>();
-        double start = 0;
-        
-        if (boxRange.lowerEndpoint() != 0) {
-            double absLogValue = Math.log10(Math.abs(boxRange.lowerEndpoint()));
-            start = boxRange.lowerEndpoint() < 0 ? -Math.ceil(absLogValue) : Math.floor(absLogValue);
+                                           Range<BigDecimal> boxRange,
+                                           List<BigDecimal> values,
+                                           BigDecimal lowerOutlier,
+                                           BigDecimal upperOutlier) {
+        List<BigDecimal> intervals = new ArrayList<>();
+        BigDecimal start = new BigDecimal("0");
+
+        if (boxRange.lowerEndpoint().compareTo(new BigDecimal("0")) != 0) {
+            double absLogValue = Math.log10(boxRange.lowerEndpoint().abs().doubleValue());
+            start = BigDecimal.valueOf(boxRange.lowerEndpoint().compareTo(new BigDecimal("0")) == -1 ? -Math.ceil(absLogValue) : Math.floor(absLogValue));
         }
-        
+
         if (lowerOutlier != null) {
             intervals.add(lowerOutlier);
         }
-        
-        for (double exponent = start; ; exponent += 0.5)
-        {
-            Double value = calcIntervalValue(exponent);
-            
-            if ((lowerOutlier == null || value > lowerOutlier) && 
-                (upperOutlier == null || value <= upperOutlier)) {
+
+        for (BigDecimal exponent = start; ; exponent=exponent.add(new BigDecimal("0.5"))) {
+            BigDecimal value = calcIntervalValue(exponent);
+
+            if ((lowerOutlier == null || value.compareTo(lowerOutlier) == 1) &&
+                (upperOutlier == null || value.compareTo(upperOutlier) != 1)) {
                 intervals.add(value);
             }
 
-            if (value > boxRange.upperEndpoint())
-            {
-                value = calcIntervalValue(exponent + 0.5);
-                
-                if (upperOutlier == null || value <= upperOutlier) {
+            if (value.compareTo(boxRange.upperEndpoint()) == 1) {
+                value = calcIntervalValue(exponent.add(new BigDecimal("0.5")));
+
+                if (upperOutlier == null || value.compareTo(upperOutlier) != 1) {
                     intervals.add(value);
-                }
-                else {
+                } else {
                     intervals.add(upperOutlier);
                 }
-                
+
                 break;
             }
         }
-        
+
         return dataBinHelper.initDataBins(attributeId, values, intervals);
     }
-    
-    public Double calcIntervalValue(Double exponent)
-    {
-        return Math.signum(exponent) * Math.floor(Math.pow(10, Math.abs(exponent)));
+
+    public BigDecimal calcIntervalValue(BigDecimal exponent) {
+        return BigDecimal.valueOf(exponent.signum() * Math.floor(Math.pow(10, exponent.abs().doubleValue())));
     }
 }

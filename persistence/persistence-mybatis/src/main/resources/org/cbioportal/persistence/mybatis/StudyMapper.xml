@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.StudyMapper">
-    <cache readOnly="true"/>
+    
 
     <sql id="select">
         cancer_study.CANCER_STUDY_ID AS "${prefix}cancerStudyId",
@@ -18,7 +18,8 @@
             cancer_study.CITATION AS "${prefix}citation",
             cancer_study.GROUPS AS "${prefix}groups",
             cancer_study.STATUS AS "${prefix}status",
-            cancer_study.IMPORT_DATE AS "${prefix}importDate"
+            cancer_study.IMPORT_DATE AS "${prefix}importDate",
+            reference_genome.NAME AS "${prefix}referenceGenome"
         </if>
     </sql>
 
@@ -42,6 +43,7 @@
         FROM cancer_study
         INNER JOIN sample_list ON cancer_study.CANCER_STUDY_ID = sample_list.CANCER_STUDY_ID
         INNER JOIN sample_list_list ON sample_list.LIST_ID = sample_list_list.LIST_ID
+        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         <if test="projection == 'DETAILED' or keyword != null">
             INNER JOIN type_of_cancer ON cancer_study.TYPE_OF_CANCER_ID = type_of_cancer.TYPE_OF_CANCER_ID
         </if>

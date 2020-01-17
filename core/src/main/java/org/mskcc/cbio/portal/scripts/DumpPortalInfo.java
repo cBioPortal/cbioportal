@@ -23,16 +23,20 @@
 package org.mskcc.cbio.portal.scripts;
 
 import java.util.List;
+import java.util.Arrays;
 import java.io.Serializable;
 import java.io.File;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.cbioportal.web.config.CustomObjectMapper;
 
 import org.mskcc.cbio.portal.util.SpringUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.service.ApiService;
+import org.cbioportal.service.GenesetService;
+import org.cbioportal.service.GenePanelService;
 
 /**
  * Command line tool to generate JSON files used by the validation script.
@@ -44,8 +48,11 @@ public class DumpPortalInfo extends ConsoleRunnable {
     private static final String API_CANCER_TYPES = "/cancertypes";
     private static final String API_GENES = "/genes";
     private static final String API_GENE_ALIASES = "/genesaliases";
-
-    public ApiService apiService;
+    private static final String API_GENESETS = "/genesets";
+    private static final String API_GENESET_VERSION = "/genesets/version";
+    private static final String API_GENE_PANELS = "/gene-panels";
+    private static final int MAX_PAGE_SIZE = 10000000;
+    private static final int MIN_PAGE_NUMBER = 0;
 
     private static File nameJsonFile(File dirName, String apiName) {
         // Determine the first alphabetic character
@@ -62,7 +69,7 @@ public class DumpPortalInfo extends ConsoleRunnable {
     private static void writeJsonFile(
             List<? extends Serializable> objectList,
             File outputFile) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = new CustomObjectMapper();
             try {
                 mapper.writeValue(outputFile, objectList);
             } catch (JsonProcessingException e) {
@@ -98,6 +105,10 @@ public class DumpPortalInfo extends ConsoleRunnable {
             SpringUtil.initDataSource();
             ApiService apiService = SpringUtil.getApplicationContext().getBean(
                     ApiService.class);
+            GenesetService genesetService = SpringUtil.getApplicationContext().getBean(
+                GenesetService.class);
+            GenePanelService genePanelService = SpringUtil.getApplicationContext().getBean(
+                GenePanelService.class);
 
             File outputDir = new File(outputDirName);
             // this will do nothing if the directory already exists:
@@ -119,6 +130,15 @@ public class DumpPortalInfo extends ConsoleRunnable {
                 writeJsonFile(
                         apiService.getGenesAliases(),
                         nameJsonFile(outputDir, API_GENE_ALIASES));
+                writeJsonFile(
+                    genesetService.getAllGenesets("SUMMARY", MAX_PAGE_SIZE, MIN_PAGE_NUMBER),
+                    nameJsonFile(outputDir, API_GENESETS));
+                writeJsonFile(
+                    Arrays.asList(genesetService.getGenesetVersion()),
+                    nameJsonFile(outputDir, API_GENESET_VERSION));
+                writeJsonFile(
+                    genePanelService.getAllGenePanels("SUMMARY", MAX_PAGE_SIZE, MIN_PAGE_NUMBER, null, "ASC"),
+                    nameJsonFile(outputDir, API_GENE_PANELS));
             } catch (IOException e) {
                 throw new IOException(
                         "Error writing portal info file: " + e.toString(),

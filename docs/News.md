@@ -1,10 +1,95 @@
+## Dec 19, 2019
+* **Enhancement**: We restored support for submitting large queries from external applications using HTTP POST requests.  Accepted parameters are the same
+as appear in the url of a query submitted from the homepage.
+
+* See more updates [here](https://github.com/cBioPortal/cbioportal/releases/tag/v3.1.8)
+
+## Dec 12, 2019
+* **Enhancement**: Several enhancements to the display of gene panels on the _Patient View_ page, by [The Hyve](https://www.thehyve.nl/), described in more detail [here](https://blog.thehyve.nl/blog/gene-panels-patient-view)
+
+    ![image](https://blog.thehyve.nl/hubfs/gene-panels-patient-view-cbioportal.png)    
+* **Enhancement**: Add Count Bubbles to Oncoprint Toolbar
+
+    ![Screenshot from 2019-12-06 11-36-21](https://user-images.githubusercontent.com/20069833/70339336-aa16e700-181c-11ea-94ac-c4acff272e4f.png)
+* See more updates [here](https://github.com/cBioPortal/cbioportal/releases/tag/v3.1.7)
+
+## Nov 29, 2019
+* **Enhancement**: Support group comparison for custom charts in _Study View_ page
+* **Enhancement**: Performance improvement of Co-Expression analysis.
+* **Enhancement**: Kaplan-Meier plots now supports custom time range.
+* See more updates [here](https://github.com/cBioPortal/cbioportal/releases/tag/v3.1.6)
+
+<img src="https://user-images.githubusercontent.com/840895/69887458-02963380-12b5-11ea-8151-4d531db0fcc5.png" width="500">
+
+## Nov 22, 2019
+
+* **New Feature**: Support for Treatment response data in the Oncoprint and Plots tab, including new *Waterfall* plot type. Read more in [The Hyve's blog post](https://blog.thehyve.nl/blog/using-treatment-response-data-to-find-targeted-therapies-in-cbioportal)
+
+![image](https://blog.thehyve.nl/hubfs/Waterfall%20plots%20cbioportal.png)
+
+## Nov 15, 2019
+* **Enhancement**: heatmap tracks in OncoPrint now has separate headers and sub-menus. [example](https://www.cbioportal.org/results/oncoprint?Action=Submit&RPPA_SCORE_THRESHOLD=2.0&Z_SCORE_THRESHOLD=2.0&cancer_study_list=brca_tcga&case_set_id=brca_tcga_protein_quantification&clinicallist=PROFILED_IN_brca_tcga_mutations&data_priority=0&gene_list=ESR1%2520PGR%2520ERBB2&geneset_list=%20&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=brca_tcga_gistic&genetic_profile_ids_PROFILE_MRNA_EXPRESSION=brca_tcga_mrna_median_Zscores&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=brca_tcga_mutations&genetic_profile_ids_PROFILE_PROTEIN_EXPRESSION=brca_tcga_rppa_Zscores&heatmap_track_groups=brca_tcga_rna_seq_v2_mrna_median_Zscores%2CESR1%2CPGR%2CERBB2%3Bbrca_tcga_protein_quantification_zscores%2CESR1%2CPGR%2CERBB2&tab_index=tab_visualize)
+
+![image](https://user-images.githubusercontent.com/840895/69502724-7fee2c80-0ee0-11ea-81b7-2ada01fc99a2.png)
+
+* **Enhancement**: global settings for query session
+
+<img src="https://user-images.githubusercontent.com/840895/69502843-b6787700-0ee1-11ea-927b-049635a5a8ac.png" width="300">
+
+
+## Nov 7, 2019
+
+*   **Added data** consisting of 212 samples from 3 studies:
+     * [Metastatic Melanoma (DFCI, Science 2015)](https://www.cbioportal.org/study/summary?id=skcm_dfci_2015) *110 samples* 
+     * [Melanoma (MSKCC, NEJM 2014)](https://www.cbioportal.org/study/summary?id=skcm_mskcc_2014) *64 samples* 
+     * [Metastatic Melanoma (UCLA, Cell 2016)](https://www.cbioportal.org/study/summary?id=mel_ucla_2016) *38 samples* 
+     
+## Oct 30, 2019
+
+*   **Added data** consisting of 178 samples from 2 studies:
+     * [Intrahepatic Cholangiocarcinoma (Shanghai, Nat Commun 2014)](https://www.cbioportal.org/study/summary?id=ihch_smmu_2014) *103 samples* 
+     * [Non-Small Cell Lung Cancer (MSK, Cancer Cell 2018)](https://www.cbioportal.org/study/summary?id=nsclc_mskcc_2018) *75 samples* 
+
+## October 23, 2019
+* **Enhancement**: Quick example links in Plots tab. [example](https://www.cbioportal.org/results/plots?session_id=5ba11ce6498eb8b3d567e7ed)
+
+## October 14, 2019
+
+* **New Feature**: Fusion Genes table in `Study View`. [example](https://www.cbioportal.org/study/summary?id=msk_impact_2017)
+
+![image](https://user-images.githubusercontent.com/840895/68320157-6ef28e00-008d-11ea-8cb3-e4b54aa1d848.png)
+
+## October 11, 2019
+* **Enhancement**: The Download interface on the homepage has been removed. Enhanced download functionality is now available after querying on the results page.
+
+    _Home page_:
+    
+    ![homepage download tab removed](https://user-images.githubusercontent.com/1334004/66735303-48627e00-ee66-11e9-863f-5ec713ea444a.png)
+    
+    _Results page_:
+    
+    ![results page download tab](https://user-images.githubusercontent.com/1334004/66736057-7ea0fd00-ee68-11e9-942b-e123b9659126.png)
+    
+    Note that as before one can always download the full raw data on the [Data Sets page](https://www.cbioportal.org/datasets) or from [Datahub](https://github.com/cBioPortal/datahub/).
+ 
+## October 9, 2019
+*  **Added data** consisting of  2725 samples from 4 studies:
+   
+     * [Cancer Cell Line Encyclopedia (Broad, 2019)](https://www.cbioportal.org/study/summary?id=ccle_broad_2019) *1739 samples*
+    * [Chronic Lymphocytic Leukemia (Broad, Nature 2015)](https://www.cbioportal.org/study/summary?id=cll_broad_2015#summary) *537 samples* 
+    * [Rectal Cancer (MSK,Nature Medicine 2019)](https://www.cbioportal.org/study/summary?id=rectal_msk_2019) *339 samples* 
+    * [Colon Cancer (CPTAC-2 Prospective, Cell 2019)](https://www.cbioportal.org/study/summary?id=coad_cptac_2019) *110 samples*
+
+  *  **Updated**  [Esophageal Carcinoma (TCGA, Nature 2017)](https://www.cbioportal.org/study/summary?id=stes_tcga_pub#summary) with addition of CNA data for Esophageal Squamous Cell Carcinoma cases *90 samples*. 
+
+## September 18, 2019
+* **New Feature**: The list and order of charts of a study will be automatically saved now as a user preference on the _study view_ page.
+
 ## September 6, 2019
 *   **Added data** consisting of 1216 samples from 3 studies:
     * [Breast Cancer (MSKCC, 2019)](https://www.cbioportal.org/study/summary?id=brca_mskcc_2019) *70 samples* 
     * [Brain Tumor PDXs (Mayo Clinic, 2019)](https://www.cbioportal.org/study/summary?id=gbm_mayo_pdx_sarkaria_2019)*97 samples*
     * [Adenoid Cystic Carcinoma Project (2019)](https://www.cbioportal.org/study/summary?id=acc_2019) *1049 samples* 
-     
-
 
 ## August 13, 2019
 *   **Added data** consisting of 295 samples from 3 studies:

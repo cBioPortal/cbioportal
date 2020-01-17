@@ -2,6 +2,8 @@ package org.cbioportal.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 public class ExpressionEnrichment implements Serializable {
@@ -12,16 +14,10 @@ public class ExpressionEnrichment implements Serializable {
     private String hugoGeneSymbol;
     private String cytoband;
     @NotNull
-    private BigDecimal meanExpressionInAlteredGroup;
-    @NotNull
-    private BigDecimal meanExpressionInUnalteredGroup;
-    @NotNull
-    private BigDecimal standardDeviationInAlteredGroup;
-    @NotNull
-    private BigDecimal standardDeviationInUnalteredGroup;
+    private List<GroupStatistics> groupsStatistics;
     @NotNull
     private BigDecimal pValue;
-    
+
     public Integer getEntrezGeneId() {
         return entrezGeneId;
     }
@@ -46,36 +42,12 @@ public class ExpressionEnrichment implements Serializable {
         this.cytoband = cytoband;
     }
 
-    public BigDecimal getMeanExpressionInAlteredGroup() {
-        return meanExpressionInAlteredGroup;
+    public List<GroupStatistics> getGroupsStatistics() {
+        return groupsStatistics;
     }
 
-    public void setMeanExpressionInAlteredGroup(BigDecimal meanExpressionInAlteredGroup) {
-        this.meanExpressionInAlteredGroup = meanExpressionInAlteredGroup;
-    }
-
-    public BigDecimal getMeanExpressionInUnalteredGroup() {
-        return meanExpressionInUnalteredGroup;
-    }
-
-    public void setMeanExpressionInUnalteredGroup(BigDecimal meanExpressionInUnalteredGroup) {
-        this.meanExpressionInUnalteredGroup = meanExpressionInUnalteredGroup;
-    }
-
-    public BigDecimal getStandardDeviationInAlteredGroup() {
-        return standardDeviationInAlteredGroup;
-    }
-
-    public void setStandardDeviationInAlteredGroup(BigDecimal standardDeviationInAlteredGroup) {
-        this.standardDeviationInAlteredGroup = standardDeviationInAlteredGroup;
-    }
-
-    public BigDecimal getStandardDeviationInUnalteredGroup() {
-        return standardDeviationInUnalteredGroup;
-    }
-
-    public void setStandardDeviationInUnalteredGroup(BigDecimal standardDeviationInUnalteredGroup) {
-        this.standardDeviationInUnalteredGroup = standardDeviationInUnalteredGroup;
+    public void setGroupsStatistics(List<GroupStatistics> groupsStatistics) {
+        this.groupsStatistics = groupsStatistics;
     }
 
     public BigDecimal getpValue() {

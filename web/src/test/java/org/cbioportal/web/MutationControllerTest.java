@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.Mutation;
 import org.cbioportal.model.MutationCountByPosition;
+import org.cbioportal.model.ReferenceGenomeGene;
 import org.cbioportal.model.meta.MutationMeta;
 import org.cbioportal.service.MutationService;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
@@ -71,7 +72,6 @@ public class MutationControllerTest {
     private static final String TEST_HUGO_GENE_SYMBOL_1 = "test_hugo_gene_symbol_1";
     private static final String TEST_TYPE_1 = "test_type_1";
     private static final String TEST_CYTOBAND_1 = "test_cytoband_1";
-    private static final int TEST_LENGTH_1 = 100;
     private static final String TEST_CHROMOSOME_1 = "test_chromosome_1";
     private static final int TEST_MOLECULAR_PROFILE_ID_2 = 2;
     private static final String TEST_MOLECULAR_PROFILE_STABLE_ID_2 = "test_molecular_profile_stable_id_2";
@@ -106,7 +106,6 @@ public class MutationControllerTest {
     private static final String TEST_HUGO_GENE_SYMBOL_2 = "test_hugo_gene_symbol_2";
     private static final String TEST_TYPE_2 = "test_type_2";
     private static final String TEST_CYTOBAND_2 = "test_cytoband_2";
-    private static final int TEST_LENGTH_2 = 200;
     private static final String TEST_CHROMOSOME_2 = "test_chromosome_2";
     private static final int TEST_MUTATION_COUNT_1 = 100;
     private static final int TEST_MUTATION_COUNT_2 = 200;
@@ -146,9 +145,9 @@ public class MutationControllerTest {
     public void getMutationsInMolecularProfileBySampleListIdDefaultProjection() throws Exception {
 
         List<Mutation> mutationList = createExampleMutations();
-        
-        Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(Mockito.anyString(), 
-            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyString(), 
+
+        Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(Mockito.anyString(),
+            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyString(),
             Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/mutations")
@@ -234,8 +233,8 @@ public class MutationControllerTest {
 
         List<Mutation> mutationList = createExampleMutationsWithGene();
 
-        Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(Mockito.anyString(), 
-            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyString(), 
+        Mockito.when(mutationService.getMutationsInMolecularProfileBySampleListId(Mockito.anyString(),
+            Mockito.anyString(), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), Mockito.anyString(),
             Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(mutationList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/mutations")
@@ -282,9 +281,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.type").value(TEST_TYPE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.cytoband").value(TEST_CYTOBAND_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.length").value(TEST_LENGTH_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.chromosome").value(TEST_CHROMOSOME_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
@@ -320,10 +316,7 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].keyword").value(TEST_KEYWORD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.cytoband").value(TEST_CYTOBAND_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.length").value(TEST_LENGTH_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.chromosome").value(TEST_CHROMOSOME_2));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2));
     }
 
     @Test
@@ -333,7 +326,7 @@ public class MutationControllerTest {
         mutationMeta.setTotalCount(2);
         mutationMeta.setSampleCount(3);
 
-        Mockito.when(mutationService.getMetaMutationsInMolecularProfileBySampleListId(Mockito.anyString(), 
+        Mockito.when(mutationService.getMetaMutationsInMolecularProfileBySampleListId(Mockito.anyString(),
             Mockito.anyString(), Mockito.anyListOf(Integer.class))).thenReturn(mutationMeta);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/molecular-profiles/test_molecular_profile_id/mutations")
@@ -449,11 +442,11 @@ public class MutationControllerTest {
 
         List<Mutation> mutationList = createExampleMutations();
 
-        Mockito.when(mutationService.fetchMutationsInMolecularProfile(Mockito.anyString(), 
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), 
+        Mockito.when(mutationService.fetchMutationsInMolecularProfile(Mockito.anyString(),
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(),
             Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
             .thenReturn(mutationList);
-        
+
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
         sampleIds.add(TEST_SAMPLE_STABLE_ID_2);
@@ -545,7 +538,7 @@ public class MutationControllerTest {
         List<Mutation> mutationList = createExampleMutationsWithGene();
 
         Mockito.when(mutationService.fetchMutationsInMolecularProfile(Mockito.anyString(),
-            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(), 
+            Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class), Mockito.anyBoolean(),
             Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
             .thenReturn(mutationList);
 
@@ -600,9 +593,6 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.type").value(TEST_TYPE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.cytoband").value(TEST_CYTOBAND_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.length").value(TEST_LENGTH_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene.chromosome").value(TEST_CHROMOSOME_1))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
@@ -639,10 +629,7 @@ public class MutationControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].keyword").value(TEST_KEYWORD_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.cytoband").value(TEST_CYTOBAND_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.length").value(TEST_LENGTH_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.chromosome").value(TEST_CHROMOSOME_2));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2));
     }
 
     @Test
@@ -652,7 +639,7 @@ public class MutationControllerTest {
         mutationMeta.setTotalCount(2);
         mutationMeta.setSampleCount(3);
 
-        Mockito.when(mutationService.fetchMetaMutationsInMolecularProfile(Mockito.anyString(), 
+        Mockito.when(mutationService.fetchMetaMutationsInMolecularProfile(Mockito.anyString(),
             Mockito.anyListOf(String.class), Mockito.anyListOf(Integer.class))).thenReturn(mutationMeta);
 
         List<String> sampleIds = new ArrayList<>();
@@ -687,7 +674,7 @@ public class MutationControllerTest {
         mutationCountByPosition2.setCount(TEST_MUTATION_COUNT_2);
         mutationCountByPositionList.add(mutationCountByPosition2);
 
-        Mockito.when(mutationService.fetchMutationCountsByPosition(Mockito.anyListOf(Integer.class), 
+        Mockito.when(mutationService.fetchMutationCountsByPosition(Mockito.anyListOf(Integer.class),
             Mockito.anyListOf(Integer.class), Mockito.anyListOf(Integer.class)))
             .thenReturn(mutationCountByPositionList);
 
@@ -791,7 +778,7 @@ public class MutationControllerTest {
         mutation2.setOncotatorProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_2);
         mutation2.setKeyword(TEST_KEYWORD_2);
         mutationList.add(mutation2);
-        
+
         return mutationList;
     }
 
@@ -802,19 +789,13 @@ public class MutationControllerTest {
         gene1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
         gene1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
         gene1.setType(TEST_TYPE_1);
-        gene1.setCytoband(TEST_CYTOBAND_1);
-        gene1.setLength(TEST_LENGTH_1);
-        gene1.setChromosome(TEST_CHROMOSOME_1);
         mutationList.get(0).setGene(gene1);
         Gene gene2 = new Gene();
         gene2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
         gene2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
         gene2.setType(TEST_TYPE_2);
-        gene2.setCytoband(TEST_CYTOBAND_2);
-        gene2.setLength(TEST_LENGTH_2);
-        gene2.setChromosome(TEST_CHROMOSOME_2);
         mutationList.get(1).setGene(gene2);
-        
+
         return mutationList;
     }
 }

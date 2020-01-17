@@ -1,26 +1,27 @@
 package org.cbioportal.web.parameter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
-public class ClinicalDataIntervalFilterValue implements Serializable
-{
-    private Double start;
-    private Double end;
+public class ClinicalDataIntervalFilterValue implements Serializable {
+
+    private BigDecimal start;
+    private BigDecimal end;
     private String value;
-    
-    public Double getStart() {
+
+    public BigDecimal getStart() {
         return start;
     }
 
-    public void setStart(Double start) {
+    public void setStart(BigDecimal start) {
         this.start = start;
     }
 
-    public Double getEnd() {
+    public BigDecimal getEnd() {
         return end;
     }
 
-    public void setEnd(Double end) {
+    public void setEnd(BigDecimal end) {
         this.end = end;
     }
 

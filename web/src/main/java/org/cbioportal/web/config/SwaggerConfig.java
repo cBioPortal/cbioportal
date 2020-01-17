@@ -30,7 +30,6 @@ public class SwaggerConfig {
             .apis(RequestHandlerSelectors.withClassAnnotation(PublicApi.class))
             .build()
             .useDefaultResponseMessages(false)
-            .protocols(new HashSet<>(Arrays.asList("http", "https")))
             .apiInfo(apiInfo());
     }
 
@@ -41,7 +40,6 @@ public class SwaggerConfig {
             .apis(RequestHandlerSelectors.withClassAnnotation(InternalApi.class))
             .build()
             .useDefaultResponseMessages(false)
-            .protocols(new HashSet<>(Arrays.asList("http", "https")))
             .apiInfo(apiInfo());
     }
 

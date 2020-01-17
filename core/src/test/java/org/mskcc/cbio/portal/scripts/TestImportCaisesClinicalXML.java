@@ -69,6 +69,7 @@ public class TestImportCaisesClinicalXML {
         DaoTypeOfCancer.addTypeOfCancer(typeOfCancer);
 
         CancerStudy cancerStudy = new CancerStudy("prad","prad","prad","prad",true);
+        cancerStudy.setReferenceGenome("hg19");
         DaoCancerStudy.addCancerStudy(cancerStudy);
         
         int studyId = DaoCancerStudy.getCancerStudyByStableId("prad").getInternalId();

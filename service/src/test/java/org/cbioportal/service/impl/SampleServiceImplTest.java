@@ -21,6 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SampleServiceImplTest extends BaseServiceImplTest {
@@ -38,6 +39,42 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     private SampleListRepository sampleListRepository;
     @Mock
     private CopyNumberSegmentRepository copyNumberSegmentRepository;
+    
+    private Sample createSample(String id) {
+        Sample sample = new Sample();
+        sample.setStableId(id);
+        return sample;
+    }
+    
+    @Test
+    public void getAllSamples() {
+        List<Sample> samples = Arrays.asList(
+            createSample(SAMPLE_ID1), createSample(SAMPLE_ID2),
+            createSample(SAMPLE_ID3), createSample(SAMPLE_ID4)
+        );
+        Mockito
+            .when(sampleRepository.getAllSamples("sample_id", null, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+            .thenReturn(samples);
+
+        List<Sample> result = sampleService.getAllSamples("sample_id", null, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+        List<String> actual = result.stream().map(Sample::getStableId).collect(Collectors.toList());
+        List<String> expected = Arrays.asList(SAMPLE_ID1, SAMPLE_ID2, SAMPLE_ID3, SAMPLE_ID4);
+        
+        Assert.assertEquals(expected, actual);
+    }
+    
+    @Test
+    public void getAllMetaSamples() {
+        BaseMeta baseMeta = new BaseMeta();
+        baseMeta.setTotalCount(4);
+        Mockito.when(sampleRepository.getMetaSamples("sample_id", null)).thenReturn(baseMeta);
+
+        BaseMeta result = sampleService.getMetaSamples("sample_id", null);
+        Integer actual = result.getTotalCount();
+        Integer expected = 4;
+
+        Assert.assertEquals(expected, actual);
+    }
 
     @Test
     public void getAllSamplesInStudy() throws Exception {

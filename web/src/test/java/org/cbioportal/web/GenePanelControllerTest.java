@@ -8,7 +8,6 @@ import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.GenePanelService;
 import org.cbioportal.service.exception.GenePanelNotFoundException;
 import org.cbioportal.web.parameter.GenePanelDataFilter;
-import org.cbioportal.web.parameter.GenePanelMultipleStudyFilter;
 import org.cbioportal.web.parameter.HeaderKeyConstants;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
 import org.hamcrest.Matchers;
@@ -62,7 +61,7 @@ public class GenePanelControllerTest {
     private static final int TEST_ENTREZ_GENE_ID_4 = 400;
     private static final String TEST_HUGO_GENE_SYMBOL_4 = "test_hugo_gene_symbol_4";
     private static final String TEST_SAMPLE_LIST_ID = "test_sample_list_id";
-    
+
     @Autowired
     private WebApplicationContext wac;
 
@@ -84,7 +83,7 @@ public class GenePanelControllerTest {
         Mockito.reset(genePanelService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-    
+
     @Test
     public void getAllGenePanelsDetailedProjection() throws Exception {
 
@@ -123,8 +122,8 @@ public class GenePanelControllerTest {
         genePanelToGeneList2.add(genePanelToGene4);
         genePanel2.setGenes(genePanelToGeneList2);
         genePanelList.add(genePanel2);
-        
-        
+
+
         Mockito.when(genePanelService.getAllGenePanels(Mockito.anyString(), Mockito.anyInt(),
             Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(genePanelList);
 
@@ -198,7 +197,7 @@ public class GenePanelControllerTest {
         genePanelToGene2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
         genePanelToGeneList.add(genePanelToGene2);
         genePanel.setGenes(genePanelToGeneList);
-        
+
         Mockito.when(genePanelService.getGenePanel(Mockito.anyString())).thenReturn(genePanel);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/gene-panels/test_gene_panel_id")
@@ -217,9 +216,9 @@ public class GenePanelControllerTest {
 
     @Test
     public void getGenePanelData() throws Exception {
-        
+
         List<GenePanelData> genePanelDataList = createExampleGenePanelData();
-        
+
         Mockito.when(genePanelService.getGenePanelData(Mockito.anyString(), Mockito.anyString())).thenReturn(genePanelDataList);
 
         GenePanelDataFilter genePanelDataFilter = new GenePanelDataFilter();
@@ -249,13 +248,12 @@ public class GenePanelControllerTest {
 
     @Test
     public void fetchGenePanelData() throws Exception {
-        
+
         List<GenePanelData> genePanelDataList = createExampleGenePanelData();
-        
-        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(Mockito.anyListOf(String.class), 
+
+        Mockito.when(genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(Mockito.anyListOf(String.class),
             Mockito.anyListOf(String.class))).thenReturn(genePanelDataList);
 
-        GenePanelMultipleStudyFilter genePanelMultipleStudyFilter = new GenePanelMultipleStudyFilter();
         List<SampleMolecularIdentifier> sampleMolecularIdentifiers = new ArrayList<>();
         SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();
         sampleMolecularIdentifier1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_ID_1);
@@ -265,13 +263,12 @@ public class GenePanelControllerTest {
         sampleMolecularIdentifier2.setMolecularProfileId(TEST_MOLECULAR_PROFILE_ID_2);
         sampleMolecularIdentifier2.setSampleId(TEST_SAMPLE_ID_2);
         sampleMolecularIdentifiers.add(sampleMolecularIdentifier2);
-        genePanelMultipleStudyFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifiers);
 
         mockMvc.perform(MockMvcRequestBuilders.post(
             "/gene-panel-data/fetch")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(genePanelMultipleStudyFilter)))
+            .content(objectMapper.writeValueAsString(sampleMolecularIdentifiers)))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))

@@ -36,6 +36,7 @@
 ### 2.3 Customization 
 * [Customizing your cBioPortal Instance via portal.properties](Customizing-your-instance-of-cBioPortal.md)
 * [More portal.properties Settings](portal.properties-Reference.md)
+* [Configuring Caching Behavior](Caching.md)
 
 ## 3. cBioPortal Maintenance
 * [Updating your cBioPortal Database Scheme](Updating-your-cBioPortal-installation.md)
@@ -49,8 +50,8 @@
 * [Providing cBioPortal Parameters](providing-cBioPortal-parameters.md)
 * [Manual test cases](manual-test-cases.md)
 * [Build cBioPortal with a different frontend version](Build-Different-Frontend.md)
-* [Release-Procedure](Release-Procedure.md)
-* [Deployment-Procedure](Deployment-Procedure.md)
+* [Release Procedure](Release-Procedure.md)
+* [Deployment Procedure](Deployment-Procedure.md)
 
 ## 5. Data Loading
 ### 5.1 Data Loading

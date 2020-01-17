@@ -5,14 +5,15 @@ import org.cbioportal.model.DataBin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
-public class LinearDataBinner 
-{
+public class LinearDataBinner {
     public static final Double[] POSSIBLE_INTERVALS = {
         0.001, 0.002, 0.0025, 0.005, 0.01,
         0.02, 0.025, 0.05, 0.1,
@@ -24,48 +25,47 @@ public class LinearDataBinner
     };
 
     public static final Integer DEFAULT_INTERVAL_COUNT = 20;
-    
+
     private DataBinHelper dataBinHelper;
-    
+
     @Autowired
     public LinearDataBinner(DataBinHelper dataBinHelper) {
         this.dataBinHelper = dataBinHelper;
     }
 
     public List<DataBin> calculateDataBins(String attributeId,
-                                           Range<Double> boxRange,
-                                           List<Double> values,
-                                           Double lowerOutlier,
-                                           Double upperOutlier) {
-        Double min = lowerOutlier == null ? Collections.min(values) : Math.max(Collections.min(values), lowerOutlier);
-        Double max = upperOutlier == null ? Collections.max(values) : Math.min(Collections.max(values), upperOutlier);
+                                           Range<BigDecimal> boxRange,
+                                           List<BigDecimal> values,
+                                           BigDecimal lowerOutlier,
+                                           BigDecimal upperOutlier) {
+        BigDecimal min = lowerOutlier == null ? Collections.min(values) : Collections.min(values).max(lowerOutlier);
+        BigDecimal max = upperOutlier == null ? Collections.max(values) : Collections.max(values).min(upperOutlier);
 
         List<DataBin> dataBins = initDataBins(attributeId, min, max, lowerOutlier, upperOutlier);
 
-        // special case for "AGE" attributes	
+        // special case for "AGE" attributes
         if (dataBinHelper.isAgeAttribute(attributeId) &&
-            min < 18 &&
-            (boxRange.upperEndpoint() - boxRange.lowerEndpoint()) / 2 > 18 &&
-            dataBins.get(0).getEnd() > 18)
-        {
-            // force first bin to start from 18	
-            dataBins.get(0).setStart(18.0);
+            min.doubleValue() < 18 &&
+            boxRange.upperEndpoint().subtract(boxRange.lowerEndpoint()).divide(BigDecimal.valueOf(2)).compareTo(BigDecimal.valueOf(18)) == 1 &&
+            dataBins.get(0).getEnd().compareTo(BigDecimal.valueOf(18)) == 1) {
+            // force first bin to start from 18
+            dataBins.get(0).setStart(BigDecimal.valueOf(18));
         }
-        
+
         dataBinHelper.calcCounts(dataBins, values);
 
         return dataBins;
     }
 
     public List<DataBin> calculateDataBins(String attributeId,
-                                           List<Double> customBins,
-                                           List<Double> values) {
+                                           List<BigDecimal> customBins,
+                                           List<BigDecimal> values) {
         List<DataBin> dataBins = initDataBins(attributeId, customBins);
         dataBinHelper.calcCounts(dataBins, values);
         return dataBins;
     }
 
-    public List<DataBin> initDataBins(String attributeId, List<Double> bins) {
+    public List<DataBin> initDataBins(String attributeId, List<BigDecimal> bins) {
         List<DataBin> dataBins = new ArrayList<>();
         for (int i = 0; i < bins.size() - 1; i++) {
             DataBin dataBin = new DataBin();
@@ -79,51 +79,51 @@ public class LinearDataBinner
     }
 
     public List<DataBin> initDataBins(String attributeId,
-                                      Double min,
-                                      Double max,
-                                      Double lowerOutlier,
-                                      Double upperOutlier)
-    {
+                                      BigDecimal min,
+                                      BigDecimal max,
+                                      BigDecimal lowerOutlier,
+                                      BigDecimal upperOutlier) {
         List<DataBin> dataBins = new ArrayList<>();
 
-        Double interval = calcBinInterval(Arrays.asList(POSSIBLE_INTERVALS),
-            max - min,
+        BigDecimal interval = calcBinInterval(Arrays.asList(POSSIBLE_INTERVALS).stream().map(val -> BigDecimal.valueOf(val)).collect(Collectors.toList()),
+            max.subtract(min),
             DEFAULT_INTERVAL_COUNT);
 
-        Double start = min + interval - (min % interval);
+        BigDecimal start = min.add(interval).subtract(min.remainder(interval));
 
         // check lowerOutlier too for better tuning of start
-        if (lowerOutlier == null || start - interval > lowerOutlier) {
-            start -= interval;
+        if (lowerOutlier == null || start.subtract(interval).compareTo(lowerOutlier) == 1) {
+            start = start.subtract(interval);
         }
 
         // check upperOutlier too for better tuning of end
-        Double end = upperOutlier == null || max + interval < upperOutlier ? max: max - interval;
+        BigDecimal end = upperOutlier == null || max.add(interval).compareTo(upperOutlier) == -1 ? max: max.subtract(interval);
 
-        for (Double d = start; d <= end; d += interval) {
+        for (BigDecimal d = start; d.compareTo(end) != 1; ) {
             DataBin dataBin = new DataBin();
+            BigDecimal newEnd = d.add(interval);
 
             dataBin.setAttributeId(attributeId);
             dataBin.setStart(d);
-            dataBin.setEnd(d + interval);
+            dataBin.setEnd(newEnd);
             dataBin.setCount(0);
 
             dataBins.add(dataBin);
+
+            d = newEnd;
         }
 
         return dataBins;
     }
 
-    public Double calcBinInterval(List<Double> possibleIntervals, Double totalRange, Integer maxIntervalCount)
-    {
-        Double interval = -1.0;
+    public BigDecimal calcBinInterval(List<BigDecimal> possibleIntervals, BigDecimal totalRange, Integer maxIntervalCount) {
+        BigDecimal interval = new BigDecimal("-1.0");
 
-        for (int i = 0; i < possibleIntervals.size(); i++)
-        {
+        for (int i = 0; i < possibleIntervals.size(); i++) {
             interval = possibleIntervals.get(i);
-            Double count = totalRange / interval;
+            BigDecimal count = totalRange.divide(interval);
 
-            if (count < maxIntervalCount) {
+            if (count.doubleValue() < maxIntervalCount) {
                 break;
             }
         }

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.SampleMapper">
-    <cache readOnly="true" size="100000"/>
+    
 
     <sql id="select">
         sample.INTERNAL_ID AS "${prefix}internalId",
@@ -26,15 +26,21 @@
         FROM sample
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
     </sql>
 
     <sql id="where">
         <where>
-            <if test="sampleIds == null">
+            <if test="sampleIds == null and studyIds != null">
                 cancer_study.CANCER_STUDY_IDENTIFIER IN
-                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                <if test="studyIds.isEmpty()">
+                    (NULL)
+                </if>
+                <if test="!studyIds.isEmpty()">
+                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
@@ -54,6 +60,12 @@
             <if test="patientId != null">
                 AND patient.STABLE_ID = #{patientId}
             </if>
+            <if test="keyword != null">
+                AND
+                <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
+                    sample.STABLE_ID like CONCAT('%', #{item}, '%')
+                </foreach>
+            </if>
         </where>
     </sql>
 
@@ -67,8 +79,11 @@
         <if test="sortBy != null and projection != 'ID'">
             ORDER BY ${sortBy} ${direction}
         </if>
-        <if test="projection == 'ID'">
+        <if test="projection == 'ID' and keyword == null">
             ORDER BY sample.STABLE_ID ASC
+        </if>
+        <if test="keyword != null">
+            ORDER BY CASE WHEN sample.STABLE_ID LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, sample.STABLE_ID
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}

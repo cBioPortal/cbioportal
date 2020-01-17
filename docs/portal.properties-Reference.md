@@ -2,6 +2,7 @@ This page describes the main properties within portal.properties.
 
 - [Database Settings](#database-settings)
 - [cBioPortal Customization](#cbioportal-customization)
+- [Ensembl transcript lookup URL](#ensembl-transcript-lookup)
 - [Segment File URL](#segment-file-url)
 - [Bitly API Username and Key](#bitly-api-username-and-key)
 - [Google Analytics](#google-analytics)
@@ -14,6 +15,7 @@ This page describes the main properties within portal.properties.
 	- [Automatic selection of OncoKB annotations](#automatic-selection-of-oncokb-annotations)
 	- [Automatic hiding of putative passenger mutations](#automatic-hiding-of-putative-passenger-mutations)
 - [Gene sets used for gene querying](#gene-sets-used-for-gene-querying)
+- [Ehcache Settings](#ehcache-settings)
 
 # Database Settings
 
@@ -141,6 +143,19 @@ Add a custom logo in the right side of the menu. Place here the full name of the
 skin.right_logo=
 ```
 
+## Control default setting for filtering of genes in mutation and CNA tables of patient view
+Different samples of a patient may have been analyzed with different gene panels. In patient view mutations and discrete CNA's can be filtered based on whether the gene of respective mutations/CNA's was profiled in all samples of the patient (mutations profiled in `all samples`), or not (mutations profiled in `any sample`). Setting this field to `true` will make patient view select the `all samples` filter at startup. When set to false or left blank the patient view will default to the `any samples` filter setting.
+```
+skin.patientview.filter_genes_profiled_all_samples=
+```
+# Ensembl transcript lookup URL
+The Mutations tab contains various links, redirecting the user to external information resources regarding the displayed transcript. The Ensembl template URL can be customized by modifying the property:
+```
+ensembl.transcript_url=
+```
+The default setting is `http://ensembl.org/homo_sapiens/Transcript/Summary?t=<%= transcriptId %>`. The `<%= transcriptId %>` is substituted by the frontend code into respective transcript ID.
+
+
 # Segment File URL
 
 This is a root URL to where segment files can be found.  This is used when you want to provide segment file viewing via external tools such as [IGV](http://www.broadinstitute.org/igv/).
@@ -198,6 +213,13 @@ show.civic=true|false
 The CIViC API url is set to https://civic.genome.wustl.edu/api/ by default. It can be overridden using the following property:
 ```
 civic.url=
+```
+
+# MDACC Heatmap Integration
+
+MDACC Heatmap integration (button in OncoPrint heatmap dropdown and tab on Study page can be turned on or off by setting the following property:
+```
+show.mdacc.heatmap=true
 ```
 
 # OncoPrint
@@ -280,3 +302,56 @@ This gene set will add the following in the query box:
 ```
 "BRCA genes" BRCA1: MUT=E1258D; BRCA2: HOMDEL MUT=NONSENSE MUT=NONSTART MUT=NONSTOP MUT=FRAMESHIFT MUT=SPLICE MUT=TRUNC;
 ```
+# Ehcache Settings
+cBioPortal is supported on the backend with Ehcache. The configuration, size, and location of these caches are configurable from within portal.properties through the following properties.
+
+The cache type is set using `ehcache.cache_type`. Valid values are `none`, `heap` (heap-only), `disk` (disk-only), and `hybrid` (disk + heap). By default, `ehcache.cache_type` is set to `none` which disables the cache. When the cache is disabled, no responses will be stored in the cache. 
+```
+ehcache.cache_type=[none or heap or disk or hybrid]
+```
+
+Ehcache initializes caches using a template found in an Ehcache xml configuration file. When caching is enabled, set `ehcache.xml_configuration` to the name of the Ehcache xml configuration file. The default provided is `ehcache.xml`; to change the cache template, directly edit this file. Alternatively, you can create your own Ehcache xml configuration file, place it under `/persistence/persistence-api/src/main/resources/` and set `ehcache.xml_configuration` to `/[Ehcache xml configuration filename]`.  
+```
+ehcache.xml_configuration=
+```
+
+If the cache is configured to use disk resources, users must make a directory available and set it with the `ehcache.persistence_path` property. Ehcache will create separate directories under the provided path for each cache defined in the ehcache.xml_configuration file. 
+```
+ehcache.persistence_path=[location on the disk filesystem where Ehcache can write the cache to /tmp/]
+```
+
+Cache size must be set for heap and/or disk depending on which are in use; Ehcache requires disk size to be greater than heap size in a hybrid configuration. Zero is not a supported size and will cause an exception. Units are in megabytes. Default values are provided. The general repository cache is specified to use 1024MB of heap and 4096MB of disk. The static repository cache is specified to use 30MB of heap and 32MB of disk. For installations with increased traffic or data, cache sizes can be increased to further improve performance. 
+```
+ehcache.general_repository_cache.max_mega_bytes_heap=
+ehcache.general_repository_cache.max_mega_bytes_local_disk=
+
+ehcache.static_repository_cache_one.max_mega_bytes_heap=
+ehcache.static_repository_cache_one.max_mega_bytes_local_disk=
+```
+
+Logged metrics and additional information such as cache size and cached keys are available through an optional endpoint. The optional endpoint is turned off by default but can be turned on by setting `cache.statistics_endpoint_enabled` to true.
+```
+cache.statistics_endpoint_enabled=false[true or false]
+```
+The cache statistics endpoint is hidden on the api page; users must directly access the URL to view the response. The cache statistics endpoint can be accessed in the following ways.
+
+For general statistics about the cache such as memory usage:
+```
+/api/cacheStatistics
+```
+
+For a list of all keys in the cache:
+```
+/api/[name of cache]/keysInCache
+```
+
+For a list of counts of keys in cache per repository class:
+```
+/api/[name of cache]/keyCountsPerClass
+```
+
+**WARNING**: It must be noted that since cache statistics endpoint returns data on cache keys, the endpoint may expose otherwise hidden database query parameters such as sample identifiers, study names, etc. Generally, it is recommended that the endpoint only be turned on during cache-related development for testing. Deployers of a protected portal where users only have authorities to a subset of studies should carefully consider whether or not to turn on the cache statistics endpoint, as it does not filter the results. 
+
+For more information on Ehcache, refer to the official documentation [here](https://www.ehcache.org/documentation/3.7/index.html)
+
+For more information on how Ehcache is implemented in cBioPortal refer to the [Caching](Caching.md) documentation.

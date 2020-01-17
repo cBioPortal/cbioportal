@@ -26,11 +26,11 @@ import java.util.List;
 public class CosmicCountController {
 
     private static final int COSMIC_COUNT_MAX_PAGE_SIZE = 50000;
-    
+
     @Autowired
     private CosmicCountService cosmicCountService;
-    
-    @RequestMapping(value = "/cosmic-counts/fetch", method = RequestMethod.POST, 
+
+    @RequestMapping(value = "/cosmic-counts/fetch", method = RequestMethod.POST,
         consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get counts within the COSMIC database by keywords")
     public ResponseEntity<List<CosmicMutation>> fetchCosmicCounts(

@@ -53,16 +53,10 @@
             <property name="mutationalSignatureMapper" ref="mutationalSignatureMapper" />
         </bean>
 
-        <bean id="structuralVariantMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.StructuralVariantMapper" />
-            <property name="sqlSessionFactory" ref="sqlSessionFactory" />
-        </bean>
-        <bean id="structuralVariantRepository" class="org.mskcc.cbio.portal.repository.StructuralVariantMyBatisRepository">
-            <property name="structuralVariantMapper" ref="structuralVariantMapper" />
-        </bean>
-
         <!-- enable component scanning (beware that this does not enable mapper scanning!) -->
         <context:component-scan base-package="org.mskcc.cbio.portal.service" />
+        <context:component-scan base-package="org.cbioportal.persistence" />
+        <context:component-scan base-package="org.cbioportal.service" />
 
         <!-- enable autowire -->
         <context:annotation-config />
@@ -85,7 +79,8 @@
             <property name="objectFactory" ref="customObjectFactory" />
             <property name="configuration">
                 <bean class="org.apache.ibatis.session.Configuration">
-                    <property name="cacheEnabled" value="${mybatis.cache.enabled:true}" />
+                    <!-- second level caching is provided via Ehcache -->
+                    <property name="cacheEnabled" value="false" />
                 </bean>
             </property>
             <!-- mapper locations is set here to support interdependency between mappers without -->

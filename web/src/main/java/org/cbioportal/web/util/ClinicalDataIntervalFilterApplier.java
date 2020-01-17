@@ -11,20 +11,19 @@ import org.cbioportal.web.parameter.ClinicalDataIntervalFilterValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
-public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier<ClinicalDataIntervalFilter>
-{
+public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier<ClinicalDataIntervalFilter> {
     @Autowired
-    public ClinicalDataIntervalFilterApplier(PatientService patientService, 
-                                             ClinicalDataService clinicalDataService, 
+    public ClinicalDataIntervalFilterApplier(PatientService patientService,
+                                             ClinicalDataService clinicalDataService,
                                              SampleService sampleService,
-                                             StudyViewFilterUtil studyViewFilterUtil) 
-    {
+                                             StudyViewFilterUtil studyViewFilterUtil) {
         super(patientService, clinicalDataService, sampleService, studyViewFilterUtil);
     }
 
@@ -33,8 +32,7 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
                          MultiKeyMap clinicalDataMap,
                          String entityId,
                          String studyId,
-                         Boolean negateFilters)
-    {
+                         Boolean negateFilters) {
         int count = 0;
 
         for (ClinicalDataIntervalFilter filter : attributes) {
@@ -42,13 +40,13 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
             if (entityClinicalData != null) {
                 Optional<ClinicalData> clinicalData = entityClinicalData.stream().filter(c -> c.getAttrId()
                     .equals(filter.getAttributeId())).findFirst();
-                if (clinicalData.isPresent()) 
+                if (clinicalData.isPresent())
                 {
                     String attrValue = clinicalData.get().getAttrValue();
-                    Range<Double> rangeValue = calculateRangeValueForAttr(attrValue);
+                    Range<BigDecimal> rangeValue = calculateRangeValueForAttr(attrValue);
 
                     // find range filters
-                    List<Range<Double>> ranges = filter.getValues().stream()
+                    List<Range<BigDecimal>> ranges = filter.getValues().stream()
                         .map(this::calculateRangeValueForFilter)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
@@ -63,7 +61,7 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
                         if (negateFilters ^ ranges.stream().anyMatch(r -> r.encloses(rangeValue))) {
                             count++;
                         }
-                    } 
+                    }
                     else if (negateFilters ^ specialValues.contains(attrValue.toUpperCase())) {
                         count++;
                     }
@@ -78,72 +76,69 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
         return count;
     }
 
-    private Range<Double> calculateRangeValueForAttr(String attrValue)
-    {
+    private Range<BigDecimal> calculateRangeValueForAttr(String attrValue) {
         if (attrValue == null) {
             return null;
         }
-        
-        Double min = null;
-        Double max = null;
-        
+
+        BigDecimal min = null;
+        BigDecimal max = null;
+
         String value = attrValue.trim();
-        
+
         String lte = "<=";
         String lt = "<";
         String gte = ">=";
         String gt = ">";
-        
+
         boolean startInclusive = true;
         boolean endInclusive = true;
-        
+
         try {
             if (value.startsWith(lte)) {
-                max = Double.parseDouble(value.substring(lte.length()));
+                max = new BigDecimal(value.substring(lte.length()));
             }
             else if (value.startsWith(lt)) {
-                max = Double.parseDouble(value.substring(lt.length()));
+                max = new BigDecimal(value.substring(lt.length()));
                 endInclusive = false;
             }
             else if (value.startsWith(gte)) {
-                min = Double.parseDouble(value.substring(gte.length()));
+                min = new BigDecimal(value.substring(gte.length()));
             }
             else if (value.startsWith(gt)) {
-                min = Double.parseDouble(value.substring(gt.length()));
+                min = new BigDecimal(value.substring(gt.length()));
                 startInclusive = false;
             }
             else {
-                min = max = Double.parseDouble(attrValue);
+                min = max = new BigDecimal(attrValue);
             }
         } catch (Exception e) {
             // invalid range -- TODO: also support ranges like 20-30?
             return null;
         }
-        
+
         return studyViewFilterUtil.calcRange(min, startInclusive, max, endInclusive);
     }
 
-    private Range<Double> calculateRangeValueForFilter(ClinicalDataIntervalFilterValue filterValue) 
-    {
-        Double start = filterValue.getStart();
-        Double end = filterValue.getEnd();
+    private Range<BigDecimal> calculateRangeValueForFilter(ClinicalDataIntervalFilterValue filterValue) {
+        BigDecimal start = filterValue.getStart();
+        BigDecimal end = filterValue.getEnd();
 
         // default: (start, end]
         boolean startInclusive = false;
         boolean endInclusive = true;
-        
+
         // special case: end == start (both inclusive)
         if (end != null && end.equals(start)) {
             startInclusive = true;
         }
-        
+
         // TODO also add startInclusive and endInclusive as a filterValue parameter?
-        
+
         return studyViewFilterUtil.calcRange(start, startInclusive, end, endInclusive);
     }
 
-    private Boolean containsNA(ClinicalDataIntervalFilter filter)
-    {
+    private Boolean containsNA(ClinicalDataIntervalFilter filter) {
         return filter.getValues().stream().anyMatch(
             r -> r.getValue() != null && r.getValue().toUpperCase().equals("NA"));
     }

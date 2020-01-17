@@ -4,7 +4,8 @@ This page describes various system software required to run the cBioPortal.
 
 ## MySQL
 
-The cBioPortal software should run properly on MySQL version 5.x.x; to avoid a known issue while loading the database schema, 5.7.x or lower is recommended.
+The cBioPortal software should run properly on MySQL version 5.7.x. Versions higher than 5.7.x can cause an issue
+while loading the database schema. Minor versions lower than 5.7.x will cause issues with persistent cache invalidation.
 The software can be found and downloaded from the [MySQL website](http://www.mysql.com/).
 
 On Ubuntu:  ```sudo apt-get install mysql-server```

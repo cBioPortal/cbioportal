@@ -17,6 +17,14 @@
 
   <repositories>
     <repository>
+      <id>plugins-release</id>
+      <name>Spring Plugins</name>
+      <url>https://repo.spring.io/plugins-release</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
       <id>spring-milestones</id>
       <name>Spring Milestones</name>
       <url>http://repo.spring.io/milestone</url>
@@ -270,7 +278,7 @@
   </profiles>
 
   <properties>
-    <frontend.version>v3.0.6</frontend.version>
+    <frontend.version>v3.1.10</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
     <slf4j.version>1.6.6</slf4j.version>
     <spring.version>4.3.14.RELEASE</spring.version>
@@ -303,7 +311,7 @@
     <tomcat.session.timeout>720</tomcat.session.timeout>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.9.0</db.version>
+    <db.version>2.11.0</db.version>
   </properties>
 
   <modules>
@@ -391,7 +399,7 @@
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.16</version>
+      <version>5.1.47</version>
     </dependency>
     <!-- slf4j -->
     <dependency>
@@ -486,11 +494,17 @@
       <artifactId>mybatis</artifactId>
       <version>${mybatis.version}</version>
     </dependency>
+
+    <dependency>
+        <groupId>com.vlkan.hrrs</groupId>
+        <artifactId>hrrs-servlet-filter-base64</artifactId>
+        <version>0.5</version>
+    </dependency>
     <!-- guava -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>19.0</version>
+      <version>23.6-jre</version>
     </dependency>
     <dependency>
         <groupId>org.apache.commons</groupId>

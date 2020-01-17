@@ -1,102 +1,107 @@
 package org.cbioportal.web.parameter;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class VirtualStudyData {
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-	private String name;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class VirtualStudyData implements Serializable {
 
-	private String description;
+    private String name;
+    private String description;
+    private Set<VirtualStudySamples> studies;
+    private StudyViewFilter studyViewFilter;
+    private Float version = 1.0f;
+    private String owner = "anonymous";
+    private Set<String> origin = new HashSet<>();
+    private Long created = System.currentTimeMillis();
+    private Long lastUpdated = System.currentTimeMillis();
+    private Set<String> users = new HashSet<>();
 
-	private Set<VirtualStudySamples> studies;
+    public String getOwner() {
+        return owner;
+    }
 
-	private StudyViewFilter studyViewFilter;
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
 
-	private String owner = "anonymous";
+    public void setOrigin(Set<String> origin) {
+        this.origin = origin;
+    }
 
-	private Set<String> origin = new HashSet<>();
+    public Long getCreated() {
+        return created;
+    }
 
-	private Long created = System.currentTimeMillis();
+    public void setCreated(Long created) {
+        this.created = created;
+    }
 
-	private Set<String> users = new HashSet<>();
+    public Long getLastUpdated() {
+        return lastUpdated;
+    }
 
-	private Float version = 1.0f;
+    public void setLastUpdated(Long lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public Set<String> getUsers() {
+        return users;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setUsers(Set<String> users) {
+        this.users = users;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Set<VirtualStudySamples> getStudies() {
-		return studies;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void setStudies(Set<VirtualStudySamples> studies) {
-		this.studies = studies;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public String getOwner() {
-		return owner;
-	}
+    public Set<VirtualStudySamples> getStudies() {
+        return studies;
+    }
 
-	public void setOwner(String owner) {
-		this.owner = owner;
-	}
+    public void setStudies(Set<VirtualStudySamples> studies) {
+        this.studies = studies;
+    }
 
-	public Set<String> getOrigin() {
-		if (origin == null || origin.size() == 0) {
-			return studies.stream().map(map -> map.getId()).collect(Collectors.toSet());
-		}
-		return origin;
-	}
+    public Set<String> getOrigin() {
+        if (this.origin == null || this.origin.size() == 0) {
+            return studies.stream().map(map -> map.getId()).collect(Collectors.toSet());
+        }
+        return this.origin;
+    }
 
-	public void setOrigin(Set<String> origin) {
-		this.origin = origin;
-	}
+    public Float getVersion() {
+        return version;
+    }
 
-	public Long getCreated() {
-		return created;
-	}
+    public void setVersion(Float version) {
+        this.version = version;
+    }
 
-	public void setCreated(Long created) {
-		this.created = created;
-	}
+    public StudyViewFilter getStudyViewFilter() {
+        return studyViewFilter;
+    }
 
-	public Set<String> getUsers() {
-		return users;
-	}
+    public void setStudyViewFilter(StudyViewFilter studyViewFilter) {
+        this.studyViewFilter = studyViewFilter;
+    }
 
-	public void setUsers(Set<String> users) {
-		this.users = users;
-	}
-
-	public Float getVersion() {
-		return version;
-	}
-
-	public void setVersion(Float version) {
-		this.version = version;
-	}
-
-	public StudyViewFilter getStudyViewFilter() {
-		return studyViewFilter;
-	}
-
-	public void setStudyViewFilter(StudyViewFilter studyViewFilter) {
-		this.studyViewFilter = studyViewFilter;
-	}
-	
 }

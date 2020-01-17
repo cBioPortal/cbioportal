@@ -13,6 +13,7 @@ public class JdbcDataSource extends BasicDataSource {
         String host = dbProperties.getDbHost();
         String userName = dbProperties.getDbUser();
         String password = dbProperties.getDbPassword();
+        String mysqlDriverClassName = dbProperties.getDbDriverClassName();
         String database = dbProperties.getDbName();
         String useSSL = (!StringUtils.isBlank(dbProperties.getDbUseSSL())) ? dbProperties.getDbUseSSL() : "false";
         String enablePooling = (!StringUtils.isBlank(dbProperties.getDbEnablePooling())) ? dbProperties.getDbEnablePooling(): "false";
@@ -20,7 +21,7 @@ public class JdbcDataSource extends BasicDataSource {
                         "?user=" + userName + "&password=" + password +
                         "&zeroDateTimeBehavior=convertToNull&useSSL=" + useSSL;
         //  Set up poolable data source
-        this.setDriverClassName("com.mysql.jdbc.Driver");
+        this.setDriverClassName(mysqlDriverClassName);
         this.setUsername(userName);
         this.setPassword(password);
         this.setUrl(url);
@@ -34,5 +35,6 @@ public class JdbcDataSource extends BasicDataSource {
         this.setMinEvictableIdleTimeMillis(30000);
         this.setTestOnBorrow(true);
         this.setValidationQuery("SELECT 1");
+        this.setJmxName("org.cbioportal:DataSource=" + database);
     }
 }

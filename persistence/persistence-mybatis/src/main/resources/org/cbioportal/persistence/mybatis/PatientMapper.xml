@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.persistence.mybatis.PatientMapper">
-    <cache readOnly="true" size="100000"/>
+    
 
     <sql id="select">
         patient.INTERNAL_ID AS "${prefix}internalId",
@@ -20,6 +20,7 @@
     <sql id="from">
         FROM patient
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
     </sql>
 
     <sql id="where">
@@ -38,6 +39,8 @@
             <if test="keyword != null">
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
                     patient.STABLE_ID like CONCAT('%', #{item}, '%')
+                    OR
+                    sample.STABLE_ID like CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
@@ -49,6 +52,9 @@
             <property name="prefix" value=""/>
         </include>
         <include refid="from"/>
+        <if test="keyword != null">
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+        </if>
         <include refid="where"/>
         <if test="sortBy != null and projection != 'ID' and keyword == null">
             ORDER BY ${sortBy} ${direction}
@@ -68,6 +74,9 @@
         SELECT
         COUNT(*) AS totalCount
         <include refid="from"/>
+        <if test="keyword != null">
+            INNER JOIN sample ON patient.INTERNAL_ID = sample.PATIENT_ID
+        </if>
         <include refid="where"/>
     </select>
 
@@ -87,6 +96,7 @@
         FROM sample 
         INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID 
         INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
         WHERE
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
             cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND

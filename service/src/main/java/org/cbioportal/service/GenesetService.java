@@ -18,6 +18,8 @@ public interface GenesetService {
     List<Gene> getGenesByGenesetId(String genesetId) throws GenesetNotFoundException;
     
     List<Geneset> fetchGenesets(List<String> genesetIds);
+    
+    String getGenesetVersion();
 
 }
 

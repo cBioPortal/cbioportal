@@ -144,6 +144,7 @@ public class GlobalProperties {
     public static final String STUDY_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.study.meta.url";
 
     public static final String SHOW_ONCOKB = "show.oncokb";
+    public static final String ONCOKB_TOKEN = "oncokb.token";
 
     private static String sessionServiceURL;
     @Value("${session.service.url:}") // default is empty string
@@ -1166,5 +1167,9 @@ public class GlobalProperties {
     
     public static String getReferenceGenomeName() {
         return portalProperties.getProperty(UCSC_BUILD, DEFAULT_UCSC_BUILD);
+    }
+    
+    public static String getOncoKbToken()  {
+        return portalProperties.getProperty(ONCOKB_TOKEN, null);
     }
 }

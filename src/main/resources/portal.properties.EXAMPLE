@@ -159,6 +159,10 @@ segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
 # Enable OncoKB annotation (true, false)
 show.oncokb=true
 
+# OncoKB API Token, for more information please check https://www.oncokb.org/dataAccess
+# The token is required if you want to use OncoKB service
+oncokb.token=
+
 # Enable Chang's hotspot list (true, false)
 show.hotspot=true
 hotspots.url=https://www.cancerhotspots.org/api/

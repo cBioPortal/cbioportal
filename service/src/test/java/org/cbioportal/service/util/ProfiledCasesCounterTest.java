@@ -27,6 +27,7 @@ public class ProfiledCasesCounterTest {
     private static final Integer ENTREZ_GENE_ID_1 = 1;
     private static final Integer ENTREZ_GENE_ID_2 = 2;
     private static final Integer ENTREZ_GENE_ID_3 = 3;
+    private static final Integer ENTREZ_GENE_ID_4 = 4;
     private static final String SAMPLE_ID_1 = "sample_id_1";
     private static final String SAMPLE_ID_2 = "sample_id_2";
     private static final String SAMPLE_ID_3 = "sample_id_3";
@@ -85,6 +86,9 @@ public class ProfiledCasesCounterTest {
         GenePanelToGene genePanelToGene3 = new GenePanelToGene();
         genePanelToGene3.setEntrezGeneId(ENTREZ_GENE_ID_1);
         genes2.add(genePanelToGene3);
+        GenePanelToGene genePanelToGene4 = new GenePanelToGene();
+        genePanelToGene4.setEntrezGeneId(ENTREZ_GENE_ID_4);
+        genes2.add(genePanelToGene4);
         genePanel2.setGenes(genes2);
         genePanels.add(genePanel2);
 
@@ -104,7 +108,7 @@ public class ProfiledCasesCounterTest {
 
         profiledSamplesCounter.calculate(
                 Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
-                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts, false);
+                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts, false, false);
 
         Assert.assertEquals(new Integer(3), alterationCounts.get(0).getNumberOfProfiledCases());
         Assert.assertEquals(new Integer(2), alterationCounts.get(1).getNumberOfProfiledCases());
@@ -113,11 +117,22 @@ public class ProfiledCasesCounterTest {
         
         profiledSamplesCounter.calculate(
                 Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
-                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts, true);
+                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts, true, false);
 
         Assert.assertEquals(new Integer(2), alterationCounts.get(0).getNumberOfProfiledCases());
         Assert.assertEquals(new Integer(2), alterationCounts.get(1).getNumberOfProfiledCases());
         Assert.assertEquals(new Integer(2), alterationCounts.get(2).getNumberOfProfiledCases());
+
+        profiledSamplesCounter.calculate(
+                Arrays.asList(MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID, MOLECULAR_PROFILE_ID),
+                Arrays.asList(SAMPLE_ID_1, SAMPLE_ID_2, SAMPLE_ID_3), alterationCounts, true, true);
+
+        Assert.assertEquals(4, alterationCounts.size());
+        Assert.assertEquals(new Integer(2), alterationCounts.get(0).getNumberOfProfiledCases());
+        Assert.assertEquals(new Integer(2), alterationCounts.get(1).getNumberOfProfiledCases());
+        Assert.assertEquals(new Integer(2), alterationCounts.get(2).getNumberOfProfiledCases());
+        Assert.assertEquals(new Integer(2), alterationCounts.get(3).getNumberOfProfiledCases());
+        Assert.assertEquals(new Integer(4), alterationCounts.get(3).getEntrezGeneId());
 
     }
 }

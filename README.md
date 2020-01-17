@@ -1,17 +1,18 @@
 # cBioPortal
+
 The cBioPortal for Cancer Genomics provides visualization, analysis, and download of large-scale cancer genomics data sets. For a short intro on cBioPortal, see [these introductory slides](https://docs.google.com/presentation/d/1hm0G77UklZnpQfFvywBfW2ZIsy8deKi5r1RfJarOPLg/edit?usp=sharing).
 
 If you would like to know how to setup a private instance of the portal and/or get set up for developing, see the [documentation](https://docs.cbioportal.org). For details on contributing code changes via pull requests, see our [Contributing document](CONTRIBUTING.md).
 
 If you are interested in coordinating the development of new features, please contact cbioportal@cbio.mskcc.org or reach out on https://slack.cbioportal.org.
 
-## Documentation
+## 📘 Documentation
 See [https://docs.cbioportal.org](https://docs.cbioportal.org)
 
-## License
+## 🤝 License
 See [LICENSE](./LICENSE)
 
-## Run Backend
+## 💻 Run Backend
 cBioPortal consists of several components, please read the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview) to figure out what repo would be relevant to edit. If you e.g. only want to make frontend changes, one can directly edit [the frontend repo](https://github.com/cbioportal/cbioportal-frontend) instead. Read the instructions in that repo for more info on how to do frontend development. This repo only contains the backend part. Before editing the backend, it's good to read the [backend code organization](docs/Backend-Code-Organization.md). For development of the backend repo one should first set up a database. Please follow the [Docker deployment documentation](https://docs.cbioportal.org/2.1.1-deploy-with-docker-recommended/docker) to do so. In step 6 instead of using the `latest` image, you can create your own image and use that:
 
 ```
@@ -20,7 +21,7 @@ docker build -t cbioportal/cbioportal:my-dev-cbioportal-image -f docker/web-and-
 
 Note: internally we have a dev database available with the public data set that one can connect to directly. Please reach out on slack to get the credentials. It is usually best to use a small test dataset, but if a copy of the production database is necessary for e.g. fixing a bug specific to production data that can be useful.
 
-### Debugging
+### 🕵️‍♀️ Debugging
 
 If you want to attach a debugger you can change the command in step 6, by adding to the `JAVA_OPTS` parameter: `-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005` and make sure to expose that port with `-p 5005:5005`.
 
@@ -42,7 +43,7 @@ You can then use a JAVA IDE to connect to that port. E.g. in [VSCode](https://co
 }
 ```
 
-## Branch Information
+## 🌳 Branch Information
 | | main branch | upcoming release branch | later release candidate branch |
 | --- | --- | --- | --- |
 | Branch name | [`master`](https://github.com/cBioPortal/cbioportal/tree/master) |  [`release-2.3.0`](https://github.com/cBioPortal/cbioportal/tree/release-2.3.0) |  [`rc`](https://github.com/cBioPortal/cbioportal/tree/rc) |
@@ -54,7 +55,7 @@ You can then use a JAVA IDE to connect to that port. E.g. in [VSCode](https://co
 | Status | [![master build status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=master)](https://travis-ci.org/cBioPortal/cbioportal/branches) | [![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=release-3.2.0)](https://travis-ci.org/cBioPortal/cbioportal/branches) | [![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=rc)](https://travis-ci.org/cBioPortal/cbioportal/branches) |
 
 
-## Releases
+## 🚀 Releases
 Release Notes on GitHub:
 
 https://github.com/cBioPortal/cbioportal/releases
@@ -67,7 +68,7 @@ Docker Images are available for each tag and branch:
 
 https://hub.docker.com/repository/docker/cbioportal/cbioportal/tags
 
-## Other Repos
+## 👉 Other Repos
 Read the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview) to see how these relate:
 
 - https://github.com/cBioPortal/cbioportal-frontend

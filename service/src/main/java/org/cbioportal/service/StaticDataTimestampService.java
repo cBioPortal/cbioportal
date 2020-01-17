@@ -8,4 +8,6 @@ import java.util.Map;
 
 public interface StaticDataTimestampService {
     Map<String, String> getTimestamps(List<String> tables);
+    
+    Map<String, Date> getTimestampsAsDates(List<String> tables);
 }

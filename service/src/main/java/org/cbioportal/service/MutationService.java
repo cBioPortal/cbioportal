@@ -46,17 +46,20 @@ public interface MutationService {
     List<MutationCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                         List<String> sampleIds,
                                                                         List<Integer> entrezGeneIds,
-                                                                        boolean includeFrequency);
+                                                                        boolean includeFrequency,
+                                                                        boolean includeMissingAlterationsFromGenePanel);
 
     List<MutationCountByGene> getSampleCountInMultipleMolecularProfilesForFusions(List<String> molecularProfileIds,
                                                                                   List<String> sampleIds,
                                                                                   List<Integer> entrezGeneId,
-                                                                                  boolean includeFrequency);
+                                                                                  boolean includeFrequency,
+                                                                                  boolean includeMissingAlterationsFromGenePanel);
     
     List<MutationCountByGene> getPatientCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
                                                                         List<String> patientIds,
                                                                         List<Integer> entrezGeneIds,
-                                                                        boolean includeFrequency);
+                                                                        boolean includeFrequency,
+                                                                        boolean includeMissingAlterationsFromGenePanel);
 
     List<MutationCountByPosition> fetchMutationCountsByPosition(List<Integer> entrezGeneIds, 
                                                                 List<Integer> proteinPosStarts, 

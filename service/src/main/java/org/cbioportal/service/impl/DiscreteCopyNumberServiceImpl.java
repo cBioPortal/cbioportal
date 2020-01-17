@@ -22,7 +22,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     @Autowired
     private MolecularProfileService molecularProfileService;
     @Autowired
-    private AlterationEnrichmentUtil alterationEnrichmentUtil;
+    private AlterationEnrichmentUtil<CopyNumberCountByGene> alterationEnrichmentUtil;
 
     @Override
     public List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMolecularProfileBySampleListId(
@@ -133,7 +133,8 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
 
     @Override
 	public List<CopyNumberCountByGene> getSampleCountInMultipleMolecularProfiles(List<String> molecularProfileIds,
-			List<String> sampleIds, List<Integer> entrezGeneIds, List<Integer> alterations, boolean includeFrequency) {
+			List<String> sampleIds, List<Integer> entrezGeneIds, List<Integer> alterations, boolean includeFrequency,
+            boolean includeMissingAlterationsFromGenePanel) {
 
         List<CopyNumberCountByGene> alterationCountByGenes;
         if (molecularProfileIds.isEmpty()) {
@@ -143,7 +144,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
                 sampleIds, entrezGeneIds, alterations);
             
             if (includeFrequency) {
-                alterationEnrichmentUtil.includeFrequencyForSamples(molecularProfileIds, sampleIds, alterationCountByGenes);
+                alterationEnrichmentUtil.includeFrequencyForSamples(molecularProfileIds, sampleIds, alterationCountByGenes, includeMissingAlterationsFromGenePanel);
             }
         }
 
@@ -155,7 +156,8 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
                                                                                        List<String> patientIds, 
                                                                                        List<Integer> entrezGeneIds, 
                                                                                        List<Integer> alterations,
-                                                                                       boolean includeFrequency) {
+                                                                                       boolean includeFrequency,
+                                                                                       boolean includeMissingAlterationsFromGenePanel) {
 
         List<CopyNumberCountByGene> alterationCountByGenes;
         if (molecularProfileIds.isEmpty()) {
@@ -165,7 +167,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
                     patientIds, entrezGeneIds, alterations);
             
             if (includeFrequency) {
-                alterationEnrichmentUtil.includeFrequencyForPatients(molecularProfileIds, patientIds, alterationCountByGenes);
+                alterationEnrichmentUtil.includeFrequencyForPatients(molecularProfileIds, patientIds, alterationCountByGenes, includeMissingAlterationsFromGenePanel);
             }
         }
 

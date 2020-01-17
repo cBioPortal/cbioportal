@@ -59,7 +59,7 @@ categories:
       - 'chore'
       - 'dependencies'
       - 'cl-chore'
-  - title: '📐 Prototype'
+  - title: '📐 Prototype (Internal Use)'
     labels:
       - 'cl-prototype'
 exclude-labels:

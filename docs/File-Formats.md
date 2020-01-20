@@ -678,7 +678,7 @@ You can learn more about configuring these annotations in the [portal.properties
 ![schreenshot mutation color menu](images/screenshot-mutation-color-menu.png) 
 
 #### Example MAF
-An example MAF can be found in the cBioPortal test study [study_es_0](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/core/src/test/scripts/test_data/study_es_0/brca_tcga_pub.maf).
+An example MAF can be found in the cBioPortal test study [study_es_0](https://github.com/cBioPortal/cbioportal/blob/master/core/src/test/scripts/test_data/study_es_0/data_mutations_extended.maf).
 
 #### Filtered mutations
 A special case for **Entrez_Gene_Id=0** and **Hugo_Symbol=Unknown**: when this combination is given, the record is parsed in the same way as **Variant_Classification=IGR** and therefore filtered out.
@@ -871,6 +871,7 @@ In order for sample counts to propagate to the data sets widget on the home page
 * **Methylation (HM27)**: `_methylation_hm27`.
 * **RPPA**: `_rppa`. When only a RPPA profile is selected on the query page, this is the default case list.
 * **Sequenced, CNA and mRNA**: `_3way_complete` When a mutation, CNA and mRNA profile are selected on the query page, this is the default case list.
+* **SV**: `_sv` . When a structural variant profile is selected on the query page, this is the default case list. Also used in the Study Summary to calculate the proportion of samples with fusions.
 * **All**: `_all`. If you are not using *add_global_case_list* attribute in [Study metadata](#cancer-study), you need to add this case list.
 
 #### Required case lists
@@ -894,6 +895,7 @@ These are the valid case lists categories for `case_list_category: ` in the meta
 - `all_cases_with_mutation_and_cna_data`
 - `all_cases_with_mutation_and_cna_and_mrna_data`
 - `all_cases_with_gsva_data`
+- `all_cases_with_sv_data`
 - `other`
 
 ## Timeline Data

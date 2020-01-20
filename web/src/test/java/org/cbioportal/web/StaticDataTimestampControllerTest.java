@@ -33,11 +33,6 @@ public class StaticDataTimestampControllerTest {
     private StaticDataTimestampService service;
     
     private MockMvc mockMvc;
-    
-    @Bean
-    public StaticDataTimestampService staticDataTimestampService() {
-        return Mockito.mock(StaticDataTimestampService.class);
-    }
 
     @Before
     public void setUp() throws Exception {

@@ -36,6 +36,7 @@ import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
 import org.apache.log4j.Logger;
+import org.cbioportal.model.CNA;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.*;
@@ -296,8 +297,8 @@ public class CnaJSON extends HttpServlet {
         
         for (CnaEvent cnaEvent : cnaEvents) {
             long gene = cnaEvent.getEntrezGeneId();
-            if (cnaEvent.getAlteration()==CnaEvent.CNA.AMP
-                    ||cnaEvent.getAlteration()==CnaEvent.CNA.GAIN) { // since drugs are usually intibiting
+            if (cnaEvent.getAlteration()==CNA.AMP
+                    ||cnaEvent.getAlteration()==CNA.GAIN) { // since drugs are usually intibiting
                 genes.add(gene);
             }
             
@@ -471,15 +472,15 @@ public class CnaJSON extends HttpServlet {
         list.add(row);
     }
     
-    private static final Map<Integer,Map<String,Map<CnaEvent.CNA,List>>> gisticMap // map from cancer study id
-            = new HashMap<Integer,Map<String,Map<CnaEvent.CNA,List>>>();     // to map from gene to a list of params
+    private static final Map<Integer,Map<String,Map<CNA,List>>> gisticMap // map from cancer study id
+            = new HashMap<Integer,Map<String,Map<CNA,List>>>();     // to map from gene to a list of params
     
-    private static List getGistic(int cancerStudyId, String gene, CnaEvent.CNA cna) throws DaoException {
-        Map<String,Map<CnaEvent.CNA,List>> mapGeneGistic;
+    private static List getGistic(int cancerStudyId, String gene, CNA cna) throws DaoException {
+        Map<String,Map<CNA,List>> mapGeneGistic;
         synchronized(gisticMap) {
             mapGeneGistic = gisticMap.get(cancerStudyId);
             if (mapGeneGistic == null) {
-                mapGeneGistic = new HashMap<String,Map<CnaEvent.CNA,List>>();
+                mapGeneGistic = new HashMap<String,Map<CNA,List>>();
                 gisticMap.put(cancerStudyId, mapGeneGistic);
                 List<Gistic> gistics = DaoGistic.getAllGisticByCancerStudyId(cancerStudyId);
                 for (Gistic g : gistics) {
@@ -491,9 +492,9 @@ public class CnaJSON extends HttpServlet {
                     l.add(g.getqValue());
                     l.add(genes.size());
                     for (String hugo : genes) {
-                        Map<CnaEvent.CNA,List> mapCC = mapGeneGistic.get(hugo);
+                        Map<CNA,List> mapCC = mapGeneGistic.get(hugo);
                         if (mapCC==null) {
-                            mapCC = new EnumMap<CnaEvent.CNA,List>(CnaEvent.CNA.class);
+                            mapCC = new EnumMap<CNA,List>(CNA.class);
                             mapGeneGistic.put(hugo, mapCC);
                         }
                         mapCC.put(cna,l);
@@ -502,7 +503,7 @@ public class CnaJSON extends HttpServlet {
             }
         }
         
-        Map<CnaEvent.CNA,List> m = mapGeneGistic.get(gene);
+        Map<CNA,List> m = mapGeneGistic.get(gene);
         return m==null ? null : m.get(cna);
     }
     

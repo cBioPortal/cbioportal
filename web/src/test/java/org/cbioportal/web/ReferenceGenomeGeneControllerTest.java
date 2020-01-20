@@ -1,9 +1,11 @@
 package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cbioportal.model.ReferenceGenome;
 import org.cbioportal.model.ReferenceGenomeGene;
+import org.cbioportal.service.GeneMemoizerService;
 import org.cbioportal.service.ReferenceGenomeGeneService;
-import org.cbioportal.service.exception.GeneNotFoundException;
+import org.cbioportal.service.StaticDataTimestampService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,8 +24,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import static org.mockito.Mockito.times;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -40,6 +43,15 @@ public class ReferenceGenomeGeneControllerTest {
     public static final int REFERENCE_GENOME_ID = 1;
     public static final int ENTREZ_GENE_ID_1 = 1;
     public static final int ENTREZ_GENE_ID_2 = 2;
+    
+    private static final ReferenceGenomeGene gene = new ReferenceGenomeGene();
+    static {
+        gene.setEntrezGeneId(ENTREZ_GENE_ID_1);
+        gene.setReferenceGenomeId(REFERENCE_GENOME_ID);
+        gene.setCytoband(CYTOBAND_1);
+        gene.setChromosome(CHROMOSOME_1);
+        gene.setLength(LENGTH_1);
+    }
 
     @Autowired
     private WebApplicationContext wac;
@@ -47,6 +59,9 @@ public class ReferenceGenomeGeneControllerTest {
     @Autowired
     private ReferenceGenomeGeneService referenceGenomeGeneService;
 
+    @Autowired
+    private GeneMemoizerService geneMemoizerService;
+    
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private MockMvc mockMvc;
@@ -56,23 +71,65 @@ public class ReferenceGenomeGeneControllerTest {
         return Mockito.mock(ReferenceGenomeGeneService.class);
     }
 
+    @Bean
+    public GeneMemoizerService geneMemoizerService() {
+        return Mockito.mock(GeneMemoizerService.class);
+    }
+
     @Before
     public void setUp() throws Exception {
 
         Mockito.reset(referenceGenomeGeneService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
+    
+    @Test
+    public void getAllReferenceGenesFromCache() throws Exception {
+        Mockito.when(geneMemoizerService.fetchGenes(Mockito.anyString())).thenReturn(Collections.singletonList(gene));
+        Mockito.when(referenceGenomeGeneService.fetchAllReferenceGenomeGenes(Mockito.anyString()))
+            .thenReturn(Collections.singletonList(gene));
+        
+        mockMvc.perform(MockMvcRequestBuilders.get("/reference-genome-genes/hg19")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].referenceGenomeId").value(REFERENCE_GENOME_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(CYTOBAND_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value(LENGTH_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].chromosome").value(CHROMOSOME_1));
+
+        
+        // The service is not called because the data is already cached
+        Mockito.verify(referenceGenomeGeneService, times(0)).fetchAllReferenceGenomeGenes(Mockito.anyString());
+        // The cache is not changed
+        Mockito.verify(geneMemoizerService, times(0)).cacheGenes(Mockito.anyList(), Mockito.anyString());
+    }
+
+    @Test
+    public void getAllReferenceGenesNoCache() throws Exception {
+        Mockito.when(geneMemoizerService.fetchGenes(Mockito.anyString())).thenReturn(null);
+        Mockito.when(referenceGenomeGeneService.fetchAllReferenceGenomeGenes(Mockito.anyString()))
+            .thenReturn(Collections.singletonList(gene));
+        
+        mockMvc.perform(MockMvcRequestBuilders.get("/reference-genome-genes/hg19")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(ENTREZ_GENE_ID_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].referenceGenomeId").value(REFERENCE_GENOME_ID))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cytoband").value(CYTOBAND_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].length").value(LENGTH_1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].chromosome").value(CHROMOSOME_1));
+
+        // The service is called because the cache is invalid
+        Mockito.verify(referenceGenomeGeneService, times(1)).fetchAllReferenceGenomeGenes(Mockito.anyString());
+        // The response is added to the cache
+        Mockito.verify(geneMemoizerService, times(1)).cacheGenes(Mockito.anyList(), Mockito.anyString());
+    }
 
     @Test
     public void getGene() throws Exception {
-
-        ReferenceGenomeGene gene = new ReferenceGenomeGene();
-        gene.setEntrezGeneId(ENTREZ_GENE_ID_1);
-        gene.setReferenceGenomeId(REFERENCE_GENOME_ID);
-        gene.setCytoband(CYTOBAND_1);
-        gene.setChromosome(CHROMOSOME_1);
-        gene.setLength(LENGTH_1);
-
         Mockito.when(referenceGenomeGeneService.getReferenceGenomeGene(Mockito.anyInt(), Mockito.anyString())).thenReturn(gene);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/reference-genome-genes/hg19/1")

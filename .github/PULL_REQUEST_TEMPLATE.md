@@ -12,7 +12,7 @@ Describe changes proposed in this pull request:
 
 # Any screenshots or GIFs?
 If this is a new visual feature please add a before/after screenshot or gif
-here with e.g. [GifGrabber](http://www.gifgrabber.com/).
+here with e.g. [Giphy CAPTURE](https://giphy.com/apps/giphycapture) or [Peek](https://github.com/phw/peek)
 
 # Notify reviewers
 Read our [Pull request merging

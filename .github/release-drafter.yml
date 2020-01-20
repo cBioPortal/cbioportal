@@ -4,46 +4,67 @@ categories:
   - title: '🧬 Features'
     labels:
       - 'feature'
+      - 'cl-feature'
+  - title: '✨ Enhancements'
+    labels:
       - 'enhancement'
+      - 'cl-enhancement'
   - title: '🐛 Bug Fixes'
     labels:
       - 'fix'
       - 'bugfix'
       - 'bug'
+      - 'cl-bug'
   - title: '🏎 Performance Tweaks'
     labels:
       - 'performance'
+      - 'cl-performance'
   - title: '🎨 Style Tweaks'
     labels:
       - 'style tweak'
+      - 'cl-style-tweak'
   - title: '⚙️ REST API Changes'
     labels:
       - 'api'
   - title: '⚙️ Changes to handle external APIs'
     labels:
       - 'external api'
+      - 'cl-external-api'
   - title: '🗄 Database Migration'
     labels:
       - 'includes db changes'
       - 'migration'
+      - 'cl-db-migration'
   - title: '⚠️ Deprecation'
     labels:
       - 'deprecation'
+      - 'cl-deprecation'
   - title: '📘 Documentation'
     labels:
       - 'documentation'
-  - title: '🧹 Cleanup'
+      - 'cl-documentation'
+  - title: '🧹 Cleanup & Refactoring 🔧'
     labels:
       - 'cleanup'
+      - 'refactoring'
+      - 'cl-refactoring'
   - title: '👷‍♀️ Testing, Configuration & Deployment'
     labels:
       - 'devops'
+      - 'test'
+      - 'cl-test'
+      - 'cl-devops'
   - title: '🧰 Maintenance'
     labels:
       - 'chore'
       - 'dependencies'
+      - 'cl-chore'
+  - title: '📐 Prototype (Internal Use)'
+    labels:
+      - 'cl-prototype'
 exclude-labels:
   - 'skip-changelog'
+  - 'cl-skip-changelog'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
   ## Changes

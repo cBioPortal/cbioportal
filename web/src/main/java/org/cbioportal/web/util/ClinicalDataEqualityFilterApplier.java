@@ -36,8 +36,10 @@ public class ClinicalDataEqualityFilterApplier extends ClinicalDataFilterApplier
                     .collect(Collectors.toList());
             filteredValues.replaceAll(String::toUpperCase);
             if (entityClinicalData != null) {
-                Optional<ClinicalData> clinicalData = entityClinicalData.stream().filter(c -> c.getAttrId()
-                    .equals(s.getAttributeId().toUpperCase())).findFirst();
+                Optional<ClinicalData> clinicalData = entityClinicalData.stream().filter(
+                    c -> c.getAttrId().toUpperCase()
+                    .equals(s.getAttributeId().toUpperCase())
+                ).findFirst();
                 if (clinicalData.isPresent() && (negateFilters ^ filteredValues.contains(clinicalData.get().getAttrValue()))) {
                     count++;
                 } else if (!clinicalData.isPresent() && (negateFilters ^ filteredValues.contains("NA"))) {

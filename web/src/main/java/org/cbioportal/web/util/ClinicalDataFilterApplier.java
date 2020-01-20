@@ -53,7 +53,8 @@ public abstract class ClinicalDataFilterApplier {
             clinicalDataList.addAll(patientClinicalDataList);
 
             clinicalDataList.forEach(c -> {
-                if (c.getAttrValue().toUpperCase().equals("NAN") || c.getAttrValue().toUpperCase().equals("N/A")) {
+                c.setAttrValue(c.getAttrValue().toUpperCase());
+                if (c.getAttrValue().equals("NAN") || c.getAttrValue().equals("N/A")) {
                     c.setAttrValue("NA");
                 }
             });

@@ -678,7 +678,7 @@ You can learn more about configuring these annotations in the [portal.properties
 ![schreenshot mutation color menu](images/screenshot-mutation-color-menu.png) 
 
 #### Example MAF
-An example MAF can be found in the cBioPortal test study [study_es_0](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/core/src/test/scripts/test_data/study_es_0/brca_tcga_pub.maf).
+An example MAF can be found in the cBioPortal test study [study_es_0](https://github.com/cBioPortal/cbioportal/blob/master/core/src/test/scripts/test_data/study_es_0/data_mutations_extended.maf).
 
 #### Filtered mutations
 A special case for **Entrez_Gene_Id=0** and **Hugo_Symbol=Unknown**: when this combination is given, the record is parsed in the same way as **Variant_Classification=IGR** and therefore filtered out.

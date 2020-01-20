@@ -24,6 +24,7 @@ import org.cbioportal.persistence.PatientRepository;
 import org.cbioportal.persistence.SampleListRepository;
 import org.cbioportal.persistence.StudyRepository;
 import org.cbioportal.persistence.mybatis.util.CacheMapUtil;
+import org.cbioportal.service.StaticDataTimestampService;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,5 +62,9 @@ public class CacheMapUtilConfig {
     @Bean
     public GenericAssayRepository genericAssayRepository() {
         return Mockito.mock(GenericAssayRepository.class);
+    }
+    @Bean
+    public StaticDataTimestampService staticDataTimestampService() {
+        return Mockito.mock(StaticDataTimestampService.class);
     }
 }

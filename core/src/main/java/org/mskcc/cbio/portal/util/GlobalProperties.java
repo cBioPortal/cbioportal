@@ -39,6 +39,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -142,8 +143,8 @@ public class GlobalProperties {
     public static final String STUDY_VIEW_MDACC_HEATMAP_URL = "mdacc.heatmap.study.url";
     public static final String STUDY_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.study.meta.url";
 
-    public static final String ONCOKB_PUBLIC_API_URL = "oncokb.public_api.url";
     public static final String SHOW_ONCOKB = "show.oncokb";
+    public static final String ONCOKB_TOKEN = "oncokb.token";
 
     private static String sessionServiceURL;
     @Value("${session.service.url:}") // default is empty string
@@ -858,28 +859,6 @@ public class GlobalProperties {
         return sessionServicePassword;
     }
 
-    public static String getOncoKBPublicApiUrl()
-    {
-        String oncokbApiUrl = portalProperties.getProperty(ONCOKB_PUBLIC_API_URL);
-        String showOncokb = portalProperties.getProperty(SHOW_ONCOKB);
-        
-        if(showOncokb == null || showOncokb.isEmpty()) {
-                    showOncokb = "true";
-        }
-        
-        // Empty string should be used if you want to disable the OncoKB annotation.
-        if(oncokbApiUrl == null || oncokbApiUrl.isEmpty()) {
-            oncokbApiUrl = "oncokb.org/api/v1";
-        }
-        
-        if(showOncokb.equals("true")) {
-           return oncokbApiUrl;
-        } else {
-           return "";
-        }
-        
-    }
-
     public static String getCivicUrl() {
         return civicUrl;
     }
@@ -1188,5 +1167,9 @@ public class GlobalProperties {
     
     public static String getReferenceGenomeName() {
         return portalProperties.getProperty(UCSC_BUILD, DEFAULT_UCSC_BUILD);
+    }
+    
+    public static String getOncoKbToken()  {
+        return portalProperties.getProperty(ONCOKB_TOKEN, null);
     }
 }

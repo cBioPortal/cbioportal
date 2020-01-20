@@ -92,7 +92,7 @@
             "skin.show_web_api_tab",
             "skin.show_tweet_button",
             "skin.patientview.filter_genes_profiled_all_samples",
-            "skin.patientview.show_mkscc_slide_viewer",
+            "skin.patientview.show_mskcc_slide_viewer",
             "quick_search.enabled",
             "default_cross_cancer_study_session_id",
             "default_cross_cancer_study_list",
@@ -154,7 +154,9 @@
                 enableOncoKBandHotspots = "\"custom\"";
         }
              
-        obj.put("oncoprintOncoKbHotspotsDefault",enableOncoKBandHotspots);    
+        obj.put("oncoprintOncoKbHotspotsDefault",enableOncoKBandHotspots);
+        
+        obj.put("oncoKbTokenDefined", !StringUtils.isEmpty(GlobalProperties.getOncoKbToken()));
         
         obj.put("sessionServiceEnabled", !StringUtils.isEmpty(GlobalProperties.getSessionServiceUrl()));        
                 

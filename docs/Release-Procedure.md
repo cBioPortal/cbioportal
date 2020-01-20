@@ -26,7 +26,7 @@ These are the steps we follow:
    same tag as the frontend repo. You should see a draft from release drafter similar to the frontend in the backend repo: https://github.com/cBioPortal/cbioportal/releases. The idea is to create one set of release notes in the backend repo that is a combination of the frontend and backend notes. To make the hyperlinks from the frontend repo work in the backend repo you can copy the frontend release notes raw markdown and run the following one liner to convert the links:
    
    ```
-   pbpaste | sed 's|(#\(....\)|([#\1](https://github.com/cBioPortal/cbioportal-frontend/pull/\1))|g'
+   pbpaste | sed 's|(#\(....\)|([#\1](https://github.com/cBioPortal/cbioportal-frontend/pull/\1)|g'
    ```
    then put them in the right sections following same style as other releases: https://github.com/cBioPortal/cbioportal-frontend/releases.
 4. Create a news item with a link to your carefully crafted release notes. Highlight a few major changes that could be interesting to users of cBioPortal ideally with a screenshot similar to: https://github.com/cBioPortal/cbioportal/pull/6914/files?short_path=6f95322#diff-6f953229832059bab3fe229d4af08b52 (in the files changed section, you can click on view rich diff to see the converted markdown). 
@@ -63,3 +63,24 @@ PATCH
 : Changes that don't require database migrations. Could be new features as well as bug fixes to either frontend, backend or both.
 
 See also: https://github.com/cBioPortal/cbioportal/releases
+
+## User announcements
+The following is a provisional system of alerting user to new features and announcements. It would probably be better for these messages to be configurable on an instance level by installers.  For now, the following suffices.
+
+Top banner: see sample configuration in src/shared/components/userMessager/UserMessage.tsx
+
+For a beacon and associated dialog message, use this as a model, where child of InfoBeacon component is any component that will be shown when InfoBeacon is moused over and conditions are met
+
+```
+<If condition={!isWebdriver()}>
+  <InfoBeacon
+      top={-15}
+      right={45}
+      interaction={'mouseover'}
+      color={'green'}
+      id={'groupComparison1'}
+ >
+ <WrappedTour/>
+ </InfoBeacon>
+</If>
+```

@@ -17,6 +17,14 @@
 
   <repositories>
     <repository>
+      <id>plugins-release</id>
+      <name>Spring Plugins</name>
+      <url>https://repo.spring.io/plugins-release</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
       <id>spring-milestones</id>
       <name>Spring Milestones</name>
       <url>http://repo.spring.io/milestone</url>
@@ -270,7 +278,7 @@
   </profiles>
 
   <properties>
-    <frontend.version>95f3699d17b8a0fcf2825a303e435d63788b1e0c</frontend.version>
+    <frontend.version>0c016494abd4678fddde1169d5d4dc8612606e2c</frontend.version>
     <frontend.groupId>com.github.cbioportal</frontend.groupId>
     <slf4j.version>1.6.6</slf4j.version>
     <spring.version>4.3.14.RELEASE</spring.version>

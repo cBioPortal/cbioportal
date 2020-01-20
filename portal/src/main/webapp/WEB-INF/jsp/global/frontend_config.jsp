@@ -9,7 +9,6 @@ window.legacySupportFrontendConfig = {
     appVersion : '<%=GlobalProperties.getAppVersion()%>',
     maxTreeDepth : <%=GlobalProperties.getMaxTreeDepth()%>,
     showOncoKB : <%=GlobalProperties.showOncoKB()%>,
-    oncoKBApiUrl : '<%=GlobalProperties.getOncoKBPublicApiUrl()%>',
     genomeNexusApiUrl : '<%=GlobalProperties.getGenomeNexusApiUrl()%>',
     showCivic : <%=GlobalProperties.showCivic()%>,
     showHotspot : <%=GlobalProperties.showHotspot()%>,

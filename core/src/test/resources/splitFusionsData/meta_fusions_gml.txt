@@ -1,0 +1,8 @@
+cancer_study_identifier: study_tcga_pub
+genetic_alteration_type: FUSION
+datatype: FUSION
+stable_id: study_tcga_pub_mutations
+profile_name: Fusions (GML)
+profile_description: Fusion data derived from mutation file. (GML)
+show_profile_in_analysis_tab: false
+data_filename: data_fusions_gml.txt

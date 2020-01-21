@@ -1,0 +1,3 @@
+Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Fusion	DNA_support	RNA_support	Method	Frame	Comments
+CD79B	0	MEDICAL-PLACE	TCGA-AA-3664-01	TTLL7-CD79B fusion	yes	unknown		unknown	There are some comments about the fusion event.
+TTLL7	0	MEDICAL-PLACE	TCGA-AA-3664-01	TTLL7-CD79B fusion	yes	unknown		unknown	More comments about this sample.

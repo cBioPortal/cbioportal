@@ -140,13 +140,17 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
             "SUMMARY")
                 .stream()
                 .collect(Collectors.groupingBy(Gene::getEntrezGeneId));
-
-        expressionEnrichments.forEach(expressionEnrichment -> {
-            Gene gene = geneMapByEntrezId.get(expressionEnrichment.getEntrezGeneId()).get(0);
-            expressionEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
-        });
         
-        return expressionEnrichments;
+        return expressionEnrichments
+                .stream()
+                // filter Enrichments having no gene reference object(this happens when multiple entrez ids map to same hugo gene symbol)
+                .filter(expressionEnrichment -> geneMapByEntrezId.containsKey(expressionEnrichment.getEntrezGeneId()))
+                .map(expressionEnrichment -> {
+                    Gene gene = geneMapByEntrezId.get(expressionEnrichment.getEntrezGeneId()).get(0);
+                    expressionEnrichment.setHugoGeneSymbol(gene.getHugoGeneSymbol());
+                    return expressionEnrichment;
+                })
+                .collect(Collectors.toList());
     }
 
     /**

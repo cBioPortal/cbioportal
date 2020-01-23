@@ -15,4 +15,10 @@ jobs:
     - name: GET request to genie private page
       env:
         GENIE_PRIVATE_SECRET: ${{ secrets.GENIE_PRIVATE_SECRET }}
-      run: curl -I -H "Authorization:Bearer $GENIE_PRIVATE_SECRET" "https://genie.cbioportal.org/api/studies/genie_public" -H "accept:application/json" | head -1 | cut -d" " -f2
+      run: |
+        curl -I -H "Authorization:Bearer $GENIE_PRIVATE_SECRETBLAH" "https://genie.cbioportal.org/api/studies/genie_public" -H "accept:application/json" | head -1 | cut -d" " -f2
+        if [ "$RESPONSE_CODE" == "200" ]; then
+          exit 0
+        else 
+          echo 1
+        fi

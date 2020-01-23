@@ -13,14 +13,17 @@ jobs:
     
     env:
       SLACK_URL_SECRET: ${{ secrets.SLACK_URL_SECRET }}
-      GITHUB_ACTIONS_URL: "https://github.com/$GITHUB_REPOSITORY/actions"
+      # it would be nice to be able to get the exact run URL
+      # e.g. https://github.com/$GITHUB_REPOSITORY/runs/$GITHUB_RUN_ID
+      # but $GITHUB_RUN_ID does not exist
+      GITHUB_ACTIONS_URL: "https://github.com/$GITHUB_REPOSITORY/commit/$GITHUB_SHA/checks"
       SLACK_CHANNEL: "genie-private-github-action-test" 
 
     steps:
     - name: GET request to genie private page
       env:
         GENIE_PRIVATE_SECRET: ${{ secrets.GENIE_PRIVATE_SECRET }}
-        MAX_WAIT_TIME_IN_SECONDS: 2.0
+        MAX_WAIT_TIME_IN_SECONDS: 0.001
         URL: "https://genie.cbioportal.org/api/studies/genie_public"
         OK_RESPONSE_CODE: 200
       # GET request to URL with a MAX_WAIT_TIME_IN_SECONDS second limit

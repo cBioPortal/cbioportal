@@ -22,7 +22,7 @@ jobs:
       #   else if we did not get a OK_RESPONSE_CODE exit with a non-zero exit code
       #   else we are OK!
       run: |
-        curl --max-time $MAX_WAIT_TIME_IN_SECONDS -I -H "Authorization:Bearer $GENIE_PRIVATE_SECRET" "$URL" -H "accept:application/json" > curl.out
+        curl --max-time $MAX_WAIT_TIME_IN_SECONDS -I -H "Authorization:Bearer $GENIE_PRIVATE_SECRETBLAH" "$URL" -H "accept:application/json" > curl.out
         RESPONSE_CODE=`head -1 curl.out | cut -d" " -f2`
         if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
           echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"

@@ -14,7 +14,7 @@ jobs:
     - name: GET request to genie private page
       env:
         GENIE_PRIVATE_SECRET: ${{ secrets.GENIE_PRIVATE_SECRET }}
-        MAX_WAIT_TIME_IN_SECONDS: 1.0
+        MAX_WAIT_TIME_IN_SECONDS: 2.0
         URL: "https://genie.cbioportal.org/api/studies/genie_public"
         OK_RESPONSE_CODE: 200
       # GET request to URL with a MAX_WAIT_TIME_IN_SECONDS second limit

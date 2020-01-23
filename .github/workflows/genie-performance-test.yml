@@ -15,10 +15,10 @@ jobs:
     - name: GET request to genie private page
       env:
         GENIE_PRIVATE_SECRET: ${{ secrets.GENIE_PRIVATE_SECRET }}
-        MAX_WAIT_TIME_IN_SECONDS: 0.001
+        MAX_WAIT_TIME_IN_SECONDS: 1.0
         URL: "https://genie.cbioportal.org/api/studies/genie_public"
-      # GET request to genie private with a 1 second limit (TODO UPDATE)
-      #   if curl fails, exit with non-zero exit code
+      # GET request to URL with a MAX_WAIT_TIME_IN_SECONDS second limit
+      #   if curl fails, automatically exit with curl's non-zero exit code
       #   else if we did not get a 200 response code exit with a non-zero exit code
       #   else we are OK!
       run: |

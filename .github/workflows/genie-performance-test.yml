@@ -7,16 +7,12 @@ on:
 
 jobs:
   probe-genie-endpoint:
-    name: Genie endpoint probe
+    name: Genie private endpoint probe
 
     runs-on: ubuntu-latest
 
     steps:
-    - name: Run a one-line script
-      run: echo Hello, world!
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
-    - name: Hit a genie endpoint
-      run: curl -I https://genie-private.cbioportal.org/login.jsp | head -1 | cut -d" " -f2
+    - name: GET request to genie private page
+      env:
+        GENIE_PRIVATE_SECRET: ${{ secrets.GENIE_PRIVATE_SECRET }}
+      run: curl -I -H "Authorization:Bearer $GENIE_PRIVATE_SECRET" "https://genie.cbioportal.org/api/studies/genie_public" -H "accept:application/json" | head -1 | cut -d" " -f2

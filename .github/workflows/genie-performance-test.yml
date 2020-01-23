@@ -3,7 +3,7 @@ name: genie-performance-test
 on:
   schedule:
     # * is a special character in YAML so you have to quote this string
-    - cron:  '*/15 * * * *'
+    - cron:  '*/5 * * * *'
 
 jobs:
   probe-genie-endpoint:
@@ -12,10 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
     - name: Run a one-line script
       run: echo Hello, world!
     - name: Run a multi-line script
       run: |
         echo Add other actions to build,
         echo test, and deploy your project.
+    - name: Hit a genie endpoint
+      run: curl -I https://genie-private.cbioportal.org/login.jsp | head -1 | cut -d" " -f2

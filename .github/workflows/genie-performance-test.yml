@@ -2,8 +2,7 @@ name: genie-performance-test
 
 on:
   schedule:
-    # * is a special character in YAML so you have to quote this string
-    - cron:  '*/5 * * * *'
+    - cron:  '*/1 * * * *'
 
 jobs:
   probe-genie-endpoint:
@@ -17,19 +16,18 @@ jobs:
         GENIE_PRIVATE_SECRET: ${{ secrets.GENIE_PRIVATE_SECRET }}
         MAX_WAIT_TIME_IN_SECONDS: 1.0
         URL: "https://genie.cbioportal.org/api/studies/genie_public"
+        OK_RESPONSE_CODE: 200
       # GET request to URL with a MAX_WAIT_TIME_IN_SECONDS second limit
       #   if curl fails, automatically exit with curl's non-zero exit code
-      #   else if we did not get a 200 response code exit with a non-zero exit code
+      #   else if we did not get a OK_RESPONSE_CODE exit with a non-zero exit code
       #   else we are OK!
       run: |
         curl --max-time $MAX_WAIT_TIME_IN_SECONDS -I -H "Authorization:Bearer $GENIE_PRIVATE_SECRET" "$URL" -H "accept:application/json" > curl.out
-        if [ $? -ne 0 ]; then
-          echo "Curl failed, exiting..."
-          exit 1
-        fi
         RESPONSE_CODE=`head -1 curl.out | cut -d" " -f2`
-        if [ "$RESPONSE_CODE" != "200" ]; then
-          exit 0
-        else 
+        if [ "$RESPONSE_CODE" != "$OK_RESPONSE_CODE" ]; then
+          echo "Request failed with response code '$RESPONSE_CODE', expected '$OK_RESPONSE_CODE'"
           exit 1
+        else
+          echo "Request succeeded with expected response code '$OK_RESPONSE_CODE'"
+          exit 0
         fi

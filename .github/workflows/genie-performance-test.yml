@@ -6,9 +6,15 @@ on:
 
 jobs:
   probe-genie-endpoint:
+    
     name: Genie private endpoint probe
 
     runs-on: ubuntu-latest
+    
+    env:
+      SLACK_URL_SECRET: ${{ secrets.SLACK_URL_SECRET }}
+      GITHUB_ACTIONS_URL: "https://github.com/mandawilson/cbioportal/actions"
+      SLACK_CHANNEL: "genie-private-github-action-test" 
 
     steps:
     - name: GET request to genie private page
@@ -31,3 +37,9 @@ jobs:
           echo "Request succeeded with expected response code '$OK_RESPONSE_CODE'"
           exit 0
         fi
+    - name: Failure
+      if: failure()
+      run: curl -X POST --data-urlencode "payload={\"channel\":\"#$SLACK_CHANNEL\", \"username\":\"github-action\", \"text\":\"Genie private performance test failed! <$GITHUB_ACTIONS_URL|view details>\", \"icon_emoji\":\":cloud:\"}" $SLACK_URL_SECRET
+    - name: Success
+      if: success()
+      run: curl -X POST --data-urlencode "payload={\"channel\":\"#$SLACK_CHANNEL\", \"username\":\"github-action\", \"text\":\"Genie private performance test succeeded! <$GITHUB_ACTIONS_URL|view details>\", \"icon_emoji\":\":sunny:\"}" $SLACK_URL_SECRET

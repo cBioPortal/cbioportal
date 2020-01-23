@@ -13,7 +13,7 @@ jobs:
     
     env:
       SLACK_URL_SECRET: ${{ secrets.SLACK_URL_SECRET }}
-      GITHUB_ACTIONS_URL: "https://github.com/mandawilson/cbioportal/actions"
+      GITHUB_ACTIONS_URL: "https://github.com/$GITHUB_REPOSITORY/actions"
       SLACK_CHANNEL: "genie-private-github-action-test" 
 
     steps:

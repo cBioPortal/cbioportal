@@ -73,4 +73,4 @@ docker run -d --restart=always \
     -p 8081:8080 \
     cbioportal/cbioportal:latest \
     /bin/sh -c 'java ${JAVA_OPTS} -jar webapp-runner.jar /cbioportal-webapp'
-<pre>
+</pre>

@@ -53,8 +53,8 @@ above to folders or files that do not exist.
 Copy the
 [`portal.properties.EXAMPLE`](../../src/main/resources/portal.properties.EXAMPLE)
 and change it according to your wishes. See the [full
-reference](portal.properties-Reference.md) and the [skin
-properties](Customizing-your-instance-of-cBioPortal.md) for more information on
+reference](../portal.properties-Reference.md) and the [skin
+properties](../Customizing-your-instance-of-cBioPortal.md) for more information on
 the relevant properties.
 
 Make sure to at least provide the database parameters from step 1, which are
@@ -73,6 +73,14 @@ hostname of the MySQL database. If it requires an SSL connection use:
 
 ```
 db.use_ssl=true
+```
+
+If you would like to enable OncoKB see [OncoKB data access](../OncoKB-Data-Access.md) for 
+how to obtain a data access token. After obtaining a valid token use:
+
+```
+show.oncokb=true
+oncokb.token=<private_oncokb_access_token>
 ```
 
 ### Step 4 - Migrate database to latest version ###

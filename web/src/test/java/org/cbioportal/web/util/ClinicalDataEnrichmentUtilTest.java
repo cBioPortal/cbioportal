@@ -3,7 +3,6 @@ package org.cbioportal.web.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.model.ClinicalDataCount;
@@ -25,7 +24,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClinicalDataEnrichmentUtilTest {
-
     public static final String STUDY_ID1 = "study_id_1";
     public static final String STUDY_ID2 = "study_id_2";
     public static final String SAMPLE_ID1 = "sample_id1";
@@ -55,13 +53,12 @@ public class ClinicalDataEnrichmentUtilTest {
 
     @Mock
     private SampleService sampleService;
-    
+
     @Spy
     private ClinicalAttributeUtil clinicalAttributeUtil = new ClinicalAttributeUtil();
 
     @Test
     public void fetchClinicalDataEnrichemnts() {
-
         List<ClinicalData> expectedSampleClinicalDataList = new ArrayList<>();
         ClinicalData sampleClinicalData = new ClinicalData();
         expectedSampleClinicalDataList.add(sampleClinicalData);
@@ -111,7 +108,12 @@ public class ClinicalDataEnrichmentUtilTest {
         attribute4.setDatatype("NUMBER");
         attribute4.setPatientAttribute(true);
 
-        List<ClinicalAttribute> attributes = Arrays.asList(attribute1, attribute2, attribute3, attribute4);
+        List<ClinicalAttribute> attributes = Arrays.asList(
+            attribute1,
+            attribute2,
+            attribute3,
+            attribute4
+        );
 
         List<List<Sample>> groupedSamples = new ArrayList<List<Sample>>();
         groupedSamples.add(Arrays.asList(sample1, sample2));
@@ -138,36 +140,80 @@ public class ClinicalDataEnrichmentUtilTest {
         patientClinicalDataCount2.setCount(1);
 
         ClinicalDataCountItem group1sampleClinicalDataCountItem = new ClinicalDataCountItem();
-        group1sampleClinicalDataCountItem.setAttributeId(CLINICAL_ATTRIBUTE_ID_1);
-        group1sampleClinicalDataCountItem.setCounts(Arrays.asList(sampleClinicalDataCount1, sampleClinicalDataCount2));
+        group1sampleClinicalDataCountItem.setAttributeId(
+            CLINICAL_ATTRIBUTE_ID_1
+        );
+        group1sampleClinicalDataCountItem.setCounts(
+            Arrays.asList(sampleClinicalDataCount1, sampleClinicalDataCount2)
+        );
 
         ClinicalDataCountItem group1patientClinicalDataCountItem = new ClinicalDataCountItem();
-        group1patientClinicalDataCountItem.setAttributeId(CLINICAL_ATTRIBUTE_ID_2);
-        group1patientClinicalDataCountItem
-                .setCounts(Arrays.asList(patientClinicalDataCount1, patientClinicalDataCount2));
+        group1patientClinicalDataCountItem.setAttributeId(
+            CLINICAL_ATTRIBUTE_ID_2
+        );
+        group1patientClinicalDataCountItem.setCounts(
+            Arrays.asList(patientClinicalDataCount1, patientClinicalDataCount2)
+        );
 
-        Mockito.when(clinicalDataService.fetchClinicalDataCounts(Mockito.anyListOf(String.class),
-                Mockito.anyListOf(String.class), Mockito.anyListOf(String.class)))
-                .thenReturn(new ArrayList<ClinicalDataCountItem>());
+        Mockito
+            .when(
+                clinicalDataService.fetchClinicalDataCounts(
+                    Mockito.anyListOf(String.class),
+                    Mockito.anyListOf(String.class),
+                    Mockito.anyListOf(String.class)
+                )
+            )
+            .thenReturn(new ArrayList<ClinicalDataCountItem>());
 
         // when there is no data
         Assert.assertTrue(
-                clinicalDataEnrichmentUtil.createEnrichmentsForCategoricalData(attributes, groupedSamples).isEmpty());
+            clinicalDataEnrichmentUtil
+                .createEnrichmentsForCategoricalData(attributes, groupedSamples)
+                .isEmpty()
+        );
 
-
-        Mockito.when(clinicalDataService.fetchClinicalDataCounts(Arrays.asList(STUDY_ID1, STUDY_ID1),
-                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), Arrays.asList(CLINICAL_ATTRIBUTE_ID_1, CLINICAL_ATTRIBUTE_ID_2))).thenReturn(Arrays.asList(group1sampleClinicalDataCountItem, group1patientClinicalDataCountItem));
+        Mockito
+            .when(
+                clinicalDataService.fetchClinicalDataCounts(
+                    Arrays.asList(STUDY_ID1, STUDY_ID1),
+                    Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+                    Arrays.asList(
+                        CLINICAL_ATTRIBUTE_ID_1,
+                        CLINICAL_ATTRIBUTE_ID_2
+                    )
+                )
+            )
+            .thenReturn(
+                Arrays.asList(
+                    group1sampleClinicalDataCountItem,
+                    group1patientClinicalDataCountItem
+                )
+            );
 
         // where there are no attributes with STRING datatype
-        Assert.assertTrue(clinicalDataEnrichmentUtil
-                .createEnrichmentsForCategoricalData(Arrays.asList(attribute3, attribute4), groupedSamples).isEmpty());
+        Assert.assertTrue(
+            clinicalDataEnrichmentUtil
+                .createEnrichmentsForCategoricalData(
+                    Arrays.asList(attribute3, attribute4),
+                    groupedSamples
+                )
+                .isEmpty()
+        );
 
         // when attributes is empty
-        Assert.assertTrue(clinicalDataEnrichmentUtil
-                .createEnrichmentsForCategoricalData(new ArrayList<ClinicalAttribute>(), groupedSamples).isEmpty());
+        Assert.assertTrue(
+            clinicalDataEnrichmentUtil
+                .createEnrichmentsForCategoricalData(
+                    new ArrayList<ClinicalAttribute>(),
+                    groupedSamples
+                )
+                .isEmpty()
+        );
 
-        List<ClinicalDataEnrichment> actualClinicalDataEnrichments = clinicalDataEnrichmentUtil
-                .createEnrichmentsForCategoricalData(attributes, groupedSamples);
+        List<ClinicalDataEnrichment> actualClinicalDataEnrichments = clinicalDataEnrichmentUtil.createEnrichmentsForCategoricalData(
+            attributes,
+            groupedSamples
+        );
 
         // when there is data for only one group
         Assert.assertEquals(0, actualClinicalDataEnrichments.size());
@@ -183,31 +229,64 @@ public class ClinicalDataEnrichmentUtilTest {
         patientClinicalDataCount3.setCount(3);
 
         ClinicalDataCountItem group2sampleClinicalDataCountItem = new ClinicalDataCountItem();
-        group2sampleClinicalDataCountItem.setAttributeId(CLINICAL_ATTRIBUTE_ID_1);
-        group2sampleClinicalDataCountItem.setCounts(Arrays.asList(sampleClinicalDataCount3));
+        group2sampleClinicalDataCountItem.setAttributeId(
+            CLINICAL_ATTRIBUTE_ID_1
+        );
+        group2sampleClinicalDataCountItem.setCounts(
+            Arrays.asList(sampleClinicalDataCount3)
+        );
 
         ClinicalDataCountItem group2patientClinicalDataCountItem = new ClinicalDataCountItem();
-        group2patientClinicalDataCountItem.setAttributeId(CLINICAL_ATTRIBUTE_ID_2);
-        group2patientClinicalDataCountItem.setCounts(Arrays.asList(patientClinicalDataCount3));
+        group2patientClinicalDataCountItem.setAttributeId(
+            CLINICAL_ATTRIBUTE_ID_2
+        );
+        group2patientClinicalDataCountItem.setCounts(
+            Arrays.asList(patientClinicalDataCount3)
+        );
 
         // data only for string datatype and for all groups
-        Mockito.when(clinicalDataService.fetchClinicalDataCounts(Arrays.asList(STUDY_ID2, STUDY_ID2, STUDY_ID2),
-                Arrays.asList(SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5), Arrays.asList(CLINICAL_ATTRIBUTE_ID_1,CLINICAL_ATTRIBUTE_ID_2))).thenReturn(Arrays.asList(group2sampleClinicalDataCountItem, group2patientClinicalDataCountItem));
+        Mockito
+            .when(
+                clinicalDataService.fetchClinicalDataCounts(
+                    Arrays.asList(STUDY_ID2, STUDY_ID2, STUDY_ID2),
+                    Arrays.asList(SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5),
+                    Arrays.asList(
+                        CLINICAL_ATTRIBUTE_ID_1,
+                        CLINICAL_ATTRIBUTE_ID_2
+                    )
+                )
+            )
+            .thenReturn(
+                Arrays.asList(
+                    group2sampleClinicalDataCountItem,
+                    group2patientClinicalDataCountItem
+                )
+            );
 
-        actualClinicalDataEnrichments = clinicalDataEnrichmentUtil.createEnrichmentsForCategoricalData(attributes,
-                groupedSamples);
+        actualClinicalDataEnrichments =
+            clinicalDataEnrichmentUtil.createEnrichmentsForCategoricalData(
+                attributes,
+                groupedSamples
+            );
 
         // when there is data for more than one group
         Assert.assertEquals(2, actualClinicalDataEnrichments.size());
-        Assert.assertEquals("0.08208499862670093", actualClinicalDataEnrichments.get(0).getpValue().toString());
-        Assert.assertEquals("4.999999999999999", actualClinicalDataEnrichments.get(0).getScore().toString());
-        Assert.assertEquals("Chi-squared Test", actualClinicalDataEnrichments.get(0).getMethod());
-
+        Assert.assertEquals(
+            "0.08208499862670093",
+            actualClinicalDataEnrichments.get(0).getpValue().toString()
+        );
+        Assert.assertEquals(
+            "4.999999999999999",
+            actualClinicalDataEnrichments.get(0).getScore().toString()
+        );
+        Assert.assertEquals(
+            "Chi-squared Test",
+            actualClinicalDataEnrichments.get(0).getMethod()
+        );
     }
 
     @Test
     public void createEnrichmentsForNumericData() {
-
         List<ClinicalData> expectedSampleClinicalDataList = new ArrayList<>();
         ClinicalData sampleClinicalData = new ClinicalData();
         expectedSampleClinicalDataList.add(sampleClinicalData);
@@ -257,7 +336,12 @@ public class ClinicalDataEnrichmentUtilTest {
         attribute4.setDatatype("NUMBER");
         attribute4.setPatientAttribute(true);
 
-        List<ClinicalAttribute> attributes = Arrays.asList(attribute1, attribute2, attribute3, attribute4);
+        List<ClinicalAttribute> attributes = Arrays.asList(
+            attribute1,
+            attribute2,
+            attribute3,
+            attribute4
+        );
 
         List<List<Sample>> groupedSamples = new ArrayList<List<Sample>>();
         groupedSamples.add(Arrays.asList(sample1, sample2));
@@ -287,27 +371,60 @@ public class ClinicalDataEnrichmentUtilTest {
         patientClinicalData2.setSampleId(SAMPLE_ID1);
         patientClinicalData2.setStudyId(STUDY_ID1);
 
-        Mockito.when(
-                clinicalDataService.fetchClinicalData(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
-                        Mockito.anyListOf(String.class), Mockito.any(String.class), Mockito.any(String.class)))
-                .thenReturn(new ArrayList<ClinicalData>());
+        Mockito
+            .when(
+                clinicalDataService.fetchClinicalData(
+                    Mockito.anyListOf(String.class),
+                    Mockito.anyListOf(String.class),
+                    Mockito.anyListOf(String.class),
+                    Mockito.any(String.class),
+                    Mockito.any(String.class)
+                )
+            )
+            .thenReturn(new ArrayList<ClinicalData>());
 
         // when no data
         Assert.assertTrue(
-                clinicalDataEnrichmentUtil.createEnrichmentsForNumericData(attributes, groupedSamples).isEmpty());
+            clinicalDataEnrichmentUtil
+                .createEnrichmentsForNumericData(attributes, groupedSamples)
+                .isEmpty()
+        );
 
         // data only for one group
-        Mockito.when(clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID1, STUDY_ID1),
-                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2), Arrays.asList(CLINICAL_ATTRIBUTE_ID_3), "SAMPLE", "SUMMARY"))
-                .thenReturn(Arrays.asList(sampleClinicalData1, sampleClinicalData2));
+        Mockito
+            .when(
+                clinicalDataService.fetchClinicalData(
+                    Arrays.asList(STUDY_ID1, STUDY_ID1),
+                    Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+                    Arrays.asList(CLINICAL_ATTRIBUTE_ID_3),
+                    "SAMPLE",
+                    "SUMMARY"
+                )
+            )
+            .thenReturn(
+                Arrays.asList(sampleClinicalData1, sampleClinicalData2)
+            );
 
-        Mockito.when(clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID1, STUDY_ID1),
-                Arrays.asList(PATIENT_ID1, PATIENT_ID2), Arrays.asList(CLINICAL_ATTRIBUTE_ID_4), "PATIENT", "SUMMARY"))
-                .thenReturn(Arrays.asList(patientClinicalData1, patientClinicalData2));
+        Mockito
+            .when(
+                clinicalDataService.fetchClinicalData(
+                    Arrays.asList(STUDY_ID1, STUDY_ID1),
+                    Arrays.asList(PATIENT_ID1, PATIENT_ID2),
+                    Arrays.asList(CLINICAL_ATTRIBUTE_ID_4),
+                    "PATIENT",
+                    "SUMMARY"
+                )
+            )
+            .thenReturn(
+                Arrays.asList(patientClinicalData1, patientClinicalData2)
+            );
 
         // when there is data only for one group
         Assert.assertTrue(
-                clinicalDataEnrichmentUtil.createEnrichmentsForNumericData(attributes, groupedSamples).isEmpty());
+            clinicalDataEnrichmentUtil
+                .createEnrichmentsForNumericData(attributes, groupedSamples)
+                .isEmpty()
+        );
 
         ClinicalData sampleClinicalData3 = new ClinicalData();
         sampleClinicalData3.setAttrId(CLINICAL_ATTRIBUTE_ID_3);
@@ -345,21 +462,60 @@ public class ClinicalDataEnrichmentUtilTest {
         patientClinicalData5.setSampleId(SAMPLE_ID5);
         patientClinicalData5.setStudyId(STUDY_ID2);
 
-        Mockito.when(clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID2, STUDY_ID2, STUDY_ID2),
-                Arrays.asList(SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5), Arrays.asList(CLINICAL_ATTRIBUTE_ID_3), "SAMPLE",
-                "SUMMARY")).thenReturn(Arrays.asList(sampleClinicalData3, sampleClinicalData4, sampleClinicalData5));
+        Mockito
+            .when(
+                clinicalDataService.fetchClinicalData(
+                    Arrays.asList(STUDY_ID2, STUDY_ID2, STUDY_ID2),
+                    Arrays.asList(SAMPLE_ID3, SAMPLE_ID4, SAMPLE_ID5),
+                    Arrays.asList(CLINICAL_ATTRIBUTE_ID_3),
+                    "SAMPLE",
+                    "SUMMARY"
+                )
+            )
+            .thenReturn(
+                Arrays.asList(
+                    sampleClinicalData3,
+                    sampleClinicalData4,
+                    sampleClinicalData5
+                )
+            );
 
-        Mockito.when(clinicalDataService.fetchClinicalData(Arrays.asList(STUDY_ID2, STUDY_ID2, STUDY_ID2),
-                Arrays.asList(PATIENT_ID3, PATIENT_ID4, PATIENT_ID5), Arrays.asList(CLINICAL_ATTRIBUTE_ID_4), "PATIENT",
-                "SUMMARY")).thenReturn(Arrays.asList(patientClinicalData3, patientClinicalData4, patientClinicalData5));
+        Mockito
+            .when(
+                clinicalDataService.fetchClinicalData(
+                    Arrays.asList(STUDY_ID2, STUDY_ID2, STUDY_ID2),
+                    Arrays.asList(PATIENT_ID3, PATIENT_ID4, PATIENT_ID5),
+                    Arrays.asList(CLINICAL_ATTRIBUTE_ID_4),
+                    "PATIENT",
+                    "SUMMARY"
+                )
+            )
+            .thenReturn(
+                Arrays.asList(
+                    patientClinicalData3,
+                    patientClinicalData4,
+                    patientClinicalData5
+                )
+            );
 
-        List<ClinicalDataEnrichment> actualClinicalDataEnrichments = clinicalDataEnrichmentUtil
-                .createEnrichmentsForNumericData(attributes, groupedSamples);
+        List<ClinicalDataEnrichment> actualClinicalDataEnrichments = clinicalDataEnrichmentUtil.createEnrichmentsForNumericData(
+            attributes,
+            groupedSamples
+        );
 
         // when there is data for more than one group
         Assert.assertEquals(2, actualClinicalDataEnrichments.size());
-        Assert.assertEquals("0.7670968826920188", actualClinicalDataEnrichments.get(0).getpValue().toString());
-        Assert.assertEquals("0.08771942638231253", actualClinicalDataEnrichments.get(0).getScore().toString());
-        Assert.assertEquals("Kruskal Wallis Test", actualClinicalDataEnrichments.get(0).getMethod());
+        Assert.assertEquals(
+            "0.7670968826920188",
+            actualClinicalDataEnrichments.get(0).getpValue().toString()
+        );
+        Assert.assertEquals(
+            "0.08771942638231253",
+            actualClinicalDataEnrichments.get(0).getScore().toString()
+        );
+        Assert.assertEquals(
+            "Kruskal Wallis Test",
+            actualClinicalDataEnrichments.get(0).getMethod()
+        );
     }
 }

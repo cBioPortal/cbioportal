@@ -1,7 +1,12 @@
 package org.cbioportal.web.util;
 
-import org.apache.commons.collections.map.MultiKeyMap;
 import com.google.common.collect.Range;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.cbioportal.model.ClinicalData;
 import org.cbioportal.service.ClinicalDataService;
 import org.cbioportal.service.PatientService;
@@ -10,57 +15,74 @@ import org.cbioportal.web.parameter.ClinicalDataFilterValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 @Component
-public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier {
+public class ClinicalDataIntervalFilterApplier
+    extends ClinicalDataFilterApplier {
+
     @Autowired
-    public ClinicalDataIntervalFilterApplier(PatientService patientService,
-                                             ClinicalDataService clinicalDataService,
-                                             StudyViewFilterUtil studyViewFilterUtil) {
+    public ClinicalDataIntervalFilterApplier(
+        PatientService patientService,
+        ClinicalDataService clinicalDataService,
+        StudyViewFilterUtil studyViewFilterUtil
+    ) {
         super(patientService, clinicalDataService, studyViewFilterUtil);
     }
 
     @Override
-    public Integer apply(List<ClinicalDataFilter> attributes,
-                         MultiKeyMap clinicalDataMap,
-                         String entityId,
-                         String studyId,
-                         Boolean negateFilters) {
+    public Integer apply(
+        List<ClinicalDataFilter> attributes,
+        MultiKeyMap clinicalDataMap,
+        String entityId,
+        String studyId,
+        Boolean negateFilters
+    ) {
         int count = 0;
 
         for (ClinicalDataFilter filter : attributes) {
-            List<ClinicalData> entityClinicalData = (List<ClinicalData>)clinicalDataMap.get(entityId, studyId);
+            List<ClinicalData> entityClinicalData = (List<ClinicalData>) clinicalDataMap.get(
+                entityId,
+                studyId
+            );
             if (entityClinicalData != null) {
-                Optional<ClinicalData> clinicalData = entityClinicalData.stream().filter(c -> c.getAttrId()
-                    .equals(filter.getAttributeId())).findFirst();
-                if (clinicalData.isPresent())
-                {
+                Optional<ClinicalData> clinicalData = entityClinicalData
+                    .stream()
+                    .filter(c -> c.getAttrId().equals(filter.getAttributeId()))
+                    .findFirst();
+                if (clinicalData.isPresent()) {
                     String attrValue = clinicalData.get().getAttrValue();
-                    Range<BigDecimal> rangeValue = calculateRangeValueForAttr(attrValue);
+                    Range<BigDecimal> rangeValue = calculateRangeValueForAttr(
+                        attrValue
+                    );
 
                     // find range filters
-                    List<Range<BigDecimal>> ranges = filter.getValues().stream()
+                    List<Range<BigDecimal>> ranges = filter
+                        .getValues()
+                        .stream()
                         .map(this::calculateRangeValueForFilter)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
 
                     // find special value filters
-                    List<String> specialValues = filter.getValues().stream()
+                    List<String> specialValues = filter
+                        .getValues()
+                        .stream()
                         .filter(f -> f.getValue() != null)
                         .map(f -> f.getValue().toUpperCase())
                         .collect(Collectors.toList());
 
                     if (rangeValue != null) {
-                        if (negateFilters ^ ranges.stream().anyMatch(r -> r.encloses(rangeValue))) {
+                        if (
+                            negateFilters ^
+                            ranges
+                                .stream()
+                                .anyMatch(r -> r.encloses(rangeValue))
+                        ) {
                             count++;
                         }
-                    }
-                    else if (negateFilters ^ specialValues.contains(attrValue.toUpperCase())) {
+                    } else if (
+                        negateFilters ^
+                        specialValues.contains(attrValue.toUpperCase())
+                    ) {
                         count++;
                     }
                 } else if (negateFilters ^ containsNA(filter)) {
@@ -95,19 +117,15 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
         try {
             if (value.startsWith(lte)) {
                 max = new BigDecimal(value.substring(lte.length()));
-            }
-            else if (value.startsWith(lt)) {
+            } else if (value.startsWith(lt)) {
                 max = new BigDecimal(value.substring(lt.length()));
                 endInclusive = false;
-            }
-            else if (value.startsWith(gte)) {
+            } else if (value.startsWith(gte)) {
                 min = new BigDecimal(value.substring(gte.length()));
-            }
-            else if (value.startsWith(gt)) {
+            } else if (value.startsWith(gt)) {
                 min = new BigDecimal(value.substring(gt.length()));
                 startInclusive = false;
-            }
-            else {
+            } else {
                 min = max = new BigDecimal(attrValue);
             }
         } catch (Exception e) {
@@ -115,10 +133,17 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
             return null;
         }
 
-        return studyViewFilterUtil.calcRange(min, startInclusive, max, endInclusive);
+        return studyViewFilterUtil.calcRange(
+            min,
+            startInclusive,
+            max,
+            endInclusive
+        );
     }
 
-    private Range<BigDecimal> calculateRangeValueForFilter(ClinicalDataFilterValue filterValue) {
+    private Range<BigDecimal> calculateRangeValueForFilter(
+        ClinicalDataFilterValue filterValue
+    ) {
         BigDecimal start = filterValue.getStart();
         BigDecimal end = filterValue.getEnd();
 
@@ -133,11 +158,22 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
 
         // TODO also add startInclusive and endInclusive as a filterValue parameter?
 
-        return studyViewFilterUtil.calcRange(start, startInclusive, end, endInclusive);
+        return studyViewFilterUtil.calcRange(
+            start,
+            startInclusive,
+            end,
+            endInclusive
+        );
     }
 
     private Boolean containsNA(ClinicalDataFilter filter) {
-        return filter.getValues().stream().anyMatch(
-            r -> r.getValue() != null && r.getValue().toUpperCase().equals("NA"));
+        return filter
+            .getValues()
+            .stream()
+            .anyMatch(
+                r ->
+                    r.getValue() != null &&
+                    r.getValue().toUpperCase().equals("NA")
+            );
     }
 }

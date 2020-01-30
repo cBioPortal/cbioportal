@@ -1,17 +1,17 @@
 package org.cbioportal.web.parameter;
 
-import org.cbioportal.web.MutationController;
-
+import java.io.Serializable;
+import java.util.List;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
-import java.util.List;
-import java.io.Serializable;
+import org.cbioportal.web.MutationController;
 
 public class MutationMultipleStudyFilter implements Serializable {
-
     @Size(min = 1, max = MutationController.MUTATION_MAX_PAGE_SIZE)
     private List<SampleMolecularIdentifier> sampleMolecularIdentifiers;
+
     private List<String> molecularProfileIds;
+
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<Integer> entrezGeneIds;
 
@@ -24,7 +24,9 @@ public class MutationMultipleStudyFilter implements Serializable {
         return sampleMolecularIdentifiers;
     }
 
-    public void setSampleMolecularIdentifiers(List<SampleMolecularIdentifier> sampleMolecularIdentifiers) {
+    public void setSampleMolecularIdentifiers(
+        List<SampleMolecularIdentifier> sampleMolecularIdentifiers
+    ) {
         this.sampleMolecularIdentifiers = sampleMolecularIdentifiers;
     }
 

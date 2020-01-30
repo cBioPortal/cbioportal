@@ -1,7 +1,6 @@
 package org.cbioportal.web.parameter.sort;
 
 public enum MolecularProfileSortBy {
-
     molecularProfileId("stableId"),
     molecularAlterationType("geneticAlterationType"),
     datatype("datatype"),

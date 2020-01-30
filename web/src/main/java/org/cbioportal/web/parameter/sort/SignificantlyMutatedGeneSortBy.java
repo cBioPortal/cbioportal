@@ -1,7 +1,6 @@
 package org.cbioportal.web.parameter.sort;
 
 public enum SignificantlyMutatedGeneSortBy {
-    
     entrezGeneId("entrezGeneId"),
     hugoGeneSymbol("hugoGeneSymbol"),
     rank("rank"),

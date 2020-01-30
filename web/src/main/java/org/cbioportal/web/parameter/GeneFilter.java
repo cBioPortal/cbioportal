@@ -1,22 +1,21 @@
 package org.cbioportal.web.parameter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.validation.constraints.AssertTrue;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.cbioportal.model.CNA;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class GeneFilter implements Serializable {
-
     private Set<String> molecularProfileIds;
     private List<List<String>> geneQueries;
 
-    private final String GENE_QUERY_PATTERN = "^(\\w+)[\\s]*?(?:\\:(?:[\\s]*(?:(AMP)|(HOMDEL))\\b)+)?$";
+    private final String GENE_QUERY_PATTERN =
+        "^(\\w+)[\\s]*?(?:\\:(?:[\\s]*(?:(AMP)|(HOMDEL))\\b)+)?$";
 
     public class SingleGeneQuery implements Serializable {
         private String hugoGeneSymbol;
@@ -41,12 +40,29 @@ public class GeneFilter implements Serializable {
 
     @AssertTrue
     private boolean isValid() {
-        if (!CollectionUtils.isEmpty(geneQueries) && !CollectionUtils.isEmpty(molecularProfileIds)) {
-            return geneQueries.stream().flatMap(geneQuery -> geneQuery.stream().map(query -> {
-                Pattern pattern = Pattern.compile(GENE_QUERY_PATTERN);
-                Matcher matcher = pattern.matcher(query.trim());
-                return matcher.matches();
-            })).reduce(Boolean.TRUE, Boolean::logicalAnd);
+        if (
+            !CollectionUtils.isEmpty(geneQueries) &&
+            !CollectionUtils.isEmpty(molecularProfileIds)
+        ) {
+            return geneQueries
+                .stream()
+                .flatMap(
+                    geneQuery ->
+                        geneQuery
+                            .stream()
+                            .map(
+                                query -> {
+                                    Pattern pattern = Pattern.compile(
+                                        GENE_QUERY_PATTERN
+                                    );
+                                    Matcher matcher = pattern.matcher(
+                                        query.trim()
+                                    );
+                                    return matcher.matches();
+                                }
+                            )
+                )
+                .reduce(Boolean.TRUE, Boolean::logicalAnd);
         }
         return false;
     }
@@ -69,33 +85,52 @@ public class GeneFilter implements Serializable {
 
     @JsonIgnore
     public List<List<SingleGeneQuery>> getSingleGeneQueries() {
+        return geneQueries
+            .stream()
+            .map(
+                geneQuery -> {
+                    List<SingleGeneQuery> singleGeneQueries = new ArrayList<SingleGeneQuery>();
 
-        return geneQueries.stream().map(geneQuery -> {
+                    geneQuery
+                        .stream()
+                        .forEach(
+                            query -> {
+                                Pattern pattern = Pattern.compile(
+                                    GENE_QUERY_PATTERN
+                                );
+                                Matcher matcher = pattern.matcher(query.trim());
 
-            List<SingleGeneQuery> singleGeneQueries = new ArrayList<SingleGeneQuery>();
+                                if (matcher.find()) {
+                                    String hugoGeneSymbol = matcher.group(1);
+                                    Set<CNA> alterations = new HashSet<>();
+                                    for (
+                                        int count = 2;
+                                        count <= matcher.groupCount();
+                                        count++
+                                    ) {
+                                        if (matcher.group(count) != null) {
+                                            alterations.add(
+                                                CNA.valueOf(
+                                                    matcher.group(count)
+                                                )
+                                            );
+                                        }
+                                    }
+                                    SingleGeneQuery singleGeneQuery = new SingleGeneQuery();
+                                    singleGeneQuery.setHugoGeneSymbol(
+                                        hugoGeneSymbol
+                                    );
+                                    singleGeneQuery.setAlterations(
+                                        new ArrayList<>(alterations)
+                                    );
+                                    singleGeneQueries.add(singleGeneQuery);
+                                }
+                            }
+                        );
 
-            geneQuery.stream().forEach(query -> {
-                Pattern pattern = Pattern.compile(GENE_QUERY_PATTERN);
-                Matcher matcher = pattern.matcher(query.trim());
-
-                if (matcher.find()) {
-
-                    String hugoGeneSymbol = matcher.group(1);
-                    Set<CNA> alterations = new HashSet<>();
-                    for (int count = 2; count <= matcher.groupCount(); count++) {
-                        if (matcher.group(count) != null) {
-                            alterations.add(CNA.valueOf(matcher.group(count)));
-                        }
-                    }
-                    SingleGeneQuery singleGeneQuery = new SingleGeneQuery();
-                    singleGeneQuery.setHugoGeneSymbol(hugoGeneSymbol);
-                    singleGeneQuery.setAlterations(new ArrayList<>(alterations));
-                    singleGeneQueries.add(singleGeneQuery);
+                    return singleGeneQueries;
                 }
-            });
-
-            return singleGeneQueries;
-        }).collect(Collectors.toList());
+            )
+            .collect(Collectors.toList());
     }
-
 }

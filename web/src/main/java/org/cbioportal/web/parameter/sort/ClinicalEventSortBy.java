@@ -1,7 +1,6 @@
 package org.cbioportal.web.parameter.sort;
 
 public enum ClinicalEventSortBy {
-
     eventType("eventType"),
     startNumberOfDaysSinceDiagnosis("startDate"),
     endNumberOfDaysSinceDiagnosis("stopDate");

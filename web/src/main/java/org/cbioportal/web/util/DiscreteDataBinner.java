@@ -1,13 +1,12 @@
 package org.cbioportal.web.util;
 
-import org.cbioportal.model.DataBin;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.cbioportal.model.DataBin;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class DiscreteDataBinner {
@@ -18,9 +17,11 @@ public class DiscreteDataBinner {
         this.dataBinHelper = dataBinHelper;
     }
 
-    public List<DataBin> calculateDataBins(String attributeId,
-                                           List<BigDecimal> values,
-                                           Set<BigDecimal> uniqueValues) {
+    public List<DataBin> calculateDataBins(
+        String attributeId,
+        List<BigDecimal> values,
+        Set<BigDecimal> uniqueValues
+    ) {
         List<DataBin> dataBins = initDataBins(attributeId, uniqueValues);
 
         dataBinHelper.calcCounts(dataBins, values);
@@ -28,21 +29,26 @@ public class DiscreteDataBinner {
         return dataBins;
     }
 
-    public List<DataBin> initDataBins(String attributeId,
-                                      Set<BigDecimal> uniqueValues) {
-        return uniqueValues.stream()
-            .map(d -> {
-                DataBin dataBin = new DataBin();
+    public List<DataBin> initDataBins(
+        String attributeId,
+        Set<BigDecimal> uniqueValues
+    ) {
+        return uniqueValues
+            .stream()
+            .map(
+                d -> {
+                    DataBin dataBin = new DataBin();
 
-                dataBin.setAttributeId(attributeId);
-                dataBin.setCount(0);
+                    dataBin.setAttributeId(attributeId);
+                    dataBin.setCount(0);
 
-                // set both start and end to the same value
-                dataBin.setStart(d);
-                dataBin.setEnd(d);
+                    // set both start and end to the same value
+                    dataBin.setStart(d);
+                    dataBin.setEnd(d);
 
-                return dataBin;
-            })
+                    return dataBin;
+                }
+            )
             .collect(Collectors.toList());
     }
 }

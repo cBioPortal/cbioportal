@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @Api(tags = "Info", description = " ")
 public class InfoController {
-
     @Value("${portal.version}")
     private String portalVersion;
 
@@ -55,10 +54,13 @@ public class InfoController {
     @Value("${git.dirty}")
     private String gitDirty;
 
-    @RequestMapping(value = "/info", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(
+        value = "/info",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @ApiOperation("Get information about the running instance")
     public ResponseEntity<Info> getInfo() {
-
         Info info = new Info();
         info.setPortalVersion(portalVersion);
         info.setDbVersion(dbVersion);

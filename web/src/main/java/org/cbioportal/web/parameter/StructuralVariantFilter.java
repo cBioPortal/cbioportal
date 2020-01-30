@@ -23,16 +23,17 @@
 
 package org.cbioportal.web.parameter;
 
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.Size;
 
 public class StructuralVariantFilter implements Serializable {
-
-    @Size(min=1, max = PagingConstants.MAX_PAGE_SIZE)
+    @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> molecularProfileIds;
+
     private List<Integer> entrezGeneIds;
+
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<SampleMolecularIdentifier> sampleMolecularIdentifiers;
 
@@ -49,7 +50,7 @@ public class StructuralVariantFilter implements Serializable {
         this.molecularProfileIds = molecularProfileIds;
     }
 
-    public List<Integer> getEntrezGeneIds(){
+    public List<Integer> getEntrezGeneIds() {
         return entrezGeneIds;
     }
 
@@ -57,12 +58,13 @@ public class StructuralVariantFilter implements Serializable {
         this.entrezGeneIds = entrezGeneIds;
     }
 
-    public List<SampleMolecularIdentifier> getSampleMolecularIdentifiers(){
+    public List<SampleMolecularIdentifier> getSampleMolecularIdentifiers() {
         return sampleMolecularIdentifiers;
     }
 
-    public void setSampleMolecularIdentifiers(List<SampleMolecularIdentifier> sampleMolecularIdentifiers) {
+    public void setSampleMolecularIdentifiers(
+        List<SampleMolecularIdentifier> sampleMolecularIdentifiers
+    ) {
         this.sampleMolecularIdentifiers = sampleMolecularIdentifiers;
     }
-
 }

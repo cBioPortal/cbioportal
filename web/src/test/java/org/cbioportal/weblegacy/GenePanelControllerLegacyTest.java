@@ -28,22 +28,22 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package org.cbioportal.weblegacy;
 
-import org.cbioportal.web.config.CacheMapUtilConfig;
 import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.model.*;
-import org.mskcc.cbio.portal.model.GenePanel;
-import org.mskcc.cbio.portal.model.GenePanelWithSamples;
-import org.mskcc.cbio.portal.service.GenePanelServiceLegacy;
+import org.cbioportal.web.config.CacheMapUtilConfig;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mskcc.cbio.portal.model.GenePanel;
+import org.mskcc.cbio.portal.model.GenePanelWithSamples;
+import org.mskcc.cbio.portal.service.GenePanelServiceLegacy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -62,12 +62,20 @@ import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = {GenePanelControllerLegacyConfig.class, CustomObjectMapper.class, CacheMapUtilConfig.class})
+@ContextConfiguration(
+    classes = {
+        GenePanelControllerLegacyConfig.class,
+        CustomObjectMapper.class,
+        CacheMapUtilConfig.class
+    }
+)
 public class GenePanelControllerLegacyTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
+
     @Autowired
     private GenePanelServiceLegacy genePanelServiceLegacyMock;
+
     private MockMvc mockMvc;
     private GenePanel genePanel1;
     private GenePanel genePanel2;
@@ -77,7 +85,8 @@ public class GenePanelControllerLegacyTest {
     @Before
     public void setup() {
         Mockito.reset(genePanelServiceLegacyMock);
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        mockMvc =
+            MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         genePanel1 = new GenePanel();
         genePanel1.setStableId("GENEPANEL2");
         genePanel1.setDescription("2 genes tested");
@@ -89,7 +98,7 @@ public class GenePanelControllerLegacyTest {
         genePanel2.setInternalId(2);
 
         List<Gene> genes = new ArrayList<>();
-        braf  = new Gene();
+        braf = new Gene();
         braf.setEntrezGeneId(673);
         braf.setHugoGeneSymbol("BRAF");
         braf.setType("protein-coding");
@@ -107,17 +116,46 @@ public class GenePanelControllerLegacyTest {
     public void genePanelByStableIdTest() throws Exception {
         List<GenePanel> mockResponse = new ArrayList<>();
         mockResponse.add(genePanel1);
-        Mockito.when(genePanelServiceLegacyMock.getGenePanelByStableId(org.mockito.Matchers.anyString())).thenReturn(mockResponse);
+        Mockito
+            .when(
+                genePanelServiceLegacyMock.getGenePanelByStableId(
+                    org.mockito.Matchers.anyString()
+                )
+            )
+            .thenReturn(mockResponse);
         this.mockMvc.perform(
-        MockMvcRequestBuilders.get("/genepanel")
-        .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
-        .param("panel_id", "GENEPANEL2"))
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value("GENEPANEL2"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value("2 genes tested"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].genes", Matchers.hasSize(2)));
+                MockMvcRequestBuilders
+                    .get("/genepanel")
+                    .accept(
+                        MediaType.parseMediaType(
+                            "application/json;charset=UTF-8"
+                        )
+                    )
+                    .param("panel_id", "GENEPANEL2")
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith("application/json;charset=UTF-8")
+            )
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].stableId")
+                    .value("GENEPANEL2")
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].description")
+                    .value("2 genes tested")
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath(
+                    "$[0].genes",
+                    Matchers.hasSize(2)
+                )
+            );
     }
 
     @Test
@@ -129,21 +167,57 @@ public class GenePanelControllerLegacyTest {
         samples.add("SAMPLEID2");
         gpq1.setSamples(samples);
         gpq1.setStableId("GENEPANEL2");
-        String[] genesquery = {"OFFPANEL1", "OFFPANEL2"};
+        String[] genesquery = { "OFFPANEL1", "OFFPANEL2" };
         mockResponse.add(gpq1);
 
-        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito
+            .when(
+                genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(
+                    org.mockito.Matchers.anyString(),
+                    org.mockito.Matchers.anyListOf(String.class)
+                )
+            )
+            .thenReturn(mockResponse);
         this.mockMvc.perform(
-        MockMvcRequestBuilders.get("/genepanel/data")
-        .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
-        .param("profile_id", "PROFILE1").param("genes", genesquery))
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value("GENEPANEL2"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].genes", Matchers.nullValue()))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples", Matchers.hasSize(2)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples[0]").value("SAMPLEID1"));
+                MockMvcRequestBuilders
+                    .get("/genepanel/data")
+                    .accept(
+                        MediaType.parseMediaType(
+                            "application/json;charset=UTF-8"
+                        )
+                    )
+                    .param("profile_id", "PROFILE1")
+                    .param("genes", genesquery)
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith("application/json;charset=UTF-8")
+            )
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].stableId")
+                    .value("GENEPANEL2")
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath(
+                    "$[0].genes",
+                    Matchers.nullValue()
+                )
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath(
+                    "$[0].samples",
+                    Matchers.hasSize(2)
+                )
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].samples[0]")
+                    .value("SAMPLEID1")
+            );
     }
 
     @Test
@@ -157,22 +231,62 @@ public class GenePanelControllerLegacyTest {
         gpq1.setSamples(samples);
         gpq1.setStableId("GENEPANEL2");
         gpq1.setGenes(panelGenes);
-        String[] genesquery = {"OFFPANEL1", "BRAF"};
+        String[] genesquery = { "OFFPANEL1", "BRAF" };
         mockResponse.add(gpq1);
 
-        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito
+            .when(
+                genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(
+                    org.mockito.Matchers.anyString(),
+                    org.mockito.Matchers.anyListOf(String.class)
+                )
+            )
+            .thenReturn(mockResponse);
         this.mockMvc.perform(
-        MockMvcRequestBuilders.get("/genepanel/data")
-        .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
-        .param("profile_id", "PROFILE1").param("genes", genesquery))
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value("GENEPANEL2"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].genes", Matchers.hasSize(1)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].genes[0].hugoGeneSymbol").value("BRAF"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples", Matchers.hasSize(1)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples[0]").value("SAMPLEID1"));
+                MockMvcRequestBuilders
+                    .get("/genepanel/data")
+                    .accept(
+                        MediaType.parseMediaType(
+                            "application/json;charset=UTF-8"
+                        )
+                    )
+                    .param("profile_id", "PROFILE1")
+                    .param("genes", genesquery)
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith("application/json;charset=UTF-8")
+            )
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].stableId")
+                    .value("GENEPANEL2")
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath(
+                    "$[0].genes",
+                    Matchers.hasSize(1)
+                )
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].genes[0].hugoGeneSymbol")
+                    .value("BRAF")
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath(
+                    "$[0].samples",
+                    Matchers.hasSize(1)
+                )
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].samples[0]")
+                    .value("SAMPLEID1")
+            );
     }
 
     @Test
@@ -187,22 +301,62 @@ public class GenePanelControllerLegacyTest {
         gpq1.setSamples(samples);
         gpq1.setStableId("GENEPANEL2");
         gpq1.setGenes(panelGenes);
-        String[] genesquery = {"EGFR", "BRAF"};
+        String[] genesquery = { "EGFR", "BRAF" };
         mockResponse.add(gpq1);
 
-        Mockito.when(genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(org.mockito.Matchers.anyString(), org.mockito.Matchers.anyListOf(String.class))).thenReturn(mockResponse);
+        Mockito
+            .when(
+                genePanelServiceLegacyMock.getGenePanelDataByProfileAndGenes(
+                    org.mockito.Matchers.anyString(),
+                    org.mockito.Matchers.anyListOf(String.class)
+                )
+            )
+            .thenReturn(mockResponse);
         this.mockMvc.perform(
-        MockMvcRequestBuilders.get("/genepanel/data")
-        .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
-        .param("profile_id", "PROFILE1").param("genes", genesquery))
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value("GENEPANEL2"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].genes", Matchers.hasSize(2)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].genes[0].hugoGeneSymbol").value("BRAF"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples", Matchers.hasSize(1)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].samples[0]").value("SAMPLEID1"));
+                MockMvcRequestBuilders
+                    .get("/genepanel/data")
+                    .accept(
+                        MediaType.parseMediaType(
+                            "application/json;charset=UTF-8"
+                        )
+                    )
+                    .param("profile_id", "PROFILE1")
+                    .param("genes", genesquery)
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith("application/json;charset=UTF-8")
+            )
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].stableId")
+                    .value("GENEPANEL2")
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath(
+                    "$[0].genes",
+                    Matchers.hasSize(2)
+                )
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].genes[0].hugoGeneSymbol")
+                    .value("BRAF")
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath(
+                    "$[0].samples",
+                    Matchers.hasSize(1)
+                )
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].samples[0]")
+                    .value("SAMPLEID1")
+            );
     }
 
     @Test
@@ -210,16 +364,44 @@ public class GenePanelControllerLegacyTest {
         List<GenePanel> mockResponse = new ArrayList<>();
         mockResponse.add(genePanel1);
         mockResponse.add(genePanel2);
-        Mockito.when(genePanelServiceLegacyMock.getGenePanels()).thenReturn(mockResponse);
+        Mockito
+            .when(genePanelServiceLegacyMock.getGenePanels())
+            .thenReturn(mockResponse);
         this.mockMvc.perform(
-        MockMvcRequestBuilders.get("/genepanel")
-        .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value("GENEPANEL2"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value("2 genes tested"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[1].stableId").value("GENEPANEL3"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value("3 genes tested"));
+                MockMvcRequestBuilders
+                    .get("/genepanel")
+                    .accept(
+                        MediaType.parseMediaType(
+                            "application/json;charset=UTF-8"
+                        )
+                    )
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith("application/json;charset=UTF-8")
+            )
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].stableId")
+                    .value("GENEPANEL2")
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].description")
+                    .value("2 genes tested")
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].stableId")
+                    .value("GENEPANEL3")
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].description")
+                    .value("3 genes tested")
+            );
     }
 }

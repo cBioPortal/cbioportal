@@ -1,27 +1,34 @@
 package org.cbioportal.web.parameter;
 
-import java.io.Serializable;
-import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import java.io.Serializable;
+import java.util.Set;
+import javax.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "page", visible = true)
-@JsonSubTypes({ @JsonSubTypes.Type(value = StudyPageSettings.class, name = "study_view") })
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    property = "page",
+    visible = true
+)
+@JsonSubTypes(
+    { @JsonSubTypes.Type(value = StudyPageSettings.class, name = "study_view") }
+)
 @JsonInclude(Include.NON_NULL)
 public abstract class PageSettingsData implements Serializable {
-
     @NotNull
     private SessionPage page;
+
     private String owner = "anonymous";
+
     @NotNull
     private Set<String> origin;
+
     private Long created = System.currentTimeMillis();
     private Long lastUpdated = System.currentTimeMillis();
 
@@ -64,5 +71,4 @@ public abstract class PageSettingsData implements Serializable {
     public Set<String> getOrigin() {
         return this.origin;
     }
-
 }

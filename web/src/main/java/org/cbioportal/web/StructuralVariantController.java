@@ -23,15 +23,16 @@
 
 package org.cbioportal.web;
 
-import org.cbioportal.model.StructuralVariant;
-import org.cbioportal.service.StructuralVariantService;
-import org.cbioportal.web.parameter.StructuralVariantFilter;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.*;
+import javax.validation.Valid;
+import org.cbioportal.model.StructuralVariant;
+import org.cbioportal.service.StructuralVariantService;
 import org.cbioportal.web.config.annotation.PublicApi;
 import org.cbioportal.web.parameter.SampleMolecularIdentifier;
+import org.cbioportal.web.parameter.StructuralVariantFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,14 +40,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestBody;
 import springfox.documentation.annotations.ApiIgnore;
-
-import javax.validation.Valid;
-import java.util.*;
 
 @PublicApi
 @RestController
@@ -56,36 +54,66 @@ public class StructuralVariantController {
     @Autowired
     private StructuralVariantService structuralVariantService;
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/structuralvariant/fetch", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Fetch structural variants for entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers")
+    @PreAuthorize(
+        "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')"
+    )
+    @RequestMapping(
+        value = "/structuralvariant/fetch",
+        method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ApiOperation(
+        "Fetch structural variants for entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers"
+    )
     public ResponseEntity<List<StructuralVariant>> fetchStructuralVariants(
-            @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
-            @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-            @Valid @RequestAttribute(required = false, value = "interceptedStructuralVariantFilter") StructuralVariantFilter interceptedStructuralVariantFilter,
-            @ApiParam(required = true, value = "List of entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers")
-            @Valid @RequestBody(required = false) StructuralVariantFilter structuralVariantFilter) {
-
+        @ApiIgnore @RequestAttribute( // prevent reference to this attribute in the swagger-ui interface
+            required = false,
+            value = "involvedCancerStudies"
+        ) Collection<String> involvedCancerStudies,
+        @Valid @RequestAttribute(
+            required = false,
+            value = "interceptedStructuralVariantFilter"
+        ) StructuralVariantFilter interceptedStructuralVariantFilter,
+        @ApiParam(
+            required = true,
+            value = "List of entrezGeneIds and molecularProfileIds or sampleMolecularIdentifiers"
+        ) @Valid @RequestBody(
+            required = false
+        ) StructuralVariantFilter structuralVariantFilter
+    ) {
         List<StructuralVariant> structuralVariantList;
 
-        if (interceptedStructuralVariantFilter.getSampleMolecularIdentifiers() != null) {
+        if (
+            interceptedStructuralVariantFilter.getSampleMolecularIdentifiers() !=
+            null
+        ) {
             List<SampleMolecularIdentifier> sampleMolecularIdentifiers = interceptedStructuralVariantFilter.getSampleMolecularIdentifiers();
             List<String> molecularProfileIds = new ArrayList<>();
             List<String> sampleIds = new ArrayList<>();
 
             for (SampleMolecularIdentifier sampleMolecularIdentifier : sampleMolecularIdentifiers) {
-                molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
+                molecularProfileIds.add(
+                    sampleMolecularIdentifier.getMolecularProfileId()
+                );
                 sampleIds.add(sampleMolecularIdentifier.getSampleId());
             }
-            structuralVariantList = structuralVariantService.fetchStructuralVariants(molecularProfileIds, interceptedStructuralVariantFilter.getEntrezGeneIds(), sampleIds);
-
+            structuralVariantList =
+                structuralVariantService.fetchStructuralVariants(
+                    molecularProfileIds,
+                    interceptedStructuralVariantFilter.getEntrezGeneIds(),
+                    sampleIds
+                );
         } else {
             List<String> sampleIds = new ArrayList<>();
-            structuralVariantList = structuralVariantService.fetchStructuralVariants(interceptedStructuralVariantFilter.getMolecularProfileIds(), interceptedStructuralVariantFilter.getEntrezGeneIds(), sampleIds);
+            structuralVariantList =
+                structuralVariantService.fetchStructuralVariants(
+                    interceptedStructuralVariantFilter.getMolecularProfileIds(),
+                    interceptedStructuralVariantFilter.getEntrezGeneIds(),
+                    sampleIds
+                );
         }
 
         return new ResponseEntity<>(structuralVariantList, HttpStatus.OK);
-
     }
 }

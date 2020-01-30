@@ -3,11 +3,11 @@ package org.cbioportal.web.parameter;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
-
 import javax.validation.constraints.AssertTrue;
 
-public class ClinicalDataBinFilter extends ClinicalDataFilter implements Serializable {
-
+public class ClinicalDataBinFilter
+    extends ClinicalDataFilter
+    implements Serializable {
     private Boolean disableLogScale = false;
     private List<BigDecimal> customBins;
     private BigDecimal start;
@@ -51,11 +51,11 @@ public class ClinicalDataBinFilter extends ClinicalDataFilter implements Seriali
         if (this.customBins != null && (start != null || end != null)) {
             boolean valid = true;
             for (BigDecimal bin : this.customBins) {
-                if(start != null && start.compareTo(bin) == 1) {
+                if (start != null && start.compareTo(bin) == 1) {
                     valid = false;
                     break;
                 }
-                if(end != null && end.compareTo(bin) == -1) {
+                if (end != null && end.compareTo(bin) == -1) {
                     valid = false;
                     break;
                 }

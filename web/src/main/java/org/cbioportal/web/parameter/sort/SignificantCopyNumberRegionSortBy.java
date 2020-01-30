@@ -1,7 +1,6 @@
 package org.cbioportal.web.parameter.sort;
 
 public enum SignificantCopyNumberRegionSortBy {
-
     chromosome("chromosome"),
     cytoband("cytoband"),
     widePeakStart("widePeakStart"),
@@ -18,5 +17,4 @@ public enum SignificantCopyNumberRegionSortBy {
     public String getOriginalValue() {
         return originalValue;
     }
-    
 }

@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.List;
 
 public class ClinicalDataCountFilter implements Serializable {
-
     private List<ClinicalDataFilter> attributes;
     private StudyViewFilter studyViewFilter;
 

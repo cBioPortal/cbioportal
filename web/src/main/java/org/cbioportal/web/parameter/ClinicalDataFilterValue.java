@@ -3,7 +3,6 @@ package org.cbioportal.web.parameter;
 import java.math.BigDecimal;
 
 public class ClinicalDataFilterValue {
-
     private BigDecimal start;
     private BigDecimal end;
     private String value;

@@ -28,20 +28,21 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.weblegacy;
 
-import org.cbioportal.web.config.CacheMapUtilConfig;
 import java.util.ArrayList;
 import java.util.List;
-import org.mskcc.cbio.portal.model.CNSegmentData;
+import org.cbioportal.web.config.CacheMapUtilConfig;
 import org.cbioportal.web.config.CustomObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mskcc.cbio.portal.model.CNSegmentData;
+import org.mskcc.cbio.portal.service.CNSegmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -52,22 +53,30 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.mskcc.cbio.portal.service.CNSegmentService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = {CNSegmentControllerConfig.class, CustomObjectMapper.class, CacheMapUtilConfig.class})
+@ContextConfiguration(
+    classes = {
+        CNSegmentControllerConfig.class,
+        CustomObjectMapper.class,
+        CacheMapUtilConfig.class
+    }
+)
 public class CNSegmentControllerTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
+
     @Autowired
     private CNSegmentService cnSegmentServiceMock;
+
     private MockMvc mockMvc;
 
     @Before
     public void setup() {
         Mockito.reset(cnSegmentServiceMock);
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        mockMvc =
+            MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
     @Test
@@ -89,33 +98,69 @@ public class CNSegmentControllerTest {
         cnSegmentData2.setSample("TCGA-AG-3732-01");
         mockResponse.add(cnSegmentData1);
         mockResponse.add(cnSegmentData2);
-        Mockito.when(
-                cnSegmentServiceMock.getCNSegmentData(org.mockito.Matchers.anyString(),
-                                                        org.mockito.Matchers.anyListOf(String.class),
-                                                        org.mockito.Matchers.anyListOf(String.class)))
-                .thenReturn(mockResponse)
-                ;
+        Mockito
+            .when(
+                cnSegmentServiceMock.getCNSegmentData(
+                    org.mockito.Matchers.anyString(),
+                    org.mockito.Matchers.anyListOf(String.class),
+                    org.mockito.Matchers.anyListOf(String.class)
+                )
+            )
+            .thenReturn(mockResponse);
         this.mockMvc.perform(
-                MockMvcRequestBuilders.get("/copynumbersegments")
-                .accept(MediaType.parseMediaType("application/json;charset=UTF-8"))
-                .param("cancerStudyId", "coadread_tcga")
-                .param("chromosomes", "1,2")
-                .param("sampleIds", "TCGA-AG-3732-01"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith("application/json;charset=UTF-8"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].sample").value("TCGA-AG-3732-01"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].chr").value("7"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].start").value(148350479))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].end").value(158385118))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].numProbes").value(4901))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].value").value(0.1315))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].sample").value("TCGA-AG-3732-01"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].chr").value("7"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].start").value(148347132))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].end").value(148348416))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].numProbes").value(3))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(-1.5009))
-                ;
+                MockMvcRequestBuilders
+                    .get("/copynumbersegments")
+                    .accept(
+                        MediaType.parseMediaType(
+                            "application/json;charset=UTF-8"
+                        )
+                    )
+                    .param("cancerStudyId", "coadread_tcga")
+                    .param("chromosomes", "1,2")
+                    .param("sampleIds", "TCGA-AG-3732-01")
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith("application/json;charset=UTF-8")
+            )
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sample")
+                    .value("TCGA-AG-3732-01")
+            )
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].chr").value("7"))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].start").value(148350479)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].end").value(158385118)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].numProbes").value(4901)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].value").value(0.1315)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sample")
+                    .value("TCGA-AG-3732-01")
+            )
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].chr").value("7"))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].start").value(148347132)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].end").value(148348416)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].numProbes").value(3)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].value").value(-1.5009)
+            );
     }
 }

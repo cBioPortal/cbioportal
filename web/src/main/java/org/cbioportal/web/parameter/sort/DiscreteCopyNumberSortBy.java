@@ -1,7 +1,6 @@
 package org.cbioportal.web.parameter.sort;
 
 public enum DiscreteCopyNumberSortBy {
-    
     entrezGeneId("entrezGeneId"),
     alteration("alteration");
 

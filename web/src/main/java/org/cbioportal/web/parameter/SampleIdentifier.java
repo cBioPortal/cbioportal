@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class SampleIdentifier implements Serializable {
-
     private String sampleId;
     private String studyId;
 
@@ -31,7 +30,10 @@ public class SampleIdentifier implements Serializable {
             return false;
         }
         SampleIdentifier user = (SampleIdentifier) o;
-        return Objects.equals(sampleId, user.sampleId) && Objects.equals(studyId, user.studyId);
+        return (
+            Objects.equals(sampleId, user.sampleId) &&
+            Objects.equals(studyId, user.studyId)
+        );
     }
 
     @Override

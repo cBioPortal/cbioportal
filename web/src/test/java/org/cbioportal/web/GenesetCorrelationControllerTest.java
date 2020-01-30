@@ -2,7 +2,6 @@ package org.cbioportal.web;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.cbioportal.model.GenesetCorrelation;
 import org.cbioportal.service.GenesetCorrelationService;
 import org.hamcrest.Matchers;
@@ -28,7 +27,6 @@ import org.springframework.web.context.WebApplicationContext;
 @ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class GenesetCorrelationControllerTest {
-
     private static final String PROF_ID = "test_prof_id";
     private static final String QUERY_GENESET_ID = "test_geneset_Id";
     private static final int ENTREZ_GENE_ID_1 = 1;
@@ -55,39 +53,95 @@ public class GenesetCorrelationControllerTest {
 
     @Before
     public void setUp() throws Exception {
-
         Mockito.reset(genesetCorrelationService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
     @Test
     public void fetchCorrelatedGenes() throws Exception {
-
         List<GenesetCorrelation> correlationsForGeneset = createGenesetCorrelationList();
-        Mockito.when(genesetCorrelationService.fetchCorrelatedGenes(Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyDouble())).thenReturn(correlationsForGeneset);
+        Mockito
+            .when(
+                genesetCorrelationService.fetchCorrelatedGenes(
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.anyDouble()
+                )
+            )
+            .thenReturn(correlationsForGeneset);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/genesets/" + QUERY_GENESET_ID + "/expression-correlation/fetch")
-                .param("geneticProfileId", PROF_ID)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(ENTREZ_GENE_ID_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(HUGO_GENE_SYMBOL_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].correlationValue").value(CORR_1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].expressionGeneticProfileId").value(EXPR_PROF_ID))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].zScoreGeneticProfileId").value(ZSCORE_PROF_ID))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(ENTREZ_GENE_ID_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(HUGO_GENE_SYMBOL_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].correlationValue").value(CORR_2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].expressionGeneticProfileId").value(EXPR_PROF_ID))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].zScoreGeneticProfileId").value(ZSCORE_PROF_ID));
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post(
+                        "/genesets/" +
+                        QUERY_GENESET_ID +
+                        "/expression-correlation/fetch"
+                    )
+                    .param("geneticProfileId", PROF_ID)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].entrezGeneId")
+                    .value(ENTREZ_GENE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].hugoGeneSymbol")
+                    .value(HUGO_GENE_SYMBOL_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].correlationValue")
+                    .value(CORR_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].expressionGeneticProfileId")
+                    .value(EXPR_PROF_ID)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].zScoreGeneticProfileId")
+                    .value(ZSCORE_PROF_ID)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].entrezGeneId")
+                    .value(ENTREZ_GENE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].hugoGeneSymbol")
+                    .value(HUGO_GENE_SYMBOL_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].correlationValue")
+                    .value(CORR_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].expressionGeneticProfileId")
+                    .value(EXPR_PROF_ID)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].zScoreGeneticProfileId")
+                    .value(ZSCORE_PROF_ID)
+            );
     }
 
     private List<GenesetCorrelation> createGenesetCorrelationList() {
-
         List<GenesetCorrelation> genesetCorrelationList = new ArrayList<>();
         GenesetCorrelation gsc1 = new GenesetCorrelation();
         gsc1.setEntrezGeneId(ENTREZ_GENE_ID_1);

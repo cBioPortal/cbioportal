@@ -1,12 +1,5 @@
 package org.mskcc.cbio.portal.documentation;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,6 +8,12 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.Map;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 // Retrieve the content of an external page
 // Make it auto-scannable
@@ -25,8 +24,14 @@ public class ExternalPageController {
     // available via GET method
     // sourceURL is required
     @Transactional
-    @RequestMapping(value = "/getexternalpage.json", method = {RequestMethod.GET})
-    public @ResponseBody Map<String, String> getExternalPage(@RequestParam(required = true) String sourceURL) throws IOException {
+    @RequestMapping(
+        value = "/getexternalpage.json",
+        method = { RequestMethod.GET }
+    )
+    public @ResponseBody Map<String, String> getExternalPage(
+        @RequestParam(required = true) String sourceURL
+    )
+        throws IOException {
         String decodedString, pageText = "";
 
         // decode the sourceURL and open a connection
@@ -35,7 +40,9 @@ public class ExternalPageController {
         URLConnection connection = url.openConnection();
 
         // create a reader
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+        BufferedReader in = new BufferedReader(
+            new InputStreamReader(connection.getInputStream(), "UTF-8")
+        );
 
         // read
         while ((decodedString = in.readLine()) != null) {

@@ -1,7 +1,6 @@
 package org.cbioportal.web.parameter.sort;
 
 public enum ClinicalDataSortBy {
-
     clinicalAttributeId("attrId"),
     value("attrValue");
 

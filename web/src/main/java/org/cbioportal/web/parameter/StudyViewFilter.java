@@ -1,27 +1,26 @@
 package org.cbioportal.web.parameter;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
 @JsonInclude(Include.NON_NULL)
 public class StudyViewFilter implements Serializable {
-
     @Size(min = 1)
     private List<SampleIdentifier> sampleIdentifiers;
+
     @Size(min = 1)
     private List<String> studyIds;
+
     private List<ClinicalDataFilter> clinicalDataFilters;
     private List<GeneFilter> geneFilters;
-	private Boolean withMutationData;
-	private Boolean withCNAData;
-	private Boolean withFusionData;
+    private Boolean withMutationData;
+    private Boolean withCNAData;
+    private Boolean withFusionData;
 
     @AssertTrue
     private boolean isEitherSampleIdentifiersOrStudyIdsPresent() {
@@ -33,11 +32,18 @@ public class StudyViewFilter implements Serializable {
         long invalidCount = 0;
 
         if (clinicalDataFilters != null) {
-            invalidCount = clinicalDataFilters.stream()
-                .flatMap(f -> f.getValues().stream())
-                .filter(Objects::nonNull)
-                .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
-                .count();
+            invalidCount =
+                clinicalDataFilters
+                    .stream()
+                    .flatMap(f -> f.getValues().stream())
+                    .filter(Objects::nonNull)
+                    .filter(
+                        v ->
+                            v.getValue() !=
+                            null ==
+                            (v.getStart() != null || v.getEnd() != null)
+                    )
+                    .count();
         }
 
         return invalidCount == 0;
@@ -58,12 +64,14 @@ public class StudyViewFilter implements Serializable {
     public void setStudyIds(List<String> studyIds) {
         this.studyIds = studyIds;
     }
-    
+
     public List<ClinicalDataFilter> getClinicalDataFilters() {
         return clinicalDataFilters;
     }
 
-    public void setClinicalDataFilters(List<ClinicalDataFilter> clinicalDataFilters) {
+    public void setClinicalDataFilters(
+        List<ClinicalDataFilter> clinicalDataFilters
+    ) {
         this.clinicalDataFilters = clinicalDataFilters;
     }
 
@@ -98,5 +106,4 @@ public class StudyViewFilter implements Serializable {
     public void setWithFusionData(Boolean withFusionData) {
         this.withFusionData = withFusionData;
     }
-
 }

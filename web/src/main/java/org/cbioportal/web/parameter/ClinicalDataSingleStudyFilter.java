@@ -1,16 +1,15 @@
 package org.cbioportal.web.parameter;
 
-import org.cbioportal.web.ClinicalDataController;
-
-import javax.validation.constraints.Size;
-import java.util.List;
-
 import static org.cbioportal.web.parameter.PagingConstants.MAX_PAGE_SIZE;
 
-public class ClinicalDataSingleStudyFilter {
+import java.util.List;
+import javax.validation.constraints.Size;
+import org.cbioportal.web.ClinicalDataController;
 
+public class ClinicalDataSingleStudyFilter {
     @Size(min = 1, max = ClinicalDataController.CLINICAL_DATA_MAX_PAGE_SIZE)
     private List<String> ids;
+
     @Size(min = 1, max = MAX_PAGE_SIZE)
     private List<String> attributeIds;
 

@@ -1,17 +1,15 @@
 package org.cbioportal.web.parameter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
 import javax.validation.constraints.Size;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
  * @author kalletlak
@@ -20,13 +18,14 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
-public class StudyPageSettings extends PageSettingsData implements Serializable {
+public class StudyPageSettings
+    extends PageSettingsData
+    implements Serializable {
 
     @JsonInclude(Include.NON_NULL)
     static class ChartSetting implements Serializable {
 
         static class Layout implements Serializable {
-
             private Integer x;
             private Integer y;
             private Integer w;
@@ -66,8 +65,9 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
         }
 
         @JsonInclude(Include.NON_NULL)
-        static class PatientSampleIdentifier extends SampleIdentifier implements Serializable {
-
+        static class PatientSampleIdentifier
+            extends SampleIdentifier
+            implements Serializable {
             private String patientId;
 
             public String getPatientId() {
@@ -80,26 +80,39 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
 
             @Override
             public boolean equals(Object o) {
-                if (o == this)
-                    return true;
+                if (o == this) return true;
                 if (!(o instanceof PatientSampleIdentifier)) {
                     return false;
                 }
                 PatientSampleIdentifier patientSampleIdentifier = (PatientSampleIdentifier) o;
-                return Objects.equals(getSampleId(), patientSampleIdentifier.getSampleId())
-                        && Objects.equals(getPatientId(), patientSampleIdentifier.getPatientId())
-                        && Objects.equals(getStudyId(), patientSampleIdentifier.getStudyId());
+                return (
+                    Objects.equals(
+                        getSampleId(),
+                        patientSampleIdentifier.getSampleId()
+                    ) &&
+                    Objects.equals(
+                        getPatientId(),
+                        patientSampleIdentifier.getPatientId()
+                    ) &&
+                    Objects.equals(
+                        getStudyId(),
+                        patientSampleIdentifier.getStudyId()
+                    )
+                );
             }
 
             @Override
             public int hashCode() {
-                return Objects.hash(getSampleId(), getPatientId(), getStudyId());
+                return Objects.hash(
+                    getSampleId(),
+                    getPatientId(),
+                    getStudyId()
+                );
             }
         }
 
         @JsonInclude(Include.NON_NULL)
         static class CustomChartGroup implements Serializable {
-
             @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
             private List<PatientSampleIdentifier> sampleIdentifiers;
 
@@ -109,7 +122,9 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
                 return sampleIdentifiers;
             }
 
-            public void setSampleIdentifiers(List<PatientSampleIdentifier> sampleIdentifiers) {
+            public void setSampleIdentifiers(
+                List<PatientSampleIdentifier> sampleIdentifiers
+            ) {
                 this.sampleIdentifiers = sampleIdentifiers;
             }
 
@@ -120,7 +135,6 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
             public void setName(String name) {
                 this.name = name;
             }
-
         }
 
         private String id;
@@ -204,7 +218,6 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
         public void setDisableLogScale(Boolean disableLogScale) {
             this.disableLogScale = disableLogScale;
         }
-
     }
 
     private List<ChartSetting> chartSettings = new ArrayList<ChartSetting>();
@@ -252,5 +265,4 @@ public class StudyPageSettings extends PageSettingsData implements Serializable 
     public void setChartSettings(List<ChartSetting> chartSettings) {
         this.chartSettings = chartSettings;
     }
-
 }

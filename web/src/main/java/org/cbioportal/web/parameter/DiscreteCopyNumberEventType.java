@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum DiscreteCopyNumberEventType {
-
     HOMDEL_AND_AMP(-2, 2),
     HOMDEL(-2),
     AMP(2),

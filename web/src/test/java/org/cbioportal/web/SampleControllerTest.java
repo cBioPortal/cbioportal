@@ -1,6 +1,9 @@
 package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.cbioportal.model.Sample;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SampleService;
@@ -26,25 +29,22 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class SampleControllerTest {
-
     private static final int TEST_INTERNAL_ID_1 = 1;
     private static final String TEST_STABLE_ID_1 = "test_stable_id_1";
     private static final int TEST_PATIENT_ID_1 = 1;
-    private static final String TEST_PATIENT_STABLE_ID_1 = "test_patient_stable_id_1";
+    private static final String TEST_PATIENT_STABLE_ID_1 =
+        "test_patient_stable_id_1";
     private static final String TEST_CANCER_STUDY_IDENTIFIER_1 = "test_study_1";
     private static final int TEST_INTERNAL_ID_2 = 2;
     private static final String TEST_STABLE_ID_2 = "test_stable_id_2";
     private static final int TEST_PATIENT_ID_2 = 2;
-    private static final String TEST_PATIENT_STABLE_ID_2 = "test_patient_stable_id_2";
+    private static final String TEST_PATIENT_STABLE_ID_2 =
+        "test_patient_stable_id_2";
 
     @Autowired
     private WebApplicationContext wac;
@@ -58,105 +58,253 @@ public class SampleControllerTest {
 
     @Before
     public void setUp() throws Exception {
-
         Mockito.reset(sampleService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
     @Test
     public void getAllSamplesInStudyDefaultProjection() throws Exception {
-
         List<Sample> sampleList = createExampleSamples();
 
-        Mockito.when(sampleService.getAllSamplesInStudy(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(sampleList);
+        Mockito
+            .when(
+                sampleService.getAllSamplesInStudy(
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.anyInt(),
+                    Mockito.anyInt(),
+                    Mockito.anyString(),
+                    Mockito.anyString()
+                )
+            )
+            .thenReturn(sampleList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples")
-            .accept(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/studies/test_study_id/samples")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientStableId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleType")
-                .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").value(TEST_PATIENT_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientStableId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleType")
-                .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist());
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleId")
+                    .value(TEST_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].patientId")
+                    .value(TEST_PATIENT_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].patientStableId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleType")
+                    .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sampleId")
+                    .value(TEST_STABLE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].patientId")
+                    .value(TEST_PATIENT_STABLE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].patientStableId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sampleType")
+                    .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist()
+            );
     }
 
     @Test
     public void getAllSamplesInStudyMetaProjection() throws Exception {
-
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(sampleService.getMetaSamplesInStudy(Mockito.anyString())).thenReturn(baseMeta);
+        Mockito
+            .when(sampleService.getMetaSamplesInStudy(Mockito.anyString()))
+            .thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples")
-            .param("projection", "META"))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/studies/test_study_id/samples")
+                    .param("projection", "META")
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(
+                MockMvcResultMatchers
+                    .header()
+                    .string(HeaderKeyConstants.TOTAL_COUNT, "2")
+            );
     }
 
     @Test
     public void getSampleInStudyNotFound() throws Exception {
+        Mockito
+            .when(
+                sampleService.getSampleInStudy(
+                    Mockito.anyString(),
+                    Mockito.anyString()
+                )
+            )
+            .thenThrow(
+                new SampleNotFoundException("test_study_id", "test_sample_id")
+            );
 
-        Mockito.when(sampleService.getSampleInStudy(Mockito.anyString(), Mockito.anyString())).thenThrow(
-            new SampleNotFoundException("test_study_id", "test_sample_id"));
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id")
-            .accept(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/studies/test_study_id/samples/test_sample_id")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.status().isNotFound())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                .value("Sample not found in study test_study_id: test_sample_id"));
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.message")
+                    .value(
+                        "Sample not found in study test_study_id: test_sample_id"
+                    )
+            );
     }
 
     @Test
     public void getAllSamples() throws Exception {
         List<Sample> samples = createExampleSamples();
-        
+
         Mockito
-            .when(sampleService.getAllSamples(
-                Mockito.anyString(), Mockito.anyObject(), Mockito.anyString(), Mockito.anyInt(),
-                Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()
-            )).thenReturn(samples);
-        
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/samples").accept(MediaType.APPLICATION_JSON))
+            .when(
+                sampleService.getAllSamples(
+                    Mockito.anyString(),
+                    Mockito.anyObject(),
+                    Mockito.anyString(),
+                    Mockito.anyInt(),
+                    Mockito.anyInt(),
+                    Mockito.anyString(),
+                    Mockito.anyString()
+                )
+            )
+            .thenReturn(samples);
+
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/samples")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientStableId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleType")
-                .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").value(TEST_PATIENT_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientStableId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleType")
-                .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist());
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleId")
+                    .value(TEST_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].patientId")
+                    .value(TEST_PATIENT_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].patientStableId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleType")
+                    .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sampleId")
+                    .value(TEST_STABLE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].patientId")
+                    .value(TEST_PATIENT_STABLE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].patientStableId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sampleType")
+                    .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist()
+            );
     }
 
     @Test
     public void getSampleInStudy() throws Exception {
-
         Sample sample = new Sample();
         sample.setInternalId(TEST_INTERNAL_ID_1);
         sample.setStableId(TEST_STABLE_ID_1);
@@ -165,76 +313,198 @@ public class SampleControllerTest {
         sample.setSampleType(Sample.SampleType.PRIMARY_SOLID_TUMOR);
         sample.setCancerStudyIdentifier(TEST_CANCER_STUDY_IDENTIFIER_1);
 
-        Mockito.when(sampleService.getSampleInStudy(Mockito.anyString(), Mockito.anyString())).thenReturn(sample);
+        Mockito
+            .when(
+                sampleService.getSampleInStudy(
+                    Mockito.anyString(),
+                    Mockito.anyString()
+                )
+            )
+            .thenReturn(sample);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/samples/test_sample_id")
-            .accept(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/studies/test_study_id/samples/test_sample_id")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.patientId").value(TEST_PATIENT_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.patientStableId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleType")
-                .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1));
-
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.internalId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.sampleId")
+                    .value(TEST_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.patientId")
+                    .value(TEST_PATIENT_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.patientStableId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.sampleType")
+                    .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_1)
+            );
     }
 
     @Test
-    public void getAllSamplesOfPatientInStudyDefaultProjection() throws Exception {
-
+    public void getAllSamplesOfPatientInStudyDefaultProjection()
+        throws Exception {
         List<Sample> sampleList = createExampleSamples();
 
-        Mockito.when(sampleService.getAllSamplesOfPatientInStudy(Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito
+            .when(
+                sampleService.getAllSamplesOfPatientInStudy(
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.anyInt(),
+                    Mockito.anyInt(),
+                    Mockito.anyString(),
+                    Mockito.anyString()
+                )
+            )
             .thenReturn(sampleList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/samples")
-            .accept(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get(
+                        "/studies/test_study_id/patients/test_patient_id/samples"
+                    )
+                    .accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientStableId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleType")
-                .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").value(TEST_PATIENT_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientStableId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleType")
-                .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist());
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleId")
+                    .value(TEST_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].patientId")
+                    .value(TEST_PATIENT_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].patientStableId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleType")
+                    .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sampleId")
+                    .value(TEST_STABLE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].patientId")
+                    .value(TEST_PATIENT_STABLE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].patientStableId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sampleType")
+                    .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist()
+            );
     }
 
     @Test
     public void getAllSamplesOfPatientInStudyMetaProjection() throws Exception {
-
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(sampleService.getMetaSamplesOfPatientInStudy(Mockito.anyString(), Mockito.anyString()))
+        Mockito
+            .when(
+                sampleService.getMetaSamplesOfPatientInStudy(
+                    Mockito.anyString(),
+                    Mockito.anyString()
+                )
+            )
             .thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/patients/test_patient_id/samples")
-            .param("projection", "META"))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get(
+                        "/studies/test_study_id/patients/test_patient_id/samples"
+                    )
+                    .param("projection", "META")
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(
+                MockMvcResultMatchers
+                    .header()
+                    .string(HeaderKeyConstants.TOTAL_COUNT, "2")
+            );
     }
 
     @Test
     public void fetchSamplesDefaultProjection() throws Exception {
-
         List<Sample> sampleList = createExampleSamples();
 
-        Mockito.when(sampleService.fetchSamples(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
-            Mockito.anyString())).thenReturn(sampleList);
+        Mockito
+            .when(
+                sampleService.fetchSamples(
+                    Mockito.anyListOf(String.class),
+                    Mockito.anyListOf(String.class),
+                    Mockito.anyString()
+                )
+            )
+            .thenReturn(sampleList);
 
         SampleFilter sampleFilter = new SampleFilter();
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
@@ -248,38 +518,99 @@ public class SampleControllerTest {
         sampleIdentifiers.add(sampleIdentifier2);
         sampleFilter.setSampleIdentifiers(sampleIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/samples/fetch")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(sampleFilter)))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/samples/fetch")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(sampleFilter))
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientStableId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleType")
-                .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").value(TEST_PATIENT_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientStableId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleType")
-                .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist());
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleId")
+                    .value(TEST_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].patientId")
+                    .value(TEST_PATIENT_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].patientStableId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleType")
+                    .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sampleId")
+                    .value(TEST_STABLE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].patientId")
+                    .value(TEST_PATIENT_STABLE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].patientStableId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sampleType")
+                    .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist()
+            );
     }
 
     @Test
-    public void fetchSamplesByUniqueSampleKeysDefaultProjection() throws Exception {
-
+    public void fetchSamplesByUniqueSampleKeysDefaultProjection()
+        throws Exception {
         List<Sample> sampleList = createExampleSamples();
 
-        Mockito.when(sampleService.fetchSamples(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
-            Mockito.anyString())).thenReturn(sampleList);
+        Mockito
+            .when(
+                sampleService.fetchSamples(
+                    Mockito.anyListOf(String.class),
+                    Mockito.anyListOf(String.class),
+                    Mockito.anyString()
+                )
+            )
+            .thenReturn(sampleList);
 
         SampleFilter sampleFilter = new SampleFilter();
         List<String> uniqueSampleKeys = new ArrayList<>();
@@ -287,39 +618,98 @@ public class SampleControllerTest {
         uniqueSampleKeys.add("dGVzdF9zdGFibGVfaWRfMjp0ZXN0X3N0dWR5XzE");
         sampleFilter.setUniqueSampleKeys(uniqueSampleKeys);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/samples/fetch")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(sampleFilter)))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/samples/fetch")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(sampleFilter))
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value(TEST_PATIENT_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientStableId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleType")
-                .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").value(TEST_PATIENT_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientStableId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleType")
-                .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist());
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].internalId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleId")
+                    .value(TEST_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].patientId")
+                    .value(TEST_PATIENT_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].patientStableId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleType")
+                    .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].patient").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].internalId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sampleId")
+                    .value(TEST_STABLE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].patientId")
+                    .value(TEST_PATIENT_STABLE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].patientStableId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sampleType")
+                    .value(Sample.SampleType.PRIMARY_SOLID_TUMOR.getValue())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].patient").doesNotExist()
+            );
     }
 
     @Test
     public void fetchSamplesMetaProjection() throws Exception {
-
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(sampleService.fetchMetaSamples(Mockito.anyListOf(String.class),
-            Mockito.anyListOf(String.class))).thenReturn(baseMeta);
+        Mockito
+            .when(
+                sampleService.fetchMetaSamples(
+                    Mockito.anyListOf(String.class),
+                    Mockito.anyListOf(String.class)
+                )
+            )
+            .thenReturn(baseMeta);
 
         SampleFilter sampleFilter = new SampleFilter();
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
@@ -333,16 +723,23 @@ public class SampleControllerTest {
         sampleIdentifiers.add(sampleIdentifier2);
         sampleFilter.setSampleIdentifiers(sampleIdentifiers);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/samples/fetch")
-            .param("projection", "META")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(sampleFilter)))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/samples/fetch")
+                    .param("projection", "META")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(sampleFilter))
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(
+                MockMvcResultMatchers
+                    .header()
+                    .string(HeaderKeyConstants.TOTAL_COUNT, "2")
+            );
     }
 
     private List<Sample> createExampleSamples() {
-
         List<Sample> sampleList = new ArrayList<>();
         Sample sample1 = new Sample();
         sample1.setInternalId(TEST_INTERNAL_ID_1);

@@ -3,7 +3,6 @@ package org.cbioportal.web;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.cbioportal.model.Geneset;
 import org.cbioportal.model.GenesetHierarchyInfo;
 import org.cbioportal.service.GenesetHierarchyService;
@@ -30,7 +29,6 @@ import org.springframework.web.context.WebApplicationContext;
 @ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class GenesetHierarchyControllerTest {
-
     private static final String PROF_ID = "test_prof_id";
     public static final String GENESET_ID1 = "geneset_id1";
     public static final String GENESET_ID2 = "geneset_id2";
@@ -50,7 +48,6 @@ public class GenesetHierarchyControllerTest {
 
     @Before
     public void setUp() throws Exception {
-
         Mockito.reset(genesetHierarchyService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
@@ -58,50 +55,154 @@ public class GenesetHierarchyControllerTest {
     @Test
     public void fetchGenesetHierarchyInfo() throws Exception {
         List<GenesetHierarchyInfo> genesetHierarchyInfoList = createGenesetHierarchyInfoList();
-        Mockito.when(genesetHierarchyService.fetchGenesetHierarchyInfo(Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyDouble(), Mockito.anyDouble())).thenReturn(genesetHierarchyInfoList);
+        Mockito
+            .when(
+                genesetHierarchyService.fetchGenesetHierarchyInfo(
+                    Mockito.anyString(),
+                    Mockito.anyInt(),
+                    Mockito.anyDouble(),
+                    Mockito.anyDouble()
+                )
+            )
+            .thenReturn(genesetHierarchyInfoList);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/geneset-hierarchy/fetch")
-                .param("geneticProfileId", PROF_ID)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(4)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].nodeId").value(1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].nodeName").value("Root node"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].parentNodeName").doesNotExist())
-
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].nodeId").value(2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].nodeName").value("sub node A"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].parentNodeName").value("Root node"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].genesets").doesNotExist())
-
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].nodeId").value(4))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].nodeName").value("parent node 1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].parentNodeName").value("sub node A"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[0].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[0].genesetId").value(GENESET_ID1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[0].representativeScore").value(0.1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[0].representativePvalue").value(0.054))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[1].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[1].genesetId").value(GENESET_ID2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[1].representativeScore").value(0.8))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].genesets[1].representativePvalue").value(0.04))
-
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].nodeId").value(5))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].nodeName").value("parent node 2"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].parentNodeName").value("sub node A"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets", Matchers.hasSize(1)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets[0].internalId").doesNotExist())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets[0].genesetId").value(GENESET_ID2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets[0].representativeScore").value(0.8))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].genesets[0].representativePvalue").value(0.04));
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/geneset-hierarchy/fetch")
+                    .param("geneticProfileId", PROF_ID)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(4)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].nodeId").value(1))
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].nodeName")
+                    .value("Root node")
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].parentNodeName")
+                    .doesNotExist()
+            )
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].nodeId").value(2))
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].nodeName")
+                    .value("sub node A")
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].parentNodeName")
+                    .value("Root node")
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].genesets").doesNotExist()
+            )
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].nodeId").value(4))
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[2].nodeName")
+                    .value("parent node 1")
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[2].parentNodeName")
+                    .value("sub node A")
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath(
+                    "$[2].genesets",
+                    Matchers.hasSize(2)
+                )
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[2].genesets[0].internalId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[2].genesets[0].genesetId")
+                    .value(GENESET_ID1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[2].genesets[0].representativeScore")
+                    .value(0.1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[2].genesets[0].representativePvalue")
+                    .value(0.054)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[2].genesets[1].internalId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[2].genesets[1].genesetId")
+                    .value(GENESET_ID2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[2].genesets[1].representativeScore")
+                    .value(0.8)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[2].genesets[1].representativePvalue")
+                    .value(0.04)
+            )
+            .andExpect(MockMvcResultMatchers.jsonPath("$[3].nodeId").value(5))
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[3].nodeName")
+                    .value("parent node 2")
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[3].parentNodeName")
+                    .value("sub node A")
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath(
+                    "$[3].genesets",
+                    Matchers.hasSize(1)
+                )
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[3].genesets[0].internalId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[3].genesets[0].genesetId")
+                    .value(GENESET_ID2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[3].genesets[0].representativeScore")
+                    .value(0.8)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[3].genesets[0].representativePvalue")
+                    .value(0.04)
+            );
     }
 
     private List<GenesetHierarchyInfo> createGenesetHierarchyInfoList() {
-
         List<GenesetHierarchyInfo> genesetHierarchyInfoList = new ArrayList<>();
 
         //hierarchy nodes, parents and genesets:
@@ -150,5 +251,4 @@ public class GenesetHierarchyControllerTest {
         genesetHierarchyInfoList.addAll(hierarchyParents);
         return genesetHierarchyInfoList;
     }
-
 }

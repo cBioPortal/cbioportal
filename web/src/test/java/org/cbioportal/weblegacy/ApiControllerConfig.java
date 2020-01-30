@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package org.cbioportal.weblegacy;
 
 import org.cbioportal.service.CosmicCountService;
@@ -54,61 +54,80 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"org.mskcc.cbio.portal.web.api", "org.mskcc.cbio.portal.persistence", "org.mskcc.cbio.portal.service"})
+@ComponentScan(
+    basePackages = {
+        "org.mskcc.cbio.portal.web.api",
+        "org.mskcc.cbio.portal.persistence",
+        "org.mskcc.cbio.portal.service"
+    }
+)
 public class ApiControllerConfig extends WebMvcConfigurerAdapter {
 
     @Bean
     public CosmicCountService cosmicCountService() {
         return Mockito.mock(CosmicCountService.class);
     }
+
     @Bean
     public CosmicCountMapperLegacy cosmicCountMapper() {
         return Mockito.mock(CosmicCountMapperLegacy.class);
     }
+
     @Bean
     public MutationMapperLegacy mutationMapper() {
         return Mockito.mock(MutationMapperLegacy.class);
     }
+
     @Bean
     public CancerTypeMapperLegacy cancerTypeMapper() {
         return Mockito.mock(CancerTypeMapperLegacy.class);
     }
+
     @Bean
     public ClinicalDataMapperLegacy clinicalDataMapper() {
         return Mockito.mock(ClinicalDataMapperLegacy.class);
     }
+
     @Bean
     public ClinicalFieldMapper clinicalFieldMapper() {
         return Mockito.mock(ClinicalFieldMapper.class);
     }
+
     @Bean
     public GeneAliasMapper geneAliasMapper() {
         return Mockito.mock(GeneAliasMapper.class);
     }
+
     @Bean
     public GeneMapperLegacy geneMapperLegacy() {
         return Mockito.mock(GeneMapperLegacy.class);
     }
+
     @Bean
     public GeneticProfileMapperLegacy geneticProfileMapper() {
         return Mockito.mock(GeneticProfileMapperLegacy.class);
     }
+
     @Bean
     public PatientMapperLegacy patientMapper() {
         return Mockito.mock(PatientMapperLegacy.class);
     }
+
     @Bean
     public ProfileDataMapper profileDataMapper() {
         return Mockito.mock(ProfileDataMapper.class);
     }
+
     @Bean
     public SampleListMapperLegacy sampleListMapper() {
         return Mockito.mock(SampleListMapperLegacy.class);
     }
+
     @Bean
     public SampleMapperLegacy sampleMapper() {
         return Mockito.mock(SampleMapperLegacy.class);
     }
+
     @Bean
     public StudyMapperLegacy studyMapper() {
         return Mockito.mock(StudyMapperLegacy.class);

@@ -22,7 +22,6 @@ import org.springframework.web.context.WebApplicationContext;
 @ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class ServerStatusControllerTest {
-
     @Autowired
     private WebApplicationContext wac;
 
@@ -35,7 +34,9 @@ public class ServerStatusControllerTest {
 
     @Bean
     public static ServerStatusService serverStatusService() {
-        ServerStatusService serverStatusServiceMock = Mockito.mock(ServerStatusService.class);
+        ServerStatusService serverStatusServiceMock = Mockito.mock(
+            ServerStatusService.class
+        );
         return serverStatusServiceMock;
     }
 }

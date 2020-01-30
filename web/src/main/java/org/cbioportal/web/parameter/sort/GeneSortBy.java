@@ -1,7 +1,6 @@
 package org.cbioportal.web.parameter.sort;
 
 public enum GeneSortBy {
-
     entrezGeneId("entrezGeneId"),
     hugoGeneSymbol("hugoGeneSymbol"),
     type("type"),

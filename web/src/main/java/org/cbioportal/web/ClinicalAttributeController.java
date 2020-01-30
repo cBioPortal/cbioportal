@@ -4,10 +4,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.util.*;
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
-import javax.validation.Valid;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalAttributeCount;
 import org.cbioportal.service.ClinicalAttributeService;
@@ -42,127 +42,219 @@ import springfox.documentation.annotations.ApiIgnore;
 @Validated
 @Api(tags = "F. Clinical Attributes", description = " ")
 public class ClinicalAttributeController {
-
     @Autowired
     private ClinicalAttributeService clinicalAttributeService;
 
-    @RequestMapping(value = "/clinical-attributes", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(
+        value = "/clinical-attributes",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @ApiOperation("Get all clinical attributes")
     public ResponseEntity<List<ClinicalAttribute>> getAllClinicalAttributes(
-            @ApiParam("Level of detail of the response")
-            @RequestParam(defaultValue = "SUMMARY") Projection projection,
-            @ApiParam("Page size of the result list")
-            @Max(PagingConstants.MAX_PAGE_SIZE)
-            @Min(PagingConstants.MIN_PAGE_SIZE)
-            @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-            @ApiParam("Page number of the result list")
-            @Min(PagingConstants.MIN_PAGE_NUMBER)
-            @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-            @ApiParam("Name of the property that the result list is sorted by")
-            @RequestParam(required = false) ClinicalAttributeSortBy sortBy,
-            @ApiParam("Direction of the sort")
-            @RequestParam(defaultValue = "ASC") Direction direction) {
-
+        @ApiParam("Level of detail of the response") @RequestParam(
+            defaultValue = "SUMMARY"
+        ) Projection projection,
+        @ApiParam("Page size of the result list") @Max(
+            PagingConstants.MAX_PAGE_SIZE
+        ) @Min(PagingConstants.MIN_PAGE_SIZE) @RequestParam(
+            defaultValue = PagingConstants.DEFAULT_PAGE_SIZE
+        ) Integer pageSize,
+        @ApiParam("Page number of the result list") @Min(
+            PagingConstants.MIN_PAGE_NUMBER
+        ) @RequestParam(
+            defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER
+        ) Integer pageNumber,
+        @ApiParam(
+            "Name of the property that the result list is sorted by"
+        ) @RequestParam(required = false) ClinicalAttributeSortBy sortBy,
+        @ApiParam("Direction of the sort") @RequestParam(
+            defaultValue = "ASC"
+        ) Direction direction
+    ) {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, clinicalAttributeService.getMetaClinicalAttributes()
-                    .getTotalCount().toString());
+            responseHeaders.add(
+                HeaderKeyConstants.TOTAL_COUNT,
+                clinicalAttributeService
+                    .getMetaClinicalAttributes()
+                    .getTotalCount()
+                    .toString()
+            );
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                    clinicalAttributeService.getAllClinicalAttributes(projection.name(), pageSize, pageNumber,
-                            sortBy == null ? null : sortBy.getOriginalValue(), direction.name()), HttpStatus.OK);
+                clinicalAttributeService.getAllClinicalAttributes(
+                    projection.name(),
+                    pageSize,
+                    pageNumber,
+                    sortBy == null ? null : sortBy.getOriginalValue(),
+                    direction.name()
+                ),
+                HttpStatus.OK
+            );
         }
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/clinical-attributes", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(
+        value = "/studies/{studyId}/clinical-attributes",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @ApiOperation("Get all clinical attributes in the specified study")
     public ResponseEntity<List<ClinicalAttribute>> getAllClinicalAttributesInStudy(
-            @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
-            @PathVariable String studyId,
-            @ApiParam("Level of detail of the response")
-            @RequestParam(defaultValue = "SUMMARY") Projection projection,
-            @ApiParam("Page size of the result list")
-            @Max(PagingConstants.MAX_PAGE_SIZE)
-            @Min(PagingConstants.MIN_PAGE_SIZE)
-            @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE) Integer pageSize,
-            @ApiParam("Page number of the result list")
-            @Min(PagingConstants.MIN_PAGE_NUMBER)
-            @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER) Integer pageNumber,
-            @ApiParam("Name of the property that the result list is sorted by")
-            @RequestParam(required = false) ClinicalAttributeSortBy sortBy,
-            @ApiParam("Direction of the sort")
-            @RequestParam(defaultValue = "ASC") Direction direction) throws StudyNotFoundException {
-
+        @ApiParam(
+            required = true,
+            value = "Study ID e.g. acc_tcga"
+        ) @PathVariable String studyId,
+        @ApiParam("Level of detail of the response") @RequestParam(
+            defaultValue = "SUMMARY"
+        ) Projection projection,
+        @ApiParam("Page size of the result list") @Max(
+            PagingConstants.MAX_PAGE_SIZE
+        ) @Min(PagingConstants.MIN_PAGE_SIZE) @RequestParam(
+            defaultValue = PagingConstants.DEFAULT_PAGE_SIZE
+        ) Integer pageSize,
+        @ApiParam("Page number of the result list") @Min(
+            PagingConstants.MIN_PAGE_NUMBER
+        ) @RequestParam(
+            defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER
+        ) Integer pageNumber,
+        @ApiParam(
+            "Name of the property that the result list is sorted by"
+        ) @RequestParam(required = false) ClinicalAttributeSortBy sortBy,
+        @ApiParam("Direction of the sort") @RequestParam(
+            defaultValue = "ASC"
+        ) Direction direction
+    )
+        throws StudyNotFoundException {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, clinicalAttributeService
-                    .getMetaClinicalAttributesInStudy(studyId).getTotalCount().toString());
+            responseHeaders.add(
+                HeaderKeyConstants.TOTAL_COUNT,
+                clinicalAttributeService
+                    .getMetaClinicalAttributesInStudy(studyId)
+                    .getTotalCount()
+                    .toString()
+            );
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(
-                    clinicalAttributeService.getAllClinicalAttributesInStudy(studyId, projection.name(), pageSize,
-                            pageNumber, sortBy == null ? null : sortBy.getOriginalValue(), direction.name()),
-                    HttpStatus.OK);
+                clinicalAttributeService.getAllClinicalAttributesInStudy(
+                    studyId,
+                    projection.name(),
+                    pageSize,
+                    pageNumber,
+                    sortBy == null ? null : sortBy.getOriginalValue(),
+                    direction.name()
+                ),
+                HttpStatus.OK
+            );
         }
     }
 
     @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'read')")
-    @RequestMapping(value = "/studies/{studyId}/clinical-attributes/{clinicalAttributeId}", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(
+        value = "/studies/{studyId}/clinical-attributes/{clinicalAttributeId}",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @ApiOperation("Get specified clinical attribute")
     public ResponseEntity<ClinicalAttribute> getClinicalAttributeInStudy(
-            @ApiParam(required = true, value = "Study ID e.g. acc_tcga")
-            @PathVariable String studyId,
-            @ApiParam(required = true, value= "Clinical Attribute ID e.g. CANCER_TYPE")
-            @PathVariable String clinicalAttributeId)
+        @ApiParam(
+            required = true,
+            value = "Study ID e.g. acc_tcga"
+        ) @PathVariable String studyId,
+        @ApiParam(
+            required = true,
+            value = "Clinical Attribute ID e.g. CANCER_TYPE"
+        ) @PathVariable String clinicalAttributeId
+    )
         throws ClinicalAttributeNotFoundException, StudyNotFoundException {
-
-        return new ResponseEntity<>(clinicalAttributeService.getClinicalAttribute(studyId, clinicalAttributeId),
-                HttpStatus.OK);
+        return new ResponseEntity<>(
+            clinicalAttributeService.getClinicalAttribute(
+                studyId,
+                clinicalAttributeId
+            ),
+            HttpStatus.OK
+        );
     }
 
-    @PreAuthorize("hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/clinical-attributes/fetch", method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize(
+        "hasPermission(#studyIds, 'Collection<CancerStudyId>', 'read')"
+    )
+    @RequestMapping(
+        value = "/clinical-attributes/fetch",
+        method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @ApiOperation("Fetch clinical attributes")
     public ResponseEntity<List<ClinicalAttribute>> fetchClinicalAttributes(
-        @ApiParam(required = true, value = "List of Study IDs")
-        @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
-        @RequestBody List<String> studyIds,
-        @ApiParam("Level of detail of the response")
-        @RequestParam(defaultValue = "SUMMARY") Projection projection) {
-
+        @ApiParam(required = true, value = "List of Study IDs") @Size(
+            min = 1,
+            max = PagingConstants.MAX_PAGE_SIZE
+        ) @RequestBody List<String> studyIds,
+        @ApiParam("Level of detail of the response") @RequestParam(
+            defaultValue = "SUMMARY"
+        ) Projection projection
+    ) {
         if (projection == Projection.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, clinicalAttributeService.fetchMetaClinicalAttributes(
-                studyIds).getTotalCount().toString());
+            responseHeaders.add(
+                HeaderKeyConstants.TOTAL_COUNT,
+                clinicalAttributeService
+                    .fetchMetaClinicalAttributes(studyIds)
+                    .getTotalCount()
+                    .toString()
+            );
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(clinicalAttributeService.fetchClinicalAttributes(studyIds, projection.name()),
-                HttpStatus.OK);
+            return new ResponseEntity<>(
+                clinicalAttributeService.fetchClinicalAttributes(
+                    studyIds,
+                    projection.name()
+                ),
+                HttpStatus.OK
+            );
         }
     }
 
-    @PreAuthorize("hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')")
-    @RequestMapping(value = "/clinical-attributes/counts/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
-                    produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Get counts for clinical attributes according to their data availability for selected samples/patients")
+    @PreAuthorize(
+        "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', 'read')"
+    )
+    @RequestMapping(
+        value = "/clinical-attributes/counts/fetch",
+        method = RequestMethod.POST,
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ApiOperation(
+        "Get counts for clinical attributes according to their data availability for selected samples/patients"
+    )
     public ResponseEntity<List<ClinicalAttributeCount>> getClinicalAttributeCounts(
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface
-        @RequestAttribute(required = false, value = "involvedCancerStudies") Collection<String> involvedCancerStudies,
-        @ApiIgnore // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
-        @Valid @RequestAttribute(required = false, value = "interceptedClinicalAttributeCountFilter") ClinicalAttributeCountFilter interceptedClinicalAttributeCountFilter,
-            @ApiParam(required = true, value = "List of SampleIdentifiers or Sample List ID")
-            @Valid @RequestBody(required = false) ClinicalAttributeCountFilter clinicalAttributeCountFilter) {
-
+        @ApiIgnore @RequestAttribute( // prevent reference to this attribute in the swagger-ui interface
+            required = false,
+            value = "involvedCancerStudies"
+        ) Collection<String> involvedCancerStudies,
+        @ApiIgnore @Valid @RequestAttribute( // prevent reference to this attribute in the swagger-ui interface. this attribute is needed for the @PreAuthorize tag above.
+            required = false,
+            value = "interceptedClinicalAttributeCountFilter"
+        ) ClinicalAttributeCountFilter interceptedClinicalAttributeCountFilter,
+        @ApiParam(
+            required = true,
+            value = "List of SampleIdentifiers or Sample List ID"
+        ) @Valid @RequestBody(
+            required = false
+        ) ClinicalAttributeCountFilter clinicalAttributeCountFilter
+    ) {
         List<ClinicalAttributeCount> clinicalAttributeCountList;
         if (interceptedClinicalAttributeCountFilter.getSampleListId() != null) {
-            clinicalAttributeCountList = clinicalAttributeService.getClinicalAttributeCountsBySampleListId(
-                interceptedClinicalAttributeCountFilter.getSampleListId());
+            clinicalAttributeCountList =
+                clinicalAttributeService.getClinicalAttributeCountsBySampleListId(
+                    interceptedClinicalAttributeCountFilter.getSampleListId()
+                );
         } else {
             List<SampleIdentifier> sampleIdentifiers = interceptedClinicalAttributeCountFilter.getSampleIdentifiers();
             List<String> studyIds = new ArrayList<>();
@@ -171,7 +263,11 @@ public class ClinicalAttributeController {
                 studyIds.add(sampleIdentifier.getStudyId());
                 sampleIds.add(sampleIdentifier.getSampleId());
             }
-            clinicalAttributeCountList = clinicalAttributeService.getClinicalAttributeCountsBySampleIds(studyIds, sampleIds);
+            clinicalAttributeCountList =
+                clinicalAttributeService.getClinicalAttributeCountsBySampleIds(
+                    studyIds,
+                    sampleIds
+                );
         }
 
         return new ResponseEntity<>(clinicalAttributeCountList, HttpStatus.OK);

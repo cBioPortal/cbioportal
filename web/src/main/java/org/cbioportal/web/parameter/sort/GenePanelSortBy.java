@@ -1,7 +1,6 @@
 package org.cbioportal.web.parameter.sort;
 
 public enum GenePanelSortBy {
-
     genePanelId("stableId"),
     description("description");
 

@@ -1,14 +1,14 @@
 package org.cbioportal.web.parameter;
 
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.List;
 
 public class EnrichmentFilter {
-
     @NotNull
     @Size(min = 1)
     private List<String> alteredIds;
+
     @NotNull
     @Size(min = 1)
     private List<String> unalteredIds;

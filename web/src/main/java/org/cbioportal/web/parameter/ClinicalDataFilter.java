@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.List;
 
 public class ClinicalDataFilter implements Serializable {
-
     private String attributeId;
 
     private List<ClinicalDataFilterValue> values;
@@ -24,5 +23,4 @@ public class ClinicalDataFilter implements Serializable {
     public void setValues(List<ClinicalDataFilterValue> values) {
         this.values = values;
     }
-
 }

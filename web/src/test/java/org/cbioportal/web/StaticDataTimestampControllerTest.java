@@ -1,5 +1,6 @@
 package org.cbioportal.web;
 
+import java.util.HashMap;
 import org.cbioportal.service.StaticDataTimestampService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -19,8 +20,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.HashMap;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration("/applicationContext-web-test.xml")
@@ -28,10 +27,10 @@ import java.util.HashMap;
 public class StaticDataTimestampControllerTest {
     @Autowired
     private WebApplicationContext wac;
-    
+
     @Autowired
     private StaticDataTimestampService service;
-    
+
     private MockMvc mockMvc;
 
     @Before
@@ -44,11 +43,21 @@ public class StaticDataTimestampControllerTest {
     public void getAllTimestamps() throws Exception {
         HashMap<String, String> pairs = new HashMap<>();
         pairs.put("gene", "1997-08-13 22:00:00");
-        Mockito.when(service.getTimestamps(Mockito.anyList())).thenReturn(pairs);
-        
-        mockMvc.perform(MockMvcRequestBuilders.get("/timestamps")
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.gene").value("1997-08-13 22:00:00"));
+        Mockito
+            .when(service.getTimestamps(Mockito.anyList()))
+            .thenReturn(pairs);
+
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/timestamps")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.gene")
+                    .value("1997-08-13 22:00:00")
+            );
     }
 }

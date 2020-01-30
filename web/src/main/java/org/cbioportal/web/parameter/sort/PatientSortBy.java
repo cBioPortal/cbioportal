@@ -1,7 +1,6 @@
 package org.cbioportal.web.parameter.sort;
 
 public enum PatientSortBy {
-
     patientId("stableId");
 
     private String originalValue;

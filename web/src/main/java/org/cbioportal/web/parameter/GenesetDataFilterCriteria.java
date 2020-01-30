@@ -10,7 +10,6 @@ import java.util.List;
  *
  */
 public class GenesetDataFilterCriteria {
-
     //The list of identifiers for the gene sets of interest.
     private List<String> genesetIds;
     //Identifier of pre-defined sample list with samples to query. E.g. brca_tcga_all

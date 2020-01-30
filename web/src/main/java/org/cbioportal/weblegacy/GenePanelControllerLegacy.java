@@ -28,17 +28,16 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.weblegacy;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.List;
 import org.mskcc.cbio.portal.model.GenePanel;
 import org.mskcc.cbio.portal.model.GenePanelWithSamples;
 import org.mskcc.cbio.portal.service.GenePanelServiceLegacy;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -50,36 +49,55 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class GenePanelControllerLegacy {
-
     @Autowired
     private GenePanelServiceLegacy genePanelServiceLegacy;
 
-    @ApiOperation(value = "Get gene panel information",
-            nickname = "getGenePanel",
-            notes = "")
+    @ApiOperation(
+        value = "Get gene panel information",
+        nickname = "getGenePanel",
+        notes = ""
+    )
     @Transactional
     @RequestMapping(method = RequestMethod.GET, value = "/genepanel")
-    public List<GenePanel> getGenePanel(@ApiParam(required = false, value = "gene panel id. If provided, the list of /"
-            + "genes associated with the gene panel will be presented. Otherwise, only the stable id and description will /"
-            + "be shown for all gene panels in the database.")
-            @RequestParam(required = false) String panel_id) {
+    public List<GenePanel> getGenePanel(
+        @ApiParam(
+            required = false,
+            value = "gene panel id. If provided, the list of /" +
+            "genes associated with the gene panel will be presented. Otherwise, only the stable id and description will /" +
+            "be shown for all gene panels in the database."
+        ) @RequestParam(required = false) String panel_id
+    ) {
         if (panel_id != null) {
             return genePanelServiceLegacy.getGenePanelByStableId(panel_id);
-        }
-        else {
+        } else {
             return genePanelServiceLegacy.getGenePanels();
         }
     }
 
-    @ApiOperation(value = "Get gene panel information for a profile and set of genes. Will return a mapping of samples and genes from the query that are in profile",
-            nickname = "getGenePanelData",
-            notes = "")
+    @ApiOperation(
+        value = "Get gene panel information for a profile and set of genes. Will return a mapping of samples and genes from the query that are in profile",
+        nickname = "getGenePanelData",
+        notes = ""
+    )
     @Transactional
-    @RequestMapping(method = RequestMethod.GET, value = "/genepanel/data",  produces="application/json")
-    public List<GenePanelWithSamples> getGenePanelData(@ApiParam(required = true, value = "genetic profile id, such as those returned by /api/geneticprofiles")
-            @RequestParam(required = true) String profile_id,
-            @ApiParam(required = true, value = "List of gene hugo symbols")
-            @RequestParam(required = true) List<String> genes) {
-        return genePanelServiceLegacy.getGenePanelDataByProfileAndGenes(profile_id, genes);
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = "/genepanel/data",
+        produces = "application/json"
+    )
+    public List<GenePanelWithSamples> getGenePanelData(
+        @ApiParam(
+            required = true,
+            value = "genetic profile id, such as those returned by /api/geneticprofiles"
+        ) @RequestParam(required = true) String profile_id,
+        @ApiParam(
+            required = true,
+            value = "List of gene hugo symbols"
+        ) @RequestParam(required = true) List<String> genes
+    ) {
+        return genePanelServiceLegacy.getGenePanelDataByProfileAndGenes(
+            profile_id,
+            genes
+        );
     }
 }

@@ -1,5 +1,8 @@
 package org.cbioportal.web;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import org.cbioportal.model.MutSig;
 import org.cbioportal.model.meta.BaseMeta;
 import org.cbioportal.service.SignificantlyMutatedGeneService;
@@ -22,27 +25,24 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class SignificantlyMutatedGenesControllerTest {
-
     private static final int TEST_CANCER_STUDY_ID_1 = 1;
     private static final String TEST_CANCER_STUDY_IDENTIFIER_1 = "test_study_1";
     private static final int TEST_ENTREZ_GENE_ID_1 = 1;
-    private static final String TEST_HUGO_GENE_SYMBOL_1 = "test_hugo_gene_symbol_1";
+    private static final String TEST_HUGO_GENE_SYMBOL_1 =
+        "test_hugo_gene_symbol_1";
     private static final int TEST_RANK_1 = 1;
     private static final int TEST_NUMBASESCOVERED_1 = 1;
     private static final int TEST_NUMMUTATIONS_1 = 1;
     private static final BigDecimal TEST_P_VALUE_1 = new BigDecimal(0.1);
     private static final BigDecimal TEST_Q_VALUE_1 = new BigDecimal(0.1);
     private static final int TEST_ENTREZ_GENE_ID_2 = 2;
-    private static final String TEST_HUGO_GENE_SYMBOL_2 = "test_hugo_gene_symbol_2";
+    private static final String TEST_HUGO_GENE_SYMBOL_2 =
+        "test_hugo_gene_symbol_2";
     private static final int TEST_RANK_2 = 2;
     private static final int TEST_NUMBASESCOVERED_2 = 2;
     private static final int TEST_NUMMUTATIONS_2 = 2;
@@ -64,14 +64,13 @@ public class SignificantlyMutatedGenesControllerTest {
 
     @Before
     public void setUp() throws Exception {
-
         Mockito.reset(significantlyMutatedGeneService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
     @Test
-    public void getSignificantlyMutatedGenesDefaultProjection() throws Exception {
-
+    public void getSignificantlyMutatedGenesDefaultProjection()
+        throws Exception {
         List<MutSig> mutSigList = new ArrayList<>();
         MutSig mutSig1 = new MutSig();
         mutSig1.setCancerStudyId(TEST_CANCER_STUDY_ID_1);
@@ -96,49 +95,154 @@ public class SignificantlyMutatedGenesControllerTest {
         mutSig2.setqValue(TEST_Q_VALUE_2);
         mutSigList.add(mutSig2);
 
-        Mockito.when(significantlyMutatedGeneService.getSignificantlyMutatedGenes(Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito
+            .when(
+                significantlyMutatedGeneService.getSignificantlyMutatedGenes(
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.anyInt(),
+                    Mockito.anyInt(),
+                    Mockito.anyString(),
+                    Mockito.anyString()
+                )
+            )
             .thenReturn(mutSigList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/significantly-mutated-genes")
-            .accept(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/studies/test_study_id/significantly-mutated-genes")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].cancerStudyId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].numbasescovered").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].nummutations").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].numberOfMutations").value(TEST_NUMMUTATIONS_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].rank").value(TEST_RANK_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(TEST_P_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].qValue").value(TEST_Q_VALUE_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].cancerStudyId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_CANCER_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].hugoGeneSymbol").value(TEST_HUGO_GENE_SYMBOL_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].numbasescovered").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].nummutations").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].numberOfMutations").value(TEST_NUMMUTATIONS_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].rank").value(TEST_RANK_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(TEST_P_VALUE_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].qValue").value(TEST_Q_VALUE_2));
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].cancerStudyId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].entrezGeneId")
+                    .value(TEST_ENTREZ_GENE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].hugoGeneSymbol")
+                    .value(TEST_HUGO_GENE_SYMBOL_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].numbasescovered")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].nummutations")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].numberOfMutations")
+                    .value(TEST_NUMMUTATIONS_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].rank").value(TEST_RANK_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].pValue")
+                    .value(TEST_P_VALUE_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].qValue")
+                    .value(TEST_Q_VALUE_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].cancerStudyId")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].studyId")
+                    .value(TEST_CANCER_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].entrezGeneId")
+                    .value(TEST_ENTREZ_GENE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].hugoGeneSymbol")
+                    .value(TEST_HUGO_GENE_SYMBOL_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].numbasescovered")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].nummutations")
+                    .doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].numberOfMutations")
+                    .value(TEST_NUMMUTATIONS_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].rank").value(TEST_RANK_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].pValue")
+                    .value(TEST_P_VALUE_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].qValue")
+                    .value(TEST_Q_VALUE_2)
+            );
     }
 
     @Test
     public void getSignificantlyMutatedGenesMetaProjection() throws Exception {
-
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(significantlyMutatedGeneService.getMetaSignificantlyMutatedGenes(Mockito.anyString()))
+        Mockito
+            .when(
+                significantlyMutatedGeneService.getMetaSignificantlyMutatedGenes(
+                    Mockito.anyString()
+                )
+            )
             .thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/significantly-mutated-genes")
-            .param("projection", "META"))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/studies/test_study_id/significantly-mutated-genes")
+                    .param("projection", "META")
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(
+                MockMvcResultMatchers
+                    .header()
+                    .string(HeaderKeyConstants.TOTAL_COUNT, "2")
+            );
     }
 }

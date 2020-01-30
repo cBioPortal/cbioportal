@@ -1,6 +1,9 @@
 package org.cbioportal.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.cbioportal.model.MutationSpectrum;
 import org.cbioportal.service.MutationSpectrumService;
 import org.cbioportal.web.parameter.MutationSpectrumFilter;
@@ -22,17 +25,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class MutationSpectrumControllerTest {
-
-    private static final String TEST_MOLECULAR_PROFILE_ID = "test_molecular_profile_id";
+    private static final String TEST_MOLECULAR_PROFILE_ID =
+        "test_molecular_profile_id";
     private static final String TEST_SAMPLE_ID_1 = "test_sample_id_1";
     private static final String TEST_SAMPLE_ID_2 = "test_sample_id_2";
     private static final int TEST_C_TO_A_1 = 1;
@@ -65,14 +64,12 @@ public class MutationSpectrumControllerTest {
 
     @Before
     public void setUp() throws Exception {
-
         Mockito.reset(mutationSpectrumService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
     @Test
     public void fetchMutationSpectrums() throws Exception {
-
         List<MutationSpectrum> mutationSpectrumList = new ArrayList<>();
         MutationSpectrum mutationSpectrum1 = new MutationSpectrum();
         mutationSpectrum1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_ID);
@@ -95,35 +92,94 @@ public class MutationSpectrumControllerTest {
         mutationSpectrum2.setTtoG(TEST_T_TO_G_2);
         mutationSpectrumList.add(mutationSpectrum2);
 
-        Mockito.when(mutationSpectrumService.fetchMutationSpectrums(TEST_MOLECULAR_PROFILE_ID,
-            Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2))).thenReturn(mutationSpectrumList);
+        Mockito
+            .when(
+                mutationSpectrumService.fetchMutationSpectrums(
+                    TEST_MOLECULAR_PROFILE_ID,
+                    Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2)
+                )
+            )
+            .thenReturn(mutationSpectrumList);
 
         MutationSpectrumFilter mutationSpectrumFilter = new MutationSpectrumFilter();
-        mutationSpectrumFilter.setSampleIds(Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2));
+        mutationSpectrumFilter.setSampleIds(
+            Arrays.asList(TEST_SAMPLE_ID_1, TEST_SAMPLE_ID_2)
+        );
 
-        mockMvc.perform(MockMvcRequestBuilders.post(
-            "/molecular-profiles/test_molecular_profile_id/mutation-spectrums/fetch")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(mutationSpectrumFilter)))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post(
+                        "/molecular-profiles/test_molecular_profile_id/mutation-spectrums/fetch"
+                    )
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(mutationSpectrumFilter)
+                    )
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(TEST_MOLECULAR_PROFILE_ID))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].CtoA").value(TEST_C_TO_A_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].CtoG").value(TEST_C_TO_G_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].CtoT").value(TEST_C_TO_T_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].TtoA").value(TEST_T_TO_A_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].TtoC").value(TEST_T_TO_C_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].TtoG").value(TEST_T_TO_G_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(TEST_MOLECULAR_PROFILE_ID))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].CtoA").value(TEST_C_TO_A_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].CtoG").value(TEST_C_TO_G_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].CtoT").value(TEST_C_TO_T_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].TtoA").value(TEST_T_TO_A_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].TtoC").value(TEST_T_TO_C_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].TtoG").value(TEST_T_TO_G_2));
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].molecularProfileId")
+                    .value(TEST_MOLECULAR_PROFILE_ID)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleId")
+                    .value(TEST_SAMPLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].CtoA").value(TEST_C_TO_A_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].CtoG").value(TEST_C_TO_G_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].CtoT").value(TEST_C_TO_T_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].TtoA").value(TEST_T_TO_A_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].TtoC").value(TEST_T_TO_C_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].TtoG").value(TEST_T_TO_G_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].molecularProfileId")
+                    .value(TEST_MOLECULAR_PROFILE_ID)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sampleId")
+                    .value(TEST_SAMPLE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].CtoA").value(TEST_C_TO_A_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].CtoG").value(TEST_C_TO_G_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].CtoT").value(TEST_C_TO_T_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].TtoA").value(TEST_T_TO_A_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].TtoC").value(TEST_T_TO_C_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].TtoG").value(TEST_T_TO_G_2)
+            );
     }
 }

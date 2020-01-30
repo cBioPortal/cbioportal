@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package org.cbioportal.weblegacy;
 
 import java.util.List;
@@ -45,14 +45,24 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"org.cbioportal.weblegacy"}, resourcePattern = "**/*MutationalSignatureController.class")
-public class MutationalSignatureControllerConfig extends WebMvcConfigurerAdapter {
+@ComponentScan(
+    basePackages = { "org.cbioportal.weblegacy" },
+    resourcePattern = "**/*MutationalSignatureController.class"
+)
+public class MutationalSignatureControllerConfig
+    extends WebMvcConfigurerAdapter {
+
     @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    public void configureMessageConverters(
+        List<HttpMessageConverter<?>> converters
+    ) {
         MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
-        mappingJackson2HttpMessageConverter.setObjectMapper(new CustomObjectMapper());
+        mappingJackson2HttpMessageConverter.setObjectMapper(
+            new CustomObjectMapper()
+        );
         converters.add(mappingJackson2HttpMessageConverter);
     }
+
     @Bean
     public MutationalSignatureService mutationalSignatureService() {
         return Mockito.mock(MutationalSignatureService.class);

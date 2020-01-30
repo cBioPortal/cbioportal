@@ -2,6 +2,7 @@ package org.cbioportal.web;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.util.*;
 import org.cbioportal.service.StaticDataTimestampService;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,21 +14,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
-
 @InternalApi
 @RestController
 @Validated
 @Api(tags = "Timestamps", description = " ")
 public class StaticDataTimestampController {
-    public static final List<String> TIMESTAMP_TABLES = Arrays.asList("gene", "reference_genome_gene");
+    public static final List<String> TIMESTAMP_TABLES = Arrays.asList(
+        "gene",
+        "reference_genome_gene"
+    );
+
     @Autowired
     private StaticDataTimestampService service;
-    
-    @RequestMapping(value = "/timestamps", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+
+    @RequestMapping(
+        value = "/timestamps",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @ApiOperation("Get the last time each static resource was updated")
     public ResponseEntity<Map<String, String>> getAllTimestamps() {
-        return new ResponseEntity<>(service.getTimestamps(TIMESTAMP_TABLES), HttpStatus.OK);
+        return new ResponseEntity<>(
+            service.getTimestamps(TIMESTAMP_TABLES),
+            HttpStatus.OK
+        );
     }
-    
 }

@@ -1,7 +1,6 @@
 package org.cbioportal.web.parameter;
 
 public class VariantCountIdentifier {
-
     private Integer entrezGeneId;
     private String keyword;
 

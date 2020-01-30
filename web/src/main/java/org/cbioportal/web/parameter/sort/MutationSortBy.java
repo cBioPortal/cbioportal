@@ -1,7 +1,6 @@
 package org.cbioportal.web.parameter.sort;
 
 public enum MutationSortBy {
-    
     entrezGeneId("entrezGeneId"),
     center("center"),
     mutationStatus("mutationStatus"),

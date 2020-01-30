@@ -4,15 +4,18 @@ import java.io.*;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author ochoaa
  */
-public class ResettableHttpServletRequestWrapper extends HttpServletRequestWrapper {
-    private final Logger LOG = LoggerFactory.getLogger(ResettableHttpServletRequestFilter.class);
+public class ResettableHttpServletRequestWrapper
+    extends HttpServletRequestWrapper {
+    private final Logger LOG = LoggerFactory.getLogger(
+        ResettableHttpServletRequestFilter.class
+    );
 
     private String rawData;
     private HttpServletRequest request;
@@ -37,7 +40,8 @@ public class ResettableHttpServletRequestWrapper extends HttpServletRequestWrapp
             while ((line = reader.readLine()) != null) {
                 rawData += line;
             }
-            this.servletStream.stream = new ByteArrayInputStream(rawData.getBytes());
+            this.servletStream.stream =
+                new ByteArrayInputStream(rawData.getBytes());
         }
         return servletStream;
     }
@@ -51,15 +55,16 @@ public class ResettableHttpServletRequestWrapper extends HttpServletRequestWrapp
             while ((line = reader.readLine()) != null) {
                 rawData += line;
             }
-            this.servletStream.stream = new ByteArrayInputStream(rawData.getBytes());
+            this.servletStream.stream =
+                new ByteArrayInputStream(rawData.getBytes());
         }
         LOG.debug("getReader(): " + rawData);
         return new BufferedReader(new InputStreamReader(servletStream));
     }
 
-
     private class ResettableServletInputStream extends ServletInputStream {
         private InputStream stream;
+
         @Override
         public int read() throws IOException {
             return stream.read();

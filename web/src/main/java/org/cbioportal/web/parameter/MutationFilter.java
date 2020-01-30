@@ -1,16 +1,16 @@
 package org.cbioportal.web.parameter;
 
-import org.cbioportal.web.MutationController;
-
+import java.util.List;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
-import java.util.List;
+import org.cbioportal.web.MutationController;
 
 public class MutationFilter {
-
     @Size(min = 1, max = MutationController.MUTATION_MAX_PAGE_SIZE)
     private List<String> sampleIds;
+
     private String sampleListId;
+
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<Integer> entrezGeneIds;
 

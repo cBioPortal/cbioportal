@@ -20,7 +20,6 @@ import org.springframework.web.context.WebApplicationContext;
 @ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class InfoControllerTest {
-
     @Autowired
     private WebApplicationContext wac;
 
@@ -33,12 +32,27 @@ public class InfoControllerTest {
 
     @Test
     public void getInfo() throws Exception {
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/info")
-            .accept(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/info")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.portalVersion").value("test_portal_version"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.dbVersion").value("test_db_version"));
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.portalVersion")
+                    .value("test_portal_version")
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.dbVersion")
+                    .value("test_db_version")
+            );
     }
 }

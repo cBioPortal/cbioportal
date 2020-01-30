@@ -1,7 +1,6 @@
 package org.cbioportal.web.parameter;
 
 public class MutationPositionIdentifier {
-
     private Integer entrezGeneId;
     private Integer proteinPosStart;
     private Integer proteinPosEnd;

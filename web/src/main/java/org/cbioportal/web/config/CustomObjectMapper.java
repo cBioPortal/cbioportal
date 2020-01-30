@@ -28,17 +28,15 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.web.config;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
+import java.util.HashMap;
+import java.util.Map;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalAttributeCount;
@@ -91,13 +89,15 @@ import org.cbioportal.web.mixin.TypeOfCancerMixin;
 public class CustomObjectMapper extends ObjectMapper {
 
     public CustomObjectMapper() {
-
         super.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         super.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         Map<Class<?>, Class<?>> mixinMap = new HashMap<>();
         mixinMap.put(CancerStudy.class, CancerStudyMixin.class);
         mixinMap.put(ClinicalAttribute.class, ClinicalAttributeMixin.class);
-        mixinMap.put(ClinicalAttributeCount.class, ClinicalAttributeCountMixin.class);
+        mixinMap.put(
+            ClinicalAttributeCount.class,
+            ClinicalAttributeCountMixin.class
+        );
         mixinMap.put(ClinicalData.class, ClinicalDataMixin.class);
         mixinMap.put(ClinicalDataCount.class, ClinicalDataCountMixin.class);
         mixinMap.put(ClinicalEvent.class, ClinicalEventMixin.class);
@@ -107,7 +107,10 @@ public class CustomObjectMapper extends ObjectMapper {
         mixinMap.put(GenePanel.class, GenePanelMixin.class);
         mixinMap.put(GenePanelToGene.class, GenePanelToGeneMixin.class);
         mixinMap.put(Geneset.class, GenesetMixin.class);
-        mixinMap.put(GenesetMolecularData.class, GenesetMolecularDataMixin.class);
+        mixinMap.put(
+            GenesetMolecularData.class,
+            GenesetMolecularDataMixin.class
+        );
         mixinMap.put(GenesetCorrelation.class, GenesetCorrelationMixin.class);
         mixinMap.put(MolecularProfile.class, MolecularProfileMixin.class);
         mixinMap.put(Gistic.class, GisticMixin.class);

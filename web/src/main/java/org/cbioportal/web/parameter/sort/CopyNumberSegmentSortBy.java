@@ -1,7 +1,6 @@
 package org.cbioportal.web.parameter.sort;
 
 public enum CopyNumberSegmentSortBy {
-
     chromosome("chr"),
     start("start"),
     end("end"),

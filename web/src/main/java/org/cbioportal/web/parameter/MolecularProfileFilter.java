@@ -1,14 +1,14 @@
 package org.cbioportal.web.parameter;
 
+import java.io.Serializable;
+import java.util.List;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
-import java.util.List;
-import java.io.Serializable;
 
 public class MolecularProfileFilter implements Serializable {
-
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> studyIds;
+
     @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
     private List<String> molecularProfileIds;
 

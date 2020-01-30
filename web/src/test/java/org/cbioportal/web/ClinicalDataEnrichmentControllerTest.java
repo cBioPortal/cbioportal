@@ -1,10 +1,10 @@
 package org.cbioportal.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.cbioportal.model.ClinicalAttribute;
 import org.cbioportal.model.ClinicalDataEnrichment;
 import org.cbioportal.model.Sample;
@@ -33,14 +33,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration("/applicationContext-web.xml")
 @Configuration
 public class ClinicalDataEnrichmentControllerTest {
-
     public static final String STUDY_ID1 = "study_id1";
     public static final String STUDY_ID2 = "study_id2";
     public static final String SAMPLE_ID1 = "sample_id1";
@@ -75,6 +72,7 @@ public class ClinicalDataEnrichmentControllerTest {
 
     @Autowired
     private SampleService sampleService;
+
     private MockMvc mockMvc;
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -91,7 +89,6 @@ public class ClinicalDataEnrichmentControllerTest {
 
     @Before
     public void setUp() throws Exception {
-
         Mockito.reset(sampleService);
         Mockito.reset(clinicalAttributeService);
         Mockito.reset(clinicalDataEnrichmentUtil);
@@ -100,7 +97,6 @@ public class ClinicalDataEnrichmentControllerTest {
 
     @Test
     public void fetchClinicalDataCounts() throws Exception {
-
         SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
         sampleIdentifier1.setSampleId(SAMPLE_ID1);
         sampleIdentifier1.setStudyId(STUDY_ID1);
@@ -166,11 +162,20 @@ public class ClinicalDataEnrichmentControllerTest {
         List<Group> groups = new ArrayList<Group>();
         groupFilter.setGroups(groups);
 
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest()).andExpect(MockMvcResultMatchers
-                        .jsonPath("$.message").value("groups size must be between 2 and 2147483647"));
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/clinical-data-enrichments/fetch")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(groupFilter))
+            )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.message")
+                    .value("groups size must be between 2 and 2147483647")
+            );
 
         Group group1 = new Group();
         group1.setName("1");
@@ -179,16 +184,26 @@ public class ClinicalDataEnrichmentControllerTest {
         groups.add(group1);
 
         // "groups[0].sampleIdentifiers size must be between 1 and 10000000"
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/clinical-data-enrichments/fetch")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(groupFilter))
+            )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
         // "groups size must be between 2 and 2147483647"
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/clinical-data-enrichments/fetch")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(groupFilter))
+            )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
         Group group2 = new Group();
         group2.setName("1");
@@ -196,32 +211,76 @@ public class ClinicalDataEnrichmentControllerTest {
         group2.setSampleIdentifiers(sampleIdentifiers2);
         groups.add(group2);
 
-        group1.setSampleIdentifiers(Arrays.asList(sampleIdentifier1, sampleIdentifier2));
+        group1.setSampleIdentifiers(
+            Arrays.asList(sampleIdentifier1, sampleIdentifier2)
+        );
 
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                        .value("groups[1].sampleIdentifiers size must be between 1 and 10000000"));
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/clinical-data-enrichments/fetch")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(groupFilter))
+            )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.message")
+                    .value(
+                        "groups[1].sampleIdentifiers size must be between 1 and 10000000"
+                    )
+            );
 
-        group2.setSampleIdentifiers(new ArrayList<SampleIdentifier>(
-                Arrays.asList(sampleIdentifier3, sampleIdentifier4, sampleIdentifier5)));
+        group2.setSampleIdentifiers(
+            new ArrayList<SampleIdentifier>(
+                Arrays.asList(
+                    sampleIdentifier3,
+                    sampleIdentifier4,
+                    sampleIdentifier5
+                )
+            )
+        );
 
         // when all are invalid samples
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0)));
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/clinical-data-enrichments/fetch")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(groupFilter))
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0))
+            );
 
-        Mockito.when(sampleService.fetchSamples(Mockito.anyListOf(String.class), Mockito.anyListOf(String.class),
-                Mockito.anyString())).thenReturn(Arrays.asList(sample1, sample2, sample3, sample4, sample5));
+        Mockito
+            .when(
+                sampleService.fetchSamples(
+                    Mockito.anyListOf(String.class),
+                    Mockito.anyListOf(String.class),
+                    Mockito.anyString()
+                )
+            )
+            .thenReturn(
+                Arrays.asList(sample1, sample2, sample3, sample4, sample5)
+            );
 
-        List<ClinicalAttribute> attributes = Arrays.asList(attribute1, attribute3);
+        List<ClinicalAttribute> attributes = Arrays.asList(
+            attribute1,
+            attribute3
+        );
 
-        Mockito.when(clinicalAttributeService.fetchClinicalAttributes(Arrays.asList(STUDY_ID2, STUDY_ID1), "SUMMARY"))
-                .thenReturn(attributes);
+        Mockito
+            .when(
+                clinicalAttributeService.fetchClinicalAttributes(
+                    Arrays.asList(STUDY_ID2, STUDY_ID1),
+                    "SUMMARY"
+                )
+            )
+            .thenReturn(attributes);
 
         List<List<Sample>> groupedSamples = new ArrayList<List<Sample>>();
         groupedSamples.add(Arrays.asList(sample1, sample2));
@@ -238,7 +297,9 @@ public class ClinicalDataEnrichmentControllerTest {
         ClinicalDataEnrichment clinicalDataEnrichment1 = new ClinicalDataEnrichment();
         clinicalDataEnrichment1.setClinicalAttribute(attribute1);
         clinicalDataEnrichment1.setMethod("Chi-squared Test");
-        clinicalDataEnrichment1.setpValue(new BigDecimal("0.08208499862670093"));
+        clinicalDataEnrichment1.setpValue(
+            new BigDecimal("0.08208499862670093")
+        );
         clinicalDataEnrichment1.setScore(new BigDecimal("4.999999999999999"));
 
         ClinicalDataEnrichment clinicalDataEnrichment = new ClinicalDataEnrichment();
@@ -247,27 +308,81 @@ public class ClinicalDataEnrichmentControllerTest {
         clinicalDataEnrichment.setpValue(new BigDecimal("0.7670968826920188"));
         clinicalDataEnrichment.setScore(new BigDecimal("0.08771942638231253"));
 
-        Mockito.when(clinicalDataEnrichmentUtil.createEnrichmentsForCategoricalData(attributes, groupedSamples))
-                .thenReturn(Arrays.asList(clinicalDataEnrichment1));
+        Mockito
+            .when(
+                clinicalDataEnrichmentUtil.createEnrichmentsForCategoricalData(
+                    attributes,
+                    groupedSamples
+                )
+            )
+            .thenReturn(Arrays.asList(clinicalDataEnrichment1));
 
-        Mockito.when(clinicalDataEnrichmentUtil.createEnrichmentsForNumericData(attributes, groupedSamples))
-                .thenReturn(Arrays.asList(clinicalDataEnrichment));
+        Mockito
+            .when(
+                clinicalDataEnrichmentUtil.createEnrichmentsForNumericData(
+                    attributes,
+                    groupedSamples
+                )
+            )
+            .thenReturn(Arrays.asList(clinicalDataEnrichment));
 
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/clinical-data-enrichments/fetch").accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(groupFilter)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].clinicalAttribute.clinicalAttributeId")
-                        .value(clinicalDataEnrichment1.getClinicalAttribute().getAttrId()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].score").value(clinicalDataEnrichment1.getScore()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].pValue").value(clinicalDataEnrichment1.getpValue()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].method").value(clinicalDataEnrichment1.getMethod()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].clinicalAttribute.clinicalAttributeId")
-                        .value(clinicalDataEnrichment.getClinicalAttribute().getAttrId()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].score").value(clinicalDataEnrichment.getScore()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].pValue").value(clinicalDataEnrichment.getpValue()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].method").value(clinicalDataEnrichment.getMethod()));
-
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/clinical-data-enrichments/fetch")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(groupFilter))
+            )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].clinicalAttribute.clinicalAttributeId")
+                    .value(
+                        clinicalDataEnrichment1
+                            .getClinicalAttribute()
+                            .getAttrId()
+                    )
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].score")
+                    .value(clinicalDataEnrichment1.getScore())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].pValue")
+                    .value(clinicalDataEnrichment1.getpValue())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].method")
+                    .value(clinicalDataEnrichment1.getMethod())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].clinicalAttribute.clinicalAttributeId")
+                    .value(
+                        clinicalDataEnrichment
+                            .getClinicalAttribute()
+                            .getAttrId()
+                    )
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].score")
+                    .value(clinicalDataEnrichment.getScore())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].pValue")
+                    .value(clinicalDataEnrichment.getpValue())
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].method")
+                    .value(clinicalDataEnrichment.getMethod())
+            );
     }
 }

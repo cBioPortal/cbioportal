@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.web.config;
 
@@ -35,34 +35,42 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class CacheMapUtilConfig {
+
     @Bean
     public CacheMapUtil cacheMapUtil() {
         return Mockito.mock(CacheMapUtil.class);
     }
+
     @Bean
     public PatientRepository patientRepository() {
         return Mockito.mock(PatientRepository.class);
     }
+
     @Bean
     public CancerTypeRepository cancerTypeRepository() {
         return Mockito.mock(CancerTypeRepository.class);
     }
+
     @Bean
     public StudyRepository studyRepository() {
         return Mockito.mock(StudyRepository.class);
     }
+
     @Bean
     public MolecularProfileRepository molecularProfileRepository() {
         return Mockito.mock(MolecularProfileRepository.class);
     }
+
     @Bean
     public SampleListRepository sampleListRepository() {
         return Mockito.mock(SampleListRepository.class);
     }
+
     @Bean
     public GenericAssayRepository genericAssayRepository() {
         return Mockito.mock(GenericAssayRepository.class);
     }
+
     @Bean
     public StaticDataTimestampService staticDataTimestampService() {
         return Mockito.mock(StaticDataTimestampService.class);

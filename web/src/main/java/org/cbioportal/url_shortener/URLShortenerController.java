@@ -14,23 +14,32 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class URLShortenerController {
-
     @Value("${bitly.access.token}")
     private String bitlyAccessToken;
 
-    private Bitly bitly ;
+    private Bitly bitly;
     private UrlValidator urlValidator = new UrlValidator();
 
-    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<URLShortenerResponse> urlShortener(@RequestParam String url) {
-
+    @RequestMapping(
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<URLShortenerResponse> urlShortener(
+        @RequestParam String url
+    ) {
         if (urlValidator.isValid(url)) {
             if (bitly == null) {
                 bitly = Bit.ly(bitlyAccessToken);
             }
-            return new ResponseEntity<>(new URLShortenerResponse(bitly.shorten(url), null), HttpStatus.OK);
+            return new ResponseEntity<>(
+                new URLShortenerResponse(bitly.shorten(url), null),
+                HttpStatus.OK
+            );
         } else {
-            return new ResponseEntity<>(new URLShortenerResponse(null, "Invalid URL"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                new URLShortenerResponse(null, "Invalid URL"),
+                HttpStatus.BAD_REQUEST
+            );
         }
     }
 }

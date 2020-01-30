@@ -1,7 +1,6 @@
 package org.cbioportal.web.parameter.sort;
 
 public enum SampleSortBy {
-
     sampleId("stableId"),
     sampleType("sampleType");
 

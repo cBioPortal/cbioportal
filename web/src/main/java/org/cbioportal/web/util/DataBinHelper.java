@@ -1,14 +1,13 @@
 package org.cbioportal.web.util;
 
 import com.google.common.collect.Range;
-import org.cbioportal.model.DataBin;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.cbioportal.model.DataBin;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class DataBinHelper {
@@ -19,9 +18,17 @@ public class DataBinHelper {
         this.studyViewFilterUtil = studyViewFilterUtil;
     }
 
-    public DataBin calcUpperOutlierBin(String attributeId, List<BigDecimal> gteValues, List<BigDecimal> gtValues) {
-        BigDecimal gteMin = gteValues.size() > 0 ? Collections.min(gteValues) : null;
-        BigDecimal gtMin = gtValues.size() > 0 ? Collections.min(gtValues) : null;
+    public DataBin calcUpperOutlierBin(
+        String attributeId,
+        List<BigDecimal> gteValues,
+        List<BigDecimal> gtValues
+    ) {
+        BigDecimal gteMin = gteValues.size() > 0
+            ? Collections.min(gteValues)
+            : null;
+        BigDecimal gtMin = gtValues.size() > 0
+            ? Collections.min(gtValues)
+            : null;
         BigDecimal min;
         String value;
 
@@ -29,7 +36,9 @@ public class DataBinHelper {
             // no special outlier
             min = null;
             value = ">";
-        } else if (gtMin == null || (gteMin != null && gteMin.compareTo(gtMin) == -1)) {
+        } else if (
+            gtMin == null || (gteMin != null && gteMin.compareTo(gtMin) == -1)
+        ) {
             min = gteMin;
             value = ">=";
         } else {
@@ -47,16 +56,26 @@ public class DataBinHelper {
         return dataBin;
     }
 
-    public DataBin calcLowerOutlierBin(String attributeId, List<BigDecimal> lteValues, List<BigDecimal> ltValues) {
-        BigDecimal lteMax = lteValues.size() > 0 ? Collections.max(lteValues) : null;
-        BigDecimal ltMax = ltValues.size() > 0 ? Collections.max(ltValues) : null;
+    public DataBin calcLowerOutlierBin(
+        String attributeId,
+        List<BigDecimal> lteValues,
+        List<BigDecimal> ltValues
+    ) {
+        BigDecimal lteMax = lteValues.size() > 0
+            ? Collections.max(lteValues)
+            : null;
+        BigDecimal ltMax = ltValues.size() > 0
+            ? Collections.max(ltValues)
+            : null;
         BigDecimal max;
         String specialValue;
 
         if (ltMax == null && lteMax == null) {
             max = null;
             specialValue = "<=";
-        } else if (lteMax == null || (ltMax != null && lteMax.compareTo(ltMax) == -1)) {
+        } else if (
+            lteMax == null || (ltMax != null && lteMax.compareTo(ltMax) == -1)
+        ) {
             max = ltMax;
             specialValue = "<";
         } else {
@@ -82,7 +101,9 @@ public class DataBinHelper {
         // Find a generous IQR. This is generous because if (values.length / 4)
         // is not an int, then really you should average the two elements on either
         // side to find q1 and q3.
-        Range<BigDecimal> interquartileRange = calcInterquartileRange(sortedValues);
+        Range<BigDecimal> interquartileRange = calcInterquartileRange(
+            sortedValues
+        );
 
         BigDecimal q1 = interquartileRange.lowerEndpoint();
         BigDecimal q3 = interquartileRange.upperEndpoint();
@@ -91,17 +112,24 @@ public class DataBinHelper {
         BigDecimal q1LowerBoundry = q1.subtract(iqrOneAndHalf);
         BigDecimal q3upperBoundry = q3.add(iqrOneAndHalf);
 
-
         // Then find min and max values
         BigDecimal maxValue;
         BigDecimal minValue;
 
-        if (sortedValues.get(0).compareTo(sortedValues.get(sortedValues.size() - 1)) == 0) {
+        if (
+            sortedValues
+                .get(0)
+                .compareTo(sortedValues.get(sortedValues.size() - 1)) ==
+            0
+        ) {
             // if the first and last values are the same, no need to do any other calculation
             // we simply set min and max to the same value
             minValue = sortedValues.get(0);
             maxValue = minValue;
-        } else if (q3.compareTo(new BigDecimal("0.001")) != -1 && q3.compareTo(new BigDecimal("1")) == -1) {
+        } else if (
+            q3.compareTo(new BigDecimal("0.001")) != -1 &&
+            q3.compareTo(new BigDecimal("1")) == -1
+        ) {
             //maxValue = Number((q3 + iqr * 1.5).toFixed(3));
             //minValue = Number((q1 - iqr * 1.5).toFixed(3));
             maxValue = q3upperBoundry.setScale(3, BigDecimal.ROUND_HALF_UP);
@@ -119,14 +147,18 @@ public class DataBinHelper {
             minValue = sortedValues.get(0);
         }
 
-        if (maxValue.compareTo(sortedValues.get(sortedValues.size() - 1)) == 1) {
+        if (
+            maxValue.compareTo(sortedValues.get(sortedValues.size() - 1)) == 1
+        ) {
             maxValue = sortedValues.get(sortedValues.size() - 1);
         }
 
         return Range.closed(minValue, maxValue);
     }
 
-    public Range<BigDecimal> calcInterquartileRange(List<BigDecimal> sortedValues) {
+    public Range<BigDecimal> calcInterquartileRange(
+        List<BigDecimal> sortedValues
+    ) {
         Range<BigDecimal> iqr = null;
 
         if (sortedValues.size() > 0) {
@@ -137,8 +169,13 @@ public class DataBinHelper {
             // if iqr == 0 AND max == q3 then recursively try finding a non-zero iqr
             if (q1.compareTo(q3) == 0 && max.compareTo(q3) == 0) {
                 // filter out max and try again
-                iqr = this.calcInterquartileRange(
-                    sortedValues.stream().filter(d -> d.compareTo(max) == -1).collect(Collectors.toList()));
+                iqr =
+                    this.calcInterquartileRange(
+                            sortedValues
+                                .stream()
+                                .filter(d -> d.compareTo(max) == -1)
+                                .collect(Collectors.toList())
+                        );
             }
 
             // if range is still empty use the original q1 and q3 values
@@ -151,35 +188,54 @@ public class DataBinHelper {
     }
 
     public BigDecimal calcQ1(List<BigDecimal> sortedValues) {
-        return sortedValues.size() > 0 ?
-            sortedValues.get((int) Math.floor(sortedValues.size() / 4.0)) : null;
+        return sortedValues.size() > 0
+            ? sortedValues.get((int) Math.floor(sortedValues.size() / 4.0))
+            : null;
     }
 
     public BigDecimal calcQ3(List<BigDecimal> sortedValues) {
-        return sortedValues.size() > 0 ?
-            sortedValues.get((int) Math.floor(sortedValues.size() * (3.0 / 4.0))) : null;
+        return sortedValues.size() > 0
+            ? sortedValues.get(
+                (int) Math.floor(sortedValues.size() * (3.0 / 4.0))
+            )
+            : null;
     }
 
-    public List<BigDecimal> filterIntervals(List<BigDecimal> intervals, BigDecimal lowerOutlier, BigDecimal upperOutlier) {
+    public List<BigDecimal> filterIntervals(
+        List<BigDecimal> intervals,
+        BigDecimal lowerOutlier,
+        BigDecimal upperOutlier
+    ) {
         // remove values that fall outside the lower and upper outlier limits
-        return intervals.stream()
-            .filter(d -> (lowerOutlier == null || d.compareTo(lowerOutlier) == 1 ) && (upperOutlier == null || d.compareTo(upperOutlier) == -1))
+        return intervals
+            .stream()
+            .filter(
+                d ->
+                    (lowerOutlier == null || d.compareTo(lowerOutlier) == 1) &&
+                    (upperOutlier == null || d.compareTo(upperOutlier) == -1)
+            )
             .collect(Collectors.toList());
     }
 
-    public List<DataBin> initDataBins(String attributeId,
-                                      List<BigDecimal> values,
-                                      List<BigDecimal> intervals,
-                                      BigDecimal lowerOutlier,
-                                      BigDecimal upperOutlier) {
-        return initDataBins(attributeId,
+    public List<DataBin> initDataBins(
+        String attributeId,
+        List<BigDecimal> values,
+        List<BigDecimal> intervals,
+        BigDecimal lowerOutlier,
+        BigDecimal upperOutlier
+    ) {
+        return initDataBins(
+            attributeId,
             values,
-            filterIntervals(intervals, lowerOutlier, upperOutlier));
+            filterIntervals(intervals, lowerOutlier, upperOutlier)
+        );
     }
 
-    public List<DataBin> initDataBins(String attributeId,
-                                      List<BigDecimal> values,
-                                      List<BigDecimal> intervals) {
+    public List<DataBin> initDataBins(
+        String attributeId,
+        List<BigDecimal> values,
+        List<BigDecimal> intervals
+    ) {
         List<DataBin> dataBins = initDataBins(attributeId, intervals);
 
         calcCounts(dataBins, values);
@@ -187,7 +243,10 @@ public class DataBinHelper {
         return dataBins;
     }
 
-    public List<DataBin> initDataBins(String attributeId, List<BigDecimal> intervalValues) {
+    public List<DataBin> initDataBins(
+        String attributeId,
+        List<BigDecimal> intervalValues
+    ) {
         List<DataBin> dataBins = new ArrayList<>();
 
         for (int i = 0; i < intervalValues.size() - 1; i++) {
@@ -196,7 +255,7 @@ public class DataBinHelper {
             dataBin.setAttributeId(attributeId);
             dataBin.setCount(0);
             dataBin.setStart(intervalValues.get(i));
-            dataBin.setEnd(intervalValues.get(i+1));
+            dataBin.setEnd(intervalValues.get(i + 1));
 
             dataBins.add(dataBin);
         }
@@ -236,11 +295,13 @@ public class DataBinHelper {
     }
 
     public void calcCounts(List<DataBin> dataBins, List<BigDecimal> values) {
-        Map<Range<BigDecimal>, DataBin> rangeMap = dataBins.stream().collect(Collectors.toMap(this::calcRange, b -> b));
+        Map<Range<BigDecimal>, DataBin> rangeMap = dataBins
+            .stream()
+            .collect(Collectors.toMap(this::calcRange, b -> b));
 
         // TODO complexity here is O(n x m), find a better way to do this
         for (Range<BigDecimal> range : rangeMap.keySet()) {
-            for (BigDecimal value: values) {
+            for (BigDecimal value : values) {
                 // check if the value falls within the data bin range
                 if (range != null && range.contains(value)) {
                     DataBin dataBin = rangeMap.get(range);
@@ -255,11 +316,20 @@ public class DataBinHelper {
         boolean endInclusive = !"<".equals(dataBin.getSpecialValue());
 
         // special condition (start == end)
-        if (dataBin.getStart() != null && dataBin.getEnd() != null && dataBin.getStart().compareTo(dataBin.getEnd())==0) {
+        if (
+            dataBin.getStart() != null &&
+            dataBin.getEnd() != null &&
+            dataBin.getStart().compareTo(dataBin.getEnd()) == 0
+        ) {
             startInclusive = endInclusive = true;
         }
 
-        return studyViewFilterUtil.calcRange(dataBin.getStart(), startInclusive, dataBin.getEnd(), endInclusive);
+        return studyViewFilterUtil.calcRange(
+            dataBin.getStart(),
+            startInclusive,
+            dataBin.getEnd(),
+            endInclusive
+        );
     }
 
     public Range<BigDecimal> calcRange(String operator, BigDecimal value) {
@@ -268,19 +338,32 @@ public class DataBinHelper {
         boolean endInclusive = !"<".equals(operator);
         BigDecimal end = operator.contains("<") ? value : null;
 
-        return studyViewFilterUtil.calcRange(start, startInclusive, end, endInclusive);
+        return studyViewFilterUtil.calcRange(
+            start,
+            startInclusive,
+            end,
+            endInclusive
+        );
     }
 
     public boolean isNA(String value) {
-        return value.toUpperCase().equals("NA") ||
+        return (
+            value.toUpperCase().equals("NA") ||
             value.toUpperCase().equals("NAN") ||
-            value.toUpperCase().equals("N/A");
+            value.toUpperCase().equals("N/A")
+        );
     }
 
     public boolean isSmallData(List<BigDecimal> sortedValues) {
-        BigDecimal median = sortedValues.get((int) Math.ceil((sortedValues.size() * (1.0 / 2.0))));
+        BigDecimal median = sortedValues.get(
+            (int) Math.ceil((sortedValues.size() * (1.0 / 2.0)))
+        );
 
-        return median.compareTo(new BigDecimal("0.001")) == -1&& median.compareTo(new BigDecimal("-0.001")) == 1 && median.compareTo(new BigDecimal("0")) != 0;
+        return (
+            median.compareTo(new BigDecimal("0.001")) == -1 &&
+            median.compareTo(new BigDecimal("-0.001")) == 1 &&
+            median.compareTo(new BigDecimal("0")) != 0
+        );
     }
 
     public String extractOperator(String value) {
@@ -288,7 +371,9 @@ public class DataBinHelper {
 
         if (value.trim().startsWith(">=") || value.trim().startsWith("<=")) {
             length = 2;
-        } else if (value.trim().startsWith(">") || value.trim().startsWith("<")) {
+        } else if (
+            value.trim().startsWith(">") || value.trim().startsWith("<")
+        ) {
             length = 1;
         }
 
@@ -304,7 +389,9 @@ public class DataBinHelper {
 
         if (value.trim().startsWith(">=") || value.trim().startsWith("<=")) {
             length = 2;
-        } else if (value.trim().startsWith(">") || value.trim().startsWith("<")) {
+        } else if (
+            value.trim().startsWith(">") || value.trim().startsWith("<")
+        ) {
             length = 1;
         }
 
@@ -312,6 +399,9 @@ public class DataBinHelper {
     }
 
     public boolean isAgeAttribute(String attributeId) {
-        return attributeId != null && attributeId.matches("(^AGE$)|(^AGE_.*)|(.*_AGE_.*)|(.*_AGE&)");
+        return (
+            attributeId != null &&
+            attributeId.matches("(^AGE$)|(^AGE_.*)|(.*_AGE_.*)|(.*_AGE&)")
+        );
     }
 }

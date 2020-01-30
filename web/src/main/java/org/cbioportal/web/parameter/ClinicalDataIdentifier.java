@@ -3,7 +3,6 @@ package org.cbioportal.web.parameter;
 import java.io.Serializable;
 
 public class ClinicalDataIdentifier implements Serializable {
-
     private String entityId;
     private String studyId;
 

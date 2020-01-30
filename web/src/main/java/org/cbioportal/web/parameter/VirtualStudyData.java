@@ -1,15 +1,13 @@
 package org.cbioportal.web.parameter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VirtualStudyData implements Serializable {
-
     private String name;
     private String description;
     private Set<VirtualStudySamples> studies;
@@ -83,7 +81,10 @@ public class VirtualStudyData implements Serializable {
 
     public Set<String> getOrigin() {
         if (this.origin == null || this.origin.size() == 0) {
-            return studies.stream().map(map -> map.getId()).collect(Collectors.toSet());
+            return studies
+                .stream()
+                .map(map -> map.getId())
+                .collect(Collectors.toSet());
         }
         return this.origin;
     }
@@ -103,5 +104,4 @@ public class VirtualStudyData implements Serializable {
     public void setStudyViewFilter(StudyViewFilter studyViewFilter) {
         this.studyViewFilter = studyViewFilter;
     }
-
 }

@@ -1,5 +1,9 @@
 package org.cbioportal.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.SampleList;
 import org.cbioportal.model.meta.BaseMeta;
@@ -23,34 +27,33 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration("/applicationContext-web-test.xml")
 @Configuration
 public class SampleListControllerTest {
-
     private static final int TEST_LIST_ID_1 = 1;
     private static final String TEST_STABLE_ID_1 = "test_stable_id_1";
     private static final int TEST_CANCER_STUDY_ID_1 = 1;
-    private static final String TEST_STUDY_IDENTIFIER_1 = "test_study_identifier_1";
+    private static final String TEST_STUDY_IDENTIFIER_1 =
+        "test_study_identifier_1";
     private static final String TEST_CATEGORY_1 = "test_datatype_1";
     private static final String TEST_NAME_1 = "test_name_1";
     private static final String TEST_DESCRIPTION_1 = "test_description_1";
     private static final String TEST_CANCER_STUDY_IDENTIFIER_1 = "test_study_1";
-    private static final String TEST_TYPE_OF_CANCER_ID_1 = "test_type_of_cancer_id_1";
+    private static final String TEST_TYPE_OF_CANCER_ID_1 =
+        "test_type_of_cancer_id_1";
     private static final String TEST_STUDY_NAME_1 = "test_study_name_1";
     private static final String TEST_SHORT_NAME_1 = "test_short_name_1";
-    private static final String TEST_STUDY_DESCRIPTION_1 = "test_study_description_1";
+    private static final String TEST_STUDY_DESCRIPTION_1 =
+        "test_study_description_1";
     private static final int TEST_SAMPLE_COUNT_1 = 10;
     private static final int TEST_LIST_ID_2 = 2;
     private static final String TEST_STABLE_ID_2 = "test_stable_id_2";
     private static final int TEST_CANCER_STUDY_ID_2 = 2;
-    private static final String TEST_STUDY_IDENTIFIER_2 = "test_study_identifier_2";
+    private static final String TEST_STUDY_IDENTIFIER_2 =
+        "test_study_identifier_2";
     private static final String TEST_CATEGORY_2 = "test_datatype_2";
     private static final String TEST_NAME_2 = "test_name_2";
     private static final String TEST_DESCRIPTION_2 = "test_description_2";
@@ -74,224 +77,549 @@ public class SampleListControllerTest {
 
     @Before
     public void setUp() throws Exception {
-
         Mockito.reset(sampleListService);
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
     @Test
     public void getAllSampleListsDefaultProjection() throws Exception {
-
         List<SampleList> sampleLists = createExampleSampleLists();
 
-        Mockito.when(sampleListService.getAllSampleLists(Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(sampleLists);
+        Mockito
+            .when(
+                sampleListService.getAllSampleLists(
+                    Mockito.anyString(),
+                    Mockito.anyInt(),
+                    Mockito.anyInt(),
+                    Mockito.anyString(),
+                    Mockito.anyString()
+                )
+            )
+            .thenReturn(sampleLists);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/sample-lists")
-            .accept(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/sample-lists")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleListId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].category").value(TEST_CATEGORY_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].listId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleListId").value(TEST_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_IDENTIFIER_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].category").value(TEST_CATEGORY_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2));
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleListId")
+                    .value(TEST_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].studyId")
+                    .value(TEST_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].category")
+                    .value(TEST_CATEGORY_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].description")
+                    .value(TEST_DESCRIPTION_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].listId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sampleListId")
+                    .value(TEST_STABLE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].studyId")
+                    .value(TEST_STUDY_IDENTIFIER_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].category")
+                    .value(TEST_CATEGORY_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].description")
+                    .value(TEST_DESCRIPTION_2)
+            );
     }
 
     @Test
     public void getAllSampleListsDetailedProjection() throws Exception {
-
         List<SampleList> sampleLists = new ArrayList<>();
         sampleLists.add(createExampleSampleListWithStudy());
 
-        Mockito.when(sampleListService.getAllSampleLists(Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(sampleLists);
+        Mockito
+            .when(
+                sampleListService.getAllSampleLists(
+                    Mockito.anyString(),
+                    Mockito.anyInt(),
+                    Mockito.anyInt(),
+                    Mockito.anyString(),
+                    Mockito.anyString()
+                )
+            )
+            .thenReturn(sampleLists);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/sample-lists")
-            .param("projection", "DETAILED")
-            .accept(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/sample-lists")
+                    .param("projection", "DETAILED")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleListId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].category").value(TEST_CATEGORY_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleCount").value(TEST_SAMPLE_COUNT_1));
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleListId")
+                    .value(TEST_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].studyId")
+                    .value(TEST_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].category")
+                    .value(TEST_CATEGORY_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].description")
+                    .value(TEST_DESCRIPTION_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleCount")
+                    .value(TEST_SAMPLE_COUNT_1)
+            );
     }
 
     @Test
     public void getAllSampleListsMetaProjection() throws Exception {
-
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(sampleListService.getMetaSampleLists()).thenReturn(baseMeta);
+        Mockito
+            .when(sampleListService.getMetaSampleLists())
+            .thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/sample-lists")
-            .param("projection", "META"))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/sample-lists")
+                    .param("projection", "META")
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(
+                MockMvcResultMatchers
+                    .header()
+                    .string(HeaderKeyConstants.TOTAL_COUNT, "2")
+            );
     }
 
     @Test
     public void getSampleListNotFound() throws Exception {
+        Mockito
+            .when(sampleListService.getSampleList(Mockito.anyString()))
+            .thenThrow(new SampleListNotFoundException("test_sample_list_id"));
 
-        Mockito.when(sampleListService.getSampleList(Mockito.anyString())).thenThrow(
-            new SampleListNotFoundException("test_sample_list_id"));
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/sample-lists/test_sample_list_id")
-            .accept(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/sample-lists/test_sample_list_id")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.status().isNotFound())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                .value("Sample list not found: test_sample_list_id"));
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.message")
+                    .value("Sample list not found: test_sample_list_id")
+            );
     }
 
     @Test
     public void getSampleList() throws Exception {
-
         SampleList sampleList = createExampleSampleListWithStudy();
 
-        Mockito.when(sampleListService.getSampleList(Mockito.anyString())).thenReturn(sampleList);
+        Mockito
+            .when(sampleListService.getSampleList(Mockito.anyString()))
+            .thenReturn(sampleList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/sample-lists/test_sample_list_id")
-            .accept(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/sample-lists/test_sample_list_id")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.listId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleListId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.studyId").value(TEST_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.category").value(TEST_CATEGORY_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(TEST_NAME_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(TEST_DESCRIPTION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.sampleCount").value(TEST_SAMPLE_COUNT_1));
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.listId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.sampleListId")
+                    .value(TEST_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.studyId")
+                    .value(TEST_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.category")
+                    .value(TEST_CATEGORY_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.name").value(TEST_NAME_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.description")
+                    .value(TEST_DESCRIPTION_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.sampleCount")
+                    .value(TEST_SAMPLE_COUNT_1)
+            );
     }
 
     @Test
     public void getAllSampleListsInStudyDefaultProjection() throws Exception {
-
         List<SampleList> sampleLists = createExampleSampleLists();
 
-        Mockito.when(sampleListService.getAllSampleListsInStudy(Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString()))
+        Mockito
+            .when(
+                sampleListService.getAllSampleListsInStudy(
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.anyInt(),
+                    Mockito.anyInt(),
+                    Mockito.anyString(),
+                    Mockito.anyString()
+                )
+            )
             .thenReturn(sampleLists);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/sample-lists")
-            .accept(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/studies/test_study_id/sample-lists")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleListId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].category").value(TEST_CATEGORY_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].listId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleListId").value(TEST_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_IDENTIFIER_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].category").value(TEST_CATEGORY_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2));
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleListId")
+                    .value(TEST_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].studyId")
+                    .value(TEST_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].category")
+                    .value(TEST_CATEGORY_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].description")
+                    .value(TEST_DESCRIPTION_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].listId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sampleListId")
+                    .value(TEST_STABLE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].studyId")
+                    .value(TEST_STUDY_IDENTIFIER_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].category")
+                    .value(TEST_CATEGORY_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].description")
+                    .value(TEST_DESCRIPTION_2)
+            );
     }
 
     @Test
     public void getAllSampleListsInStudyDetailedProjection() throws Exception {
-
         List<SampleList> sampleLists = new ArrayList<>();
         sampleLists.add(createExampleSampleListWithStudy());
 
-        Mockito.when(sampleListService.getAllSampleListsInStudy(Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(sampleLists);
+        Mockito
+            .when(
+                sampleListService.getAllSampleListsInStudy(
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.anyInt(),
+                    Mockito.anyInt(),
+                    Mockito.anyString(),
+                    Mockito.anyString()
+                )
+            )
+            .thenReturn(sampleLists);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/sample-lists")
-            .param("projection", "DETAILED")
-            .accept(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/studies/test_study_id/sample-lists")
+                    .param("projection", "DETAILED")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleListId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].category").value(TEST_CATEGORY_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleCount").value(TEST_SAMPLE_COUNT_1));
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleListId")
+                    .value(TEST_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].studyId")
+                    .value(TEST_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].category")
+                    .value(TEST_CATEGORY_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].description")
+                    .value(TEST_DESCRIPTION_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleCount")
+                    .value(TEST_SAMPLE_COUNT_1)
+            );
     }
 
     @Test
     public void getAllSampleListsInStudyMetaProjection() throws Exception {
-
         BaseMeta baseMeta = new BaseMeta();
         baseMeta.setTotalCount(2);
 
-        Mockito.when(sampleListService.getMetaSampleListsInStudy(Mockito.anyString())).thenReturn(baseMeta);
+        Mockito
+            .when(
+                sampleListService.getMetaSampleListsInStudy(Mockito.anyString())
+            )
+            .thenReturn(baseMeta);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/studies/test_study_id/sample-lists")
-            .param("projection", "META"))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/studies/test_study_id/sample-lists")
+                    .param("projection", "META")
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+            .andExpect(
+                MockMvcResultMatchers
+                    .header()
+                    .string(HeaderKeyConstants.TOTAL_COUNT, "2")
+            );
     }
 
     @Test
     public void getAllSampleIdsInSampleList() throws Exception {
-
         List<String> sampleIds = new ArrayList<>();
         sampleIds.add(TEST_SAMPLE_ID_1);
         sampleIds.add(TEST_SAMPLE_ID_2);
 
-        Mockito.when(sampleListService.getAllSampleIdsInSampleList(Mockito.anyString())).thenReturn(sampleIds);
+        Mockito
+            .when(
+                sampleListService.getAllSampleIdsInSampleList(
+                    Mockito.anyString()
+                )
+            )
+            .thenReturn(sampleIds);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/sample-lists/test_sample_list_id/sample-ids")
-            .accept(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/sample-lists/test_sample_list_id/sample-ids")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0]").value(TEST_SAMPLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1]").value(TEST_SAMPLE_ID_2));
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0]").value(TEST_SAMPLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1]").value(TEST_SAMPLE_ID_2)
+            );
     }
 
     @Test
     public void fetchSampleLists() throws Exception {
-
         List<SampleList> sampleLists = createExampleSampleLists();
 
-        Mockito.when(sampleListService.fetchSampleLists(Mockito.anyListOf(String.class), Mockito.anyString()))
+        Mockito
+            .when(
+                sampleListService.fetchSampleLists(
+                    Mockito.anyListOf(String.class),
+                    Mockito.anyString()
+                )
+            )
             .thenReturn(sampleLists);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/sample-lists/fetch")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(Arrays.asList(TEST_STABLE_ID_1, TEST_STABLE_ID_2))))
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/sample-lists/fetch")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            Arrays.asList(TEST_STABLE_ID_1, TEST_STABLE_ID_2)
+                        )
+                    )
+            )
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers
+                    .content()
+                    .contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            )
             .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleListId").value(TEST_STABLE_ID_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value(TEST_STUDY_IDENTIFIER_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].category").value(TEST_CATEGORY_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value(TEST_DESCRIPTION_1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].listId").doesNotExist())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleListId").value(TEST_STABLE_ID_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value(TEST_STUDY_IDENTIFIER_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].category").value(TEST_CATEGORY_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].description").value(TEST_DESCRIPTION_2));
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].listId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].sampleListId")
+                    .value(TEST_STABLE_ID_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].studyId")
+                    .value(TEST_STUDY_IDENTIFIER_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].category")
+                    .value(TEST_CATEGORY_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].name").value(TEST_NAME_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[0].description")
+                    .value(TEST_DESCRIPTION_1)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].listId").doesNotExist()
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].sampleListId")
+                    .value(TEST_STABLE_ID_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].studyId")
+                    .value(TEST_STUDY_IDENTIFIER_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].category")
+                    .value(TEST_CATEGORY_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[1].name").value(TEST_NAME_2)
+            )
+            .andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$[1].description")
+                    .value(TEST_DESCRIPTION_2)
+            );
     }
 
     private List<SampleList> createExampleSampleLists() {
-
         List<SampleList> sampleLists = new ArrayList<>();
         SampleList sampleList1 = new SampleList();
         sampleList1.setListId(TEST_LIST_ID_1);
@@ -315,7 +643,6 @@ public class SampleListControllerTest {
     }
 
     private SampleList createExampleSampleListWithStudy() {
-
         SampleList sampleList = new SampleList();
         sampleList.setListId(TEST_LIST_ID_1);
         sampleList.setStableId(TEST_STABLE_ID_1);

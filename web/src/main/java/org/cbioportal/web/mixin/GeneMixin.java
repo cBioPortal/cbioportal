@@ -1,5 +1,3 @@
 package org.cbioportal.web.mixin;
 
-public class GeneMixin {
-
-}
+public class GeneMixin {}

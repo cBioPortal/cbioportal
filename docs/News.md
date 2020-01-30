@@ -1,4 +1,4 @@
-## Jan 30, 2019
+## Jan 30, 2020
 * **Enhancement**: Show HGVSg in mutations table and linkout to [Genome Nexus](https://www.genomenexus.org):
 
     ![hgvsg genome nexus](https://user-images.githubusercontent.com/1334004/73494837-4d026200-4383-11ea-8968-f9a8a6e00675.png)

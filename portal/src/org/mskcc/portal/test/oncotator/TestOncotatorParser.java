@@ -1,12 +1,11 @@
 package org.mskcc.portal.test.oncotator;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import junit.framework.TestCase;
 import org.mskcc.portal.oncotator.OncotatorParser;
 import org.mskcc.portal.oncotator.OncotatorRecord;
 import org.mskcc.portal.util.WebFileConnect;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
 
 /**
  * Unit test for OncotatorParser.

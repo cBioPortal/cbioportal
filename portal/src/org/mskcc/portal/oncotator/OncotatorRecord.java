@@ -13,7 +13,7 @@ public class OncotatorRecord {
     private String cosmicOverlappingMutations;
     private String dbSnpRs;
 
-    public OncotatorRecord (String key) {
+    public OncotatorRecord(String key) {
         this.key = key;
     }
 
@@ -65,7 +65,9 @@ public class OncotatorRecord {
         return cosmicOverlappingMutations;
     }
 
-    public void setCosmicOverlappingMutations(String cosmicOverlappingMutations) {
+    public void setCosmicOverlappingMutations(
+        String cosmicOverlappingMutations
+    ) {
         this.cosmicOverlappingMutations = cosmicOverlappingMutations;
     }
 

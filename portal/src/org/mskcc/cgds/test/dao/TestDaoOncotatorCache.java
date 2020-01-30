@@ -33,7 +33,7 @@ public class TestDaoOncotatorCache extends TestCase {
         DaoOncotatorCache cache = DaoOncotatorCache.getInstance();
         int numRecords = cache.put(record);
         assertEquals(1, numRecords);
-        
+
         record = cache.get("cbio_123");
         assertEquals("cbio_123", record.getKey());
         assertEquals("cosmic", record.getCosmicOverlappingMutations());
@@ -43,7 +43,4 @@ public class TestDaoOncotatorCache extends TestCase {
         assertEquals("missense", record.getVariantClassification());
         assertEquals("db_snp", record.getDbSnpRs());
     }
-
 }
-
-

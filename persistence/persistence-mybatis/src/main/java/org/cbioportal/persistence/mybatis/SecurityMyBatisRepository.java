@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.persistence.mybatis;
 
@@ -37,21 +37,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.cbioportal.model.User;
 import org.cbioportal.model.UserAuthorities;
 import org.cbioportal.persistence.SecurityRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class SecurityMyBatisRepository implements SecurityRepository {
-
-    private static final Log log = LogFactory.getLog(SecurityMyBatisRepository.class);
+    private static final Log log = LogFactory.getLog(
+        SecurityMyBatisRepository.class
+    );
 
     @Autowired
     private SecurityMapper securityMapper;
@@ -67,7 +65,12 @@ public class SecurityMyBatisRepository implements SecurityRepository {
     public User getPortalUser(String username) {
         User user = securityMapper.getPortalUser(username);
         if (user != null) {
-            log.debug("User " + username + " was found in the users table, email is " + user.getEmail());
+            log.debug(
+                "User " +
+                username +
+                " was found in the users table, email is " +
+                user.getEmail()
+            );
         } else {
             log.debug("User " + username + " is null");
         }
@@ -94,7 +97,10 @@ public class SecurityMyBatisRepository implements SecurityRepository {
     @Override
     public void addPortalUserAuthorities(UserAuthorities userAuthorities) {
         for (String authority : userAuthorities.getAuthorities()) {
-            securityMapper.addPortalUserAuthority(userAuthorities.getEmail(), authority);
+            securityMapper.addPortalUserAuthority(
+                userAuthorities.getEmail(),
+                authority
+            );
         }
     }
 
@@ -107,10 +113,14 @@ public class SecurityMyBatisRepository implements SecurityRepository {
      */
     @Override
     public Set<String> getCancerStudyGroups(Integer internalCancerStudyId) {
-        String groups = securityMapper.getCancerStudyGroups(internalCancerStudyId);
+        String groups = securityMapper.getCancerStudyGroups(
+            internalCancerStudyId
+        );
         if (groups == null) {
             return Collections.emptySet();
         }
-        return new HashSet<String>(Arrays.asList(groups.toUpperCase().split(";"))); 
+        return new HashSet<String>(
+            Arrays.asList(groups.toUpperCase().split(";"))
+        );
     }
 }

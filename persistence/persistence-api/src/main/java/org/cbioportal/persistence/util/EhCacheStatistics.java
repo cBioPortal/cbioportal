@@ -32,18 +32,15 @@
 
 package org.cbioportal.persistence.util;
 
-import org.ehcache.core.statistics.*;
-import org.ehcache.config.ResourceType;
-import org.ehcache.impl.internal.statistics.DefaultStatisticsService;
-
-import org.springframework.stereotype.Component;
-
 import java.util.Map;
 import javax.annotation.PostConstruct;
+import org.ehcache.config.ResourceType;
+import org.ehcache.core.statistics.*;
+import org.ehcache.impl.internal.statistics.DefaultStatisticsService;
+import org.springframework.stereotype.Component;
 
 @Component
 public class EhCacheStatistics {
-
     private static String TIER_NOT_IN_USE = "Tier not in use";
 
     private static double BYTES_IN_MB = 1048576.0;
@@ -54,22 +51,25 @@ public class EhCacheStatistics {
 
     public EhCacheStatistics(javax.cache.CacheManager cacheManager) {
         if (cacheManager == null) {
-            throw new RuntimeException("A CacheManager needs to be set before calling this method.");
+            throw new RuntimeException(
+                "A CacheManager needs to be set before calling this method."
+            );
         }
         this.cacheManager = cacheManager;
     }
 
     @PostConstruct
-    public void initializeStatisticsService () {
+    public void initializeStatisticsService() {
         try {
             statisticsService = new DefaultStatisticsService();
             for (String cacheName : cacheManager.getCacheNames()) {
                 javax.cache.Cache cache = cacheManager.getCache(cacheName);
-                org.ehcache.Cache ehCache = (org.ehcache.Cache)cache.unwrap(org.ehcache.Cache.class);
+                org.ehcache.Cache ehCache = (org.ehcache.Cache) cache.unwrap(
+                    org.ehcache.Cache.class
+                );
                 statisticsService.cacheAdded(cacheName, ehCache);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -79,69 +79,120 @@ public class EhCacheStatistics {
         builder.append("\n\nCACHE_STATISTICS START\n\n");
         for (String cacheName : cacheManager.getCacheNames()) {
             builder.append("Cache: " + cacheName + "\n");
-            builder.append("Allocated (heap): " + getAllocatedBytes(cacheName, ResourceType.Core.HEAP) + "\n");
-            builder.append("Occupied (heap): " + getOccupiedBytes(cacheName, "OnHeap", ResourceType.Core.HEAP) + "\n");
-            builder.append("Allocated (disk): " + getAllocatedBytes(cacheName, ResourceType.Core.DISK) + "\n");
-            builder.append("Occupied (disk): " + getOccupiedBytes(cacheName, "Disk", ResourceType.Core.DISK) + "\n");
+            builder.append(
+                "Allocated (heap): " +
+                getAllocatedBytes(cacheName, ResourceType.Core.HEAP) +
+                "\n"
+            );
+            builder.append(
+                "Occupied (heap): " +
+                getOccupiedBytes(cacheName, "OnHeap", ResourceType.Core.HEAP) +
+                "\n"
+            );
+            builder.append(
+                "Allocated (disk): " +
+                getAllocatedBytes(cacheName, ResourceType.Core.DISK) +
+                "\n"
+            );
+            builder.append(
+                "Occupied (disk): " +
+                getOccupiedBytes(cacheName, "Disk", ResourceType.Core.DISK) +
+                "\n"
+            );
             builder.append("\n");
         }
         builder.append("CACHE_STATISTICS END\n");
         return builder.toString();
     }
 
-    private String getAllocatedBytes(String cacheName, ResourceType.Core resourceType)
-    {
+    private String getAllocatedBytes(
+        String cacheName,
+        ResourceType.Core resourceType
+    ) {
         try {
             org.ehcache.Cache ehCache = getEhCache(cacheName);
-            return (getAllocatedBytes(ehCache, resourceType) + getAllocatedUnit(ehCache, resourceType));
-        }
-        catch (NullPointerException e) {
+            return (
+                getAllocatedBytes(ehCache, resourceType) +
+                getAllocatedUnit(ehCache, resourceType)
+            );
+        } catch (NullPointerException e) {
             return TIER_NOT_IN_USE;
         }
     }
 
-    private String getOccupiedBytes(String cacheName, String tier, ResourceType.Core resourceType)
-    {
+    private String getOccupiedBytes(
+        String cacheName,
+        String tier,
+        ResourceType.Core resourceType
+    ) {
         try {
-            CacheStatistics cacheStatistics = statisticsService.getCacheStatistics(cacheName);
+            CacheStatistics cacheStatistics = statisticsService.getCacheStatistics(
+                cacheName
+            );
             Map<String, TierStatistics> tierStatistics = cacheStatistics.getTierStatistics();
             long occupiedBytes = tierStatistics.get(tier).getOccupiedByteSize();
             return scaleOccupiedBytes(cacheName, occupiedBytes, resourceType);
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             return TIER_NOT_IN_USE;
         }
     }
 
-    private org.ehcache.Cache getEhCache(String cacheName)
-    {
+    private org.ehcache.Cache getEhCache(String cacheName) {
         javax.cache.Cache cache = cacheManager.getCache(cacheName);
-        return (org.ehcache.Cache)cache.unwrap(org.ehcache.Cache.class);
+        return (org.ehcache.Cache) cache.unwrap(org.ehcache.Cache.class);
     }
 
-    private String getAllocatedBytes(org.ehcache.Cache ehCache, ResourceType.Core resourceType) throws NullPointerException
-    {
-        return String.valueOf(ehCache.getRuntimeConfiguration().getResourcePools().getPoolForResource(resourceType).getSize());
+    private String getAllocatedBytes(
+        org.ehcache.Cache ehCache,
+        ResourceType.Core resourceType
+    )
+        throws NullPointerException {
+        return String.valueOf(
+            ehCache
+                .getRuntimeConfiguration()
+                .getResourcePools()
+                .getPoolForResource(resourceType)
+                .getSize()
+        );
     }
 
-    private String getAllocatedUnit(org.ehcache.Cache ehCache, ResourceType.Core resourceType) throws NullPointerException
-    {
-        return ehCache.getRuntimeConfiguration().getResourcePools().getPoolForResource(resourceType).getUnit().toString();
+    private String getAllocatedUnit(
+        org.ehcache.Cache ehCache,
+        ResourceType.Core resourceType
+    )
+        throws NullPointerException {
+        return ehCache
+            .getRuntimeConfiguration()
+            .getResourcePools()
+            .getPoolForResource(resourceType)
+            .getUnit()
+            .toString();
     }
 
-    private String scaleOccupiedBytes(String cacheName, long occupiedBytes, ResourceType.Core resourceType) throws NullPointerException
-    {
+    private String scaleOccupiedBytes(
+        String cacheName,
+        long occupiedBytes,
+        ResourceType.Core resourceType
+    )
+        throws NullPointerException {
         org.ehcache.Cache ehCache = getEhCache(cacheName);
         String allocatedUnit = getAllocatedUnit(ehCache, resourceType);
         if (allocatedUnit.equals("MB")) {
-            return String.valueOf(String.format("%.01f", occupiedBytes / BYTES_IN_MB) + "MB (" + occupiedBytes + " bytes)");
-        }
-        else if (allocatedUnit.equals("GB")) {
-            return String.valueOf(String.format("%.01f", occupiedBytes / BYTES_IN_GB) + "GB (" + occupiedBytes + " bytes)");
-        }
-        else {
+            return String.valueOf(
+                String.format("%.01f", occupiedBytes / BYTES_IN_MB) +
+                "MB (" +
+                occupiedBytes +
+                " bytes)"
+            );
+        } else if (allocatedUnit.equals("GB")) {
+            return String.valueOf(
+                String.format("%.01f", occupiedBytes / BYTES_IN_GB) +
+                "GB (" +
+                occupiedBytes +
+                " bytes)"
+            );
+        } else {
             return (String.valueOf(occupiedBytes) + " bytes");
         }
-
     }
 }

@@ -2,7 +2,6 @@ package org.cbioportal.persistence.mybatis;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.cbioportal.model.CosmicMutation;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,18 +15,18 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration("/testContextDatabase.xml")
 @Configurable
 public class CosmicCountMyBatisRepositoryTest {
-
     @Autowired
     private CosmicCountMyBatisRepository cosmicCountMyBatisRepository;
 
     @Test
     public void getCosmicCountsByKeywords() {
-
         List<String> keywords = new ArrayList<>();
         keywords.add("OR4F5 D45 missense");
         keywords.add("SAMD11 P23 silent");
-        
-        List<CosmicMutation> result = cosmicCountMyBatisRepository.fetchCosmicCountsByKeywords(keywords);
+
+        List<CosmicMutation> result = cosmicCountMyBatisRepository.fetchCosmicCountsByKeywords(
+            keywords
+        );
         Assert.assertEquals(2, result.size());
         CosmicMutation cosmicMutation1 = result.get(0);
         Assert.assertEquals("3677745", cosmicMutation1.getCosmicMutationId());

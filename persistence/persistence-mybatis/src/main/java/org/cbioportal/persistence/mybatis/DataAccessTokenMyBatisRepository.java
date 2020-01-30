@@ -7,21 +7,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class DataAccessTokenMyBatisRepository implements DataAccessTokenRepository {
-
+public class DataAccessTokenMyBatisRepository
+    implements DataAccessTokenRepository {
     @Autowired
     private DataAccessTokenMapper dataAccessTokenMapper;
 
     @Override
-    public List<DataAccessToken> getAllDataAccessTokensForUsername(String username) {
-        return dataAccessTokenMapper.getAllDataAccessTokensForUsername(username);
+    public List<DataAccessToken> getAllDataAccessTokensForUsername(
+        String username
+    ) {
+        return dataAccessTokenMapper.getAllDataAccessTokensForUsername(
+            username
+        );
     }
 
     @Override
     public DataAccessToken getDataAccessToken(String token) {
         return dataAccessTokenMapper.getDataAccessToken(token);
     }
-    
+
     @Override
     public void addDataAccessToken(DataAccessToken token) {
         dataAccessTokenMapper.addDataAccessToken(token);

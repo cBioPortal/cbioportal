@@ -28,13 +28,12 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.persistence;
 
 // imports
 import java.util.Set;
-
 import org.cbioportal.model.User;
 import org.cbioportal.model.UserAuthorities;
 
@@ -43,7 +42,6 @@ import org.cbioportal.model.UserAuthorities;
  * portal user information.
  */
 public interface SecurityRepository {
-
     /**
      * Given a user id, returns a user instance.
      * If username does not exist in db, returns null.

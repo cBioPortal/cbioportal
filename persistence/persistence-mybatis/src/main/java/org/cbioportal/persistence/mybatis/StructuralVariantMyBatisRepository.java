@@ -23,28 +23,37 @@
 
 package org.cbioportal.persistence.mybatis;
 
+import java.util.List;
 import org.cbioportal.model.StructuralVariant;
 import org.cbioportal.persistence.StructuralVariantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
-public class StructuralVariantMyBatisRepository implements StructuralVariantRepository {
-
+public class StructuralVariantMyBatisRepository
+    implements StructuralVariantRepository {
     @Autowired
     private StructuralVariantMapper structuralVariantMapper;
-    
-    @Override
-    public List<StructuralVariant> fetchStructuralVariants(List<String> molecularProfileIds, 
-            List<Integer> entrezGeneIds, List<String> sampleIds) {
 
-        if ((sampleIds.size() > 0) && (molecularProfileIds.size() != sampleIds.size())) {
-            throw new RuntimeException("molecularProfileIds list and sampleIds list should be the same length.");
+    @Override
+    public List<StructuralVariant> fetchStructuralVariants(
+        List<String> molecularProfileIds,
+        List<Integer> entrezGeneIds,
+        List<String> sampleIds
+    ) {
+        if (
+            (sampleIds.size() > 0) &&
+            (molecularProfileIds.size() != sampleIds.size())
+        ) {
+            throw new RuntimeException(
+                "molecularProfileIds list and sampleIds list should be the same length."
+            );
         }
 
-        return structuralVariantMapper.fetchStructuralVariants(molecularProfileIds,
-                entrezGeneIds, sampleIds);
+        return structuralVariantMapper.fetchStructuralVariants(
+            molecularProfileIds,
+            entrezGeneIds,
+            sampleIds
+        );
     }
 }

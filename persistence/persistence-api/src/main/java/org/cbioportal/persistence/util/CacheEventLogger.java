@@ -32,28 +32,37 @@
 
 package org.cbioportal.persistence.util;
 
-import org.ehcache.event.*;
 import org.apache.commons.logging.*;
+import org.ehcache.event.*;
 
 public class CacheEventLogger implements CacheEventListener<Object, Object> {
-
     private static Log log = LogFactory.getLog(CacheEventLogger.class);
 
     // this is to allow spring to inject EhCacheStatistics via MethodInvokingFactoryBean
     private static EhCacheStatistics ehCacheStatistics;
-    public static void setCacheStatistics(EhCacheStatistics ecs)
-    {
+
+    public static void setCacheStatistics(EhCacheStatistics ecs) {
         ehCacheStatistics = ecs;
     }
 
     @Override
-    public void onEvent(CacheEvent<? extends Object, ? extends Object> cacheEvent) {
+    public void onEvent(
+        CacheEvent<? extends Object, ? extends Object> cacheEvent
+    ) {
         if (log.isDebugEnabled()) {
-            log.debug("CACHE_EVENT:\n" +
-                     "\tTYPE: " + cacheEvent.getType() + "\n" +
-                     "\tKEY: " + cacheEvent.getKey() + "\n" +
-                     "\tVALUE: " + cacheEvent.getNewValue() + "\n" +
-                     "CACHE_EVENT<>\n");
+            log.debug(
+                "CACHE_EVENT:\n" +
+                "\tTYPE: " +
+                cacheEvent.getType() +
+                "\n" +
+                "\tKEY: " +
+                cacheEvent.getKey() +
+                "\n" +
+                "\tVALUE: " +
+                cacheEvent.getNewValue() +
+                "\n" +
+                "CACHE_EVENT<>\n"
+            );
             log.debug(ehCacheStatistics.getCacheStatistics());
         }
     }

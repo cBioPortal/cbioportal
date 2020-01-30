@@ -1,10 +1,9 @@
 package org.cbioportal.persistence;
 
-import org.cbioportal.model.DataAccessToken;
 import java.util.List;
+import org.cbioportal.model.DataAccessToken;
 
 public interface DataAccessTokenRepository {
-
     List<DataAccessToken> getAllDataAccessTokensForUsername(String username);
 
     DataAccessToken getDataAccessToken(String token);

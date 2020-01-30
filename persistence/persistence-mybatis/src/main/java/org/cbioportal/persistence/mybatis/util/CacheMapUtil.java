@@ -44,7 +44,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CacheMapUtil {
-
     @Autowired
     private StudyRepository studyRepository;
 
@@ -61,7 +60,9 @@ public class CacheMapUtil {
     private String authenticate;
 
     private Boolean cacheEnabled;
-    private static final Logger LOG = LoggerFactory.getLogger(CacheMapUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(
+        CacheMapUtil.class
+    );
 
     private static final int REPOSITORY_RESULT_LIMIT = Integer.MAX_VALUE; // retrieve all entries (no limit to return size)
     private static final int REPOSITORY_RESULT_OFFSET = 0; // retrieve all entries (do not skip any)
@@ -91,9 +92,12 @@ public class CacheMapUtil {
     @PostConstruct
     private void initializeCacheMemory() {
         // CHANGES TO THIS LIST MUST BE PROPAGATED TO 'GlobalProperties'
-        this.cacheEnabled = (!authenticate.isEmpty() 
-                && !authenticate.equals("false") 
-                && !authenticate.contains("social_auth"));
+        this.cacheEnabled =
+            (
+                !authenticate.isEmpty() &&
+                !authenticate.equals("false") &&
+                !authenticate.contains("social_auth")
+            );
         if (cacheEnabled) {
             LOG.debug("creating cache maps for authorization");
             populateMolecularProfileMap();
@@ -108,14 +112,17 @@ public class CacheMapUtil {
             molecularProfileCache = new HashMap<String, MolecularProfile>();
         }
         for (MolecularProfile mp : molecularProfileRepository.getAllMolecularProfiles(
-                "SUMMARY",
-                REPOSITORY_RESULT_LIMIT,
-                REPOSITORY_RESULT_OFFSET,
-                null,
-                "ASC")) {
+            "SUMMARY",
+            REPOSITORY_RESULT_LIMIT,
+            REPOSITORY_RESULT_OFFSET,
+            null,
+            "ASC"
+        )) {
             molecularProfileCache.put(mp.getStableId(), mp);
         }
-        LOG.debug("  molecular profile map size: " + molecularProfileCache.size());
+        LOG.debug(
+            "  molecular profile map size: " + molecularProfileCache.size()
+        );
     }
 
     private void populateSampleListMap() {
@@ -123,11 +130,12 @@ public class CacheMapUtil {
             sampleListCache = new HashMap<String, SampleList>();
         }
         for (SampleList sl : sampleListRepository.getAllSampleLists(
-                "SUMMARY",
-                REPOSITORY_RESULT_LIMIT,
-                REPOSITORY_RESULT_OFFSET,
-                null,
-                "ASC")) {
+            "SUMMARY",
+            REPOSITORY_RESULT_LIMIT,
+            REPOSITORY_RESULT_OFFSET,
+            null,
+            "ASC"
+        )) {
             sampleListCache.put(sl.getStableId(), sl);
         }
         LOG.debug("  sample list map size: " + sampleListCache.size());
@@ -138,12 +146,13 @@ public class CacheMapUtil {
             cancerStudyCache = new HashMap<String, CancerStudy>();
         }
         for (CancerStudy cs : studyRepository.getAllStudies(
-                null,
-                "SUMMARY",
-                REPOSITORY_RESULT_LIMIT,
-                REPOSITORY_RESULT_OFFSET,
-                null,
-                "ASC")) {
+            null,
+            "SUMMARY",
+            REPOSITORY_RESULT_LIMIT,
+            REPOSITORY_RESULT_OFFSET,
+            null,
+            "ASC"
+        )) {
             cancerStudyCache.put(cs.getCancerStudyIdentifier(), cs);
         }
         LOG.debug("  cancer study map size: " + cancerStudyCache.size());
@@ -151,25 +160,38 @@ public class CacheMapUtil {
 
     private void populateGenericAssayStableIdToMolecularProfileIdMap() {
         if (genericAssayStableIdToMolecularProfileIdCache == null) {
-            genericAssayStableIdToMolecularProfileIdCache = new HashMap<String, String>();
+            genericAssayStableIdToMolecularProfileIdCache =
+                new HashMap<String, String>();
         }
         for (MolecularProfile mp : molecularProfileRepository.getAllMolecularProfiles(
             "SUMMARY",
             REPOSITORY_RESULT_LIMIT,
             REPOSITORY_RESULT_OFFSET,
             null,
-            "ASC")) {
+            "ASC"
+        )) {
             // Only select GENERIC_ASSAY profiles
-            if (mp.getMolecularAlterationType().toString() == EntityType.GENERIC_ASSAY.toString()) {
+            if (
+                mp.getMolecularAlterationType().toString() ==
+                EntityType.GENERIC_ASSAY.toString()
+            ) {
                 List<String> molecularId = new ArrayList<String>();
                 molecularId.add(mp.getStableId());
-                List<String> stableIds = genericAssayRepository.getGenericAssayStableIdsByMolecularIds(molecularId);
+                List<String> stableIds = genericAssayRepository.getGenericAssayStableIdsByMolecularIds(
+                    molecularId
+                );
                 for (String stableId : stableIds) {
-                    genericAssayStableIdToMolecularProfileIdCache.put(stableId, mp.getStableId());
+                    genericAssayStableIdToMolecularProfileIdCache.put(
+                        stableId,
+                        mp.getStableId()
+                    );
                 }
             }
         }
-        LOG.debug(" generic assay stableId to molecularProfileId map size: " + genericAssayStableIdToMolecularProfileIdCache.size());
+        LOG.debug(
+            " generic assay stableId to molecularProfileId map size: " +
+            genericAssayStableIdToMolecularProfileIdCache.size()
+        );
     }
 
     /**
@@ -185,5 +207,4 @@ public class CacheMapUtil {
     public void setCacheEnabled(Boolean cacheEnabled) {
         this.cacheEnabled = cacheEnabled;
     }
-
 }

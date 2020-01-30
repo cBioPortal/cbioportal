@@ -41,19 +41,23 @@ import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.util.StringUtils;
 
 public class CustomKeyGenerator implements KeyGenerator {
-
     @Autowired
     private CacheEnabledConfig cacheEnabledConfig;
 
-    private static final Logger LOG = LoggerFactory.getLogger(CustomKeyGenerator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(
+        CustomKeyGenerator.class
+    );
 
     public Object generate(Object target, Method method, Object... params) {
         if (!cacheEnabledConfig.isEnabled()) {
             return "";
         }
-        String key = target.getClass().getSimpleName() + "_"
-            + method.getName() + "_"
-            + StringUtils.arrayToDelimitedString(params, "_");
+        String key =
+            target.getClass().getSimpleName() +
+            "_" +
+            method.getName() +
+            "_" +
+            StringUtils.arrayToDelimitedString(params, "_");
         LOG.debug("Created key: " + key);
         return key;
     }

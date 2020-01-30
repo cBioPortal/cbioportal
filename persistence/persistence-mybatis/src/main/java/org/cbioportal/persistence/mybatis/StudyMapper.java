@@ -1,15 +1,20 @@
 package org.cbioportal.persistence.mybatis;
 
+import java.util.List;
 import org.cbioportal.model.CancerStudy;
 import org.cbioportal.model.CancerStudyTags;
 import org.cbioportal.model.meta.BaseMeta;
 
-import java.util.List;
-
 public interface StudyMapper {
-
-    List<CancerStudy> getStudies(List<String> studyIds, String keyword, String projection, Integer limit, Integer offset, String sortBy, 
-        String direction);
+    List<CancerStudy> getStudies(
+        List<String> studyIds,
+        String keyword,
+        String projection,
+        Integer limit,
+        Integer offset,
+        String sortBy,
+        String direction
+    );
 
     BaseMeta getMetaStudies(List<String> studyIds, String keyword);
 

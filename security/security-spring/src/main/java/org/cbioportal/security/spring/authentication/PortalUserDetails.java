@@ -28,14 +28,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.security.spring.authentication;
 
+import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-
-import java.util.Collection;
 
 /**
  * A class which extends User and provides
@@ -45,26 +44,39 @@ import java.util.Collection;
  * @author Benjamin Gross
  */
 public class PortalUserDetails extends User {
-
     private String email;
     private String name;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param username String
-	 * @param authorities Collection<GrantedAuthority>
-	 *
-	 * Username is what is presented to the authentication provider.
-	 * Authorities is what should  be granted to the caller.
-	 */
-    public PortalUserDetails(String username, Collection<GrantedAuthority> authorities) {
+    /**
+     * Constructor.
+     *
+     * @param username String
+     * @param authorities Collection<GrantedAuthority>
+     *
+     * Username is what is presented to the authentication provider.
+     * Authorities is what should  be granted to the caller.
+     */
+    public PortalUserDetails(
+        String username,
+        Collection<GrantedAuthority> authorities
+    ) {
         super(username, "unused", authorities);
     }
 
-	// accessors
-    public String getEmail() { return email; }
-    public void setEmail(String email) {this.email = email; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    // accessors
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

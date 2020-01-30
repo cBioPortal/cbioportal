@@ -28,29 +28,23 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.security.spring.authentication.openID;
 
+import java.util.List;
+import org.apache.commons.logging.*;
 // imports
 import org.cbioportal.model.User;
 import org.cbioportal.model.UserAuthorities;
 import org.cbioportal.persistence.SecurityRepository;
 import org.cbioportal.security.spring.authentication.PortalUserDetails;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.security.openid.*;
-
-import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.openid.*;
 import org.springframework.stereotype.Service;
-
-import org.apache.commons.logging.*;
-
-import java.util.List;
 
 /**
  * Custom UserDetailsService which authenticates
@@ -60,10 +54,13 @@ import java.util.List;
  */
 @Service
 public class PortalUserDetailsService
-    implements UserDetailsService, AuthenticationUserDetailsService<OpenIDAuthenticationToken> {
-
+    implements
+        UserDetailsService,
+        AuthenticationUserDetailsService<OpenIDAuthenticationToken> {
     // logger
-    private static final Log log = LogFactory.getLog(PortalUserDetailsService.class);
+    private static final Log log = LogFactory.getLog(
+        PortalUserDetailsService.class
+    );
 
     @Autowired
     private SecurityRepository securityRepository;
@@ -72,15 +69,14 @@ public class PortalUserDetailsService
      * Constructor.
      *
      */
-    public PortalUserDetailsService() {
-    }
-          
+    public PortalUserDetailsService() {}
 
     /**
      * Implementation of {@code UserDetailsService}.
      * We only need this to satisfy the {@code RememberMeServices} requirements.
      */
-    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String id)
+        throws UsernameNotFoundException {
         throw new UnsupportedOperationException();
     }
 
@@ -89,8 +85,8 @@ public class PortalUserDetailsService
      * which allows full access to the submitted {@code Authentication} object.
      * Used by the OpenIDAuthenticationProvider.
      */
-    public UserDetails loadUserDetails(OpenIDAuthenticationToken token) throws UsernameNotFoundException {
-
+    public UserDetails loadUserDetails(OpenIDAuthenticationToken token)
+        throws UsernameNotFoundException {
         // what we return
         PortalUserDetails toReturn = null;
 
@@ -108,8 +104,7 @@ public class PortalUserDetailsService
         if (id.indexOf("myopenid") != -1) {
             email = id;
             fullName = id;
-        }
-        else {
+        } else {
             try {
                 List<OpenIDAttribute> attributes = token.getAttributes();
                 for (OpenIDAttribute attribute : attributes) {
@@ -137,9 +132,12 @@ public class PortalUserDetailsService
                     }
                     fullName = fullNameBldr.toString();
                 }
-            }
-            catch (NullPointerException ex) {
-                log.warn("Attribute exchange failed using OpenID "+token.getIdentityUrl()+" for everything");
+            } catch (NullPointerException ex) {
+                log.warn(
+                    "Attribute exchange failed using OpenID " +
+                    token.getIdentityUrl() +
+                    " for everything"
+                );
                 fullName = email = token.getIdentityUrl();
             }
         }
@@ -147,28 +145,39 @@ public class PortalUserDetailsService
         // check if this user exists in our backend db
         try {
             if (log.isDebugEnabled()) {
-                log.debug("loadUserDetails(), attempting to fetch portal user, email: " + email);
+                log.debug(
+                    "loadUserDetails(), attempting to fetch portal user, email: " +
+                    email
+                );
             }
             User user = securityRepository.getPortalUser(email);
             if (user != null && user.isEnabled()) {
                 if (log.isDebugEnabled()) {
-                    log.debug("loadUserDetails(), attempting to fetch portal user authorities, email: " + email);
+                    log.debug(
+                        "loadUserDetails(), attempting to fetch portal user authorities, email: " +
+                        email
+                    );
                 }
-                UserAuthorities authorities = securityRepository.getPortalUserAuthorities(email);
+                UserAuthorities authorities = securityRepository.getPortalUserAuthorities(
+                    email
+                );
                 if (authorities != null) {
-                    List<GrantedAuthority> grantedAuthorities =
-                        AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
+                    List<GrantedAuthority> grantedAuthorities = AuthorityUtils.createAuthorityList(
+                        authorities
+                            .getAuthorities()
+                            .toArray(
+                                new String[authorities.getAuthorities().size()]
+                            )
+                    );
                     toReturn = new PortalUserDetails(id, grantedAuthorities);
                     toReturn.setEmail(email);
                     toReturn.setName(fullName);
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             if (log.isDebugEnabled()) {
                 log.debug(e.getMessage());
-            }
-            else {
+            } else {
                 e.printStackTrace();
             }
         }
@@ -176,13 +185,20 @@ public class PortalUserDetailsService
         // outta here
         if (toReturn == null) {
             if (log.isDebugEnabled()) {
-                log.debug("loadUserDetails(), user and/or user authorities is null, email: " + email);
+                log.debug(
+                    "loadUserDetails(), user and/or user authorities is null, email: " +
+                    email
+                );
             }
-            throw new UsernameNotFoundException("Error:  Unknown user or account disabled");
-        }
-        else {
+            throw new UsernameNotFoundException(
+                "Error:  Unknown user or account disabled"
+            );
+        } else {
             if (log.isDebugEnabled()) {
-                log.debug("loadUserDetails(), successfully authenticated user, email: " + email);
+                log.debug(
+                    "loadUserDetails(), successfully authenticated user, email: " +
+                    email
+                );
             }
             return toReturn;
         }

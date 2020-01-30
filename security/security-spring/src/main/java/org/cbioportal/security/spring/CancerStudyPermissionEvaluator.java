@@ -51,7 +51,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * @author Benjamin Gross
  */
 class CancerStudyPermissionEvaluator implements PermissionEvaluator {
-
     @Autowired
     private CacheMapUtil cacheMapUtil;
 
@@ -59,28 +58,41 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     private static final String ALL_TCGA_CANCER_STUDIES_ID = "all_tcga";
     private static final String ALL_TARGET_CANCER_STUDIES_ID = "all_nci_target";
     private static final String TARGET_TYPE_CANCER_STUDY_ID = "CancerStudyId";
-    private static final String TARGET_TYPE_MOLECULAR_PROFILE_ID = "MolecularProfileId";
-    private static final String TARGET_TYPE_GENETIC_PROFILE_ID = "GeneticProfileId";
+    private static final String TARGET_TYPE_MOLECULAR_PROFILE_ID =
+        "MolecularProfileId";
+    private static final String TARGET_TYPE_GENETIC_PROFILE_ID =
+        "GeneticProfileId";
     private static final String TARGET_TYPE_SAMPLE_LIST_ID = "SampleListId";
-    private static final String TARGET_TYPE_COLLECTION_OF_SAMPLE_LIST_IDS = "Collection<SampleListId>";
-    private static final String TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS = "Collection<CancerStudyId>";
-    private static final String TARGET_TYPE_COLLECTION_OF_MOLECULAR_PROFILE_IDS = "Collection<MolecularProfileId>";
-    private static final String TARGET_TYPE_COLLECTION_OF_GENETIC_PROFILE_IDS = "Collection<GeneticProfileId>";
-    private static Log log = LogFactory.getLog(CancerStudyPermissionEvaluator.class);
+    private static final String TARGET_TYPE_COLLECTION_OF_SAMPLE_LIST_IDS =
+        "Collection<SampleListId>";
+    private static final String TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS =
+        "Collection<CancerStudyId>";
+    private static final String TARGET_TYPE_COLLECTION_OF_MOLECULAR_PROFILE_IDS =
+        "Collection<MolecularProfileId>";
+    private static final String TARGET_TYPE_COLLECTION_OF_GENETIC_PROFILE_IDS =
+        "Collection<GeneticProfileId>";
+    private static Log log = LogFactory.getLog(
+        CancerStudyPermissionEvaluator.class
+    );
 
     @Value("${app.name:}")
     private String APP_NAME;
+
     private String DEFAULT_APP_NAME = "public_portal";
 
     @Value("${filter_groups_by_appname:true}")
     private String FILTER_GROUPS_BY_APP_NAME;
 
     private static String PUBLIC_CANCER_STUDIES_GROUP;
+
     @Value("${always_show_study_group:}")
     private void setPublicCancerStudiesGroup(String property) {
         PUBLIC_CANCER_STUDIES_GROUP = property;
         if (log.isDebugEnabled()) {
-            log.debug("setPublicCancerStudiesGroup(), always_show_study_group = " + ((property == null) ? "null" : property));
+            log.debug(
+                "setPublicCancerStudiesGroup(), always_show_study_group = " +
+                ((property == null) ? "null" : property)
+            );
         }
         if (property != null && property.trim().isEmpty()) {
             PUBLIC_CANCER_STUDIES_GROUP = null;
@@ -96,17 +108,27 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
      * @param permission
      */
     @Override
-    public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+    public boolean hasPermission(
+        Authentication authentication,
+        Object targetDomainObject,
+        Object permission
+    ) {
         if (log.isDebugEnabled()) {
-            log.debug("hasPermission(), checking permissions on targetDomainObject");
+            log.debug(
+                "hasPermission(), checking permissions on targetDomainObject"
+            );
         }
         if (targetDomainObject == null) {
-           if (log.isDebugEnabled()) {
-                log.debug("hasPermission(), targetDomainObject is null, returning false");
+            if (log.isDebugEnabled()) {
+                log.debug(
+                    "hasPermission(), targetDomainObject is null, returning false"
+                );
             }
             return false;
         }
-        CancerStudy cancerStudy = getRelevantCancerStudyFromTarget(targetDomainObject);
+        CancerStudy cancerStudy = getRelevantCancerStudyFromTarget(
+            targetDomainObject
+        );
         if (log.isDebugEnabled()) {
             if (cancerStudy == null) {
                 log.debug("hasPermission(), stable cancer study is null.");
@@ -154,7 +176,12 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
      * @param permission
      */
     @Override
-    public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+    public boolean hasPermission(
+        Authentication authentication,
+        Serializable targetId,
+        String targetType,
+        Object permission
+    ) {
         if (log.isDebugEnabled()) {
             log.debug("hasPermission(), checking permissions on targetId");
         }
@@ -165,26 +192,66 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             return false;
         }
         if (TARGET_TYPE_CANCER_STUDY_ID.equals(targetType)) {
-            return hasAccessToCancerStudy(authentication, (String)targetId, permission);
-        } else if (TARGET_TYPE_MOLECULAR_PROFILE_ID.equals(targetType) || TARGET_TYPE_GENETIC_PROFILE_ID.equals(targetType)) {
-            return hasAccessToMolecularProfile(authentication, (String)targetId, permission);
+            return hasAccessToCancerStudy(
+                authentication,
+                (String) targetId,
+                permission
+            );
+        } else if (
+            TARGET_TYPE_MOLECULAR_PROFILE_ID.equals(targetType) ||
+            TARGET_TYPE_GENETIC_PROFILE_ID.equals(targetType)
+        ) {
+            return hasAccessToMolecularProfile(
+                authentication,
+                (String) targetId,
+                permission
+            );
         } else if (TARGET_TYPE_SAMPLE_LIST_ID.equals(targetType)) {
-            return hasAccessToSampleList(authentication, (String)targetId, permission);
-        } else if (TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS.equals(targetType)) {
-            return hasAccessToCancerStudies(authentication, (Collection<String>)targetId, permission);
-        } else if (TARGET_TYPE_COLLECTION_OF_MOLECULAR_PROFILE_IDS.equals(targetType) || TARGET_TYPE_COLLECTION_OF_GENETIC_PROFILE_IDS.equals(targetType)) {
-            return hasAccessToMolecularProfiles(authentication, (Collection<String>)targetId, permission);
-        } else if (TARGET_TYPE_COLLECTION_OF_SAMPLE_LIST_IDS.equals(targetType)) {
-            return hasAccessToSampleLists(authentication, (Collection<String>) targetId, permission);
+            return hasAccessToSampleList(
+                authentication,
+                (String) targetId,
+                permission
+            );
+        } else if (
+            TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS.equals(targetType)
+        ) {
+            return hasAccessToCancerStudies(
+                authentication,
+                (Collection<String>) targetId,
+                permission
+            );
+        } else if (
+            TARGET_TYPE_COLLECTION_OF_MOLECULAR_PROFILE_IDS.equals(
+                targetType
+            ) ||
+            TARGET_TYPE_COLLECTION_OF_GENETIC_PROFILE_IDS.equals(targetType)
+        ) {
+            return hasAccessToMolecularProfiles(
+                authentication,
+                (Collection<String>) targetId,
+                permission
+            );
+        } else if (
+            TARGET_TYPE_COLLECTION_OF_SAMPLE_LIST_IDS.equals(targetType)
+        ) {
+            return hasAccessToSampleLists(
+                authentication,
+                (Collection<String>) targetId,
+                permission
+            );
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("hasPermission(), unknown targetType '" + targetType + "'");
+                log.debug(
+                    "hasPermission(), unknown targetType '" + targetType + "'"
+                );
             }
         }
         return false;
     }
 
-    private CancerStudy getRelevantCancerStudyFromTarget(Object targetDomainObject) {
+    private CancerStudy getRelevantCancerStudyFromTarget(
+        Object targetDomainObject
+    ) {
         if (targetDomainObject instanceof CancerStudy) {
             return (CancerStudy) targetDomainObject;
         } else if (targetDomainObject instanceof MolecularProfile) {
@@ -193,25 +260,35 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 return molecularProfile.getCancerStudy();
             }
             // cancer study was not included so get it from cache
-            return cacheMapUtil.getCancerStudyMap().get(molecularProfile.getCancerStudyIdentifier());
+            return cacheMapUtil
+                .getCancerStudyMap()
+                .get(molecularProfile.getCancerStudyIdentifier());
         } else if (targetDomainObject instanceof SampleList) {
             SampleList sampleList = (SampleList) targetDomainObject;
             if (sampleList.getCancerStudy() != null) {
                 return sampleList.getCancerStudy();
             }
             // cancer study was not included so get it from cache
-            return cacheMapUtil.getCancerStudyMap().get(sampleList.getCancerStudyIdentifier());
+            return cacheMapUtil
+                .getCancerStudyMap()
+                .get(sampleList.getCancerStudyIdentifier());
         } else if (targetDomainObject instanceof Patient) {
             Patient patient = (Patient) targetDomainObject;
             if (patient.getCancerStudy() != null) {
                 return patient.getCancerStudy();
             }
             // cancer study was not included so get it from cache
-            return cacheMapUtil.getCancerStudyMap().get(patient.getCancerStudyIdentifier());
+            return cacheMapUtil
+                .getCancerStudyMap()
+                .get(patient.getCancerStudyIdentifier());
         }
         // unable to handle targetDomainObject type
         if (log.isDebugEnabled()) {
-            log.debug("hasPermission(), targetDomainObject class is '" + targetDomainObject.getClass().getName() + "'");
+            log.debug(
+                "hasPermission(), targetDomainObject class is '" +
+                targetDomainObject.getClass().getName() +
+                "'"
+            );
         }
         return null;
     }
@@ -223,12 +300,21 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
      * @param user Spring Authentication of the logged-in user.
      * @return boolean
      */
-    private boolean hasAccessToCancerStudy(Authentication authentication, CancerStudy cancerStudy) {
+    private boolean hasAccessToCancerStudy(
+        Authentication authentication,
+        CancerStudy cancerStudy
+    ) {
         Set<String> grantedAuthorities = getGrantedAuthorities(authentication);
         String stableStudyID = cancerStudy.getCancerStudyIdentifier();
         if (log.isDebugEnabled()) {
-            log.debug("hasAccessToCancerStudy(), cancer study stable id: " + stableStudyID);
-            log.debug("hasAccessToCancerStudy(), user: " + authentication.getPrincipal().toString());
+            log.debug(
+                "hasAccessToCancerStudy(), cancer study stable id: " +
+                stableStudyID
+            );
+            log.debug(
+                "hasAccessToCancerStudy(), user: " +
+                authentication.getPrincipal().toString()
+            );
             for (String authority : grantedAuthorities) {
                 log.debug("hasAccessToCancerStudy(), authority: " + authority);
             }
@@ -240,102 +326,179 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         // if a user has access to 'all', simply return true
         if (grantedAuthorities.contains(ALL_CANCER_STUDIES_ID.toUpperCase())) {
             if (log.isDebugEnabled()) {
-                log.debug("hasAccessToCancerStudy(), user has access to ALL cancer studies, return true");
+                log.debug(
+                    "hasAccessToCancerStudy(), user has access to ALL cancer studies, return true"
+                );
             }
             return true;
         }
         // if a user has access to 'all_tcga', simply return true for tcga studies
-        if (grantedAuthorities.contains(ALL_TCGA_CANCER_STUDIES_ID.toUpperCase()) &&
-                stableStudyID.toUpperCase().endsWith("_TCGA")) {
+        if (
+            grantedAuthorities.contains(
+                ALL_TCGA_CANCER_STUDIES_ID.toUpperCase()
+            ) &&
+            stableStudyID.toUpperCase().endsWith("_TCGA")
+        ) {
             if (log.isDebugEnabled()) {
-                log.debug("hasAccessToCancerStudy(), user has access to ALL_TCGA cancer studies return true");
+                log.debug(
+                    "hasAccessToCancerStudy(), user has access to ALL_TCGA cancer studies return true"
+                );
             }
             return true;
         }
         // if a user has access to 'all_target', simply return true for target studies
-        if (grantedAuthorities.contains(ALL_TARGET_CANCER_STUDIES_ID.toUpperCase()) &&
-                (stableStudyID.toUpperCase().endsWith("_TARGET")
-                        || stableStudyID.equalsIgnoreCase("ALL_TARGET_PHASE1")
-                        || stableStudyID.equalsIgnoreCase("ALL_TARGET_PHASE2"))) {
+        if (
+            grantedAuthorities.contains(
+                ALL_TARGET_CANCER_STUDIES_ID.toUpperCase()
+            ) &&
+            (
+                stableStudyID.toUpperCase().endsWith("_TARGET") ||
+                stableStudyID.equalsIgnoreCase("ALL_TARGET_PHASE1") ||
+                stableStudyID.equalsIgnoreCase("ALL_TARGET_PHASE2")
+            )
+        ) {
             if (log.isDebugEnabled()) {
-                log.debug("hasAccessToCancerStudy(), user has access to ALL_NCI_TARGET cancer studies return true");
+                log.debug(
+                    "hasAccessToCancerStudy(), user has access to ALL_NCI_TARGET cancer studies return true"
+                );
             }
             return true;
         }
         // check if user is in study groups
         // performance now takes precedence over group accuracy (minimal risk to caching cancer study groups)
-        Set<String> groups = new HashSet(Arrays.asList(cancerStudy.getGroups().split(";")));
+        Set<String> groups = new HashSet(
+            Arrays.asList(cancerStudy.getGroups().split(";"))
+        );
         if (!Collections.disjoint(groups, grantedAuthorities)) {
             if (log.isDebugEnabled()) {
-                log.debug("hasAccessToCancerStudy(), user has access by groups return true");
+                log.debug(
+                    "hasAccessToCancerStudy(), user has access by groups return true"
+                );
             }
             return true;
         }
         // finally, check if the user has this study specifically listed in his 'groups' (a 'group' of this study only)
-        boolean toReturn = grantedAuthorities.contains(stableStudyID.toUpperCase());
+        boolean toReturn = grantedAuthorities.contains(
+            stableStudyID.toUpperCase()
+        );
         if (log.isDebugEnabled()) {
             if (toReturn == true) {
-                log.debug("hasAccessToCancerStudy(), user has access to this cancer study: '" + stableStudyID.toUpperCase() + "', returning true.");
+                log.debug(
+                    "hasAccessToCancerStudy(), user has access to this cancer study: '" +
+                    stableStudyID.toUpperCase() +
+                    "', returning true."
+                );
             } else {
-                log.debug("hasAccessToCancerStudy(), user does not have access to the cancer study: '" + stableStudyID.toUpperCase() + "', returning false.");
+                log.debug(
+                    "hasAccessToCancerStudy(), user does not have access to the cancer study: '" +
+                    stableStudyID.toUpperCase() +
+                    "', returning false."
+                );
             }
         }
         return toReturn;
     }
 
-    private boolean hasAccessToCancerStudy(Authentication authentication, String cancerStudyId, Object permission) {
+    private boolean hasAccessToCancerStudy(
+        Authentication authentication,
+        String cancerStudyId,
+        Object permission
+    ) {
         // everybody has access the 'all' cancer study
         // we have to check this right here (instead of checking later)
         // because the 'all' cancer study does not exist in the database
         if (cancerStudyId.equalsIgnoreCase(ALL_CANCER_STUDIES_ID)) {
             return true;
         }
-        CancerStudy cancerStudy = cacheMapUtil.getCancerStudyMap().get(cancerStudyId);
+        CancerStudy cancerStudy = cacheMapUtil
+            .getCancerStudyMap()
+            .get(cancerStudyId);
         if (cancerStudy == null) {
             return false;
         }
         return hasPermission(authentication, cancerStudy, permission);
     }
 
-    private boolean hasAccessToMolecularProfile(Authentication authentication, String molecularProfileId, Object permission) {
-        MolecularProfile molecularProfile = cacheMapUtil.getMolecularProfileMap().get(molecularProfileId);
+    private boolean hasAccessToMolecularProfile(
+        Authentication authentication,
+        String molecularProfileId,
+        Object permission
+    ) {
+        MolecularProfile molecularProfile = cacheMapUtil
+            .getMolecularProfileMap()
+            .get(molecularProfileId);
         if (molecularProfile == null) {
             return false;
         }
         return hasPermission(authentication, molecularProfile, permission);
     }
 
-    private boolean hasAccessToSampleList(Authentication authentication, String sampleListId, Object permission) {
-        SampleList sampleList = cacheMapUtil.getSampleListMap().get(sampleListId);
+    private boolean hasAccessToSampleList(
+        Authentication authentication,
+        String sampleListId,
+        Object permission
+    ) {
+        SampleList sampleList = cacheMapUtil
+            .getSampleListMap()
+            .get(sampleListId);
         if (sampleList == null) {
             return false;
         }
         return hasPermission(authentication, sampleList, permission);
     }
 
-    private boolean hasAccessToCancerStudies(Authentication authentication, Collection<String> cancerStudyIds, Object permission) {
+    private boolean hasAccessToCancerStudies(
+        Authentication authentication,
+        Collection<String> cancerStudyIds,
+        Object permission
+    ) {
         for (String cancerStudyId : cancerStudyIds) {
-            if (!hasPermission(authentication, cancerStudyId, TARGET_TYPE_CANCER_STUDY_ID, permission)) {
+            if (
+                !hasPermission(
+                    authentication,
+                    cancerStudyId,
+                    TARGET_TYPE_CANCER_STUDY_ID,
+                    permission
+                )
+            ) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean hasAccessToMolecularProfiles(Authentication authentication, Collection<String> molecularProfileIds, Object permission) {
+    private boolean hasAccessToMolecularProfiles(
+        Authentication authentication,
+        Collection<String> molecularProfileIds,
+        Object permission
+    ) {
         for (String molecularProfileId : molecularProfileIds) {
-            MolecularProfile molecularProfile = cacheMapUtil.getMolecularProfileMap().get(molecularProfileId);
-            if (molecularProfile == null || !hasPermission(authentication, molecularProfile, permission)) {
+            MolecularProfile molecularProfile = cacheMapUtil
+                .getMolecularProfileMap()
+                .get(molecularProfileId);
+            if (
+                molecularProfile == null ||
+                !hasPermission(authentication, molecularProfile, permission)
+            ) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean hasAccessToSampleLists(Authentication authentication, Collection<String> sampleListIds, Object permission) {
+    private boolean hasAccessToSampleLists(
+        Authentication authentication,
+        Collection<String> sampleListIds,
+        Object permission
+    ) {
         for (String sampleListId : sampleListIds) {
-            SampleList sampleList = cacheMapUtil.getSampleListMap().get(sampleListId);
-            if (sampleList == null || !hasPermission(authentication, sampleList, permission)) {
+            SampleList sampleList = cacheMapUtil
+                .getSampleListMap()
+                .get(sampleListId);
+            if (
+                sampleList == null ||
+                !hasPermission(authentication, sampleList, permission)
+            ) {
                 return false;
             }
         }
@@ -344,12 +507,16 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
     private Set<String> getGrantedAuthorities(Authentication authentication) {
         String appName = getAppName().toUpperCase();
-        Set<String> allAuthorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+        Set<String> allAuthorities = AuthorityUtils.authorityListToSet(
+            authentication.getAuthorities()
+        );
         Set<String> grantedAuthorities = new HashSet<>();
         if (filterGroupsByAppName()) {
             for (String au : allAuthorities) {
                 if (au.toUpperCase().startsWith(appName + ":")) {
-                    grantedAuthorities.add(au.substring(appName.length() + 1).toUpperCase());
+                    grantedAuthorities.add(
+                        au.substring(appName.length() + 1).toUpperCase()
+                    );
                 }
             }
         } else {
@@ -359,7 +526,14 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         }
         // all users are allowed access to PUBLIC studies
         if (log.isDebugEnabled()) {
-            log.debug("PUBLIC_CANCER_STUDIES_GROUP= " + ((PUBLIC_CANCER_STUDIES_GROUP == null) ? "null" : PUBLIC_CANCER_STUDIES_GROUP));
+            log.debug(
+                "PUBLIC_CANCER_STUDIES_GROUP= " +
+                (
+                    (PUBLIC_CANCER_STUDIES_GROUP == null)
+                        ? "null"
+                        : PUBLIC_CANCER_STUDIES_GROUP
+                )
+            );
         }
         if (PUBLIC_CANCER_STUDIES_GROUP != null) {
             grantedAuthorities.add(PUBLIC_CANCER_STUDIES_GROUP.toUpperCase());
@@ -369,15 +543,30 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
     private String getAppName() {
         if (log.isDebugEnabled()) {
-            log.debug("getAppName(), APP_NAME = " + ((APP_NAME == null) ? "null" : APP_NAME));
+            log.debug(
+                "getAppName(), APP_NAME = " +
+                ((APP_NAME == null) ? "null" : APP_NAME)
+            );
         }
-        return (APP_NAME == null || APP_NAME.trim().isEmpty()) ? DEFAULT_APP_NAME : APP_NAME;
+        return (APP_NAME == null || APP_NAME.trim().isEmpty())
+            ? DEFAULT_APP_NAME
+            : APP_NAME;
     }
 
     private boolean filterGroupsByAppName() {
         if (log.isDebugEnabled()) {
-            log.debug("filterGroupsByAppName(), FILTER_GROUPS_BY_APP_NAME = " + ((FILTER_GROUPS_BY_APP_NAME == null) ? "null" : FILTER_GROUPS_BY_APP_NAME));
+            log.debug(
+                "filterGroupsByAppName(), FILTER_GROUPS_BY_APP_NAME = " +
+                (
+                    (FILTER_GROUPS_BY_APP_NAME == null)
+                        ? "null"
+                        : FILTER_GROUPS_BY_APP_NAME
+                )
+            );
         }
-        return FILTER_GROUPS_BY_APP_NAME == null || Boolean.parseBoolean(FILTER_GROUPS_BY_APP_NAME);
+        return (
+            FILTER_GROUPS_BY_APP_NAME == null ||
+            Boolean.parseBoolean(FILTER_GROUPS_BY_APP_NAME)
+        );
     }
 }

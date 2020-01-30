@@ -28,37 +28,43 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.security.spring.authentication.googleplus;
 
 import org.springframework.social.connect.support.OAuth2ConnectionFactory;
 import org.springframework.social.google.api.Google;
+import org.springframework.social.google.api.oauth2.OAuth2Operations;
 import org.springframework.social.google.connect.GoogleAdapter;
 import org.springframework.social.google.connect.GoogleServiceProvider;
 import org.springframework.social.oauth2.AccessGrant;
-import org.springframework.social.google.api.oauth2.OAuth2Operations;
 
 /**
  * @author criscuof
  *
  */
-public class GoogleplusConnectionFactory extends OAuth2ConnectionFactory<Google> {
+public class GoogleplusConnectionFactory
+    extends OAuth2ConnectionFactory<Google> {
 
     public GoogleplusConnectionFactory(String clientId, String clientSecret) {
-            super("google", new GoogleServiceProvider(clientId, clientSecret),
-                            new GoogleAdapter());
+        super(
+            "google",
+            new GoogleServiceProvider(clientId, clientSecret),
+            new GoogleAdapter()
+        );
     }
 
     /**
      * modification of original factory class to support using the user's email address as his/her id
      * original method utilized the google id, a numeric string
-    */
+     */
     @Override
     protected String extractProviderUserId(AccessGrant accessGrant) {
-        Google api = ((GoogleServiceProvider)getServiceProvider()).getApi(accessGrant.getAccessToken());
+        Google api =
+            ((GoogleServiceProvider) getServiceProvider()).getApi(
+                    accessGrant.getAccessToken()
+                );
         OAuth2Operations op = api.oauth2Operations();
         return op.getUserinfo().getEmail();
     }
-
 }

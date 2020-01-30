@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.security.spring.authentication.token;
 
@@ -38,8 +38,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cbioportal.service.util.JwtUtils;
 import org.junit.Assert;
-import org.junit.runner.RunWith;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,20 +47,22 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringRunner;
 
 @TestPropertySource(
-    properties = { "dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
-                    "dat.ttl_seconds = 60", // this will be the default expiration for tokens
-                    "dat.method = jwt"
+    properties = {
+        "dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
+        "dat.ttl_seconds = 60", // this will be the default expiration for tokens
+        "dat.method = jwt"
     },
     inheritLocations = false
 )
-@ContextConfiguration(classes=TokenAuthenticationFilterTestConfiguration.class)
+@ContextConfiguration(
+    classes = TokenAuthenticationFilterTestConfiguration.class
+)
 @RunWith(SpringRunner.class)
 public class TokenAuthenticationFilterTest {
-
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -75,25 +77,53 @@ public class TokenAuthenticationFilterTest {
 
     private static final int TEST_TOKEN_EXPIRATION_SECONDS = 1;
 
-    private static final Log LOG = LogFactory.getLog(TokenAuthenticationFilterTest.class);
+    private static final Log LOG = LogFactory.getLog(
+        TokenAuthenticationFilterTest.class
+    );
 
     // TODO: test requiresValidation() function maybe
 
     @Test
     public void testAttemptAuthentication_success() {
-        String token = jwtUtils.createToken(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT).getToken();
+        String token = jwtUtils
+            .createToken(
+                TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT
+            )
+            .getToken();
         LOG.debug("testAttemptAuthentication_success() token = " + token);
         Mockito.reset(request);
-        Mockito.when(request.getHeader(Matchers.anyString())).thenReturn("Bearer " + token);
+        Mockito
+            .when(request.getHeader(Matchers.anyString()))
+            .thenReturn("Bearer " + token);
         // response object is autowired above
-        Authentication authentication = tokenAuthenticationFilter.attemptAuthentication(request, response);
+        Authentication authentication = tokenAuthenticationFilter.attemptAuthentication(
+            request,
+            response
+        );
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         // userDetails is mocked and hard coded to return TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT
         // but we will only get TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT if the token is valid and
         // the authority provider (not mocked) successfully authenticated
         // if the token is invalid or the authentication provider fails then exceptions are thrown
-        if (userDetails == null || userDetails.getUsername() == null || !userDetails.getUsername().equalsIgnoreCase(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT)) {
-            Assert.fail("principal username returned by authentication filter (" + userDetails == null ? "null" : userDetails.getUsername() + ") does not match token user : (" + TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT +")");
+        if (
+            userDetails == null ||
+            userDetails.getUsername() == null ||
+            !userDetails
+                .getUsername()
+                .equalsIgnoreCase(
+                    TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT
+                )
+        ) {
+            Assert.fail(
+                "principal username returned by authentication filter (" +
+                    userDetails ==
+                    null
+                    ? "null"
+                    : userDetails.getUsername() +
+                    ") does not match token user : (" +
+                    TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT +
+                    ")"
+            );
         }
         Mockito.reset(request);
     }
@@ -108,15 +138,22 @@ public class TokenAuthenticationFilterTest {
     }
 
     @Test(expected = BadCredentialsException.class)
-    public void testAttemptAuthentication_expiredToken() throws InterruptedException {
-        String token = jwtUtils.createToken(TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT, TEST_TOKEN_EXPIRATION_SECONDS).getToken();
+    public void testAttemptAuthentication_expiredToken()
+        throws InterruptedException {
+        String token = jwtUtils
+            .createToken(
+                TokenAuthenticationFilterTestConfiguration.TEST_SUBJECT,
+                TEST_TOKEN_EXPIRATION_SECONDS
+            )
+            .getToken();
         LOG.debug("testAttemptAuthentication_expiredToken() token = " + token);
         Mockito.reset(request);
-        Mockito.when(request.getHeader(Matchers.anyString())).thenReturn("Bearer " + token);
+        Mockito
+            .when(request.getHeader(Matchers.anyString()))
+            .thenReturn("Bearer " + token);
         Thread.sleep((TEST_TOKEN_EXPIRATION_SECONDS * 1000L) + 10L); // NOTE: sleep time must be adequate to allow created token to expire
         // response object is autowired above
         tokenAuthenticationFilter.attemptAuthentication(request, response);
         // make sure we call Mockito.reset(request) in other methods
     }
-
 }

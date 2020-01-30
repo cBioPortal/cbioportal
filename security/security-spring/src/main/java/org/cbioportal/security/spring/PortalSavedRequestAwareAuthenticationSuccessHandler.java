@@ -44,46 +44,46 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.security.spring;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.util.StringUtils;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
- * A reimplementation of SavedRequestAwareAuthenticationSuccessHandler that checks for 
+ * A reimplementation of SavedRequestAwareAuthenticationSuccessHandler that checks for
  * targetUrlParameter on the SavedRequest rather than on the current request.
  *
  * @author Manda Wilson
  * @see <a href="https://github.com/spring-projects/spring-security/blob/master/web/src/main/java/org/springframework/security/web/authentication/SavedRequestAwareAuthenticationSuccessHandler.java">SavedRequestAwareAuthenticationSuccessHandler</a>
  */
-class PortalSavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
+class PortalSavedRequestAwareAuthenticationSuccessHandler
+    extends SimpleUrlAuthenticationSuccessHandler {
     protected final Log logger = LogFactory.getLog(this.getClass());
 
     private RequestCache requestCache = new HttpSessionRequestCache();
-  
+
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request,
-            HttpServletResponse response, Authentication authentication)
-            throws ServletException, IOException {
+    public void onAuthenticationSuccess(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Authentication authentication
+    )
+        throws ServletException, IOException {
         SavedRequest savedRequest = requestCache.getRequest(request, response);
 
         if (savedRequest == null) {
@@ -101,17 +101,35 @@ class PortalSavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuthe
 
         String targetUrlParameter = getTargetUrlParameter();
         String targetUrl = null;
-        String[] targetUrlParameterValues = savedRequest.getParameterValues(targetUrlParameter);
+        String[] targetUrlParameterValues = savedRequest.getParameterValues(
+            targetUrlParameter
+        );
 
-        if (targetUrlParameter != null 
-                && targetUrlParameterValues != null
-                && targetUrlParameterValues.length > 0
-                && StringUtils.hasText(targetUrlParameterValues[0])) {
+        if (
+            targetUrlParameter != null &&
+            targetUrlParameterValues != null &&
+            targetUrlParameterValues.length > 0 &&
+            StringUtils.hasText(targetUrlParameterValues[0])
+        ) {
             requestCache.removeRequest(request, response);
             // force this to be relative
-            targetUrl = getRelativeURI(request, savedRequest.getParameterValues(targetUrlParameter)[0]);
-            Assert.notNull(targetUrl, "'" + savedRequest.getParameterValues(targetUrlParameter)[0] + "' could not be turned into a valid relative URI");
-            Assert.isTrue(StringUtils.hasText(targetUrl), "'" + savedRequest.getParameterValues(targetUrlParameter)[0] + "' could not be turned into a valid relative URI");
+            targetUrl =
+                getRelativeURI(
+                    request,
+                    savedRequest.getParameterValues(targetUrlParameter)[0]
+                );
+            Assert.notNull(
+                targetUrl,
+                "'" +
+                savedRequest.getParameterValues(targetUrlParameter)[0] +
+                "' could not be turned into a valid relative URI"
+            );
+            Assert.isTrue(
+                StringUtils.hasText(targetUrl),
+                "'" +
+                savedRequest.getParameterValues(targetUrlParameter)[0] +
+                "' could not be turned into a valid relative URI"
+            );
         } else {
             clearAuthenticationAttributes(request);
             // Use the DefaultSavedRequest URL
@@ -126,21 +144,48 @@ class PortalSavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuthe
         this.requestCache = requestCache;
     }
 
-    private String getRelativeURI(HttpServletRequest request, String targetURI) {
+    private String getRelativeURI(
+        HttpServletRequest request,
+        String targetURI
+    ) {
         String relativeURI = null;
         try {
             URI originalURI = new URI(targetURI);
-            logger.debug("getRelativeURI(): request.getServletContext() = '" + request.getServletContext() + "'");
-            logger.debug("getRelativeURI(): testing '" + new URI(request.getContextPath()) + "'");
+            logger.debug(
+                "getRelativeURI(): request.getServletContext() = '" +
+                request.getServletContext() +
+                "'"
+            );
+            logger.debug(
+                "getRelativeURI(): testing '" +
+                new URI(request.getContextPath()) +
+                "'"
+            );
             // URI(String scheme, String authority, String path, String query, String fragment)
             // use relativize so we do not include context path e.g. /cbioportal/
             // use resolve to make sure we have a "/" at the front
-            relativeURI = new URI("/").resolve(new URI(request.getContextPath()).relativize(new URI(null, 
-                                                                                null, 
-                                                                                originalURI.getRawPath(),
-                                                                                originalURI.getRawQuery(), 
-                                                                                originalURI.getRawFragment()))).toString();
-            logger.debug("getRelativeURI(): changing '" + targetURI + "' to '" + relativeURI + "'");
+            relativeURI =
+                new URI("/")
+                    .resolve(
+                        new URI(request.getContextPath())
+                        .relativize(
+                                new URI(
+                                    null,
+                                    null,
+                                    originalURI.getRawPath(),
+                                    originalURI.getRawQuery(),
+                                    originalURI.getRawFragment()
+                                )
+                            )
+                    )
+                    .toString();
+            logger.debug(
+                "getRelativeURI(): changing '" +
+                targetURI +
+                "' to '" +
+                relativeURI +
+                "'"
+            );
         } catch (URISyntaxException e) {
             return null;
         }

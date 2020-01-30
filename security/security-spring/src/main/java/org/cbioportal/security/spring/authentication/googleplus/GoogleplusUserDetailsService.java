@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.security.spring.authentication.googleplus;
 
@@ -43,20 +43,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetailsService;
 
-
-
-
-
-
 public class GoogleplusUserDetailsService implements SocialUserDetailsService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GoogleplusUserDetailsService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        GoogleplusUserDetailsService.class
+    );
 
     private UserDetailsService userDetailsService;
 
     public GoogleplusUserDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
-        
     }
 
     /**
@@ -66,29 +61,31 @@ public class GoogleplusUserDetailsService implements SocialUserDetailsService {
      * @throws UsernameNotFoundException    Thrown if no user is found.
      * @throws DataAccessException
      */
-   
 
     @Override
-    public org.springframework.social.security.SocialUserDetails loadUserByUserId(String userId) throws UsernameNotFoundException, DataAccessException {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(userId), "A userid is required");
+    public org.springframework.social.security.SocialUserDetails loadUserByUserId(
+        String userId
+    )
+        throws UsernameNotFoundException, DataAccessException {
+        Preconditions.checkArgument(
+            !Strings.isNullOrEmpty(userId),
+            "A userid is required"
+        );
         LOGGER.debug("Loading user by user id: {}", userId);
 
         UserDetails ud = userDetailsService.loadUserByUsername(userId);
-        LOGGER.debug("Found user details: " +ud.getUsername());
+        LOGGER.debug("Found user details: " + ud.getUsername());
         /**
          * Map Spring Security UserDetails implementation to a Spring Social SocialUser instance
          */
-        return new SocialUser(ud.getUsername(), 
-                ud.getPassword(),
-                ud.isEnabled(),
-                ud.isAccountNonExpired(),
-                ud.isCredentialsNonExpired(),
-                ud.isAccountNonLocked(),
-                ud.getAuthorities());
-                    
-        
+        return new SocialUser(
+            ud.getUsername(),
+            ud.getPassword(),
+            ud.isEnabled(),
+            ud.isAccountNonExpired(),
+            ud.isCredentialsNonExpired(),
+            ud.isAccountNonLocked(),
+            ud.getAuthorities()
+        );
     }
-    
-  
 }
-

@@ -1,18 +1,16 @@
 package org.cbioportal.security.spring.authentication.ldap;
 
+import com.google.inject.internal.Lists;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.cbioportal.model.User;
 import org.cbioportal.model.UserAuthorities;
 import org.cbioportal.persistence.SecurityRepository;
 import org.cbioportal.security.spring.authentication.PortalUserDetails;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.AuthenticationException;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -26,8 +24,6 @@ import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.stereotype.Service;
 
-import com.google.inject.internal.Lists;
-
 /**
  * Mapping between details from an LDAP server and the user name used for authentication.
  *
@@ -37,12 +33,14 @@ import com.google.inject.internal.Lists;
  */
 @Service
 public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
-
     /** {@link Log} to use */
-    private static final Log LOG = LogFactory.getLog(LDAPUserDetailsContextMapper.class);
+    private static final Log LOG = LogFactory.getLog(
+        LDAPUserDetailsContextMapper.class
+    );
 
     /** {@link DefaultSpringSecurityContextSource} with the LDAP connection */
     private DefaultSpringSecurityContextSource ldapServer;
+
     /** data access object to use for retrieving the authorities from the database */
     @Autowired
     private SecurityRepository securityRepository;
@@ -59,44 +57,67 @@ public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
     private String emailAttribute = "mail";
 
     /** Default constructor */
-    public LDAPUserDetailsContextMapper() {
-    }
+    public LDAPUserDetailsContextMapper() {}
 
     /**
      * Initialize the {@link LDAPUserDetailsContextMapper} with the given {@link DefaultSpringSecurityContextSource} and
      * {@link SecurityRepository}.
      */
-    public LDAPUserDetailsContextMapper(DefaultSpringSecurityContextSource ldapServer) {
+    public LDAPUserDetailsContextMapper(
+        DefaultSpringSecurityContextSource ldapServer
+    ) {
         this.ldapServer = ldapServer;
     }
 
     @Override
-    public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
-            Collection<? extends GrantedAuthority> authorities) {
+    public UserDetails mapUserFromContext(
+        DirContextOperations ctx,
+        String username,
+        Collection<? extends GrantedAuthority> authorities
+    ) {
         // Query LDAP server for user details, including first/given name and email.
-        SpringSecurityLdapTemplate ldapTemplate = new SpringSecurityLdapTemplate(ldapServer);
+        SpringSecurityLdapTemplate ldapTemplate = new SpringSecurityLdapTemplate(
+            ldapServer
+        );
 
         String query = MessageFormat.format("({0}='{'0'}')", usernameAttribute);
-        DirContextOperations user = ldapTemplate.searchForSingleEntry(baseDn, query, new String[] { username });
+        DirContextOperations user = ldapTemplate.searchForSingleEntry(
+            baseDn,
+            query,
+            new String[] { username }
+        );
 
         // Get email, must be available
         String email;
-        if (user.getAttributeSortedStringSet(emailAttribute).first() == null)
-            throw new RuntimeException("Could not retrieve email for user " + username);
-        else
-            email = (String) user.getAttributeSortedStringSet(emailAttribute).first();
+        if (
+            user.getAttributeSortedStringSet(emailAttribute).first() == null
+        ) throw new RuntimeException(
+            "Could not retrieve email for user " + username
+        ); else email =
+            (String) user.getAttributeSortedStringSet(emailAttribute).first();
 
         // Get given and last name, should be available in all LDAP installations.  Use
         // ugly fallback strings, meant as debugging help.
         String givenName = "missing-given-name";
-        if (user.getAttributeSortedStringSet(givenNameAttribute) != null)
-            givenName = (String) user.getAttributeSortedStringSet(givenNameAttribute).first();
+        if (
+            user.getAttributeSortedStringSet(givenNameAttribute) != null
+        ) givenName =
+            (String) user
+                .getAttributeSortedStringSet(givenNameAttribute)
+                .first();
         String lastName = "missing-last-name";
-        if (user.getAttributeSortedStringSet(lastNameAttribute) != null)
-            lastName = (String) user.getAttributeSortedStringSet(lastNameAttribute).first();
+        if (
+            user.getAttributeSortedStringSet(lastNameAttribute) != null
+        ) lastName =
+            (String) user
+                .getAttributeSortedStringSet(lastNameAttribute)
+                .first();
 
         // Construct the resulting PortalUserDetails object.
-        PortalUserDetails result = new PortalUserDetails(username, getGrantedAuthorities(email));
+        PortalUserDetails result = new PortalUserDetails(
+            username,
+            getGrantedAuthorities(email)
+        );
         result.setEmail(email);
         result.setName(MessageFormat.format("{0} {1}", givenName, lastName));
         return result;
@@ -123,19 +144,26 @@ public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
             LOG.debug("user not found or not enabled " + email);
             return AuthorityUtils.createAuthorityList(new String[0]);
         } else {
-            LOG.debug("getGrantedAuthorities(), attempting to fetch portal user authorities, email: " + email);
+            LOG.debug(
+                "getGrantedAuthorities(), attempting to fetch portal user authorities, email: " +
+                email
+            );
             UserAuthorities authorities = null;
             try {
-                authorities = securityRepository.getPortalUserAuthorities(email);
+                authorities =
+                    securityRepository.getPortalUserAuthorities(email);
             } catch (Exception e) {
                 LOG.debug("problem with database query:" + e.getMessage());
-                throw new UsernameNotFoundException("Could not retrieve authorities for " + email, e);
+                throw new UsernameNotFoundException(
+                    "Could not retrieve authorities for " + email,
+                    e
+                );
             }
-            if (authorities != null)
-                return AuthorityUtils.createAuthorityList(
-                        authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
-            else
-                return AuthorityUtils.createAuthorityList(new String[0]);
+            if (authorities != null) return AuthorityUtils.createAuthorityList(
+                authorities
+                    .getAuthorities()
+                    .toArray(new String[authorities.getAuthorities().size()])
+            ); else return AuthorityUtils.createAuthorityList(new String[0]);
         }
     }
 
@@ -203,5 +231,4 @@ public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
     public void setEmailAttribute(String emailAttribute) {
         this.emailAttribute = emailAttribute;
     }
-
 }

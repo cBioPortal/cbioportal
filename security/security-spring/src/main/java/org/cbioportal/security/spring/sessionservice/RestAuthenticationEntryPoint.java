@@ -28,25 +28,27 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.security.spring.sessionservice;
 
 import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint{
- 
-   @Override
-   public void commence( HttpServletRequest request, HttpServletResponse response, 
-    AuthenticationException authException ) throws IOException{
-      response.sendError( HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized" );
-   }
+public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    @Override
+    public void commence(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        AuthenticationException authException
+    )
+        throws IOException {
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+    }
 }

@@ -28,29 +28,23 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.cbioportal.security.spring.authentication.social;
 
+import com.google.common.base.*;
+import java.util.List;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.cbioportal.model.User;
 import org.cbioportal.model.UserAuthorities;
 import org.cbioportal.persistence.SecurityRepository;
 import org.cbioportal.security.spring.authentication.PortalUserDetails;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.google.common.base.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-
+import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * Responsible for verifying that a social site user name has been registered in the
@@ -63,8 +57,9 @@ import java.util.List;
  */
 @Service
 public class PortalUserDetailsService implements UserDetailsService {
-
-    private static final Log log = LogFactory.getLog(PortalUserDetailsService.class);
+    private static final Log log = LogFactory.getLog(
+        PortalUserDetailsService.class
+    );
 
     @Autowired
     private SecurityRepository securityRepository;
@@ -73,53 +68,73 @@ public class PortalUserDetailsService implements UserDetailsService {
      * Constructor.
      *
      */
-    public PortalUserDetailsService() {
-    }
+    public PortalUserDetailsService() {}
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(username), "A username is required");
+    public UserDetails loadUserByUsername(String username)
+        throws UsernameNotFoundException {
+        Preconditions.checkArgument(
+            !Strings.isNullOrEmpty(username),
+            "A username is required"
+        );
         // set the username into the global state so other components can find out who
         // logged in or tried to log in most recently
         if (log.isDebugEnabled()) {
-            log.debug("loadUserByUsername(), attempting to fetch portal user, email: " + username);
+            log.debug(
+                "loadUserByUsername(), attempting to fetch portal user, email: " +
+                username
+            );
         }
         PortalUserDetails toReturn = null;
         User user = null;
         try {
             user = securityRepository.getPortalUser(username);
-        } catch (Exception e ){
-            log.debug("User " +username +" was not found in the cbio users table");
+        } catch (Exception e) {
+            log.debug(
+                "User " + username + " was not found in the cbio users table"
+            );
             log.debug("Error:" + e);
         }
         if (user != null && user.isEnabled()) {
             if (log.isDebugEnabled()) {
-                log.debug("loadUserByUsername(), attempting to fetch portal user authorities, username: " + username);
+                log.debug(
+                    "loadUserByUsername(), attempting to fetch portal user authorities, username: " +
+                    username
+                );
             }
-            UserAuthorities authorities = securityRepository.getPortalUserAuthorities(username);
+            UserAuthorities authorities = securityRepository.getPortalUserAuthorities(
+                username
+            );
             if (authorities != null) {
-                List<GrantedAuthority> grantedAuthorities
-                        = AuthorityUtils.createAuthorityList(
-                                authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
+                List<GrantedAuthority> grantedAuthorities = AuthorityUtils.createAuthorityList(
+                    authorities
+                        .getAuthorities()
+                        .toArray(
+                            new String[authorities.getAuthorities().size()]
+                        )
+                );
                 toReturn = new PortalUserDetails(username, grantedAuthorities);
                 toReturn.setEmail(user.getEmail());
                 toReturn.setName(user.getName());
-             
-                
             }
         }
 
         // outta here
         if (toReturn == null) {
             if (log.isDebugEnabled()) {
-                log.debug("loadUserByUsername(), user and/or user authorities is null, user name: " +username);
+                log.debug(
+                    "loadUserByUsername(), user and/or user authorities is null, user name: " +
+                    username
+                );
             }
             // use the Exception message to attache the username to the request object
             throw new UsernameNotFoundException(username);
-        }    
-        else {
+        } else {
             if (log.isDebugEnabled()) {
-                log.debug("loadUserByUsername(), successfully authenticated user, user name: " + username);
+                log.debug(
+                    "loadUserByUsername(), successfully authenticated user, user name: " +
+                    username
+                );
             }
             return toReturn;
         }

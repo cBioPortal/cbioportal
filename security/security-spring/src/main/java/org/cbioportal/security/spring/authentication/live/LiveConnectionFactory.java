@@ -10,7 +10,11 @@ import org.springframework.social.oauth2.AccessGrant;
 public class LiveConnectionFactory extends OAuth2ConnectionFactory<Live> {
 
     public LiveConnectionFactory(String clientId, String clientSecret) {
-        super("live", new LiveServiceProvider(clientId, clientSecret), new LiveAdapter());
+        super(
+            "live",
+            new LiveServiceProvider(clientId, clientSecret),
+            new LiveAdapter()
+        );
     }
 
     /*
@@ -20,9 +24,11 @@ public class LiveConnectionFactory extends OAuth2ConnectionFactory<Live> {
      */
     @Override
     protected String extractProviderUserId(AccessGrant accessGrant) {
-        Live live = ((LiveServiceProvider) getServiceProvider()).getApi(accessGrant.getAccessToken());
+        Live live =
+            ((LiveServiceProvider) getServiceProvider()).getApi(
+                    accessGrant.getAccessToken()
+                );
         UserProfile userProfile = getApiAdapter().fetchUserProfile(live);
         return userProfile.getEmail();
     }
-
 }

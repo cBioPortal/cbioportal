@@ -3,7 +3,6 @@ package org.mskcc.cbio.portal.model;
 import java.io.Serializable;
 
 public class SignificantlyMutatedGene implements Serializable {
-
     private Integer entrezGeneId;
     private String concatenatedSampleIds;
     private Integer count;

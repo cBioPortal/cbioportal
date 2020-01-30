@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.repository;
 
@@ -46,13 +46,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class GenePanelMyBatisRepositoryLegacy implements GenePanelRepositoryLegacy {
-
+public class GenePanelMyBatisRepositoryLegacy
+    implements GenePanelRepositoryLegacy {
     @Autowired
     GenePanelMapperLegacy genePanelMapper;
 
     @Override
-    public List<GenePanelWithSamples> getGenePanelsByProfile(String profileId) {       
+    public List<GenePanelWithSamples> getGenePanelsByProfile(String profileId) {
         return genePanelMapper.getGenePanelsByProfile(profileId);
     }
 
@@ -62,9 +62,9 @@ public class GenePanelMyBatisRepositoryLegacy implements GenePanelRepositoryLega
     public List<GenePanel> getGenePanelByStableId(String stableId) {
         return genePanelMapper.getGenePanelByStableId(stableId);
     }
-    
+
     @Override
-    public List<GenePanel> getGenePanels() {        
+    public List<GenePanel> getGenePanels() {
         return genePanelMapper.getGenePanels();
     }
 
@@ -90,11 +90,13 @@ public class GenePanelMyBatisRepositoryLegacy implements GenePanelRepositoryLega
 
     @Override
     public boolean sampleProfileMappingExistsByProfile(Integer profileId) {
-        return genePanelMapper.sampleProfileMappingExistsByProfile(profileId) != 0;
+        return (
+            genePanelMapper.sampleProfileMappingExistsByProfile(profileId) != 0
+        );
     }
-    
+
     @Override
-    public boolean sampleProfileMappingExistsByPanel(Integer panelId) { 
+    public boolean sampleProfileMappingExistsByPanel(Integer panelId) {
         return genePanelMapper.sampleProfileMappingExistsByPanel(panelId) != 0;
     }
 

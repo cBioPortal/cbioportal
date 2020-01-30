@@ -7,16 +7,13 @@ package org.mskcc.cbio.portal.model;
 
 import java.io.Serializable;
 
-
 /**
  *
  * @author jiaojiao
  */
 public class DBAltCountInputData implements Serializable {
-    public String gene; 
+    public String gene;
     public String id;
     public Integer start;
-    public Integer end ;
-    
+    public Integer end;
 }
-

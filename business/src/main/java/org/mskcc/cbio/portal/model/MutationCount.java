@@ -1,12 +1,10 @@
 package org.mskcc.cbio.portal.model;
 
+import java.io.Serializable;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 
-import java.io.Serializable;
-
 public class MutationCount implements Serializable {
-
     private Integer geneticProfileId;
     private MolecularProfile geneticProfile;
     private Integer sampleId;

@@ -5,6 +5,7 @@
  */
 package org.mskcc.cbio.portal.service;
 
+import java.util.List;
 /**
  *
  * @author heinsz
@@ -12,10 +13,12 @@ package org.mskcc.cbio.portal.service;
 
 import org.mskcc.cbio.portal.model.GenePanel;
 import org.mskcc.cbio.portal.model.GenePanelWithSamples;
-import java.util.List;
 
 public interface GenePanelServiceLegacy {
-    List<GenePanelWithSamples> getGenePanelDataByProfileAndGenes(String profileId, List<String> genes);
+    List<GenePanelWithSamples> getGenePanelDataByProfileAndGenes(
+        String profileId,
+        List<String> genes
+    );
     List<GenePanel> getGenePanelByStableId(String panelId);
     List<GenePanel> getGenePanels();
 }

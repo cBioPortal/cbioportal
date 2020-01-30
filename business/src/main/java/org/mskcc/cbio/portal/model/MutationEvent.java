@@ -3,7 +3,6 @@ package org.mskcc.cbio.portal.model;
 import java.io.Serializable;
 
 public class MutationEvent implements Serializable {
-
     private Integer mutationEventId;
     private Integer entrezGeneId;
     private String chr;

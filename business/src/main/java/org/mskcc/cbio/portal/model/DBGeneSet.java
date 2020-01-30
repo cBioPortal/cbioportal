@@ -16,13 +16,15 @@ public class DBGeneSet implements Serializable {
     public String id;
     public String name;
     public String gene_list; // space-delimited
-    public DBGeneSet(){
-    }
+
+    public DBGeneSet() {}
+
     public DBGeneSet(String _id, String _name, String _list) {
         this.id = _id;
         this.name = _name;
         this.gene_list = _list;
     }
+
     public DBGeneSet stripList() {
         return new DBGeneSet(this.id, this.name, "");
     }

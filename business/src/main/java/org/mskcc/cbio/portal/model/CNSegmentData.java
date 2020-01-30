@@ -11,7 +11,7 @@ import java.io.Serializable;
  *
  * @author jiaojiao
  */
-public class CNSegmentData implements Serializable{
+public class CNSegmentData implements Serializable {
     private String sample;
     private String chr;
     private Integer start;

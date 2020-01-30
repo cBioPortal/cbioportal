@@ -28,7 +28,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.persistence;
 
@@ -39,15 +39,13 @@ package org.mskcc.cbio.portal.persistence;
 
 import java.util.List;
 import java.util.Map;
-
 import org.cbioportal.model.Gene;
-import org.mskcc.cbio.portal.model.GenePanel;
-import org.mskcc.cbio.portal.model.GenePanelWithSamples;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
+import org.mskcc.cbio.portal.model.GenePanel;
+import org.mskcc.cbio.portal.model.GenePanelWithSamples;
 
 public interface GenePanelMapperLegacy {
-
     List<GenePanelWithSamples> getGenePanelsByProfile(String profileId);
     // TODO: All of the below methods are for importing purposes only. They should be
     // removed once a proper import solution is put in place.
@@ -59,7 +57,7 @@ public interface GenePanelMapperLegacy {
     Gene getGeneByHugoSymbol(String symbol);
     Gene getGeneByAlias(String symbol);
     Integer sampleProfileMappingExistsByProfile(Integer profileId);
-    Integer sampleProfileMappingExistsByPanel(Integer panelId);    
+    Integer sampleProfileMappingExistsByPanel(Integer panelId);
     void insertGenePanel(Map<String, Object> map);
     void deleteGenePanel(Integer internalId);
     void deleteGenePanelList(Integer internalId);

@@ -2,8 +2,7 @@ package org.mskcc.cbio.portal.model;
 
 import java.io.Serializable;
 
-public class MutatedGeneSampleCount implements Serializable{
-
+public class MutatedGeneSampleCount implements Serializable {
     private Integer entrezGeneId;
     private Integer count;
 

@@ -3,7 +3,6 @@ package org.mskcc.cbio.portal.model;
 import java.io.Serializable;
 
 public class AltCount implements Serializable {
-
     private Integer count;
     private Double frequency;
     private String cancerStudyIdentifier;

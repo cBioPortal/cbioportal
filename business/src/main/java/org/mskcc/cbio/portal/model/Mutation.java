@@ -28,18 +28,16 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.model;
 
+import java.io.Serializable;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.Sample;
 
-import java.io.Serializable;
-
 public class Mutation implements Serializable {
-
     private Integer mutationEventId;
     private Integer geneticProfileId;
     private String geneticProfileStableId;
@@ -215,7 +213,9 @@ public class Mutation implements Serializable {
         return matchNormValidationAllele1;
     }
 
-    public void setMatchNormValidationAllele1(String matchNormValidationAllele1) {
+    public void setMatchNormValidationAllele1(
+        String matchNormValidationAllele1
+    ) {
         this.matchNormValidationAllele1 = matchNormValidationAllele1;
     }
 
@@ -223,7 +223,9 @@ public class Mutation implements Serializable {
         return matchNormValidationAllele2;
     }
 
-    public void setMatchNormValidationAllele2(String matchNormValidationAllele2) {
+    public void setMatchNormValidationAllele2(
+        String matchNormValidationAllele2
+    ) {
         this.matchNormValidationAllele2 = matchNormValidationAllele2;
     }
 

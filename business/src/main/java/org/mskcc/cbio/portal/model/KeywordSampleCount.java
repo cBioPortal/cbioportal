@@ -2,8 +2,7 @@ package org.mskcc.cbio.portal.model;
 
 import java.io.Serializable;
 
-public class KeywordSampleCount implements Serializable{
-
+public class KeywordSampleCount implements Serializable {
     private String keyword;
     private Integer count;
 

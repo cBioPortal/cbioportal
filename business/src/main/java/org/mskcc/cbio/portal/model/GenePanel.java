@@ -28,9 +28,11 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package org.mskcc.cbio.portal.model;
 
+import java.io.Serializable;
+import java.util.List;
 /**
  *
  * @author heinsz
@@ -38,48 +40,43 @@ package org.mskcc.cbio.portal.model;
 
 import org.cbioportal.model.Gene;
 
-import java.io.Serializable;
-import java.util.List;
-
-public class GenePanel  implements Serializable{
-    
+public class GenePanel implements Serializable {
     private Integer internalId;
     private String stableId;
     private String description;
     private List<Gene> genes;
-    
+
     public GenePanel() {}
-    
+
     public Integer getInternalId() {
         return internalId;
     }
-    
+
     public void setInternalId(Integer internalId) {
         this.internalId = internalId;
     }
-    
+
     public String getStableId() {
         return stableId;
     }
-    
+
     public void setStableId(String stableId) {
         this.stableId = stableId;
     }
-    
+
     public String getDescription() {
         return description;
     }
-    
+
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
     public List<Gene> getGenes() {
         return genes;
     }
-    
+
     public void setGenes(List<Gene> genes) {
         this.genes = genes;
     }
-    
 }

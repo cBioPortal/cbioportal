@@ -18,7 +18,7 @@ public class DBSampleList implements Serializable {
     public String description;
     public String study_id;
     public List<String> sample_ids;
-    
+
     public DBSampleList discardList() {
         this.sample_ids = null;
         return this;

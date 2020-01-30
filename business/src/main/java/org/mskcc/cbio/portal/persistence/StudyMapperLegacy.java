@@ -4,14 +4,16 @@
  * and open the template in the editor.
  */
 package org.mskcc.cbio.portal.persistence;
+
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.mskcc.cbio.portal.model.DBStudy;
+
 /**
  *
  * @author abeshoua
  */
 public interface StudyMapperLegacy {
-	List<DBStudy> getStudies(@Param("study_ids") List<String> study_ids);
-	List<DBStudy> getAllStudies();
+    List<DBStudy> getStudies(@Param("study_ids") List<String> study_ids);
+    List<DBStudy> getAllStudies();
 }

@@ -12,20 +12,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class MutationalSignatureMyBatisRepository implements MutationalSignatureRepository {
-	
-	@Autowired
+public class MutationalSignatureMyBatisRepository
+    implements MutationalSignatureRepository {
+    @Autowired
     MutationalSignatureMapper mutationalSignatureMapper;
-	
-	public List<SNPCount> getSNPCounts(String geneticProfileStableId, List<String> sampleStableIds) {
-		return mutationalSignatureMapper.getSNPCountsBySampleId(geneticProfileStableId, sampleStableIds);
-	}
 
-	public List<SNPCount> getSNPCounts(String geneticProfileStableId) {
-		return mutationalSignatureMapper.getSNPCountsBySampleId(geneticProfileStableId, null);
-	}
+    public List<SNPCount> getSNPCounts(
+        String geneticProfileStableId,
+        List<String> sampleStableIds
+    ) {
+        return mutationalSignatureMapper.getSNPCountsBySampleId(
+            geneticProfileStableId,
+            sampleStableIds
+        );
+    }
 
-    public void setMutationalSignatureMapper(MutationalSignatureMapper mutationalSignatureMapper) {
+    public List<SNPCount> getSNPCounts(String geneticProfileStableId) {
+        return mutationalSignatureMapper.getSNPCountsBySampleId(
+            geneticProfileStableId,
+            null
+        );
+    }
+
+    public void setMutationalSignatureMapper(
+        MutationalSignatureMapper mutationalSignatureMapper
+    ) {
         this.mutationalSignatureMapper = mutationalSignatureMapper;
     }
 }

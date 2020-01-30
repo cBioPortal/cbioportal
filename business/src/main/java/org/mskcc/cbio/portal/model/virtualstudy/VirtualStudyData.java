@@ -6,97 +6,99 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class VirtualStudyData {
+    private String name;
 
-	private String name;
+    private String description;
 
-	private String description;
+    private Set<VirtualStudySamples> studies;
 
-	private Set<VirtualStudySamples> studies;
+    private VirtualStudyFilters filters;
 
-	private VirtualStudyFilters filters;
+    private String owner = "anonymous";
 
-	private String owner = "anonymous";
+    private Set<String> origin = new HashSet<>();
 
-	private Set<String> origin = new HashSet<>();
+    private Long created = System.currentTimeMillis();
 
-	private Long created = System.currentTimeMillis();
-	
-	private Set<String> users = new HashSet<>();
-	
-	private Float version = 1.0f;
+    private Set<String> users = new HashSet<>();
 
-	public String getName() {
-		return name;
-	}
+    private Float version = 1.0f;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public Set<VirtualStudySamples> getStudies() {
-		return studies;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public void setStudies(Set<VirtualStudySamples> studies) {
-		this.studies = studies;
-	}
+    public Set<VirtualStudySamples> getStudies() {
+        return studies;
+    }
 
-	public VirtualStudyFilters getFilters() {
-		return filters;
-	}
+    public void setStudies(Set<VirtualStudySamples> studies) {
+        this.studies = studies;
+    }
 
-	public void setFilters(VirtualStudyFilters filters) {
-		this.filters = filters;
-	}
+    public VirtualStudyFilters getFilters() {
+        return filters;
+    }
 
-	public String getOwner() {
-		return owner;
-	}
+    public void setFilters(VirtualStudyFilters filters) {
+        this.filters = filters;
+    }
 
-	public void setOwner(String owner) {
-		this.owner = owner;
-	}
+    public String getOwner() {
+        return owner;
+    }
 
-	public Set<String> getOrigin() {
-		if(origin == null || origin.size() == 0) {
-		    return studies.stream().map(map -> map.getId()).collect(Collectors.toSet());
-		}
-		return origin;
-	}
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
 
-	public void setOrigin(Set<String> origin) {
-		this.origin = origin;
-	}
+    public Set<String> getOrigin() {
+        if (origin == null || origin.size() == 0) {
+            return studies
+                .stream()
+                .map(map -> map.getId())
+                .collect(Collectors.toSet());
+        }
+        return origin;
+    }
 
-	public Long getCreated() {
-		return created;
-	}
+    public void setOrigin(Set<String> origin) {
+        this.origin = origin;
+    }
 
-	public void setCreated(Long created) {
-		this.created = created;
-	}
+    public Long getCreated() {
+        return created;
+    }
 
-	public Set<String> getUsers() {
-		return users;
-	}
+    public void setCreated(Long created) {
+        this.created = created;
+    }
 
-	public void setUsers(Set<String> users) {
-		this.users = users;
-	}
-	
-	public Float getVersion() {
-		return version;
-	}
+    public Set<String> getUsers() {
+        return users;
+    }
 
-	public void setVersion(Float version) {
-		this.version = version;
-	}
+    public void setUsers(Set<String> users) {
+        this.users = users;
+    }
+
+    public Float getVersion() {
+        return version;
+    }
+
+    public void setVersion(Float version) {
+        this.version = version;
+    }
 }

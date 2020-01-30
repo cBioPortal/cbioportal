@@ -16,5 +16,5 @@ import java.io.Serializable;
 public class DBPatient implements Serializable {
     public String id;
     public String internal_id;
-    public String study_id;   
+    public String study_id;
 }

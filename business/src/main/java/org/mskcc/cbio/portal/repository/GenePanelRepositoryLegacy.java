@@ -28,10 +28,11 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.repository;
 
+import java.util.*;
 /**
  *
  * @author heinsz
@@ -41,26 +42,23 @@ import org.cbioportal.model.*;
 import org.mskcc.cbio.portal.model.GenePanel;
 import org.mskcc.cbio.portal.model.GenePanelWithSamples;
 
-import java.util.*;
-
 public interface GenePanelRepositoryLegacy {
-    
-        List<GenePanelWithSamples> getGenePanelsByProfile(String profileId);
-        // TODO: All of the below methods are for importing purposes only. They should be
-        // removed once a proper import solution is put in place.
-        List<GenePanel> getGenePanelByStableId(String stableId);
-        List<GenePanel> getGenePanels();
-        MolecularProfile getGeneticProfileByStableId(String stableId);
-        Gene getGeneByEntrezGeneId(Integer geneId);
-        Gene getGeneByHugoSymbol(String symbol);
-        Gene getGeneByAlias(String symbol);
-        boolean sampleProfileMappingExistsByProfile(Integer profileId);
-        boolean sampleProfileMappingExistsByPanel(Integer panelId);
-        void insertGenePanel(Map<String, Object> map);
-        void deleteGenePanel(Integer internalId);        
-        void deleteGenePanelList(Integer internalId);    
-        void deleteSampleProfileMappingByProfile(Integer profileId);            
-        void deleteSampleProfileMappingByPanel(Integer panelId);
-        void insertGenePanelList(Map<String, Object> map);
-        void insertGenePanelListByHugo(Map<String, Object> map);
+    List<GenePanelWithSamples> getGenePanelsByProfile(String profileId);
+    // TODO: All of the below methods are for importing purposes only. They should be
+    // removed once a proper import solution is put in place.
+    List<GenePanel> getGenePanelByStableId(String stableId);
+    List<GenePanel> getGenePanels();
+    MolecularProfile getGeneticProfileByStableId(String stableId);
+    Gene getGeneByEntrezGeneId(Integer geneId);
+    Gene getGeneByHugoSymbol(String symbol);
+    Gene getGeneByAlias(String symbol);
+    boolean sampleProfileMappingExistsByProfile(Integer profileId);
+    boolean sampleProfileMappingExistsByPanel(Integer panelId);
+    void insertGenePanel(Map<String, Object> map);
+    void deleteGenePanel(Integer internalId);
+    void deleteGenePanelList(Integer internalId);
+    void deleteSampleProfileMappingByProfile(Integer profileId);
+    void deleteSampleProfileMappingByPanel(Integer panelId);
+    void insertGenePanelList(Map<String, Object> map);
+    void insertGenePanelListByHugo(Map<String, Object> map);
 }

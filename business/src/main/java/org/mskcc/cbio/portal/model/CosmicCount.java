@@ -3,7 +3,6 @@ package org.mskcc.cbio.portal.model;
 import java.io.Serializable;
 
 public class CosmicCount implements Serializable {
-
     private String cosmicMutationId;
     private String proteinChange;
     private String keyword;
